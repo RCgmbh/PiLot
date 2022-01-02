@@ -9,6 +9,8 @@ these areas:
   - Environmental data (temperature, air pressure, humidity)
   - Logbook function recording boat setup, diary texts and photos 
 
+![image](https://user-images.githubusercontent.com/96988699/147884549-9ee8c785-b57f-4b62-8d9d-29f2223b39c1.png)
+
 The PiLot sets up a WiFi access point and a web server, and the entire functionality
 can be used with any device connected to the access point, using any browser.
 
