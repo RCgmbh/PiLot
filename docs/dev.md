@@ -5,7 +5,7 @@ This document gives an overview of what is needed to build, test and debug the P
 You need to be able to compile and debug dotnet core projects in order to build the rest api and the different tools. You can either use [Visual Studio Code](https://code.visualstudio.com/) (multi platform), [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) on Windows, or just the [dotnet SDK](https://dotnet.microsoft.com/en-us/download). For the web application, F12 should usually do.
 
 ### Get the code
-Clone the entire pilotCore solution from github. Either use git, or the built-in functions in Visual Studio.
+Clone the entire Pilot solution from github. Either use git, or the built-in functions in Visual Studio.
 
 ### nginx
 nginx is used to deliver static content (the entire web gui) and the map tiles. We will also configure it to forward api calls to the port on which our REST API runs in the debugger.
@@ -18,7 +18,7 @@ This example shows the step-by-step setup of a PiLot development environment on 
 
 Install the dotnet core SDK as described [here](https://docs.microsoft.com/en-us/dotnet/core/install/linux-debian)
 
-Install and configure git, and get the pilotCore repo (replace the [brackets] by your actual github account data. The "double quotes" remain):
+Install and configure git, and get the PiLot repo (replace the [brackets] by your actual github account data. The "double quotes" remain):
 ```
 sudo apt install git
 git config --global user.name "[username]"
