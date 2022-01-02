@@ -61,12 +61,7 @@ location /api/{
 	proxy_pass http://127.0.0.1:5000;
 }
 ```
-save the file. We also want to give nginx read permissions to the web content. We do this by giving anyone read permissions:
-```
-cd ~/Documents
-chmod -R a+r repos/PiLot/PiLotWeb
-``` 
-Finally we restart nginx:
+save the file. Finally we restart nginx:
 ```
 sudo systemctl restart nginx
 ```
