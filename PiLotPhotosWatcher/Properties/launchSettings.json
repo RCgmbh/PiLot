@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PiLotPhotosWatcher": {
+      "commandName": "Project",
+      "commandLineArgs": "\"C:\\Users\\Martin\\Desktop\\in\" \"C:\\Users\\Martin\\Desktop\\out\" process verbose"
+    }
+  }
+}

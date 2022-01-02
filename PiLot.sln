@@ -1,0 +1,110 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30309.148
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotModel", "PiLotModel\PiLotModel.csproj", "{0568D877-324B-4AFE-9129-9F2943711DFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotUtils", "PiLotUtils\PiLotUtils.csproj", "{8B906C17-41B4-45C3-B2C3-D9A68F7ABAFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDataPostgres", "PiLotDataPostgres\PiLotDataPostgres.csproj", "{1D43912A-4CB2-45CC-8872-E3D6D5B41D32}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotAPIProxy", "PiLotAPIProxy\PiLotAPIProxy.csproj", "{60E9F504-8C23-40BE-8CA9-B59D2BB37212}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotSensors", "PiLotSensors\PiLotSensors.csproj", "{7DDB2B2C-B672-4F4F-A462-E1096B6124D0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotAPI", "PiLotAPICore\PiLotAPI.csproj", "{AA045642-C5F6-4B34-ABB1-7816B226AF08}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotLiveClient", "PiLotLiveClient\PiLotLiveClient.csproj", "{FEDDD430-4B42-4E85-9BC4-86DF977418FD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPowerAPI", "PiLotPowerAPI\PiLotPowerAPI.csproj", "{298E5664-E887-4ECA-A0C4-D496FE8138E9}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDataFiles", "PiLotDataFiles\PiLotDataFiles.csproj", "{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}"
+EndProject
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "PiLotWeb", "http://localhost/PiLotWeb", "{8724624A-39B4-46D4-BF5F-AD477BB33B99}"
+	ProjectSection(WebsiteProperties) = preProject
+		UseIISExpress = "false"
+		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
+		Debug.AspNetCompiler.VirtualPath = "/PiLotWeb"
+		Debug.AspNetCompiler.PhysicalPath = "PiLotWeb\"
+		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\PiLotWeb\"
+		Debug.AspNetCompiler.Updateable = "true"
+		Debug.AspNetCompiler.ForceOverwrite = "true"
+		Debug.AspNetCompiler.FixedNames = "false"
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.VirtualPath = "/PiLotWeb"
+		Release.AspNetCompiler.PhysicalPath = "PiLotWeb\"
+		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\PiLotWeb\"
+		Release.AspNetCompiler.Updateable = "true"
+		Release.AspNetCompiler.ForceOverwrite = "true"
+		Release.AspNetCompiler.FixedNames = "false"
+		Release.AspNetCompiler.Debug = "False"
+		SlnRelativePath = "PiLotWeb\"
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPhotosWatcher", "PiLotPhotosWatcher\PiLotPhotosWatcher.csproj", "{ED5B51D6-3644-4733-B562-C0B7ED994067}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{0B397FE6-E244-4B1F-AF48-DA88C8B27C4A}"
+	ProjectSection(SolutionItems) = preProject
+		docs\dev.md = docs\dev.md
+		docs\user.md = docs\user.md
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0568D877-324B-4AFE-9129-9F2943711DFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0568D877-324B-4AFE-9129-9F2943711DFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0568D877-324B-4AFE-9129-9F2943711DFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0568D877-324B-4AFE-9129-9F2943711DFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B906C17-41B4-45C3-B2C3-D9A68F7ABAFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B906C17-41B4-45C3-B2C3-D9A68F7ABAFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B906C17-41B4-45C3-B2C3-D9A68F7ABAFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B906C17-41B4-45C3-B2C3-D9A68F7ABAFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D43912A-4CB2-45CC-8872-E3D6D5B41D32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D43912A-4CB2-45CC-8872-E3D6D5B41D32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D43912A-4CB2-45CC-8872-E3D6D5B41D32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D43912A-4CB2-45CC-8872-E3D6D5B41D32}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60E9F504-8C23-40BE-8CA9-B59D2BB37212}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60E9F504-8C23-40BE-8CA9-B59D2BB37212}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60E9F504-8C23-40BE-8CA9-B59D2BB37212}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60E9F504-8C23-40BE-8CA9-B59D2BB37212}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DDB2B2C-B672-4F4F-A462-E1096B6124D0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DDB2B2C-B672-4F4F-A462-E1096B6124D0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DDB2B2C-B672-4F4F-A462-E1096B6124D0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DDB2B2C-B672-4F4F-A462-E1096B6124D0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AA045642-C5F6-4B34-ABB1-7816B226AF08}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AA045642-C5F6-4B34-ABB1-7816B226AF08}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AA045642-C5F6-4B34-ABB1-7816B226AF08}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AA045642-C5F6-4B34-ABB1-7816B226AF08}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FEDDD430-4B42-4E85-9BC4-86DF977418FD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FEDDD430-4B42-4E85-9BC4-86DF977418FD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FEDDD430-4B42-4E85-9BC4-86DF977418FD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FEDDD430-4B42-4E85-9BC4-86DF977418FD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{298E5664-E887-4ECA-A0C4-D496FE8138E9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{298E5664-E887-4ECA-A0C4-D496FE8138E9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{298E5664-E887-4ECA-A0C4-D496FE8138E9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{298E5664-E887-4ECA-A0C4-D496FE8138E9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8724624A-39B4-46D4-BF5F-AD477BB33B99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8724624A-39B4-46D4-BF5F-AD477BB33B99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8724624A-39B4-46D4-BF5F-AD477BB33B99}.Release|Any CPU.ActiveCfg = Debug|Any CPU
+		{8724624A-39B4-46D4-BF5F-AD477BB33B99}.Release|Any CPU.Build.0 = Debug|Any CPU
+		{ED5B51D6-3644-4733-B562-C0B7ED994067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED5B51D6-3644-4733-B562-C0B7ED994067}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED5B51D6-3644-4733-B562-C0B7ED994067}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED5B51D6-3644-4733-B562-C0B7ED994067}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {DFF59E6D-1CB2-45D7-9337-DF815740F907}
+	EndGlobalSection
+EndGlobal

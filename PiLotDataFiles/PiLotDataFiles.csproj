@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>PiLot.Data.Files</AssemblyName>
+    <RootNamespace>PiLot.Data.Files</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="SixLabors.ImageSharp" Version="1.0.4" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+    <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
+  </ItemGroup>
+
+</Project>

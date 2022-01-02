@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>PiLot.APIProxy</RootNamespace>
+    <AssemblyName>PiLot.APIProxy</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Text.Json" Version="6.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+    <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
+  </ItemGroup>
+
+</Project>

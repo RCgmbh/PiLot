@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>PiLot.Data.Postgres</AssemblyName>
+    <RootNamespace>PiLot.Data.Postgres</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="4.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+    <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
+  </ItemGroup>
+
+</Project>

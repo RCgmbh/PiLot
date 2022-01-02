@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <AssemblyName>PiLot.LiveClient</AssemblyName>
+    <RootNamespace>PiLot.LiveClient</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PiLotAPIProxy\PiLotAPIProxy.csproj" />
+    <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+    <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="config.pilot2.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,13 @@
+{
+	"short_name": "PiLOT",
+	"name": "PiLOT Navigation and Logbook App",
+	"icons": [
+		{
+			"src": "favicon.png",
+			"sizes": "64x64",
+			"type": "image/png"
+		}
+	],
+	"start_url": "index.html",
+	"display": "fullscreen"
+}

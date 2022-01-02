@@ -1,0 +1,114 @@
+﻿.logbookEntry { max-width: 31.75em; min-width: 31.75em; display: flex; flex-wrap: wrap; justify-content: space-between; }
+.logbookEntry .titleContainer { display: flex; flex-grow: 1; width: 100%; }
+.logbookEntry .tbTitle { width: 20.5em; }
+.logbookEntry .lblTitle { flex-grow: 1; }
+.logbookBoxes { display: flex; justify-content: space-between; flex-grow: 1; }
+.logbookBox { min-height: 11em; padding: 0.125em 0.25em; border: 1px solid #ccc; width: 10.5em; }
+.logbookBox .label { width: 3.5em; display: inline-block; }
+.logbookBox .labelSmall { width: 2.3em; display: inline-block; }
+.logbookBox .labelIcon { width: 1.75em; display: inline-block; }
+.logbookBox .labelIcon i { font-size: 1.25em; }
+.logbookBox .inlineTextbox { border-style: initial; padding-right: 0.125em; }
+.logbookEntry .linkButton { flex-grow: 1; }
+.logbookMeteo { background-color: #fafafa; }
+.logbookNav { background-color: #fafafa; }
+.logbookBoat { width: 10em; height: 11em; padding: 0em; position:relative; }
+
+.pnlPublish {max-width:100em; min-width:25em;}
+.pnlPublish > div{display:flex; }
+.pnlPublish > div.title {}
+.pnlPublish > div.title > div.center {flex: 0 0 20%; font-weight:600;}
+.pnlPublish > div.title > div.summary {flex: 0 0 40%; }
+.pnlPublish div.map {min-height:10em;height:30vh; min-width:10em; border:1px solid #333}
+.pnlPublish .diaryText {flex: 1 0 10em; overflow:auto;font-size:0.75em;line-height:1.25em;max-height:50vh;}
+.pnlPublish .logbookEntries, .pnlPublish .logbookEntries, .pnlPublish .photos {width: calc(50% - 2em); max-height:9em; overflow:auto; background-color:#eee;}
+.pnlPublish .logbookEntries > div{white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+.pnlPublish .photos {width: 50%; max-width: 50%; max-height:50vh; overflow:auto; display:flex; flex-wrap:wrap; justify-content:space-evenly;}
+.pnlPublish .photos > div {width: 138px; padding-top: 5px; text-align:center; display: flex; flex-direction: column; justify-content: flex-end; margin: 5px; }
+.pnlPublish .photos > div img {display: block; margin-left:auto; margin-right: auto; max-height:128px; max-width:128px; }
+.pnlPublish .photos > div .label{max-width: 128px;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
+.pnlPublish .photos > div .label label{font-size:0.75em; }
+
+.pnlJobInfo { 
+	position: absolute;
+	border: 1px solid #666;
+	background-color:white;
+	box-shadow: 0.25em 0.25em 0.5em #666;
+	z-index:3500;
+	left:0; right:0; margin-left:auto; margin-right: auto;
+	width: 30em; min-width: 20em; max-width: 95vw;
+}
+
+.pnlJobInfo .pnlMessages{max-height:15em; overflow:auto;}
+
+/* night styles for logbook */
+body.night .logbookBox{border-color:#999}
+body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
+
+.boatSetupForm { position: absolute; z-index:1500; background-color: #eee; border: 1px solid #ccc; width: 21.5em; min-height: 10em; margin: 0em; padding: 0.125em 0.25em; box-shadow: 0.125em 0.125em 0.5em 0em rgba(125, 125, 125, 0.5); }
+
+.paper { padding: 0.25em 0.5em; }
+
+.diaryPhotos{position:relative; height:95vh; width:100%;}
+.diaryPhotos .rcImageGallery{ background-color:#fff;}
+.diaryPhotos .rcImageGallery:focus { outline: none !important; background-color: #D8E9FF; }
+
+body.night .diaryPhotos .rcImageGallery { background-color: #000;  border-color: #111 #222 #222 #111;}
+body.night .diaryPhotos .rcImageGallery:focus { background-color: #092C56; }
+body.nightTransition .diaryPhotos .rcImageGallery { transition: background-color 1s, color 1s, border-color 1s }
+
+.thumbnail { box-shadow: 0.125em 0.125em 0.25em 0 #666; margin: 0.125em 0 0 0.125em; }
+.thumbnail:hover { box-shadow: 0.25em 0.25em 0.25em 0 #666; margin:0em 0.125em 0.125em 0em; }
+.photoScreen {
+	position: fixed;
+	width: 100%;
+	height: 100%;
+	top: 0%;
+	left: 0%;
+	z-index: 10000;
+	background-color: rgba(0, 0, 0, 1);
+	box-shadow: 0em 0em 0.5em 0.25em #000;
+	border-radius: 0em;
+	border: 1px solid white;
+	text-align:center;	
+}
+
+.photoScreen .photo{
+	max-width:100%; max-height:100%;
+}
+
+.photoScreen .lnkPrevious, .photoScreen .lnkNext {
+	position:absolute;
+	text-align:center;
+	top:0px;
+	display:block;
+	color:#eee;
+	height:100%;
+	width: 4em;
+	background-color:#333;
+	transition: all 0.2s
+}
+
+.photoScreen .lnkPrevious {
+	left: 0px;
+}
+
+.photoScreen .lnkNext {
+	right: 0px;
+}
+
+.photoScreen .lnkPrevious:hover, .photoScreen .lnkNext:hover{
+	color:#fff; background-color:#666;
+}
+
+.photoScreen .lnkPrevious > i, .photoScreen .lnkNext > i {font-size:2em; top:50%; position:absolute;}
+.photoScreen .lnkPrevious > i {left:0.5em;}
+.photoScreen .lnkNext > i {right:0.5em;}
+
+.rcCalendar.diaryCalendar { width: calc(100vw - 40px); max-width:40em; right:10px; }
+.rcCalendar.diaryCalendar .datesTable td { height:4em; }
+.rcCalendar.diaryCalendar .datesTable td a, .rcCalendar.diaryCalendar .datesTable td a:active, .rcCalendar.diaryCalendar .datesTable td a:visited {padding-top:0.25em;}
+.rcCalendar.diaryCalendar .icons { margin-top:0.25em;}
+.rcCalendar.diaryCalendar .icons>i {margin:0em 0.125em; color:#666;}
+
+.rcCalendar.logbookCalendar{right:10px;}

@@ -1,0 +1,48 @@
+[
+	{
+		"deviceType": "PiLot",
+		"id": "pilot1",
+		"interval": 120,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"id": "temperature1",
+				"name": "temperature2",
+				"displayName": "Aussentemperatur",
+				"tags": [ "meteo" ],
+				"sortOrder": 2
+			},
+			{
+				"sensorType": "pressure",
+				"id": "pressure1",
+				"name": "pressure1",
+				"displayName": "Luftdruck",
+				"tags": [ "meteo" ],
+				"sortOrder": 3
+			}
+		]
+	},
+	{
+		"deviceType": "PiLot",
+		"id": "pilot4",
+		"interval": 120,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"id": "temperature1",
+				"name": "temperature1",
+				"displayName": "Innentemperatur",
+				"tags": [ "meteo" ],
+				"sortOrder": 1
+			},
+			{
+				"sensorType": "humidity",
+				"id": "humidity1",
+				"name": "humidity1",
+				"displayName": "Luftfeuchtigkeit",
+				"tags": [ "meteo" ],
+				"sortOrder": 4
+			}
+		]
+	}
+]

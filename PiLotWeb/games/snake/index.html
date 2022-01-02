@@ -1,0 +1,101 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>PiLOT</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<link rel="shortcut icon" href="../../favicon.png" type="image/png" />
+	<script src="../../js/3rdParty/jQuery/jquery-3.3.1.min.js"></script>
+	<script src="../../js/3rdParty/jQuery/jquery-ui.min.js"></script>
+	<script src="../../js/Utils/Common.js"></script>
+	<script src="../../js/View/Common.js"></script>
+	<script src="../../js/Templates/Common.js"></script>
+	<script src="snake.js" type="text/javascript"></script>
+	<link href="../../css/defaultV01.css" rel="stylesheet" type="text/css" />
+	<link href="../../css/fonts.css" rel="stylesheet" type="text/css" />
+	<style>
+		html, body { width: 100%; height: 100%; margin: 0px; padding: 0px; background-color: black; color: white; }
+		html, body, input, textarea, p, div { font-family: Segoe-UI, Arial; }
+		body { font-size: 1.2em; }
+		.gameContainer { padding: 2em 1em; display: block; text-align: center; margin-top: auto; margin-bottom: auto; }
+		.board { display: inline-block; background-color: white; line-height: 0.5em; }
+		.gameControls { display: inline-block; margin-left: 1em; vertical-align: top; text-align: left; }
+		.board > div { display: inline-block; width: 1em; height: 1em; margin: 0em; padding: 0em; }
+			.board > div.snakeApple { background-color: red; border-radius: 50%; }
+			.board > div.snakeHead { background-color: black; border-radius: 20%; }
+			.board > div.snakeTail { background-color: black; border-radius: 50%; width: 0.75em; height: 0.75em; margin: 0.125em; }
+				.board > div.snakeTail.last { background-color: black; border-radius: 50%; width: 0.5em; height: 0.5em; margin: 0.25em; }
+		.score { display: inline-block; border: 1px solid white; font-size: 2em; line-height: 1.5em; min-width: 1.5em; height: 1.5em; text-align: center; padding: 0em 0.25em; margin-bottom: 1em; }
+		.optionsContainer { display: inline-block; width: 15em; text-align: left; margin-top: 3em; }
+		.ui-slider { position: relative; text-align: left; background-color: #333; }
+		.slider.ui-slider-horizontal { height: 0.6em; }
+		.ui-slider .ui-slider-handle { position: absolute; z-index: 2; width: 1.2em; height: 1.2em; border: 1px solid #666; background-color: #768E96; border-radius: 20%; cursor: default; -ms-touch-action: none; touch-action: none; }
+		.ui-slider-horizontal .ui-slider-handle { top: -0.3em; margin-left: -0.6em; }
+		body.night .board { background-color: #445256; }
+		body.night .snakeApple { background-color: #A53030; }
+		.board { transition: background-color 1s; }
+
+		.sideMenu { margin-top: 5em; }
+			.sideMenu.expanded { width: 14em; }
+				.sideMenu.expanded > .option { width: 13em; }
+					.sideMenu.expanded > .option > .label { width: 9.5em; }
+
+
+		@media screen and (max-height: 900px) {
+			body { font-size: 1em; }
+		}
+
+		@media screen and (min-width: 1920px) {
+			body { font-size: 1.4em; }
+		}
+	</style>
+</head>
+
+	<body>
+		<div class="gameContainer">
+			<div class="paddingRight inlineBlock" style="vertical-align:top;">
+				<a href="../../index.html?p=games"><i class="icon-arrow-left marginRight"></i>Zurück</a>
+			</div>
+			<div id="board" class="board"></div>
+			<div class="gameControls">
+				<div id="divScore" class="score">0</div><br />
+				<div class="optionsContainer">
+					<a href="#" id="lnkStartGame"><i class="icon-play2 marginRight"></i>Spielen</a>
+					<a href="#" id="lnkPauseGame" class="hidden"><i class="icon-pause marginRight"></i>Pause</a>
+				</div><br />
+				<div class="optionsContainer">
+					Level <span id="snakeLevel"></span><br />
+					<div class="slider"></div>
+				</div><br />
+				<div class="optionsContainer">
+					<strong>Steuerung</strong><br />
+					<input type="radio" name="controlMode" id="rbNSWE" value="NSWE" checked="checked" />
+					<label for="rbNSWE">Oben-Unten-Links-Rechts</label><br />
+					<input type="radio" name="controlMode" id="rbLeftRight" value="leftRight" />
+					<label for="rbLeftRight">Links-Rechts</label>
+				</div><br />
+				<div class="optionsContainer">
+					<a class="linkButton btnNightMode" onclick="return PiLot.Utils.Common.setNightMode(true);" href="#" title="Nachtmodus"><i class="icon-moon"></i></a>
+					<a class="linkButton btnDayMode" onclick="return PiLot.Utils.Common.setNightMode(false);" href="#" title="Tagmodus"><i class="icon-sun2"></i></a>
+				</div>
+			</div>
+		</div>
+		<script>
+
+			new PiLot.View.Common.TouchButtons();
+			new SnakeGame.Controller({
+				board: document.querySelector('#board'),
+				divScore: document.querySelector('#divScore'),
+				lblLevel: document.querySelector('#snakeLevel'),
+				slider: document.querySelector('.slider'),
+				lnkStart: document.querySelector('#lnkStartGame'),
+				lnkPause: document.querySelector('#lnkPauseGame'),
+				rbNSWE: document.querySelector('#rbNSWE'),
+				rbLR: document.querySelector('#rbLeftRight'),
+				lblLevel: document.querySelector('#snakeLevel')
+			});
+
+		</script>
+	</body>
+</html>

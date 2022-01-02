@@ -1,0 +1,240 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<title>PiLOT - Game Of Life</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<link rel="shortcut icon" href="../../favicon.png" type="image/png" />
+	<style>
+		html, body{height: 100%; margin: 0px; padding:0px; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif}
+		h1 {margin: 0px;}
+		body { display:flex; flex-direction:column; }
+		#container { flex-grow: 1; display: flex; flex-direction: column; }
+		#container > div { flex: 1 1 ; display: flex; flex-direction: row; }
+		#container > div > div { flex: 1 1 1em; border: 1px solid black; border-radius: 5%; margin: 1px; transition: background-color 0.1s; }
+		#container > div > div.alive{background-color:#666;}
+		#controls {padding: 1em; flex-grow: 0;}
+		.hidden{display:none;}
+	</style>
+	<script>
+
+		var Game = function () {
+			this.rowsCount = 0;
+			this.colsCount = 0;
+			this.interval = null;
+			this.cells = null;
+			this.cellSize = 40;
+			this.speed = 400;
+		};
+
+		Game.prototype = {
+
+			create: function () {
+				const container = document.querySelector('#container');
+				this.rowsCount = Math.floor(container.clientHeight / this.cellSize);
+				this.colsCount = Math.floor(container.clientWidth / this.cellSize);
+				this.clearContainer(container);
+				this.cells = new Array(this.rowsCount);
+				for (let r = 0; r < this.rowsCount; r++) {
+					const row = document.createElement('div');
+					container.appendChild(row);
+					this.cells[r] = new Array(this.colsCount);
+					for (let c = 0; c < this.colsCount; c++) {
+						let cell = this.createCell(r, c, row);
+						this.cells[r][c] = cell;
+					}
+				}
+			},
+
+			clearContainer: function (pContainer) {
+				while (pContainer.hasChildNodes()) {
+					pContainer.removeChild(pContainer.lastChild);
+				}
+			},
+
+			createCell: function (pRow, pColumn, pContainer) {
+				const control = document.createElement('div');
+				pContainer.appendChild(control);
+				return new Cell(control);
+			},
+
+			start: function () {
+				if (this.interval === null) {
+					this.interval = setInterval(this.process.bind(this), this.speed);
+				}
+			},
+
+			stop: function () {
+				if (this.interval !== null) {
+					clearInterval(this.interval);
+					this.interval = null;
+				}
+			},
+
+			shrinkCells: function () {
+				this.cellSize = Math.max(10, this.cellSize / 1.5);
+				this.create();
+			},
+
+			growCells: function () {
+				this.cellSize = Math.floor(this.cellSize * 1.5);
+				this.create();
+			},
+
+			changeSpeed(pFactor) {
+				this.speed = Math.max(25, this.speed * pFactor);
+				if (this.interval) {
+					this.stop();
+					this.start();
+				}
+			},
+
+			faster: function () {
+				this.changeSpeed(0.5);
+			},
+
+			slower: function () {
+				this.changeSpeed(2);
+			},
+
+			getCell: function (pRow, pCol) {
+				return this.cells[(pRow + this.rowsCount) % this.rowsCount][(pCol + this.colsCount) % this.colsCount];
+			},
+
+			process: function () {
+				this.forEachCell(this.processCell.bind(this));
+				this.forEachCell(this.applyCell.bind(this));
+			},
+
+			processCell: function (pRow, pColumn) {
+				let livingNeighbours = 0;
+				for (let r = pRow - 1; (r <= pRow + 1) && (livingNeighbours < 4); r++) {
+					for (let c = pColumn - 1; (c <= pColumn + 1) && (livingNeighbours < 4) ; c++) {
+						if ((r !== pRow) || (c !== pColumn)) {
+							const neighbourCell = this.getCell(r, c);
+							if ((neighbourCell !== null) && neighbourCell.alive) {
+								livingNeighbours++;
+							}
+						}
+					}
+				}
+				const cell = this.getCell(pRow, pColumn);
+				if (livingNeighbours === 3) {
+					cell.aliveNew = true;
+				} else if ((livingNeighbours < 2) || (livingNeighbours > 3)) {
+					cell.aliveNew = false;
+				}
+			},
+
+			applyCell: function (pRow, pColumn) {
+				const cell = this.getCell(pRow, pColumn);
+				cell.apply();
+			},
+
+			forEachCell: function (pFunction) {
+				for (let r = 0; r < this.rowsCount; r++) {
+					for (let c = 0; c < this.colsCount; c++) {
+						pFunction(r, c);
+					}
+				}
+			}
+		};
+
+		var Cell = function (pControl) {
+			this.control = pControl;
+			this.alive = false;
+			this.aliveNew = null;
+			this.initialize();
+		};
+
+		Cell.prototype = {
+
+			initialize: function () {
+				this.control.addEventListener('click', this.onclick.bind(this));
+			},
+
+			onclick: function () {
+				this.alive = !this.alive;
+				this.updateControl();
+			},
+
+			apply: function () {
+				if (this.aliveNew !== null) {
+					this.alive = this.aliveNew;
+					this.aliveNew = null;
+				}				
+				this.updateControl();
+			},
+
+			updateControl: function () {
+				this.control.classList.toggle('alive', this.alive);
+			}
+		};
+
+	</script>
+</head>
+<body>
+	<div style="padding-bottom:0.5em"><a href="../../index.html?p=games">&lt;&lt; zurück</a></div>
+	<h1>Game of Life</h1>
+	<div id="container">
+	</div>
+	<div id="controls">
+		<a href="#" onclick="createGame(); return false">Reset</a> |
+		<a href="#" onclick="startGame(); return false" id="btnStart">Start</a>
+		<a href="#" onclick="stopGame(); return false" id="btnStop" class="hidden">Stop</a> |
+		<a href="#" onclick="growCells(); return false">Bigger Cells</a> |
+		<a href="#" onclick="shrinkCells(); return false">Smaller Cells</a> |
+		<a href="#" onclick="faster(); return false">Faster</a> |
+		<a href="#" onclick="slower(); return false">Slower</a> | Speed: <span id="lblSpeed"></span>
+	</div>
+	<script>
+
+		var game = null;
+
+		function createGame() {
+			game = game || new Game();
+			game.create();
+		}
+
+		function startGame() {
+			game.start();
+			document.querySelector('#btnStart').classList.toggle('hidden', true);
+			document.querySelector('#btnStop').classList.toggle('hidden', false);
+		}
+
+		function stopGame() {
+			game.stop();
+			document.querySelector('#btnStart').classList.toggle('hidden', false);
+			document.querySelector('#btnStop').classList.toggle('hidden', true);
+		}
+
+		function shrinkCells() {
+			game.shrinkCells();
+		}
+
+		function growCells() {
+			game.growCells();
+		}
+
+		function faster() {
+			game.faster();
+			showSpeed();
+		}
+
+		function slower() {
+			game.slower();
+			showSpeed();
+		}
+
+		function showSpeed() {
+			document.querySelector('#lblSpeed').innerText = game.speed;
+		}
+
+		createGame();
+		showSpeed();
+
+	</script>
+</body>
+
+</html>

@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>PiLOT</title>
+		<meta charset="UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta name="mobile-web-app-capable" content="yes" />
+		<link rel="shortcut icon" href="../../favicon.png" type="image/png" />
+		<script src="../../js/3rdParty/jQuery/jquery-3.3.1.min.js" type="text/javascript"></script>
+		<script src="../../js/3rdParty/jQuery/jquery-ui.min.js" type="text/javascript"></script>
+		<script src="../../js/Utils/Common.js" type="text/javascript"></script>
+		<script src="../../js/View/Common.js" type="text/javascript"></script>
+		<link href="../../css/defaultV01.css" rel="stylesheet" type="text/css" />
+		<link href="../../css/fonts.css" rel="stylesheet" type="text/css" />
+		<style>
+			div.board { width: 44em; height: 44em; padding: 2em; margin: 0em 8em; position: absolute; box-shadow: 0.125em 0.125em 0.8em rgba(33, 33, 33, 0.8); border-radius: 0.5em; }
+			div.outer { width: 40em; height: 40em; position: absolute; }
+			div.inner { width: 50%; height: 50%; }
+			div.outer, div.inner { display: block; float: left; }
+			div.middle { position: absolute; height: 66%; width: 66%; margin: 17%; }
+			div.center { position: absolute; height: 34%; width: 34%; margin: 33%; background-color: white; }
+			div.outer, div.inner, div.middle, div.center { border-color: black; border-style: solid; }
+			div.middle, div.center { border-width: 0.5em; }
+			div.outer, div.inner { border-width: 0.25em; }
+			div.stone { width: 4em; height: 4em; border-radius: 50%; border: 0.4em dotted #666644; box-shadow: 0.125em 0.125em 0.5em rgba(33, 33, 33, 0.8); position: absolute; z-index: 10; }
+				div.stone.white { background-color: #faffda; left: 56em }
+				div.stone.black { background-color: #112211; left: 1em; }
+
+			body.night, body.night div.center { background-color: rgba(79, 62, 53, 1); }
+				body.night div.stone.white { background-color: rgba(117, 99, 91, 1); }
+				body.night div.stone { border-color: #333322; }
+		</style>
+	</head>
+
+	<body>
+		<div class="paddingAll " style="vertical-align:top;float:left;">
+			<a href="../../index.html?p=games"><i class="icon-arrow-left marginRight"></i>Zurück</a>
+
+		</div>
+		<div class="right paddingAll">
+			<a class="linkButton btnNightMode" onclick="return btnNightMode_click();" href="#" title="Nachtmodus"><i class="icon-moon"></i></a>
+			<a class="linkButton btnDayMode" onclick="return btnDayMode_click()" href="#" title="Tagmodus"><i class="icon-sun2"></i></a>
+		</div>
+		<div class="board">
+			<div class="outer">
+				<div class="inner"></div>
+				<div class="inner"></div>
+				<div class="inner"></div>
+				<div class="inner"></div>
+				<div class="middle"></div>
+				<div class="center"></div>
+			</div>
+		</div>
+		<div class="stone black" style="top:14em"></div>
+		<div class="stone black" style="top:16em"></div>
+		<div class="stone black" style="top:18em"></div>
+		<div class="stone black" style="top:20em"></div>
+		<div class="stone black" style="top:22em"></div>
+		<div class="stone black" style="top:24em"></div>
+		<div class="stone black" style="top:26em"></div>
+		<div class="stone black" style="top:28em"></div>
+		<div class="stone black" style="top:30em"></div>
+		<div class="stone white" style="top:14em"></div>
+		<div class="stone white" style="top:16em"></div>
+		<div class="stone white" style="top:18em"></div>
+		<div class="stone white" style="top:20em"></div>
+		<div class="stone white" style="top:22em"></div>
+		<div class="stone white" style="top:24em"></div>
+		<div class="stone white" style="top:26em"></div>
+		<div class="stone white" style="top:28em"></div>
+		<div class="stone white" style="top:30em"></div>
+		<script>
+			$(document).ready(function () { $('.stone').draggable(); });
+
+			const nightModeHandler = new PiLot.View.Common.NightModeHandler();
+
+			function btnNightMode_click() {
+				nightModeHandler.setNightMode(true);
+				return false;
+			}
+
+			function btnDayMode_click() {
+				nightModeHandler.setNightMode(false);
+				return false;
+			}
+
+		</script>
+	</body>
+</html>

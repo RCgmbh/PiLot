@@ -1,0 +1,1 @@
+dotnet publish -r linux-arm --self-contained false -c release
