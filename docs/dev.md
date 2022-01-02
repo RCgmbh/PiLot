@@ -32,9 +32,9 @@ mkdir repos
 And finally clone the PiLot repo:
 ```
 cd repos
-git clone https://github.com/Didosa/piLotCore
+git clone https://github.com/RCgmbh/PiLot
 ```
-Note: you will need a Personal access token, which you can create in the [Github Settings](https://github.com/settings/tokens). In the command line, when asked for the password, enter the token instead.
+Note: Usually you don't have to authenticate. If so, you will need a Personal access token, which you can create in the [Github Settings](https://github.com/settings/tokens). In the command line, when asked for the password, enter the token instead.
 
 Install [Visual Studio Code](https://code.visualstudio.com/Download). Download the latest version, then `cd ~/Downloads` and `sudo apt install ./code_1.63.2-1639562499.deb` (or whatever your file is called)
 
@@ -54,7 +54,7 @@ Make sure to have the following content within the server-block.
 The path has to match the path to your repos directory.
 ```
 location /PiLotWeb/ {
-	root /home/[username]/Documents/repos/piLotCore;
+	root /home/[username]/Documents/repos/PiLot;
 }
 
 location /api/{
@@ -64,7 +64,7 @@ location /api/{
 save the file. We also want to give nginx read permissions to the web content. We do this by giving anyone read permissions:
 ```
 cd ~/Documents
-chmod -R a+r repos/piLotCore/PiLotWeb
+chmod -R a+r repos/PiLot/PiLotWeb
 ``` 
 Finally we restart nginx:
 ```
@@ -85,7 +85,7 @@ There are a few data files that we need, so we just copy them from the repo into
 
 ```
 cd ~/Documents
-cp -R repos/piLotCore/PiLotApiCore/App_Data/* piLotDev/data/
+cp -R repos/PiLot/PiLotApiCore/App_Data/* piLotDev/data/
 ```
 
 Now we need to enter the data and log paths into a bunch of config files (always replace [username] by your actual username).
