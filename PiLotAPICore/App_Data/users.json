@@ -1,0 +1,17 @@
+﻿[
+	{
+		"username": "admin",
+		"pwd": "secret",
+		"rolename": "admin"
+	},
+	{
+		"username": "test",
+		"pwd": "8888",
+		"rolename": "writer"
+	},
+	{
+		"username": "guest",
+		"pwd": "1234",
+		"rolename": "reader"
+	}
+]

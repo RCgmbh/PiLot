@@ -1,0 +1,35 @@
+﻿{
+	"roles": [
+		{
+			"name": "noaccess"
+		},
+		{
+			"name": "reader",
+			"canRead": true
+		},
+		{
+			"name": "writer",
+			"canRead": true,
+			"canWrite": true
+		},
+		{
+			"name": "superuser",
+			"canRead": true,
+			"canWrite": true,
+			"canChangeSettings": true
+		},
+		{
+			"name": "admin",
+			"canRead": true,
+			"canWrite": true,
+			"canChangeSettings": true,
+			"hasSystemAccess": true
+		},
+		{
+			"name": "peer",
+			"canRead": true,
+			"canWrite": true
+		}
+	],
+	"anonymousRole": "writer"
+}

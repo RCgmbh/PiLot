@@ -1,0 +1,156 @@
+{
+	"displayName":  "Haber 800",
+	
+	"features": [
+		{
+			"featureId": 1,
+			"name": "Grossegel",
+			"states": [
+				{ "name": "nicht gesetzt", "stateId": 1 },
+				{ "name": "gesetzt", "stateId": 2 },
+				{ "name": "Reff 1", "stateId": 3 },
+				{ "name": "Reff 2", "stateId": 4 }
+			]			
+		},
+		{
+			"featureId": 2,
+			"name": "Genua",
+			"states": [
+				{ "name": "nicht gesetzt", "stateId": 1 },
+				{ "name": "gesetzt", "stateId": 2 },
+				{ "name": "gerefft", "stateId": 3 }
+			]
+		},
+		{
+			"featureId": 3,
+			"name": "Fock",
+			"states": [
+				{ "name": "nicht gesetzt", "stateId": 1 },
+				{ "name": "gesetzt", "stateId": 2 },
+				{ "name": "gerefft", "stateId": 3 }
+			]
+		},
+		{
+			"featureId": 4,
+			"name": "Anker",
+			"states": [
+				{ "name": "oben", "stateId": 1 },
+				{ "name": "unten", "stateId": 2 }
+			]
+		},
+		{
+			"featureId": 5,
+			"name": "Motor",
+			"states": [
+				{ "name": "aus", "stateId": 1 },
+				{ "name": "ein", "stateId": 2 }
+			]
+		},
+		{
+			"featureId": 6,
+			"name": "Mooring",
+			"states": [
+				{ "name": "auf See", "stateId": 1 },
+				{ "name": "Festgemacht", "stateId": 2 },
+				{ "name": "In der Schleuse", "stateId": 3 }
+			]
+		}
+	],
+
+	"boatSetups":[
+		{
+			"name":"Festgemacht",
+			"featureStates":[
+				{"featureId": 1, "stateId": 1},
+				{"featureId": 2, "stateId": 1},
+				{"featureId": 3, "stateId": 1},
+				{"featureId": 4, "stateId": 1},
+				{"featureId": 5, "stateId": 1},
+				{"featureId": 6, "stateId": 2}
+			]	
+		},
+		{
+			"name":"Unter Motor",
+			"featureStates":[
+				{"featureId": 1, "stateId": 1},
+				{"featureId": 2, "stateId": 1},
+				{"featureId": 3, "stateId": 1},
+				{"featureId": 4, "stateId": 1},
+				{"featureId": 5, "stateId": 2},
+				{"featureId": 6, "stateId": 1}
+			]	
+		},
+		{
+			"name":"Unter Vollzeug",
+			"featureStates":[
+				{"featureId": 1, "stateId": 2},
+				{"featureId": 2, "stateId": 2},
+				{"featureId": 3, "stateId": 2},
+				{"featureId": 4, "stateId": 1},
+				{"featureId": 5, "stateId": 1},
+				{"featureId": 6, "stateId": 1}
+			]	
+		},
+		{
+			"name":"Vor Anker",
+			"featureStates":[
+				{"featureId": 1, "stateId": 1},
+				{"featureId": 2, "stateId": 1},
+				{"featureId": 3, "stateId": 1},
+				{"featureId": 4, "stateId": 2},
+				{"featureId": 5, "stateId": 1},
+				{"featureId": 6, "stateId": 1}
+			]	
+		}
+	],
+
+	"boatImageUrl":"img/Haber800Cutter.svg",
+
+	"featureGuis": [
+		{
+			"featureId": 1,
+			"guis": [
+				{ "stateId": 1, "svgObjectId": "mainSailNone" },
+				{ "stateId": 2, "svgObjectId": "mainSailFull" },
+				{ "stateId": 3, "svgObjectId": "mainSailReef1" },
+				{ "stateId": 4, "svgObjectId": "mainSailReef2" }
+			]
+		},
+		{
+			"featureId": 2,
+			"guis": [
+				{ "stateId": 1, "svgObjectId": "genuaNone" },
+				{ "stateId": 2, "svgObjectId": "genuaFull" },
+				{ "stateId": 3, "svgObjectId": "genuaReef1" }
+			]
+		},
+		{
+			"featureId": 3,
+			"guis": [
+				{ "stateId": 1, "svgObjectId": "jibNone" },
+				{ "stateId": 2, "svgObjectId": "jibFull" },
+				{ "stateId": 3, "svgObjectId": "jibReef1" }
+			]
+		},
+		{
+			"featureId": 4,
+			"guis": [
+				{ "stateId": 2, "svgObjectId": "anchorDown"
+				}
+			]
+		},
+		{
+			"featureId": 5,
+			"guis": [
+				{ "stateId": 2, "svgObjectId": "engineOn" }
+			]
+		},
+		{
+			"featureId": 6,
+			"guis": [
+				{ "stateId": 2, "svgObjectId": "pier" },
+				{ "stateId": 3, "svgObjectId": "lock;lockGates" }
+			]
+		}
+	]
+}

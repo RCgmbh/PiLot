@@ -1,0 +1,77 @@
+{
+	"displayName":  "Cruiser",
+	
+	"features": [
+		{
+			"featureId": 1,
+			"name": "Paddler 1",
+			"states": [
+				{ "name": "Nicht an Bord", "stateId": 1 },
+				{ "name": "Ruhend", "stateId": 2 },
+				{ "name": "Paddelnd", "stateId": 3 }
+			]
+		},
+		{
+			"featureId": 2,
+			"name": "Ort",
+			"states": [
+				{ "name": "auf See", "stateId": 1 },
+				{ "name": "Festgemacht", "stateId": 2 },
+				{ "name": "An Land",  "stateId": 3 },
+				{ "name": "Auf dem Wagen", "stateId": 4 }
+			]
+		}
+	],
+	
+	"boatSetups": [
+		{
+			"name": "An Land",
+			"featureStates": [
+				{"featureId": 1, "stateId": 1},
+				{"featureId": 2, "stateId": 3}
+			]
+		},
+		{
+			"name": "Unterwegs",
+			"featureStates": [
+				{"featureId": 1, "stateId": 3},
+				{"featureId": 2, "stateId": 1}
+			]
+		},
+		{
+			"name": "Pause",
+			"featureStates": [
+				{"featureId": 1, "stateId": 2},
+				{"featureId": 2, "stateId": 2}
+			]
+		},
+		{
+			"name": "Auf dem Wagen",
+			"featureStates": [
+				{"featureId": 1, "stateId": 1},
+				{"featureId": 2, "stateId": 4}
+			]
+		}
+	],
+
+	"boatImageUrl":"img/Cruiser320.svg",
+
+	"featureGuis": [
+		{
+			"featureId": 1,
+			"guis": [
+				{ "stateId": 2, "svgObjectId": "bodyResting" },
+				{ "stateId": 3, "svgObjectId": "bodyPaddling;paddle" }
+			]
+		},
+		{
+			"featureId": 2,
+			"guis": [
+				{ "stateId": 1, "svgObjectId": "shadow1;water" },
+				{ "stateId": 2, "svgObjectId": "shadow1;water;moored" },
+				{ "stateId": 3, "svgObjectId": "shadow1;landFull" },
+				{ "stateId": 4, "svgObjectId": "shadow2;landFull;wheel" }
+			]
+		}	
+	]
+}

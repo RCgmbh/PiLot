@@ -1,0 +1,173 @@
+{
+	"displayName":  "Esmeralda",
+
+	"features": [
+		{
+			"featureId": 1,
+			"name": "Grossegel",
+			"states": [
+				{ "name": "nicht gesetzt","stateId": 1 },
+				{ "name": "gesetzt", "stateId": 2 },
+				{ "name": "gerefft", "stateId": 3 }
+			]
+		},
+		{
+			"featureId": 2,
+			"name": "Fock",
+			"states": [
+				{ "name": "nicht gesetzt", "stateId": 1 },
+				{ "name": "Gesetzt (normale Fock)", "stateId": 2 },
+				{ "name": "Gesetzt (Sturmfock)", "stateId": 3 }
+			]
+		},
+		{
+			"featureId": 4,
+			"name": "Anker",
+			"states": [
+				{ "name": "oben", "stateId": 1 },
+				{ "name": "unten", "stateId": 2 }
+			]
+		},
+		{
+			"featureId": 5,
+			"name": "Motor",
+			"states": [
+				{ "name": "nicht montiert", "stateId": 1 },
+				{ "name": "aus", "stateId": 2 },
+				{ "name": "an", "stateId": 3 }
+			]
+		},
+		{
+			"featureId": 7,
+			"name": "Sonnenschirm",
+			"states": [
+				{ "name": "nicht montiert", "stateId": 1 },
+				{ "name": "montiert", "stateId": 2 }
+			]
+		},
+		{
+			"featureId": 6,
+			"name": "Ort",
+			"states": [
+				{ "name": "auf See", "stateId": 1 },
+				{ "name": "Festgemacht", "stateId": 2 }
+			]
+		}
+	],
+
+	"boatSetups": [
+		{
+			"name": "Festgemacht",
+			"featureStates": [
+				{ "featureId": 1, "stateId": 1 },
+				{ "featureId": 2, "stateId": 1 },
+				{ "featureId": 4, "stateId": 1 },
+				{ "featureId": 5, "stateId": 2 },
+				{ "featureId": 6, "stateId": 2 },
+				{ "featureId": 7, "stateId": 1 }
+			]
+		},    {
+			"name": "Motor an, leinen los, Segel weg",
+			"featureStates": [
+				{ "featureId": 1, "stateId": 1 },
+				{ "featureId": 2, "stateId": 1 },
+				{ "featureId": 4, "stateId": 1 },
+				{ "featureId": 5, "stateId": 3 },
+				{ "featureId": 6, "stateId": 1 },
+				{ "featureId": 7, "stateId": 1 }
+			]
+		},{
+			"name": "Segel gesetzt, Motor aus",
+			"featureStates": [
+				{ "featureId": 1, "stateId": 2 },
+				{ "featureId": 2, "stateId": 2 },
+				{ "featureId": 4, "stateId": 1 },
+				{ "featureId": 5, "stateId": 2 },
+				{ "featureId": 6, "stateId": 1 },
+				{ "featureId": 7, "stateId": 1 }
+			]
+		},{
+			"name": "Anker unten, Sonnenschirm gesetzt",
+			"featureStates": [
+				{ "featureId": 1, "stateId": 1 },
+				{ "featureId": 2, "stateId": 1 },
+				{ "featureId": 4, "stateId": 2 },
+				{ "featureId": 5, "stateId": 2 },
+				{ "featureId": 6, "stateId": 1 },
+				{ "featureId": 7, "stateId": 2 }
+			]
+		}
+	],
+
+	"boatImageUrl":"img/Esmeralda.svg",
+
+	"featureGuis": [
+		{
+			"featureId": 1,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "mainSailFull"
+				},
+				{
+					"stateId": 3,
+					"svgObjectId": "mainSailReef"
+				}
+			]
+		},
+		{
+			"featureId": 2,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "jibFull"
+				},
+
+				{
+					"stateId": 3,
+					"svgObjectId": "stormJib"
+				}
+			]
+		},
+		{
+			"featureId": 4,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "anchorDown"
+				}
+			]
+		},
+		{
+			"featureId": 5,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "engineUp"
+				},
+				{
+					"stateId": 3,
+					"svgObjectId": "engineDown;engineOn"
+				}
+			]
+		},
+		{
+			"featureId": 6,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "dock;pontoon"
+				}
+			]
+		},
+		{
+			"featureId": 7,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "umbrella"
+				}
+			]
+		}
+	]
+}

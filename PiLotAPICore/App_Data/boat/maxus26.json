@@ -1,0 +1,126 @@
+{
+	"displayName":  "Maxus 26",
+
+	"features": [
+		{
+			"featureId": 1,
+			"name": "Grossegel",
+			"states": [
+				{
+					"name": "nicht gesetzt",
+					"stateId": 1
+				},
+				{
+					"name": "gesetzt",
+					"stateId": 2
+				}
+			]
+		},
+		{
+			"featureId": 2,
+			"name": "Fock",
+			"states": [
+				{
+					"name": "nicht gesetzt",
+					"stateId": 1
+				},
+				{
+					"name": "Gesetzt",
+					"stateId": 2
+				}
+			]
+		},
+		{
+			"featureId": 4,
+			"name": "Anker",
+			"states": [
+				{
+					"name": "oben",
+					"stateId": 1
+				},
+				{
+					"name": "unten",
+					"stateId": 2
+				}
+			]
+		},
+		{
+			"featureId": 5,
+			"name": "Motor",
+			"states": [
+				{
+					"name": "aus",
+					"stateId": 1
+				},
+				{
+					"name": "ein",
+					"stateId": 2
+				}
+			]
+		},
+		{
+			"featureId": 6,
+			"name": "Ort",
+			"states": [
+				{
+					"name": "auf See",
+					"stateId": 1
+				},
+				{
+					"name": "Festgemacht",
+					"stateId": 2
+				}
+			]
+		}
+	],
+
+	"boatImageUrl":"img/Maxus26.svg",
+
+	"featureGuis": [
+		{
+			"featureId": 1,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "mainFull"
+				}
+			]
+		},
+		{
+			"featureId": 2,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "jibFull"
+				}
+			]
+		},
+		{
+			"featureId": 4,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "anchorDown"
+				}
+			]
+		},
+		{
+			"featureId": 5,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "engineOn"
+				}
+			]
+		},
+		{
+			"featureId": 6,
+			"guis": [
+				{
+					"stateId": 2,
+					"svgObjectId": "dock;pontoon"
+				}
+			]
+		}
+	]
+}

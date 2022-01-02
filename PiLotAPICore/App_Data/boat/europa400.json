@@ -1,0 +1,77 @@
+{
+	"displayName":  "Europa 400",
+	
+	"features": [
+		{
+			"featureId": 1,
+			"name": "Anker",
+			"states": [
+				{
+					"name": "oben",
+					"stateId": 1
+				},
+				{
+					"name": "unten",
+					"stateId": 2
+				}
+			]
+		},
+		{
+			"featureId": 2,
+			"name": "Motor",
+			"states": [
+				{
+					"name": "aus",
+					"stateId": 1
+				},
+				{
+					"name": "ein",
+					"stateId": 2
+				}
+			]
+		},
+		{
+			"featureId": 3,
+			"name": "Mooring",
+			"states": [
+				{
+					"name": "auf See",
+					"stateId": 1
+				},
+				{
+					"name": "Festgemacht",
+					"stateId": 2
+				},
+				{
+					"name": "In der Schleuse",
+					"stateId": 3
+				}
+			]
+		}
+	],
+
+	"boatImageUrl":"img/Europa400.svg",
+
+	"featureGuis": [
+		
+		{
+			"featureId": 1,
+			"guis": [
+				{ "stateId": 2, "svgObjectId": "anchorDown" }
+			]
+		},
+		{
+			"featureId": 2,
+			"guis": [
+				{ "stateId": 2, "svgObjectId": "engineOn" }
+			]
+		},
+		{
+			"featureId": 3,
+					"guis": [
+						{ "stateId": 2, "svgObjectId": "pier" },
+						{ "stateId": 3, "svgObjectId": "lock;lockGates" }
+					]
+		}
+	]
+}
