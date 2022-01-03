@@ -6,8 +6,7 @@
  * */
 PiLot.Config = {
 
-	apiUrl: 'http://localhost/api/v1',			// the relative url of the API
-	//apiUrl: 'http://localhost/PiLotAPI/api/v1',			// the relative url of the .net classic API
+	apiUrl: 'http://localhost/PiLotAPICore/api/v1',
 
 	Nav: {
 		GPSObserver : {
@@ -20,7 +19,6 @@ PiLot.Config = {
 
 	System: {
 		Admin: {
-			services: ['gpsLogger', 'photosWatcher', 'sensorsLogger', 'renderd'],
 			servicesUpdateInterval: 2	// interval to update service status, in seconds
 		}
 	},
