@@ -10,6 +10,17 @@ namespace PiLot.API.Controllers {
 	public class ServicesController : ControllerBase {
 
 		/// <summary>
+		/// Gets the list of all available services
+		/// </summary>
+		/// <returns>An arrray, might be empty, but not null</returns>
+		[Route("api/v1/Services")]
+		[HttpGet]
+		[ServiceFilter(typeof(SystemAuthorizationFilter))]
+		public String[] Get() {
+			return new SystemHelper().GetServices();
+		}
+
+		/// <summary>
 		/// Gets the status of a service
 		/// </summary>
 		/// <param name="id">The Name of the Service</param>

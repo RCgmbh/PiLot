@@ -193,26 +193,27 @@ PiLot.View.Admin = (function () {
 	var ServicesPage = function () {
 
 		this.serviceInfos = null;
-		this.initialize();
+		this.initializeAsync();
 
 	};
 
 	ServicesPage.prototype = {
 
-		initialize: function () {
+		initializeAsync: async function () {
 			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
-			this.draw();
+			await this.drawAsync();
 			this.startServiceTimer();
 		},
 
-		draw: function () {
+		drawAsync: async function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Admin.servicesPage));
 			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			const plhServices = contentArea.querySelector('.plhServices');
 			this.serviceInfos = new Array();
-			PiLot.Config.System.Admin.services.forEach(function (s) {
+			const services = await PiLot.Model.Admin.getServicesAsync();
+			services.forEach(function (s) {
 				this.serviceInfos.push(new ServiceInfo(s, plhServices));
 			}.bind(this));
 		},

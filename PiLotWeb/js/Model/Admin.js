@@ -30,9 +30,18 @@ PiLot.Model.Admin = (function () {
 		return await PiLot.Utils.Common.putToServerAsync(`/System/date?millisUtc=${millisUtc}`);
 	}
 
+	/**
+	 * Gets the list of all services the web gui is allowed to see and manage
+	 * @returns {String[]}
+	 * */
+	var getServicesAsync = async function () {
+		return await PiLot.Utils.Common.getFromServerAsync ('/Services');
+	}
+
 	return {
 		LogFilesLoader: LogFilesLoader,
-		setServerTime: setServerTime
+		setServerTime: setServerTime,
+		getServicesAsync: getServicesAsync
 	};
 
 })();
