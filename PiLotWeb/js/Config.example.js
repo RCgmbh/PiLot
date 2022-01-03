@@ -6,7 +6,7 @@
  * */
 PiLot.Config = {
 
-	apiUrl: 'http://localhost/PiLotAPICore/api/v1',
+	apiUrl: 'http://localhost/api/v1',
 
 	Nav: {
 		GPSObserver : {
