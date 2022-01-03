@@ -67,7 +67,7 @@ sudo systemctl restart nginx
 ```
 It's time for some configuration work.
 
-- In PiLotWeb/js/Config.js, set apiUrl: http://localhost/api/v1
+Copy **PiLotWeb/js/Config.example.js** to **PiLotWeb/js/Config.js**, set apiUrl: http://localhost/api/v1
 
 Create the data and log directories for the development environment. They can be anywhere, I choose the "Documents" directory. In the production environment, we will need to make sure the right user hat write permissions. But as for now we run the api with our personal login, things will be fine in the Documents directory.
 ```
@@ -84,6 +84,7 @@ cp -R repos/PiLot/PiLotApiCore/App_Data/* piLotDev/data/
 ```
 
 Now we need to enter the data and log paths into a bunch of config files (always replace [username] by your actual username). The repo contains .example files, which need to be copied to the actual config files. These are excluded from git, so that changes remain local.
+
 Copy **PiLotAPICore/app.example.config** to **PiLotAPICore/app.config**, and set `value="/home/[username]/Documents/piLotDev/data"` where `key="dataDir"` and `value="/home/[username]/Documents/piLotDev/data"` where `key=logfilePath`, or whatever directories you just created before.
 
 Copy **PiLotSensors/app.example.config** to **PiLotSensors/app.config**, and update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/piLotDev/data/sensors/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/api/v1`.
