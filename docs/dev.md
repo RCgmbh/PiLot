@@ -83,10 +83,10 @@ cd ~/Documents
 cp -R repos/PiLot/PiLotApiCore/App_Data/* piLotDev/data/
 ```
 
-Now we need to enter the data and log paths into a bunch of config files (always replace [username] by your actual username).
-In **PiLotAPICore/app.config**, set `value="/home/[username]/Documents/piLotDev/data"` where `key="dataDir"` and `value="/home/[username]/Documents/piLotDev/data"` where `key=logfilePath`, or whatever directories you just created before.
+Now we need to enter the data and log paths into a bunch of config files (always replace [username] by your actual username). The repo contains .example files, which need to be copied to the actual config files. These are excluded from git, so that changes remain local.
+Copy **PiLotAPICore/app.example.config** to **PiLotAPICore/app.config**, and set `value="/home/[username]/Documents/piLotDev/data"` where `key="dataDir"` and `value="/home/[username]/Documents/piLotDev/data"` where `key=logfilePath`, or whatever directories you just created before.
 
-For **PiLotSensors/App.config**, update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/piLotDev/data/sensors/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/api/v1`.
+Copy **PiLotSensors/app.example.config** to **PiLotSensors/app.config**, and update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/piLotDev/data/sensors/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/api/v1`.
 
 Now it's time for a first test. In VS Code, hit F5 so that the API gets started. In a browser, enter http://localhost/PiLotWeb. In the best of all cases, this will launch the PiLot web app. In the normal case, hit F12 and spend some time fixing all the issues - things you did wrong, things that I have forgotten or mixed up in the above description.
 
