@@ -65,10 +65,6 @@ save the file. Finally we restart nginx:
 ```
 sudo systemctl restart nginx
 ```
-It's time for some configuration work.
-
-Copy **PiLotWeb/js/Config.example.js** to **PiLotWeb/js/Config.js**, set apiUrl: http://localhost/api/v1
-
 Create the data and log directories for the development environment. They can be anywhere, I choose the "Documents" directory. In the production environment, we will need to make sure the right user hat write permissions. But as for now we run the api with our personal login, things will be fine in the Documents directory.
 ```
 cd ~/Documents
@@ -82,8 +78,11 @@ There are a few data files that we need, so we just copy them from the repo into
 cd ~/Documents
 cp -R repos/PiLot/PiLotApiCore/App_Data/* piLotDev/data/
 ```
+Now it's time to update some configuration files. The repo contains .example files, which need to be copied to the actual config files. These are excluded from git, so that changes remain local.
 
-Now we need to enter the data and log paths into a bunch of config files (always replace [username] by your actual username). The repo contains .example files, which need to be copied to the actual config files. These are excluded from git, so that changes remain local.
+Copy **PiLotWeb/js/Config.example.js** to **PiLotWeb/js/Config.js**, and set apiUrl: http://localhost/api/v1
+
+We need to enter the data- and log paths into a bunch of config files (always replace [username] by your actual username). 
 
 Copy **PiLotAPICore/app.example.config** to **PiLotAPICore/app.config**, and set `value="/home/[username]/Documents/piLotDev/data"` where `key="dataDir"` and `value="/home/[username]/Documents/piLotDev/data"` where `key=logfilePath`, or whatever directories you just created before.
 
