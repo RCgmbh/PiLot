@@ -2,14 +2,14 @@
 
 The PiLot is a Raspberry Pi based system used for boating. It's used with any device having a browser and wifi. Its completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
 
-Features:
+## Features:
 
 **Maps**
 - Offline maps (osm and openseamap)
 - GPS Position on the map
 - Historic track on the map
 - Course and speed over ground vector
-- Waypoints showing distance, bearing and ETA on the map
+- Waypoints on the map, showing distance, bearing and ETA
 
 **Routes**
 - Define an unlimited number of routes
@@ -18,10 +18,10 @@ Features:
 
 **GPS data**
 - Position
-- GOG
-- SOG
-- VMG
-- XTE
+- COG (course over ground)
+- SOG (speed over ground)
+- VMG (velocity made good)
+- XTE (cross track error)
 
 **Logbook**
 - Create logbook entries automatically fed with meteo and GPS data
@@ -43,13 +43,15 @@ Features:
 - Games
 - eBook library
 
-**Tools**
+**Other**
 - Export track as gpx, csv, json or tabular data
 - Download offline maps for any desired region and detail level
 - Publish diary data to any other pilot
 - Online live tracking
 - Configurable Boattime (when moving from one timezone to the other)
 - User management with specific permission levels
+- Night mode
+- Responsive user interface adapting to all sizes of screens
 
 ## Getting started 
 ### For users
