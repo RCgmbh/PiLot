@@ -7,7 +7,7 @@ namespace PiLot.Model.Nav {
 	/// <summary>
 	/// Represents one GPS record
 	/// </summary>
-	public class GpsRecord {
+	public class GpsRecord : IComparable<GpsRecord> {
 
 		private const Char SEPARATOR = ';';
 
@@ -187,6 +187,13 @@ namespace PiLot.Model.Nav {
 		/// <returns></returns>
 		public DateTime GetUTCDate() {
 			return DateTimeHelper.FromJSTime(this.UTC);
+		}
+
+		/// <summary>
+		/// Default comparison based on UTC
+		/// </summary>
+		public Int32 CompareTo(GpsRecord pRecord) {
+			return this.UTC.CompareTo(pRecord.UTC);
 		}
 
 		#endregion

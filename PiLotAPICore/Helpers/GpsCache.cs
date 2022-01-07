@@ -123,7 +123,9 @@ namespace PiLot.API.Helpers {
 				GpsRecord lastRecord = this.records[0];
 				if (this.previousSavedRecord != null) {
 					deltaT = lastRecord.UTC - this.previousSavedRecord.UTC;
-					deltaX = GeoHelper.Haversine(lastRecord.Latitude.Value, this.previousSavedRecord.Latitude.Value, lastRecord.Longitude.Value, this.previousSavedRecord.Longitude.Value);
+					LatLon latestPosition = new LatLon(lastRecord.Latitude.Value, lastRecord.Longitude.Value);
+					LatLon previousPosition = new LatLon(this.previousSavedRecord.Latitude.Value, this.previousSavedRecord.Longitude.Value);
+					deltaX = latestPosition.DistanceTo(previousPosition);
 					doPersist = (deltaT >= MINDELTAT) && (deltaX > MINDISTANCE);
 				} else {
 					doPersist = true;
