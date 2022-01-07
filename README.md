@@ -1,18 +1,57 @@
 # PiLot
 
-The PiLot is a Raspberry Pi based system used for boating. It provides functionality in
-these areas:
-- Offline maps, showing current position and direction, waypoints and track
-- Provide current navigation data, such as position, CoG, SoG, VMG, ETA
-- Collect and provide historical data about your trips, such as:
-  - GPS track
-  - Environmental data (temperature, air pressure, humidity)
-  - Logbook function recording boat setup, diary texts and photos 
+The PiLot is a Raspberry Pi based system used for boating. It's used with any device having a browser and wifi. Its completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
 
-![image](https://user-images.githubusercontent.com/96988699/147884549-9ee8c785-b57f-4b62-8d9d-29f2223b39c1.png)
+## Features:
 
-The PiLot sets up a WiFi access point and a web server, and the entire functionality
-can be used with any device connected to the access point, using any browser.
+**Maps**
+- Offline maps (osm and openseamap)
+- GPS Position on the map
+- Historic track on the map
+- Course and speed over ground vector
+- Waypoints on the map, showing distance, bearing and ETA
+
+**Routes**
+- Define an unlimited number of routes
+- Each route can have any number of waypoints
+- The route shows total distance, distance and bearing between each waypoint
+
+**GPS data**
+- Position
+- COG (course over ground)
+- SOG (speed over ground)
+- VMG (velocity made good)
+- XTE (cross track error)
+
+**Logbook**
+- Create logbook entries automatically fed with meteo and GPS data
+- Select boat setup (engine, sails etc, freely configurable) for each logbook entry
+- Create a logbook entry with one click, e.g. when leaving port or setting sails
+- Visualize the boat setup with freely configurable boat images
+
+**Diary**
+- Show logbook, diary text, track and photos for one day on the diary page
+
+**Meteo**
+- Show actual and historic sensor data
+- Temperature
+- Air pressure, with 48h barograph and trend indicator
+- Humidity
+- Moon phase
+
+**Entertainment**
+- Games
+- eBook library
+
+**Other**
+- Export track as gpx, csv, json or tabular data
+- Download offline maps for any desired region and detail level
+- Publish diary data to any other pilot
+- Online live tracking
+- Configurable Boattime (when moving from one timezone to the other)
+- User management with specific permission levels
+- Night mode
+- Responsive user interface adapting to all sizes of screens
 
 ## Getting started 
 ### For users
