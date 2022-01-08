@@ -53,6 +53,20 @@ The PiLot is a Raspberry Pi based system used for boating. It's used with any de
 - Night mode
 - Responsive user interface adapting to all sizes of screens
 
+## Screenthots
+
+The map with route, waypoint information, track, position and cog-vector:
+![map](docs/screenshots/map.png)
+
+The navigation data with waypoints:
+![nav](docs/screenshots/nav-border.png)
+
+The diary page:
+![diary](docs/screenshots/diary-border.png)
+
+The meteo page with all environment sensor data:
+![meteo](docs/screenshots/meteo-border.png)
+
 ## Getting started 
 ### For users
 If you have a bit of time and curiosity, you can set up your own PiLot at no cost (except
@@ -68,3 +82,6 @@ If you feel like contributing to the PiLot ecosystem, then you are more than wel
 HTML, vanilla Javascript and dotnet core with C#. No bloat, no frameworks, just straightworward
 code. All you need is your favourite IDE, the dotnet SDK, a webserver (such as nginx) and git.
 See [Getting started for developers](docs/dev.md) for further details.
+
+Using the PiLot on a kayak at night (for those who can't afford a proper yacht):
+![kayak](docs/screenshots/P1120729.jpg)
