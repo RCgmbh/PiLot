@@ -357,7 +357,11 @@ PiLot.Model.Logbook = (function () {
 		/// saves the LogbookEntry to the server and updates the entryId
 		saveAsync: async function () {
 			var result = await PiLot.Utils.Common.putToServerAsync(`/Logbook/entry`, this);
-			this.entryId = result.entryId;
+			if (result.ok) {
+				this.entryId = result.data.entryId;
+			} else {
+				PiLot.Utils.Common.log(`Error saving LogbookEntry`, 0);
+			}
 		},
 
 		/// deletes an entry from the logbook day and deletes the item 

@@ -624,7 +624,7 @@ PiLot.View.Nav = (function () {
 
 		initialize: async function () {
 			this.waypointForms = new Array();
-			this.drawForm();
+			await this.drawFormAsync();
 			this.route = await this.loadRoute();
 			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
 			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
@@ -726,7 +726,7 @@ PiLot.View.Nav = (function () {
 
 		/// draws the main form based on the template, only needs to
 		/// be called once.
-		drawForm: function () {
+		drawFormAsync: async function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(RC.Utils.stringToNode(PiLot.Templates.Nav.routeDetailPage));
 			let routeContainer = contentArea.querySelector('#divRoute');
@@ -757,7 +757,7 @@ PiLot.View.Nav = (function () {
 			this.divWaypoints = routeContainer.querySelector('.divWaypoints');
 			let mapContainer = contentArea.querySelector('#divMap');
 			this.map = new PiLot.View.Map.Seamap($(mapContainer));
-			this.map.showAsync();
+			await this.map.showAsync();
 		},
 
 		/// shows the route data and refreshes all waypoints
@@ -766,7 +766,7 @@ PiLot.View.Nav = (function () {
 			this.showTotalDistance();
 			this.showWaypoints();
 			this.showActiveState();
-			const lockRoute = PiLot.Permissions.canWrite() ? undefined : true;
+			const lockRoute = !PiLot.Permissions.canWrite();
 			new PiLot.View.Map.MapRoute(this.map, this.route, { showRoute: true, lockRoute: lockRoute, showOptions: false }).draw().fitMap();
 		},
 
