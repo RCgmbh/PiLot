@@ -32,7 +32,7 @@ PiLot.View.Map = (function () {
 						};
 						new PiLot.View.Map.MapRoute(map, pResults[0], mapRouteOptions).draw();
 					}
-					var mapTrack = new PiLot.View.Map.MapTrack(map, pResults[1], gpsObserver, { autoShowTrack: true, footerContainer: $('#footer') });
+					var mapTrack = new PiLot.View.Map.MapTrack(map, pResults[1], gpsObserver, { autoShowTrack: true });
 				});
 		},
 
@@ -379,7 +379,6 @@ PiLot.View.Map = (function () {
 		this.pnlCustomDates = null;
 		this.calStartDate = null;
 		this.calEndDate = null;
-		this.footerContainer = null;
 		this.timeSliderContainer = null;
 		this.timeSlider = null;
 		this.timeField = null;
@@ -395,7 +394,6 @@ PiLot.View.Map = (function () {
 
 		readOptions: function (pOptions) {
 			if (pOptions) {
-				this.footerContainer = pOptions.footerContainer || this.footerContainer;
 				this.ignoreSettings = pOptions.ignoreSettings || this.ignoreSettings;
 				this.showTrack = pOptions.showTrack || this.showTrack;
 				this.autoShowTrack = pOptions.autoShowTrack || this.autoShowTrack;
@@ -536,16 +534,11 @@ PiLot.View.Map = (function () {
 			RC.Utils.selectOnFocus(tbStartDate, tbEndDate);
 		},
 
-		/// adds the slider and binds events. Uses either the footerContainer passed as
-		/// an option, or adds it just after the map container
+		/// adds the slider and binds events. 
 		addTimeSlider: function () {
 			this.timeSliderContainer = $(PiLot.Templates.Map.mapTrackSlider);
 			this.timeSlider = this.timeSliderContainer.find('.slider');
-			if (this.footerContainer) {
-				this.footerContainer.append(this.timeSliderContainer);
-			} else {
-				this.map.getMapContainer().after(this.timeSliderContainer);
-			}
+			this.map.getMapContainer().after(this.timeSliderContainer);
 			this.timeSlider.slider({ min: 0, max: 1000 });
 			this.timeSlider.on('slide', this.timeSlider_slide.bind(this));
 			this.timeField = this.timeSliderContainer.find('.time');

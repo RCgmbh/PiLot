@@ -65,7 +65,7 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 .navCurrentPosition{display:inline-block; border:3px solid black; height:1em;width:1em; border-radius:0.5em;background-color:#eee; }
 .option.active > .navCurrentPosition {background-color:#FFBF49; }
 
-.mapSliderContainer {position: relative; width:calc(100% - 5em); bottom: 3.5em; left:5em; z-index: 650; }
+.mapSliderContainer {position: relative; width:calc(100% - 5em); bottom: 3.5em; left:5em; z-index: 650; margin-bottom:-2em; }
 #footer .mapSliderContainer { bottom: 0.5em; }
 .mapSliderContainer>.inner {display:inline-block; width:calc(95% - 8.6em);left: 5%;}
 .mapSliderContainer>.inner>.slider { background-color: rgba(125, 125, 125,0.25); height:0.75em; width: 100%; border: 1px solid #666; border-radius:3px;  }

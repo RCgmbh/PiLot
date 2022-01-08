@@ -149,48 +149,5 @@ PiLot.Templates.Tools = {
 				<div class="divMap navMap borderDark" style="height:80vh;"></div>
 			</div>
 		</div>
-	`,
-
-	/// main form for data import, allows to select the import source and the date
-	pi2piImportForm: `
-		<div class="marginBottomSmall">
-			<span class="col4 inlineBlock">Quelle</span><input type="text" class="input4 tbSource"
-			/><span class="col4 inlineBlock">Datum</span><input type="text" class="input4 tbDate" /><div class="divCalStartDate"></div>
-		</div>
-		<div class="marginBottomSmall">
-			<span class="col4 inlineBlock"></span><button type="button" class="input8 btnLoadData marginBottom">Daten laden</button>
-		</div>
-		<div class="marginBottomSmall">
-			<div class="col11 feedbackInfo divLoadingData hidden">Lade Daten...</div>
-		<div>
-		<div class="plhDataPreview"></div>
-	`,
-
-	/// summarizes the data for one day found on the client and compares it to the local data
-	pi2piImportPreview: `
-		<div>
-			<div class="plhGpsPreview marginBottomSmall">
-				<input type="checkbox" name="cbImportGps" class="cbImportGps" title="GPS Daten importieren" />
-			</div>
-			<div class="plhLogbookPreview marginBottomSmall">
-				<input type="checkbox" name="cbImportLogbook" class="cbImportLogbook" title=" />
-			</div>
-			<div class="plhPhotosPreview marginBottomSmall">
-				<input type="checkbox" name="cbImportPhotos" class="cbImportPhotos" />
-			</div>
-			<div class="marginBottomSmall">
-				<button type="button" class="input7 btnStartImport">Import starten</button>
-			</div>
-		</div>
-	`,
-
-	/// sommarizes the gps data for one day (either from the source or the current client)
-	pi2piGpsDataPreview: ``,
-
-	/// sommarizes the logbook data for one day (either from the source or the current client)
-	pi2piLogbookDataPreview: ``,
-
-	/// sommarizes the photos for one day (either from the source or the current client)
-	pi2piPhotosPreview: ``
-
+	`
 };
