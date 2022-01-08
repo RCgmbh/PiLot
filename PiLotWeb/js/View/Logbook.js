@@ -464,9 +464,7 @@ PiLot.View.Logbook = (function () {
 		this.itemContainer = null;			/// the control containing both the displayForm and the editForm
 		this.editForm = null;				/// the form used to show an item editable
 		this.tbTime = null;
-		this.btnRefreshTime = null;
 		this.tbTitle = null;
-		this.btnChangeEntryDate = null;
 		this.btnDeleteEntry = null;
 		this.tbNotes = null;
 		this.btnRefreshMeteo = null;
@@ -517,10 +515,6 @@ PiLot.View.Logbook = (function () {
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
-
-		btnRefreshTime_click: function () { },
-
-		btnChangeEntryDate_click: function () { },
 
 		/// handles click on the delete icon
 		btnDeleteEntry_click: function (e) {
@@ -577,11 +571,7 @@ PiLot.View.Logbook = (function () {
 				this.itemContainer.insertAdjacentElement('afterbegin', this.editForm);
 				RC.Utils.showHide(this.editForm, false);
 				this.tbTime = this.editForm.querySelector('.tbTime');
-				this.btnRefreshTime = this.editForm.querySelector('.btnRefreshTime');
-				this.btnRefreshTime.addEventListener('click', this.btnRefreshTime_click.bind(this));
 				this.tbTitle = this.editForm.querySelector('.tbTitle');
-				this.btnChangeEntryDate = this.editForm.querySelector('.btnChangeEntryDate');
-				this.btnChangeEntryDate.addEventListener('click', this.btnChangeEntryDate_click.bind(this));
 				this.btnDeleteEntry = this.editForm.querySelector('.btnDeleteEntry');
 				this.btnDeleteEntry.addEventListener('click', this.btnDeleteEntry_click.bind(this));
 				this.tbNotes = this.editForm.querySelector('.tbNotes');

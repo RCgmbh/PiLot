@@ -105,9 +105,9 @@ PiLot.Templates.Logbook = {
 	logbookEntryEditable: `
 		<div class="logbookEntry marginBottom">
 			<div class="marginBottomSmall block">
-				<input type="text" class="tbTime input3" placeholder="hh:mm"
-				/><a href="#" class="btnRefreshTime input1 inlineBlock marginRight"><i class="icon-clock"></i></a><input type="text" class="tbTitle marginRight" placeholder="Titel"
-				/><a href="#" class="btnChangeEntryDate inlineBlock marginRight hidden"><i class="icon-calendar"></i></a><a href="#" class="btnDeleteEntry inlineBlock"><i class="icon-bin"></i></a>
+				<span class="col1"><input type="text" class="tbTime input3" placeholder="hh:mm"
+				/></span><input type="text" class="tbTitle marginRight" placeholder="Titel"
+				/><a href="#" class="btnDeleteEntry inlineBlock"><i class="icon-bin"></i></a>
 			</div>
 			<div class="logbookBoxes marginBottomSmall">
 				<div class="plhBoatSetupForm hidden"></div>
