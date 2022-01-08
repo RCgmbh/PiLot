@@ -86,7 +86,7 @@ namespace PiLot.Model.Nav {
 		}
 
 		public override string ToString() {
-			return $"{this.Latitude} / {this.Longitude}";
+			return $"{this.Latitude:00.000} / {this.Longitude:000.000}";
 		}
 	}
 }
