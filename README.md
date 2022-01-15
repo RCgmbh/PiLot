@@ -1,6 +1,6 @@
 # PiLot
 
-The PiLot is a Raspberry Pi based system used for boating. It's used with any device having a browser and wifi. Its completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
+The PiLot is a Raspberry Pi based system used for boating. It's used with any device having a browser and wifi. It's completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
 
 ## Features:
 
@@ -53,18 +53,18 @@ The PiLot is a Raspberry Pi based system used for boating. It's used with any de
 - Night mode
 - Responsive user interface adapting to all sizes of screens
 
-## Screenthots
+## Screenshots
 
-The map with route, waypoint information, track, position and cog-vector:
+Map with route, waypoint information, track, position and cog-vector:
 ![map](docs/screenshots/map.png)
 
-The navigation data with waypoints:
+Navigation data with waypoints:
 ![nav](docs/screenshots/nav-border.png)
 
-The diary page:
+Diary page:
 ![diary](docs/screenshots/diary-border.png)
 
-The meteo page with all environment sensor data:
+Meteo page with all environment sensor data:
 ![meteo](docs/screenshots/meteo-border.png)
 
 ## Getting started 
