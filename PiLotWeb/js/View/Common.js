@@ -327,7 +327,7 @@ PiLot.View.Common = (function () {
 			}, {
 				section: pages.system,
 				links: [
-					{ page: pages.system.settings.overview, html: '<i class="icon-equalizer3"></i>', auth: PiLot.Permissions.canChangeSettings },
+					{ page: pages.system.settings.overview, html: '<i class="icon-equalizer3"></i>' },
 					{ page: pages.system.tools.overview, html: '<i class="icon-tools"></i>' },
 					{ page: pages.system.admin.overview, html: '<i class="icon-terminal"></i>', auth: PiLot.Permissions.hasSystemAccess }
 				]

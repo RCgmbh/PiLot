@@ -357,6 +357,7 @@ PiLot.View.Nav = (function () {
 				this.liveRoute = new LiveRoute($(navPage), this.routeObserver);
 			}
 			new TelemetryOptions(contentArea, this, this.liveRoute);
+			PiLot.Utils.Language.applyTexts(navPage);
 		},
 
 		setShowCoordinates: function (pShow) {

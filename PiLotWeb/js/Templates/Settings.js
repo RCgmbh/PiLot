@@ -5,17 +5,23 @@ PiLot.Templates = PiLot.Templates || {};
 PiLot.Templates.Settings = {
 
 	settingsOverviewPage: `<div class="contentPadding">
-		<h1>Einstellungen</h1>
+		<h1 data-key="settings"></h1>
 		<a href="" class="lnkTime tile big">
 			<div>
 				<span class="symbol"><i class="icon-time2"></i></span>
-				<span class="label">Bordzeit</span>
+				<span class="label" data-key="boatTime"></span>
 			</div>
 		</a>
 		<a href="" class="lnkBoatConfig tile big">
 			<div>
 				<span class="symbol"><i class="icon-sailing-boat-water1"></i></span>
-				<span class="label">Boots-Config</span>
+				<span class="label" data-key="boatConfig"></span>
+			</div>
+		</a>
+		<a href="" class="lnkLanguage tile big">
+			<div>
+				<span class="symbol"><i class="icon-bubbles4"></i></span>
+				<span class="label" data-key="language"></span>
 			</div>
 		</a>
 	</div>`,
@@ -32,6 +38,12 @@ PiLot.Templates.Settings = {
 				<canvas id="clockCanvas"></canvas>
 			</div>
 		</div>
-	`
+	`,
 
+	languagePage: `
+		<div class="contentPadding">
+			<h1><a href="#" class="lnkSettings" data-key="settings"></a> : <span data-key="language"></span></h1>
+			<select class="input6 ddlLanguages"></select>
+		</div>
+	`
 }

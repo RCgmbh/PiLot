@@ -43,7 +43,8 @@ PiLot.Utils.Loader = (function () {
 			settings: {
 				overview: 'settings',
 				boat: 'boat',
-				boatTime: 'boattime'
+				boatTime: 'boattime',
+				language: 'language'
 			},
 			tools: {
 				overview: 'tools',
@@ -63,6 +64,8 @@ PiLot.Utils.Loader = (function () {
 	/// we define arrays of scripts, each with its priority. Scripts
 	/// with a lower number for priority will be loaded before scripts
 	/// with a higher number. 
+
+
 	const defaultScripts = [
 		{ url: 'js/3rdParty/jQuery/jquery-3.3.1.min.js', priority: 1 },
 		{ url: 'js/3rdParty/jQuery/jquery-ui.min.js', priority: 5 },
@@ -171,6 +174,7 @@ PiLot.Utils.Loader = (function () {
 		loadPage: function () {
 			this.page = RC.Utils.getUrlParameter(PAGEKEY) || pages.home;
 			let pageScripts = this.getPageScripts();
+			this.addLanguageReference(pageScripts.dependencies);
 			new PiLot.Utils.Loader.ScriptLoader(pageScripts.dependencies, this.onScriptsLoaded.bind(this, pageScripts.startAction));
 		},
 
@@ -252,6 +256,10 @@ PiLot.Utils.Loader = (function () {
 					dependencies = [defaultScripts, boatScripts];
 					startAction = function () { new PiLot.View.Boat.BoatPage(); };
 					break;
+				case pages.system.settings.language:
+					dependencies = [defaultScripts, settingsScripts];
+					startAction = function () { new PiLot.View.Settings.LanguagePage(); };
+					break;
 				case pages.system.admin.overview:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.AdminOverviewPage(); };
@@ -286,6 +294,15 @@ PiLot.Utils.Loader = (function () {
 				});				
 			});
 			return { dependencies: dependenciesFlat, startAction: startAction };
+		},
+
+		/**
+		 * This adds the language-specific texts depending on the current language
+		 * @param {Array} pDependencies - The flat array with dependencies: Array of {url, priority}
+		 */
+		addLanguageReference: function (pDependencies) {
+			const langKey = PiLot.Utils.Language.getLanguage();
+			pDependencies.push({ url: `js/Texts/${langKey}.js`, priority: 1 });
 		},
 
 		/**
