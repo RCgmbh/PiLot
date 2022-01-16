@@ -12,7 +12,7 @@ PiLot.Templates.Map = {
 			</a> \
 		</div>',
 
-	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden">Keine aktuellen GPS Daten.</div>`,
+	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-key="noGpsData">Keine aktuellen GPS-Daten</div>`,
 
 	mapWaypointPopup: '\
 		<div class="mapWaypointPopup"> \

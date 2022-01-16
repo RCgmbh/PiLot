@@ -22,8 +22,14 @@ PiLot.View.Settings = (function () {
 			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.system.settings.overview);
 			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Settings.settingsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.system.settings.boatTime));
-			pageContent.querySelector('.lnkBoatConfig').setAttribute('href', loader.createPageLink(loader.pages.system.settings.boat));
+			const lnkTime = pageContent.querySelector('.lnkTime');
+			lnkTime.setAttribute('href', loader.createPageLink(loader.pages.system.settings.boatTime));
+			RC.Utils.showHide(lnkTime, PiLot.Permissions.canChangeSettings());
+			const lnkBoatConfig = pageContent.querySelector('.lnkBoatConfig');
+			lnkBoatConfig.setAttribute('href', loader.createPageLink(loader.pages.system.settings.boat));
+			RC.Utils.showHide(lnkBoatConfig, PiLot.Permissions.canChangeSettings());
+			pageContent.querySelector('.lnkLanguage').setAttribute('href', loader.createPageLink(loader.pages.system.settings.language));
+			PiLot.Utils.Language.applyTexts(pageContent);
 		}
 	};
 
@@ -103,10 +109,41 @@ PiLot.View.Settings = (function () {
 		}
 	};
 
+	/** The page where the user can change the UI language */
+	var LanguagePage = function () {
+		this.initialize();
+	};
+
+	LanguagePage.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		draw: function () {
+			const loader = PiLot.Utils.Loader;
+			const contentArea = loader.getContentArea();
+			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Settings.languagePage));
+			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
+			const ddlLanguages = contentArea.querySelector('.ddlLanguages');
+			const languages = PiLot.Config.Language.availableLanguages.map(e => [e, e]);
+			RC.Utils.fillDropdown(ddlLanguages, languages, null);
+			ddlLanguages.value = PiLot.Utils.Language.getLanguage();
+			ddlLanguages.addEventListener('change', this.ddlLanguages_change.bind(this));
+			PiLot.Utils.Language.applyTexts(contentArea);
+		},
+
+		ddlLanguages_change: function (pEvent) {
+			PiLot.Utils.Language.setLanguage(pEvent.target.value);
+			document.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.system.settings.overview);
+		}
+	};
+
 	/// return the classes
 	return {
 		SettingsOverviewPage: SettingsOverviewPage,
-		BoatTimePage: BoatTimePage
+		BoatTimePage: BoatTimePage,
+		LanguagePage: LanguagePage
 	};
 
 })();
