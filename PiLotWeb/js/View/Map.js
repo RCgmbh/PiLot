@@ -15,7 +15,7 @@ PiLot.View.Map = (function () {
 		initializeAsync: async function () {
 			let gpsObserver = new PiLot.Model.Nav.GPSObserver({ intervalMs: 1000 });
 			let pageContent = this.draw();
-			let map = new PiLot.View.Map.Seamap($(pageContent), { persistMapState: true });
+			let map = new PiLot.View.Map.Seamap(pageContent, { persistMapState: true });
 			await map.showAsync();
 			let boatPosition = new PiLot.View.Map.MapPositionMarker(map, gpsObserver);
 			Promise.all([
@@ -45,9 +45,9 @@ PiLot.View.Map = (function () {
 
 	};
 
-	/// Wraps a leaflet map. Expects pContainer as jQuery object or HTMLElement
+	/// Wraps a leaflet map. Expects pContainer as HTMLElement
 	var Seamap = function (pContainer, pOptions) {
-		this.mapContainer = pContainer instanceof jQuery ? pContainer : $(pContainer);
+		this.mapContainer = pContainer;
 		this.settingsContainer = null;
 		this.hasSettings = false;		// we need this to show the settings menu when unhiding (showing) the map
 		this.contextPopup = null;
@@ -89,27 +89,26 @@ PiLot.View.Map = (function () {
 		/// adds the sliding settings menu and attaches
 		/// the expand/collapse script
 		addSettingsContainer: function () {
-			this.settingsContainer = $(PiLot.Templates.Map.mapSettingsContainer);
-			this.mapContainer.before(this.settingsContainer);
-			this.settingsContainer.find('a.expandCollapse').on('click', this.toggleSettingsContainer.bind(this));
-			this.settingsContainer.hide();
+			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer)
+			this.mapContainer.insertAdjacentElement('beforebegin', this.settingsContainer);
+			this.settingsContainer.querySelector('a.expandCollapse').addEventListener('click', this.toggleSettingsContainer.bind(this));
+			RC.Utils.showHide(this.settingsContainer, false);
 		},
 
 		/// switches between expanded and collapsed state of the settings container
 		toggleSettingsContainer: function () {
-			this.settingsContainer.toggleClass('expanded');
+			this.settingsContainer.classList.toggle('expanded');
 		},
 
 		/** Shows the map and returns itself. It's async, because it will load the tile sources if necessary */
 		showAsync: async function () {
-			this.mapContainer.show();
+			RC.Utils.showHide(this.mapContainer, true);
 			if (this.hasSettings) {
-				this.settingsContainer.show();
+				RC.Utils.showHide(this.settingsContainer, true);
 			}
 			if (!this.isMapLoaded) {
 				PiLot.log("PiLot.Nav.Map.DrawMap", 3);
-				var containerDomElement = this.mapContainer.get()[0];
-				this.leafletMap = new L.Map(containerDomElement, { zoomControl: false });
+				this.leafletMap = new L.Map(this.mapContainer, { zoomControl: false });
 				new L.control.zoom({ position: 'topright' }).addTo(this.leafletMap);
 				this.addScale();
 				if (this.showLayers) {
@@ -132,12 +131,12 @@ PiLot.View.Map = (function () {
 		},
 
 		hide: function(){
-			this.mapContainer.hide();
+			RC.Utils.showHide(this.mapContainer, false);
 			this.hideSettingsContainer();
 		},
 
 		hideSettingsContainer: function () {
-			this.settingsContainer.hide();
+			RC.Utils.showHide(this.settingsContainer, false);
 		},
 
 		/// removes the leaflet map and its handlers 
@@ -270,14 +269,9 @@ PiLot.View.Map = (function () {
 			return this.leafletMap;
 		},
 
-		/// returns the element which contains the map, as JQuery object
+		/// returns the element which contains the map, as HTMLElement
 		getMapContainer: function () {
 			return this.mapContainer;
-		},
-
-		/// gets a reference to the context popup
-		getContextPopup: function () {
-			return this.contextPopup;
 		},
 
 		/// gets the maximal zoom supported by the map
@@ -290,15 +284,16 @@ PiLot.View.Map = (function () {
 			return this.leafletMap.getZoom();
 		},
 
-		/// Adds an item to the settings container. Each sub-control within the map must
-		/// manage its own settings, and can add controls to the settings container. The
-		/// settings container is only shown if it has any items in it.
+		/**
+		 * Adds an item to the settings container. Each sub-control within the map must
+		 * manage its own settings, and can add controls to the settings container. The
+		 * settings container is only shown if it has any items in it.
+		 * @param {HTMLElement} pItem - The item to add
+		 */
 		addSettingsItem: function (pItem) {
 			this.hasSettings = true;
-			this.settingsContainer.append(pItem);
-			if (!this.settingsContainer.is(':visible')) {
-				this.settingsContainer.show();
-			}
+			this.settingsContainer.insertAdjacentElement('beforeend', pItem)
+			RC.Utils.showHide(this.settingsContainer, true);
 		}
 	};
 
@@ -435,7 +430,7 @@ PiLot.View.Map = (function () {
 		lnkShowTrack_click: function () {
 			this.showTrack = !this.showTrack;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showTrack', this.showTrack);
-			this.lnkShowTrack.toggleClass('active', this.showTrack);
+			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			if (this.showTrack) {
 				this.loadAndShowTrackAsync(false);
 			} else {
@@ -447,7 +442,7 @@ PiLot.View.Map = (function () {
 		/// handles changes in the dropdown
 		selTrackMode_change: function () {
 			this.readInputs();
-			this.pnlCustomDates.toggle(this.selTrackMode.val() === 'null');
+			RC.Utils.showHide(this.pnlCustomDates, this.selTrackMode.value === 'null');
 		},
 
 		/// handles changes in the start or end date fields. Dates
@@ -511,25 +506,25 @@ PiLot.View.Map = (function () {
 
 		/// adds the "show Track" and its options to the settings container
 		addSettingsControl: function () {
-			var optionsControl = $(PiLot.Templates.Map.mapShowTrack);
-			this.lnkShowTrack = optionsControl.find('a');
-			this.lnkShowTrack.toggleClass('active', this.showTrack);
-			this.lnkShowTrack.on('click', this.lnkShowTrack_click.bind(this));
-			this.selTrackMode = optionsControl.find('select');
-			this.selTrackMode.val(this.startTime ? "null" : this.seconds || "null");
-			this.selTrackMode.on('change', this.selTrackMode_change.bind(this));
-			this.pnlCustomDates = optionsControl.find('.pnlCustomDates');
-			var tbStartDate = optionsControl.find('.tbStartDate');
-			this.calStartDate = new RC.Controls.Calendar(optionsControl.find('.calStartDate'), tbStartDate, null, this.calDate_change.bind(this));
+			const optionsControl = RC.Utils.stringToNode(PiLot.Templates.Map.mapShowTrack);
+			this.lnkShowTrack = optionsControl.querySelector('a');
+			this.lnkShowTrack.classList.toggle('active', this.showTrack);
+			this.lnkShowTrack.addEventListener('click', this.lnkShowTrack_click.bind(this));
+			this.selTrackMode = optionsControl.querySelector('select');
+			this.selTrackMode.value = this.startTime ? "null" : this.seconds || "null";
+			this.selTrackMode.addEventListener('change', this.selTrackMode_change.bind(this));
+			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
+			const tbStartDate = optionsControl.querySelector('.tbStartDate');
+			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, this.calDate_change.bind(this));
 			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
 			this.calStartDate.showDate();
-			var tbEndDate = optionsControl.find('.tbEndDate');
-			this.calEndDate = new RC.Controls.Calendar(optionsControl.find('.calEndDate'), tbEndDate, null, this.calDate_change.bind(this));
+			const tbEndDate = optionsControl.querySelector('.tbEndDate');
+			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, this.calDate_change.bind(this));
 			if (this.startTime && this.seconds) {
 				this.calEndDate.date(this.startTime.toLocal().plus({ seconds: this.seconds }).minus({ days: 1 }));
 			}
 			this.calEndDate.showDate();
-			this.pnlCustomDates.toggle(this.startTime !== null);
+			RC.Utils.showHide(this.pnlCustomDates, this.startTime !== null);
 			this.map.addSettingsItem(optionsControl);
 			RC.Utils.selectOnFocus(tbStartDate, tbEndDate);
 		},
@@ -538,7 +533,7 @@ PiLot.View.Map = (function () {
 		addTimeSlider: function () {
 			this.timeSliderContainer = $(PiLot.Templates.Map.mapTrackSlider);
 			this.timeSlider = this.timeSliderContainer.find('.slider');
-			this.map.getMapContainer().after(this.timeSliderContainer);
+			$(this.map.getMapContainer()).after(this.timeSliderContainer);
 			this.timeSlider.slider({ min: 0, max: 1000 });
 			this.timeSlider.on('slide', this.timeSlider_slide.bind(this));
 			this.timeField = this.timeSliderContainer.find('.time');
@@ -560,7 +555,7 @@ PiLot.View.Map = (function () {
 	    * thus always be "now"
 		*/
 		readInputs: function () {
-			var ddlValue = this.selTrackMode.val();
+			const ddlValue = this.selTrackMode.value;
 			var start = null;
 			var end = null;
 			var seconds = null;
@@ -661,7 +656,6 @@ PiLot.View.Map = (function () {
 		
 		/// draws this.track onto the current map.
 		draw: function () {
-			PiLot.log(this.map, 4);
 			let positions = this.track !== null ? this.track.getRawPositions() : new Array();
 			if (this.polyline === null) {
 				var leafletMap = this.map.getLeafletMap();
@@ -773,18 +767,18 @@ PiLot.View.Map = (function () {
 		/// handles recieving new gps data
 		gpsObserver_recieceGpsData: function () {
 			this.draw();
-			this.outdatedGpsWarning.hide();
+			RC.Utils.showHide(this.outdatedGpsWarning, false);
 		},
 
 		/// shows a warning if we have no current gps data
 		gpsObserver_outdatedGpsData: function () {
-			this.outdatedGpsWarning.show();
+			RC.Utils.showHide(this.outdatedGpsWarning, true);
 		},
 
 		/// adds, but does not show the outdated GPS warning
 		addOutdatedGpsWarning: function () {
-			this.outdatedGpsWarning = $(PiLot.Templates.Map.outdatedGpsWarning);
-			this.map.getMapContainer().append(this.outdatedGpsWarning);
+			this.outdatedGpsWarning = RC.Utils.stringToNode(PiLot.Templates.Map.outdatedGpsWarning);
+			this.map.getMapContainer().insertAdjacentElement('beforeend', this.outdatedGpsWarning);
 		},
 
 		/// draws the marker and the cog vector onto the map
@@ -854,15 +848,13 @@ PiLot.View.Map = (function () {
 
 		/// adds the "auto center" and "show cog vector" control to the settings container
 		addSettingsControl: function () {
-			// add the auto track button
-			this.lnkOptionAutoCenter = $(PiLot.Templates.Map.mapAutoCenter);
-			this.lnkOptionAutoCenter.toggleClass('active', this.autoCenter);
-			this.lnkOptionAutoCenter.on('click', this.lnkOptionAutoCenter_click.bind(this));
+			this.lnkOptionAutoCenter = RC.Utils.stringToNode(PiLot.Templates.Map.mapAutoCenter);
+			this.lnkOptionAutoCenter.classList.toggle('active', this.autoCenter);
+			this.lnkOptionAutoCenter.addEventListener('click', this.lnkOptionAutoCenter_click.bind(this));
 			this.map.addSettingsItem(this.lnkOptionAutoCenter);
-			// add the COG vector button
-			this.lnkOptionCOGVector = $(PiLot.Templates.Map.mapShowCOG);
-			this.lnkOptionCOGVector.toggleClass('active', this.cogVectorVisible);
-			this.lnkOptionCOGVector.on('click', this.lnkOptionCOGVector_click.bind(this));
+			this.lnkOptionCOGVector = RC.Utils.stringToNode(PiLot.Templates.Map.mapShowCOG);
+			this.lnkOptionCOGVector.classList.toggle('active', this.cogVectorVisible);
+			this.lnkOptionCOGVector.addEventListener('click', this.lnkOptionCOGVector_click.bind(this));
 			this.map.addSettingsItem(this.lnkOptionCOGVector);
 		},
 
@@ -870,7 +862,7 @@ PiLot.View.Map = (function () {
 		lnkOptionAutoCenter_click: function () {
 			this.autoCenter = !this.autoCenter;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.autoCenterPosition', this.autoCenter);
-			this.lnkOptionAutoCenter.toggleClass('active', this.autoCenter);
+			this.lnkOptionAutoCenter.classList.toggle('active', this.autoCenter);
 			this.draw();
 		},
 
@@ -878,7 +870,7 @@ PiLot.View.Map = (function () {
 		lnkOptionCOGVector_click: function () {
 			this.cogVectorVisible = !this.cogVectorVisible;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.cogVectorVisible', this.cogVectorVisible);
-			this.lnkOptionCOGVector.toggleClass('active', this.cogVectorVisible);
+			this.lnkOptionCOGVector.classList.toggle('active', this.cogVectorVisible);
 			if (this.cogVectorVisible) {
 				this.draw();
 			} else {
@@ -949,14 +941,14 @@ PiLot.View.Map = (function () {
 
 		/// adds the "show route" and "lock route" control to the settings container
 		addSettingsControl: function () {
-			this.lnkOptionShowRoute = $(PiLot.Templates.Map.mapShowRoute);
-			this.lnkOptionShowRoute.toggleClass('active', this.showRoute);
-			this.lnkOptionShowRoute.on('click', this.lnkOptionShowRoute_click.bind(this));
+			this.lnkOptionShowRoute = RC.Utils.stringToNode(PiLot.Templates.Map.mapShowRoute);
+			this.lnkOptionShowRoute.classList.toggle('active', this.showRoute);
+			this.lnkOptionShowRoute.addEventListener('click', this.lnkOptionShowRoute_click.bind(this));
 			this.map.addSettingsItem(this.lnkOptionShowRoute);
 			if (PiLot.Permissions.canWrite()) {
-				this.lnkOptionLockRoute = $(PiLot.Templates.Map.mapLockRoute);
-				this.lnkOptionLockRoute.toggleClass('active', this.lockRoute);
-				this.lnkOptionLockRoute.on('click', this.lnkOptionLockRoute_click.bind(this));
+				this.lnkOptionLockRoute = RC.Utils.stringToNode(PiLot.Templates.Map.mapLockRoute);
+				this.lnkOptionLockRoute.classList.toggle('active', this.lockRoute);
+				this.lnkOptionLockRoute.addEventListener('click', this.lnkOptionLockRoute_click.bind(this));
 				this.map.addSettingsItem(this.lnkOptionLockRoute);
 			}
 		},
@@ -965,7 +957,7 @@ PiLot.View.Map = (function () {
 		lnkOptionShowRoute_click: function () {
 			this.showRoute = !this.showRoute;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showRoute', this.showRoute);
-			this.lnkOptionShowRoute.toggleClass('active', this.showRoute);
+			this.lnkOptionShowRoute.classList.toggle('active', this.showRoute);
 			if (this.showRoute) {
 				this.draw();
 				this.fitMap();
@@ -978,7 +970,7 @@ PiLot.View.Map = (function () {
 		lnkOptionLockRoute_click: function () {
 			this.lockRoute = !this.lockRoute;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.lockRoute', this.lockRoute);
-			this.lnkOptionLockRoute.toggleClass('active', this.lockRoute);
+			this.lnkOptionLockRoute.classList.toggle('active', this.lockRoute);
 			const locked = this.lockRoute;
 			if (this.mapWaypoints !== null) {
 				this.mapWaypoints.forEach(function (pValue, pKey, pMap) {
@@ -1239,7 +1231,7 @@ PiLot.View.Map = (function () {
 			}
 		},
 
-		/// draws the marker for the waypoing, accepting live data
+		/// draws the marker for the waypoint, accepting live data
 		/// and an option to reset the waypoint position. If pResetPosition
 		/// is falsy, only the marker icon will be updated
 		drawMarker: function (pResetPosition) {
@@ -1334,14 +1326,15 @@ PiLot.View.Map = (function () {
 
 		/// attaches and shows the popup to the marker.
 		showMarkerPopup: function () {
-			this.markerPopupContent = $(PiLot.Templates.Map.mapWaypointPopup);
-			this.lnkDelete = this.markerPopupContent.find('.lnkDelete').on('click', this.lnkDelete_click.bind(this));
-			this.lblName = this.markerPopupContent.find('.name');
-			this.lblLatLng = this.markerPopupContent.find('.latLng');
-			this.lblEta = this.markerPopupContent.find('.eta');
-			this.lblDist = this.markerPopupContent.find('.dist');
-			this.lblBearing = this.markerPopupContent.find('.bearing');
-			this.markerPopup = this.marker.bindPopup(this.markerPopupContent[0], { className: 'navWaypointPopup', autoPan: true }).addTo(this.mapRoute.getLeafletMap()).openPopup();
+			this.markerPopupContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapWaypointPopup);
+			this.lnkDelete = this.markerPopupContent.querySelector('.lnkDelete');
+			this.lnkDelete.addEventListener('click', this.lnkDelete_click.bind(this));
+			this.lblName = this.markerPopupContent.querySelector('.name');
+			this.lblLatLng = this.markerPopupContent.querySelector('.latLng');
+			this.lblEta = this.markerPopupContent.querySelector('.eta');
+			this.lblDist = this.markerPopupContent.querySelector('.dist');
+			this.lblBearing = this.markerPopupContent.querySelector('.bearing');
+			this.markerPopup = this.marker.bindPopup(this.markerPopupContent, { className: 'navWaypointPopup', autoPan: true }).addTo(this.mapRoute.getLeafletMap()).openPopup();
 			this.markerPopup.on('popupclose', this.removeMarkerPopup.bind(this));
 			this.updateMarkerPopup();
 		},
@@ -1374,7 +1367,7 @@ PiLot.View.Map = (function () {
 				RC.Utils.setText(this.lblEta, etaText);
 				RC.Utils.setText(this.lblDist, distanceText);
 				RC.Utils.setText(this.lblBearing, bearingText);
-				this.lnkDelete.toggle(!this.mapRoute.lockRoute);
+				RC.Utils.showHide(this.lnkDelete, !this.mapRoute.lockRoute);
 			}
 		},
 
