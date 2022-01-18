@@ -757,7 +757,7 @@ PiLot.View.Nav = (function () {
 			this.lblTotalDistance = routeContainer.querySelector('.lblTotalDistance');
 			this.divWaypoints = routeContainer.querySelector('.divWaypoints');
 			let mapContainer = contentArea.querySelector('#divMap');
-			this.map = new PiLot.View.Map.Seamap($(mapContainer));
+			this.map = new PiLot.View.Map.Seamap(mapContainer);
 			await this.map.showAsync();
 		},
 
