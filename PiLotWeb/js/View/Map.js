@@ -506,7 +506,7 @@ PiLot.View.Map = (function () {
 
 		/// adds the "show Track" and its options to the settings container
 		addSettingsControl: function () {
-			const optionsControl = RC.Utils.stringToNode(PiLot.Templates.Map.mapShowTrack);
+			const optionsControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapShowTrack);
 			this.lnkShowTrack = optionsControl.querySelector('a');
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			this.lnkShowTrack.addEventListener('click', this.lnkShowTrack_click.bind(this));
@@ -777,7 +777,7 @@ PiLot.View.Map = (function () {
 
 		/// adds, but does not show the outdated GPS warning
 		addOutdatedGpsWarning: function () {
-			this.outdatedGpsWarning = RC.Utils.stringToNode(PiLot.Templates.Map.outdatedGpsWarning);
+			this.outdatedGpsWarning = PiLot.Utils.Common.createNode(PiLot.Templates.Map.outdatedGpsWarning);
 			this.map.getMapContainer().insertAdjacentElement('beforeend', this.outdatedGpsWarning);
 		},
 
@@ -848,11 +848,11 @@ PiLot.View.Map = (function () {
 
 		/// adds the "auto center" and "show cog vector" control to the settings container
 		addSettingsControl: function () {
-			this.lnkOptionAutoCenter = RC.Utils.stringToNode(PiLot.Templates.Map.mapAutoCenter);
+			this.lnkOptionAutoCenter = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAutoCenter);
 			this.lnkOptionAutoCenter.classList.toggle('active', this.autoCenter);
 			this.lnkOptionAutoCenter.addEventListener('click', this.lnkOptionAutoCenter_click.bind(this));
 			this.map.addSettingsItem(this.lnkOptionAutoCenter);
-			this.lnkOptionCOGVector = RC.Utils.stringToNode(PiLot.Templates.Map.mapShowCOG);
+			this.lnkOptionCOGVector = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapShowCOG);
 			this.lnkOptionCOGVector.classList.toggle('active', this.cogVectorVisible);
 			this.lnkOptionCOGVector.addEventListener('click', this.lnkOptionCOGVector_click.bind(this));
 			this.map.addSettingsItem(this.lnkOptionCOGVector);
@@ -936,20 +936,6 @@ PiLot.View.Map = (function () {
 			}
 			if (this.lockRoute === null) {
 				this.lockRoute = this.lockRoute || PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.lockRoute') || false;
-			}
-		},
-
-		/// adds the "show route" and "lock route" control to the settings container
-		addSettingsControl: function () {
-			this.lnkOptionShowRoute = RC.Utils.stringToNode(PiLot.Templates.Map.mapShowRoute);
-			this.lnkOptionShowRoute.classList.toggle('active', this.showRoute);
-			this.lnkOptionShowRoute.addEventListener('click', this.lnkOptionShowRoute_click.bind(this));
-			this.map.addSettingsItem(this.lnkOptionShowRoute);
-			if (PiLot.Permissions.canWrite()) {
-				this.lnkOptionLockRoute = RC.Utils.stringToNode(PiLot.Templates.Map.mapLockRoute);
-				this.lnkOptionLockRoute.classList.toggle('active', this.lockRoute);
-				this.lnkOptionLockRoute.addEventListener('click', this.lnkOptionLockRoute_click.bind(this));
-				this.map.addSettingsItem(this.lnkOptionLockRoute);
 			}
 		},
 
@@ -1061,10 +1047,24 @@ PiLot.View.Map = (function () {
 			return this;
 		},
 
+		/// adds the "show route" and "lock route" control to the settings container
+		addSettingsControl: function () {
+			this.lnkOptionShowRoute = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapShowRoute);
+			this.lnkOptionShowRoute.classList.toggle('active', this.showRoute);
+			this.lnkOptionShowRoute.addEventListener('click', this.lnkOptionShowRoute_click.bind(this));
+			this.map.addSettingsItem(this.lnkOptionShowRoute);
+			if (PiLot.Permissions.canWrite()) {
+				this.lnkOptionLockRoute = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLockRoute);
+				this.lnkOptionLockRoute.classList.toggle('active', this.lockRoute);
+				this.lnkOptionLockRoute.addEventListener('click', this.lnkOptionLockRoute_click.bind(this));
+				this.map.addSettingsItem(this.lnkOptionLockRoute);
+			}
+		},
+
 		/// adds an "add Waypoint" link to the map context popup
 		addContextPopupLink: function () {
-			this.lnkAddWaypoint = RC.Utils.stringToNode('<a href="#">Wegpunkt hinzufügen</a>');
 			if (!this.lockRoute) {
+				this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
 				this.map.contextPopup.addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
 			}
 		},
@@ -1186,7 +1186,7 @@ PiLot.View.Map = (function () {
 		/// a link to insert a waypoint at the click location
 		incomingLeg_click: function (e) {
 			if (!this.mapRoute.getIsLocked()) {
-				const legPopupContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapLegPopup);
+				const legPopupContent = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLegPopup);
 				legPopupContent.querySelector('.lnkInsertWaypoint').addEventListener('click', this.lnkInsertWaypoint_click.bind(this, e));
 				this.legPopup = this.incomingLeg.bindPopup(legPopupContent, { autoPan: false }).addTo(this.mapRoute.getLeafletMap()).openPopup();
 			}
@@ -1195,7 +1195,8 @@ PiLot.View.Map = (function () {
 		/// click handler for the delete link in the waypoint popup
 		lnkDelete_click: function (e) {
 			e.preventDefault();
-			if (window.confirm("Soll der Wegpunkt " + this.waypoint.name + " wirklich gelöscht werden?")) {
+			const message = PiLot.Utils.Language.getText('confirmDeleteWaypoint').replace("{{waypointName}}", this.waypoint.name);
+			if (window.confirm(message)) {
 				this.waypoint.getRoute().deleteWaypoint(this.waypoint);
 			}
 		},
@@ -1326,7 +1327,7 @@ PiLot.View.Map = (function () {
 
 		/// attaches and shows the popup to the marker.
 		showMarkerPopup: function () {
-			this.markerPopupContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapWaypointPopup);
+			this.markerPopupContent = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapWaypointPopup);
 			this.lnkDelete = this.markerPopupContent.querySelector('.lnkDelete');
 			this.lnkDelete.addEventListener('click', this.lnkDelete_click.bind(this));
 			this.lblName = this.markerPopupContent.querySelector('.name');

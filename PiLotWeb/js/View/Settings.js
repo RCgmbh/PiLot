@@ -20,7 +20,7 @@ PiLot.View.Settings = (function () {
 		draw: function () {
 			let loader = PiLot.Utils.Loader;
 			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.system.settings.overview);
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Settings.settingsOverviewPage);
+			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.settingsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			const lnkTime = pageContent.querySelector('.lnkTime');
 			lnkTime.setAttribute('href', loader.createPageLink(loader.pages.system.settings.boatTime));
@@ -29,7 +29,6 @@ PiLot.View.Settings = (function () {
 			lnkBoatConfig.setAttribute('href', loader.createPageLink(loader.pages.system.settings.boat));
 			RC.Utils.showHide(lnkBoatConfig, PiLot.Permissions.canChangeSettings());
 			pageContent.querySelector('.lnkLanguage').setAttribute('href', loader.createPageLink(loader.pages.system.settings.language));
-			PiLot.Utils.Language.applyTexts(pageContent);
 		}
 	};
 
@@ -123,14 +122,14 @@ PiLot.View.Settings = (function () {
 		draw: function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
-			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Settings.languagePage));
-			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
+			const languagePage = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.languagePage);
+			contentArea.insertAdjacentElement('beforeend', languagePage);
+			languagePage.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
 			const ddlLanguages = contentArea.querySelector('.ddlLanguages');
 			const languages = PiLot.Config.Language.availableLanguages.map(e => [e, e]);
 			RC.Utils.fillDropdown(ddlLanguages, languages, null);
 			ddlLanguages.value = PiLot.Utils.Language.getLanguage();
 			ddlLanguages.addEventListener('change', this.ddlLanguages_change.bind(this));
-			PiLot.Utils.Language.applyTexts(contentArea);
 		},
 
 		ddlLanguages_change: function (pEvent) {

@@ -262,5 +262,16 @@ PiLot.Utils.Common = {
 	/// converts a speed in meters per second to knots
 	mpsToKnots: function (pMps) {
 		return pMps * 3600 / 1852;
+	},
+
+	/**
+	 * Creates an HTML Element based on a template string, and
+	 * makes sure the content of the element is translated.
+	 * @param {any} pTemplate
+	 */
+	createNode: function (pTemplate) {
+		const result = RC.Utils.stringToNode(pTemplate);
+		PiLot.Utils.Language.applyTexts(result);
+		return result;
 	}
 };

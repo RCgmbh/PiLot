@@ -39,33 +39,47 @@ PiLot.Utils.Language = {
 	},
 
 	/**
-	 * This applies all texts from the loaded resources file to the elements that
+	 * Gets the text for pKey in the current language, or null.
+	 * @param {String} pKey - The key of the requested element 
+	 */
+	getText: function (pKey) {
+		let obj = PiLot.Texts[pKey];
+		return obj ? obj.text : null;
+	},
+
+	/**
+	 * This applies all texts from the loaded resources file to either pControl, if 
+	 * has a data-key attribute, or to all elements within pControl that
 	 * have a data-key attribute. Depending on the type of the element, the
 	 * innerText, alt, title etc will be set
-	 * @param {HTMLElement} pControl - The Element and its children will be processed.
+	 * @param {HTMLElement} pControl - The Element or its children will be processed.
 	 */
 	applyTexts: function (pControl) {
-		if (PiLot.Texts) {
-			console.time("applyTexts");
-			let key;
-			let obj;
-			document.querySelectorAll('[data-key]').forEach(function (e) {
-				key = e.dataset.key;
-				obj = PiLot.Texts[key];
-				if (obj) {
-					e.innerText = obj.text || e.innerText || key;
-					e.title = obj.tooltip || e.title;
-					if (e instanceof HTMLImageElement) {
-						e.src = obj.src || e.src;
-						e.alt = obj.alt || e.alt || obj.tooltip;
-					}
-				} else {
-					PiLot.log(`Unknown key: ${key}`, 0);
-				}
-			});
-			console.timeEnd("applyTexts");
+		if ("key" in pControl.dataset) {
+			this.applyTextsToControl(pControl);
 		} else {
-			PiLot.log(`PiLot.Texts not set. Make sure the loader loads the right Texts.xy.js file.`, 0);
+			pControl.querySelectorAll('[data-key]').forEach(e => PiLot.Utils.Language.applyTextsToControl(e));
+		}
+	},
+
+	/**
+	 * This applies text text from the loaded resources file to one control, based
+	 * on its data-key attribute. Depending on the type of the element, the
+	 * innerText, alt, title etc will be set
+	 * @param {HTMLElement} pControl - The Element that will be processed.
+	 */
+	applyTextsToControl: function (pControl) {
+		const key = pControl.dataset.key;
+		const obj = PiLot.Texts[key];
+		if (obj) {
+			pControl.innerText = obj.text || pControl.innerText || key;
+			pControl.title = obj.tooltip || pControl.title;
+			if (pControl instanceof HTMLImageElement) {
+				pControl.src = obj.src || pControl.src;
+				pControl.alt = obj.alt || pControl.alt || obj.tooltip;
+			}
+		} else {
+			PiLot.log(`Unknown key: ${key}`, 0);
 		}
 	}
 };
