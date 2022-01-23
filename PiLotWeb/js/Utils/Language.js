@@ -72,8 +72,12 @@ PiLot.Utils.Language = {
 		const key = pControl.dataset.key;
 		const obj = PiLot.Texts[key];
 		if (obj) {
-			pControl.innerText = obj.text || pControl.innerText || key;
-			pControl.title = obj.tooltip || pControl.title;
+			if (obj.text) {
+				pControl.innerText = obj.text;
+			}
+			if (obj.tooltip) {
+				pControl.title = obj.tooltip;
+			}
 			if (pControl instanceof HTMLImageElement) {
 				pControl.src = obj.src || pControl.src;
 				pControl.alt = obj.alt || pControl.alt || obj.tooltip;

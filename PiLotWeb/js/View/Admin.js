@@ -20,7 +20,7 @@ PiLot.View.Admin = (function () {
 		draw: function () {
 			let loader = PiLot.Utils.Loader;
 			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.system.admin.overview);
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Admin.adminOverviewPage);
+			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.adminOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.system.admin.time));
 			pageContent.querySelector('.lnkServices').setAttribute('href', loader.createPageLink(loader.pages.system.admin.services));
@@ -36,7 +36,7 @@ PiLot.View.Admin = (function () {
 		 */
 		lnkShutDown_click: function (e) {
 			e.preventDefault();
-			if (window.confirm('PiLot wirklich ausschalten?')) {
+			if (window.confirm(PiLot.Utils.Language.getText('confirmShutDown'))) {
 				document.location = 'img/evening.jpg';
 				fetch(PiLot.Utils.Common.toApiUrl(`/System/shutdown`), { method: 'PUT' });
 			}
@@ -78,7 +78,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		lnkSetServerTime_click: async function () {
-			if (confirm(`Server-Zeit wird auf Client-Zeit eingestellt`)) {
+			if (confirm(PiLot.Utils.Language.getText('confirmApplyClientTime'))) {
 				await PiLot.Model.Admin.setServerTime();
 				this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 				this.showTime();
@@ -109,6 +109,7 @@ PiLot.View.Admin = (function () {
 			this.btnMinus.onclick = this.btnMinus_click.bind(this);
 			this.btnPlus = contentArea.querySelector('#btnPlus');
 			this.btnPlus.onclick = this.btnPlus_click.bind(this);
+			PiLot.Utils.Language.applyTexts(contentArea);
 			this.clockCanvas = contentArea.querySelector('#lblClientTime');
 			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours());
 		},
@@ -170,7 +171,7 @@ PiLot.View.Admin = (function () {
 		draw: function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
-			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Admin.systemStatusPage));
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.systemStatusPage));
 			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			const controls = {
 				error: contentArea.querySelector('.chartError'),
@@ -208,7 +209,7 @@ PiLot.View.Admin = (function () {
 		drawAsync: async function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
-			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Admin.servicesPage));
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.servicesPage));
 			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			const plhServices = contentArea.querySelector('.plhServices');
 			this.serviceInfos = new Array();
@@ -260,7 +261,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		draw: function () {
-			const control = RC.Utils.stringToNode(PiLot.Templates.Admin.serviceInfo);
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.serviceInfo);
 			this.placeholder.appendChild(control);
 			control.querySelector('.lblService').innerText = this.serviceName;
 			this.lblStatus = control.querySelector('.lblStatus');
@@ -282,10 +283,9 @@ PiLot.View.Admin = (function () {
 			const result = await PiLot.Utils.Common.putToServerAsync(`/Services/${this.serviceName}/${pAction}`);
 			this.showStatus(result.data);
 		}
-
 	};
 
-	/** A Page listing the logfiles and allows to open them */
+	/** A Page listing the logfiles and allowing to open them */
 	var LogFilesPage = function () {
 		this.dataLoader = null;
 		this.divLogFile = null;
@@ -338,7 +338,7 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.system.admin.overview);
 			const contentArea = loader.getContentArea();
-			contentArea.appendChild(RC.Utils.stringToNode(PiLot.Templates.Admin.logFilePage));
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.logFilePage));
 			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			this.divLogFile = contentArea.querySelector('.divLogFile');
 			this.divLogFile.querySelector('.lnkCloseLogFile').addEventListener('click', this.lnkCloseLogFile_click.bind(this));

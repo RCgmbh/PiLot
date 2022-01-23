@@ -6,6 +6,12 @@ PiLot.Templates.Settings = {
 
 	settingsOverviewPage: `<div class="contentPadding">
 		<h1 data-key="settings"></h1>
+		<a href="" class="lnkLanguage tile big">
+			<div>
+				<span class="symbol"><i class="icon-bubbles4"></i></span>
+				<span class="label" data-key="language"></span>
+			</div>
+		</a>
 		<a href="" class="lnkTime tile big">
 			<div>
 				<span class="symbol"><i class="icon-time2"></i></span>
@@ -16,12 +22,6 @@ PiLot.Templates.Settings = {
 			<div>
 				<span class="symbol"><i class="icon-sailing-boat-water1"></i></span>
 				<span class="label" data-key="boatConfig"></span>
-			</div>
-		</a>
-		<a href="" class="lnkLanguage tile big">
-			<div>
-				<span class="symbol"><i class="icon-bubbles4"></i></span>
-				<span class="label" data-key="language"></span>
 			</div>
 		</a>
 	</div>`,
