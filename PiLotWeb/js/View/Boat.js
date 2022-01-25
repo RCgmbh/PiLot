@@ -314,7 +314,7 @@ PiLot.View.Boat = (function () {
 		/// of the entire control, one for the repeating section of dropdowns
 		/// for the feature states
 		draw: function () {
-			const control = RC.Utils.stringToNode(PiLot.Templates.Boat.boatSetupForm);
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
 			this.container.append(control);
 			this.plhFeatures = control.querySelector('.plhFeatures');
 			const lnkSave = control.querySelector('.lnkSave');
@@ -420,7 +420,7 @@ PiLot.View.Boat = (function () {
 		},
 
 		draw: function () {
-			const pageContent = RC.Utils.stringToNode(PiLot.Templates.Boat.boatPage);
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatPage);
 			const loader = PiLot.Utils.Loader;
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));

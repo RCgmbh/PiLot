@@ -172,6 +172,7 @@ PiLot.Utils.Loader = (function () {
 	PageLoader.prototype = {
 
 		loadPage: function () {
+			PiLot.Utils.Language.applyHTMLLanguage();
 			this.page = RC.Utils.getUrlParameter(PAGEKEY) || pages.home;
 			let pageScripts = this.getPageScripts();
 			this.addLanguageReference(pageScripts.dependencies);

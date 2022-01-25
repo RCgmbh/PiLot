@@ -14,8 +14,8 @@ PiLot.Templates.Common = {
 		</div>`,
 
 	dayNightButtons: `
-		<a class="linkButton btnNightMode marginRightSmall" href="#" title="Nachtmodus"><i class="icon-moon"></i></a> 
-		<a class="linkButton btnDayMode" href="#" title="Tagmodus"><i class="icon-sun2"></i></a> 
+		<a class="linkButton btnNightMode marginRightSmall" href="#" data-key="nightMode"><i class="icon-moon"></i></a> 
+		<a class="linkButton btnDayMode" href="#" data-key="dayMode"><i class="icon-sun2"></i></a>
 	`,
 
 	touchButtonsOptions: `
@@ -66,18 +66,18 @@ PiLot.Templates.Common = {
 		</div>`,
 
 	accessDenied: `
-		<div class="fullWidth"><div class="feedbackBad marginAll">Access Denied</div></div>
+		<div class="fullWidth"><div class="feedbackBad marginAll" data-key="accessDenied"></div></div>
 	`,
 
 	loginForm: `
 		<div class="fullWidth">
-			<div class="pnlLoginFailed feedbackBad marginAll hidden">Login fehlgeschlagen</div>
+			<div class="pnlLoginFailed feedbackBad marginAll hidden" data-key="loginFailed"></div>
 			<div class="pnlLoginForm marginAll feedbackWarning">
 				<div class="center">
 					<form id="frmLogin">
-						<input type="text" class="tbUsername input8 marginBottomSmall" placeholder="Benutzername" autocomplete="username" /><br />
+						<input type="text" class="tbUsername input8 marginBottomSmall" autocomplete="username" data-key="username" /><br />
 						<input type="password" class="tbPassword input8 marginBottomSmall" placeholder="Passwort" autocomplete="current-password" /><br />
-						<button class="btnLogin input8" type="submit">Login</button><br />
+						<button class="btnLogin input8" type="submit" data-key="login"></button><br />
 					</form>
 				</div>
 			</div>
@@ -85,19 +85,19 @@ PiLot.Templates.Common = {
 		`,
 
 	userMenuIcon: `
-		<a class="btnUserInfo marginLeft" href="#" title="Benutzerinfo"><i class="icon-smile2"></i></a> 
+		<a class="btnUserInfo marginLeft" href="#" data-key="userinfo"><i class="icon-smile2"></i></a> 
 	`,
 
 	userMenu: `
 		<div class="pnlUserInfo hidden">
-			<div class="semiBold">Benutzer: <span class="lblUsername"></span><span class="lblAnonymous">-</span></div>
-			<div><span class="col1 marginRight"><i class="icon-checkmark icoReadAccess green"></i><i class="icon-cross icoNoReadAccess red"></i></span>Lesezugriff</div>
-			<div><span class="col1 marginRight"><i class="icon-checkmark icoWriteAccess green"></i><i class="icon-cross icoNoWriteAccess red"></i></span>Schreibzugriff</div>
-			<div><span class="col1 marginRight"><i class="icon-checkmark icoSettingsAccess green"></i><i class="icon-cross icoNoSettingsAccess red"></i></span>Einstellungen ändern</div>
-			<div><span class="col1 marginRight"><i class="icon-checkmark icoSystemAccess green"></i><i class="icon-cross icoNoSystemAccess red"></i></span>Systemzugriff</div>
+			<div class="semiBold"><span data-key="user"></span>: <span class="lblUsername"></span><span class="lblAnonymous">-</span></div>
+			<div><span class="col1 marginRight"><i class="icon-checkmark icoReadAccess green"></i><i class="icon-cross icoNoReadAccess red"></i></span><span data-key="readAccess"></span></div>
+			<div><span class="col1 marginRight"><i class="icon-checkmark icoWriteAccess green"></i><i class="icon-cross icoNoWriteAccess red"></i></span><span data-key="writeAccess"></span></div>
+			<div><span class="col1 marginRight"><i class="icon-checkmark icoSettingsAccess green"></i><i class="icon-cross icoNoSettingsAccess red"></i></span><span data-key="settingsAccess"></span></div>
+			<div><span class="col1 marginRight"><i class="icon-checkmark icoSystemAccess green"></i><i class="icon-cross icoNoSystemAccess red"></i></span><span data-key="systemAccess"></span></div>
 			<div class="center">
-				<button class="btnLogin linkButton input8 center marginTop">Einloggen</button>
-				<button class="btnLogout linkButton input8 center marginTop hidden">Abmelden</button>
+				<button class="btnLogin linkButton input8 center marginTop" data-key="login"></button>
+				<button class="btnLogout linkButton input8 center marginTop hidden" data-key="logout"></button>
 			</div>
 		</div>
 	`

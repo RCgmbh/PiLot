@@ -47,6 +47,11 @@ PiLot.Utils.Language = {
 		return obj ? obj.text : null;
 	},
 
+	/** Sets the lang attribute of the html element to the current language */
+	applyHTMLLanguage: function () {
+		document.documentElement.setAttribute('lang', this.getLanguage());
+	},
+
 	/**
 	 * This applies all texts from the loaded resources file to either pControl, if 
 	 * has a data-key attribute, or to all elements within pControl that
@@ -67,9 +72,10 @@ PiLot.Utils.Language = {
 	 * on its data-key attribute. Depending on the type of the element, the
 	 * innerText, alt, title etc will be set
 	 * @param {HTMLElement} pControl - The Element that will be processed.
+	 * @param {String} pKey - optionally pass the key instead of reading data-key
 	 */
-	applyTextsToControl: function (pControl) {
-		const key = pControl.dataset.key;
+	applyTextsToControl: function (pControl, pKey = null) {
+		const key = pKey || pControl.dataset.key;
 		const obj = PiLot.Texts[key];
 		if (obj) {
 			if (obj.text) {
@@ -81,6 +87,9 @@ PiLot.Utils.Language = {
 			if (pControl instanceof HTMLImageElement) {
 				pControl.src = obj.src || pControl.src;
 				pControl.alt = obj.alt || pControl.alt || obj.tooltip;
+			}
+			if (pControl instanceof HTMLInputElement) {
+				pControl.placeholder = obj.placeholder || pControl.placeholder;
 			}
 		} else {
 			PiLot.log(`Unknown key: ${key}`, 0);

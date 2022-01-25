@@ -398,6 +398,10 @@ PiLot.View.Common = (function () {
 			this.headerButtons.appendChildren(dayNightButtons);
 			this.headerButtons.querySelector('.btnDayMode').addEventListener('click', this.btnDayMode_click.bind(this));
 			this.headerButtons.querySelector('.btnNightMode').addEventListener('click', this.btnNightMode_click.bind(this));
+			PiLot.Utils.Language.applyTexts(this.hamburger);
+			PiLot.Utils.Language.applyTexts(this.mainMenuControl);
+			PiLot.Utils.Language.applyTexts(this.subMenuControl);
+			PiLot.Utils.Language.applyTexts(this.headerButtons);
 		},
 
 		fillMenu: function() {
@@ -561,7 +565,7 @@ PiLot.View.Common = (function () {
 	 * */
 	var LoginForm = function () {
 		if (loginForm) {
-			PiLot.Utils.Common.log('Warning: more than one login dialog have been instantiated. Use getLoginFor please', 0);
+			PiLot.Utils.Common.log('Warning: more than one login dialog have been instantiated. Use getLoginForm please', 0);
 		}
 		this.observers = null;
 		this.control = null;
@@ -596,7 +600,7 @@ PiLot.View.Common = (function () {
 
 		/** draws the form and inserts it as first element in the content area */
 		draw: function () {
-			this.control = RC.Utils.stringToNode(PiLot.Templates.Common.loginForm);
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.loginForm);
 			PiLot.Utils.Loader.getContentArea().insertAdjacentElement('afterbegin', this.control);
 			this.pnlLoginFailed = this.control.querySelector('.pnlLoginFailed');
 			this.pnlLoginForm = this.control.querySelector('.pnlLoginForm');
@@ -697,9 +701,9 @@ PiLot.View.Common = (function () {
 		draw: function () {
 			document.body.addEventListener('click', this.body_click.bind(this));
 			const container = document.getElementById('headerButtons');
-			this.icon = RC.Utils.stringToNode(PiLot.Templates.Common.userMenuIcon);
+			this.icon = PiLot.Utils.Common.createNode(PiLot.Templates.Common.userMenuIcon);
 			this.icon.addEventListener('click', this.icon_click.bind(this));
-			this.menu = RC.Utils.stringToNode(PiLot.Templates.Common.userMenu);
+			this.menu = PiLot.Utils.Common.createNode(PiLot.Templates.Common.userMenu);
 			this.menu.addEventListener('click', this.menu_click);
 			this.btnLogin = this.menu.querySelector('.btnLogin');
 			this.btnLogin.addEventListener('click', this.btnLogin_click.bind(this));
