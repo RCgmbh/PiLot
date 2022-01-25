@@ -20,7 +20,7 @@ The PiLot is a Raspberry Pi based system for boating. It's used with any device 
 - Position
 - COG (course over ground)
 - SOG (speed over ground)
-- VMG (velocity made good)
+- VMC (velocity made good on course)
 - XTE (cross track error)
 
 **Logbook**
