@@ -1,6 +1,6 @@
 # PiLot
 
-The PiLot is a Raspberry Pi based system used for boating. It's used with any device having a browser and wifi. It's completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
+The PiLot is a Raspberry Pi based system for boating. It's used with any device having a browser and wifi. It's completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
 
 ## Features:
 
@@ -20,7 +20,7 @@ The PiLot is a Raspberry Pi based system used for boating. It's used with any de
 - Position
 - COG (course over ground)
 - SOG (speed over ground)
-- VMG (velocity made good)
+- VMC (velocity made good on course)
 - XTE (cross track error)
 
 **Logbook**
