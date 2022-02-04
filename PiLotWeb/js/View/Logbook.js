@@ -21,7 +21,8 @@ PiLot.View.Logbook = (function () {
 
 		// controls
 		this.lblFriendlyDate = null;					// span showing the friendly date
-		this.lblToday = null;							// a label which will be shown if the current date is today
+		this.lblLogbook = null;							// the title for the non-today logbook page
+		this.lblTodaysLogbook = null;					// the title to be shown if the current date is today
 		this.calendar = null;							// PiLot.View.Logbook.DiaryCalendar to select the date			
 		this.lnkPreviousDay = null;						// the link to go back one day
 		this.lnkNextDay = null;							// the link to go to the next day
@@ -63,10 +64,11 @@ PiLot.View.Logbook = (function () {
 
 		/// draws the page and finds the controls and binds handlers
 		draw: function () {
-			let logbookControl = RC.Utils.stringToNode(this.template);
+			let logbookControl = PiLot.Utils.Common.createNode(this.template);
 			PiLot.Utils.Loader.getContentArea().appendChild(logbookControl);
 			this.lblFriendlyDate = logbookControl.querySelector('.lblFriendlyDate');
-			this.lblToday = logbookControl.querySelector('.lblToday');
+			this.lblLogbook = logbookControl.querySelector('.lblLogbook');
+			this.lblTodaysLogbook = logbookControl.querySelector('.lblTodaysLogbook');
 			let divCalendar = logbookControl.querySelector('.logbookCalendar');
 			let calendarLink = logbookControl.querySelector('.lblCalendarLink');
 			let calendarDate = logbookControl.querySelector('.lblCalendarDate');
@@ -222,10 +224,15 @@ PiLot.View.Logbook = (function () {
 		/// shows the currently selected date in friendly form
 		showFriendlyDate: function () {
 			if (this.lblFriendlyDate !== null) {
-				this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale('de-ch').toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+				const locale = PiLot.Utils.Language.getLocale();
+				this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale(locale).toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 			}
-			if (this.lblToday !== null) {
-				RC.Utils.showHide(this.lblToday, this.date.contains(this.currentBoatTime.now()));
+			let isToday = this.date.contains(this.currentBoatTime.now());
+			if (this.lblTodaysLogbook !== null) {
+				RC.Utils.showHide(this.lblTodaysLogbook, isToday);
+			}
+			if (this.lblLogbook !== null) {
+				RC.Utils.showHide(this.lblLogbook, !isToday);
 			}
 		},
 
@@ -467,14 +474,12 @@ PiLot.View.Logbook = (function () {
 		this.tbTitle = null;
 		this.btnDeleteEntry = null;
 		this.tbNotes = null;
-		this.btnRefreshMeteo = null;
 		this.ddlWeather = null;
 		this.tbTemperature = null;
 		this.tbPressure = null;
 		this.ddlWindForce = null;
 		this.ddlWindDirection = null;
 		this.tbWaveHeight = null;
-		this.btnRefreshNav = null;
 		this.editLatitude = null;
 		this.editLongitude = null;
 		this.tbCOG = null;
@@ -524,10 +529,6 @@ PiLot.View.Logbook = (function () {
 			}
 		},
 
-		btnRefreshMeteo_click: function () { },
-
-		btnRefreshNav_click: function () { },
-
 		/// handles clicks on the save button
 		btnSave_click: function (e) {
 			e.preventDefault();
@@ -567,7 +568,7 @@ PiLot.View.Logbook = (function () {
 		drawEditForm: function () {
 			if (!this.isReadOnly) {
 				this.ensureItemContainer();
-				this.editForm = RC.Utils.stringToNode(PiLot.Templates.Logbook.logbookEntryEditable)
+				this.editForm = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryEditable)
 				this.itemContainer.insertAdjacentElement('afterbegin', this.editForm);
 				RC.Utils.showHide(this.editForm, false);
 				this.tbTime = this.editForm.querySelector('.tbTime');
@@ -575,26 +576,22 @@ PiLot.View.Logbook = (function () {
 				this.btnDeleteEntry = this.editForm.querySelector('.btnDeleteEntry');
 				this.btnDeleteEntry.addEventListener('click', this.btnDeleteEntry_click.bind(this));
 				this.tbNotes = this.editForm.querySelector('.tbNotes');
-				this.btnRefreshMeteo = this.editForm.querySelector('.btnRefreshMeteo');
-				this.btnRefreshMeteo.addEventListener('click', this.btnRefreshMeteo_click.bind(this));
 				this.ddlWeather = this.editForm.querySelector('.ddlWeather');
-				RC.Utils.fillDropdown(this.ddlWeather, PiLot.Templates.Logbook.weatherTypes, ['', '']);
+				PiLot.Utils.Common.fillDropdown(this.ddlWeather, PiLot.Templates.Logbook.weatherTypes);
 				this.tbTemperature = this.editForm.querySelector('.tbTemperature');
 				this.tbPressure = this.editForm.querySelector('.tbPressure');
 				this.ddlWindForce = this.editForm.querySelector('.ddlWindForce');
-				RC.Utils.fillDropdown(this.ddlWindForce, PiLot.Templates.Logbook.windForces, ['', '']);
+				PiLot.Utils.Common.fillDropdown(this.ddlWindForce, PiLot.Templates.Logbook.windForces, false);
 				this.ddlWindDirection = this.editForm.querySelector('.ddlWindDirection');
-				RC.Utils.fillDropdown(this.ddlWindDirection, PiLot.Templates.Logbook.windDirections, ['', '']);
+				PiLot.Utils.Common.fillDropdown(this.ddlWindDirection, PiLot.Templates.Logbook.windDirections);
 				this.tbWaveHeight = this.editForm.querySelector('.tbWaveHeight');
-				this.btnRefreshNav = this.editForm.querySelector('.btnRefreshNav');
-				this.btnRefreshNav.addEventListener('click', this.btnRefreshNav_click.bind(this));
 				this.editLatitude = new PiLot.View.Nav.CoordinateForm(this.editForm.querySelector('.plhLat'), true);
 				this.editLongitude = new PiLot.View.Nav.CoordinateForm(this.editForm.querySelector('.plhLon'), false);
 				this.tbCOG = this.editForm.querySelector('.tbCOG');
 				this.tbSOG = this.editForm.querySelector('.tbSOG');
 				this.tbLog = this.editForm.querySelector('.tbLog');
 				this.editBoatSetupImage = new PiLot.View.Boat.BoatImageLink(null, this.editForm.querySelector('.plhBoatSetup'), null);
-				this.boatSetupForm = new PiLot.View.Boat.BoatSetupForm(/*this.boatConfig*/ null, this.editForm.querySelector('.plhBoatSetupForm'));
+				this.boatSetupForm = new PiLot.View.Boat.BoatSetupForm(null, this.editForm.querySelector('.plhBoatSetupForm'));
 				this.editBoatSetupImage.attachForm(this.boatSetupForm);
 				this.btnSave = this.editForm.querySelector('.btnSave');
 				this.btnSave.addEventListener('click', this.btnSave_click.bind(this));
@@ -609,7 +606,7 @@ PiLot.View.Logbook = (function () {
 		/// creates the display form, without displaying an item 
 		drawDisplayForm: function () {
 			this.ensureItemContainer();
-			this.displayForm = RC.Utils.stringToNode(PiLot.Templates.Logbook.logbookEntryReadonly);
+			this.displayForm = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryReadonly);
 			this.itemContainer.appendChild(this.displayForm);
 			this.lblTime = this.displayForm.querySelector('.lblTime');
 			this.lblTitle = this.displayForm.querySelector('.lblTitle');
@@ -877,7 +874,7 @@ PiLot.View.Logbook = (function () {
 			let x = PublishLogbookPage.MAXIMAGESIZE;
 			let loader = PiLot.Utils.Loader;
 			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.logbook.logbook);
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Logbook.publishLogbookPage);
+			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.publishLogbookPage);
 			loader.getContentArea().appendChild(pageContent);
 			this.ddlPublishTarget = pageContent.querySelector('.ddlPublishTarget');
 			this.icoWait = pageContent.querySelector('.icoWait');
@@ -955,8 +952,8 @@ PiLot.View.Logbook = (function () {
 		loadPublishTargetsAsync: async function () {
 			const targets = await PiLot.Model.Logbook.loadPublishTargetsAsync();
 			const ddlArray = targets.map(t => [t.name, t.displayName]);
-			ddlArray.unshift(['', 'bitte wählen...']);
-			RC.Utils.fillDropdown(this.ddlPublishTarget, ddlArray);
+			ddlArray.unshift(['', 'pleaseSelect']);
+			PiLot.Utils.Common.fillDropdown(this.ddlPublishTarget, ddlArray);
 		},
 
 		/** loads the local data to show in the publish form ("left side") */
@@ -1028,7 +1025,7 @@ PiLot.View.Logbook = (function () {
 				pPhotosCountControl.innerText = pPhotoInfos.getImagesCount();
 				const idPrefix = pContainer.id || (Math.random() * 10 ^ 6).toFixed(0);
 				pPhotoInfos.getImageNames().forEach(function (pPhoto) {
-					const imageContainer = RC.Utils.stringToNode(PiLot.Templates.Logbook.publishPagePhoto);
+					const imageContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.publishPagePhoto);
 					const imageId = `${idPrefix}_${pPhoto}`;
 					pContainer.appendChild(imageContainer);
 					const image = imageContainer.querySelector('.imgPhoto');

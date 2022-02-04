@@ -13,7 +13,7 @@ PiLot.Templates.Nav = {
 		</div>
 		`,
 
-	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning hidden" data-key="noGpsData"></div>`,
+	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning hidden" data-text="noGpsData"></div>`,
 
 	routesPage: `
 		<div class="contentPadding">

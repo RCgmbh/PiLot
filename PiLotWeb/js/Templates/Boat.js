@@ -8,9 +8,9 @@ PiLot.Templates.Boat = {
 
 	boatSetupForm: 
 		`<div class="boatSetupForm">
-			<span class="block semiBold marginBottom" data-key="boatSetup"></span>
+			<span class="block semiBold marginBottom" data-text="boatSetup"></span>
 			<div class="plhFeatures"></div>
-			<a href="#" class="lnkSave fullWidth marginTop hidden linkButton" data-key="ok"></a>	
+			<a href="#" class="lnkSave fullWidth marginTop hidden linkButton" data-text="ok"></a>	
 		</div>`,
 
 	boatFeatureSelect:
@@ -22,7 +22,7 @@ PiLot.Templates.Boat = {
 	boatPage:
 		`<div class="contentPadding">
 			<div class="dataContainerFull marginBottom">
-				<h1><a href="#" class="lnkSettings" data-key="settings">Einstellungen</a> : <span data-key="boat"></span></h1>
+				<h1><a href="#" class="lnkSettings" data-text="settings">Einstellungen</a> : <span data-text="boat"></span></h1>
 				<div class="boatConfigSlider">	
 					<div class="configNameFrame">
 						<span class="plhConfigName semiBold"></span>

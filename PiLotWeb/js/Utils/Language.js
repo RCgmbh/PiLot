@@ -3,9 +3,9 @@ PiLot.Utils = PiLot.Utils || {};
 
 /**
  * Simple multilingual solution. We have one file per language (Texts.xy.js). The file contains a huge object
- * PiLot.Texts, with one field per key. That object contains the text, src, tooltip and alt text. Each HTML 
- * Element that has a data-key attribute will be translated, which means the texts etc. will be applied, if
- * available. The loader is responsible for making sure that exactly one of the language files is loaded.
+ * PiLot.Texts, with a text per key. Each HTML Element that has a data-text or a data-title attribute will be
+ * translated, which means the texts etc. will be applied, if available. The loader is responsible for making
+ * sure that exactly one of the language files is loaded.
  * */
 
 PiLot.Utils.Language = {
@@ -43,8 +43,12 @@ PiLot.Utils.Language = {
 	 * @param {String} pKey - The key of the requested element 
 	 */
 	getText: function (pKey) {
-		let obj = PiLot.Texts[pKey];
-		return obj ? obj.text : null;
+		return PiLot.Texts[pKey];
+	},
+
+	/** Returns the locale to be used in date formatting, e.g. de-ch */
+	getLocale: function () {
+		return PiLot.Texts.locale;
 	},
 
 	/** Sets the lang attribute of the html element to the current language */
@@ -53,43 +57,55 @@ PiLot.Utils.Language = {
 	},
 
 	/**
-	 * This applies all texts from the loaded resources file to either pControl, if 
-	 * has a data-key attribute, or to all elements within pControl that
-	 * have a data-key attribute. Depending on the type of the element, the
-	 * innerText, alt, title etc will be set
+	 * This makes sure all elements with a data-text-key or a data-title-key 
+	 * attribute are translated.
 	 * @param {HTMLElement} pControl - The Element or its children will be processed.
 	 */
 	applyTexts: function (pControl) {
-		if ("key" in pControl.dataset) {
-			this.applyTextsToControl(pControl);
+		this.translateAttributes(pControl, 'text', 'data-text');
+		this.translateAttributes(pControl, 'title', 'data-title');
+	},
+
+	/**
+	 * This applies all texts from the loaded resources file to either pControl, if
+	 * it has a pDataAttribute attribute, or to all elements within pControl that
+	 * have a pDataAttribute attribute.
+	 * @param {HTMLElement} pControl - the control to translate
+	 * @param {String} pDataProperty - the name of the data attribute, e.g. textKey
+	 * @param {String} pDataAttribute - the name of the html attribute, e.g. data-text-key
+	 */
+	translateAttributes: function (pControl, pDataProperty, pDataAttribute) {
+		if (pDataProperty in pControl.dataset) {
+			this.translateControlAttributes(pControl, pDataProperty);
 		} else {
-			pControl.querySelectorAll('[data-key]').forEach(e => PiLot.Utils.Language.applyTextsToControl(e));
+			pControl.querySelectorAll(`[${pDataAttribute}]`).forEach(e => PiLot.Utils.Language.translateControlAttributes(e, pDataProperty));
 		}
 	},
 
 	/**
 	 * This applies text text from the loaded resources file to one control, based
-	 * on its data-key attribute. Depending on the type of the element, the
-	 * innerText, alt, title etc will be set
+	 * on its data-text attribute. Depending on the type of the element, the
+	 * innerText will be set
 	 * @param {HTMLElement} pControl - The Element that will be processed.
-	 * @param {String} pKey - optionally pass the key instead of reading data-key
 	 */
-	applyTextsToControl: function (pControl, pKey = null) {
-		const key = pKey || pControl.dataset.key;
-		const obj = PiLot.Texts[key];
-		if (obj) {
-			if (obj.text) {
-				pControl.innerText = obj.text;
-			}
-			if (obj.tooltip) {
-				pControl.title = obj.tooltip;
-			}
-			if (pControl instanceof HTMLImageElement) {
-				pControl.src = obj.src || pControl.src;
-				pControl.alt = obj.alt || pControl.alt || obj.tooltip;
-			}
-			if (pControl instanceof HTMLInputElement) {
-				pControl.placeholder = obj.placeholder || pControl.placeholder;
+	translateControlAttributes: function (pControl, pDataProperty) {
+		const key = pControl.dataset[pDataProperty];
+		const text = PiLot.Texts[key];
+		if (text) {
+			switch (pDataProperty) {
+				case 'text':
+					pControl.innerText = text;
+					break;
+				case 'title':
+					if (pControl instanceof HTMLInputElement) {
+						pControl.placeholder = text || pControl.placeholder;
+					}
+					else if (pControl instanceof HTMLImageElement) {
+						pControl.alt = text || pControl.alt;
+					} else {
+						pControl.title = text;
+					}
+					break;
 			}
 		} else {
 			PiLot.log(`Unknown key: ${key}`, 0);

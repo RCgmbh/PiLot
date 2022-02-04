@@ -12,21 +12,21 @@ PiLot.Templates.Map = {
 			</a>
 		</div>`,
 
-	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-key="noGpsData"></div>`,
+	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,
 
 	mapWaypointPopup: `
 		<div class="mapWaypointPopup">
 			<div class="name block semiBold"></div><br />
 			<span class="latLng"></span><br />
-			<span data-key="eta"></span>: <span class="eta"></span><br />
-			<span data-key="distance"></span>: <span class="dist"></span> <span data-key="nm"></span><br />
-			<span data-key="bearing"></span>: <span class="bearing"></span>°<br /><br />
-			<a href="#" class="lnkDelete" data-key="deleteWaypoint"></a>
+			<span data-text="eta"></span>: <span class="eta"></span><br />
+			<span data-text="distance"></span>: <span class="dist"></span> <span data-text="nm"></span><br />
+			<span data-text="bearing"></span>: <span class="bearing"></span>°<br /><br />
+			<a href="#" class="lnkDelete" data-text="deleteWaypoint"></a>
 		</div>`,
 
 	mapLegPopup: `
 		<div class="mapLeg">
-			<a href="#" class="lnkInsertWaypoint" data-key="addWaypoint"></a>
+			<a href="#" class="lnkInsertWaypoint" data-text="addWaypoint"></a>
 		</div>`,
 
 	mapLegOptions: { color: '#768E96', className: 'navLegLine' },
@@ -35,25 +35,25 @@ PiLot.Templates.Map = {
 
 	mapAutoCenter: `
 		<a href="#" class="option">
-			<span class="label" data-key="centerPosition"></span>
+			<span class="label" data-text="centerPosition"></span>
 			<span class="icon navCurrentPosition"></span>
 		</a>`,
 
 	mapShowCOG: `
 		<a href="#" class="option">
-			<span class="label" data-key="showCogVector"></span>
+			<span class="label" data-text="showCogVector"></span>
 			<span class="icon"><i class="icon-arrow-up-right2"></i></span>
 		</a>`,
 
 	mapShowRoute: `
 		<a href="#" class="option">
-			<span class="label" data-key="showRoute"></span>
+			<span class="label" data-text="showRoute"></span>
 			<span class="icon"><i class="icon-share2"></i></span>
 		</a>`,
 
 	mapLockRoute: `
 		<a href="#" class="option">
-			<span class="label" data-key="lockWaypoints"></span>
+			<span class="label" data-text="lockWaypoints"></span>
 			<span class="icon"><i class="icon-locked"></i></span>
 		</a>`,
 
@@ -63,12 +63,12 @@ PiLot.Templates.Map = {
 			<div class="customContent"></div>
 		</div>`,
 
-	mapAddWaypointLink: '<a href="#" data-key="addWaypoint"></a>',
+	mapAddWaypointLink: '<a href="#" data-text="addWaypoint"></a>',
 
 	mapShowTrack:`
 		<div class="option">
 			<a href="#">
-				<span class="label" data-key="showTrack"></span>
+				<span class="label" data-text="showTrack"></span>
 				<span class="icon"><i class="icon-history"></i></span>
 			</a>
 			<div class="label">
@@ -78,11 +78,11 @@ PiLot.Templates.Map = {
 					<option value="86400">24h</option>
 					<option value="172800">48h</option>
 					<option value="345600">96h</option>
-					<option value="null" data-key="userdefined"></option>
+					<option value="null" data-text="userdefined"></option>
 				</select>
 				<div class="label marginBottomSmall pnlCustomDates">
-					<span class="inlineBlock input2" data-key="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate"></div><br />
-					<span class="inlineBlock input2" data-key="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate hidden"></div>
+					<span class="inlineBlock input2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate"></div><br />
+					<span class="inlineBlock input2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate hidden"></div>
 				</div>
 			</div>
 		</div>`,

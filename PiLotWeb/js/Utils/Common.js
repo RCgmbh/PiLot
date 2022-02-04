@@ -273,5 +273,28 @@ PiLot.Utils.Common = {
 		const result = RC.Utils.stringToNode(pTemplate);
 		PiLot.Utils.Language.applyTexts(result);
 		return result;
+	},
+
+	/**
+	 * Fills a dropdown with data. The data is an array of arrays,
+	 * containing key and value. The values will be translated, if
+	 * there is a matching text in the current language. Any existing
+	 * items will be deleted at first.
+	 * @param {HTMLSelectElement} pDropdown - The dropdown control to fill
+	 * @param {Array} pData - an array of 2-items arrays, each with value, text
+	 * @param {Boolean} pNoTranlsation - Optionally pass false to skip translation
+	 */
+	fillDropdown: function (pDropdown, pData, pTranlsateTexts = true) {
+		pDropdown.clear();
+		pData.forEach(function (anItem) {
+			let option = document.createElement('option');
+			option.value = anItem[0];
+			if (pTranlsateTexts) {
+				option.innerText = PiLot.Utils.Language.getText(anItem[1]) || anItem[1];
+			} else {
+				option.innerText = anItem[1];
+			}			
+			pDropdown.appendChild(option);
+		});
 	}
 };

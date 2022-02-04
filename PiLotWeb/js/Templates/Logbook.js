@@ -6,56 +6,62 @@ PiLot.Templates.Logbook = {
 	logbookEntry: `<div class="logbookEntry"></div>`,
 
 	weatherTypes: [
-		['1', "Sonnig/klar"],
-		['2', "Teilweise bewölkt"],
-		['3', "Bedeckt"],
-		['4', "Nieselregen"],
-		['5', "Regen"],
-		['6', "Starkregen"],
-		['7', "Gewitter"],
-		['8', "Nebel"],
-		['9', "Schneefall"]
+		['', ''],
+		['1', 'sunny'],
+		['2', 'cloudy'],
+		['3', 'overcast'],
+		['4', 'drizzle'],
+		['5', 'rain'],
+		['6', 'heavyRain'],
+		['7', 'thunderstorm'],
+		['8', 'fog'],
+		['9', 'snow']
 	],
 
 	windForces: [
-		['0', "0"],
-		['1', "1"],
-		['2', "2"],
-		['3', "3"],
-		['4', "4"],
-		['5', "5"],
-		['6', "6"],
-		['7', "7"],
-		['8', "8"],
-		['9', "9"],
-		['10', "10"],
-		['11', "11"],
-		['12', "12"]
+		['', ''],
+		['0', '0'],
+		['1', '1'],
+		['2', '2'],
+		['3', '3'],
+		['4', '4'],
+		['5', '5'],
+		['6', '6'],
+		['7', '7'],
+		['8', '8'],
+		['9', '9'],
+		['10', '10'],
+		['11', '11'],
+		['12', '12']
 	],
 
 	windDirections: [
-		['0',     "N"  ], 
-		['22.5',  "NNE"], 
-		['45',    "NE" ], 
-		['67.5',  "ENE"],
-		['90',    "E"  ], 
-		['112.5', "ESE"], 
-		['135',   "SE" ],
-		['157.5', "SSE"], 
-		['180',   "S"  ], 
-		['202.5', "SSW"], 
-		['225',   "SW" ], 
-		['247.5', "WSW"], 
-		['270',   "W"  ], 
-		['292.5', "WNW"], 
-		['315',   "NW" ], 
-		['337.5', "NNW"], 
+		['', ''],
+		['0', 'directionN'],
+		['22.5',  'directionNNE'],
+		['45',    'directionNE' ],
+		['67.5',  'directionENE'],
+		['90',    'directionE'  ],
+		['112.5', 'directionESE'],
+		['135',   'directionSE' ],
+		['157.5', 'directionSSE'],
+		['180',   'directionS'  ],
+		['202.5', 'directionSSW'],
+		['225',   'directionSW' ],
+		['247.5', 'directionWSW'],
+		['270',   'directionW'  ],
+		['292.5', 'directionWNW'],
+		['315',   'directionNW' ],
+		['337.5', 'directionNNW'],
 	],
 
 	logbookPage: `
 		<div class="contentPadding">		
 			<div class="dataContainerFull marginBottom">
-				<h1 class="inlineBlock">Logbuch<span class="lblToday hidden"> von heute</span></h1>
+				<h1 class="inlineBlock">
+					<span class="lblTodaysLogbook hidden" data-text="todaysLogbook"></span>
+					<span class="lblLogbook hidden" data-text="logbook"></span>
+				</h1>
 				<div class="floatRight inlineBlock marginRight">
 					<a href="#" class="lnkPreviousDay"><i class="icon-arrow-left2"></i></a><span 
 						class="lblCalendarDate lblCalendarLink inlineBlock marginLeft marginRight pointer"></span><a
@@ -64,12 +70,12 @@ PiLot.Templates.Logbook = {
 				</div>
 			</div>
 			<div class="dataContainerHalf">
-				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i>Neuer Eintrag</a>
+				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 				<div class="plhLogbookEntries"></div>
 			</div>
 			<div class="dataContainerHalf paddingRight">
-				<span class="block semiBold marginBottom">Tagebuch</span>
-				<textarea class="tbDiary fullWidth paper" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false" ></textarea>
+				<span class="block semiBold marginBottom" data-text="diary"></span>
+				<textarea class="tbDiary fullWidth paper" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 			</div>
 		</div>`,
 
@@ -86,7 +92,8 @@ PiLot.Templates.Logbook = {
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
 				<div class="lblDiary marginBottom hidden preLine"></div>
-				<div class="plhDistance marginBottom">Distanz: <span class="lblDistanceKm"></span> km / <span class="lblDistanceNm"></span> nm</div>
+				<div class="plhDistance marginBottom">
+					<span data-text="distance"></span>: <span class="lblDistanceKm"></span> <span data-text="km"></span> / <span class="lblDistanceNm"></span> <span data-text="nm"></span></div>
 				<div class="plhLogbookEntries"></div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
@@ -96,7 +103,7 @@ PiLot.Templates.Logbook = {
 				<div class="diaryPhotos"></div>
 			</div>
 			<div class="paddingBottom marginBottom">
-				<a href="#" class="lnkPublish block linkButton paddingLeft paddingRight hidden">Publizieren</a>
+				<a href="#" class="lnkPublish block linkButton paddingLeft paddingRight hidden" data-text="publish"></a>
 			</div>
 		</div>`,
 
@@ -106,54 +113,53 @@ PiLot.Templates.Logbook = {
 		<div class="logbookEntry marginBottom">
 			<div class="marginBottomSmall block">
 				<span class="col1"><input type="text" class="tbTime input3" placeholder="hh:mm"
-				/></span><input type="text" class="tbTitle marginRight" placeholder="Titel"
-				/><a href="#" class="btnDeleteEntry inlineBlock"><i class="icon-bin"></i></a>
+				/></span><input type="text" class="tbTitle marginRight" data-title="title"
+				/><a href="#" class="btnDeleteEntry inlineBlock" data-title="delete"><i class="icon-bin"></i></a>
 			</div>
 			<div class="logbookBoxes marginBottomSmall">
 				<div class="plhBoatSetupForm hidden"></div>
 				<div class="logbookBox logbookMeteo">
-					<div class="semiBold inlineBlock marginBottomSmall">Meteo</div><a href="#" class="btnRefreshMeteo input1 inlineBlock floatRight hidden"><i class="icon-loop2"></i></a>
+					<div class="semiBold inlineBlock marginBottomSmall" data-text="meteo"></div>
 					<select class="ddlWeather fullWidth marginBottomSmall"></select>
 					<div class="block marginBottomSmall">
-						<span class="label">Temp.</span><input type="text" class="tbTemperature input3" />°C
+						<span class="label" data-text="temperatureShort"></span><input type="text" class="tbTemperature input3" />°C
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="label">Druck</span><input type="text" class="tbPressure input3" />hPa
+						<span class="label" data-text="pressureShort"></span><input type="text" class="tbPressure input3" /><span data-text="hPa"></span>
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="label">Wind</span><select class="ddlWindForce input3"></select>BF
+						<span class="label" data-text="wind"></span><select class="ddlWindForce input3"></select><span data-text="bft"></span>
 					</div>
 					<div class="block marginBottomSmall">
 						<span class="label"></span><select class="ddlWindDirection input3"></select>
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="label">Welle</span><input type="text" class="tbWaveHeight input3" />m
+						<span class="label" data-text="wave"></span><input type="text" class="tbWaveHeight input3" />m
 					</div>
 				</div>
 				<div class="logbookBox logbookNav">
-					<div class="semiBold inlineBlock marginBottomSmall">Nav</div>
-					<a href="#" class="btnRefreshNav input1 inlineBlock floatRight hidden"><i class="icon-loop2"></i></a>
+					<div class="semiBold inlineBlock marginBottomSmall" data-text="nav"></div>
 					<div class="block">
-						<span class="labelSmall">Lat</span><div class="plhLat inlineBlock"></div>
+						<span class="labelSmall" data-text="latitudeShort"></span><div class="plhLat inlineBlock"></div>
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="labelSmall">Lon</span><div class="plhLon inlineBlock"></div>
+						<span class="labelSmall" data-text="longitudeShort"></span><div class="plhLon inlineBlock"></div>
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="label">COG</span><input type="text" class="tbCOG input3" />°
+						<span class="label" data-text="cog"></span><input type="text" class="tbCOG input3" />°
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="label">SOG</span><input type="text" class="tbSOG input3" />kn
+						<span class="label" data-text="sog"></span><input type="text" class="tbSOG input3" /><span data-text="kn"></span>
 					</div>
 					<div class="block marginBottomSmall">
-						<span class="label">Log</span><input type="text" class="tbLog input3" />nm
+						<span class="label" data-text="log"></span><input type="text" class="tbLog input3" /><span data-text="nm"></span>
 					</div>
 				</div>
 				<div class="plhBoatSetup logbookBox logbookBoat"></div>
 			</div>
-			<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" placeholder="Bemerkungen"></textarea>
-			<a href="#" class="btnCancel block linkButton marginRight">Abbrechen</a>
-			<a href="#" class="btnSave block linkButton marginLeft">Speichern</a>
+			<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" data-title="remarks"></textarea>
+			<a href="#" class="btnCancel block linkButton marginRight" data-text="cancel"></a>
+			<a href="#" class="btnSave block linkButton marginLeft" data-text="save"></a>
 		</div>`,
 
 	logbookEntryReadonly:
@@ -165,17 +171,17 @@ PiLot.Templates.Logbook = {
 			<div class="marginBottomSmall block lblNotes"></div>
 			<div class="logbookBoxes marginBottomSmall">
 				<div class="logbookBox logbookMeteo">
-					<span class="semiBold inlineBlock marginBottomSmall">Meteo</span>
+					<span class="semiBold inlineBlock marginBottomSmall" data-text="meteo"></span>
 					<span class="lblWeather block"></span>
 					<span class="lblTemperature block">
 						<span class="labelIcon"><i class="icon-thermometer-half"></i></span><span></span> °C
 					</span>
 					<span class="lblPressure block">
-						<span class="labelIcon"><i class="icon-barometer"></i></span><span></span> hPa
+						<span class="labelIcon"><i class="icon-barometer"></i></span><span></span> <span data-text="hPa"></span>
 					</span>
 					<div class="block">
 						<span class="lblWindForce">
-							<span class="labelIcon"><i class="icon-wind2"></i></span><span></span> Bft.
+							<span class="labelIcon"><i class="icon-wind2"></i></span><span></span> <span data-text="bft"></span>
 						</span>
 						<span class="lblWindDirection"></span>
 					</div>
@@ -184,21 +190,21 @@ PiLot.Templates.Logbook = {
 					</span>
 				</div>
 				<div class="logbookBox logbookNav">
-					<div class="semiBold inlineBlock marginBottomSmall">Nav</div>
+					<div class="semiBold inlineBlock marginBottomSmall" data-text="nav"></div>
 					<div class="lblLat block">
-						<span class="labelSmall">Lat</span><span></span>
+						<span class="labelSmall" data-text="latitudeShort"></span><span></span>
 					</div>
 					<div class="lblLon block">
-						<span class="labelSmall">Lon</span><span></span>
+						<span class="labelSmall" data-text="longitudeShort"></span><span></span>
 					</div>
 					<div class="lblCOG block">
-						<span class="labelSmall">COG</span><span></span>°
+						<span class="labelSmall" data-text="cog"></span><span></span>°
 					</div>
 					<div class="lblSOG block">
-						<span class="labelSmall">SOG</span><span></span> kn
+						<span class="labelSmall" data-text="sog"></span><span></span> <span data-text="kn"></span>
 					</div>
 					<div class="lblLog block">
-						<span class="labelSmall">Log</span><span></span> nm
+						<span class="labelSmall" data-text="log"></span><span></span> <span data-text="nm"></span>
 					</div>
 				</div>
 				<div class="plhBoatSetup logbookBox logbookBoat"></div>
@@ -208,28 +214,28 @@ PiLot.Templates.Logbook = {
 	publishLogbookPage: `
 		<div class="contentPadding">
 			<div class="dataContainerFull marginBottomBig paddingRight">
-				<div><h1 class="inlineBlock">Logbuch publizieren</h1></div>
+				<div><h1 class="inlineBlock" data-text="publishLogbook"></h1></div>
 				<div class="marginBottom">
-					<label class="col6 inlineBlock">Ziel:</label><select class="ddlPublishTarget input8"></select> <i class="icoWait icon-hour-glass" hidden></i>
+					<label class="col6 inlineBlock" data-text="publishTarget">:</label><select class="ddlPublishTarget input8"></select> <i class="icoWait icon-hour-glass" hidden></i>
 				</div>
 				<div class="pnlJobInfo marginAll paddingAllSmall" hidden>
 					<div class="fullWidth right"><a href="#" class="btnClose"><i class="icon-cancel3"></i></a></div>
-					<div class="bold marginBottom">Job Status</div>
+					<div class="bold marginBottom" data-text="jobStatus"></div>
 					<div class="marginBottomSmall">
-						Status:
-						<span class="lblStatusNone hidden">Kein Job vorhanden</span>
-						<span class="lblStatusIdle hidden">Wartend</span>
-						<span class="lblStatusBusy hidden">Job läuft</span>
-						<span class="lblStatusFinished hidden">Fertig</span>
-						<span class="lblStatusError hidden">Fehler</span>
+						<span data-text="state"></span>:
+						<span class="lblStatusNone hidden" data-text="noJob"></span>
+						<span class="lblStatusIdle hidden" data-text="waiting"></span>
+						<span class="lblStatusBusy hidden" data-text="jobRunning"></span>
+						<span class="lblStatusFinished hidden" data-text="finished"></span>
+						<span class="lblStatusError hidden" data-text="error"></span>
 					</div>
 					<div class="pnlMessages"></div>
 				</div>
 				<div class="pnlPublish flex" style="flex-direction:column;">
 					<div class="title">
-						<div class="summary"><span class="lblLocalPositionsCount">...</span> Positionen</div>
-						<div class="center">Track</div>
-						<div class="summary right"><span class="lblTargetPositionsCount">...</span> Positionen</div>
+						<div class="summary"><span class="lblLocalPositionsCount">...</span> <span data-text="positions"></span></div>
+						<div class="center" data-text="track"></div>
+						<div class="summary right"><span class="lblTargetPositionsCount">...</span> <span data-text="positions"></span></div>
 					</div>
 					<div>
 						<div style="flex: 1 0 10em;"><div class="divLocalTrack map"></div></div>
@@ -239,9 +245,9 @@ PiLot.Templates.Logbook = {
 						<div style="flex: 1 0 10em;"><div class="divTargetTrack map"></div></div>
 					</div>
 					<div class="title paddingTop">
-						<div class="summary"><span class="lblLocalDiaryLength">...</span> Zeichen</div>
-						<div class="center">Tagebuch</div>
-						<div class="summary right"><span class="lblTargetDiaryLength">...</span> Zeichen</div>
+						<div class="summary"><span class="lblLocalDiaryLength">...</span> <span data-text="characters"></span></div>
+						<div class="center" data-text="diary"></div>
+						<div class="summary right"><span class="lblTargetDiaryLength">...</span> <span data-text="characters"></span></div>
 					</div>
 					<div>
 						<div class="divLocalDiaryText diaryText"></div>
@@ -252,9 +258,9 @@ PiLot.Templates.Logbook = {
 						<div class="divTargetDiaryText diaryText"></div>
 					</div>
 					<div class="title paddingTop">
-						<div class="summary"><span class="lblLocalLogbookEntriesCount">...</span> Einträge</div>
-						<div class="center">Logbuch</div>
-						<div class="summary right"><span class="lblTargetLogbookEntriesCount">...</span> Einträge</div>
+						<div class="summary"><span class="lblLocalLogbookEntriesCount">...</span> <span data-text="entries"></span></div>
+						<div class="center" data-text="logbook"></div>
+						<div class="summary right"><span class="lblTargetLogbookEntriesCount">...</span> <span data-text="entries"></span></div>
 					</div>
 					<div class="">
 						<div class="divLocalLogbookEntries logbookEntries"></div>
@@ -265,9 +271,9 @@ PiLot.Templates.Logbook = {
 						<div class="logbookEntries divTargetLogbookEntries"></div>
 					</div>
 					<div class="title paddingTop">
-						<div class="summary"><span class="lblLocalPhotosCount">...</span> Bilder</div>
-						<div class="center">Fotos</div>
-						<div class="summary right"><span class="lblTargetPhotosCount">...</span> Bilder</div>
+						<div class="summary"><span class="lblLocalPhotosCount">...</span> <span data-text="images"></span></div>
+						<div class="center" data-text="photos"></div>
+						<div class="summary right"><span class="lblTargetPhotosCount">...</span> <span data-text="images"></span></div>
 					</div>
 					<div class="">
 						<div class="divLocalPhotos photos" id="divLocalPhotos"></div>
@@ -277,8 +283,8 @@ PiLot.Templates.Logbook = {
 						<div class="divTargetPhotos photos"></div>
 					</div>
 					<div class="divButton paddingTop center">
-						<a href="#" class="btnPublish block linkButton paddingLeft paddingRight marginRight">Publizieren</a>
-						<a href="#" class="btnStatus block linkButton paddingLeft paddingRight">Status</a>
+						<a href="#" class="btnPublish block linkButton paddingLeft paddingRight marginRight" data-text="publish"></a>
+						<a href="#" class="btnStatus block linkButton paddingLeft paddingRight" data-text="state"></a>
 					</div>
 				</div>
 			</div>
