@@ -124,29 +124,29 @@ PiLot.Templates.Nav = {
 			</div>
 		</div>`,
 
-	telemetryOptions: `
+	navOptions: `
 		<div class="sideMenu">
 			<a href="#" class="expandCollapse">
 				<i class="icon-circle-right expand"></i><i class="icon-circle-left collapse"></i>
 			</a>
 			<a href="#" class="option lnkToggleCoordinates">
-				<span class="label">Koordinaten</span>
+				<span class="label" data-text="coordinates"></span>
 				<span class="icon"><i class="icon-globe2"></i></span>
 			</a>
 			<a href="#" class="option lnkTogglePastWaypoints">
-				<span class="label">Achterne WP</span>
+				<span class="label" data-text="passedWP"></span>
 				<span class="icon"><i class="icon-checkmark5"></i></span>
 			</a>
 			<a href="#" class="option lnkToggleNextWaypoint">
-				<span class="label">Nächster WP</span>
+				<span class="label" data-text="nextWP"></span>
 				<span class="icon"><i class="icon-location2"></i></span>
 			</a>
 			<a href="#" class="option lnkToggleAheadWaypoints">
-				<span class="label">Voraus liegende WP</span>
+				<span class="label" data-text="upcomingWP"></span>
 				<span class="icon"><i class="icon-location"></i></span>
 			</a>
 			<a href="#" class="option lnkToggleFinalWaypoint">
-				<span class="label">Ziel</span>
+				<span class="label" data-text="destination"></span>
 				<span class="icon"><i class="icon-flag"></i></span>
 			</a>
 		</div>

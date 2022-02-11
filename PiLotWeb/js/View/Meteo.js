@@ -377,7 +377,7 @@ PiLot.View.Meteo = (function () {
 
 		/// draws the control based on the item, as a child of this.parentContainer
 		draw: function () {
-			var control = RC.Utils.stringToNode(this.template);
+			var control = PiLot.Utils.Common.createNode(this.template);
 			this.parentContainer.appendChild(control);
 			this.divCurrentValue = control.querySelector('.divCurrentValue');
 			this.divMinValue = control.querySelector('.divMinValue');
@@ -509,7 +509,7 @@ PiLot.View.Meteo = (function () {
 		},
 
 		draw: function () {
-			var control = RC.Utils.stringToNode(PiLot.Templates.Meteo.pressureInfo);
+			var control = PiLot.Utils.Common.createNode(PiLot.Templates.Meteo.pressureInfo);
 			this.parentContainer.appendChild(control);
 			this.currentPressureContainer = control.querySelector('.divCurrentPressure');
 			this.iconContainer = control.querySelector('.divPressureTrendIcons');

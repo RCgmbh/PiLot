@@ -66,7 +66,7 @@ PiLot.View.Nav = (function () {
 		parseForm: function () {
 			var result = null;
 			var maxValue = this.isLatitude ? 90 : 180;
-			var negativePrefix = this.isLatitude ? 's' : 'w';
+			var negativePrefix = this.isLatitude ? PiLot.Utils.Language.getText('directionS') : PiLot.Utils.Language.getText('directionW');
 			var prefix = this.tbPrefix.value;
 			var deg = this.tbDeg.value;
 			var min = this.tbMin.value;
@@ -76,7 +76,7 @@ PiLot.View.Nav = (function () {
 					result += Number(min) / 60;
 				}
 				result = result % maxValue;
-				if (prefix.toLowerCase() == negativePrefix) {
+				if (prefix.toLowerCase() == negativePrefix.toLowerCase()) {
 					result = Math.abs(result) * -1;
 				}
 			}
@@ -146,7 +146,7 @@ PiLot.View.Nav = (function () {
 		/// creates the control from the template and appends it
 		/// to pParent. The template must have on top level node.
 		draw: function (pParent, pTemplate) {
-			this.container = RC.Utils.stringToNode(pTemplate);
+			this.container = PiLot.Utils.Common.createNode(pTemplate);
 			pParent.appendChild(this.container);
 			this.lblValue = this.container.querySelector('.lblValue');
 		},
@@ -191,7 +191,7 @@ PiLot.View.Nav = (function () {
 	XTEIndicator.prototype = {
 
 		draw: function (pParent) {
-			this.container = RC.Utils.stringToNode(PiLot.Templates.Nav.xteIndicator);
+			this.container = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.xteIndicator);
 			pParent.appendChild(this.container);
 			this.lblXTE = this.container.querySelector('.lblXTE');
 			this.lblXTELeft = this.container.querySelector('.lblXTELeft');
@@ -247,7 +247,7 @@ PiLot.View.Nav = (function () {
 
 		/// draws the control as child of pParent
 		draw: function () {
-			this.control = RC.Utils.stringToNode(PiLot.Templates.Nav.positionIndicator);
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.positionIndicator);
 			this.parent.appendChild(this.control);
 			this.lblLatPrefix = this.control.querySelector('.lblLatPrefix');
 			this.lblLatDegrees = this.control.querySelector('.lblLatDegrees');
@@ -339,10 +339,10 @@ PiLot.View.Nav = (function () {
 		},
 
 		draw: function () {
-			const navPage = RC.Utils.stringToNode(PiLot.Templates.Nav.navPage);
+			const navPage = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.navPage);
 			const contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(navPage);
-			this.outdatedGpsWarning = RC.Utils.stringToNode(PiLot.Templates.Nav.outdatedGpsWarning);
+			this.outdatedGpsWarning = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.outdatedGpsWarning);
 			navPage.insertAdjacentElement('afterbegin', this.outdatedGpsWarning);
 			const divData = navPage.querySelector('.divData');
 			const divDirection = divData.querySelector('.divDirection');
@@ -356,8 +356,7 @@ PiLot.View.Nav = (function () {
 			if (this.routeObserver !== null) {
 				this.liveRoute = new LiveRoute($(navPage), this.routeObserver);
 			}
-			new TelemetryOptions(contentArea, this, this.liveRoute);
-			PiLot.Utils.Language.applyTexts(navPage);
+			new NavOptions(contentArea, this, this.liveRoute);
 		},
 
 		setShowCoordinates: function (pShow) {
@@ -365,12 +364,12 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
-	/// a panel showing options to be applied to the telemetry panel
+	/// a panel showing options to be applied to the nav panel
 	/// as well as to the LiveRoute. Both can be null (which would not
 	/// make too much sense, would it?
-	var TelemetryOptions = function (pContainer, pTelemetryPanel, pLiveRoute) {
+	var NavOptions = function (pContainer, pNavPanel, pLiveRoute) {
 		this.container = pContainer;
-		this.telemetryPanel = pTelemetryPanel || null;
+		this.navPanel = pNavPanel || null;
 		this.liveRoute = pLiveRoute || null;
 		this.liveRouteSettings = null;
 		this.showCoordinates = true;
@@ -383,7 +382,7 @@ PiLot.View.Nav = (function () {
 		this.initialize();
 	};
 
-	TelemetryOptions.prototype = {
+	NavOptions.prototype = {
 
 		initialize: function () {
 			this.loadSettings();
@@ -406,27 +405,40 @@ PiLot.View.Nav = (function () {
 		/// draws the control based on the template and
 		/// assigns the control variables
 		draw: function () {
-			this.control = $(PiLot.Templates.Nav.telemetryOptions).prependTo(this.container);
-			this.control.find('a.expandCollapse').on('click', this.lnkToggleSettings_click.bind(this));
-			this.lnkToggleCoordinates = this.control.find('.lnkToggleCoordinates').on('click', this.lnkToggleCoordinates_click.bind(this));
-			this.lnkTogglePastWaypoints = this.control.find('.lnkTogglePastWaypoints').on('click', this.lnkTogglePastWaypoints_click.bind(this));
-			this.lnkToggleNextWaypoint = this.control.find('.lnkToggleNextWaypoint').on('click', this.lnkToggleNextWaypoint_click.bind(this));
-			this.lnkToggleAheadWaypoints = this.control.find('.lnkToggleAheadWaypoints').on('click', this.lnkToggleAheadWaypoints_click.bind(this));
-			this.lnkToggleFinalWaypoint = this.control.find('.lnkToggleFinalWaypoint').on('click', this.lnkToggleFinalWaypoint_click.bind(this));
+			//this.control = $(PiLot.Templates.Nav.navOptions).prependTo(this.container);
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.navOptions);
+			this.container.insertAdjacentElement('afterbegin', this.control);
+			//this.control.find('a.expandCollapse').on('click', this.lnkToggleSettings_click.bind(this));
+			this.control.querySelector('a.expandCollapse').addEventListener('click', this.lnkToggleSettings_click.bind(this));
+			//this.lnkToggleCoordinates = this.control.find('.lnkToggleCoordinates').on('click', this.lnkToggleCoordinates_click.bind(this));
+			this.lnkToggleCoordinates = this.control.querySelector('.lnkToggleCoordinates');
+			this.lnkToggleCoordinates.addEventListener('click', this.lnkToggleCoordinates_click.bind(this));
+			//this.lnkTogglePastWaypoints = this.control.find('.lnkTogglePastWaypoints').on('click', this.lnkTogglePastWaypoints_click.bind(this));
+			this.lnkTogglePastWaypoints = this.control.querySelector('.lnkTogglePastWaypoints');
+			this.lnkTogglePastWaypoints.addEventListener('click', this.lnkTogglePastWaypoints_click.bind(this));
+			//this.lnkToggleNextWaypoint = this.control.find('.lnkToggleNextWaypoint').on('click', this.lnkToggleNextWaypoint_click.bind(this));
+			this.lnkToggleNextWaypoint = this.control.querySelector('.lnkToggleNextWaypoint');
+			this.lnkToggleNextWaypoint.addEventListener('click', this.lnkToggleNextWaypoint_click.bind(this));
+			//this.lnkToggleAheadWaypoints = this.control.find('.lnkToggleAheadWaypoints').on('click', this.lnkToggleAheadWaypoints_click.bind(this));
+			this.lnkToggleAheadWaypoints = this.control.querySelector('.lnkToggleAheadWaypoints');
+			this.lnkToggleAheadWaypoints.addEventListener('click', this.lnkToggleAheadWaypoints_click.bind(this));
+			//this.lnkToggleFinalWaypoint = this.control.find('.lnkToggleFinalWaypoint').on('click', this.lnkToggleFinalWaypoint_click.bind(this));
+			this.lnkToggleFinalWaypoint = this.control.querySelector('.lnkToggleFinalWaypoint');
+			this.lnkToggleFinalWaypoint.addEventListener('click', this.lnkToggleFinalWaypoint_click.bind(this));
 		},
 
 		/// sets the buttons class to active if the corresponding option is enabled
 		updateButtons: function () {
 			var className = 'active';
-			this.lnkToggleCoordinates.toggleClass(className, this.showCoordinates);
-			this.lnkTogglePastWaypoints.toggleClass(className, this.liveRouteSettings.showPastWaypoints);
-			this.lnkToggleNextWaypoint.toggleClass(className, this.liveRouteSettings.showNextWaypoint);
-			this.lnkToggleAheadWaypoints.toggleClass(className, this.liveRouteSettings.showAheadWaypoints);
-			this.lnkToggleFinalWaypoint.toggleClass(className, this.liveRouteSettings.showFinalWaypoint);
+			this.lnkToggleCoordinates.classList.toggle(className, this.showCoordinates);
+			this.lnkTogglePastWaypoints.classList.toggle(className, this.liveRouteSettings.showPastWaypoints);
+			this.lnkToggleNextWaypoint.classList.toggle(className, this.liveRouteSettings.showNextWaypoint);
+			this.lnkToggleAheadWaypoints.classList.toggle(className, this.liveRouteSettings.showAheadWaypoints);
+			this.lnkToggleFinalWaypoint.classList.toggle(className, this.liveRouteSettings.showFinalWaypoint);
 		},
 
 		lnkToggleSettings_click: function () {
-			this.control.toggleClass('expanded');
+			this.control.classList.toggle('expanded');
 		},
 
 		lnkToggleCoordinates_click: function () {
@@ -489,8 +501,8 @@ PiLot.View.Nav = (function () {
 			if (this.liveRoute !== null) {
 				this.liveRoute.setShowCoordinates(this.showCoordinates);
 			}
-			if (this.telemetryPanel !== null) {
-				this.telemetryPanel.setShowCoordinates(this.showCoordinates);
+			if (this.navPanel !== null) {
+				this.navPanel.setShowCoordinates(this.showCoordinates);
 			}
 		}
 	};
@@ -1416,7 +1428,7 @@ PiLot.View.Nav = (function () {
 		MotionDisplay: MotionDisplay,
 		XTEIndicator: XTEIndicator,
 		NavPage: NavPage,
-		TelemetryOptions: TelemetryOptions,
+		NavOptions: NavOptions,
 		RoutesList: RoutesList,
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,

@@ -24,8 +24,8 @@ PiLot.Templates.Meteo = {
 			</div>
 			<div class="divChartContainer">
 				<div class="divChart chartContainer hidden"></div>
-				<div class="divChartLoading chartWait" ><span>Lade Daten...</span></div>
-				<div class="divChartError chartError hidden" ><span>Fehler</span></div>
+				<div class="divChartLoading chartWait" ><span data-text="loadingData"></span></div>
+				<div class="divChartError chartError hidden" ><span data-text="error"></span></div>
 				<div class="divLabel"><i class="icon-thermometer"></i><span class="lblName"></span></div>
 			</div>
 		</div>
@@ -40,8 +40,8 @@ PiLot.Templates.Meteo = {
 			</div>
 			<div class="divChartContainer">
 				<div class="divChart chartContainer hidden"></div>
-				<div class="divChartLoading chartWait" ><span>Lade Daten...</span></div>
-				<div class="divChartError chartError hidden" ><span>Fehler</span></div>
+				<div class="divChartLoading chartWait"><span data-key="loadingData"></span></div>
+				<div class="divChartError chartError hidden" ><span data-key="error"></span></div>
 				<div class="divLabel"><i class="icon-droplet"></i> <span class="lblName"></span></div>
 			</div>
 		</div>
@@ -59,12 +59,12 @@ PiLot.Templates.Meteo = {
 					<span class="lblDropFast hidden"><i class="icon-arrow-down"></i></span>
 					<span class="lblDropExtreme hidden"><i class="icon-arrow-down"></i><i class="icon-arrow-down"></i></span>
 				</div>
-				<div class="divPressureTrend"><span class="lblPressureTrend">--</span> hPa/h</div>				
+				<div class="divPressureTrend"><span class="lblPressureTrend">--</span> <span data-text="hPaPH"></span></div>				
 			</div>
 			<div class="divChartContainer">
 				<div class="divChart chartContainer hidden"></div>
-				<div class="divChartLoading chartWait"><span>Lade Daten...</span></div>
-				<div class="divChartError chartError hidden"><span>Fehler</span></div>
+				<div class="divChartLoading chartWait"><span data-text="loadingData"></span></div>
+				<div class="divChartError chartError hidden"><span data-text="error"></span></div>
 				<div class="divLabel"><i class="icon-barometer"></i> <span class="lblName"></span></div>
 			</div>
 		</div>
