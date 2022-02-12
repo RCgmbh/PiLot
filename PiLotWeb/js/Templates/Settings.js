@@ -28,11 +28,11 @@ PiLot.Templates.Settings = {
 
 	boatTimePage: `
 		<div class="contentPadding">
-			<h1><a href="#" class="lnkSettings">Einstellungen</a> : Bordzeit</h1>
+			<h1><a href="#" class="lnkSettings" data-text="settings"></a> : <span data-text="boatTime"></span></h1>
 			<div class="dataContainerHalf paddingRight marginBottomBig">
-				<span class="timeLabel strong">Bordzeit:</span><span id="lblBoatTime" class="strong"></span><br />
-				<span class="timeLabel">Bordzeit UTC Offset:</span><span id="lblBoatTimeOffset"></span> h<br />
-				<span class="timeLabel">Bordzeit anpassen</span><a href="#" id="btnMinus">-1 h</a> / <a href="#" id="btnPlus">+1 h</a> 
+				<span class="timeLabel"><span data-text="boatTime"></span>:</span><span id="lblBoatTime"></span><br />
+				<span class="timeLabel"><span data-text="boatTimeUTCOffset"></span>:</span><span id="lblBoatTimeOffset"></span> h<br />
+				<span class="timeLabel"><span data-text="changeBoatTime"></span></span><a href="#" id="btnMinus">-1 h</a> / <a href="#" id="btnPlus">+1 h</a> 
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
 				<canvas id="clockCanvas"></canvas>

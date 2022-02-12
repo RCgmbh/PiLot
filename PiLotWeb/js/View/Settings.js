@@ -71,7 +71,7 @@ PiLot.View.Settings = (function () {
 		draw: function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
-			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Settings.boatTimePage));
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Settings.boatTimePage));
 			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
 			this.lblBoatTime = contentArea.querySelector('#lblBoatTime');
 			this.lblBoatTimeOffset = contentArea.querySelector('#lblBoatTimeOffset');
@@ -123,7 +123,7 @@ PiLot.View.Settings = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			const languagePage = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.languagePage);
-			contentArea.insertAdjacentElement('beforeend', languagePage);
+			contentArea.appendChild(languagePage);
 			languagePage.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
 			const ddlLanguages = contentArea.querySelector('.ddlLanguages');
 			const languages = PiLot.Config.Language.availableLanguages.map(e => [e, e]);

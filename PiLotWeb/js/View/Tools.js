@@ -3,7 +3,6 @@ var PiLot = PiLot || {};
 PiLot.View = PiLot.View || {};
 
 PiLot.View.Tools = (function () {
-
 	/**
 	 * The very basic page with just tiles
 	 * */
@@ -16,7 +15,7 @@ PiLot.View.Tools = (function () {
 		/** Draws the page */
 		draw: function () {
 			let loader = PiLot.Utils.Loader;
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Tools.toolsOverviewPage);
+			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.toolsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.system.tools.data));
 			const lnkTiles = pageContent.querySelector('.lnkTiles');
@@ -42,7 +41,6 @@ PiLot.View.Tools = (function () {
 		this.tbEndTime = null;
 		this.divLoadingData = null;
 		this.divDataLoaded = null;
-		this.lblPositionsCount = null;
 		this.map = null;
 		this.mapTrack = null;
 		this.divResult = null;
@@ -68,7 +66,7 @@ PiLot.View.Tools = (function () {
 
 		drawFormAsync: async function () {
 			const loader = PiLot.Utils.Loader;
-			this.pageContent = RC.Utils.stringToNode(PiLot.Templates.Tools.gpsExportForm);
+			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.gpsExportForm);
 			loader.getContentArea().appendChild(this.pageContent);
 			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			let tbStartDate = this.pageContent.querySelector('.tbStartDate');
@@ -82,7 +80,6 @@ PiLot.View.Tools = (function () {
 			this.pageContent.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
 			this.divLoadingData = this.pageContent.querySelector('.divLoadingData');
 			this.divDataLoaded = this.pageContent.querySelector('.divDataLoaded');
-			this.lblPositionsCount = this.pageContent.querySelector('.lblPositionsCount');
 			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: false });
 			await this.map.showAsync();
 			this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.boatTime, null, { ignoreSettings: true, showTrack: true, autoShowTrack: false })
@@ -165,7 +162,7 @@ PiLot.View.Tools = (function () {
 		btnDeleteCurrent_click: async function (pEvent) {
 			var position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
-				if (window.confirm('Position wirklich löschen?')) {
+				if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePosition'))) {
 					await PiLot.Model.Nav.deleteGPSPositionsAsync(position.getBoatTime(), position.getBoatTime(), true);
 					this.loadTrack();
 				}
@@ -176,7 +173,8 @@ PiLot.View.Tools = (function () {
 			var firstPosition = this.track.getPositionAt(0);
 			var lastPosition = this.track.getLastPosition();
 			if ((firstPosition !== null) && (lastPosition !== null)) {
-				if (window.confirm('Wirklich ' + this.track.getPositionsCount() + ' Positionen löschen ? ')) {
+				const message = PiLot.Utils.Language.getText('confirmDeletePosition').replace('{{x}}', this.track.getPositionsCount());
+				if (window.confirm(message)) {
 					await PiLot.Model.Nav.deleteGPSPositionsAsync(firstPosition.getBoatTime(), lastPosition.getBoatTime(), true);
 					this.loadTrack();
 				}
@@ -215,7 +213,7 @@ PiLot.View.Tools = (function () {
 		loadTrackSuccess: function (pTrack) {
 			this.track = pTrack;
 			let length = this.track.getPositionsCount();
-			this.lblPositionsCount.innerText = length;
+			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
 			RC.Utils.showHide(this.divResult, true);
@@ -338,7 +336,8 @@ PiLot.View.Tools = (function () {
 		 * and processes and shows the data
 		 * */
 		draw: function () {
-			this.container.innerHTML = PiLot.Templates.Tools.speedDiagram;
+			this.container.clear();
+			this.container.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Tools.speedDiagram));
 			this.pnlChart = this.container.querySelector('.pnlChart');
 			this.ddlUnit = this.container.querySelector('.ddlUnit');
 			this.ddlUnit.value = this.unit;
@@ -532,7 +531,7 @@ PiLot.View.Tools = (function () {
 		/// draws the form based on the template, using HTMLElements, not jQuery 
 		drawForm: function () {
 			const loader = PiLot.Utils.Loader;
-			this.pageContent = RC.Utils.stringToNode(PiLot.Templates.Tools.tilesDownloadForm);
+			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.tilesDownloadForm);
 			loader.getContentArea().appendChild(this.pageContent);
 			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			const divTileSources = this.pageContent.querySelector('.divTileSources');
