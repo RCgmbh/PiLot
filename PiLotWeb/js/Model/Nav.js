@@ -7,7 +7,7 @@ PiLot.Model.Nav = (function () {
 	/// A Route defines a set of Waypoints
 	var Route = function () {
 		this.waypoints = null;				/// an ordered array of waypoints
-		this.name = "Unbenannte Route";
+		this.name = "";
 		this.routeId = null;
 		this.totalDistance = null;			/// a cached value for the total route distance
 		this.observers = null;
@@ -88,9 +88,6 @@ PiLot.Model.Nav = (function () {
 		/// adds a Waypoint to this
 		addWaypoint: function (pWaypoint, pSuppressSaving, pSender) {
 			this.totalDistance = null;
-			if (pWaypoint.getName() === null) {
-				pWaypoint.setName('Wegpunkt ' + (this.waypoints.length + 1));
-			}
 			this.waypoints.push(pWaypoint);
 			pWaypoint.on('move', this.waypoint_move.bind(this));
 			if (!pSuppressSaving) {
@@ -99,14 +96,14 @@ PiLot.Model.Nav = (function () {
 			this.notifyObservers(pSender, 'addWaypoint', pWaypoint);
 		},
 
-		/// adds a waypoint pNew before pWaypoint
-		addBefore: function (pNew, pWaypoint, pSender) {
+		/// adds a waypoint pWaypoint before pNextWaypoint
+		addBefore: function (pWaypoint, pNextWaypoint, pSender) {
 			this.totalDistance = null;
-			var index = Math.max(this.waypoints.indexOf(pWaypoint), 0);
-			this.waypoints.splice(index, 0, pNew);
-			pNew.on('move', this.waypoint_move.bind(this));
+			const index = Math.max(this.waypoints.indexOf(pNextWaypoint), 0);
+			this.waypoints.splice(index, 0, pWaypoint);
+			pWaypoint.on('move', this.waypoint_move.bind(this));
 			this.saveToServer(null);
-			this.notifyObservers(pSender, 'addWaypoint', pNew);
+			this.notifyObservers(pSender, 'addWaypoint', pWaypoint);
 		},
 
 		/// deletes pWaypoint from the list of waypoints
@@ -285,7 +282,7 @@ PiLot.Model.Nav = (function () {
 	var Waypoint = function (pRoute, pLat, pLon, pName, pWaypointId = null) {
 		this.route = pRoute;
 		this.waypointId = pWaypointId;
-		this.name = pName || 'Wegpunkt';
+		this.name = pName;
 		this.latLon = null;
 		this.setLatLon(pLat, pLon, true);
 		this.observers = null;
@@ -381,7 +378,8 @@ PiLot.Model.Nav = (function () {
 
 		/// inserts a waypoint into the route before this
 		insertBefore: function (pLatLng) {
-			var newWaypoint = new Waypoint(this.route, pLatLng.lat, pLatLng.lng, null);
+			const wpName = PiLot.Utils.Language.getText('waypoint');
+			var newWaypoint = new Waypoint(this.route, pLatLng.lat, pLatLng.lng, wpName);
 			this.route.addBefore(newWaypoint, this);
 		},
 
@@ -1289,10 +1287,10 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
- * TileSource class, containing data about a tile source, having
- * a local url, but also a remote url, from where the original 
- * tiles are downloaded
- * */
+	 * TileSource class, containing data about a tile source, having
+	 * a local url, but also a remote url, from where the original 
+	 * tiles are downloaded
+	 * */
 
 	var TileSource = function (pName, pOnlineUrl, pLocalUrl, pMinZoom, pMaxZoom) {
 		this.name = pName;					/// the unique name of the tileSource

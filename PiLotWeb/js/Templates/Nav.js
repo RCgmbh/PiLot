@@ -17,8 +17,8 @@ PiLot.Templates.Nav = {
 
 	routesPage: `
 		<div class="contentPadding">
-			<h1>Routen</h1>
-			<a class="lnkAddRoute block marginBottom"><i class="icon-plus marginRight"></i>Neue Route</a>
+			<h1 data-text="routes"></h1>
+			<a class="lnkAddRoute block marginBottom"><i class="icon-plus marginRight"></i><span data-text="newRoute"></span></a>
 			<div class="plhTable marginRightBig"><div>
 		</div>
 		`,
@@ -26,10 +26,10 @@ PiLot.Templates.Nav = {
 	routesTable: `
 		<table class="dgTable tblRoutes"><tbody>
 			<tr class="dgHeader">
-				<th class="headerActive col2">Aktiv</th>
-				<th class="headerName" > <a href="#" class="lnkHeaderName">Name</a></th>
-				<th class="headerDistance right col6"><a href="#" class="lnkHeaderDistance">Distanz [nm]</a></th>
-				<th class="headerWaypoints right col6"><a href="#" class="lnkHeaderWaypoints">Wegpunkte</a></th>
+				<th class="headerActive col2" data-text="active"></th>
+				<th class="headerName"><a href="#" class="lnkHeaderName" data-text="name"></a></th>
+				<th class="headerDistance right col6"><a href="#" class="lnkHeaderDistance"><span data-text="distance"></span> [<span data-text="nm"></span>]</a></th>
+				<th class="headerWaypoints right col6"><a href="#" class="lnkHeaderWaypoints" data-text="waypoints"></a></th>
 			</tr>
 		</tbody></table>`,
 
@@ -44,7 +44,7 @@ PiLot.Templates.Nav = {
 	routeDetailPage: `
 		<div class="contentPadding">
 			<div class="dataContainerFull marginBottom">
-				<h1><a href="index.html?p=routes"><i class="icon-arrow-left2"></i> Routen</a></h1>
+				<h1><a href="index.html?p=routes"><i class="icon-arrow-left2"></i> <span data-text="routes"></span></a></h1>
 			</div>
 			<div class="dataContainerHalf paddingRight">
 				<div id="divRoute"></div>
@@ -55,18 +55,20 @@ PiLot.Templates.Nav = {
 		</div>`,
 
 	editRouteForm: `
-		<span class="bigDisplayText block">
-			<input type="text" class="tbRouteName input8 inlineBlock inlineTextbox marginBottom" value="" />
-		</span>
-		<span class="semiBold inlineBlock marginBottomSmall">Gesamtdistanz <span class="lblTotalDistance"></span> nm</span>
-		<div class="divWaypoints marginBottom"></div>
-		<div class="divActions">
-			<div class="block marginBottom">
-				<a href="#" class="lnkAddWaypoint inlineBlock marginBottom"><i class="icon-plus marginRight"></i>Wegpunkt hinzufügen</a>
-			<div>
-			<div class="block marginBottom">
-				<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRight iconActiveRoute"></i>Route aktivieren</a> |
-				<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRight"></i>Route löschen</a>
+		<div>
+			<span class="bigDisplayText block">
+				<input type="text" class="tbRouteName input8 inlineBlock inlineTextbox marginBottom" value="" />
+			</span>
+			<span class="semiBold inlineBlock marginBottomSmall"><span data-text="totalDistance"></span> <span class="lblTotalDistance"></span> <span data-text="nm"></span></span>
+			<div class="divWaypoints marginBottom"></div>
+			<div class="divActions">
+				<div class="block marginBottom">
+					<a href="#" class="lnkAddWaypoint inlineBlock marginBottom"><i class="icon-plus marginRight"></i><span data-text="addWaypoint"></span></a>
+				<div>
+				<div class="block marginBottom">
+					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRight iconActiveRoute"></i><span data-text="activateRoute"></span></a> |
+					<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRight"></i><span data-text="deleteRoute"></span></a>
+				</div>
 			</div>
 		</div>`,
 
@@ -88,7 +90,7 @@ PiLot.Templates.Nav = {
 			<div class="block divLeg">
 				<span class="inlineBlock col1"></span>
 				<i class="icon-arrow-down2 col1"></i>
-				<span class=""><span class="lblDistance"></span> nm</span> /
+				<span class=""><span class="lblDistance"></span> <span data-text="nm"></span></span> /
 				<span class="lblBearing"></span>°
 			</div>
 		</div>`,
@@ -158,31 +160,31 @@ PiLot.Templates.Nav = {
 
 	sogIndicator: `
 		<div class="divSOG hidden display motionDisplay">
-			<span>SOG</span><span class="lblSOG lblValue">---</span><span>kn</span>
+			<span data-text="sog"></span><span class="lblSOG lblValue">---</span><span data-text="kn"></span>
 		</div>
 	`,
 
 	cogIndicator: `
 		<div class="divCOG hidden display motionDisplay">
-			<span>COG</span><span class="lblCOG lblValue">---</span><span class="deg">°</span>
+			<span data-text="cog"></span><span class="lblCOG lblValue">---</span><span class="deg">°</span>
 		</div>
 	`,
 
 	vmgIndicator: `
 		<div class="divVMG hidden display motionDisplay">
-			<span>VMG</span><span class="lblVMG lblValue">---</span><span>kn</span>
+			<span data-text="vmc"></span><span class="lblVMG lblValue">---</span><span data-text="kn"></span>
 		</div>
 	`,
 
 	xteIndicator: `
 		<div class="divXTE hidden display xteDisplay">
-			<span>XTE</span>
+			<span data-text="xte"></span>
 			<span class="lblIcon">
 				<i class="icon-arrow-left2 lblXTELeft hidden"></i>
 				<i class="icon-arrow-right2 lblXTERight hidden"></i>
 			</span>
 			<span class="lblXTE lblValue">---</span>
-			<span>nm</span>
+			<span data-text="nm"></span>
 		</div>
 	`,
 

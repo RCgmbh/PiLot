@@ -405,24 +405,17 @@ PiLot.View.Nav = (function () {
 		/// draws the control based on the template and
 		/// assigns the control variables
 		draw: function () {
-			//this.control = $(PiLot.Templates.Nav.navOptions).prependTo(this.container);
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.navOptions);
 			this.container.insertAdjacentElement('afterbegin', this.control);
-			//this.control.find('a.expandCollapse').on('click', this.lnkToggleSettings_click.bind(this));
 			this.control.querySelector('a.expandCollapse').addEventListener('click', this.lnkToggleSettings_click.bind(this));
-			//this.lnkToggleCoordinates = this.control.find('.lnkToggleCoordinates').on('click', this.lnkToggleCoordinates_click.bind(this));
 			this.lnkToggleCoordinates = this.control.querySelector('.lnkToggleCoordinates');
 			this.lnkToggleCoordinates.addEventListener('click', this.lnkToggleCoordinates_click.bind(this));
-			//this.lnkTogglePastWaypoints = this.control.find('.lnkTogglePastWaypoints').on('click', this.lnkTogglePastWaypoints_click.bind(this));
 			this.lnkTogglePastWaypoints = this.control.querySelector('.lnkTogglePastWaypoints');
 			this.lnkTogglePastWaypoints.addEventListener('click', this.lnkTogglePastWaypoints_click.bind(this));
-			//this.lnkToggleNextWaypoint = this.control.find('.lnkToggleNextWaypoint').on('click', this.lnkToggleNextWaypoint_click.bind(this));
 			this.lnkToggleNextWaypoint = this.control.querySelector('.lnkToggleNextWaypoint');
 			this.lnkToggleNextWaypoint.addEventListener('click', this.lnkToggleNextWaypoint_click.bind(this));
-			//this.lnkToggleAheadWaypoints = this.control.find('.lnkToggleAheadWaypoints').on('click', this.lnkToggleAheadWaypoints_click.bind(this));
 			this.lnkToggleAheadWaypoints = this.control.querySelector('.lnkToggleAheadWaypoints');
 			this.lnkToggleAheadWaypoints.addEventListener('click', this.lnkToggleAheadWaypoints_click.bind(this));
-			//this.lnkToggleFinalWaypoint = this.control.find('.lnkToggleFinalWaypoint').on('click', this.lnkToggleFinalWaypoint_click.bind(this));
 			this.lnkToggleFinalWaypoint = this.control.querySelector('.lnkToggleFinalWaypoint');
 			this.lnkToggleFinalWaypoint.addEventListener('click', this.lnkToggleFinalWaypoint_click.bind(this));
 		},
@@ -534,7 +527,7 @@ PiLot.View.Nav = (function () {
 
 		draw: function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
-			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Nav.routesPage));
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routesPage));
 			const lnkAddRoute = contentArea.querySelector('.lnkAddRoute');
 			if (PiLot.Permissions.canWrite()) {
 				lnkAddRoute.setAttribute('href', PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routeDetails));
@@ -547,7 +540,7 @@ PiLot.View.Nav = (function () {
 
 		drawTable: function () {
 			this.plhTable.clear();
-			let table = RC.Utils.stringToNode(PiLot.Templates.Nav.routesTable);
+			let table = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routesTable);
 			this.setSortHeader(table.querySelector('th.headerName'), table.querySelector('.lnkHeaderName'), 'name');
 			this.setSortHeader(table.querySelector('th.headerDistance'), table.querySelector('.lnkHeaderDistance'), 'distance');
 			this.setSortHeader(table.querySelector('th.headerWaypoints'), table.querySelector('.lnkHeaderWaypoints'), 'waypoints');
@@ -656,14 +649,15 @@ PiLot.View.Nav = (function () {
 		/// waypoint to the route, copying the coordinates of the
 		/// last waypoint
 		lnkAddWaypoint_click: function () {
-			var lastWp = this.route.getWaypoints().last();
-			var lat = null;
-			var lon = null;
+			const lastWp = this.route.getWaypoints().last();
+			let lat = null;
+			let lon = null;
 			if ((lastWp !== null) && (lastWp.hasPosition())) {
 				lat = lastWp.getLatLon().lat;
 				lon = lastWp.getLatLon().lon;
 			}
-			var newWaypoint = new PiLot.Model.Nav.Waypoint(this.route, lat, lon, null);
+			let wpName = `${PiLot.Utils.Language.getText('waypoint')} ${this.route.getWaypoints().length + 1}`;
+			const newWaypoint = new PiLot.Model.Nav.Waypoint(this.route, lat, lon, wpName);
 			this.route.addWaypoint(newWaypoint, true, this);
 			this.saveRoute();
 			return false;
@@ -680,7 +674,7 @@ PiLot.View.Nav = (function () {
 
 		/// click handler for the "delete route" link. Deletes the route, ignoring the result
 		lnkDeleteRoute_click: function () {
-			if (confirm('Route ' + this.route.getName() + ' wirklich löschen?')) {
+			if (confirm(PiLot.Utils.Language.getText('confirmDeleteRoute'))) {
 				this.route.deleteFromServerAsync().then(r => {
 					window.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routes);
 				});
@@ -726,14 +720,15 @@ PiLot.View.Nav = (function () {
 			this.showWaypoints(false);
 		},
 
-		/// loads the route from the server, if we have a valid routeId query string,
-		/// otherwise calls loadRouteSuccess with null, which will create a new route.
+		/** loads the route from the server, if we have a valid routeId query string,
+		 *  otherwise returns a new route.
+		 */
 		loadRoute: async function() {
 			var qsRouteId = RC.Utils.getUrlParameter('routeId');
 			if (qsRouteId) {
 				return await PiLot.Model.Nav.loadRouteAsync(qsRouteId);
 			} else {
-				return new PiLot.Model.Nav.Route().setName('neue Route');
+				return new PiLot.Model.Nav.Route().setName(PiLot.Utils.Language.getText('newRoute'));
 			}
 		},
 
@@ -741,9 +736,9 @@ PiLot.View.Nav = (function () {
 		/// be called once.
 		drawFormAsync: async function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
-			contentArea.appendChild(RC.Utils.stringToNode(PiLot.Templates.Nav.routeDetailPage));
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routeDetailPage));
 			let routeContainer = contentArea.querySelector('#divRoute');
-			routeContainer.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Nav.editRouteForm));
+			routeContainer.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.editRouteForm));
 			this.tbRouteName = routeContainer.querySelector('.tbRouteName');
 			this.lnkActivate = routeContainer.querySelector('.lnkActivateRoute');
 			const lnkAddWaypoint = routeContainer.querySelector('.lnkAddWaypoint');
@@ -891,7 +886,8 @@ PiLot.View.Nav = (function () {
 
 		/// click handler for the delete waypoint link
 		lnkDeleteWaypoint_click: function () {
-			if (confirm('Wegpunkt ' + this.waypoint.getName() + ' wirklich löschen?')) {
+			const message = PiLot.Utils.Language.getText('confirmDeleteWaypoint').replace("{{waypointName}}", this.waypoint.getName());
+			if (confirm(message)) {
 				this.routeDetail.getRoute().deleteWaypoint(this.waypoint, this);
 			}
 			return false;
@@ -922,7 +918,7 @@ PiLot.View.Nav = (function () {
 
 		/// draws the form based on the template, only needs to be called once
 		drawForm: function () {
-			this.form = RC.Utils.stringToNode(PiLot.Templates.Nav.waypointForm);
+			this.form = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.waypointForm);
 			this.container.appendChild(this.form);
 			this.tbWaypointName = this.form.querySelector('.tbWaypointName');
 			if (PiLot.Permissions.canWrite()) {

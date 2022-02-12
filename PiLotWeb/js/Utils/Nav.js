@@ -43,11 +43,9 @@ PiLot.Utils.Nav = {
 		var result = null;
 		if (lat && lon) {
 			result = "".concat(
-				lat > 0 ? 'N ' : 'S ',
-				PiLot.Utils.Nav.toCoordinateString(lat, true),
+				PiLot.Utils.Nav.toCoordinateString(lat, true, true),
 				' / ',
-				lon > 0 ? 'E ' : 'W ',
-				PiLot.Utils.Nav.toCoordinateString(lon, false)
+				PiLot.Utils.Nav.toCoordinateString(lon, false, true)
 			);
 		}
 		return result;
@@ -55,13 +53,13 @@ PiLot.Utils.Nav = {
 
 	/// this converts a value representing either a latitude or a longitude into an array
 	/// consisting of three elements:
-	/// 0: the prefix (N, S, W, E)
+	/// 0: the prefix (N, S, W, E) in the current language
 	/// 1: the degree part as  2 digit (lat) or 3 digit (long) string 
 	/// 2: the minutes part as 3 digit string
 	toCoordinateArray: function (pValue, pIsLatitude) {
 		var result = null;
 		if ((pValue !== null) && $.isNumeric(pValue)) {
-			var prefix = pIsLatitude ? (pValue > 0 ? 'N' : 'S') : (pValue > 0 ? 'E' : 'W');
+			var prefix = pIsLatitude ? this.getLatPrefix(pValue) : this.getLonPrefix(pValue);
 			var abs = Math.abs(pValue);
 			result = [
 				prefix,
@@ -81,7 +79,7 @@ PiLot.Utils.Nav = {
 	toCoordinateString: function (pValue, pIsLatitude, pAddPrefix) {
 		var result = null;
 		if ((typeof pValue !== 'undefined') && (pValue !== null)) {
-			var segments = PiLot.Utils.Nav.toCoordinateArray(pValue, pIsLatitude);
+			var segments = this.toCoordinateArray(pValue, pIsLatitude);
 			var result =
 				(segments[1] != null ? segments[1] : '--') + '° '
 				+ (segments[2] != null ? segments[2] : '---') + "'"
@@ -91,5 +89,21 @@ PiLot.Utils.Nav = {
 			}
 		}
 		return result;
+	},
+
+	/**
+	 * returns the latitude prefix (N, S) in the user's current language
+	 * @param {Number} pLat - the latitude as positive or negative number
+	 */
+	getLatPrefix: function (pLat) {
+		return pLat > 0 ? PiLot.Utils.Language.getText('directionN') : PiLot.Utils.Language.getText('directionS');
+	},
+
+	/**
+	 * returns the longitude prefix (E, W) in the user's current language
+	 * @param {Number} pLat - the longitude as positive or negative number. > 0: east, < 0: west
+	 */
+	getLonPrefix: function (pLon) {
+		return pLon > 0 ? PiLot.Utils.Language.getText('directionE') : PiLot.Utils.Language.getText('directionW')
 	}
 };

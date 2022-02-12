@@ -979,8 +979,9 @@ PiLot.View.Map = (function () {
 				this.showRoute = true;
 			}
 			this.map.contextPopup.close();
-			var latlng = mapEvent.latlng.wrap(); 
-			this.route.addWaypoint(new PiLot.Model.Nav.Waypoint(this.route, latlng.lat, latlng.lng, null));
+			var latlng = mapEvent.latlng.wrap();
+			let wpName = `${PiLot.Utils.Language.getText('waypoint')} ${this.route.getWaypoints().length + 1}`;
+			this.route.addWaypoint(new PiLot.Model.Nav.Waypoint(this.route, latlng.lat, latlng.lng, wpName));
 		},
 
 		/// handles changes to the gps data by re-drawing the route onto the map
