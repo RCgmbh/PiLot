@@ -17,7 +17,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets a list of all SensorInfos having a certain tag
 		/// </summary>
-		[Route("api/v1/SensorInfos/{tag}")]
+		[Route(Program.APIROOT + "[controller]/{tag}")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<SensorInfo> Get(String tag) {
@@ -27,7 +27,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets a list of all SensorInfos
 		/// </summary>
-		[Route("api/v1/SensorInfos")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<SensorInfo> Get() {

@@ -21,13 +21,13 @@ namespace PiLot.API.Controllers {
 		/// unauthenticated user
 		/// </summary>
 		/// <returns>A UserInfo object</returns>
-		[Route("api/v1/Permissions")]
+		[Route(Program.APIROOT + "[controller]")]
 		public UserInfo Get() {
 			User currentUser = AuthenticationHelper.Instance.Authenticate(this.HttpContext);
 			return new UserInfo(currentUser);
 		}
 
-		[Route("api/v1/Permissions/ReloadConfig")]
+		[Route(Program.APIROOT + "[controller]/ReloadConfig")]
 		public String GetReloadConfig() {
 			AuthorizationHelper.Instance.ReloadConfig();
 			AuthenticationHelper.Instance.ReloadConfig();

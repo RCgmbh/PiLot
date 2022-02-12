@@ -20,7 +20,7 @@ namespace PiLot.API.Controllers {
 		/// overloaded get methods, which does not seem to be supported anymore.
 		/// </summary>
 		[HttpGet]
-		[Route("api/v1/[controller]/{id}")]
+		[Route(Program.APIROOT + "[controller]/{id}")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Object Get(
 			String id,
@@ -50,7 +50,7 @@ namespace PiLot.API.Controllers {
 		/// <param name="endTimeUnix">Seconds from epoc UTC</param>
 		/// <param name="aggregateSeconds">The data will be aggregated into chunks summarizing n seconds</param>
 		[HttpGet]
-		[Route("api/v1/[controller]/{id}/historic")]
+		[Route(Program.APIROOT + "[controller]/{id}/historic")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public AggregatedSensorData Get(String id, [FromQuery] Int32 startTimeUnix, [FromQuery] Int32 endTimeUnix, [FromQuery] Int32 aggregateSeconds) {
 			return this.GetHistoricData(id, startTimeUnix, endTimeUnix, aggregateSeconds);
@@ -64,7 +64,7 @@ namespace PiLot.API.Controllers {
 		/// <param name="aggregateSeconds">The data will be aggregated into chunks summarizing n seconds</param>
 		/// <returns>The aggregated data</returns>
 		[HttpGet]
-		[Route("api/v1/[controller]/{id}/recent")]
+		[Route(Program.APIROOT + "[controller]/{id}/recent")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public AggregatedSensorData Get(String id, [FromQuery] Int32 durationSeconds, [FromQuery] Int32 aggregateSeconds) {
 			Int32 unixNow = DateTimeHelper.UnixNow;
@@ -79,7 +79,7 @@ namespace PiLot.API.Controllers {
 		/// <param name="id">The name of the data source</param>
 		/// <returns>the max age of the latest record in seconds</returns>
 		[HttpGet]
-		[Route("api/v1/[controller]/{id}/latest")]
+		[Route(Program.APIROOT + "[controller]/{id}/latest")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public SensorDataRecord Get(String id, [FromQuery] Int32 maxSecondsOld) {
 			return new SensorDataConnector().GetLatestValue(id, maxSecondsOld);
@@ -90,7 +90,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="data">Array of {sensorName, value} objects</param>
 		[HttpPut]
-		[Route("api/v1/[controller]")]
+		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void PutSensorData(SensorValue[] data) {
 			new SensorDataConnector().SaveData(data);

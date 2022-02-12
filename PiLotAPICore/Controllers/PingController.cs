@@ -1,13 +1,13 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 
-namespace PiLotAPI.Controllers {
+namespace PiLot.API.Controllers {
 
     /// <summary>
     /// Simple controller just sending an "OK", used to test
     /// if the api is up and running
     /// </summary>
-    [Route("api/v1/[controller]")]
+    [Route(Program.APIROOT + "[controller]")]
     [ApiController]
     public class PingController : ControllerBase {
         

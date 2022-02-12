@@ -13,7 +13,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the list of all available services
 		/// </summary>
 		/// <returns>An arrray, might be empty, but not null</returns>
-		[Route("api/v1/Services")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String[] Get() {
@@ -25,7 +25,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="id">The Name of the Service</param>
 		/// <returns>a String or null for unknown services</returns>
-		[Route("api/v1/Services/{id}")]
+		[Route(Program.APIROOT + "[controller]/{id}")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String Get(String id) {
@@ -37,7 +37,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="id">The Name of the Service</param>
 		/// <returns>a String or null for unknown services</returns>
-		[Route("api/v1/Services/{id}/start")]
+		[Route(Program.APIROOT + "[controller]/{id}/start")]
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutStart(String id) {
@@ -49,7 +49,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="id">The Name of the Service</param>
 		/// <returns>a String or null for unknown services</returns>
-		[Route("api/v1/Services/{id}/stop")]
+		[Route(Program.APIROOT + "[controller]/{id}/stop")]
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutStop(String id) {
@@ -61,7 +61,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="id">The Name of the Service</param>
 		/// <returns>a String or null for unknown services</returns>
-		[Route("api/v1/Services/{id}/restart")]
+		[Route(Program.APIROOT + "[controller]/{id}/restart")]
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutRestart(String id) {

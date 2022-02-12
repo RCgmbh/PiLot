@@ -12,7 +12,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Shuts the system down
 		/// </summary>
-		[Route("api/v1/System/shutdown")]
+		[Route(Program.APIROOT + "[controller]/shutdown")]
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String Shutdown() {
@@ -22,7 +22,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Sets the system time
 		/// </summary>
-		[Route("api/v1/System/date")]
+		[Route(Program.APIROOT + "[controller]/date")]
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutDate(Int64 millisUtc) {

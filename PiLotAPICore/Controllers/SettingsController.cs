@@ -17,7 +17,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the active Route ID or null, if no route is active
 		/// </summary>
 		/// <returns></returns>
-		[Route("api/v1/Settings/activeRouteId")]
+		[Route(Program.APIROOT + "[controller]/activeRouteId")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Int32? GetActiveRouteId() {
@@ -27,7 +27,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Sets the active Route ID (which can be null), and returns it
 		/// </summary>
-		[Route("api/v1/Settings/activeRouteId")]
+		[Route(Program.APIROOT + "[controller]/activeRouteId")]
 		[HttpPut]
 		[ServiceFilter(typeof(SettingsAuthorizationFilter))]
 		public Int32? PutActiveRouteId(Int32? routeId) {
@@ -38,7 +38,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets the current boat config name
 		/// </summary>
-		[Route("api/v1/Settings/currentBoatConfigName")]
+		[Route(Program.APIROOT + "[controller]/currentBoatConfigName")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public String GetCurrentBoatConfigName() {
@@ -49,7 +49,7 @@ namespace PiLot.API.Controllers {
 		/// Sets the current BoatConfig name, if such a config exists
 		/// </summary>
 		/// <param name="name">The unique BoatConfig name</param>
-		[Route("api/v1/Settings/currentBoatConfigName")]
+		[Route(Program.APIROOT + "[controller]/currentBoatConfigName")]
 		[HttpPut]
 		[ServiceFilter(typeof(SettingsAuthorizationFilter))]
 		public ActionResult PutCurrentBoatConfigName(String name) {
@@ -65,7 +65,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the current BoatTime
 		/// </summary>
 		/// <returns></returns>
-		[Route("api/v1/Settings/boatTime")]
+		[Route(Program.APIROOT + "[controller]/boatTime")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public BoatTime GetBoatTime() {
@@ -76,7 +76,7 @@ namespace PiLot.API.Controllers {
 		/// Saves the current BoatTime UTC offset to the server
 		/// </summary>
 		/// <param name="utcOffset">the UTC offset in minutes</param>
-		[Route("api/v1/Settings/boatTime")]
+		[Route(Program.APIROOT + "[controller]/boatTime")]
 		[HttpPut]
 		[ServiceFilter(typeof(SettingsAuthorizationFilter))]
 		public void PutCurrentBoatTime(Int32 utcOffset) {

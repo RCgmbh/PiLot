@@ -20,7 +20,7 @@ namespace PiLot.API.Controllers {
 		/// Note: bytes ist an Int array, because it did not work with a byte array. Seems
 		/// to be some kind of bug/feature with the serializer.
 		/// </summary>
-		[Route("api/v1/Tiles/{tileSource}/{z}/{x}/{y}")]
+		[Route(Program.APIROOT + "[controller]/{tileSource}/{z}/{x}/{y}")]
 		[HttpPut]
 		public ActionResult Put(String tileSource, Int32 z, Int32 x, Int32 y, [FromBody] Int32[] bytes) {
 			Byte[] realBytes = bytes.Select(b => (Byte)b).ToArray();

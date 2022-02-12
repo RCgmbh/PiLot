@@ -22,7 +22,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="startTime">Only records after this time will be returned. UTC Milliseconds</param>
 		/// <returns>Array of GPSRecords, possibly empty, never null</returns>
-		[Route("api/v1/Position")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public GpsRecord[] Get(Int64 startTime) {
@@ -35,7 +35,7 @@ namespace PiLot.API.Controllers {
 		/// Allows to put a gps position
 		/// </summary>
 		/// <param name="pRecord">The gpsPosition or null</param>
-		[Route("api/v1/Position")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void PutGpsRecord(GpsRecord pRecord) {
@@ -51,7 +51,7 @@ namespace PiLot.API.Controllers {
 		/// need not be sorted, as we will sort them anyways.
 		/// </summary>
 		/// <param name="pRecords">An array of GpsRecords, or null</param>
-		[Route("api/v1/Position/multiple")]
+		[Route(Program.APIROOT + "[controller]/multiple")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void PutGpsRecords(GpsRecord[] pRecords) {

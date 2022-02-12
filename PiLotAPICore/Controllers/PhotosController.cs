@@ -8,7 +8,7 @@ using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
 
-	[Route("api/v1/Photos")]
+	[Route(Program.APIROOT + "[controller]")]
 	[ApiController]
 	public class PhotosController : ControllerBase {
 

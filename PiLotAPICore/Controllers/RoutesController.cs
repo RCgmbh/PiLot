@@ -19,7 +19,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="id">the route id or "current"</param>
 		/// <returns>A Route or null</returns>
-		[Route("api/v1/Routes/{id}")]
+		[Route(Program.APIROOT + "[controller]/{id}")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Route Get(String id) {
@@ -40,7 +40,7 @@ namespace PiLot.API.Controllers {
 		/// Gets a list of all routes
 		/// </summary>
 		/// <returns>A List of Routes</returns>
-		[Route("api/v1/Routes")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Route> Get() {
@@ -52,7 +52,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="route">The route to save</param>
 		/// <returns></returns>
-		[Route("api/v1/Routes")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Route Put(Route route) {
@@ -64,7 +64,7 @@ namespace PiLot.API.Controllers {
 		/// Deletes the route with RouteID = id from the server
 		/// </summary>
 		/// <param name="id">The route ID</param>
-		[Route("api/v1/Routes/{id}")]
+		[Route(Program.APIROOT + "[controller]/{id}")]
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult Delete(Int32 id) {

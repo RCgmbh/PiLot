@@ -17,7 +17,7 @@ namespace PiLot.API.Controllers {
 		/// sent as result (mainly for debugging purposes)
 		/// </summary>
 		/// <returns>the token or http 401</returns>
-		[Route("api/v1/Authentication/login")]
+		[Route(Program.APIROOT + "[controller]/login")]
 		[HttpGet]
 		public ActionResult GetLogin(String username, String password) {
 			String token = AuthenticationHelper.Instance.Login(username, password, this.HttpContext);
@@ -35,7 +35,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="credentials">A credentials object containing username and password</param>
 		/// <returns>the token or http 401</returns>
-		[Route("api/v1/Authentication/login")]
+		[Route(Program.APIROOT + "[controller]/login")]
 		[HttpPost]
 		public ActionResult PostLogin(Credentials credentials) {
 			String token = AuthenticationHelper.Instance.Login(credentials.Username, credentials.Password, this.HttpContext);
@@ -46,7 +46,7 @@ namespace PiLot.API.Controllers {
 			}
 		}
 
-		[Route("api/v1/Authentication/logout")]
+		[Route(Program.APIROOT + "[controller]/logout")]
 		[HttpPost]
 		public ActionResult PostLogout() {
 			AuthenticationHelper.Instance.Logout(this.HttpContext);

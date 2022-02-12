@@ -14,7 +14,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Returns some basic information about all available boat configs
 		/// </summary>
-		[Route("api/v1/BoatConfigs")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Object> Get() {
@@ -27,7 +27,7 @@ namespace PiLot.API.Controllers {
 		/// BoatConfig "current.json" :-)
 		/// </summary>
 		/// <param name="id">The name of the config or "current"</param>
-		[Route("api/v1/BoatConfigs/{id}")]
+		[Route(Program.APIROOT + "[controller]/{id}")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public ActionResult Get(String id) {

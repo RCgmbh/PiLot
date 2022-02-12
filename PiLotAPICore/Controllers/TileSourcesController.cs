@@ -18,7 +18,7 @@ namespace PiLot.API.Controllers {
 		/// Helper which forces a reload of the TileSources
 		/// </summary>
 		/// <returns>OK</returns>
-		[Route("api/v1/TileSources/ReloadConfig")]
+		[Route(Program.APIROOT + "[controller]/ReloadConfig")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public ActionResult GetReloadConfig() {
@@ -30,7 +30,7 @@ namespace PiLot.API.Controllers {
 		/// Returns a full list with all configured TileSources
 		/// </summary>
 		/// <returns>An array of TileSets</returns>
-		[Route("api/v1/TileSources")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public TileSource[] Get() {

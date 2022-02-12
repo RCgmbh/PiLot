@@ -24,7 +24,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="start">The start index, 0 for the first page, n * pageSize for page n</param>
 		/// <param name="pageSize">The maximal number of items to return</param>
-		[Route("api/v1/LogFiles")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public LogFilesResponse Get([FromQuery] Int32 start, [FromQuery] Int32 pageSize) {
@@ -46,7 +46,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="filename">the filename, without .txt (which would confuse the webserver)</param>
 		/// <returns>the content of the file, not html encoded or 404 if no such file exists</returns>
-		[Route("api/v1/LogFiles/{filename}")]
+		[Route(Program.APIROOT + "[controller]/{filename}")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public ActionResult Get(String filename) {

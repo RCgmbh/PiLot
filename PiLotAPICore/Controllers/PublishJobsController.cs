@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.Data.Files;
@@ -17,7 +16,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets the current publishJob for a target and a date, or null if there is no current Job
 		/// </summary>
-		[Route("api/v1/PublishJobs/{targetName}/{year}/{month}/{day}")]
+		[Route(Program.APIROOT + "[controller]/{targetName}/{year}/{month}/{day}")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public PublishJob Get(String targetName, Int32 year, Int32 month, Int32 day) {
@@ -30,7 +29,7 @@ namespace PiLot.API.Controllers {
 		/// this will return http 409, Conflict. You best check the status of the job by firing a
 		/// get to the same url before calling this.
 		/// </summary>
-		[Route("api/v1/PublishJobs/{targetName}/{year}/{month}/{day}")]
+		[Route(Program.APIROOT + "[controller]/{targetName}/{year}/{month}/{day}")]
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public ActionResult Put(String targetName, Int32 year, Int32 month, Int32 day, PublishSelection selection) {

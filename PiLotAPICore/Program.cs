@@ -24,6 +24,7 @@ namespace PiLot.API {
 
 	public class Program {
 
+		public const String APIROOT = "pilotapi/v1/";
 		private static Dictionary<String, Object> application;
 
 		public static void Main(string[] args) {

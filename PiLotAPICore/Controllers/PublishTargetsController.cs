@@ -25,7 +25,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the names of all PublishTargets. For each PublishTarget the Name
 		/// and the DisplayName are delivered
 		/// </summary>
-		[Route("api/v1/PublishTargets")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public List<Object> Get() {
@@ -37,7 +37,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the daily data for a certain PublishTarget and a certain day. The track is loaded either
 		/// for the timeframe of the local track, if any, or for the entire day if we have no local track.
 		/// </summary>
-		[Route("api/v1/PublishTargets/{targetName}/{year}/{month}/{day}")]
+		[Route(Program.APIROOT + "[controller]/{targetName}/{year}/{month}/{day}")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public async Task<TargetData<DailyData>> Get(String targetName, Int32 year, Int32 month, Int32 day) {

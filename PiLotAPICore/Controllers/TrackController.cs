@@ -14,7 +14,7 @@ namespace PiLot.API.Controllers {
 	[ApiController]
 	public class TrackController : ControllerBase {
 
-		[Route("api/v1/Track")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Double?[]> Get(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
@@ -28,7 +28,7 @@ namespace PiLot.API.Controllers {
 		/// <param name="startTime">Starttime in ms utc or boatTime</param>
 		/// <param name="endTime">Endtime in ms utc or boatTime</param>
 		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
-		[Route("api/v1/Track")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void Delete(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
@@ -42,7 +42,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="positions">Array of UTC, BoatTime, Lat, Lng</param>
 		/// <param name="doOverwrite">true: any existing position within min/max utc of pTrack will be deleted</param>
-		[Route("api/v1/Track")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void Put(List<Double?[]> positions, Boolean doOverwrite) {

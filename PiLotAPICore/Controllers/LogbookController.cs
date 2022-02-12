@@ -15,7 +15,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets the LogbookDay for one day, or null
 		/// </summary>
-		[Route("api/v1/Logbook/{year}/{month}/{day}")]
+		[Route(Program.APIROOT + "[controller]/{year}/{month}/{day}")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public LogbookDay Get(Int32 year, Int32 month, Int32 day) {
@@ -26,7 +26,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the LogbookDay for the current date based on
 		/// boatTime, or null if there is no logbookDay
 		/// </summary>
-		[Route("api/v1/Logbook/today")]
+		[Route(Program.APIROOT + "[controller]/today")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public LogbookDay Get() {
@@ -37,7 +37,7 @@ namespace PiLot.API.Controllers {
 		/// Gets summarized data for each day a month. The result is an array of objects
 		/// {day, hasTrack, hasDiary, hasLogbook, hasPhotos}
 		/// </summary>
-		[Route("api/v1/Logbook/{year}/{month}")]
+		[Route(Program.APIROOT + "[controller]/{year}/{month}")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Object[] Get(Int32 year, Int32 month) {
@@ -48,7 +48,7 @@ namespace PiLot.API.Controllers {
 		/// Gets the latest boatSetup for a specific boatConfig before or at a certain date.
 		/// LogbookEntries are used to find the boatSetup
 		/// </summary>
-		[Route("api/v1/Logbook/latestBoatSetup")]
+		[Route(Program.APIROOT + "[controller]/latestBoatSetup")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public BoatSetup GetLatestBoatSetup(Int32 year, Int32 month, Int32 day, String boatConfigName) {
@@ -60,7 +60,7 @@ namespace PiLot.API.Controllers {
 		/// Saves a logbookDay. Any existing lobookDay for this date will be replaced.
 		/// </summary>
 		/// <param name="logbookDay">The logbookday to save</param>
-		[Route("api/v1/Logbook")]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void Put(LogbookDay logbookDay) {
@@ -72,7 +72,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="logbookEntry">The logbookEntry to save</param>
 		/// <returns>The updated entry</returns>
-		[Route("api/v1/Logbook/entry")]
+		[Route(Program.APIROOT + "[controller]/entry")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult Put(LogbookEntry logbookEntry) {
@@ -88,7 +88,7 @@ namespace PiLot.API.Controllers {
 		/// Saves the diary text for a day
 		/// </summary>
 		/// <returns>The LogbookDay where the text was set</returns>
-		[Route("api/v1/Logbook/diary/{year}/{month}/{day}")]
+		[Route(Program.APIROOT + "[controller]/diary/{year}/{month}/{day}")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult Put(DiaryText text, Int32 year, Int32 month, Int32 day) {
@@ -105,7 +105,7 @@ namespace PiLot.API.Controllers {
 		/// or not found (404) if the item was not found
 		/// </summary>
 		/// <param name="entryId"></param>
-		[Route("api/v1/Logbook/entry/{id}")]
+		[Route(Program.APIROOT + "[controller]/entry/{id}")]
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult Delete(Int32 id) {

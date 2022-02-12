@@ -57,7 +57,7 @@ location /PiLotWeb/ {
 	root /home/[username]/Documents/repos/PiLot;
 }
 
-location /api/{
+location /pilotapi/{
 	proxy_pass http://127.0.0.1:5000;
 }
 ```
