@@ -42,7 +42,7 @@ Now open Visual Studio Code, which should be available in the "Activities" (the 
 
 We also need to add a few dotnet packages for the projects that are displayed in red. For each red project, right-click the project, such as "PiLotAPICore" in the explorer sidebar, then select "Open in integrated terminal" and enter `dotnet restore`. For some projects, this will install a zillion of dependencies, but at the end, there should be no more red projects.
 
-Now, we should be able to debug the PiLot API. Hit F5. The "select environment" dialogue appears. Select ".NET 5+ and .NET Core". Next, in the "Select the project to launch", select "PiLotAPI". This will create a "launch.json" file, but not yet start the debugger. Hit F5 again, and now the API gets loaded and the browser opens at localhost:5000. Enter the url http://localhost:5000/api/v1/Ping, and hit enter. The Page should show "OK". Now go back to VS Code, find the file `PiLotAPICore/Controllers/PingController.cs`, and add a breakpoint at the line `return "OK"`. Refresh the browser, and check the breakpoint was hit in VS Code. Hit F10 to step next. Congrats, you are debugging the PiLot API. Hit the "stop" button at the top of VS Code.
+Now, we should be able to debug the PiLot API. Hit F5. The "select environment" dialogue appears. Select ".NET 5+ and .NET Core". Next, in the "Select the project to launch", select "PiLotAPI". This will create a "launch.json" file, but not yet start the debugger. Hit F5 again, and now the API gets loaded and the browser opens at localhost:5000. Enter the url http://localhost:5000/pilotapi/v1/Ping, and hit enter. The Page should show "OK". Now go back to VS Code, find the file `PiLotAPICore/Controllers/PingController.cs`, and add a breakpoint at the line `return "OK"`. Refresh the browser, and check the breakpoint was hit in VS Code. Hit F10 to step next. Congrats, you are debugging the PiLot API. Hit the "stop" button at the top of VS Code.
 
 In order to easily run the web applications, we set up nginx and configure the sites for the web content and for the api. There we go:
 
@@ -80,13 +80,13 @@ cp -R repos/PiLot/PiLotApiCore/App_Data/* piLotDev/data/
 ```
 Now it's time to update some configuration files. The repo contains .example files, which need to be copied to the actual config files. These are excluded from git, so that changes remain local.
 
-Copy **PiLotWeb/js/Config.example.js** to **PiLotWeb/js/Config.js**, and set apiUrl: http://localhost/api/v1
+Copy **PiLotWeb/js/Config.example.js** to **PiLotWeb/js/Config.js**, and set apiUrl: http://localhost/pilotapi/v1
 
 We need to enter the data- and log paths into a bunch of config files (always replace [username] by your actual username). 
 
 Copy **PiLotAPICore/app.example.config** to **PiLotAPICore/app.config**, and set `value="/home/[username]/Documents/piLotDev/data"` where `key="dataDir"` and `value="/home/[username]/Documents/piLotDev/data"` where `key=logfilePath`, or whatever directories you just created before.
 
-Copy **PiLotSensors/app.example.config** to **PiLotSensors/app.config**, and update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/piLotDev/data/sensors/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/api/v1`.
+Copy **PiLotSensors/app.example.config** to **PiLotSensors/app.config**, and update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/piLotDev/data/sensors/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/pilotapi/v1`.
 
 Tadaa... it's finally time for a first test. In VS Code, hit F5 so that the API gets started. In a browser, enter http://localhost/PiLotWeb. In the best of all cases, this will launch the PiLot web app. In the normal case, hit F12 and spend some time fixing all the issues - things you did wrong, things that I have forgotten or mixed up in the above description.
 
@@ -107,7 +107,7 @@ Now there's another config file to update, where we define our tile sources:
 ```
 sudo nano ~/Documents/piLotDev/data/tiles/tileSources.json
 ```
-In the first block, where name="osm", set localPath to `/var/www/html/tiles/openstreetmap/{0}/{1}/{2}.png`, and in the second block, for openseamap, set localPath to `/var/www/html/tiles/openseamap/{0}/{1}/{2}.png`. As the tileSources are cached in the application, we need to refresh the cache (or just restart the API in VS code). Open http://localhost/api/v1/TileSources/ReloadConfig. A blank page means everything is fine.
+In the first block, where name="osm", set localPath to `/var/www/html/tiles/openstreetmap/{0}/{1}/{2}.png`, and in the second block, for openseamap, set localPath to `/var/www/html/tiles/openseamap/{0}/{1}/{2}.png`. As the tileSources are cached in the application, we need to refresh the cache (or just restart the API in VS code). Open http://localhost/pilotapi/v1/TileSources/ReloadConfig. A blank page means everything is fine.
 
 To download tiles, we open the tools page in the Web App (the tools icon in the lowermost menu section), and then click on the "Local Tiles" item. This brings up the tiles download tool. First navigate to the area you want to download. Then check the "Download" checkboxes for both sources (osm and openseamap). As soon as the map loads new tiles (when zooming or panning the map), these tiles will be saved in our local tiles directories. Additionally, you can choose to automatically save lower and higher zoom-levels. When selecting all lower zoom levels, and 2 higher zoom levels, things will take quite a while, but you will soon have a rather ok map available offline. To test whether the tiles have successfully downloaded, klick the "map" icon in the second section of the navigation. You should now see a proper offline map.
 
