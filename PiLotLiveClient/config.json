@@ -1,6 +1,6 @@
 {
-	"localAPI": "http://localhost/pilotapi/api/v1",
-	"remoteAPI": "http://localhost/pilotliveapi/api/v1",
+	"localAPI": "http://localhost/PiLotAPICore/pilotapi/v1",
+	"remoteAPI": "http://localhost/pilotliveapi/pilotapi/v1",
 	"interval": 10,
 	"username": "test",
 	"password": "8888"
