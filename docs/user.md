@@ -1,6 +1,6 @@
 # PiLot
-## Getting started for Users
-### Get a Raspberry Pi and some hardware
+# Getting started for Users
+## Get a Raspberry Pi and some hardware
 To begin, you should get some hardware.
 
 Mandatory:
@@ -13,15 +13,33 @@ Optional (but recommended)
 - If you want to have a portable PiLot, you will need a powerbank. If you find it, take one with "pass through" charging, which allows charging and powering the PiLot at the same time. For a Raspberry Pi 3, you will get about one hour of independence per 1000 mAh. So there's a tradeoff to find between size/prize and autonomy.
 - If you want to have the navigation and tracking features available, you will need a GPS reviever. If you search for "UART GPS module" at aliexpress or amazon, you will find devices like from Topgnss for around 10$. The device should support UART (the connection), be run with 3.3V or 5V, and deliver NMEA 0183. Of course you can take something more sophisticated like the Adafruit Ultimate GPS.
 - If you want to see the storm coming, the barograph is a good thing. For this, you need a device to measure the air pressure. The BMP180 or BME280 are good choices, and they are really cheap. Measuring themperature with these devices is possible, but depending on the placement of the sensor (inside or too close to the box), you will not get correct measurements. For the temperature, you might want to take something like the DS18B20, which comes with a cable and has the sensor in a waterproof enclosure. 
-### Set up a wireless access point using hostapd and dnsmasq
-### Connect a GPS device and set up the GPS logging service
-### Install the photos import service
-#### Install Samba to upload photos from Windows
-### Connect environmental sensors and set up the sensors logger service
-### Install nginx and set up the web application
-### Download your first offline maps
-### Optimize your system
-### Optionally set up the live tracking service
-### Optionally set up the backup service
-### Optionally set up a local OSM server (only the brave)
-### Build a nice case
+## Install Raspberry PI OS
+Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Be aware that writing the image to your SD card will overwrite all data, so make sure there is nothing precious there.
+
+Once finished writing, keep the card connected to your computer. Using a file explorer, create two files directly in the root (if you don't see the card, unplug it and plug it in again, it will usually be displayed as a drive called "boot"). Create those two filed directly in the root directory:
+1. Create an empty file called just "SSH" (no extension, no content). This will allow you to connect to your PiLot by ssh.
+2. To allow the PiLot to connect to your wifi, create a file called "wpa_supplicant.conf", and using a text editor, insert this content:
+```
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+country=CH
+
+network={
+       ssid="network_name"
+       scan_ssid=1
+       psk="password"
+}
+```
+For the country, set your country's 2 letter ISO code. Replace network_name by the name of your wifi, and password by your wifi password, then save the file. Now you can insert the SD card into your Raspberry Pi and power it on.
+## Set up a wireless access point using hostapd and dnsmasq
+## Connect a GPS device and set up the GPS logging service
+## Install the photos import service
+### Install Samba to upload photos from Windows
+## Connect environmental sensors and set up the sensors logger service
+## Install nginx and set up the web application
+## Download your first offline maps
+## Optimize your system
+## Optionally set up the live tracking service
+## Optionally set up the backup service
+## Optionally set up a local OSM server (only the brave)
+## Build a nice case
