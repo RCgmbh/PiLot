@@ -32,12 +32,12 @@ network={
 ```
 For the country, set your country's 2 letter ISO code. Replace network_name by the name of your Wi-Fi, and password by your Wi-Fi password, then save the file. Now you can insert the SD card into your Raspberry Pi and power it on.
 
-Connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@raspberrypi`. You might have to confirm by typing "yes", the enter the password "raspberry". You should now see `pi@raspberrypi:~ $`. Feel good, as you just brought life to your tiny computer. Let's move on. First thing is to change the default password of the user "pi" to something more secure. Type `passwd` and follow the instructions.
+Connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@raspberrypi`. You might have to confirm by typing "yes", the enter the password "raspberry". You should now see `pi@raspberrypi:~ $`. Feel good, as you just brought life to your tiny computer. Let's move on. First thing is to change the default password of the user "pi" to something google doesn't know. Type `passwd` and follow the instructions.
 
 In order to bring your system up to date, run `sudo apt update` which will look for the latest versions of your software, then run `sudo apt upgrade -y` which will actually install them. This might take a while, so go get a coffee, as there is some more work waiting.
 
-Just a few more steps for our base configuration remain. Run `sudo raspi-config`, and 
-- in System Options > Hostname enter the new hostname, if you don't want to be your pilot just another "raspberrypi".
+Just a few more steps for our base configuration remain. Run `sudo raspi-config`, and... 
+- in System Options > Hostname enter the new hostname, if you don't want your pilot to be just another "raspberrypi".
 - in Advanced Options > Network Interface Names, enable "predictable network interface names", which will give you a very new understanding of "predictable"
 
 When asked to reboot, select "yes", so that your changes can take effect. After a minute, try to re-connect, still using the user "pi", but with the new hostname, e.g. ssh pi@pilot. And of course enter the newly set password.
