@@ -156,7 +156,7 @@ sudo nano /etc/rc.local
 ```
 Before the line **exit 0**, add 
 ```
-ptables-restore < /etc/iptables.ipv4.nat
+iptables-restore < /etc/iptables.ipv4.nat
 ```
 It's time for a sudo reboot now!
 ## Install nginx and set up the web application
