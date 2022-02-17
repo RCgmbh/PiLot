@@ -57,9 +57,9 @@ sudo nano /etc/udev/rules.d/10-network-device.rules
 ```
 The file needs to have the following content:
 ```
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="b8:27:cb:60:49:6f", NAME="wlxOnboardWiFi"
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="xx:xx:xx:xx:xx:xx", NAME="wlxOnboardWiFi"
 ```
-The value after ATTR{address} is of course the value for "ether" you copied before. Push Ctrl + X, then Y, then Enter to save the file. You can reboot now to apply the changes with the command `sudo reboot now`.
+Instead of **xx:xx:xx:xx:xx:xx** the value after ATTR{address} is the value for "ether" you copied before (7f:27:b8:60:39:7f in our example). As soon as you have replaced and double-checked the text, hit Ctrl + X, then Y, then Enter to save the file. You can reboot now to apply the changes with the command `sudo reboot now`.
 
 After a minute, re-connect your ssh session as you did at the end of the last chapter (you can use the arrow-up key in the console, which will bring back the last command in the current context, and this will after the disconnection from the PiLot usually be the ssh command). Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
 
@@ -72,7 +72,93 @@ In order to configure the services, we need to stop them:
 sudo systemctl stop dnsmasq
 sudo systemctl stop hostapd
 ```
-No we give our PiLot a static IP address for the network interface used by hostapd.
+No we configure hostapd to set up an access point called "pilot" with the password "SECRET1234" (you will of course enter something more reasonable!), and using the onboard wlan adapter we named wlxOnboardWiFi.
+```
+sudo nano /etc/hostapd/hostapd.conf
+```
+Enter this text, and change the value for "wpa_passphrase", the passphrase must be 8-63 characters long. You can also change the name of the network (ssid), which in my example is "pilot".
+```
+interface=wlxOnboardWiFi
+driver=nl80211
+ssid=pilot
+hw_mode=g
+channel=6
+wmm_enabled=0
+macaddr_acl=0
+auth_algs=1
+ignore_broadcast_ssid=0
+wpa=2
+wpa_passphrase=SECRET1234
+wpa_key_mgmt=WPA-PSK
+wpa_pairwise=TKIP
+rsn_pairwise=CCMP
+```
+Hit Ctrl+X, Y, Enter to save and close nano.
+To tell hostapd to use the configuration we just created, we need to reference it in the daemon config file:
+```
+sudo nano /etc/default/hostapd
+```
+Find the line **#DAEMON_CONF=""** and replace it by **DAEMON_CONF="/etc/hostapd/hostapd.conf"**. By removing the #, we "uncomment" it, so that it will have an effect, and by setting the path to our previously created config file we tell the service where to find its configuration. Save and close the file.
+
+Next we configure dnsmask by changing its config file:
+```
+sudo nano /etc/dnsmasq.conf
+```
+At the end of the file, insert the following lines, and the save and close the file:
+```
+#PiLot hotspot IP range
+interface=wlxOnboardWiFi
+dhcp-range=192.168.80.2,192.168.80.20,255.255.255.0,24h
+```
+Our pilot will give IP adresses in the range from 192.168.80.2 to 192.168.80.20. You can select a different range, but be aware that there are only predefined ranges to be used for local networks.
+
+We also need to enable IP forwarding, which is a small change in just another config file:
+```
+sudo nano /etc/sysctl.conf
+```
+Find the those two lines, and remove the # for both lines, so that you end up with:
+```
+net.ipv4.ip_forward=1
+net.ipv6.conf.all.forwarding=1
+```
+As always, save and close. Hold on, we're almost there! Just a few more things. We now define the static IP adress. This is done within the dhcpcd configuration:
+```
+sudo nano /etc/dhcpcd.conf
+```
+Go to the end of the file, and insert these lines:
+```
+interface wlxOnboardWiFi
+denyinterface wlxOnboardWiFi
+nohook wpa_supplicant
+static ip_address=192.168.80.1/24
+static domain_name_servers=8.8.8.8
+```
+We can now enable the two services. We first need to unmask hostapd, because it has been masked when we changed its daemon config.
+```
+sudo systemctl unmask hostapd
+sudo systemctl enable hostapd
+sudo systemctl start dnsmasq
+sudo systemctl start hostapd
+```
+I had an issue in the past when hostapd crashed as soon as a client tried to connect, and could resolve it by deleting a file:
+```
+sudo rm /etc/modprobe.d/blacklist-rtl*
+```
+Finally, to share an existing Internet connection the Raspberry Pi might have with clients connected to its access point, do this: First run ifconfig and copy the name of your other wlan interface (wlxSomething) and of the ethernet connection (enxSomething). Then run these commands:
+```
+sudo iptables -t nat -A POSTROUTING -o wlxSomething -j MASQUERADE
+sudo iptables -t nat -A POSTROUTING -o enxSomething -j MASQUERADE
+sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
+```
+In order to reload the configuration on each boot, we have to add a line to the rc.local file:
+```
+sudo nano /etc/rc.local
+```
+Before the line **exit 0**, add 
+```
+ptables-restore < /etc/iptables.ipv4.nat
+```
+It's time for a sudo reboot now!
 ## Install nginx and set up the web application
 ## Connect a GPS device and set up the GPS logging service
 ## Install the photos import service
