@@ -28,4 +28,6 @@ Just a few more step for our base configuration remain. Run `sudo raspi-config`,
 
 When asked to reboot, select "yes", so that your changes can take effect. After a minute, try to re-connect, still using the user "pi", but with the new hostname, e.g. ssh pi@pilot. And of course enter the newly set password.
 
-Next, we will [set up an access point...](ap.md)
+\> Next, we will [set up an access point...](ap.md)
+
+<< [Back to overview](user.md)
