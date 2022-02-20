@@ -1,4 +1,5 @@
-## Set up a wireless access point using hostapd and dnsmasq
+# PiLot - getting started
+## Set up a wireless access point
 The idea of the PiLot is that you connect to it via Wi-Fi and use a browser to interact with it. As you might not always have a wireless network available (especially outdoors), the PiLot simply creates its own Wi-Fi and acts as an access point. Clients can then just connect to the network. As a plus, the PiLot can use its second network interface to connect to a public Wi-Fi, and will then pass all internet traffic from its clients through that connection to the internet. A client (your phone, tablet or laptop) connected to the PiLot can then access both, the PiLot's local web application, and the internet.
 
 This step is mandatory, if you want to access the PiLot using any device. If you intend to just connect screen, keyboard and mouse directly to the Raspberry Pi, you can skip this step.
@@ -101,7 +102,7 @@ I had an issue in the past when hostapd crashed as soon as a client tried to con
 ```
 sudo rm /etc/modprobe.d/blacklist-rtl*
 ```
-Finally, to share an existing Internet connection the Raspberry Pi might have with clients connected to its access point, do this: First run ifconfig and copy the name of your other wlan interface (wlxSomething) and of the ethernet connection (enxSomething). Then run these commands:
+Finally, to share an existing Internet connection the Raspberry Pi might have with clients connected to its access point, do this (in case you have only one wireless adapter - the onboard Wi-Fi - you can skip this): First run ifconfig and copy the name of your other wlan interface (wlxSomething) and of the ethernet connection (enxSomething). Then run these commands:
 ```
 sudo iptables -t nat -A POSTROUTING -o wlxSomething -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o enxSomething -j MASQUERADE
