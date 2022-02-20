@@ -16,4 +16,6 @@ Optional (but recommended)
 
 As soon as you have the mandatory parts at hand, you can continue with the next step, while waiting for the package from china. 
 
-[Install the os, and basic setup...](basics.md)
+\> [Install the os, and basic setup...](basics.md)
+
+<< [Back to overview](user.md)
