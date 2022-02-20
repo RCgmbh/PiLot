@@ -102,8 +102,10 @@ PiLot.Templates.Logbook = {
 			<div class="dataContainerFull paddingRight paddingBottom">
 				<div class="diaryPhotos"></div>
 			</div>
-			<div class="paddingBottom marginBottom">
-				<a href="#" class="lnkPublish block linkButton paddingLeft paddingRight hidden" data-text="publish"></a>
+			<div class="dataContainerFull paddingBottom">
+				<a href="#" class="lnkEdit block linkButton marginRight paddingLeft paddingRight hidden" data-text="edit"></a>
+				<a href="#" class="lnkEditTrack block linkButton marginRight paddingLeft paddingRight hidden" data-text="editTrack"></a>
+				<a href="#" class="lnkPublish block linkButton marginRight paddingLeft paddingRight hidden" data-text="publish"></a>
 			</div>
 		</div>`,
 

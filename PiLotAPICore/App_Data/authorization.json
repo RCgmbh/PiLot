@@ -31,5 +31,5 @@
 			"canWrite": true
 		}
 	],
-	"anonymousRole": "writer"
+	"anonymousRole": "reader"
 }

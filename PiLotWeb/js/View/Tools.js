@@ -182,12 +182,19 @@ PiLot.View.Tools = (function () {
 		},
 
 		setDefaultDates: function () {
-			let now = this.boatTime.now()
-			this.calStartDate.date(now);
+			let startDate = PiLot.Utils.Common.parseQsDate(this.boatTime);
+			if (startDate !== null) {
+				endDate = startDate.addDays(1).toLuxon();
+				startDate = startDate.toLuxon();
+			} else {
+				startDate = RC.Date.DateOnly.fromObject(this.boatTime.now()).toLuxon();
+				endDate = this.boatTime.now();
+			}
+			this.calStartDate.date(startDate);
 			this.calStartDate.showDate();
-			this.calEndDate.date(now);
+			this.calEndDate.date(endDate);
 			this.calEndDate.showDate();
-			RC.Utils.setText(this.tbEndTime, now.toFormat('HH:mm'));
+			RC.Utils.setText(this.tbEndTime, endDate.toFormat('HH:mm'));
 		},
 
 		loadTrack: function () {

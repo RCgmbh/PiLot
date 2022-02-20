@@ -36,6 +36,8 @@ PiLot.View.Logbook = (function () {
 		this.plhDistance = null;						// distance container
 		this.lblDistanceKm = null;						// the label for distance in KM
 		this.lblDistanceNm = null;						// the label for distance in NM
+		this.lnkEdit = null;							// link opening the editable view of a diary page
+		this.lnkEditTrack = null;						// link pointing to the tools page to edit the gps track
 		this.lnkPublish = null;							// the link to publish all data
 
 		this.initialize();
@@ -96,6 +98,10 @@ PiLot.View.Logbook = (function () {
 				this.map = this.map || new PiLot.View.Map.Seamap(plhMap, { persistMapState: false });
 			}
 			this.plhPhotos = logbookControl.querySelector('.diaryPhotos');
+			this.lnkEdit = logbookControl.querySelector('.lnkEdit');
+			RC.Utils.showHide(this.lnkEdit, PiLot.Model.Common.Permissions.canWrite());
+			this.lnkEditTrack = logbookControl.querySelector('.lnkEditTrack');
+			RC.Utils.showHide(this.lnkEditTrack, PiLot.Model.Common.Permissions.canWrite());
 			this.lnkPublish = logbookControl.querySelector('.lnkPublish');
 			RC.Utils.showHide(this.lnkPublish, PiLot.Model.Common.Permissions.hasSystemAccess());
 		},
@@ -154,13 +160,32 @@ PiLot.View.Logbook = (function () {
 			this.lnkNextDay.onclick = nextHandler;
 		},
 
-		/** Updates the href attribute of the publish button */
+		/** Updates the href attribute of the edit link */
+		bindLnkEdit: function () {
+			this.bindDateLink (this.lnkEdit, PiLot.Utils.Loader.pages.logbook.logbook);
+		},
+
+		/** Updates the href attribute of the editTrack link */
+		bindLnkEditTrack: function () {
+			this.bindDateLink(this.lnkEditTrack, PiLot.Utils.Loader.pages.system.tools.data);
+		},
+
+		/** Updates the href attribute of the publish link */
 		bindLnkPublish: function () {
-			if (this.lnkPublish) {
-				const pageUrl = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.logbook.publish);
+			this.bindDateLink(this.lnkPublish, PiLot.Utils.Loader.pages.logbook.publish);
+		},
+
+		/**
+		 * Sets the href attribute of a link to an url containing a date querystring
+		 * @param {HTMLAnchorElement} pLink - the link for which we set the href. Can be nullish
+		 * @param {String} pPage - the name of the page according to PiLot.Utils.Loader.pages
+		 */
+		bindDateLink: function (pLink, pPage) {
+			if (pLink) {
+				const pageUrl = PiLot.Utils.Loader.createPageLink(pPage);
 				const qsDate = PiLot.Utils.Common.getQsDateValue(this.date);
 				let url = `${pageUrl}&d=${qsDate}`;
-				this.lnkPublish.href = url;
+				pLink.href = url;
 			}
 		},
 
@@ -246,12 +271,13 @@ PiLot.View.Logbook = (function () {
 		/// Also saves the currently selected day to the user settings
 		setDate: function (pDate) {
 			this.date = pDate;
-			this.calendar.date(this.date.toLuxon());
+			this.calendar.date(this.date.toLuxon().setLocale(PiLot.Utils.Language.getLocale()));
 			this.calendar.showDate();
 			this.bindPreviousNextButtons();
+			this.bindLnkEdit();
+			this.bindLnkEditTrack();
 			this.bindLnkPublish();
 			this.saveDate();
-			//let url = RC.Utils.setUrlParameter(window.location, 'd', this.date.toLuxon().toFormat('yyyyMMdd'));
 			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 			window.history.pushState({}, '', url);
 			this.load();

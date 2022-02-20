@@ -44,7 +44,7 @@ PiLot.Utils.Common = {
 
 	/**
 	 * Tries to read the date in the format yyyyMMdd or as "today" from the querystring "d",
-	 * and if done so successfully, returns the date;
+	 * and if done so successfully, returns the date as RC.Date.DateOnly	;
 	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - the current BoatTime, needed for "today"
 	 * */
 	parseQsDate: function (pBoatTime) {
