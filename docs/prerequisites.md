@@ -15,4 +15,4 @@ Optional (but recommended)
 - If you want to see the storm coming, the barograph is a good thing. For this, you need a device to measure the air pressure. The BMP180 or BME280 are good choices, and they are really cheap. Measuring themperature with these devices is possible, but depending on the placement of the sensor (inside or too close to the box), you will not get correct measurements. For the temperature, you might want to take something like the DS18B20, which comes with a cable and has the sensor in a waterproof enclosure. 
 
 As soon as you have the mandatory parts at hand, you can continue with the next step, while waiting for the package from china. 
-[Set up a wireless access point](ap.md)
+[Install the os, and basic setup...](basic.md)
