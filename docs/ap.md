@@ -1,12 +1,12 @@
 # PiLot - getting started
 ## Set up a wireless access point
-The idea of the PiLot is that you connect to it via Wi-Fi and use a browser to interact with it. As you might not always have a wireless network available (especially outdoors), the PiLot simply creates its own Wi-Fi and acts as an access point. Clients can then just connect to the network. As a plus, the PiLot can use its second network interface to connect to a public Wi-Fi, and will then pass all internet traffic from its clients through that connection to the internet. A client (your phone, tablet or laptop) connected to the PiLot can then access both, the PiLot's local web application, and the internet.
+The idea of the PiLot is that you connect to it via Wi-Fi and use a browser to interact with it. As you might not always have a wireless network available (especially outdoors), the PiLot simply creates its own wireless network and acts as an access point. Clients then can just connect to the network. As a plus, the PiLot can use its second wireless adapter or the cable to connect to a public Wi-Fi or a local network, and will then pass all internet traffic from its clients through that connection to the internet. A client (your phone, tablet or laptop) connected to the PiLot can then access both, the PiLot's local web application, and the internet.
 
-This step is mandatory, if you want to access the PiLot using any device. If you intend to just connect screen, keyboard and mouse directly to the Raspberry Pi, you can skip this step.
+This step is mandatory, if you want to access the PiLot otuside of any existing network environment. If you intend to only use it in an existing Wi-Fi or LAN, or just want to connect screen, keyboard and mouse directly to the Raspberry Pi, you can skip this step.
 
-Run `sudo raspi-config`, and in **Advanced Options** > **Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
+First run `sudo raspi-config`, and in **Advanced Options** > **Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
 
-Now let's have a look at our network devices. Type `ifonfig`, and you will see a list of devices. The cryptic names, such as "enxb827eb356c2a", are the predictable network interface names. Yes, right, they don't seem predictable at first, but they acutally are. Without enabling predictable names, if you have two wireless network interfaces, one will be wlan0, and the other wlan1. But every time you boot, they can switch names, so you actually can't predict, which physical device will be wlan0, and which will be wlan1. The predictable names however will remain the same, as long as you don't change the hardware. So if you always want to use the network adapter with the huge antenna to access the far away marina Wi-Fi, then you will want the onboard wlan interface for the access point. But - oh no! The internal interface still has a much too simple name, like "wlan1". We also want to give it a fixed, predictable name. Thats quite simple: First, look at the result of ifconfig for the device called "wlan0" or "wlan1". Now copy the value after "ether", which is of the form b8:27:cb:60:49:6f. See what I have marked in the below picture:
+Now let's have a look at our network devices. Type `ifonfig`, and you will see a list of devices. The cryptic names, such as "enxb827eb356c2a", are the predictable network interface names. Yes, right, they don't seem predictable at first, but they acutally are. Without enabling predictable names, if you have two wireless network adapters, one will be wlan0, and the other wlan1. But every time you boot, they can switch names, so you actually can't predict which physical device will be wlan0, and which will be wlan1. The predictable names however will remain the same, as long as you don't change the hardware. So if you always want to use the network adapter with the huge antenna to access the far away marina Wi-Fi, then you will want the onboard wlan interface for the access point. But - oh no! The internal interface still has a much too simple name, like "wlan1". We also want to give it a fixed, predictable name. Thats quite simple: First, look at the result of ifconfig for the device called "wlan0" or "wlan1". Now copy the value after "ether", which is of the form b8:27:cb:60:49:6f. See what I have marked in the below picture:
 
 ![image](https://user-images.githubusercontent.com/96988699/154531955-c3a32389-374b-4a14-947e-4c49063f433a.png)
 
@@ -22,7 +22,7 @@ Instead of **xx:xx:xx:xx:xx:xx** the value after ATTR{address} is the value for 
 
 After a minute, re-connect your ssh session as you did at the end of the last chapter (you can use the arrow-up key in the console, which will bring back the last command in the current context, and this will after the disconnection from the PiLot usually be the ssh command). Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
 
-We now need two services: hostapd, which creates the local access point, and dnsmasq which provides IP adresses to the clients. So we just install them both like this:
+We now need two services: **hostapd**, which creates the local access point, and **dnsmasq** which provides IP adresses to the clients. So we just install them both like this:
 ```
 sudo apt install -y dnsmasq hostapd
 ```
@@ -33,7 +33,7 @@ sudo systemctl stop hostapd
 ```
 No we configure hostapd to set up an access point called "pilot" with the password "SECRET1234" (you will of course enter something more reasonable!), and using the onboard wlan adapter we named wlxOnboardWiFi.
 
-**Note** I did have issues with this setup on a Raspberry Pi 3. The internet access did not work for clients connected to the access point. Switching the inferfaces (using the external wireless network device for the access point) fixed this - no idea why. So if you run into this issue, just switch the interface names (wlxOnboardWiFi and wlxCrypticSth123) in the following steps.
+**Note** I did have issues with this setup on a Raspberry Pi 3. The internet access did not work for clients connected to the access point. Switching the inferfaces (using the USB Wi-Fi dongle for the access point) fixed this - no idea why. So if you run into this issue, just switch the interface names (wlxOnboardWiFi and wlxCrypticSth123) in the following steps.
 ```
 sudo nano /etc/hostapd/hostapd.conf
 ```
@@ -80,11 +80,11 @@ Find those two lines, and remove the # for both lines, so that you end up with:
 net.ipv4.ip_forward=1
 net.ipv6.conf.all.forwarding=1
 ```
-As always, save and close. Hold on, we're almost there! Just a few more things. We now define the static IP adress. This is done within the dhcpcd configuration:
+As always, save and close. Next we define the static IP adress. This is done within the dhcpcd configuration:
 ```
 sudo nano /etc/dhcpcd.conf
 ```
-Go to the end of the file, and insert these lines:
+Go to the end of the file and insert these lines, which will make sure the access point interface does not connect to other networks, sets the static IP address and sets Googles DNS server (8.8.8.8) for the resolution of public internet addresses.:
 ```
 interface wlxOnboardWiFi
 nohook wpa_supplicant
@@ -102,7 +102,7 @@ I had an issue in the past when hostapd crashed as soon as a client tried to con
 ```
 sudo rm /etc/modprobe.d/blacklist-rtl*
 ```
-Finally, to share an existing Internet connection the Raspberry Pi might have with clients connected to its access point, do this (in case you have only one wireless adapter - the onboard Wi-Fi - you can skip this): First run ifconfig and copy the name of your other wlan interface (wlxSomething) and of the ethernet connection (enxSomething). Then run these commands:
+Finally, to share the raspis internet connection with clients connected to its access point, do this (in case you have only one wireless adapter - the onboard Wi-Fi - you can skip this): First run ifconfig and copy the name of your other wlan interface (wlxSomething, not the one you used for the access point) and of the ethernet connection (enxSomething). Then run these commands:
 ```
 sudo iptables -t nat -A POSTROUTING -o wlxSomething -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o enxSomething -j MASQUERADE
@@ -116,4 +116,4 @@ Before the line **exit 0**, add
 ```
 iptables-restore < /etc/iptables.ipv4.nat
 ```
-It's time for a sudo reboot now! After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the internet.
+It's time for a sudo reboot now! After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
