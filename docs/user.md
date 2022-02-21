@@ -6,7 +6,7 @@ Each of the following chapters contains a part of the entire setup process. Some
 1. [Prerequisites](prerequisites.md)
 2. [Operating system and basic configuration](basics.md)
 3. [Set up a wireless access point](ap.md)
-4. Install nginx and set up the web application
+4. [Install nginx and set up the web application](web.md)
 5. Connect a GPS device and set up the GPS logging service
 6. Download your first offline maps
 7. Connect sensors and log sensor data
