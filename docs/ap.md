@@ -117,3 +117,9 @@ Before the line **exit 0**, add
 iptables-restore < /etc/iptables.ipv4.nat
 ```
 It's time for a sudo reboot now! After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
+
+If this all works, you have successfully completed one of the more tricky parts and can move on. 
+
+\> [Install the web application...](web.md)
+
+<< [Back to overview](user.md)
