@@ -1,0 +1,14 @@
+[Unit]
+Description=PiLot API
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/pilotapi
+ExecStart=/opt/pilotapi/PiLot.API
+Restart=always
+RestartSec=2
+User=pi
+Environment=DOTNET_ROOT=/opt/dotnet
+
+[Install]
+WantedBy=default.target

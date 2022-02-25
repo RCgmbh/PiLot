@@ -46,10 +46,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPhotosWatcher", "PiLot
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{0B397FE6-E244-4B1F-AF48-DA88C8B27C4A}"
 	ProjectSection(SolutionItems) = preProject
+		docs\ap.md = docs\ap.md
+		docs\basics.md = docs\basics.md
 		docs\dev.md = docs\dev.md
 		docs\user.md = docs\user.md
-		docs\basics.md = docs\basics.md
-		docs\ap.md = docs\ap.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GPSDataCreator", "GPSDataCreator\GPSDataCreator.csproj", "{373E850B-6EDA-474D-B695-032D61222163}"
@@ -62,6 +62,18 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "py", "py", "{0DD18091-BB5E-45FE-9CA4-985D9E9AA0E3}"
 	ProjectSection(SolutionItems) = preProject
 		py\gpsLogger.py = py\gpsLogger.py
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installScripts", "{746AFF13-8152-4EE2-99D7-C5B8D0ED0207}"
+	ProjectSection(SolutionItems) = preProject
+		installScripts\pilot-install-web-01-netcore.sh = installScripts\pilot-install-web-01-netcore.sh
+		installScripts\pilot-install-web-02-pilot.sh = installScripts\pilot-install-web-02-pilot.sh
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{1125EB22-4B62-4888-BD40-64C09E1A0F88}"
+	ProjectSection(SolutionItems) = preProject
+		installScripts\resources\nginx.conf = installScripts\resources\nginx.conf
+		installScripts\resources\pilotApi.service = installScripts\resources\pilotApi.service
 	EndProjectSection
 EndProject
 Global
@@ -121,6 +133,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{1125EB22-4B62-4888-BD40-64C09E1A0F88} = {746AFF13-8152-4EE2-99D7-C5B8D0ED0207}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DFF59E6D-1CB2-45D7-9337-DF815740F907}
