@@ -80,7 +80,7 @@ nor up-to-date charts.** The PiLot might be wrong, or might even fail entirely.
 See [Getting started for Users](docs/user.md) for further details.
 ### For developers
 If you feel like contributing to the PiLot ecosystem, then you are more than welcome. It's just
-HTML, vanilla Javascript and dotnet core with C#. No bloat, no frameworks, just straightworward
+HTML, vanilla Javascript and dotnet core with C#. No bloat, no frameworks, just straightforward
 code. All you need is your favourite IDE, the dotnet SDK, a webserver (such as nginx) and git.
 See [Getting started for developers](docs/dev.md) for further details.
 
