@@ -24,12 +24,6 @@ PiLot.Templates.Media = {
 					<span class="label">Mühle</span>
 				</div>		
 			</a>
-			<a href="games/tower/index.html" class="tile big">
-				<div>
-					<img src="img/iconTower.svg" />
-					<span class="label">Tower</span>
-				</div>		
-			</a>
 			<a href="games/1024/index.html" class="tile big">
 				<div>
 					<img src="img/icon1024.svg" />
