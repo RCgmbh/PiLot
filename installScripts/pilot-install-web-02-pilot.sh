@@ -28,6 +28,7 @@ mkdir /var/www/html/tiles/openseamap
 chown -R pi:root /var/www/html/tiles
 mkdir /var/www/html/library
 chown -R pi:root /var/www/html/library
+cp resources/library/* /var/www/html/library/
 
 # update nginx config
 apt install -y nginx

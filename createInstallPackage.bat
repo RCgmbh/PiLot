@@ -25,6 +25,9 @@ rd /s /q pilotinstall\resources\pilotweb\photos
 copy pilotinstall\resources\pilotweb\js\Config.default.js pilotinstall\resources\pilotweb\js\Config.js
 del /s /q pilotinstall\resources\pilotweb\js\Config.*.js
 
+mkdir pilotinstall\resources\library
+xcopy /s /r /i  ..\..\pilot\defaultlibrary\* pilotinstall\resources\library\
+
 xcopy /s /r /i installScripts\* pilotinstall\
 7z a -r -ttar pilotinstall.tar pilotinstall
 7z a -r -tgzip pilotinstall.tar.gz pilotinstall.tar
