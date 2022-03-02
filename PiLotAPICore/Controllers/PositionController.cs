@@ -46,6 +46,22 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Allows to put a gps position. This operation can only be called from local clients, 
+		/// but then does not need any credentials. This is intended to simplify the connection
+		/// from the GPS logger to the api, and make it more robust.
+		/// </summary>
+		/// <param name="pRecord">The gpsPosition or null</param>
+		[Route(Program.APIROOT + "[controller]/local")]
+		[HttpPut]
+		[ServiceFilter(typeof(LocalAuthorizationFilter))]
+		public void PutGpsRecordLocal(GpsRecord pRecord) {
+			Logger.Log($"GPS Record recieved: {pRecord}", LogLevels.DEBUG);
+			if (pRecord != null) {
+				GpsCache.Instance.AddRecord(pRecord);
+			}
+		}
+
+		/// <summary>
 		/// Allows to put a series of GPS Records. It expects, without verifying, that all 
 		/// records are newer than any records sent before. The records themselves however
 		/// need not be sorted, as we will sort them anyways.

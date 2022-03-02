@@ -50,10 +50,8 @@ def sendPosition(data, poolManager):
 		'PUT',
 		apiUrl,
 		body=encoded_data,
-		headers={'Content-Type': 'application/json'})
-	
-	# TODO: Add Authentication! This will only work as long as
-	# anonymous user has write permission, needed for putting to /Position
+		headers={'Content-Type': 'application/json'}
+	)
 
 def main():
 	poolManager = urllib3.PoolManager()
@@ -79,5 +77,5 @@ def main():
 		sleep(0.05)
 
 
-apiUrl = 'http://localhost/pilotapi/v1/Position'
+apiUrl = 'http://localhost/pilotapi/v1/Position/local'
 main()
