@@ -5,6 +5,7 @@ using System.Linq;
 
 using PiLot.Utils.Logger;
 using PiLot.Model.Sensors;
+using PiLot.APIProxy;
 
 namespace PiLot.Sensors {
 
@@ -22,8 +23,10 @@ namespace PiLot.Sensors {
 		/// </summary>
 		/// <param name="pInterval">The interval in seconds, how requently to measure</param>
 		/// <param name="pSensors">The sensor infos. Usually one entry with sensorType temperature</param>
-		public CPUTemperatureDevice(Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI) 
-			: base(null, pInterval, pSensors, pLocalAPI) {
+		/// <param name="pLocalAPI">The api url where the data will be sent to</param>
+		/// <param name="pLoginHelper">The one and only login helper for the application</param>
+		public CPUTemperatureDevice(Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI, LoginHelper pLoginHelper) 
+			: base(null, pInterval, pSensors, pLocalAPI, pLoginHelper) {
 			SensorInfo? sensorInfo = pSensors.FirstOrDefault(s => s.SensorType == SensorTypes.TEMPERATURE);
 			if(sensorInfo != null) {
 				this.temperatureName = sensorInfo.Value.Name;

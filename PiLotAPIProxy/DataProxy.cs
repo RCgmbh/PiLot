@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Net.Http;
 using System.Text.Json;
-using System.Text;
 using System.Threading.Tasks;
 
 using PiLot.Model.Sensors;
-using PiLot.Utils.Logger;
 
 namespace PiLot.APIProxy {
 
@@ -24,9 +21,10 @@ namespace PiLot.APIProxy {
 		/// send data to the Data API
 		/// </summary>
 		/// <param name="pApiUrl">The API Root url, such as http://localhost/pilotapi/api/v1, without ending /</param>
-		public DataProxy(String pApiUrl) {
+		/// <param name="pLoginHelper">Pass the one and only LoginHelper within the application, or null</param>
+		public DataProxy(String pApiUrl, LoginHelper pLoginHelper) {
 			this.apiControllerUrl = pApiUrl + CONTROLLERURL;
-			this.httpClient = new PiLotHttpClient(null);
+			this.httpClient = new PiLotHttpClient(pLoginHelper);
 		}
 
 		/// <summary>

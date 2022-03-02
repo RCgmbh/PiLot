@@ -29,8 +29,10 @@ namespace PiLot.Sensors {
 		/// <param name="pID">The ID is the hostname of the pilot device, e.g. pilot1</param>
 		/// <param name="pInterval">The interval to query the pilot</param>
 		/// <param name="pSensors">use any data source name, e.g. temeprature1 for data queried via the /Data API</param>
-		public PiLotDevice(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI)
-			: base(pID, pInterval, pSensors, pLocalAPI) {
+		/// <param name="pLocalAPI">The api url where the data will be sent to</param>
+		/// <param name="pLoginHelper">The one and only login helper for the application</param>
+		public PiLotDevice(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI, LoginHelper pLoginHelper)
+			: base(pID, pInterval, pSensors, pLocalAPI, pLoginHelper) {
 			
 		}
 
@@ -42,7 +44,7 @@ namespace PiLot.Sensors {
 		/// </summary>
 		protected override void SetupDevice(String pDeviceID, List<SensorInfo> pSensors) {
 			this.sensorInfos = pSensors;
-			this.remoteApiProxy = new DataProxy(String.Format(APIURL, this.id));
+			this.remoteApiProxy = new DataProxy(String.Format(APIURL, this.id), null);
 		}
 
 		/// <summary>

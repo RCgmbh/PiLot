@@ -6,6 +6,7 @@ using Iot.Device.OneWire;
 using UnitsNet;
 
 using PiLot.Model.Sensors;
+using PiLot.APIProxy;
 
 namespace PiLot.Sensors {
 
@@ -20,8 +21,10 @@ namespace PiLot.Sensors {
 		/// <param name="pID">The ID of the sensor</param>
 		/// <param name="pInterval">The read interval in seconds</param>
 		/// <param name="pSensors">The list of sensors, which will usually be just one</param>
-		public OneWDevice(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI)
-			: base(pID, pInterval, pSensors, pLocalAPI) {
+		/// <param name="pLocalAPI">The api url where the data will be sent to</param>
+		/// <param name="pLoginHelper">The one and only login helper for the application</param>
+		public OneWDevice(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI, LoginHelper pLoginHelper)
+			: base(pID, pInterval, pSensors, pLocalAPI, pLoginHelper) {
 		}
 
 		/// <summary>

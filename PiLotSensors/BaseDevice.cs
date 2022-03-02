@@ -21,10 +21,10 @@ namespace PiLot.Sensors {
 		protected Int32 interval;
 		private DataProxy proxy = null;
 
-		public BaseDevice(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI) {
+		public BaseDevice(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI, LoginHelper pLoginHelper) {
 			this.id = pID;
 			this.interval = pInterval;
-			this.proxy = new DataProxy(pLocalAPI);
+			this.proxy = new DataProxy(pLocalAPI, pLoginHelper);
 			this.SetupDevice(pID, pSensors);
 		}
 

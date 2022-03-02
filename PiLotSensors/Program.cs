@@ -17,7 +17,7 @@ using System.Configuration;
 using System.IO;
 using System.Text.Json;
 using System.Threading;
-
+using PiLot.APIProxy;
 using PiLot.Model.Sensors;
 using PiLot.Utils;
 using PiLot.Utils.Logger;
@@ -55,15 +55,21 @@ namespace PiLot.Sensors {
 		/// Loads the devices based on the config file
 		/// </summary>
 		private static void LoadDevices() {
+			String localAPI = ConfigurationManager.AppSettings["localAPI"];
+			Assert.IsFalse(String.IsNullOrEmpty(localAPI), "Config value for localAPI not found");
+			LoginHelper loginHelper = null;
+			String username = ConfigurationManager.AppSettings["username"];
+			String password = ConfigurationManager.AppSettings["password"];
+			if (!String.IsNullOrEmpty(username) && !String.IsNullOrEmpty(password)) {
+				loginHelper = new LoginHelper(localAPI, username, password);
+			}
 			devices = new List<IDevice>();
 			String sensorsConfigFile = ConfigurationManager.AppSettings["sensorsConfigFile"];
 			Assert.IsTrue(File.Exists(sensorsConfigFile), $"No sensors config found at {sensorsConfigFile}");
-			String localAPI = ConfigurationManager.AppSettings["localAPI"];
-			Assert.IsFalse(String.IsNullOrEmpty(localAPI), "Config value for localAPI not found");
 			String fileContent = File.ReadAllText(sensorsConfigFile);
 			List<DeviceInfo> deviceInfos = JsonSerializer.Deserialize<List<DeviceInfo>>(fileContent);
 			foreach(DeviceInfo aDeviceInfo in deviceInfos) {
-				IDevice device = Program.CreateDevice(aDeviceInfo, localAPI);
+				IDevice device = Program.CreateDevice(aDeviceInfo, localAPI, loginHelper);
 				if(device != null) {
 					devices.Add(device);
 				}
@@ -75,21 +81,21 @@ namespace PiLot.Sensors {
 		/// </summary>
 		/// <param name="pDeviceInfo">The data object containing all information</param>
 		/// <returns>An IDevice based on pDeviceInfo.DeviceType</returns>
-		private static IDevice CreateDevice(DeviceInfo pDeviceInfo, String pLocalAPI) {
+		private static IDevice CreateDevice(DeviceInfo pDeviceInfo, String pLocalAPI, LoginHelper pLoginHelper) {
 			IDevice result = null;
 			if (Enum.TryParse<DeviceTypes>(pDeviceInfo.DeviceType, out DeviceTypes deviceType)) {
 				switch (deviceType) {
 					case DeviceTypes.BME280:
-						result = new BME280Device(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI);
+						result = new BME280Device(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
 						break;
 					case DeviceTypes.OneWTemperature:
-						result = new OneWDevice(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI);
+						result = new OneWDevice(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
 						break;
 					case DeviceTypes.CPUTemperature:
-						result = new CPUTemperatureDevice(pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI);
+						result = new CPUTemperatureDevice(pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
 						break;
 					case DeviceTypes.PiLot:
-						result = new PiLotDevice(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI);
+						result = new PiLotDevice(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
 						break;
 					default:
 						Logger.Log($"DeviceType is currently not handled: {deviceType}", LogLevels.WARNING);

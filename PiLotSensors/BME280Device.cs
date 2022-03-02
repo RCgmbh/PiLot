@@ -5,6 +5,7 @@ using UnitsNet;
 using Iot.Device.Bmxx80;
 using Iot.Device.Bmxx80.PowerMode;
 
+using PiLot.APIProxy;
 using PiLot.Utils;
 using PiLot.Utils.Logger;
 using PiLot.Model.Sensors;
@@ -29,8 +30,10 @@ namespace PiLot.Sensors {
 		/// <param name="pID">The id of the I2C Device, usually 118 or 119 for BME280</param>
 		/// <param name="pInterval">The interval to read data, in seconds</param>
 		/// <param name="pSensors">The list of sensor types (see SensorTypes) and their names</param>
-		public BME280Device(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI)
-			:base(pID, pInterval, pSensors, pLocalAPI) {
+		/// <param name="pLocalAPI">The api url where the data will be sent to</param>
+		/// <param name="pLoginHelper">The one and only login helper for the application</param>
+		public BME280Device(String pID, Int32 pInterval, List<SensorInfo> pSensors, String pLocalAPI, LoginHelper pLoginHelper)
+			:base(pID, pInterval, pSensors, pLocalAPI, pLoginHelper) {
 		}
 
 		/// <summary>
