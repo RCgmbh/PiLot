@@ -1,4 +1,5 @@
 mkdir pilotinstall
+xcopy /s /r /i installScripts\* pilotinstall\
 mkdir pilotinstall\resources\pilotapi
 dotnet build PiLotApiCore -o pilotinstall\resources\pilotapi -c release -r linux-arm --no-self-contained
 copy /y pilotinstall\resources\pilotapi\app.default.config pilotinstall\resources\pilotapi\PiLot.API.dll.config
@@ -19,6 +20,14 @@ del  pilotinstall\resources\pilotapi\App_Data\authorization.*.json
 copy pilotinstall\resources\pilotapi\App_Data\users.default.json pilotinstall\resources\pilotapi\App_Data\users.json
 del  pilotinstall\resources\pilotapi\App_Data\users.*.json
 
+mkdir pilotinstall\resources\pilotphotoswatcher
+dotnet build PiLotPhotosWatcher -o pilotinstall\resources\pilotphotoswatcher -c release -r linux-arm --no-self-contained
+
+mkdir pilotinstall\resources\pilotsensors
+dotnet build PiLotSensors -o pilotinstall\resources\pilotsensors -c release -r linux-arm --no-self-contained
+copy /y pilotinstall\resources\pilotsensors\app.default.config pilotinstall\resources\pilotsensors\PiLot.Sensors.dll.config
+del /s /q pilotinstall\resources\pilotsensors\app.*.config
+
 mkdir pilotinstall\resources\pilotweb
 xcopy /s /r /i  PiLotWeb\* pilotinstall\resources\pilotweb\
 rd /s /q pilotinstall\resources\pilotweb\photos
@@ -28,7 +37,8 @@ del /s /q pilotinstall\resources\pilotweb\js\Config.*.js
 mkdir pilotinstall\resources\library
 xcopy /s /r /i  ..\..\pilot\defaultlibrary\* pilotinstall\resources\library\
 
-xcopy /s /r /i installScripts\* pilotinstall\
+copy py\gpsLogger.py pilotinstall\resources\
+
 7z a -r -ttar pilotinstall.tar pilotinstall
 7z a -r -tgzip pilotinstall.tar.gz pilotinstall.tar
 del pilotinstall.tar

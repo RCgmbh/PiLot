@@ -61,14 +61,19 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installScripts", "{746AFF13-8152-4EE2-99D7-C5B8D0ED0207}"
 	ProjectSection(SolutionItems) = preProject
 		createInstallPackage.bat = createInstallPackage.bat
+		installScripts\install1-ap.sh = installScripts\install1-ap.sh
+		installScripts\pilot-install-gps-1.sh = installScripts\pilot-install-gps-1.sh
+		installScripts\pilot-install-gps-2.sh = installScripts\pilot-install-gps-2.sh
 		installScripts\pilot-install-web-01-netcore.sh = installScripts\pilot-install-web-01-netcore.sh
 		installScripts\pilot-install-web-02-pilot.sh = installScripts\pilot-install-web-02-pilot.sh
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{1125EB22-4B62-4888-BD40-64C09E1A0F88}"
 	ProjectSection(SolutionItems) = preProject
+		installScripts\resources\gpsLogger.service = installScripts\resources\gpsLogger.service
 		installScripts\resources\nginx.conf = installScripts\resources\nginx.conf
 		installScripts\resources\pilotApi.service = installScripts\resources\pilotApi.service
+		installScripts\resources\startGps.sh = installScripts\resources\startGps.sh
 	EndProjectSection
 EndProject
 Global

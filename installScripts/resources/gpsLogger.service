@@ -1,0 +1,11 @@
+[Unit]
+Description=PiLOT GPS Logger
+
+[Service]
+Type=simple
+ExecStart= /bin/sh /opt/pilotgpslogger/startGps.sh
+Restart=always
+User=pi
+
+[Install]
+WantedBy=default.target
