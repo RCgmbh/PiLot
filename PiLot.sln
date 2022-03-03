@@ -45,6 +45,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPhotosWatcher", "PiLotPhotosWatcher\PiLotPhotosWatcher.csproj", "{ED5B51D6-3644-4733-B562-C0B7ED994067}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{0B397FE6-E244-4B1F-AF48-DA88C8B27C4A}"
+	ProjectSection(SolutionItems) = preProject
+		docs\dev.md = docs\dev.md
+		docs\user.md = docs\user.md
+		docs\prerequisites.md = docs\prerequisites.md		
+		docs\basics.md = docs\basics.md
+		docs\ap.md = docs\ap.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GPSDataCreator", "GPSDataCreator\GPSDataCreator.csproj", "{373E850B-6EDA-474D-B695-032D61222163}"
 EndProject
