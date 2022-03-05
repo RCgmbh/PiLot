@@ -28,6 +28,12 @@ Just one more step for our base configuration remains. Run `sudo raspi-config`, 
 
 When asked to reboot, select "yes", so that your changes can take effect. After a minute, try to reconnect, still using the user "pi", but with the new hostname, e.g. ssh pi@pilot. And of course enter the newly set password.
 
+For the next steps, there are a few scripts available to make things easier. So please dowload the archive with all scripts and the actual pilot application before you continue, using these two commands, the first to download and the second to extract the installation package.
+
+```
+wget https://roethenmund.biz/pilot/pilotinstall.tar.gz
+```
+
 \> [Next, set up an access point...](ap.md)
 
 << [Back to overview](user.md)
