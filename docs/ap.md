@@ -24,7 +24,7 @@ Instead of **xx:xx:xx:xx:xx:xx** the value after ATTR{address} is the value for 
 
 After a minute, re-connect your ssh session as you did at the end of the last chapter (you can use the arrow-up key in the console, which will bring back the last command in the current context, and this will after the disconnection from the PiLot usually be the ssh command). Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
 
-**Scripted setup**
+### Scripted setup
 There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, scroll down a bit and follow the step-by-step under "Manual setup".
 
 Ok, using the script is quite easy. You just have to set an handful of values in the script file first. First, using `ifconfig` once again, get the names of your network interfaces (like wlxSomething for wireless adapters, and enxSomething for wired adapters), and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
@@ -42,7 +42,7 @@ sudo sh 01-install-ap.sh
 ```
 When the script asks you to do so, reboot your PiLot. When it comes back online, re-connect using ssh. After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
 
-**Manual setup**
+### Manual setup
 If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
 
 We need three services: **hostapd**, which creates the local access point, **dnsmasq** which provides IP adresses to the clients and **dhcpcd**, the dhcp client that gets dynamic IP addresses. So we just install them both like this:
