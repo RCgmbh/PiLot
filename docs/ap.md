@@ -15,12 +15,14 @@ Now let's have a look at our network devices. As soon as you have re-connected, 
 **Scripted setup**
 There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, follow the step-by-step under "Manual setup".
 
-Ok, using the script is quite easy. You just have to set an handful of values in the script file first. So, using `ifconfig` once again, get the names of your network interfaces, and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
+Ok, using the script is quite easy. You just have to set an handful of values in the script file first. First, using `ifconfig` once again, get the names of your network interfaces (like wlxSomething for wireless adapters, and enxSomething for wired adapters), and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
 ```
 cd ~/pilotinstall
 nano 01-install-ap.sh
 ```
-You will see some empty variables, like **apAdapter=""**. There is a comment for each variable, that tells you what value to set. You have to decide which adapter (if you have two) you want to use for the access point, so just enter the name of that adapter, as found in "ifconfig" between the double quotes. So you would end up with something like **apAdapter="wlxOnboardWiFi"**. If you have a second WiFi adapter, enter its name for "inetWiFiAdapter". Also enter values for the next to variables. The values for staticIp don't need to be changed, but if you understand enough about IP addresses, you can of course change them. Finally save the file and close it (Ctrl+X, Y, Enter).
+You will see some empty variables, like **apAdapter=""**. There is a comment for each variable, that tells you what value to set. You have to decide which wireless adapter (if you have two) you want to use for the access point, so just enter the name of that adapter, as found in "ifconfig", between the double quotes. I usually use wlxOnboardWiFi for this, but on Raspberry Pi 3 I had some issues with that, and had to use the other wlx... Adapter. Using the onboard WiFi, you would end up with **apAdapter="wlxOnboardWiFi"**. If you have a second WiFi adapter, enter its name for "inetWiFiAdapter", and enter the name of the ethernet adapter (starting with enx...) for inetEthAdapter, if you want to share the wired internet access with clients connected to the PiLot access point.
+
+Also enter values for the next to variables, to give your wireless network an name, and set a reasonable password. The values for staticIp don't need to be changed, but if you understand enough about IP addresses, you can of course change them. Finally save the file and close it (Ctrl+X, Y, Enter).
 
 Now, take an deep breath, and run the script as superuser, so enter
 ``` 
