@@ -28,6 +28,7 @@ Now, take an deep breath, and run the script as superuser, so enter
 ``` 
 sudo sh 01-install-ap.sh
 ```
+When the script asks you to do so, reboot your PiLot. When it comes back online, re-connect using ssh.
 
 **Manual setup**
 
