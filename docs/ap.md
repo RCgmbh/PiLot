@@ -45,7 +45,7 @@ When the script asks you to do so, reboot your PiLot. When it comes back online,
 ### Manual setup
 If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
 
-We need three services: **hostapd**, which creates the local access point, **dnsmasq** which provides IP adresses to the clients and **dhcpcd**, the dhcp client that gets dynamic IP addresses. So we just install them both like this:
+We need three services: **hostapd**, which creates the local access point, **dnsmasq** which provides IP adresses to the clients and **dhcpcd**, the dhcp client that gets dynamic IP addresses. So we just install them all like this:
 ```
 sudo apt install -y dnsmasq hostapd dhcpcd
 ```
