@@ -32,7 +32,9 @@ For the next steps, there are a few scripts available to make things easier. So 
 
 ```
 wget https://roethenmund.biz/pilot/pilotinstall.tar.gz
+tar zxf pilotinstall.tar.gz
 ```
+This will create a directory called "pilotinstall", which you can examine by typing `cd pilotinstall` and then `ls`. Have a look around, then continue with the next chapter.
 
 \> [Next, set up an access point...](ap.md)
 
