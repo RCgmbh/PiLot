@@ -36,7 +36,7 @@ You will see some empty variables, like **apAdapter=""**. There is a comment for
 
 Also enter values for the next to variables, to give your wireless network an name, and set a reasonable password. The values for staticIp don't need to be changed, but if you understand enough about IP addresses, you can of course change them. Finally save the file and close it (Ctrl+X, Y, Enter).
 
-Now, take an deep breath, and run the script as superuser, so enter
+Now, run the script as superuser, so enter
 ``` 
 sudo sh 01-install-ap.sh
 ```
