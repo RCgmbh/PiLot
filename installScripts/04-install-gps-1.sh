@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ `whoami` != root ]; then
+    echo Please run this script using sudo
+    exit
+fi
+
 apt install -y python3-pip
 echo "dwc_otg.lpm_enable=0 console=tty1 root=/dev/mmcblk0p2 rootfstype=ext4 elevator=deadline rootwait" >> /boot/cmdline.txt
 

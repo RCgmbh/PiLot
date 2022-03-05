@@ -24,7 +24,7 @@ PiLot.Config = {
 	},
 
 	Media: {
-		libraryUrl: "../Bibliothek/"		
+		libraryUrl: "../library/"		
 	},
 
 	Language: {

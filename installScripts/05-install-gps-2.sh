@@ -1,5 +1,10 @@
 #!/bin/sh
 
+if [ `whoami` != root ]; then
+    echo Please run this script using sudo
+    exit
+fi
+
 systemctl stop gpsd.socket
 systemctl disable gpsd.socket
 killall gpsd

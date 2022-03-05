@@ -1,0 +1,11 @@
+[Unit]
+Description=restore iptables
+
+[Service]
+Type=simple
+ExecStart= /bin/sh /usr/local/bin/restoreIptables.sh
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=default.target

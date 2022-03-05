@@ -1,17 +1,24 @@
 #!/bin/sh
 
 # the name of the adapter for the access point as found in ifconfig:
-apAdapter="wlx801f02ee1214"
-# the name of the adapter for internet access as found in ifconfig:
-inetAdapter="wlxOnboardWiFi"
+apAdapter=""
+# the name of the wireless adapter for internet access as found in ifconfig:
+inetWiFiAdapter=""
+# the name of the ethernet adapter for internet access as found in ifconfig:
+inetEthAdapter=""
 # the name of the PiLot Wi-Fi:
-ssid="pilot"
+ssid=""
 # the Wi-Fi password, 8-63 characters:
-passphrase="supersecret"
+passphrase=""
 # the static ip of the pilot with netmask:
 staticIp="192.168.80.1/24"
 # the ip address range of the access point (from, to, subnet, time to live):
 ipRange="192.168.80.2,192.168.80.20,255.255.255.0,24h"
+
+if [ `whoami` != root ]; then
+    echo Please run this script using sudo
+    exit
+fi
 
 if [ -z "$apAdapter" ]
 then
@@ -22,9 +29,9 @@ echo "Please use 'nano install-ap.sh', and set a value for passphrase"
 else
 
 # install packages
-#apt install -y hostapd dnsmasq dhcpcd
-#systemctl stop hostapd
-#systemctl stop dnsmasq
+apt install -y hostapd dnsmasq dhcpcd
+systemctl stop hostapd
+systemctl stop dnsmasq
 
 mkdir -p backup
 
@@ -43,10 +50,10 @@ wpa=2
 wpa_passphrase="$passphrase"
 wpa_key_mgmt=WPA-PSK
 wpa_pairwise=TKIP
-rsn_pairwise=CCMP" > hostapd.conf #/etc/hostapd/hostapd.conf
+rsn_pairwise=CCMP" > /etc/hostapd/hostapd.conf
 
 # set hostapd config for daemon
-echo DAEMON_CONF=\"/etc/hostapd/hostapd.conf\" > hostapd #/etc/default/hostapd
+echo DAEMON_CONF=\"/etc/hostapd/hostapd.conf\" > /etc/default/hostapd
 
 # set ip range in dnsmasq
 cp backup/dnsmasq.conf > /etc/
@@ -54,12 +61,12 @@ cp /etc/dnsmasq.conf > backup/
 echo \
 "#PiLot hotspot IP range
 interface="$apAdapter"
-dhcp-range="$ipRange >> dnsmasq.conf #/etc/dnsmasq.conf
+dhcp-range="$ipRange >> /etc/dnsmasq.conf
 
 # enable ip forwarding
 echo \
 "net.ipv4.ip_forward=1
-net.ipv6.conf.all.forwarding=1" > sysctl.conf #/etc/sysctl.conf
+net.ipv6.conf.all.forwarding=1" > /etc/sysctl.conf
 
 # set static ip for ap adapter
 cp backup/dhcpcd.conf /etc/
@@ -68,28 +75,35 @@ echo \
 "interface "$apAdapter"
 nohook wpa_supplicant
 static ip_address="$staticIp"
-static domain_name_servers=8.8.8.8" >> dhcpcd.conf #/etc/dhcpcd.conf
+static domain_name_servers=8.8.8.8" >> /etc/dhcpcd.conf
 
 # fix issue with hostapd (ap hangs on connect)
 rm /etc/modprobe.d/blacklist-rtl*
 
 # start services
-#systemctl unmask hostapd
-#systemctl enable hostapd
-#systemctl start hostapd
+systemctl unmask hostapd
+systemctl enable hostapd
+systemctl start hostapd
 
-if [ -z "$inetAdapter" ]
+# configure NAT, if we have at least one internet adapter, save the rules and re-apply them on boot
+if [ "$inetWiFiAdapter" != "" ] || [ "$inetEthAdapter" != "" ]
 then
-echo "skipping NAT configuration, no inetAdapter defined"
-else 
-# configure NAT, save the rules and re-apply them on boot
-iptables -t nat -A POSTROUTING -o $inetAdapter -j MASQUERADE
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-sh -c "iptables-save > iptables.ipv4.nat" #/etc/iptables.ipv4.nat"
-echo \
-"iptables-restore < /etc/iptables.ipv4.nat
-exit 0" > rc.local # /etc/rc.local
+ if [ "$inetWiFiAdapter" != "" ]
+ then
+  iptables -t nat -A POSTROUTING -o $inetWiFiAdapter -j MASQUERADE
+ fi
+ if [ "$inetEthAdapter" != "" ]
+ then
+  iptables -t nat -A POSTROUTING -o $inetEthAdapter -j MASQUERADE
+ fi
+ sh -c "iptables-save > /etc/iptables.ipv4.nat"
+ cp resources/restoreIptables.sh /usr/local/bin/
+ chmod 744 /usr/local/bin/restoreIptables.sh
+ cp resources/restoreIptables.service /etc/systemd/system/
+ systemctl daemon-reload
+ systemctl enable restoreIptables
+else
+ echo "skipping NAT configuration, no inetAdapter defined"
 fi
-
 echo "Done. Please use 'sudo reboot now' to restart"
 fi

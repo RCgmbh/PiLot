@@ -1,4 +1,9 @@
 #!/bin/sh
+if [ `whoami` != root ]; then
+    echo Please run this script using sudo
+    exit
+fi
+
 # prepare directories
 mkdir -p /var/opt/pilot			#PiLot data directory
 chown pi:root /var/opt/pilot
@@ -9,10 +14,10 @@ mkdir -p /opt/pilotapi			#PiLot binaries
 # set up API including service
 #tar -zxf resources/pilotapi.tar.gz -C /opt/pilotapi
 cp -r resources/pilotapi/* /opt/pilotapi/
-mv -r resources/pilotapi/App_Data/global /var/opt/pilot/
-mv -r resources/pilotapi/App_Data/boat /var/opt/pilot/
-mv -r resources/pilotapi/App_Data/sensors /var/opt/pilot/
-mv -r resources/pilotapi/App_Data/tiles /var/opt/pilot/
+mv resources/pilotapi/App_Data/global /var/opt/pilot/
+mv resources/pilotapi/App_Data/boat /var/opt/pilot/
+mv resources/pilotapi/App_Data/sensors /var/opt/pilot/
+mv resources/pilotapi/App_Data/tiles /var/opt/pilot/
 cp resources/pilotApi.service /etc/systemd/system/pilotApi.service
 chmod 446 /etc/systemd/system/pilotApi.service
 sudo systemctl daemon-reload
