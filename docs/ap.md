@@ -12,8 +12,20 @@ Now let's have a look at our network devices. As soon as you have re-connected, 
 
 ![image](https://user-images.githubusercontent.com/96988699/154531955-c3a32389-374b-4a14-947e-4c49063f433a.png)
 
+Then create a new file by typing 
+```
+sudo nano /etc/udev/rules.d/10-network-device.rules
+```
+The file needs to have the following content:
+```
+SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="xx:xx:xx:xx:xx:xx", NAME="wlxOnboardWiFi"
+```
+Instead of **xx:xx:xx:xx:xx:xx** the value after ATTR{address} is the value for "ether" you copied before (7f:27:b8:60:39:7f in our example). As soon as you have replaced and double-checked the text, hit Ctrl + X, then Y, then Enter to save the file. You can reboot now to apply the changes with the command `sudo reboot now`.
+
+After a minute, re-connect your ssh session as you did at the end of the last chapter (you can use the arrow-up key in the console, which will bring back the last command in the current context, and this will after the disconnection from the PiLot usually be the ssh command). Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
+
 **Scripted setup**
-There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, follow the step-by-step under "Manual setup".
+There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, scroll down a bit and follow the step-by-step under "Manual setup".
 
 Ok, using the script is quite easy. You just have to set an handful of values in the script file first. First, using `ifconfig` once again, get the names of your network interfaces (like wlxSomething for wireless adapters, and enxSomething for wired adapters), and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
 ```
@@ -31,18 +43,6 @@ sudo sh 01-install-ap.sh
 When the script asks you to do so, reboot your PiLot. When it comes back online, re-connect using ssh.
 
 **Manual setup**
-
-Then create a new file by typing 
-```
-sudo nano /etc/udev/rules.d/10-network-device.rules
-```
-The file needs to have the following content:
-```
-SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="xx:xx:xx:xx:xx:xx", NAME="wlxOnboardWiFi"
-```
-Instead of **xx:xx:xx:xx:xx:xx** the value after ATTR{address} is the value for "ether" you copied before (7f:27:b8:60:39:7f in our example). As soon as you have replaced and double-checked the text, hit Ctrl + X, then Y, then Enter to save the file. You can reboot now to apply the changes with the command `sudo reboot now`.
-
-After a minute, re-connect your ssh session as you did at the end of the last chapter (you can use the arrow-up key in the console, which will bring back the last command in the current context, and this will after the disconnection from the PiLot usually be the ssh command). Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
 
 We now need two services: **hostapd**, which creates the local access point, and **dnsmasq** which provides IP adresses to the clients. So we just install them both like this:
 ```
