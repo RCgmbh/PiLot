@@ -40,13 +40,14 @@ Now, take an deep breath, and run the script as superuser, so enter
 ``` 
 sudo sh 01-install-ap.sh
 ```
-When the script asks you to do so, reboot your PiLot. When it comes back online, re-connect using ssh.
+When the script asks you to do so, reboot your PiLot. When it comes back online, re-connect using ssh. After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
 
 **Manual setup**
+If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
 
-We now need two services: **hostapd**, which creates the local access point, and **dnsmasq** which provides IP adresses to the clients. So we just install them both like this:
+We need three services: **hostapd**, which creates the local access point, **dnsmasq** which provides IP adresses to the clients and **dhcpcd**, the dhcp client that gets dynamic IP addresses. So we just install them both like this:
 ```
-sudo apt install -y dnsmasq hostapd
+sudo apt install -y dnsmasq hostapd dhcpcd
 ```
 In order to configure the services, we need to stop them:
 ```
@@ -129,14 +130,47 @@ Finally, to share the raspis internet connection with clients connected to its a
 sudo iptables -t nat -A POSTROUTING -o wlxSomething -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o enxSomething -j MASQUERADE
 ```
-In order to reload the configuration on each boot, we have to add a line to the rc.local file:
+In order to reload the configuration on each boot, we save the configuration to file, create a short script that reloads the configuration from that file, and a simple systemd service that will call the script on boot.
+First, save the iptables configuration to a file:
 ```
 sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
-sudo nano /etc/rc.local
 ```
-Before the line **exit 0**, add 
+Second, create a script that will reapply the configuration:
 ```
+sudo nano /usr/local/bin/restoreIptables.sh
+```
+Add these lines:
+```
+#!/bin/sh
 iptables-restore < /etc/iptables.ipv4.nat
+exit 0
+```
+Save and close, and then make the file executable:
+```
+sudo chmod 744 /usr/local/bin/restoreIptables.sh
+```
+Finally, create the service definition:
+```
+sudo nano /etc/systemd/system/restoreIptables.service
+```
+And add this content:
+```
+[Unit]
+Description=restore iptables
+
+[Service]
+Type=simple
+ExecStart= /bin/sh /usr/local/bin/restoreIptables.sh
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=default.target
+```
+Reload the service definitions, and enable the service so that it will start on each boot:
+```
+sudo systemctl daemon-reload
+sudo systemctl enable restoreIptables
 ```
 It's time for a sudo reboot now! After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
 
