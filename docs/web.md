@@ -22,12 +22,12 @@ Next, install nginx and the actual PiLot application components, again by just c
 ```
 sudo sh 03-install-pilotweb.sh
 ```
-Now, the big moment has come, and your PiLot should already work (at least a bit). On any device, that is connected to the PiLot, open your favourite browser, and in the addess bar, enter the following URL:
+Now, another big moment has come, and your PiLot should already work (at least a bit). On any device, that is connected to the PiLot, open your favourite browser, and in the addess bar, enter the following URL:
 - If the device is connected to the PiLot access point, enter http://192.168.80.1/pilot (or, if you changed the static IP, enter the IP address you have set)
 - If the device is in the same network as the pilot (e.g. your home WiFi), enter http://pilot/pilot, where the first "pilot" is the hostname you gave to your raspi.
 - If you are directly working on your raspberry pi, enter http://localhost/pilot
 
-You will see the PiLot start page, but as you have no map data, no GPS and no sensors yet, this will appear a bit empty.
+You will see the PiLot start page, but as you have no map data, no GPS and no sensors yet, this will appear a bit empty, and it might still be a bit difficult to grasp the beauty of it all. But we will work on this.
 
 \> [Connect a GPS device and set up the GPS logging service...](gps.md)
 
