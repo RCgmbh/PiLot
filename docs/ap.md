@@ -4,13 +4,30 @@ The idea of the PiLot is that you connect to it via Wi-Fi and use a browser to i
 
 This step is mandatory, if you want to access the PiLot otuside of any existing network environment. If you intend to only use it in an existing Wi-Fi or LAN, or just want to connect screen, keyboard and mouse directly to the Raspberry Pi, you can skip this step.
 
-The first few steps require some manual actions, while for the second part there is a script, which automates a few steps (but should only used for a blank installation, as described in the previous chapter). 
+The first few settings require some manual actions, while for the second part there is a script, which automates the rest of the setup (but should only used for a blank installation, as described in the previous chapter). 
 
 First run `sudo raspi-config`, and in **Advanced Options** > **Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
 
 Now let's have a look at our network devices. As soon as you have re-connected, type `ifonfig`, and you will see a list of devices. The cryptic names, such as "enxb827eb356c2a", are the predictable network interface names. Yes, right, they don't seem predictable at first, but they acutally are. Without enabling predictable names, if you have two wireless network adapters, one will be wlan0, and the other wlan1. But every time you boot, they can switch names, so you actually can't predict which physical device will be wlan0, and which will be wlan1. The predictable names however will remain the same, as long as you don't change the hardware. So if you always want to use the network adapter with the huge antenna to access the far away marina Wi-Fi, then you will want the onboard wlan interface for the access point. But - oh no! The internal interface still has a much too simple name, like "wlan1". We also want to give it a fixed, predictable name. Thats quite simple: First, look at the result of ifconfig for the device called "wlan0" or "wlan1". Now copy the value after "ether", which is of the form b8:27:cb:60:49:6f. See what I have marked in the below picture:
 
 ![image](https://user-images.githubusercontent.com/96988699/154531955-c3a32389-374b-4a14-947e-4c49063f433a.png)
+
+**Scripted setup**
+There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, follow the step-by-step under "Manual setup".
+
+Ok, using the script is quite easy. You just have to set an handful of values in the script file first. So, using `ifconfig` once again, get the names of your network interfaces, and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
+```
+cd ~/pilotinstall
+nano 01-install-ap.sh
+```
+You will see some empty variables, like **apAdapter=""**. There is a comment for each variable, that tells you what value to set. You have to decide which adapter (if you have two) you want to use for the access point, so just enter the name of that adapter, as found in "ifconfig" between the double quotes. So you would end up with something like **apAdapter="wlxOnboardWiFi"**. If you have a second WiFi adapter, enter its name for "inetWiFiAdapter". Also enter values for the next to variables. The values for staticIp don't need to be changed, but if you understand enough about IP addresses, you can of course change them. Finally save the file and close it (Ctrl+X, Y, Enter).
+
+Now, take an deep breath, and run the script as superuser, so enter
+``` 
+sudo sh 01-install-ap.sh
+```
+
+**Manual setup**
 
 Then create a new file by typing 
 ```
