@@ -4,9 +4,11 @@ The idea of the PiLot is that you connect to it via Wi-Fi and use a browser to i
 
 This step is mandatory, if you want to access the PiLot otuside of any existing network environment. If you intend to only use it in an existing Wi-Fi or LAN, or just want to connect screen, keyboard and mouse directly to the Raspberry Pi, you can skip this step.
 
+The first few settings require some manual actions, while for the second part there is a script, which automates the rest of the setup (but should only used for a blank installation, as described in the previous chapter). 
+
 First run `sudo raspi-config`, and in **Advanced Options** > **Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
 
-Now let's have a look at our network devices. Type `ifonfig`, and you will see a list of devices. The cryptic names, such as "enxb827eb356c2a", are the predictable network interface names. Yes, right, they don't seem predictable at first, but they acutally are. Without enabling predictable names, if you have two wireless network adapters, one will be wlan0, and the other wlan1. But every time you boot, they can switch names, so you actually can't predict which physical device will be wlan0, and which will be wlan1. The predictable names however will remain the same, as long as you don't change the hardware. So if you always want to use the network adapter with the huge antenna to access the far away marina Wi-Fi, then you will want the onboard wlan interface for the access point. But - oh no! The internal interface still has a much too simple name, like "wlan1". We also want to give it a fixed, predictable name. Thats quite simple: First, look at the result of ifconfig for the device called "wlan0" or "wlan1". Now copy the value after "ether", which is of the form b8:27:cb:60:49:6f. See what I have marked in the below picture:
+Now let's have a look at our network devices. As soon as you have re-connected, type `ifonfig`, and you will see a list of devices. The cryptic names, such as "enxb827eb356c2a", are the predictable network interface names. Yes, right, they don't seem predictable at first, but they acutally are. Without enabling predictable names, if you have two wireless network adapters, one will be wlan0, and the other wlan1. But every time you boot, they can switch names, so you actually can't predict which physical device will be wlan0, and which will be wlan1. The predictable names however will remain the same, as long as you don't change the hardware. So if you always want to use the network adapter with the huge antenna to access the far away marina Wi-Fi, then you will want the onboard wlan interface for the access point. But - oh no! The internal interface still has a much too simple name, like "wlan1". We also want to give it a fixed, predictable name. Thats quite simple: First, look at the result of ifconfig for the device called "wlan0" or "wlan1". Now copy the value after "ether", which is of the form b8:27:cb:60:49:6f. See what I have marked in the below picture:
 
 ![image](https://user-images.githubusercontent.com/96988699/154531955-c3a32389-374b-4a14-947e-4c49063f433a.png)
 
@@ -22,9 +24,30 @@ Instead of **xx:xx:xx:xx:xx:xx** the value after ATTR{address} is the value for 
 
 After a minute, re-connect your ssh session as you did at the end of the last chapter (you can use the arrow-up key in the console, which will bring back the last command in the current context, and this will after the disconnection from the PiLot usually be the ssh command). Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
 
-We now need two services: **hostapd**, which creates the local access point, and **dnsmasq** which provides IP adresses to the clients. So we just install them both like this:
+### Scripted setup
+There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, scroll down a bit and follow the steps in the section [Manual setup](ap.md#manual-setup).
+
+Using the script is quite easy. You just have to set an handful of values in the script file first. First, using `ifconfig` once again, get the names of your network interfaces (like wlxSomething for wireless adapters, and enxSomething for wired adapters), and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
 ```
-sudo apt install -y dnsmasq hostapd
+cd ~/pilotinstall
+nano 01-install-ap.sh
+```
+You will see some empty variables, like **apAdapter=""**. There is a comment for each variable, that tells you what value to set. You have to decide which wireless adapter (if you have two) you want to use for the access point, so just enter the name of that adapter, as found in "ifconfig", between the double quotes. I usually use wlxOnboardWiFi for this, but on Raspberry Pi 3 I had some issues with that, and had to use the other wlx... Adapter. Using the onboard WiFi, you would end up with **apAdapter="wlxOnboardWiFi"**. If you have a second WiFi adapter, enter its name for "inetWiFiAdapter", and enter the name of the ethernet adapter (starting with enx...) for inetEthAdapter, if you want to share any available internet access with clients connected to the PiLot access point.
+
+Also enter values for the next to variables, to give your wireless network an name, and set a reasonable password. The values for staticIp don't need to be changed, but if you understand enough about IP addresses, you can of course change them. Finally save the file and close it (Ctrl+X, Y, Enter).
+
+Now, run the script as superuser, so enter
+``` 
+sudo sh 01-install-ap.sh
+```
+When the script asks you to do so, reboot your PiLot. When it comes back online, re-connect using ssh. After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
+
+### Manual setup
+If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
+
+We need three services: **hostapd**, which creates the local access point, **dnsmasq** which provides IP adresses to the clients and **dhcpcd**, the dhcp client that gets dynamic IP addresses. So we just install them all like this:
+```
+sudo apt install -y dnsmasq hostapd dhcpcd
 ```
 In order to configure the services, we need to stop them:
 ```
@@ -107,14 +130,47 @@ Finally, to share the raspis internet connection with clients connected to its a
 sudo iptables -t nat -A POSTROUTING -o wlxSomething -j MASQUERADE
 sudo iptables -t nat -A POSTROUTING -o enxSomething -j MASQUERADE
 ```
-In order to reload the configuration on each boot, we have to add a line to the rc.local file:
+In order to reload the configuration on each boot, we save the configuration to file, create a short script that reloads the configuration from that file, and a simple systemd service that will call the script on boot.
+First, save the iptables configuration to a file:
 ```
 sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
-sudo nano /etc/rc.local
 ```
-Before the line **exit 0**, add 
+Second, create a script that will reapply the configuration:
 ```
+sudo nano /usr/local/bin/restoreIptables.sh
+```
+Add these lines:
+```
+#!/bin/sh
 iptables-restore < /etc/iptables.ipv4.nat
+exit 0
+```
+Save and close, and then make the file executable:
+```
+sudo chmod 744 /usr/local/bin/restoreIptables.sh
+```
+Finally, create the service definition:
+```
+sudo nano /etc/systemd/system/restoreIptables.service
+```
+And add this content:
+```
+[Unit]
+Description=restore iptables
+
+[Service]
+Type=simple
+ExecStart= /bin/sh /usr/local/bin/restoreIptables.sh
+RemainAfterExit=yes
+Restart=no
+
+[Install]
+WantedBy=default.target
+```
+Reload the service definitions, and enable the service so that it will start on each boot:
+```
+sudo systemctl daemon-reload
+sudo systemctl enable restoreIptables
 ```
 It's time for a sudo reboot now! After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
 
