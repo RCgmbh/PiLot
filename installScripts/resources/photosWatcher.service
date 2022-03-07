@@ -1,0 +1,14 @@
+[Unit]
+Description=PiLOT Photo import
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/pilotphotoswatcher
+ExecStart=/opt/pilotphotoswatcher/PiLot.PhotosWatcher /home/pi/PhotoImport /var/opt/pilot/photos watch
+Restart=always
+RestartSec=2
+User=pi
+Environment=DOTNET_ROOT=/opt/dotnet
+
+[Install]
+WantedBy=default.target

@@ -12,7 +12,6 @@ chown pi:root /var/log/pilot
 mkdir -p /opt/pilotapi			#PiLot binaries
 
 # set up API including service
-#tar -zxf resources/pilotapi.tar.gz -C /opt/pilotapi
 cp -r resources/pilotapi/* /opt/pilotapi/
 mv resources/pilotapi/App_Data/global /var/opt/pilot/
 mv resources/pilotapi/App_Data/boat /var/opt/pilot/
@@ -20,9 +19,9 @@ mv resources/pilotapi/App_Data/sensors /var/opt/pilot/
 mv resources/pilotapi/App_Data/tiles /var/opt/pilot/
 cp resources/pilotApi.service /etc/systemd/system/pilotApi.service
 chmod 446 /etc/systemd/system/pilotApi.service
-sudo systemctl daemon-reload
-sudo systemctl enable pilotApi
-sudo systemctl start pilotApi
+systemctl daemon-reload
+systemctl enable pilotApi
+systemctl start pilotApi
 
 # set up website
 mkdir -p /var/www/html/pilot

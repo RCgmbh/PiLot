@@ -33,7 +33,7 @@ def readPosition(record):
 		else:
 			altError = None
 		data = {
-			'utc': "{:.0f}".format(reportTimestamp * 1000),
+			'utc': int(reportTimestamp * 1000),
 			'boatTime' : None,
 			'latitude': latitude,
 			'longitude': longitude,
