@@ -8,7 +8,6 @@ fi
 systemctl stop gpsd.socket
 systemctl disable gpsd.socket
 killall gpsd
-gpsd /dev/ttyS0 -F /var/run/gpsd.sock
 
 mkdir -p /opt/pilotgpslogger
 cp resources/startGps.sh /opt/pilotgpslogger/
@@ -19,3 +18,6 @@ cp resources/gpsLogger.service /etc/systemd/system/
 
 chmod 446 /etc/systemd/system/gpsLogger.service
 systemctl daemon-reload
+systemctl enable gpsLogger
+systemctl start gpsLogger
+echo "Done with part 2"

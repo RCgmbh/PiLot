@@ -1,5 +1,6 @@
 [Unit]
 Description=PiLOT GPS Logger
+After=pilotApi.service
 
 [Service]
 Type=simple
