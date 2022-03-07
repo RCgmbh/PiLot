@@ -14,5 +14,6 @@ Each of the following chapters contains a part of the entire setup process. Some
 9. Build a nice case
 
 **Advanced scenarios:**
+
 10. Set up the live tracking service
 11. Publish your data to another PiLot
