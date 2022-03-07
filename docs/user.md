@@ -6,13 +6,13 @@ Each of the following chapters contains a part of the entire setup process. Some
 1. [Prerequisites](prerequisites.md)
 2. [Operating system and basic configuration](basics.md)
 3. [Set up a wireless access point](ap.md)
-4. [Install nginx and set up the web application](web.md)
-5. Connect a GPS device and set up the GPS logging service
-6. Download your first offline maps
+4. [Install the web application](web.md)
+5. [Connect a GPS device and set up the GPS logging service](gps.md)
+6. Install the photos import service
 7. Connect sensors and log sensor data
-8. Install the photos import service
-9. Optimize your system
-10. Optionally set up the live tracking service
+8. Optimize your system
+9. Build a nice case
+
+**Advanced scenarios:**
+10. Set up the live tracking service
 11. Publish your data to another PiLot
-12. Optionally set up a local OSM server (only the brave)
-13. Build a nice case
