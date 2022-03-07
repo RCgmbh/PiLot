@@ -18,7 +18,7 @@ PiLot.Templates.Media = {
 					<span class="label">2048</span>
 				</div>		
 			</a>
-			<a href="games/nine/index.html" class="tile big">
+			<a href="games/nine/index.html" class="tile big hidden">
 				<div>
 					<img src="img/iconNine.svg" />
 					<span class="label">Mühle</span>
