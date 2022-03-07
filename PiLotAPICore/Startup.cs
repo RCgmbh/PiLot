@@ -25,6 +25,7 @@ namespace PiLot.API{
 			services.AddScoped<WriteAuthorizationFilter>();
 			services.AddScoped<SettingsAuthorizationFilter>();
 			services.AddScoped<SystemAuthorizationFilter>();
+			services.AddScoped<LocalAuthorizationFilter>();
 			services.AddControllers();
 			services.AddHttpContextAccessor();
 		}
