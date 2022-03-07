@@ -162,7 +162,7 @@ namespace PiLot.GPSDataCreator {
 		/// Saves the current position to the server.
 		/// </summary>
 		private async static Task SendPositionAsync(GpsRecord pRecord) {
-			Boolean success = await positionProxy.PutPositionsAsync(new GpsRecord[] { pRecord });
+			Boolean success = await positionProxy.PutPositionAsync(pRecord);
 			if(!success) {
 				Console.WriteLine("Sending position was not successful");
 			}

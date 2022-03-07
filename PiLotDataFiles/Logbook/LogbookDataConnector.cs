@@ -143,7 +143,7 @@ namespace PiLot.Data.Files {
 			while (loopDate.Month == pMonth) {
 				minMS = DateTimeHelper.ToJSTime(loopDate);
 				maxMS = DateTimeHelper.ToJSTime(loopDate.AddDays(1));
-				hasTrack = track.GpsRecords.Exists(r => (r.BoatTime >= minMS) && (r.BoatTime <= maxMS));
+				hasTrack = track.GpsRecords.Exists(r => (r.BoatTime != null) && (r.BoatTime >= minMS) && (r.BoatTime <= maxMS));
 				logbookDay = this.ReadLogbookDay(loopDate);
 				hasLogbook = new FileInfo(this.GetLogbookFilePath(new Model.Common.Date(loopDate), false)).Exists;
 				hasPhotos = photoData.HasPhotos(loopDate);

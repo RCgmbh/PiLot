@@ -33,7 +33,7 @@ def readPosition(record):
 		else:
 			altError = None
 		data = {
-			'utc': reportTimestamp * 1000,
+			'utc': "{:.0f}".format(reportTimestamp * 1000),
 			'boatTime' : None,
 			'latitude': latitude,
 			'longitude': longitude,
@@ -52,6 +52,7 @@ def sendPosition(data, poolManager):
 		body=encoded_data,
 		headers={'Content-Type': 'application/json'}
 	)
+	# print(r.data.decode('utf-8'))
 
 def main():
 	poolManager = urllib3.PoolManager()

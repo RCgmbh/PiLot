@@ -114,7 +114,7 @@ namespace PiLot.Model.Nav {
 		/// The boatTime timestamp in milliseconds from epoc
 		/// </summary>
 		[JsonPropertyName("boatTime")]
-		public Int64 BoatTime { get; set; }
+		public Int64? BoatTime { get; set; }
 
 		/// <summary>
 		/// The latitude in degrees
@@ -162,7 +162,7 @@ namespace PiLot.Model.Nav {
 		public override String ToString() {
 			return String.Join(SEPARATOR.ToString(), new string[] {
 				this.UTC.ToString("F0"),
-				this.BoatTime.ToString("F0"),
+				this.BoatTime != null ? this.BoatTime.Value.ToString("F0"): "null",
 				this.DoubleToString(this.Latitude, "F7"),
 				this.DoubleToString(this.Longitude, "F7"),
 				this.DoubleToString(this.Altitude, "F2"),
