@@ -15,6 +15,8 @@ staticIp="192.168.80.1/24"
 # the ip address range of the access point (from, to, subnet, time to live):
 ipRange="192.168.80.2,192.168.80.20,255.255.255.0,24h"
 
+# **** End of variables ****
+
 if [ `whoami` != root ]; then
     echo Please run this script using sudo
     exit

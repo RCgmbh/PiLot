@@ -16,17 +16,14 @@ systemctl daemon-reload
 systemctl enable photosWatcher
 systemctl start photosWatcher
 
-apt install -y samba
-mv /etc/samba/smb.conf /etc/samba/smb.bak
+if [ -e /etc/samba/smb.conf ]
+then 
 echo \
 "
-[global]
-workgroup = WORKGROUP
-security = user
-encrypt password = yes
 
 [Photo Import]
 path = /home/pi/PhotoImport
 read only = no" >> /etc/samba/smb.conf
 systemctl restart smbd
-smbpasswd -a pi
+fi
+echo Done

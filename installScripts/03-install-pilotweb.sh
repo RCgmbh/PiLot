@@ -33,10 +33,27 @@ chown -R pi:root /var/www/html/tiles
 mkdir /var/www/html/library
 chown -R pi:root /var/www/html/library
 cp resources/library/* /var/www/html/library/
+# todo: install samba, if it's not installed yet, and add share for library and maybe data
 
 # update nginx config
 apt install -y nginx
 cp /etc/nginx/sites-enabled/default nginx_default_backup
 cp resources/nginx.conf /etc/nginx/sites-enabled/default
 systemctl restart nginx
+
+if [ -e /etc/samba/smb.conf ]
+then 
+echo \
+"
+
+[Pilot Data]
+path = /var/opt/pilot
+read only = no
+
+[Library]
+path = /var/www/html/library
+read only = no" >> /etc/samba/smb.conf
+systemctl restart smbd
+fi
+
 echo Done

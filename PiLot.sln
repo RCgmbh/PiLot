@@ -60,6 +60,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "py", "py", "{0DD18091-BB5E-
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installScripts", "{746AFF13-8152-4EE2-99D7-C5B8D0ED0207}"
 	ProjectSection(SolutionItems) = preProject
+		installScripts\00-install-samba.sh = installScripts\00-install-samba.sh
 		installScripts\01-install-ap.sh = installScripts\01-install-ap.sh
 		installScripts\02-install-netcore.sh = installScripts\02-install-netcore.sh
 		installScripts\03-install-pilotweb.sh = installScripts\03-install-pilotweb.sh
