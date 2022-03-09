@@ -8,7 +8,7 @@ Each of the following chapters contains a part of the entire setup process. Some
 3. [Set up a wireless access point](ap.md)
 4. [Install the web application](web.md)
 5. [Connect a GPS device and set up the GPS logging service](gps.md)
-6. Install the photos import service
+6. [Install the photos import service](photoimport.md)
 7. Connect sensors and log sensor data
 8. Optimize your system
 9. Build a nice case
