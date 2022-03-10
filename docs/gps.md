@@ -5,7 +5,7 @@ In order to have position data available, you need to connect a GPS reciever and
 
 There are many GPS recievers out there. Many of them are connected using the UART GPIO pins. When connecting the GPS reciever, make sure all wires are properly connected. Be very careful with the wires, especially if you attach the connectors on your own. Always do a "pull test", everything must be solid and stay in place, because wires that come loose can easily cause a short circuit and destroy your hardware, or even worse, become very hot, cause fire and thereby raise serious danger to life. So, if you feel like "ok, that will hold as long as I don't touch it", find someone to help you get it done right.
 
-Connect your UART capable GPS reciever to these GPIO pins (see [pinout.xyz](htts://pinout.xyz)):
+Connect your UART capable GPS reciever to these GPIO pins (see [pinout.xyz](https://pinout.xyz)):
 - The VIN or V or + is the positive power input. Depending on the device, it needs 3-5 volts. For 3.3V, connect it to pin 1 or 17, for 5V, connect it to pin 2 or 4
 - The GND or G is the ground connection. Connect it to any GND pin, like 6, 9, 14 etc.
 - The RX or R is where the device recieves inputs. It must be connected to the TX pin on the raspi, which is number 8.
