@@ -5,7 +5,8 @@ if [ `whoami` != root ]; then
     exit
 fi
 
-mkdir ~/PhotoImport
+mkdir /home/pi/PhotoImport
+chown pi:pi /home/pi/PhotoImport
 mkdir /var/opt/pilot/photos
 chown pi:pi /var/opt/pilot/photos
 mkdir /opt/pilotphotoswatcher/
