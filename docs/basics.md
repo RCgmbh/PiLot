@@ -6,8 +6,8 @@ In this step you install the operating system, and do some basic configuration.
 Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Be aware that writing the image to your SD card will overwrite all data, so make sure there is nothing precious there.
 
 Once finished writing, keep the card connected to your computer. Using a file explorer, create two files directly in the root (if you don't see the card, unplug it and plug it in again, it will usually be displayed as a drive called "boot"). Create those two files directly in the root directory:
-1. Create an empty file called just "SSH" (no extension, no content). This will allow you to connect to your PiLot by ssh.
-2. To allow the PiLot to connect to your Wif-Fi, create a file called "wpa_supplicant.conf", and using a text editor, insert this content (you can skip this, if you use a cable to connect the raspi to your network):
+1. Create an empty text file called just "SSH" (no extension, no content). This will allow you to connect to your PiLot by ssh.
+2. If you have a second Wi-Fi adapter on your raspi (the first one is the built-in), you should allow the PiLot to connect to your Wif-Fi. Create a text file called "wpa_supplicant.conf", and using a text editor, insert this content (you can skip this, if you use a cable to connect the raspi to your network):
 ```
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -19,7 +19,7 @@ network={
        psk="password"
 }
 ```
-For the country, set your country's 2 letter ISO code. Replace network_name by the name of your Wi-Fi, and password by your Wi-Fi password, then save the file. Now you can insert the SD card into your Raspberry Pi and power it on.
+For the country, set your country's 2 letter ISO code. Replace network_name by the name of your Wi-Fi, and password by your Wi-Fi password, then save the file. Now you can safely remove the SD card and insert it into your Raspberry Pi and power it on.
 
 ### Connect to your Raspberry Pi
 Connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@raspberrypi`. You might have to confirm by typing "yes", then enter the password "raspberry". You should now see `pi@raspberrypi:~ $`. Feel good, as you just brought life to your tiny computer. Now the first thing is to change the default password of the user "pi" to something that Google doesn't know. Type `passwd` and follow the instructions.
@@ -46,7 +46,7 @@ Samba gives you a convenient access to files on your PiLot from within Windows E
 ```
 sudo sh 00-intstall-samba.sh
 ```
-Follow the instructions on the screen. When the installation is done, open a windows explorer on your Windows machine, and in the address, enter **\\raspberrypi**, or if you changed the hostname, the new hostname instead of raspberrypi. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
+Follow the instructions on the screen, and when asked for "New SMB password", enter the samba-password you want for your user "pi", which can be just the same password as you set before. Once the installation is done, open a windows explorer on your Windows machine, and in the address bar, enter **\\\\raspberrypi**, or if you changed the hostname, the new hostname instead of raspberrypi. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
 
 \> [Next, set up an access point...](ap.md)
 
