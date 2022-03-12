@@ -5,7 +5,18 @@
     <TargetFramework>net6.0</TargetFramework>
     <RootNamespace>PiLot.Sensors</RootNamespace>
     <AssemblyName>PiLot.Sensors</AssemblyName>
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="app.default.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.default.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Iot.Device.Bindings" Version="1.5.0" />

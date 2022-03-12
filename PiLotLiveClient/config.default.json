@@ -1,0 +1,7 @@
+{
+	"localAPI": "http://localhost/pilotapi/v1",
+	"remoteAPI": "http://example.com/pilotapi/v1",
+	"interval": 10,
+	"username": "user",
+	"password": "secret"
+}

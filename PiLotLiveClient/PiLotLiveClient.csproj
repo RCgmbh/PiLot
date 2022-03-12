@@ -5,7 +5,22 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>PiLot.LiveClient</AssemblyName>
     <RootNamespace>PiLot.LiveClient</RootNamespace>
+		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="app.default.config" />
+    <None Remove="config.default.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.default.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="config.default.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
