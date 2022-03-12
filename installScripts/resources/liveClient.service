@@ -1,0 +1,14 @@
+[Unit]
+Description=PiLOT Live Client
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/pilotliveclient
+ExecStart=/opt/pilotliveclient/PiLot.LiveClient
+Restart=always
+RestartSec=2
+User=pi
+Environment=DOTNET_ROOT=/opt/dotnet
+
+[Install]
+WantedBy=default.target

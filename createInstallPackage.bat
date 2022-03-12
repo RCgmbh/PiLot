@@ -31,6 +31,7 @@ mkdir pilotinstall\resources\pilotsensors
 dotnet build PiLotSensors -o pilotinstall\resources\pilotsensors -c release -r linux-arm --no-self-contained
 copy /y pilotinstall\resources\pilotsensors\app.default.config pilotinstall\resources\pilotsensors\PiLot.Sensors.dll.config
 del /s /q pilotinstall\resources\pilotsensors\app.*.config
+del /s /q pilotinstall\resources\pilotsensors\app.config
 
 mkdir pilotinstall\resources\pilotweb
 xcopy /s /r /i  PiLotWeb\* pilotinstall\resources\pilotweb\
@@ -42,6 +43,13 @@ mkdir pilotinstall\resources\library
 xcopy /s /r /i  ..\..\pilot\defaultlibrary\* pilotinstall\resources\library\
 
 copy py\gpsLogger.py pilotinstall\resources\
+
+mkdir pilotinstall\resources\pilotliveclient
+dotnet build PiLotLiveClient -o pilotinstall\resources\pilotliveclient -c release -r linux-arm --no-self-contained
+copy /y pilotinstall\resources\pilotliveclient\app.default.config pilotinstall\resources\pilotliveclient\PiLot.LiveClient.dll.config
+del /s /q pilotinstall\resources\pilotliveclient\app.*.config
+copy /y pilotinstall\resources\pilotliveclient\config.default.json pilotinstall\resources\pilotliveclient\config.json
+del /s /q pilotinstall\resources\pilotliveclient\config.*.json
 
 7z a -r -ttar pilotinstall.tar pilotinstall
 7z a -r -tgzip -mx9 pilotinstall.tar.gz pilotinstall.tar

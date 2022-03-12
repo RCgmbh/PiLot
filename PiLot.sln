@@ -79,6 +79,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 		installScripts\04-install-gps-1.sh = installScripts\04-install-gps-1.sh
 		installScripts\05-install-gps-2.sh = installScripts\05-install-gps-2.sh
 		installScripts\06-install-photoswatcher.sh = installScripts\06-install-photoswatcher.sh
+		installScripts\10-install-liveclient.sh = installScripts\10-install-liveclient.sh
 		createInstallPackage.bat = createInstallPackage.bat
 	EndProjectSection
 EndProject
@@ -86,6 +87,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{
 	ProjectSection(SolutionItems) = preProject
 		installScripts\resources\gpsLogger.service = installScripts\resources\gpsLogger.service
 		installScripts\resources\index.html = installScripts\resources\index.html
+		installScripts\resources\liveClient.service = installScripts\resources\liveClient.service
 		installScripts\resources\nginx.conf = installScripts\resources\nginx.conf
 		installScripts\resources\photosWatcher.service = installScripts\resources\photosWatcher.service
 		installScripts\resources\pilotApi.service = installScripts\resources\pilotApi.service
