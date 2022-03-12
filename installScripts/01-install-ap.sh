@@ -59,7 +59,7 @@ echo DAEMON_CONF=\"/etc/hostapd/hostapd.conf\" > /etc/default/hostapd
 
 # set ip range in dnsmasq
 cp backup/dnsmasq.conf > /etc/
-cp /etc/dnsmasq.conf > backup/
+cp /etc/dnsmasq.conf backup/
 echo \
 "#PiLot hotspot IP range
 interface="$apAdapter"

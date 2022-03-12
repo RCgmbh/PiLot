@@ -26,6 +26,8 @@ systemctl start pilotApi
 # set up website
 mkdir -p /var/www/html/pilot
 cp -r resources/pilotweb/* /var/www/html/pilot/
+cp /var/www/html/index.html backup/
+cp resources/index.html /var/www/html/
 mkdir /var/www/html/tiles
 mkdir /var/www/html/tiles/openstreetmap
 mkdir /var/www/html/tiles/openseamap
@@ -37,7 +39,7 @@ cp resources/library/* /var/www/html/library/
 
 # update nginx config
 apt install -y nginx
-cp /etc/nginx/sites-enabled/default nginx_default_backup
+cp /etc/nginx/sites-enabled/default backup/
 cp resources/nginx.conf /etc/nginx/sites-enabled/default
 systemctl restart nginx
 
