@@ -7,7 +7,7 @@ def readPosition(record):
 	data = None
 	if record['time'] != 'n/a':
 		reportTime = strptime(record['time'], '%Y-%m-%dT%H:%M:%S.%fZ')
-		reportTimestamp = mktime(reportTime)
+		reportTimestamp = calendar.timegm(reportTime)
 		if record['lat'] != 'n/a':
 			latitude = record['lat']
 		else:

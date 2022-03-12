@@ -19,7 +19,7 @@ namespace PiLot.Utils.OS {
 		private const String SERVICESTARTCOMMAND = "systemctl start {0}";				// command template to start a service
 		private const String SERVICESTOPCOMMAND = "systemctl stop {0}";					// command template to stop a service
 		private const String SERVICERESTARTCOMMAND = "systemctl restart {0}";			// command template to restart a service
-		private const String DATECOMMAND = "date -s \"{0:yyyy-MM-dd HH:mm:ss}\"";       // command template to set system date/time
+		private const String DATECOMMAND = "date -u -s \"{0:yyyy-MM-dd HH:mm:ss}\"";    // command template to set system date/time
 		private const String SHUTDOWNCOMMAND = "shutdown now";
 		private const String REBOOTCOMMAND = "reboot now";
 

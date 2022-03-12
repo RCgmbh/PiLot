@@ -4,7 +4,6 @@ using System.Linq;
 
 using PiLot.Data.Files;
 using PiLot.Model.Nav;
-using PiLot.Utils.Logger;
 
 namespace PiLot.API.Helpers {
 

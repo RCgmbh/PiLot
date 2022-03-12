@@ -57,6 +57,7 @@ namespace PiLot.API.Controllers {
 		public void PutGpsRecordLocal(GpsRecord pRecord) {
 			Logger.Log($"GPS Record recieved: {pRecord}", LogLevels.DEBUG);
 			if (pRecord != null) {
+				GpsTimeSync.Instance.HandleGPSRecord(pRecord);
 				GpsCache.Instance.AddRecord(pRecord);
 			}
 		}
