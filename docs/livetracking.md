@@ -42,3 +42,7 @@ sudo nano /opt/pilotliveclient/config.json
 The value for **localapi** should be ok. For **remoteAPI**, enter the url of the pilot api on your webserver. It should end with "pilotapi/v1" Pro-tip: you can test it by entering https://yourdomain/pilotapi/v1/Ping, which should write "Ok". Enter the username and password you have created above in the users.json file. If you want, you can change the "interval", which is the interval in seconds, for sending data to the server.
 
 Now, to start the service, on the PiLot Application on your PiLot, go to "Administration", then "Services", where you can start and stop the different PiLot services. Start the service "liveClient", and after some seconds you should see your PiLot's position on your website. 
+
+\> [What's next...?](tbd.md)
+
+<< [Back to overview](user.md)
