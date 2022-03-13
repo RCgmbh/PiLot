@@ -15,5 +15,5 @@ Each of the following chapters contains a part of the entire setup process. Some
 
 **Advanced scenarios:**
 
-10. Set up the live tracking service
+10. [Set up the live tracking service](livetracking.md)
 11. Publish your data to another PiLot
