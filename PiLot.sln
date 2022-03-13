@@ -56,6 +56,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{0B397FE6-E
 		docs\README.md = docs\README.md
 		docs\user.md = docs\user.md
 		docs\web.md = docs\web.md
+		docs\livetracking.md = docs\livetracking.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GPSDataCreator", "GPSDataCreator\GPSDataCreator.csproj", "{373E850B-6EDA-474D-B695-032D61222163}"
