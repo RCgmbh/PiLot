@@ -30,7 +30,7 @@ namespace PiLot.API.Helpers {
 		private List<GpsRecord> records = null;
 		private GpsRecord previousSavedRecord = null;   // the last record we saved to disk
 		private GlobalDataConnector globalDataConnector = null;
-		private DataHelper dataHelper = null;
+		private GPSDataConnector gpsDataConnector = null;
 
 		#endregion
 
@@ -39,8 +39,8 @@ namespace PiLot.API.Helpers {
 		// hidden constructor, use the Instance getter instead
 		private GpsCache() {
 			this.records = new List<GpsRecord>();
-			this.dataHelper = new DataHelper();
 			this.globalDataConnector = new GlobalDataConnector();
+			this.gpsDataConnector = new GPSDataConnector();
 		}
 
 		/// <summary>
@@ -130,7 +130,7 @@ namespace PiLot.API.Helpers {
 					doPersist = true;
 				}
 				if (doPersist) {
-					new GPSDataConnector().SavePosition(lastRecord);
+					this.gpsDataConnector.SavePosition(lastRecord);
 					this.previousSavedRecord = lastRecord;
 				}
 			}
