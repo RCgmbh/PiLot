@@ -1,0 +1,107 @@
+[
+	{
+		"deviceType": "BMP180",
+		"id": "119",
+		"interval": 60,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"name": "temperature1",
+				"displayName": "Innentemperatur",
+				"tags": [ "meteo", "startPage" ],
+				"sortOrder": 10
+			},
+			{
+				"sensorType": "pressure",
+				"name": "pressure1",
+				"displayName": "Luftdruck",
+				"tags": [ "meteo", "logbook", "startPage" ],
+				"sortOrder": 20
+			}
+		]
+	},
+	{
+		"deviceType": "BMXX80",
+		"id": "118",
+		"interval": 60,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"name": "temperature2",
+				"displayName": "Innentemperatur 2",
+				"tags": [ "meteo" ],
+				"sortOrder": 30
+			},
+			{
+				"sensorType": "pressure",
+				"name": "pressure2",
+				"displayName": "Luftdruck 2",
+				"tags": [ "meteo" ],
+				"sortOrder": 40
+			},
+			{
+				"sensorType": "humidity",
+				"name": "humidity1",
+				"displayName": "Luftfeuchtigkeit",
+				"tags": [ "meteo" ],
+				"sortOrder": 50
+			}
+		]
+	},
+	{
+		"deviceType": "OneWTemperature",
+		"id": "28-020292457b57",
+		"interval": 60,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"name": "temperature3",
+				"displayName": "Aussentemperatur",
+				"tags": [ "meteo" ],
+				"sortOrder": 60
+			}
+		]
+	},
+	{
+		"deviceType": "OneWTemperature",
+		"id": "28-02199245db06",
+		"interval": 60,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"name": "temperature4",
+				"displayName": "Wassertemperatur",
+				"tags": [ "meteo", "startPage", "logbook" ],
+				"sortOrder": 70
+			}
+		]
+	},
+	{
+		"deviceType": "CPUTemperature",
+		"id": "",
+		"interval": 30,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"name": "cpuTemperature",
+				"displayName": "CPU Temperature",
+				"tags": [ "system" ]
+			}
+		]
+	},
+	{
+		"deviceType": "PiLot",
+		"id": "192.168.1.101",
+		"interval": 120,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"id": "temperature1",
+				"name": "temperature5",
+				"displayName": "Aussentemperatur 3",
+				"tags": [ "meteo", "logbook" ],
+				"sortOrder": 80
+			}
+		]
+	}
+]

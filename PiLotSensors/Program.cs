@@ -85,8 +85,11 @@ namespace PiLot.Sensors {
 			IDevice result = null;
 			if (Enum.TryParse<DeviceTypes>(pDeviceInfo.DeviceType, out DeviceTypes deviceType)) {
 				switch (deviceType) {
-					case DeviceTypes.BME280:
-						result = new BME280Device(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
+					case DeviceTypes.BMP180:
+						result = new BMP180Device(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
+						break;
+					case DeviceTypes.BMXX80:
+						result = new BMXX80Device(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);
 						break;
 					case DeviceTypes.OneWTemperature:
 						result = new OneWDevice(pDeviceInfo.ID, pDeviceInfo.Interval, pDeviceInfo.Sensors, pLocalAPI, pLoginHelper);

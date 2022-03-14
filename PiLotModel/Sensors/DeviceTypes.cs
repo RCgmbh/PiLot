@@ -1,6 +1,6 @@
 ﻿namespace PiLot.Model.Sensors {
 	
 	public enum DeviceTypes {
-		BME280, BMP180, PiLot, OneWTemperature, CPUTemperature
+		BMXX80, BMP180, PiLot, OneWTemperature, CPUTemperature
 	}
 }

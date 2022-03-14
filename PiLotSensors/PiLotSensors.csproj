@@ -10,18 +10,22 @@
 
   <ItemGroup>
     <None Remove="app.default.config" />
+    <None Remove="sensors.example.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="app.default.config">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="sensors.example.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Iot.Device.Bindings" Version="1.5.0" />
+    <PackageReference Include="Iot.Device.Bindings" Version="2.1.0" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-    <PackageReference Include="System.Device.Gpio" Version="1.5.0" />
+    <PackageReference Include="System.Device.Gpio" Version="2.1.0" />
     <PackageReference Include="UnitsNet" Version="5.0.0-alpha003" />
   </ItemGroup>
 
