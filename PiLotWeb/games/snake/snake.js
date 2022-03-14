@@ -86,8 +86,8 @@
 		},
 
 		showButtons: function (pIsRunning) {
-			RC.Utils.toggleClass(this.lnkStart, 'hidden', pIsRunning);
-			RC.Utils.toggleClass(this.lnkPause, 'hidden', !pIsRunning);
+			this.lnkStart.classList.toggle('hidden', pIsRunning);
+			this.lnkPause.classList.toggle('hidden', !pIsRunning);
 		},
 
 		togglePause: function () {
@@ -223,7 +223,7 @@
 			}
 		},
 
-		/// calls this.onEnd if it was defined before, adding this as parameter
+		/// calls this.end if it was defined before, adding this as parameter
 		onEnd: function (pMoveResult) {
 			this.pause();
 			if (this.end !== null) {
