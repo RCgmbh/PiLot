@@ -33,10 +33,10 @@ All BMP/BME devices are connected over I2C, which is quite easy. First, enable I
 sudo apt install -y i2c-tools
 ```
 Now turn off your PiLot and unplug the power cable. Connect the wires from the Sensor like this:
-VND to 3.3V (pin 1 or 17)
-GND to any Ground pin, like 6, 9, 14, 20, 25
-SCL to I2C1 SCL (pin 5, GPIO 3)
-SDA to I2C1 SDA (pin 3, GPIO 2)
+- VND to 3.3V (pin 1 or 17)
+- GND to any Ground pin, like 6, 9, 14, 20, 25
+- SCL to I2C1 SCL (pin 5, GPIO 3)
+- SDA to I2C1 SDA (pin 3, GPIO 2)
 
 That's already it for the wiring. See below how to configure the sensor for the PiLot sensorLogger.
 
@@ -46,13 +46,10 @@ Connecting 1W devices is a bit trickier, as you need a so-called pull-up resisto
 First, enable 1W: run `sudo raspi-config`, go to **3 Interface Options** then **P7 1-Wire** and enable the one wire interface.
 
 Now turn off your PiLot and unplug the power cable. Connect the wires from the Sensor like this:
-Black is GND and goes to any Ground pin, like 6, 9, 14, 20, 25
-White/Yellow is Data and goes to pin 7 / GPIO 4
-Red is VCC and goes to 3.3V (pin 1 or 17)
-The 4.7 or 10 kΩ connects the Data and VCC line.
-If you connect multiple 1W-Sensors, you can connect them all to the same pins and need just one resistor for all.
+- Black is GND and goes to any Ground pin, like 6, 9, 14, 20, 25
+- White/Yellow is Data and goes to pin 7 / GPIO 4
+- Red is VCC and goes to 3.3V (pin 1 or 17)
+- The 4.7 or 10 kΩ connects the Data and VCC line.
 
-```
-sudo echo dtoverlay=w1-gpio >> /boot/config.txt
-```
+If you connect multiple 1W-Sensors, you can connect them all to the same pins and need just one resistor for all.
 
