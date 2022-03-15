@@ -51,13 +51,13 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{0B397FE6-E
 		docs\conventions.md = docs\conventions.md
 		docs\dev.md = docs\dev.md
 		docs\gps.md = docs\gps.md
+		docs\livetracking.md = docs\livetracking.md
 		docs\photoimport.md = docs\photoimport.md
 		docs\prerequisites.md = docs\prerequisites.md
 		docs\README.md = docs\README.md
+		docs\sensors.md = docs\sensors.md
 		docs\user.md = docs\user.md
 		docs\web.md = docs\web.md
-		docs\livetracking.md = docs\livetracking.md
-		docs\sensors.md = docs\sensors.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GPSDataCreator", "GPSDataCreator\GPSDataCreator.csproj", "{373E850B-6EDA-474D-B695-032D61222163}"
@@ -81,6 +81,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 		installScripts\04-install-gps-1.sh = installScripts\04-install-gps-1.sh
 		installScripts\05-install-gps-2.sh = installScripts\05-install-gps-2.sh
 		installScripts\06-install-photoswatcher.sh = installScripts\06-install-photoswatcher.sh
+		installScripts\07-install-sensorsLogger.sh = installScripts\07-install-sensorsLogger.sh
 		installScripts\10-install-liveclient.sh = installScripts\10-install-liveclient.sh
 		createInstallPackage.bat = createInstallPackage.bat
 	EndProjectSection
@@ -95,6 +96,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{
 		installScripts\resources\pilotApi.service = installScripts\resources\pilotApi.service
 		installScripts\resources\restoreIptables.service = installScripts\resources\restoreIptables.service
 		installScripts\resources\restoreIptables.sh = installScripts\resources\restoreIptables.sh
+		installScripts\resources\sensorsLogger.service = installScripts\resources\sensorsLogger.service
 		installScripts\resources\startGps.sh = installScripts\resources\startGps.sh
 	EndProjectSection
 EndProject

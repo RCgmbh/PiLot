@@ -1,0 +1,14 @@
+[Unit]
+Description=PiLOT Sensors Logger
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/pilotsensors
+ExecStart=/opt/pilotsensors/PiLot.Sensors
+Restart=always
+RestartSec=2
+User=pi
+Environment=DOTNET_ROOT=/opt/dotnet
+
+[Install]
+WantedBy=default.target

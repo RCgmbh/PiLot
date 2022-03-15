@@ -32,6 +32,7 @@ dotnet build PiLotSensors -o pilotinstall\resources\pilotsensors -c release -r l
 copy /y pilotinstall\resources\pilotsensors\app.default.config pilotinstall\resources\pilotsensors\PiLot.Sensors.dll.config
 del /s /q pilotinstall\resources\pilotsensors\app.*.config
 del /s /q pilotinstall\resources\pilotsensors\app.config
+move /y pilotinstall\resources\pilotsensors\sensors.example.json pilotinstall\resources\pilotapi\App_Data\sensors\
 
 mkdir pilotinstall\resources\pilotweb
 xcopy /s /r /i  PiLotWeb\* pilotinstall\resources\pilotweb\
