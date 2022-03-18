@@ -13,7 +13,7 @@ namespace PiLot.GPSDataCreator {
 	/// </summary>
 	public class Program {
 
-		private static LatLon? position;	// the current position
+		private static LatLon position;	// the current position
 		private static Double speed = 0;   // m/s
 		private static Double course = 0;   // course in degrees from north
 		private static Int64 boatTimeOffset = 60 * 60 * 1000; // 1 hours in milliseconds
@@ -129,7 +129,7 @@ namespace PiLot.GPSDataCreator {
 								speed = Math.Max(0, speed - 0.5);
 								break;
 						}
-						Console.WriteLine(String.Format($"COG: {course:000}°, SOG: {speed}"));
+						Console.WriteLine(String.Format($"COG: {course:000}ï¿½, SOG: {speed}"));
 					}
 				}
 				
