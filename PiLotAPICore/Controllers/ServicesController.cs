@@ -17,7 +17,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String[] Get() {
-			return new SystemHelper().GetServices();
+			return new ServiceHelper().GetServices();
 		}
 
 		/// <summary>
@@ -29,7 +29,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String Get(String id) {
-			return new SystemHelper().GetServiceStatus(id);
+			return new ServiceHelper().GetServiceStatus(id);
 		}
 
 		/// <summary>
@@ -41,7 +41,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutStart(String id) {
-			return new SystemHelper().StartService(id);
+			return new ServiceHelper().StartService(id);
 		}
 
 		/// <summary>
@@ -53,7 +53,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutStop(String id) {
-			return new SystemHelper().StopService(id);
+			return new ServiceHelper().StopService(id);
 		}
 
 		/// <summary>
@@ -65,7 +65,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutRestart(String id) {
-			return new SystemHelper().RestartService(id);
+			return new ServiceHelper().RestartService(id);
 		}
 	}
 }
