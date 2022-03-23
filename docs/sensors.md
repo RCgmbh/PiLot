@@ -49,7 +49,58 @@ Now turn off your PiLot and unplug the power cable. Connect the wires from the S
 - Black is GND and goes to any Ground pin, like 6, 9, 14, 20, 25
 - White/Yellow is Data and goes to pin 7 / GPIO 4
 - Red is VCC and goes to 3.3V (pin 1 or 17)
-- The 4.7 or 10 kΩ connects the Data and VCC line.
+- The 4.7 kΩ or 10 kΩ resistor connects the Data and VCC line.
 
 If you connect multiple 1W-Sensors, you can connect them all to the same pins and need just one resistor for all.
 
+### Update the sensors.json config file
+There is one single configuration file, which holds all information about the sensors to be logged. You need to update the file so that it represents the sensors you have actually connected to your PiLot. There is an example file coming with the installation, so you best start by copying the example file and replace the empty default file.
+```
+cd /var/opt/pilot/sensors
+sudo cp sensors.example.json sensors.json
+```
+The file contains devices, and every device contains one or more sensors. A BMP180, as an example, is one device, but contains two sensors: One for the temperature, and one for the air pressure. So this is represented as follows:
+```
+{
+	"deviceType": "BMP180",
+	"id": "119",
+	"interval": 60,
+	"sensors": [
+		{
+			"sensorType": "temperature",
+			"name": "temperature1",
+			"displayName": "Innentemperatur",
+			"tags": [ "meteo", "startPage" ],
+			"sortOrder": 10
+		},
+		{
+			"sensorType": "pressure",
+			"name": "pressure1",
+			"displayName": "Luftdruck",
+			"tags": [ "meteo", "logbook", "startPage" ],
+			"sortOrder": 20
+		}
+	]
+}
+```
+Let's have a closer look at the content:
+- **deviceType**: This must be one of these values listed in [DeviceTypes.cs](../PiLotModel/Sensors/DeviceTypes.cs). Note that "BMP180" is used for just this type, while "BMXX80" is used for BMP280, BME280 and BME680.
+- **id**: A unique identifier for the program to find the device. Depending on the deviceType, there are specific ways to find the correct value. See below for details.
+- **interval**: the interval in seconds, how often the device is queried for data. As the program repeats only every 5 seconds, values should be multiples of five. 
+- **sensors**: the list of sensors on the device. The list is an array, so it must be in \[brackets\]. Each sensor is an object, so it's in its own {curly brackets}. Multiple sensors are separated by a colon.
+
+Each sensor has these attributes:
+- **sensorType**: One of the values "temperature", "pressure" or "humidity".
+- **name**: here you set the internal name of the sensor. The recorded data will be saved in /var/opt/pilot/{name}, therefore the name must be unique.
+- **displayName**: the name of the sensor how it will be displayed in the PiLot. If you measure water temperature, call it "Water temperature" for example.
+- **tags**: The tags define, where the sensor data will be used. These values are supported: *meteo*: the data will be displayed on the meteo page, *logbook* the data will be used as proposed temperature and air pressure for logbook entries (only set this tag for one temperature and one pressure sensor), *startPage*: the sensor data will be displayed on the start page.
+- **sortOrder**: This defines the order of the sensors on the meteo page. 
+
+For the different sensor types, there are some specific points to consider:
+#### I2C devices
+You find the id of an I2C device using the i2cdetect tool. You need to install the i2c-tools and then run i2cdetect:
+```
+sudo apt install i2c-tools
+sudo i2cdetect -y 1
+```
+This will show you the id of the i2c devices. The id is in HEX, but we need it in decimal. Therefore, if you get 76, enter 118, for 77 enter 119. For any other value, duckduckgo for "hexadecimal to decimal converter" or use something very smart like [Wolfram Alpha](https://www.wolframalpha.com/input?i=77+hexadecimal+to+decimal) to convert the hex value from i2cdetect into the dec value for sensors.json.
