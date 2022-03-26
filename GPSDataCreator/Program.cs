@@ -58,7 +58,7 @@ namespace PiLot.GPSDataCreator {
 			if(result == null) {
 				Double? lat = null;
 				Double? lon = null;
-				String? entry;
+				String entry;
 				Double test;
 				while (lat == null) {
 					Console.Write("Enter latitude: ");
