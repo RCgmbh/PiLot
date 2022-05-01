@@ -12,17 +12,13 @@ namespace PiLot.Utils.OS {
 	/// </summary>
 	public class WiFiHelper {
 
-		private const String GETINTERFACESCMD = "wpa_cli interface";
-		private const String SETINTERFACECMD = "wpa_cli interface {0}";
-		private const String LISTKNOWNNETWORKSCMD = "wpa_cli list_networks";
-        private const String SCANCMD = "wpa_cli scan";
-		private const String LISTSCANRESULTSCMD = "wpa_cli scan_result";
-        private const String ADDNETWORKCMD = "wpa_cli add_network";
-        private const String SETSSIDCMD = "wpa_cli set_network {0} ssid \"{1}\"";
-        private const String SETPWDCMD = "wpa_cli set_network {0} psk \"{1}\"";
-        //private const String SETPWDCMD = "wpa_passphrase {0} {1}";
-		private const String SELECTNETWORKCMD = "wpa_cli set_network {0}";
-        private const String SAVECONFIGCMD = "wpa_cli save_config";
+		//private const String LISTKNOWNNETWORKSCMD = "wpa_cli list_networks";
+        //private const String SCANCMD = "wpa_cli scan";
+		//private const String LISTSCANRESULTSCMD = "wpa_cli scan_result";
+        //private const String ADDNETWORKCMD = "wpa_cli add_network";
+        //private const String SETSSIDCMD = "wpa_cli set_network {0} ssid \"{1}\"";
+        //private const String SETPWDCMD = ;
+		//private const String SELECTNETWORKCMD = ;
         
         private SystemHelper systemHelper;
 
@@ -41,28 +37,17 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
-        /// Selects the network identified by pNumber
-        /// </summary>
-        public String SelectNetwork(Int32 pNumber){
-            String cmdResult = this.systemHelper.CallCommand("sudo", String.Format(SELECTNETWORKCMD, pNumber));
-            this.systemHelper.CallCommand("sudo", SAVECONFIGCMD);
-            return cmdResult;
-        }
-
-        /// <summary>
         /// Adds a new network with SSID and passphrase. Returns the results of the
         /// involved commands.
         /// </summary>
         public String AddNetwork(String pSSID, String pPassphrase){
             List<String> cmdResults = new List<String>();
             Int32 networkNumber;
-            String[] addResult = this.systemHelper.CallCommand("sudo", ADDNETWORKCMD).Split("\n".ToCharArray());
+            String[] addResult = this.systemHelper.CallCommand("sudo", "wpa_cli add_network").Split("\n".ToCharArray());
             if( (addResult.Length > 1) && Int32.TryParse(addResult[1] , out networkNumber)){
-                cmdResults.Add(this.systemHelper.CallCommand("sudo", String.Format(SETSSIDCMD, networkNumber, this.StringToHex(pSSID))));
-                //cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"626172\""));
-                //cmdResults.Add(this.systemHelper.CallCommand("sudo", String.Format(SETPWDCMD, networkNumber, this.StringToHex(pPassphrase))));
-                cmdResults.Add(this.systemHelper.CallCommand("sudo", String.Format(SETPWDCMD, networkNumber, this.GetPassphrase(pSSID,  pPassphrase))));
-                //cmdResults.Add(this.systemHelper.CallCommand("sudo", SAVECONFIGCMD));
+                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\""));
+                String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
+                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\""));
             } else{
                 cmdResults.Add($"Unexpected result for Add netowrk: {addResult}");
             }
@@ -70,11 +55,27 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
+        /// Selects the network identified by pNumber
+        /// </summary>
+        public String SelectNetwork(Int32 pNumber){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli select_network {pNumber}");
+            return cmdResult;
+        }
+
+        /// <summary>
+        /// Removes the network identified by pNumber
+        /// </summary>
+        public String RemoveNetwork(Int32 pNumber){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli remove_network {pNumber}");
+            return cmdResult;
+        }
+
+        /// <summary>
         /// populates a list of known networks
         /// </summary>
         private List<WiFiInfo> ReadKnownNetworks(){
             List<WiFiInfo> result = new List<WiFiInfo>();
-            String cmdResult = this.systemHelper.CallCommand("sudo", LISTKNOWNNETWORKSCMD);
+            String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli list_networks");
             String[] lines = cmdResult.Split("\n".ToCharArray());
             String[] segments;
             Int32 networkNumber;
@@ -96,9 +97,9 @@ namespace PiLot.Utils.OS {
         /// </summary>
         private async Task<List<WiFiInfo>> SearchNetworksAsync(Int32 pWaitSeconds, List<WiFiInfo> pKnownNetworks){
             List<WiFiInfo> result = pKnownNetworks;
-            this.systemHelper.CallCommand("sudo", SCANCMD);
+            this.systemHelper.CallCommand("sudo", "wpa_cli scan");
             await Task.Delay(pWaitSeconds * 1000);
-            String cmdResult = this.systemHelper.CallCommand("sudo", LISTSCANRESULTSCMD);
+            String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli scan_result");
             String[] lines = cmdResult.Split("\n".ToCharArray());
             String[] segments;
             Int32 signalStrength;
@@ -119,13 +120,22 @@ namespace PiLot.Utils.OS {
             return result;
         }
 
+        /// <summary>
+        /// Converts the ssid to the hex code, which is used to pass it to set_network.
+        /// Alternatively, the form '"ssid"' could be used, which however did not work.
+        /// </summary>
         private String StringToHex(String pInput){
             byte[] bytes = Encoding.Default.GetBytes(pInput);
             String hexString = BitConverter.ToString(bytes);
             return hexString.Replace("-", "");
         } 
 
-        private String GetPassphrase(String pSSID, String pPassphrase){
+        /// <summary>
+        /// This creates the hex encoded passphrase, which will be passed to set_network.
+        /// Passing it unencoded with '"password"' did not work. This is quick and dirty
+        /// and expects an exact structure, whith psk=xy on line 4. 
+        /// </summary>
+        private String GetHexPassphrase(String pSSID, String pPassphrase){
             String result = null;
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_passphrase {pSSID} {pPassphrase}");
             String[] lines = cmdResult.Split("\n".ToCharArray());
