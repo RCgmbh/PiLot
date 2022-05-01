@@ -16,14 +16,25 @@ namespace PiLot.API.Controllers {
 	public class WiFiController : ControllerBase {
 
 		/// <summary>
-		/// Gets the active Route ID or null, if no route is active
+		/// 
 		/// </summary>
-		/// <returns></returns>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		//[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public async Task<List<WiFiInfo>> GetNetworks() {
 			return await new WiFiHelper().GetNetworksAsync();
+		}
+
+		[Route(Program.APIROOT + "[controller]/{number}/enable")]
+		[HttpPut]
+		public String SelectNetwork(Int32 number){
+			return new WiFiHelper().SelectNetwork(number);
+		}
+
+		[Route(Program.APIROOT + "[controller]/add")]
+		[HttpGet]
+		public String AddNetwork(String ssid, String passphrase){
+			return new WiFiHelper().AddNetwork(ssid, passphrase);
 		}
 	}
 }
