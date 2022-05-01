@@ -22,7 +22,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		//[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public async Task<List<WiFiInfo>> GetActiveRouteId() {
+		public async Task<List<WiFiInfo>> GetNetworks() {
 			return await new WiFiHelper().GetNetworksAsync();
 		}
 	}

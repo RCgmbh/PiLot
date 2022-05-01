@@ -17,8 +17,8 @@ namespace PiLot.Utils.OS {
         private const String SCANCMD = "wpa_cli scan";
 		private const String LISTSCANRESULTSCMD = "wpa_cli scan_result";
         private const String ADDNETWORKCMD = "wpa_cli add_network";
-        private const String SETSSIDCMD = "wpa_cli set_network {0} ssid \"{1}\"";
-        private const String SETPWDCMD = "wpa_cli set_network {0} psk \"{1}\"";
+        private const String SETSSIDCMD = "wpa_cli set_network {0} ssid '\"{1}\"'"; // ssid to HEX, if not with '" "'!
+        private const String SETPWDCMD = "wpa_cli set_network {0} psk '\"{1}\"'";
 		private const String SELECTNETWORKCMD = "wpa_cli set_network {0}";
         
         private SystemHelper systemHelper;
@@ -37,6 +37,9 @@ namespace PiLot.Utils.OS {
             return result;
         }
 
+        /// <summary>
+        /// populates a list of known networks
+        /// </summary>
         private List<WiFiInfo> ReadKnownNetworks(){
             List<WiFiInfo> result = new List<WiFiInfo>();
             String cmdResult = this.systemHelper.CallCommand("sudo", LISTKNOWNNETWORKSCMD);
@@ -52,6 +55,13 @@ namespace PiLot.Utils.OS {
             return result;
         }
 
+        /// <summary>
+        /// This adds the list of currently available networks to the known networks. For known
+        /// networks that are currently available, the availability information will be added to
+        /// the known network, resulting in a list of distinct networks.
+        /// <param name="pWaitSeconds">The time to wait between scan and list results</param>
+        /// <param name="pKnownNetworks">The list of known networks, not null</param>
+        /// </summary>
         private async Task<List<WiFiInfo>> SearchNetworksAsync(Int32 pWaitSeconds, List<WiFiInfo> pKnownNetworks){
             List<WiFiInfo> result = pKnownNetworks;
             this.systemHelper.CallCommand("sudo", SCANCMD);
