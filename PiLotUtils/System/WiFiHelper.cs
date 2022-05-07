@@ -8,18 +8,10 @@ namespace PiLot.Utils.OS {
 
 	/// <summary>
 	/// Helper for interacting with wpa_cli, allowing to list and connect to 
-    /// wireless networks.
+	/// wireless networks.
 	/// </summary>
 	public class WiFiHelper {
 
-		//private const String LISTKNOWNNETWORKSCMD = "wpa_cli list_networks";
-        //private const String SCANCMD = "wpa_cli scan";
-		//private const String LISTSCANRESULTSCMD = "wpa_cli scan_result";
-        //private const String ADDNETWORKCMD = "wpa_cli add_network";
-        //private const String SETSSIDCMD = "wpa_cli set_network {0} ssid \"{1}\"";
-        //private const String SETPWDCMD = ;
-		//private const String SELECTNETWORKCMD = ;
-        
         private SystemHelper systemHelper;
 
         public WiFiHelper(){
@@ -31,7 +23,7 @@ namespace PiLot.Utils.OS {
         /// known but currently not available
         /// </summary>
 		public async Task<List<WiFiInfo>> GetNetworksAsync(){
-            List<WiFiInfo> result = this.ReadKnownNetworks();
+			List<WiFiInfo> result = this.ReadKnownNetworks();
             result = await this.SearchNetworksAsync(5, result);
             return result;
         }
