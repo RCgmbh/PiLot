@@ -53,6 +53,7 @@ PiLot.Utils.Loader = (function () {
 			},
 			admin: {
 				overview: 'admin',
+				wifi: 'wifi',
 				services: 'services',
 				log: 'logs',
 				status: 'status',
@@ -264,6 +265,10 @@ PiLot.Utils.Loader = (function () {
 				case pages.system.admin.overview:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.AdminOverviewPage(); };
+					break;
+				case pages.system.admin.wifi:
+					dependencies = [defaultScripts, adminScripts];
+					startAction = function () { new PiLot.View.Admin.WiFiPage(); };
 					break;
 				case pages.system.admin.services:
 					dependencies = [defaultScripts, adminScripts];

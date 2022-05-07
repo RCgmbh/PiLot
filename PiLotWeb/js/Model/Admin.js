@@ -38,10 +38,30 @@ PiLot.Model.Admin = (function () {
 		return await PiLot.Utils.Common.getFromServerAsync ('/Services');
 	}
 
+	/**
+	 * Gets the list of known or available wireless networks 
+	 * @returns {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
+	 * */
+	var getWiFiInfosAsync = async function () {
+		//return await PiLot.Utils.Common.getFromServerAsync('/WiFi');
+		return JSON.parse(`
+			[
+				{"ssid":"nda-85236","isKnown":true,"isAvailable":true,"number":0,"isConnected":true,"signalStrength":-47},
+				{"ssid":"QL-5746","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-33},
+				{"ssid":"pilot4","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-23},
+				{"ssid":"hln-53812","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-86},
+				{"ssid":"tbo-89550","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-79},
+				{"ssid":"NTGR_VMB_1500305680","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-82},
+				{"ssid":"QL-52383","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-83}
+			]
+		`);
+	}
+
 	return {
 		LogFilesLoader: LogFilesLoader,
 		setServerTime: setServerTime,
-		getServicesAsync: getServicesAsync
+		getServicesAsync: getServicesAsync,
+		getWiFiInfosAsync: getWiFiInfosAsync
 	};
 
 })();

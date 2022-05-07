@@ -12,6 +12,12 @@ PiLot.Templates.Admin = {
 				<span class="label" data-text="time"></span>
 			</div>
 		</a>
+		<a href="" class="lnkWiFi tile big">
+			<div>
+				<span class="symbol"><i class="icon-connection"></i></span>
+				<span class="label" data-text="wifi"></span>
+			</div>
+		</a>
 		<a href="" class="lnkServices tile big">
 			<div>
 				<span class="symbol"><i class="icon-cogs"></i></span>
@@ -86,6 +92,26 @@ PiLot.Templates.Admin = {
 			</div>
 			<div>
 				<span class="lblStatus" data-text="loadingStatus"></span>
+			</div>
+		</div>
+	`,
+
+	wifiPage: `
+		<div class="contentPadding">
+			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>
+			<i class="icon-hour-glass icoWait" style="position:absolute; right: 2em;" hidden></i>
+			<div class="plhNetworks" style="max-width: 54em;"></div>
+		</div>
+	`,
+
+	networkInfo: `
+		<div class="marginBottomSmall lnkNetwork" style="display:flex">
+			<div style="min-width:2.5em;">
+				<i class="icon-wifi-low icoWeak"></i><i class="icon-wifi-mid icoMedium"></i><i class="icon-wifi-full icoStrong"></i>
+			</div>
+			<a class="lnkName" href="#" style="flex-grow:1;" data-title="wifiConnect"></a>
+			<div style="min-width:4.5em; text-align:right;">
+				<i class="icon-checkmark icoConnected marginRight" data-title="wifiConnected"></i><a class="lnkForget" href="#" data-title="wifiForget"><i class="icon-cross"></i></a>
 			</div>
 		</div>
 	`,

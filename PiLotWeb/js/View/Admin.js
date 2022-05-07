@@ -23,6 +23,7 @@ PiLot.View.Admin = (function () {
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.adminOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.system.admin.time));
+			pageContent.querySelector('.lnkWiFi').setAttribute('href', loader.createPageLink(loader.pages.system.admin.wifi));
 			pageContent.querySelector('.lnkServices').setAttribute('href', loader.createPageLink(loader.pages.system.admin.services));
 			pageContent.querySelector('.lnkSystemStatus').setAttribute('href', loader.createPageLink(loader.pages.system.admin.status));
 			pageContent.querySelector('.lnkLog').setAttribute('href', loader.createPageLink(loader.pages.system.admin.log));
@@ -285,6 +286,52 @@ PiLot.View.Admin = (function () {
 		}
 	};
 
+	/** The page showing the list of available wireless networks and allowing to connect to them */
+	var WiFiPage = function () {
+
+		this.plhNetworks = null;
+		this.icoWait = null;
+		this.initializeAsync();
+
+	};
+
+	WiFiPage.prototype = {
+
+		initializeAsync: async function () {
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
+			await this.drawAsync();
+			this.loadNetworksAsync();
+		},
+
+		drawAsync: async function () {
+			const loader = PiLot.Utils.Loader;
+			const contentArea = loader.getContentArea();
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiPage));
+			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
+			this.plhNetworks = contentArea.querySelector('.plhNetworks');
+			this.icoWait = contentArea.querySelector('.icoWait');
+		},
+
+		loadNetworksAsync: async function () {
+			this.plhNetworks.clear();
+			this.icoWait.hidden = false;
+			const networks = await PiLot.Model.Admin.getWiFiInfosAsync();
+			networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
+			for (let i = 0; i < networks.length; i++) {
+				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.networkInfo);
+				this.plhNetworks.appendChild(node);
+				node.querySelector('.lnkName').innerText = networks[i].ssid;
+				const level = Math.ceil(networks[i].signalStrength / -33);
+				node.querySelector('.icoWeak').hidden = (level != 3);
+				node.querySelector('.icoMedium').hidden = (level != 2);
+				node.querySelector('.icoStrong').hidden = (level != 1);
+				node.querySelector('.icoConnected').hidden = !networks[i].isConnected;
+				node.querySelector('.lnkForget').hidden = !networks[i].isKnown;
+			}
+			this.icoWait.hidden = true;
+		},
+	};
+
 	/** A Page listing the logfiles and allowing to open them */
 	var LogFilesPage = function () {
 		this.dataLoader = null;
@@ -432,6 +479,7 @@ PiLot.View.Admin = (function () {
 	/// return the classes
 	return {
 		AdminOverviewPage: AdminOverviewPage,
+		WiFiPage: WiFiPage,
 		BoatTimePage: BoatTimePage,
 		SystemStatusPage: SystemStatusPage,
 		ServicesPage: ServicesPage,

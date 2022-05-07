@@ -230,8 +230,10 @@ PiLot.View.Common = (function () {
 			var result = 0; // equally distributed
 			var heightRatio = this.containers[0].offsetHeight / this.containers.last().offsetHeight;
 			if (heightRatio > 2) { // the first container is bigger than the last 
-				var containerRatio = this.homeContainer.offsetHeight / this.containers[0].offsetHeight;
-				if (containerRatio > 1.1) { // the outer container is significantly higher than the inner
+				//var containerRatio = this.homeContainer.offsetHeight / this.containers[0].offsetHeight;
+				//if (containerRatio > 1.1) { // the outer container is significantly higher than the inner
+				let containerRatio = this.homeContainer.offsetHeight / this.homeContainer.offsetWidth;
+				if (containerRatio > 1) {
 					result = 2; // rows
 				} else {
 					result = 3 // columns

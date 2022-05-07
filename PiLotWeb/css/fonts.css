@@ -64,6 +64,9 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-wifi-low:before { content: "\ebf0"; }
+.icon-wifi-mid:before { content: "\ebf1"; }
+.icon-wifi-full:before { content: "\ebf2"; }
 .icon-picture1:before { content: "\e00f"; }
 .icon-pictures1:before { content: "\e010"; }
 .icon-camera1:before { content: "\e012"; }
