@@ -328,6 +328,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		btnConnect_click: function (pSSID) {
+			this.hideKeyDialog();
 			this.icoWait.hidden = false;
 			const key = this.pnlNetworkKey.querySelector('.tbWifiKey').value;
 			this.wifiHelper.addWiFiAsync(pSSID, key);

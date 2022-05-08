@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
@@ -39,8 +40,8 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPost]
-		public String AddNetwork(String ssid, string passphrase){
-			return new WiFiHelper().AddNetwork(ssid, passphrase);
+		public String AddNetwork(AddNetworkData pData){
+			return new WiFiHelper().AddNetwork(pData.SSID, pData.Passphrase);
 		}
 
 		/// <summary>
@@ -70,6 +71,19 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		public String GetDeleteNetwork(Int32 number){
 			return new WiFiHelper().RemoveNetwork(number);
+		}
+
+		/// <summary>
+		/// Helper class that encapsulates the payload for the AddNetwork method
+		/// </summary>
+		public class AddNetworkData {
+
+			[JsonPropertyName("ssid")]
+			public String SSID { get; set; }
+
+			[JsonPropertyName("passphrase")]
+			public string Passphrase { get; set; }
+
 		}
 
 	}
