@@ -331,7 +331,8 @@ PiLot.View.Admin = (function () {
 			this.hideKeyDialog();
 			this.icoWait.hidden = false;
 			const key = this.pnlNetworkKey.querySelector('.tbWifiKey').value;
-			this.wifiHelper.addWiFiAsync(pSSID, key);
+			await this.wifiHelper.addWiFiAsync(pSSID, key);
+			this.loadNetworksAsync();
 		},
 
 		btnCancel_click: function () {

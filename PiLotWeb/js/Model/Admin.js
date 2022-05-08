@@ -81,7 +81,7 @@ PiLot.Model.Admin = (function () {
 		 * Selects a known network
 		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
 		 */
-		selectWifiAsync: async function (pNumber) {
+		selectWiFiAsync: async function (pNumber) {
 			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/${pNumber}/select`);
 		},
 
