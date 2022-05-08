@@ -99,14 +99,18 @@ PiLot.Templates.Admin = {
 	wifiPage: `
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>
-			<i class="icon-hour-glass icoWait" style="position:absolute; right: 2em;" hidden></i>
+			<div style="display:flex; justify-content:space-between" class="marginRight margin-bottom">
+				<a href="#" class="lnkRefresh"><i class="icon-spinner11"></i></a>
+				<i class="icon-hour-glass icoWait" hidden></i>
+			</div>
+			
 			<div class="pnlNetworkKey dialogPanel" style="width: 21em;" hidden>
 				<div class="fullWidth right"><a href="#" class="btnClose marginRightSmall"><i class="icon-cross"></i></a></div>
 				<div class="paddingAll">
 					<span class="lblDialogTitle block bold marginBottom" data-text="wifiConnectX"></span>
 					<div class="marginBottom">
 						<span data-text="wifiKey" class="input6 "></span>
-						<input type="password" class="tbWifiKey input12" />
+						<input type="password" class="tbWifiKey input12" autocomplete="off" value="" />
 					</div>
 					<a href="#" class="btnCancel linkButton input6" data-text="cancel"></a>
 					<a href="#" class="btnConnect linkButton input6" data-text="wifiConnect"></a>
@@ -117,7 +121,7 @@ PiLot.Templates.Admin = {
 	`,
 
 	networkInfo: `
-		<div class="lnkNetwork" style="display:flex;">
+		<div class="lnkNetwork" style="display:flex; border-bottom: 1px dotted #999;">
 			<div style="width:2em;">
 				<i class="icon-wifi-low icoWeak"></i><i class="icon-wifi-mid icoMedium"></i><i class="icon-wifi-full icoStrong"></i>
 			</div>

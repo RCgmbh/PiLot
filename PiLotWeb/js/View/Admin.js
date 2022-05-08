@@ -307,11 +307,17 @@ PiLot.View.Admin = (function () {
 			this.loadNetworksAsync();
 		},
 
+		lnkRefresh_click: function(){
+			this.loadNetworksAsync();
+		},
+
 		lnkName_click: function (pSSID, pIsKnown, pNumber) {
 			if (!pIsKnown) {
 				this.showKeyDialog(pSSID);
 			} else {
+				this.icoWait.hidden = false;
 				this.wifiHelper.selectWiFiAsync(pNumber);
+				this.loadNetworksAsync();
 			}
 		},
 
@@ -343,6 +349,7 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiPage));
+			contentArea.querySelector('.lnkRefresh').addEventListener('click', this.lnkRefresh_click.bind(this));
 			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			this.plhNetworks = contentArea.querySelector('.plhNetworks');
 			this.icoWait = contentArea.querySelector('.icoWait');
@@ -377,6 +384,8 @@ PiLot.View.Admin = (function () {
 		showKeyDialog: function (pSSID) {
 			this.pnlNetworkKey.hidden = false;
 			this.pnlNetworkKey.querySelector('.lblDialogTitle').innerText = PiLot.Utils.Language.getText('wifiConnectX').replace('{{x}}', pSSID);
+			this.pnlNetworkKey.querySelector('.tbWifiKey').focus();
+			this.pnlNetworkKey.querySelector('.tbWifiKey').select();
 			this.pnlNetworkKey.querySelector('.btnConnect').onclick = this.btnConnect_click.bind(this, pSSID);
 		},
 
