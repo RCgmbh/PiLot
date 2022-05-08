@@ -29,7 +29,7 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
-        /// Adds a new network with SSID and passphrase. Returns the results of the
+        /// Adds a new network with SSID and passphrase and selects it. Returns the results of the
         /// involved commands.
         /// </summary>
         public String AddNetwork(String pSSID, String pPassphrase){
@@ -40,6 +40,7 @@ namespace PiLot.Utils.OS {
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\""));
                 String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\""));
+				cmdResults.Add(this.SelectNetwork(networkNumber));
             } else{
                 cmdResults.Add($"Unexpected result for Add netowrk: {addResult}");
             }

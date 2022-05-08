@@ -30,12 +30,6 @@
 .pnlPublish .photos > div .label label{font-size:0.75em; }
 
 .pnlJobInfo { 
-	position: absolute;
-	border: 1px solid #666;
-	background-color:white;
-	box-shadow: 0.25em 0.25em 0.5em #666;
-	z-index:3500;
-	left:0; right:0; margin-left:auto; margin-right: auto;
 	width: 30em; min-width: 20em; max-width: 95vw;
 }
 

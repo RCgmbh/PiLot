@@ -100,16 +100,28 @@ PiLot.Templates.Admin = {
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>
 			<i class="icon-hour-glass icoWait" style="position:absolute; right: 2em;" hidden></i>
+			<div class="pnlNetworkKey dialogPanel" style="width: 21em;" hidden>
+				<div class="fullWidth right"><a href="#" class="btnClose marginRightSmall"><i class="icon-cross"></i></a></div>
+				<div class="paddingAll">
+					<span class="lblDialogTitle block bold marginBottom" data-text="wifiConnectX"></span>
+					<div class="marginBottom">
+						<span data-text="wifiKey" class="input6 "></span>
+						<input type="password" class="tbWifiKey input12" />
+					</div>
+					<a href="#" class="btnCancel linkButton input6" data-text="cancel"></a>
+					<a href="#" class="btnConnect linkButton input6" data-text="wifiConnect"></a>
+				</div>
+			</div>
 			<div class="plhNetworks" style="max-width: 54em;"></div>
 		</div>
 	`,
 
 	networkInfo: `
-		<div class="marginBottomSmall lnkNetwork" style="display:flex">
-			<div style="min-width:2.5em;">
+		<div class="lnkNetwork" style="display:flex;">
+			<div style="width:2em;">
 				<i class="icon-wifi-low icoWeak"></i><i class="icon-wifi-mid icoMedium"></i><i class="icon-wifi-full icoStrong"></i>
 			</div>
-			<a class="lnkName" href="#" style="flex-grow:1;" data-title="wifiConnect"></a>
+			<a class="lnkName blockLink" href="#" style="flex-grow:1; padding: 0.125em 0.25em;" data-title="wifiConnect"></a>
 			<div style="min-width:4.5em; text-align:right;">
 				<i class="icon-checkmark icoConnected marginRight" data-title="wifiConnected"></i><a class="lnkForget" href="#" data-title="wifiForget"><i class="icon-cross"></i></a>
 			</div>

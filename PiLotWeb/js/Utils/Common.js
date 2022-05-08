@@ -193,7 +193,7 @@ PiLot.Utils.Common = {
 
 	/**
 	 * Deletes a resource from the server and returns true, if
-	 * the resource was found, and false els
+	 * the resource was found, and false else
 	 * @param {string} pApiPath - the relative Pat, as in /Ping/1
 	 */
 	deleteFromServerAsync: async function (pApiPath) {

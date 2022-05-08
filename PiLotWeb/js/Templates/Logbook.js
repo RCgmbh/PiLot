@@ -220,7 +220,7 @@ PiLot.Templates.Logbook = {
 				<div class="marginBottom">
 					<label class="col6 inlineBlock" data-text="publishTarget">:</label><select class="ddlPublishTarget input8"></select> <i class="icoWait icon-hour-glass" hidden></i>
 				</div>
-				<div class="pnlJobInfo marginAll paddingAllSmall" hidden>
+				<div class="pnlJobInfo dialogPanel marginAll paddingAllSmall" hidden>
 					<div class="fullWidth right"><a href="#" class="btnClose"><i class="icon-cancel3"></i></a></div>
 					<div class="bold marginBottom" data-text="jobStatus"></div>
 					<div class="marginBottomSmall">
