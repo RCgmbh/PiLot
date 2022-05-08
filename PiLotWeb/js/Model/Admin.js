@@ -48,8 +48,8 @@ PiLot.Model.Admin = (function () {
 		 * @returns {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
 		getWiFiInfosAsync:  async function () {
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi');
-			/*await this.sleep(5000);
+			/*return await PiLot.Utils.Common.getFromServerAsync('/WiFi');*/
+			await this.sleep(5000);
 			return JSON.parse(`
 				[
 					{"ssid":"nda-85236","isKnown":true,"isAvailable":true,"number":0,"isConnected":true,"signalStrength":-47},
@@ -60,7 +60,7 @@ PiLot.Model.Admin = (function () {
 					{"ssid":"NTGR_VMB_1500305680","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-82},
 					{"ssid":"QL-52383","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-83}
 				]
-			`);*/
+			`);
 		},
 
 		sleep: function(milliseconds) {
