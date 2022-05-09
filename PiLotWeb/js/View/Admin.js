@@ -291,9 +291,11 @@ PiLot.View.Admin = (function () {
 
 		this.wifiHelper = null;
 
+		this.icoWait = null;
+		this.lnkRefresh = null;
 		this.plhNetworks = null;
 		this.pnlNetworkKey = null;
-		this.icoWait = null;
+		this.pnlOutput = null;
 		this.initializeAsync();
 
 	};
@@ -315,16 +317,18 @@ PiLot.View.Admin = (function () {
 			if (!pIsKnown) {
 				this.showKeyDialog(pSSID);
 			} else {
-				this.icoWait.hidden = false;
-				this.wifiHelper.selectWiFiAsync(pNumber);
+				this.showHideWait(true);
+				const output = this.wifiHelper.selectWiFiAsync(pNumber);
+				this.showOutput(output);
 				this.loadNetworksAsync();
 			}
 		},
 
 		lnkForget_click: async function (pSSID, pNumber) {
 			if (window.confirm(PiLot.Utils.Language.getText('wifiConfirmForgetX').replace('{{x}}', pSSID))) {
-				this.icoWait.hidden = false;
-				await this.wifiHelper.forgetWiFiAsync(pNumber);
+				this.showHideWait(true);
+				const output = await this.wifiHelper.forgetWiFiAsync(pNumber);
+				this.showOutput(output);
 				await this.loadNetworksAsync();
 			}
 		},
@@ -337,7 +341,8 @@ PiLot.View.Admin = (function () {
 			this.hideKeyDialog();
 			this.icoWait.hidden = false;
 			const key = this.pnlNetworkKey.querySelector('.tbWifiKey').value;
-			await this.wifiHelper.addWiFiAsync(pSSID, key);
+			const output = await this.wifiHelper.addWiFiAsync(pSSID, key);
+			this.showOutput(output);
 			this.loadNetworksAsync();
 		},
 
@@ -345,22 +350,34 @@ PiLot.View.Admin = (function () {
 			this.hideKeyDialog();
 		},
 
+		lnkStatus_click: function () {
+			
+		},
+
+		lnkClear_click: function () {
+			this.pnlOutput.innerText = "";
+		},
+
 		drawAsync: async function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiPage));
-			contentArea.querySelector('.lnkRefresh').addEventListener('click', this.lnkRefresh_click.bind(this));
+			this.lnkRefresh = contentArea.querySelector('.lnkRefresh');
+			this.lnkRefresh.addEventListener('click', this.lnkRefresh_click.bind(this));
 			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			this.plhNetworks = contentArea.querySelector('.plhNetworks');
 			this.icoWait = contentArea.querySelector('.icoWait');
 			this.pnlNetworkKey = contentArea.querySelector('.pnlNetworkKey');
 			this.pnlNetworkKey.querySelector('.btnClose').addEventListener('click', this.btnClose_click.bind(this));
 			this.pnlNetworkKey.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
+			this.pnlOutput = contentArea.querySelector('.pnlOutput');
+			contentArea.querySelector('.lnkStatus').addEventListener('click', this.lnkStatus_click.bind(this));
+			contentArea.querySelector('.lnkClear').addEventListener('click', this.lnkClear_click.bind(this));
 		},
 
 		loadNetworksAsync: async function () {
 			this.plhNetworks.clear();
-			this.icoWait.hidden = false;
+			this.showHideWait(true);
 			const networks = await this.wifiHelper.getWiFiInfosAsync();
 			networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
 			for (let i = 0; i < networks.length; i++) {
@@ -378,7 +395,7 @@ PiLot.View.Admin = (function () {
 				lnkForget.hidden = !networks[i].isKnown;
 				lnkForget.addEventListener('click', this.lnkForget_click.bind(this, networks[i].ssid, networks[i].number))
 			}
-			this.icoWait.hidden = true;
+			this.showHideWait(false);
 		},
 
 		showKeyDialog: function (pSSID) {
@@ -392,6 +409,16 @@ PiLot.View.Admin = (function () {
 		hideKeyDialog: function () {
 			this.pnlNetworkKey.hidden = true;
 		},
+
+		showHideWait: function (pShow) {
+			this.icoWait.hidden = !pShow;
+			this.lnkRefresh.hidden = pShow
+		},
+
+		showOutput: function (pOutput) {
+			this.pnlOutput.insertAdjacentText(pOutput, beforeend);
+			this.pnlOutput.scrollTop = this.pnlOutput.scrollHeight;
+		}
 	};
 
 	/** A Page listing the logfiles and allowing to open them */

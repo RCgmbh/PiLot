@@ -276,6 +276,7 @@ a.tile.stretch{width:100%; height:100%; border-radius:0;}
 .touchButton.hidden{display:none;}
 
 a.blockLink:hover{background-color:#eee;}
+a.round{background-color:black; color:white; display:inline-block; height:1.5em; width:1.5em; border-radius:0.75em; text-align:center; box-shadow: 0.125em 0.125em 0.25em -0.125em rgba(0, 0, 0, 0.75); }
 
 /* TABLES */
 table.dgTable{border-width:1px 0px 1px 0px;border-style:solid;border-color:#4992FF;border-spacing:0px; width:100%;clear:both;}
