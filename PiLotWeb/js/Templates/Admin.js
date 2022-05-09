@@ -99,9 +99,12 @@ PiLot.Templates.Admin = {
 	wifiPage: `
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>
+			<div class="pnlOutput marginBottom" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; white-space: pre;
+			border:3px solid; border-color: #333 #bbb #bbb #333; overflow:auto;"></div>
 			<div style="text-align:right; max-width:54em;" class="marginRight marginBottom">
 				<a href="#" class="lnkRefresh"><i class="icon-spinner11"></i></a>
 				<i class="icon-hour-glass icoWait" hidden></i>
+				<a href="#" class="lnkStatus marginLeft"><i class="icon-info"></i></a>
 			</div>
 			<div class="pnlNetworkKey dialogPanel" style="width: 21em;" hidden>
 				<div class="fullWidth right"><a href="#" class="btnClose marginRightSmall"><i class="icon-cross"></i></a></div>
@@ -115,13 +118,7 @@ PiLot.Templates.Admin = {
 					<a href="#" class="btnConnect linkButton input6" data-text="wifiConnect"></a>
 				</div>
 			</div>
-			<div class="plhNetworks marginBottom" style="max-width: 54em;"></div>
-			<div style="text-align:right; max-width:54em;" class="marginRight marginBottom">
-				<a href="#" class="lnkStatus round marginRight" style="font-family:courier;">i</a>
-				<a href="#" class="lnkClear round" style="font-family:courier;">x</a>
-			</div>
-			<div class="pnlOutput" style="font-family:courier; color:white; background-color:black; max-width:54em; max-height:50vh; overflow:auto; padding: 0.5em; white-space: pre;
-			border:3px solid; border-color: #333 #bbb #bbb #333">Output</div>
+			<div class="plhNetworks marginBottom marginRight" style="max-width: 54em;"></div>
 		</div>
 	`,
 

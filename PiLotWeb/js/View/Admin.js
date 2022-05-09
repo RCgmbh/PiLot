@@ -313,13 +313,13 @@ PiLot.View.Admin = (function () {
 			this.loadNetworksAsync();
 		},
 
-		lnkName_click: function (pSSID, pIsKnown, pNumber) {
+		lnkName_click: async function (pSSID, pIsKnown, pNumber) {
 			if (!pIsKnown) {
 				this.showKeyDialog(pSSID);
 			} else {
 				this.showHideWait(true);
-				const output = this.wifiHelper.selectWiFiAsync(pNumber);
-				this.showOutput(output);
+				const output = await this.wifiHelper.selectWiFiAsync(pNumber);
+				this.showOutput(output.data);
 				this.loadNetworksAsync();
 			}
 		},
@@ -328,7 +328,7 @@ PiLot.View.Admin = (function () {
 			if (window.confirm(PiLot.Utils.Language.getText('wifiConfirmForgetX').replace('{{x}}', pSSID))) {
 				this.showHideWait(true);
 				const output = await this.wifiHelper.forgetWiFiAsync(pNumber);
-				this.showOutput(output);
+				this.showOutput(`delete ${output ? 'OK\n' : 'FAILED\n'}`);
 				await this.loadNetworksAsync();
 			}
 		},
@@ -342,7 +342,7 @@ PiLot.View.Admin = (function () {
 			this.icoWait.hidden = false;
 			const key = this.pnlNetworkKey.querySelector('.tbWifiKey').value;
 			const output = await this.wifiHelper.addWiFiAsync(pSSID, key);
-			this.showOutput(output);
+			this.showOutput(output.data);
 			this.loadNetworksAsync();
 		},
 
@@ -350,8 +350,9 @@ PiLot.View.Admin = (function () {
 			this.hideKeyDialog();
 		},
 
-		lnkStatus_click: function () {
-			
+		lnkStatus_click: async function () {
+			const output = await this.wifiHelper.getWiFiStatus();
+			this.showOutput(output);
 		},
 
 		lnkClear_click: function () {
@@ -372,12 +373,12 @@ PiLot.View.Admin = (function () {
 			this.pnlNetworkKey.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			this.pnlOutput = contentArea.querySelector('.pnlOutput');
 			contentArea.querySelector('.lnkStatus').addEventListener('click', this.lnkStatus_click.bind(this));
-			contentArea.querySelector('.lnkClear').addEventListener('click', this.lnkClear_click.bind(this));
 		},
 
 		loadNetworksAsync: async function () {
 			this.plhNetworks.clear();
 			this.showHideWait(true);
+			this.showOutput('loading networks...');
 			const networks = await this.wifiHelper.getWiFiInfosAsync();
 			networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
 			for (let i = 0; i < networks.length; i++) {
@@ -395,6 +396,7 @@ PiLot.View.Admin = (function () {
 				lnkForget.hidden = !networks[i].isKnown;
 				lnkForget.addEventListener('click', this.lnkForget_click.bind(this, networks[i].ssid, networks[i].number))
 			}
+			this.showOutput('done\n');
 			this.showHideWait(false);
 		},
 
@@ -416,7 +418,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		showOutput: function (pOutput) {
-			this.pnlOutput.insertAdjacentText(pOutput, beforeend);
+			this.pnlOutput.insertAdjacentText('beforeend', pOutput);
 			this.pnlOutput.scrollTop = this.pnlOutput.scrollHeight;
 		}
 	};

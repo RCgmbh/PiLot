@@ -26,6 +26,16 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Gets the current wpa_cli status
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/status")]
+		[HttpGet]
+		[ServiceFilter(typeof(SystemAuthorizationFilter))]
+		public String GetStatus() {
+			return new WiFiHelper().GetStatus();
+		}
+
+		/// <summary>
 		/// Connects to the network with number. The number is taken
 		/// from the result of GetNetworks().
 		/// </summary>
