@@ -64,6 +64,14 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
+        /// Gets the current WiFi status
+        /// </summary>
+        public String GetStatus(){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli status");
+            return cmdResult;
+        }
+
+        /// <summary>
         /// populates a list of known networks
         /// </summary>
         private List<WiFiInfo> ReadKnownNetworks(){
