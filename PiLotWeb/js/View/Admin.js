@@ -384,6 +384,7 @@ PiLot.View.Admin = (function () {
 			this.plhNetworks.clear();
 			this.showHideWait(true);
 			this.showOutput('loading networks...');
+			const interval = window.setInterval(this.showOutput.bind(this, '.'), 1000);
 			const networks = await this.wifiHelper.getWiFiInfosAsync();
 			if (networks) {
 				networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
@@ -406,12 +407,14 @@ PiLot.View.Admin = (function () {
 			} else {
 				this.showOutput(' failed\n');
 			}
+			window.clearInterval(interval);
 			this.showHideWait(false);
 		},
 
 		showKeyDialog: function (pSSID) {
 			this.pnlNetworkKey.hidden = false;
 			this.pnlNetworkKey.querySelector('.lblDialogTitle').innerText = PiLot.Utils.Language.getText('wifiConnectX').replace('{{x}}', pSSID);
+			this.pnlNetworkKey.querySelector('.tbWifiKey').value='';
 			this.pnlNetworkKey.querySelector('.tbWifiKey').focus();
 			this.pnlNetworkKey.querySelector('.tbWifiKey').select();
 			this.pnlNetworkKey.querySelector('.btnConnect').onclick = this.btnConnect_click.bind(this, pSSID);
