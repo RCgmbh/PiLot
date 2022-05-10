@@ -307,6 +307,11 @@ PiLot.View.Admin = (function () {
 			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
 			await this.drawAsync();
 			this.loadNetworksAsync();
+			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+		},
+
+		authHelper_login: function () {
+			this.loadNetworksAsync();
 		},
 
 		lnkRefresh_click: function(){
@@ -380,23 +385,27 @@ PiLot.View.Admin = (function () {
 			this.showHideWait(true);
 			this.showOutput('loading networks...');
 			const networks = await this.wifiHelper.getWiFiInfosAsync();
-			networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
-			for (let i = 0; i < networks.length; i++) {
-				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.networkInfo);
-				this.plhNetworks.appendChild(node);
-				const lnkName = node.querySelector('.lnkName');
-				lnkName.innerText = networks[i].ssid;
-				lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isKnown, networks[i].number));
-				const level = Math.ceil(networks[i].signalStrength / -33);
-				node.querySelector('.icoWeak').hidden = (level != 3);
-				node.querySelector('.icoMedium').hidden = (level != 2);
-				node.querySelector('.icoStrong').hidden = (level != 1);
-				node.querySelector('.icoConnected').hidden = !networks[i].isConnected;
-				const lnkForget = node.querySelector('.lnkForget');
-				lnkForget.hidden = !networks[i].isKnown;
-				lnkForget.addEventListener('click', this.lnkForget_click.bind(this, networks[i].ssid, networks[i].number))
+			if (networks) {
+				networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
+				for (let i = 0; i < networks.length; i++) {
+					const node = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.networkInfo);
+					this.plhNetworks.appendChild(node);
+					const lnkName = node.querySelector('.lnkName');
+					lnkName.innerText = networks[i].ssid;
+					lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isKnown, networks[i].number));
+					const level = Math.ceil(networks[i].signalStrength / -33);
+					node.querySelector('.icoWeak').hidden = (level != 3);
+					node.querySelector('.icoMedium').hidden = (level != 2);
+					node.querySelector('.icoStrong').hidden = (level != 1);
+					node.querySelector('.icoConnected').hidden = !networks[i].isConnected;
+					const lnkForget = node.querySelector('.lnkForget');
+					lnkForget.hidden = !networks[i].isKnown;
+					lnkForget.addEventListener('click', this.lnkForget_click.bind(this, networks[i].ssid, networks[i].number))
+				}
+				this.showOutput(' done\n');
+			} else {
+				this.showOutput(' failed\n');
 			}
-			this.showOutput('done\n');
 			this.showHideWait(false);
 		},
 
