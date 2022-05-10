@@ -7,7 +7,7 @@
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *  
- * The full license text is available at https://github.com/Didosa/pilotCore/blob/master/LICENSE.
+ * The full license text is available at https://github.com/RCgmbh/PiLot/blob/master/LICENSE.
  *  
  * THIS PROGRAM DOES IN NO WAY REPLACE SUITABLE NAVIGATION EQUIPMENT, UP-TO-DATE OFFICIAL CHARTS OR EDUCATED SEAMANSHIP.
  **/
