@@ -113,7 +113,7 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 }
 body.night .dialogPanel { background-color: black; }
 
-.sideMenu{	width:4em; position:absolute; height:auto; min-height:3em; margin:0.5em; padding:0.5em; padding-bottom: 0.25em; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
+.sideMenu{	width:4em; position:absolute; height:auto; min-height:3em; margin:0.75em 0.25em; padding:0.5em; padding-bottom: 0.25em; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
 .sideMenu, .sideMenu a, .sideMenu a:hover, .sideMenu a:visited {color:#eee; }
 .sideMenu>.expandCollapse{text-align:center;width:3em;}
 .sideMenu>.expandCollapse>i{font-size:1.5em;}
@@ -346,13 +346,14 @@ a.btnUserInfo.active {color:#FFBF49;}
 
 /* start page control for boat setup */
 .startPageBoat { flex-grow: 1; display: flex; flex-direction: row; flex-wrap: wrap; }
-.startPageBoat .divImageContainer { flex-grow: 4; position: relative; margin: 0.25em; }
+.startPageBoat .divImageContainer { flex-grow: 4; position: relative; margin: 0.25em; display:flex; justify-content:center; }
 .startPageBoat .plhAlternativeSetups { flex-grow: 1; display: flex; flex-direction: row; flex-wrap: wrap; }
 .startPageBoat .plhAlternativeSetups.hidden{display:none;}
 .startPageBoat .divAlternativeSetup { flex-grow: 1; position: relative; min-width: 80%; margin: 0.25em; }
 
 /* start page layout including responsive */
-.homeContainer { display: grid; gap: 10px; grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; }
+.homeContainer { flex-grow:1; display: grid; gap: 10px; grid-template-rows: 1fr 1fr 1fr; grid-template-columns: 1fr 1fr 1fr; margin: 0.25em; }
+.homeContainer > div { display:flex; border-width: 1px 1px 0.5em 1px; border-style: solid; border-color: #768E96; }
 /* initial landscape layout: 1st box full height, 2-4 on the left in one column */
 .homeContainer > div:nth-child(1) { grid-row: 1/4; grid-column: 1/3; }
 .homeContainer > div:nth-child(2) { grid-row: 1/2; grid-column: 3/4; }
@@ -367,7 +368,7 @@ a.btnUserInfo.active {color:#FFBF49;}
 }
 /* reasonably large screen: four equally sized boxes */
 @media (min-height:800px) and (min-width:1250px) {
-	.homeContainer { grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr; }
+	.homeContainer { grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr; margin: 0.5em; }
 	.homeContainer > div:nth-child(1) { grid-row: 1/2; grid-column: 1/2; }
 	.homeContainer > div:nth-child(2) { grid-row: 1/2; grid-column: 2/3; }
 	.homeContainer > div:nth-child(3) { grid-row: 2/3; grid-column: 1/2; }
@@ -378,10 +379,9 @@ a.btnUserInfo.active {color:#FFBF49;}
 /*     NAMED ITEMS: TEXT AND COLORS      */
 /*****************************************/
 #header { background-color: #214372; }
-#hamburger { color: #fff; text-align: center; background-color: black; }
+#hamburger { text-align: center; }
 #hamburger > a { font-size: 1.5em; text-decoration: none; color: #fff; }
-#headerButtons > a { transition: color 0.5s;}
-#headerButtons > a.button { border:1px solid #666; background-color: #eee; }
+#headerButtons > a { color: #fff; }
 #headerButtons > a.button:hover, #headerButtons > a.btnUserInfo:hover { color: #FFBF49;}
 #clock { font-weight: 600; color: #fff; }
 #mainMenu { background-color: black; }
@@ -405,9 +405,9 @@ body.night #mainMenu > div > a:hover { color: #4992FF; }
 /* RESPONSIVE */
 /* Default: minimal */
 body { min-width: 20em; }
-#header { min-height: 1.5em; padding: 0.125em 0em; flex-grow: 0; top: 0px; position: sticky; display:flex; justify-content:space-between; }
+#header { min-height: 2em; padding: 0.125em 0em; flex-grow: 0; top: 0px; position: sticky; z-index:1115; display:flex; justify-content:space-between; }
 #main { display: flex; flex-grow: 1; }
-#hamburger { position: absolute; top: 0px; left: 0px; width: 3em; height: 3em; display: block; z-index: 2005; box-shadow: 0.125em 0.125em 0.25em rgba(125, 125, 125, 0.5); }
+#hamburger { width: 3em; display:inline-block; }
 #hamburger > a { height: 100%; }
 #headerButtons { flex-grow:1; display:flex; justify-content:flex-end; gap: 0.25em;}
 #headerButtons > a { }
@@ -417,21 +417,22 @@ body { min-width: 20em; }
 body.night #headerButtons .btnNightMode, #headerButtons .btnDayMode{display:none;}
 #headerButtons .btnNightMode, body.night #headerButtons .btnDayMode{display:flex;}
 #clock{ margin-right:1em; text-align: right; display:flex; flex-direction: column; justify-content:center;}
-#mainMenu { position:absolute; z-index: 1110; min-width: 10em; display: none; }
-#mainMenu > div { height: 4em; display:flex;}
-#mainMenu > div > a { padding: 0.5em 0.25em; flex-grow:1; }
+#mainMenu { display: none; min-width: 4em; width: 4em;  }
+#mainMenu > div { height: 4em; display:flex; justify-content: center;}
+#mainMenu > div > a { padding: 0.5em 0.25em; flex-grow:1; max-width: 2em; }
+#mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index:2000; }
 #content { flex-grow: 1; display: flex; }
 
 h1 { margin-left: 2em; }
 
-/* show side menu, just narrow. Show both day and night button */
-@media (min-width:600px) {
+/* show main menu, just narrow. Show both day and night button */
+@media (min-width:600px) and (min-height:420px) {
 	#hamburger { display: none; }
 	body.night #headerButtons .btnNightMode, #headerButtons .btnDayMode{display:flex;}
-	#mainMenu { position: relative; display: unset; min-width: 4em; flex-grow: 0;  }
+	#mainMenu { display: unset; min-width: 4em; flex-grow: 0;  }
 	#mainMenu > div > a { display: none; }
 	#mainMenu > div>a:nth-child(1) { display: inline-block; }
-	.sideMenu{margin-top:5em;}
+	#mainMenu.expanded { position: relative; width: unset; z-index:unset; }
 	h1 { margin-left: 0em; }
 }
 
@@ -444,7 +445,7 @@ h1 { margin-left: 2em; }
 /* show header full height */
 @media (min-height:600px) {
 	#header { min-height: 3em; padding: 0.25em 0em;}
-	#headerButtons > a.button { border-radius:0.25em; border-color:#333; }
+	#headerButtons > a.button { border:1px solid #333; border-radius:0.25em; color:unset; background-color: #eee;}
 }
 
 @media (max-width: 968px) { /* full width for dataContainerHalfNarrow*/

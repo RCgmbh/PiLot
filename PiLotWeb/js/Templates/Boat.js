@@ -4,7 +4,7 @@ PiLot.Templates = PiLot.Templates || {};
 PiLot.Templates.Boat = {
 
 	boatImageLink:
-		'<object *ngIf="data" type="image/svg+xml" style="height:100%; max-height:100%; max-width:100%; position:absolute;"></object>',
+		'<object type="image/svg+xml" style="height:100%; max-height:100%; max-width:100%; position:absolute;"></object>',
 
 	boatSetupForm: 
 		`<div class="boatSetupForm">

@@ -9,14 +9,7 @@ PiLot.Templates.Common = {
 
 	clock: `<span class="lblTime"></span><a class="lnkWarning hidden marginLeftSmaller red"><i class="icon-notice"></i></a>`,
 
-	startPage: `<div class="contentPadding" style="display:flex; flex-direction:column; height:100%;">
-			<div class="homeContainer"></div>
-		</div>`,
-
-	/*dayNightButtons: `
-		<a class="linkButton btnNightMode marginRightSmall" href="#" data-title="nightMode"><i class="icon-moon"></i></a> 
-		<a class="linkButton btnDayMode" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
-	`,*/
+	startPage: `<div class="homeContainer"></div>`,
 
 	dayNightButtons: `
 		<a class="btnNightMode button vCenter" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
