@@ -3,9 +3,9 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Common = {
 
-	mainMenuHamburger: '<a href="#"><i class="icon-menu"></i></a>',
+	mainMenuHamburger: '<a href="#" class="vCenter"><i class="icon-menu"></i></a>',
 	mainMenuSection: '<div></div>',
-	mainMenuLink: '<a class="navItem"></a>',
+	mainMenuLink: '<a></a>',
 
 	clock: `<span class="lblTime"></span><a class="lnkWarning hidden marginLeftSmaller red"><i class="icon-notice"></i></a>`,
 
@@ -13,9 +13,14 @@ PiLot.Templates.Common = {
 			<div class="homeContainer"></div>
 		</div>`,
 
-	dayNightButtons: `
+	/*dayNightButtons: `
 		<a class="linkButton btnNightMode marginRightSmall" href="#" data-title="nightMode"><i class="icon-moon"></i></a> 
 		<a class="linkButton btnDayMode" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
+	`,*/
+
+	dayNightButtons: `
+		<a class="btnNightMode button vCenter" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
+		<a class="btnDayMode button vCenter" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
 	`,
 
 	touchButtonsOptions: `
@@ -85,11 +90,11 @@ PiLot.Templates.Common = {
 		`,
 
 	userMenuIcon: `
-		<a class="btnUserInfo marginLeft" href="#" data-title="userinfo"><i class="icon-smile2"></i></a> 
+		<a class="btnUserInfo marginLeft vCenter" href="#" data-title="userinfo"><i class="icon-smile2"></i></a> 
 	`,
 
 	userMenu: `
-		<div class="pnlUserInfo hidden">
+		<div class="pnlUserInfo dialogPanel hidden">
 			<div class="semiBold"><span data-text="user"></span>: <span class="lblUsername"></span><span class="lblAnonymous">-</span></div>
 			<div><span class="col1 marginRight"><i class="icon-checkmark icoReadAccess green"></i><i class="icon-cross icoNoReadAccess red"></i></span><span data-text="readAccess"></span></div>
 			<div><span class="col1 marginRight"><i class="icon-checkmark icoWriteAccess green"></i><i class="icon-cross icoNoWriteAccess red"></i></span><span data-text="writeAccess"></span></div>

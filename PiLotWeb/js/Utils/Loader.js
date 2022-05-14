@@ -20,6 +20,7 @@ PiLot.Utils.Loader = (function () {
 
 	/** the query string values for each page */
 	const pages = {
+		empty: 'empty',
 		home: 'home',
 		nav: {
 			map: 'map',
@@ -190,6 +191,10 @@ PiLot.Utils.Loader = (function () {
 			let dependencies;
 			let startAction;
 			switch (this.page) {
+				case pages.empty:
+					dependencies = [defaultScripts];
+					startAction = function () { };
+					break;
 				case pages.home:
 					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, flotScripts];
 					startAction = function () { new PiLot.View.Common.StartPage(); };
