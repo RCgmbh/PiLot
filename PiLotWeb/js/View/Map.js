@@ -40,7 +40,7 @@ PiLot.View.Map = (function () {
 		draw: function () {
 			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
-			return pageContent;
+			return pageContent.querySelector('.navMap');
 		}
 
 	};

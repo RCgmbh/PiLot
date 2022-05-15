@@ -3,7 +3,7 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Map = {
 
-	mapPage: `<div id="map" class="navMap"></div>`,
+	mapPage: `<div style="flex-grow:1"><div class="navMap"></div></div>`,
 
 	mapSettingsContainer: `
 		<div class="sideMenu">

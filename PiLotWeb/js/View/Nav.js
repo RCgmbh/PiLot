@@ -1270,7 +1270,7 @@ PiLot.View.Nav = (function () {
 			const sogIndicator = new PiLot.View.Nav.MotionDisplay(mainContainer, PiLot.Templates.Nav.sogIndicator, null, 1);
 			this.controls.push({
 				control: sogIndicator,
-				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 17000, false),
+				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 8000, false),
 				isVisible: null,
 				needsRoute: false,
 				updateData: sogIndicator.showValue.bind(sogIndicator, this.gpsObserver.getSOG.bind(this.gpsObserver)),
@@ -1279,7 +1279,7 @@ PiLot.View.Nav = (function () {
 			const vmgIndicator = new PiLot.View.Nav.MotionDisplay(mainContainer, PiLot.Templates.Nav.vmgIndicator, null, 1);
 			this.controls.push({
 				control: vmgIndicator,
-				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 17000, true),
+				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 8000, true),
 				isVisible: null,
 				needsRoute: true,
 				updateData: vmgIndicator.showValue.bind(vmgIndicator, this.routeObserver !== null ? this.routeObserver.getVMG.bind(this.routeObserver) : null),

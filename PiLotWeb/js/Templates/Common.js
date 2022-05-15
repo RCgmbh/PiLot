@@ -12,8 +12,10 @@ PiLot.Templates.Common = {
 	startPage: `<div class="homeContainer"></div>`,
 
 	dayNightButtons: `
-		<a class="btnNightMode button vCenter" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
-		<a class="btnDayMode button vCenter" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
+		<div id="dayNightButtons">
+			<a class="btnNightMode vCenter" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
+			<a class="btnDayMode vCenter" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
+		</div>
 	`,
 
 	touchButtonsOptions: `
@@ -68,14 +70,15 @@ PiLot.Templates.Common = {
 	`,
 
 	loginForm: `
-		<div class="fullWidth">
+		<div class="dialogPanel round" style="width:50vw; min-width: 20em; max-width: 30em;">
 			<div class="pnlLoginFailed feedbackBad marginAll hidden" data-text="loginFailed"></div>
 			<div class="pnlLoginForm marginAll feedbackWarning">
 				<div class="center">
 					<form id="frmLogin">
 						<input type="text" class="tbUsername input8 marginBottomSmall" autocomplete="username" data-title="username" /><br />
 						<input type="password" class="tbPassword input8 marginBottomSmall" placeholder="Passwort" autocomplete="current-password" /><br />
-						<button class="btnLogin input8" type="submit" data-text="login"></button><br />
+						<button class="btnLogin input8 marginBottomSmall" type="submit" data-text="login"></button><br />
+						<button class="btnCancel input8" type="button" data-text="cancel"></button><br />
 					</form>
 				</div>
 			</div>
@@ -83,7 +86,7 @@ PiLot.Templates.Common = {
 		`,
 
 	userMenuIcon: `
-		<a class="btnUserInfo marginLeft vCenter" href="#" data-title="userinfo"><i class="icon-smile2"></i></a> 
+		<a class="btnUserInfo vCenter" href="#" data-title="userinfo"><i class="icon-smile2"></i></a> 
 	`,
 
 	userMenu: `

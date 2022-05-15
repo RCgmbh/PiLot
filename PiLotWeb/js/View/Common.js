@@ -600,6 +600,10 @@ PiLot.View.Common = (function () {
 			this.tryLoginAsync();			
 		},
 
+		btnCancel_click: function () {
+			this.closeForm();
+		},
+
 		/** draws the form and inserts it as first element in the content area */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.loginForm);
@@ -608,7 +612,8 @@ PiLot.View.Common = (function () {
 			this.pnlLoginForm = this.control.querySelector('.pnlLoginForm');
 			this.tbUsername = this.control.querySelector('.tbUsername');
 			this.tbPassword = this.control.querySelector('.tbPassword');
-			document.getElementById("frmLogin").addEventListener("submit", this.frmLogin_submit.bind(this));
+			document.getElementById('frmLogin').addEventListener('submit', this.frmLogin_submit.bind(this));
+			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 		},
 
 		/** shows the login form */
@@ -626,13 +631,17 @@ PiLot.View.Common = (function () {
 			if (loginSuccess) {
 				PiLot.log(`login succeeded`, 3);
 				RC.Utils.notifyObservers(this, this.observers, 'loginSuccess', null, true);
-				this.control.parentNode.removeChild(this.control);
-				loginForm = null;
+				this.closeForm();
 			} else {
 				PiLot.log(`login failed`, 3);
 				RC.Utils.showHide(this.pnlLoginFailed, true);
 				RC.Utils.notifyObservers(this, this.observers, 'loginFailed', null, true);
 			}
+		},
+
+		closeForm: function () {
+			this.control.parentNode.removeChild(this.control);
+			loginForm = null;
 		}
 	};
 
