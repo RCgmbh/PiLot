@@ -4,7 +4,7 @@ html { -ms-text-size-adjust: none;}
 body { display:flex; flex-direction: column; background-color:white; font-size:100%; font-weight:400;line-height:1.5em;}
 html, body, form, p, th, td, input, select, textarea { font-family: 'Open Sans', 'Segoe UI', Arial;}
 p, th, td, input, button, select, textarea, li, span { font-size:1em;}
-h1{ font-family: 'Lato', sans-serif; font-weight:700;}
+h1{ font-family: 'Lato', sans-serif; font-weight:700; line-height:1.1;}
 h2, h3, h4 { font-family: 'Open Sans', 'Segoe UI', Arial; font-weight: 600; }
 h1 { font-size:1.75em; padding: 0em 0em 0.75em 0em; margin:0.25em 0em 0em 0em; }
 h2 { font-size: 1.5em; padding: 0em; margin: 0.25em 0em 0em 0em; }
@@ -63,9 +63,9 @@ a.tile {transition: background-color 0.2s, color 0.2s;}
 .contentPadding{ padding-top:1em; padding-left:1em; flex-grow:1;}
 .dataContainerQuarter { width: 25%; min-width: 10em; }
 .dataContainerThird { width: 33.33%; min-width: 13.33em; }
-.dataContainerHalf { width: 50%; min-width: 20em; }
+.dataContainerHalf { width: 50%; min-width: 16em; }
 .dataContainerHalfNarrow { width: 50%; min-width: 10em; }
-.dataContainerFull { width: 100%; min-width: 20em; }
+.dataContainerFull { width: 100%; min-width: 16em; }
 .dataContainerQuarter, .dataContainerThird, .dataContainerHalf, .dataContainerHalfNarrow, .dataContainerFull { padding: 0em; float: left; }
 .borderBox{border:2px solid #666;}
 .chartContainer, .chartError, .chartWait{width:100%; height:25em; }
@@ -90,9 +90,9 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 	background-color:white;
 	box-shadow: 0.5em 0.5em 1.5em -0.5em rgba(100, 100, 100, 0.7);
 	z-index:3500;
-	left:0; right:0; margin-left:auto; margin-right: auto;
 }
 .dialogPanel.round { border-radius:0.25em; }
+.dialogPanel.center { left:0; right:0; margin-left:auto; margin-right: auto; }
 body.night .dialogPanel { background-color: black; }
 
 .sideMenu{	width:4em; position:absolute; height:auto; min-height:3em; margin:0.75em 0.25em; padding:0.5em; padding-bottom: 0.25em; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
@@ -306,7 +306,7 @@ th.right, td.right { text-align:right !important;}
 }
 
 .timeLabel { display: inline-block; width: 12em; }
-
+#clockCanvas {max-width:90vw; max-height:90vh;}
 
 /* Moon */
 .moonContainer{height:10em; min-height:10em; width:64em; min-width:64em;}
@@ -387,8 +387,8 @@ body.night #mainMenu > div > a:hover { color: #4992FF; }
 /* RESPONSIVE */
 /* Default: minimal */
 body { min-width: 20em; }
-#header { min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: sticky; z-index:1115; display:flex; justify-content:space-between; }
-#main { display: flex; flex-grow: 1; }
+#header { width: 100%; height: 2em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index:1115; display:flex; justify-content:space-between; }
+#main { display: flex; flex-grow: 1; margin-top: 2em;}
 #hamburger { width: 3em; display:inline-block; }
 #hamburger > a { height: 100%; }
 #subMenu{ flex-grow: 5; display:flex; justify-content:flex-start; align-items:flex-end; gap:0.5em; }
@@ -399,9 +399,9 @@ body { min-width: 20em; }
 #subMenu > a > i { font-size: 1.5em; line-height:1.25em;}
 #subMenu > a {}
 #subMenu > a.active {}
-#headerButtons { flex-grow:1; display:flex; justify-content:space-evenly; gap: 0.25em;}
-#dayNightButtons {display:flex; gap:0.25em;}
-#dayNightButtons > a { width:3em; text-align:center; }
+#headerButtons { flex-grow:2; display:flex; justify-content:space-evenly; gap: 0.25em;}
+#dayNightButtons {display:flex; gap:0.125em;}
+#dayNightButtons > a { width:2em; text-align:center; }
 #dayNightButtons > a > i { font-size: 1.5em; }
 body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:none;}
 #dayNightButtons .btnNightMode, body.night #dayNightButtons .btnDayMode{display:flex;}
@@ -413,12 +413,11 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
 #mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index:2000; }
 #content { flex-grow: 1; display: flex; }
 
-h1 { margin-left: 2em; }
-
 /* show main menu, just narrow. Show both day and night buttons */
 @media (min-width:600px) and (min-height:420px) {
 	#hamburger { display: none; }
 	#subMenu { margin-left: 4.25em;}
+	#dayNightButtons > a { width:3em; }
 	body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:flex;}
 	#mainMenu { display: unset; min-width: 4em; flex-grow: 0;  }
 	#mainMenu > div > a { display: none; }
@@ -437,6 +436,7 @@ h1 { margin-left: 2em; }
 
 /* show header full height */
 @media (min-height:600px) {
+	#main { margin-top: 3em;}
 	#header { min-height: 3em; }
 	#subMenu > a { padding-top:0.25em; border-top-left-radius:3px; border-top-right-radius:3px; }
 	#subMenu > a > i { font-size: 1.75em; }
