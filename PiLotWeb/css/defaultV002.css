@@ -360,6 +360,11 @@ th.right, td.right { text-align:right !important;}
 #hamburger { text-align: center; }
 #hamburger > a { font-size: 1.5em; text-decoration: none; color: #fff; }
 #subMenu > a { text-align:center; text-decoration:none; color:black; background-color:#ddd; }
+#subMenu > a.active{background-color:white;color:#3265AD;}
+#subMenu > a:hover{color:#4992FF; transition:color 0.2s;}
+body.night #subMenu > a { color:#bbb; background-color:#1e2426; }
+body.night #subMenu > a.active { color:#4992FF; background-color:black;}
+body.night #subMenu > a:hover { color:#4992FF; }
 body.night #dayNightButtons > .btnNightMode,  body:not(.night) #dayNightButtons > .btnDayMode { color: #FFBF49; }
 #dayNightButtons > a:hover, #headerButtons a.btnUserInfo:hover { color: #FFBF49;}
 a.btnUserInfo { font-size:1.5em; }
@@ -393,12 +398,7 @@ body { min-width: 20em; }
 #hamburger > a { height: 100%; }
 #subMenu{ flex-grow: 5; display:flex; justify-content:flex-start; align-items:flex-end; }
 #subMenu > a { display:inline-block; min-width:2.25em; margin: 0em 0.25em; flex-basis:2.25em; flex-grow:1; max-width:4em; }
-#subMenu > a.active{background-color:white;color:#3265AD;}
-#subMenu > a.hidden{display:none;}
-#subMenu > a:hover{color:#4992FF; transition:color 0.2s;}
 #subMenu > a > i { font-size: 1.5em; line-height:1.25em;}
-#subMenu > a {}
-#subMenu > a.active {}
 #headerButtons { flex-grow:2; display:flex; justify-content:space-evenly; gap: 0.25em;}
 #dayNightButtons {display:flex; gap:0.125em;}
 #dayNightButtons > a { width:2em; text-align:center; }
