@@ -183,7 +183,7 @@ PiLot.Templates.Logbook = {
 					</span>
 					<div class="block">
 						<span class="lblWindForce">
-							<span class="labelIcon"><i class="icon-wind2"></i></span><span></span> <span data-text="bft"></span>
+							<span class="labelIcon"><i class="icon-wind2"></i></span><span></span> <span data-text="bft"></span> <div class="inlineBlock" data-text="bft"></div>
 						</span>
 						<span class="lblWindDirection"></span>
 					</div>

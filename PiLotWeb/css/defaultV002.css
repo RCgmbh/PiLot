@@ -391,8 +391,8 @@ body { min-width: 20em; }
 #main { display: flex; flex-grow: 1; margin-top: 2em;}
 #hamburger { width: 3em; display:inline-block; }
 #hamburger > a { height: 100%; }
-#subMenu{ flex-grow: 5; display:flex; justify-content:flex-start; align-items:flex-end; gap:0.5em; }
-#subMenu > a { display:inline-block; min-width:2.25em; flex-basis:2.25em; flex-grow:1; max-width:4em; }
+#subMenu{ flex-grow: 5; display:flex; justify-content:flex-start; align-items:flex-end; }
+#subMenu > a { display:inline-block; min-width:2.25em; margin: 0em 0.25em; flex-basis:2.25em; flex-grow:1; max-width:4em; }
 #subMenu > a.active{background-color:white;color:#3265AD;}
 #subMenu > a.hidden{display:none;}
 #subMenu > a:hover{color:#4992FF; transition:color 0.2s;}

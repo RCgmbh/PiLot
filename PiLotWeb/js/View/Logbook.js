@@ -757,11 +757,18 @@ PiLot.View.Logbook = (function () {
 				this.lblTitle.innerText = this.logbookEntry.getTitle();
 				this.lblNotes.innerText = this.logbookEntry.getNotes();
 				var meteo = this.logbookEntry.getMeteo();
-				this.lblWeather.innerText = new Map(PiLot.Templates.Logbook.weatherTypes).get(meteo.weather) || '';
+				if (meteo.weather) {
+					let key = PiLot.Templates.Logbook.weatherTypes.find(e => e[0] == meteo.weather)[1];
+					this.lblWeather.innerText = PiLot.Utils.Language.getText(key);
+				}
 				this.showLabeledText(this.lblTemperature, meteo.temperature, 1);
 				this.showLabeledText(this.lblPressure, meteo.pressure, 1);
 				this.showLabeledText(this.lblWindForce, meteo.windForce, 0);
-				this.lblWindDirection.innerText = new Map(PiLot.Templates.Logbook.windDirections).get(meteo.windDirection) || '';
+				//this.lblWindDirection.innerText = new Map(PiLot.Templates.Logbook.windDirections).get(meteo.windDirection) || '';
+				if (meteo.windDirection) {
+					let key = PiLot.Templates.Logbook.windDirections.find(e => e[0] == meteo.windDirection)[1];
+					this.lblWindDirection.innerText = PiLot.Utils.Language.getText(key);
+				}
 				this.showLabeledText(this.lblWaveHeight, meteo.waveHeight, 1);
 				this.showLabeledText(this.lblLat, PiLot.Utils.Nav.toCoordinateString(this.logbookEntry.getLatitude(), true, true));
 				this.showLabeledText(this.lblLon, PiLot.Utils.Nav.toCoordinateString(this.logbookEntry.getLongitude(), false, true));

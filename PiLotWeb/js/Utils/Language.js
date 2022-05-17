@@ -43,7 +43,7 @@ PiLot.Utils.Language = {
 	 * @param {String} pKey - The key of the requested element 
 	 */
 	getText: function (pKey) {
-		return PiLot.Texts[pKey];
+		return PiLot.Texts[pKey] || null;
 	},
 
 	/** Returns the locale to be used in date formatting, e.g. de-ch */
