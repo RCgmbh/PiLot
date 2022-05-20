@@ -95,7 +95,7 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 .dialogPanel.center { left:0; right:0; margin-left:auto; margin-right: auto; }
 body.night .dialogPanel { background-color: black; }
 
-.sideMenu{	width:4em; position:absolute; height:auto; min-height:3em; margin:0.75em 0.25em; padding:0.5em; padding-bottom: 0.25em; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
+.sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
 .sideMenu, .sideMenu a, .sideMenu a:hover, .sideMenu a:visited {color:#eee; }
 .sideMenu>.expandCollapse{text-align:center;width:3em;}
 .sideMenu>.expandCollapse>i{font-size:1.5em;}
@@ -444,6 +444,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
  /* show day night buttons as buttons, not just icons */
 @media (min-height:600px) and (min-width:600px){
 	#dayNightButtons a { border:1px solid #333; border-radius:0.25em; margin: 0.25em 0em; color:unset; color: #333; background-color: #eee; }
+	.sideMenu{ width:4em; margin:0.75em 0.25em; padding:0.5em; padding-bottom:0.25em; }
 }
 
 @media (max-width: 968px) { /* full width for dataContainerHalfNarrow*/
