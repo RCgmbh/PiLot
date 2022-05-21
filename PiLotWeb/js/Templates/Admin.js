@@ -99,7 +99,7 @@ PiLot.Templates.Admin = {
 	wifiPage: `
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>
-			<div class="pnlOutput marginBottom" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; white-space: pre;
+			<div class="pnlOutput marginBottom marginRight" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; 
 			border:3px solid; border-color: #333 #bbb #bbb #333; overflow:auto;"></div>
 			<div style="text-align:center; max-width:54em;" class="marginRight marginBottom">
 				<a href="#" class="lnkRefresh"><i class="icon-loop2"></i></a>

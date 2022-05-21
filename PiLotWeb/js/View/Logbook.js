@@ -1228,6 +1228,9 @@ PiLot.View.Logbook = (function () {
 				if (calendarCell) {
 					dayInfo = monthInfo.get(loopDate.day);
 					this.addCalendarIcons(dayInfo, calendarCell);
+					if (!(dayInfo.hasLogbook || dayInfo.hasTrack || dayInfo.hasPhotos)) {
+						calendarCell.classList.add('empty');
+					}
 				}
 				loopDate = loopDate.plus({ days: 1 });
 			}
@@ -1239,7 +1242,6 @@ PiLot.View.Logbook = (function () {
 			const link = pCell.querySelector('a');
 			link.querySelectorAll('.icons').forEach(e => e.parentNode.removeChild(e));
 			const iconsDiv = RC.Utils.addDomObject('div', link, 'icons');
-			iconsDiv.classList.add('block');
 			if (pDayInfo.hasLogbook) this.addIcon(iconsDiv, 'icon-quill');
 			if (pDayInfo.hasTrack) this.addIcon(iconsDiv, 'icon-map2');
 			if (pDayInfo.hasPhotos) this.addIcon(iconsDiv, 'icon-pictures');

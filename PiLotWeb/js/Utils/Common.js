@@ -239,8 +239,10 @@ PiLot.Utils.Common = {
 					}
 					break;
 				case 1:
-					$('#logWindow').html(new Date().toLocaleTimeString().concat(' ', pMessage, '<br/>', $('#logWindow').html()));
-					$('#logWindow').show();
+					const logWindow = document.querySelector('#logWindow');
+					logWindow.hidden = false;
+					logWindow.insertAdjacentHTML('beforeend', new Date().toLocaleTimeString().concat(' ', pMessage, '<br/>', logWindow.innerHTML));
+					logWindow.hidden = false;
 					break;
 				case 2:
 					alert(pMessage);

@@ -305,9 +305,9 @@ PiLot.View.Admin = (function () {
 		initializeAsync: async function () {
 			this.wifiHelper = new PiLot.Model.Admin.WiFiHelper();
 			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
+			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			await this.drawAsync();
 			this.loadNetworksAsync();
-			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 		},
 
 		authHelper_login: function () {
@@ -430,7 +430,8 @@ PiLot.View.Admin = (function () {
 		},
 
 		showOutput: function (pOutput) {
-			this.pnlOutput.insertAdjacentText('beforeend', pOutput);
+			pOutput = pOutput.replace('\n', '<br/>')
+			this.pnlOutput.insertAdjacentHTML('beforeend', pOutput);
 			this.pnlOutput.scrollTop = this.pnlOutput.scrollHeight;
 		}
 	};

@@ -228,11 +228,11 @@ textarea.big{height:20em;}
 .move { cursor: move; }
 
 .green { color: #23B223; }
-.red, a.red { color: #FF4949; }
+.red, a.red, a.red:hover, a.red:visited { color: #FF4949; }
 
 /* LINKS, BUTTONS */
 a, a:visited, a:active{color:#3265AD;}
-a{text-decoration:none;}
+a { text-decoration:none; }
 a.underline{text-decoration:underline;}
 a:hover, a.tile:hover{color:#4992FF;}
 
@@ -383,7 +383,7 @@ body.night #subMenu > a.active { color:#4992FF; background-color:black;}
 body.night #subMenu > a:hover { color:#4992FF; }
 body.night #dayNightButtons > .btnNightMode,  body:not(.night) #dayNightButtons > .btnDayMode { color: #FFBF49; }
 #dayNightButtons > a:hover, #headerButtons a.btnUserInfo:hover { color: #FFBF49;}
-a.btnUserInfo { font-size:1.5em; }
+a.btnUserInfo { font-size:1.25em; }
 a.btnUserInfo {color:#ccc;}
 a.btnUserInfo.active {color:#FFBF49;}
 #clock { font-weight: 600; color: #fff; }
@@ -417,12 +417,12 @@ body { min-width: 20em; }
 #subMenu > a > i { font-size: 1.5em; line-height:1.25em;}
 #headerButtons { flex-grow:2; display:flex; justify-content:space-evenly; gap: 0.25em;}
 #dayNightButtons {display:flex; gap:0.125em;}
-#dayNightButtons > a { width:2em; text-align:center; }
+#dayNightButtons > a { width:1.5em; text-align:center; }
 #dayNightButtons > a > i { font-size: 1.5em; }
 body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:none;}
 #dayNightButtons .btnNightMode, body.night #dayNightButtons .btnDayMode{display:flex;}
 #headerButtons a.btnUserInfo { }
-#clock{ margin-right:0.25em; text-align: right; display:flex; flex-direction: column; justify-content:center; font-size:0.75em;}
+#clock{ margin-right:0.25em; text-align: right; display:flex; flex-direction: row; justify-content:center; align-items:center; font-size:0.75em;}
 #mainMenu { display: none; min-width: 4em; width: 4em;  }
 #mainMenu > div { height: 4em; display:flex; justify-content: center;}
 #mainMenu > div > a { padding: 0.5em 0.25em; flex-grow:1; max-width: 2em; }
@@ -456,6 +456,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
 	#header { min-height: 3em; }
 	#subMenu > a { padding-top:0.25em; border-top-left-radius:3px; border-top-right-radius:3px; }
 	#subMenu > a > i { font-size: 1.75em; }
+	a.btnUserInfo { font-size:1.5em; }
 }
  /* show day night buttons as buttons, not just icons */
 @media (min-height:600px) and (min-width:600px){
