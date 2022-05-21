@@ -6,31 +6,15 @@ RC.Controls = (function () {
 	/// This represents a calendar/date picker control. The control can be attached to either a
 	/// textbox (input) or a Label which will show the selected date or, in the case of a textbox,
 	/// will allow to manually enter the selected date. In that case, the calendar control also
-	/// manages parsing the date. The calendar control can also exist not being attached to anything,
-	/// however I currently can't imagine this making any sense.
+	/// manages parsing the date. The calendar control can also exist not being attached to anything.
 	/// The calendar will be created dynamically inside a container, probably always a div, which
-	/// must be passed as an HTMLElement or jQuery object.
+	/// must be passed as an HTMLElement.
 	/// pOnDateSelected: a function which will be called when a day is selected in the calendar
-	/// possibility to add custom content into the day control
+	/// possibility to add custom content into the day control: passs a function in setOnMonthRendered()
 	var Calendar = function (pContainer, pControlToAttach, pCalendarLink, pOnDateSelected, pUtcOffset) {
-		this.container = null;
-		if ((pContainer instanceof jQuery) && (pContainer.length > 0)) {
-			this.container = pContainer;
-		} else if (pContainer instanceof HTMLElement) {
-			this.container = $(pContainer);
-		} 
-		this.attachedTo = null;
-		if ((pControlToAttach instanceof jQuery) && (pControlToAttach.length > 0)) {
-			this.attachedTo = pControlToAttach;
-		} else if (pControlToAttach instanceof HTMLElement) {
-			this.attachedTo = $(pControlToAttach);
-		}
-		this.calendarLink = null;
-		if ((pCalendarLink instanceof jQuery) && (pCalendarLink.length > 0)) {
-			this.calendarLink = pCalendarLink;
-		} else if (pCalendarLink instanceof HTMLElement) {
-			this.calendarLink = $(pCalendarLink);
-		}
+		this.container = pContainer;			// HTMLElement
+		this.attachedTo = pControlToAttach;		// HTMLElement
+		this.calendarLink = pCalendarLink;
 		this.onDateSelected = null;
 		if (typeof pOnDateSelected === 'function') {
 			this.onDateSelected = pOnDateSelected;
@@ -43,7 +27,7 @@ RC.Controls = (function () {
 		const now = RC.Date.DateHelper.localNow(this.utcOffset);
 		this.currentMonth = now.month;
 		this.currentYear = now.year;
-		this.mode = 0 // = days, 1: months, 2: years
+		this.mode = 0				// 0 = days, 1: months, 2: years
 		this.prepare();
 	};
 
@@ -56,7 +40,6 @@ RC.Controls = (function () {
 		dayTooltipFormat: 'DDDD',	// used for the tooltip in the days table
 		mapFormat: 'yyyyLLdd',		// the format used for the dayCells map
 
-		isVisible: false,			// keeping track of the visibility to minimize calls to is(':visible') or show() / hide()
 		isParsed: false,			// if true, we write back the parsed date to the attached field when leaving
 
 		pnlHeader: null,
@@ -81,12 +64,9 @@ RC.Controls = (function () {
 		/// on the calendarLink or the attachedTo control. Clicks on the calendar
 		/// itself are not propagated to the body, so we not need to handle them here
 		body_click: function (event) {
-			if (this.isVisible) {
+			if (!this.container.hidden) {
 				const eventSource = event.target;
-				if (
-					((this.attachedTo === null) || !this.attachedTo.get().includes(eventSource))
-					&& ((this.calendarLink === null) || !this.calendarLink.get().includes(eventSource))
-				) {
+				if ((eventSource != this.attachedTo) && (eventSource != this.calendarLink)) {
 					this.hide();
 				}
 			}
@@ -190,108 +170,111 @@ RC.Controls = (function () {
 			this.onMonthRendered = pCallback;
 		},
 
-		/// builds up the main structure which we will keep during the lifetime of the control
-		/// and hides the control. This does nothing, if we have no container
+		/// builds up the main structure which we will keep during the lifetime of the control.
+		/// This does nothing, if we have no container
 		prepare: function () {
-			if (this.container.length > 0) {
+			if (this.container) {
 				this.prepareMainContainer();
 				this.prepareDaysContainer();
 				this.prepareMonthsContainer();
 				this.prepareYearsContainer();
 				this.bindGlobalHandlers();
-				this.isVisible = this.container.is(':visible');
+				if (!this.container.hidden) {
+					this.renderCurrentView();
+				}
 			}
 		},
 
 		/// binds handlers mainly to ensure proper show/hide behaviour
 		bindGlobalHandlers: function () {
-			$('body').on('click', this.body_click.bind(this));
-			this.container.on('click', function (event) { event.stopPropagation(); });
+			document.body.addEventListener('click', this.body_click.bind(this));
+			this.container.addEventListener('click', function (event) { event.stopPropagation(); })
 			if (this.attachedTo !== null) {
-				this.attachedTo.on('focus', this.show.bind(this));
-				this.attachedTo.on('blur', this.textfield_blur.bind(this));
-				this.attachedTo.on('keyup', this.parseDate.bind(this));
-				const keyDownHandler = this.textfield_KeyDown.bind(this);
-				this.attachedTo.on('keydown', function (event) { keyDownHandler(event); });
+				this.attachedTo.addEventListener('focus', this.show.bind(this));
+				this.attachedTo.addEventListener('blur', this.textfield_blur.bind(this));
+				this.attachedTo.addEventListener('keyup', this.parseDate.bind(this));
+				this.attachedTo.addEventListener('keydown', this.textfield_KeyDown.bind(this));
 			}
 			if (this.calendarLink !== null) {
-				this.calendarLink.on('click', this.toggle.bind(this));
+				this.calendarLink.addEventListener('click', this.toggle.bind(this));
 			}
 		},
 
 		/// prepares the common controls for all views
 		prepareMainContainer: function () {
-			this.container.toggleClass('rcCalendar', true);
+			this.container.classList.add('rcCalendar');
 			this.pnlHeader = this.addDiv(this.container, 'header');
 			this.pnlHeaderMonth = this.addSpan(this.pnlHeader, 'headerMonth');
 			this.addArrowLink(this.pnlHeaderMonth, 'linkButton', this.lnkPreviousMonth_Click.bind(this), 'left');
 			this.lnkCurrentMonth = this.addLink(this.pnlHeaderMonth, 'currentMonth');
-			this.lnkCurrentMonth.on('click', this.headerMonth_Click.bind(this));
+			this.lnkCurrentMonth.addEventListener('click', this.headerMonth_Click.bind(this));
 			this.addArrowLink(this.pnlHeaderMonth, 'linkButton', this.lnkNextMonth_Click.bind(this), 'right');
 			this.pnlHeaderYear = this.addSpan(this.pnlHeader, 'headerYear');
 			this.addArrowLink(this.pnlHeaderYear, 'linkButton', this.lnkPreviousYear_Click.bind(this), 'left');
 			this.lnkCurrentYear = this.addLink(this.pnlHeaderYear, 'currentYear');
-			this.lnkCurrentYear.on('click', this.headerYear_Click.bind(this));
+			this.lnkCurrentYear.addEventListener('click', this.headerYear_Click.bind(this));
 			this.addArrowLink(this.pnlHeaderYear, 'linkButton', this.lnkNextYear_Click.bind(this), 'right');
 		},
 
 		/// prepares the controls for the days view
 		prepareDaysContainer: function () {
 			this.pnlDaysView = this.addDiv(this.container, 'daysView');
-			this.tblDays = this.addTable(this.pnlDaysView, 'days datesTable');
+			this.tblDays = this.addTable(this.pnlDaysView, 'days');
+			this.tblDays.classList.add('datesTable');
 			this.addWeekDayHeader(this.tblDays);
-			this.lnkDaysToday = this.addLink(this.pnlDaysView, 'daysToday').on('click', this.lnkDaysToday_Click.bind(this));
+			this.lnkDaysToday = this.addLink(this.pnlDaysView, 'daysToday')
+			this.lnkDaysToday.addEventListener('click', this.lnkDaysToday_Click.bind(this));
 		},
 
 		/// prepares the controls for the months view
 		prepareMonthsContainer: function () {
 			this.pnlMonthsView = this.addDiv(this.container, 'monthsView');
-			this.tblMonths = this.addTable(this.pnlMonthsView, 'months datesTable');
+			this.tblMonths = this.addTable(this.pnlMonthsView, 'months');
+			this.tblMonths.classList.add('datesTable');
 		},
 
 		/// prepares the controls for the years view
 		prepareYearsContainer: function () {
 			this.pnlYearsView = this.addDiv(this.container, 'yearsView');
 			this.addArrowLink(this.pnlYearsView, 'yearsPager', this.yearsPrevious_Click.bind(this), 'up');
-			this.tblYears = this.addTable(this.pnlYearsView, 'years datesTable');
+			this.tblYears = this.addTable(this.pnlYearsView, 'years');
+			this.tblYears.classList.add('datesTable');
 			this.addArrowLink(this.pnlYearsView, 'yearsPager', this.yearsNext_Click.bind(this), 'down');
 		},
 
 		/// shows the calender (as in making visible)
 		show: function () {
 			this.renderCurrentView();
-			if (!this.isVisible) {
-				this.isVisible = true;
-				this.container.fadeIn('fast');
+			if (this.container.hidden) {
+				this.container.hidden = false;
 			}
 		},
 
 		/// hides the calendar
 		hide: function () {
-			if (this.isVisible) {
-				this.isVisible = false;
-				this.container.fadeOut('fast');
+			if (!this.container.hidden) {
+				this.container.hidden = true;
 			}
 		},
 
 		/// shows / hides the calendar
-		toggle: function(){
-			if (this.isVisible) {
-				this.hide();
-			} else {
+		toggle: function () {
+			if (this.container.hidden) {
 				this.show();
+			} else {
+				this.hide();
 			}
 		},
 
 		/// adds or updates the dynamic parts of the calendar for the 
 		/// current view (days / months / years)
 		renderCurrentView: function () {
-			this.pnlDaysView.toggle(this.mode === 0);
-			this.pnlMonthsView.toggle(this.mode === 1);
-			this.pnlYearsView.toggle(this.mode === 2);
-			this.pnlHeader.toggle(this.mode < 2);
-			this.pnlHeaderMonth.toggle(this.mode === 0);
-			this.pnlHeaderYear.toggle(this.mode < 2);
+			this.pnlDaysView.hidden = (this.mode !== 0);
+			this.pnlMonthsView.hidden = (this.mode !== 1);
+			this.pnlYearsView.hidden = (this.mode !== 2);
+			this.pnlHeader.hidden = (this.mode === 2);
+			this.pnlHeaderMonth.hidden = (this.mode !== 0);
+			//this.pnlHeaderYear.hidden = (this.mode === 2);
 			this.firstDay = null;
 			this.lastDay = null;
 			switch (this.mode) {
@@ -309,12 +292,12 @@ RC.Controls = (function () {
 
 		/// shows the currently focused month in the header
 		renderMonthHeader: function (pCurrentDate) {
-			this.lnkCurrentMonth.text(pCurrentDate.toLocaleString({ month: 'short' }));
+			this.lnkCurrentMonth.innerText = pCurrentDate.toLocaleString({ month: 'short' });
 		},
 
 		/// shows the currently focused year in the header
 		renderYearHeader: function (pCurrentDate) {
-			this.lnkCurrentYear.text(pCurrentDate.toFormat('yyyy'));
+			this.lnkCurrentYear.innerText = pCurrentDate.toFormat('yyyy');
 		},
 
 		/// renders the row with weekday names to the days table
@@ -325,14 +308,14 @@ RC.Controls = (function () {
 			for (let i = 0; i < 7; i++) {
 				loopDate = loopDate.set({ weekday: this.calendarStartDayISO + i });
 				cell = this.addTableHeaderCell(header, 'day' + loopDate.weekday);
-				cell.text(loopDate.toLocaleString({ weekday: 'short' }));
+				cell.innerText = loopDate.toLocaleString({ weekday: 'short' });
 			}
 		},
 
 		/// renders the days by re-creating the table rows and properly
 		/// assigning texts, titles, classes and links
 		renderDaysView: function () {
-			$('.trDays').remove();
+			this.container.querySelectorAll('.trDays').forEach(e => e.parentNode.removeChild(e));
 			this.dayCells = new Map();
 			let loopDate = DateTime.utc(this.currentYear, this.currentMonth, 1);
 			const endDate = loopDate.plus({ months: 1 }).minus({ days: 1 }); // this is not exactly the end date, but as we always render one whole week, it's ok
@@ -352,25 +335,25 @@ RC.Controls = (function () {
 				for (let i = 0; i < 7; i++) {
 					cell = this.addTableCell(row, '');
 					link = this.addLink(cell, '');
-					link.text(loopDate.toFormat('d'));
-					link.on('click', this.day_Click.bind(this, loopDate));
-					link.attr('title', loopDate.toFormat(this.dayTooltipFormat));
-					cell.toggleClass('selected', ((this.selectedDate !== null) && loopDate.hasSame(this.selectedDate, 'days')));
+					link.innerText = loopDate.toFormat('d');
+					link.addEventListener('click', this.day_Click.bind(this, loopDate));
+					link.setAttribute('title', loopDate.toFormat(this.dayTooltipFormat));
+					cell.classList.toggle('selected', ((this.selectedDate !== null) && loopDate.hasSame(this.selectedDate, 'days')));
 					if (loopDate.hasSame(today, 'days')) {
-						cell.addClass('today');
+						cell.classList.add('today');
 					}
 					if (loopDate.month !== this.currentMonth) {
-						cell.addClass('oddMonth');
+						cell.classList.add('oddMonth');
 					}
 					if ([6, 7].indexOf(loopDate.weekday) !== -1) {
-						cell.addClass('weekend');
+						cell.classList.add('weekend');
 					}
 					this.dayCells.set(loopDate.toFormat(this.mapFormat), cell);
 					loopDate = loopDate.plus({ days: 1 });
 				}
 			}
 			this.lastDay = loopDate
-			this.lnkDaysToday.text(today.toFormat(this.todayFormat));
+			this.lnkDaysToday.innerText = today.toFormat(this.todayFormat);
 			if (this.onMonthRendered !== null) {
 				this.onMonthRendered(this.currentYear, this.currentMonth);
 			}
@@ -378,7 +361,7 @@ RC.Controls = (function () {
 
 		/// renders the months by re-creating the months table rows
 		renderMonthsView: function () {
-			$('.months tr').remove();
+			this.container.querySelectorAll('.months .tr').forEach(e => e.parentNode.removeChild(e));
 			const today = RC.Date.DateHelper.localNow(this.utcOffset);
 			let loopDate = DateTime.utc(this.currentYear, 1, 1);
 			const currentDate = DateTime.utc(this.currentYear, this.currentMonth, 1);
@@ -390,11 +373,11 @@ RC.Controls = (function () {
 					row = this.addTableRow(this.tblMonths, '');
 				}
 				cell = this.addTableCell(row, '');
-				cell.text(loopDate.toLocaleString({ month: 'short' }));
-				cell.on('click', this.month_Click.bind(this, month));
-				cell.toggleClass('selected', ((this.selectedDate !== null) && loopDate.hasSame(this.selectedDate, 'months')));
+				cell.innerText = loopDate.toLocaleString({ month: 'short' });
+				cell.addEventListener('click', this.month_Click.bind(this, month));
+				cell.classList.toggle('selected', ((this.selectedDate !== null) && loopDate.hasSame(this.selectedDate, 'months')));
 				if (loopDate.hasSame(today, 'months')) {
-					cell.addClass('today');
+					cell.classList.add('today');
 				}
 				loopDate = loopDate.plus({ months: 1 });
 			}
@@ -402,7 +385,7 @@ RC.Controls = (function () {
 
 		/// renders the years by re-creating the years table rows
 		renderYearsView: function () {
-			$('.years tr').remove();
+			this.container.querySelectorAll('.years .tr').forEach(e => e.parentNode.removeChild(e));
 			const today = RC.Date.DateHelper.localNow(this.utcOffset);
 			let year = this.currentYear - (this.currentYear % 3) -3;
 			let row;
@@ -412,11 +395,11 @@ RC.Controls = (function () {
 					row = this.addTableRow(this.tblYears, '');
 				}
 				cell = this.addTableCell(row, '');
-				cell.text(year.toString());
-				cell.on('click', this.year_Click.bind(this, year));
-				cell.toggleClass('selected', year === this.currentYear);
+				cell.innerText = year.toString();
+				cell.addEventListener('click', this.year_Click.bind(this, year));
+				cell.classList.toggle('selected', year === this.currentYear);
 				if ((today.year === year)) {
-					cell.addClass('today');
+					cell.classList.add('today');
 				}
 				year++;
 			}
@@ -425,7 +408,7 @@ RC.Controls = (function () {
 		/// takes the content of the attachedTo control and tries to convert
 		/// it into a date by using unique RC logic.
 		parseDate: function(){
-			let dateText = this.attachedTo.val().trim();
+			let dateText = this.attachedTo.value.trim();
 			let date = null;
 			const now = RC.Date.DateHelper.localNow(this.utcOffset);
 			if (dateText.length > 0) {
@@ -439,12 +422,12 @@ RC.Controls = (function () {
 					if ($.isNumeric(parts[0])) {
 						date = DateTime.utc(now.year, now.month, now.day).plus({ days: Number(parts[0]) * sign });
 					}
-				} else if ($.isNumeric(parts[0]) && $.isNumeric(parts[1])) {
+				} else if (RC.Utils.isNumeric(parts[0]) && RC.Utils.isNumeric(parts[1])) {
 					const day = Number(parts[0]);
 					const month = Number(parts[1]);
 					if (parts.length === 2) {
 						date = DateTime.utc(now.year, month, day);
-					} else if ((parts.length === 3) && $.isNumeric(parts[2])) {
+					} else if ((parts.length === 3) && RC.Utils.isNumeric(parts[2])) {
 						let year = Number(parts[2]);
 						if (year < 30) {
 							year += 2000;
@@ -534,8 +517,8 @@ RC.Controls = (function () {
 				if (this.selectedDate !== null) {
 					dateText = this.selectedDate.toFormat(this.displayFormat);
 				}
-				this.attachedTo.val(dateText);
-				this.attachedTo.text(dateText);
+				this.attachedTo.value = dateText;
+				this.attachedTo.innerText = dateText;
 			}
 		},
 
@@ -583,11 +566,14 @@ RC.Controls = (function () {
 		},
 
 		addLink: function (pParent, pCssClass) {
-			return RC.Utils.addDomObject('a', pParent, pCssClass).attr('href', '#');
+			const result = RC.Utils.addDomObject('a', pParent, pCssClass);
+			result.setAttribute('href', '#');
+			return result;
 		},
 
 		addArrowLink: function(pParent, pOuterClass, pOnClick, pDirection){
-			const result = this.addLink(pParent, pOuterClass).on('click', pOnClick);
+			const result = this.addLink(pParent, pOuterClass);
+			result.addEventListener('click', pOnClick);
 			let innerClass;
 			switch (pDirection.toLowerCase().substr(0, 1)) {
 				case 'l':
@@ -607,21 +593,27 @@ RC.Controls = (function () {
 		},
 
 		addTable: function (pParent, pCssClass) {
-			const result = RC.Utils.addDomObject('table', pParent, pCssClass);
-			RC.Utils.addDomObject('tbody', result, '');
+			const result = this.addDiv(pParent, pCssClass);
+			result.classList.add('table');
 			return result;
 		},
 
 		addTableRow: function (pParent, pCssClass) {
-			return RC.Utils.addDomObject('tr', pParent, pCssClass);
+			const result = this.addDiv(pParent, pCssClass);
+			result.classList.add('tr');
+			return result;
 		},
 
 		addTableHeaderCell: function (pParent, pCssClass) {
-			return RC.Utils.addDomObject('th', pParent, pCssClass);
+			const result = this.addDiv(pParent, pCssClass);
+			result.classList.add('th');
+			return result;
 		},
 
 		addTableCell: function (pParent, pCssClass) {
-			return RC.Utils.addDomObject('td', pParent, pCssClass);
+			const result = this.addDiv(pParent, pCssClass);
+			result.classList.add('td');
+			return result;
 		}
 	}
 

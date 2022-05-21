@@ -19,7 +19,8 @@ input[type=text]::-ms-clear {display: none;}
 
 /* NIGHT MODE incl. TRANSITION */
 body.night, body.night .inlineTextbox {background-color:black;color:#ccc;}
-body.night input, body.night textarea, body.night select{background-color:#333; color: #ccc; border:none;}
+body.night input, body.night textarea, body.night select {background-color:#333; color: #ccc; border:none;}
+body.night button {background-color:#333; color: #ccc; border-color:#666; }
 body.night #statusBar{color:#000; background-color:#3265AD;}
 body.night #clock {color: #ccc; }
 body.night #mainMenu>a.navItem, body.night #subMenu>a.navItem {color:#bbb;}
@@ -52,6 +53,19 @@ body.nightTransition input,
 body.nightTransition textarea { transition: background-color 1s, color 1s, border-color 1s; }
 a.tile {transition: background-color 0.2s, color 0.2s;}
 .borderLightBlue { transition: border-color 1s;}
+
+body.night .rcCalendar { color:#ccc; background-color: #070613; border-color:#999;}
+body.night .rcCalendar .header { background-color: unset; }
+body.night .rcCalendar .linkButton { background-color: #666; border-color: #999; }
+body.night .rcCalendar .headerMonth a.currentMonth, body.night .rcCalendar .headerYear a.currentYear{color:#ccc;}
+body.night .rcCalendar .datesTable .td { border-color: #333; }
+body.night .rcCalendar .datesTable .td a, body.night .rcCalendar .datesTable .td a:visited, body.night .rcCalendar .datesTable .td a:active {color:#ccc;}
+body.night .rcCalendar .days .td.weekend{background-color:#201d39;}
+body.night .rcCalendar .datesTable .td.today{background-color:#49446c;}
+body.night .rcCalendar .datesTable .td:hover { background-color:#666; color:#eee;}
+body.night .rcCalendar .datesTable .td.selected { background-color:#7c82d5; }
+body.night .rcCalendar .datesTable .td.selected a { color:#333 }
+body.night .rcCalendar .yearsPager { background-color:#666; }
 
 
 /* NAMED ITEMS */
@@ -308,6 +322,8 @@ th.right, td.right { text-align:right !important;}
 .timeLabel { display: inline-block; width: 12em; }
 #clockCanvas {max-width:90vw; max-height:90vh;}
 
+.rcCalendar {z-index: 1200; }
+
 /* Moon */
 .moonContainer{height:10em; min-height:10em; width:64em; min-width:64em;}
 .moonImage { width:4em;height:4em;margin:3em 2em; z-index:2; float:left; position:relative;}
@@ -392,7 +408,7 @@ body.night #mainMenu > div > a:hover { color: #4992FF; }
 /* RESPONSIVE */
 /* Default: minimal */
 body { min-width: 20em; }
-#header { width: 100%; height: 2em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index:1115; display:flex; justify-content:space-between; }
+#header { width: 100%; height: 2em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index:2000; display:flex; justify-content:space-between; }
 #main { display: flex; flex-grow: 1; margin-top: 2em;}
 #hamburger { width: 3em; display:inline-block; }
 #hamburger > a { height: 100%; }

@@ -6,27 +6,33 @@
 .triangleUp{border-bottom:0.5em solid black; border-top-style:none;}
 .triangleDown{border-top:0.5em solid black; border-bottom-style:none;}
 		
-.rcCalendar{display:none; color:black; padding:0.125em; background-color:white; border:1px solid #aaa; border-radius:0.25em; width:22em; position:absolute; z-index:3000; box-shadow:1px 1px 4px #666;}
+.rcCalendar{ color:black; padding:0.125em; background-color:white; border:1px solid #aaa; border-radius:0.25em; width:22em; position:absolute; box-shadow:1px 1px 4px #666;}
 .rcCalendar a.linkButton { display:inline-block; background-color:#f6f6f6; border:1px solid #ccc; border-radius:0.125em; padding:0.25em; text-align:center; line-height:1.5em; padding-top:0.5em; min-width:2.75em; }
 .rcCalendar a.linkButton:hover { background-color:#eef; border-color:black;}
-.rcCalendar th {text-align:center;}
-.rcCalendar .header{width:100%; padding:0em; margin-bottom:0.25em; border-top-left-radius:0.25em; border-top-right-radius:0.25em; text-align:center;background-color:#eee;}
-.rcCalendar .headerMonth, .rcCalendar .headerYear{display:inline-block; width:50%; min-width: 10em; text-align:center; margin:0.25em 0em;}
+.rcCalendar .th {text-align:center;}
+.rcCalendar .header{width:100%; padding:0em; margin-bottom:0.25em; border-top-left-radius:0.25em; border-top-right-radius:0.25em; display:flex; justify-content:center; flex-wrap:wrap; background-color:#eee;}
+.rcCalendar .header[hidden]{ display:none; }
+.rcCalendar .headerMonth, .rcCalendar .headerYear{ width:50%; min-width: 10em; text-align:center; margin:0.25em 0em;}
 .rcCalendar .headerMonth a.currentMonth, .rcCalendar .headerYear a.currentYear{color:black;}
 .rcCalendar .currentMonth, .rcCalendar .currentYear {display: inline-block; font-weight: 600; color: black; width: 30%; text-align: center; }
 .rcCalendar .datesTable{width:100%; border-spacing: 0.125em; border-collapse: separate;}
-.rcCalendar .datesTable td{ text-align:center;border:1px solid #ccc; border-radius:0.125em; height:3em;transition: color 0.25s, background-color 0.25s, border-color 0.25s;}
-.rcCalendar .days th, .rcCalendar .days td{width:14%;}
-.rcCalendar .months td{width: 25%; }
-.rcCalendar .years td{width:33%;}
-.rcCalendar .days th{font-weight:400;}
-.rcCalendar .datesTable td a, .rcCalendar .datesTable td a:visited, .rcCalendar .datesTable td a:active {display:block; color:black;height:100%;padding-top:0.5em;cursor:pointer;}
-.rcCalendar .days td.weekend{background-color:#eee;}
-.rcCalendar .days td.oddMonth a{color:#999;}
-.rcCalendar .datesTable td.today{background-color:#ddf;}
-.rcCalendar .datesTable td:hover {color:#666; background-color:#eef;border-color:black;}
-.rcCalendar .datesTable td.selected {color:black; background-color:#ccf; border-color:black; font-weight:600;}
-.rcCalendar .datesTable td.selected a{color:black;}
+
+.rcCalendar .datesTable.table { display:table; }
+.rcCalendar .datesTable .tr { display:table-row; }
+.rcCalendar .datesTable .th, .rcCalendar .datesTable .td { display:table-cell; }
+
+.rcCalendar .datesTable .td{ text-align:center;border:1px solid #ccc; border-radius:0.125em; height:3em;transition: color 0.25s, background-color 0.25s, border-color 0.25s;}
+.rcCalendar .days .th, .rcCalendar .days .td{width:14%;}
+.rcCalendar .months .td{width: 25%; }
+.rcCalendar .years .td{width:33%;}
+.rcCalendar .days .th{font-weight:400;}
+.rcCalendar .datesTable .td a, .rcCalendar .datesTable .td a:visited, .rcCalendar .datesTable .td a:active {display:block; color:black;height:100%;padding-top:0.5em;cursor:pointer;}
+.rcCalendar .days .td.weekend{background-color:#eee;}
+.rcCalendar .days .td.oddMonth a{color:#999;}
+.rcCalendar .datesTable .td.today{background-color:#ddf;}
+.rcCalendar .datesTable .td:hover {color:#666; background-color:#eef;border-color:black;}
+.rcCalendar .datesTable .td.selected {color:black; background-color:#ccf; border-color:black; font-weight:600;}
+.rcCalendar .datesTable .td.selected a{color:black;}
 .rcCalendar .daysToday{display:block; text-align:center; padding:0.25em;}
 .rcCalendar a.daysToday { color:black; }
 .rcCalendar .yearsPager{display:block; height:3em; padding-top:0.5em; text-align:center; border:1px solid #ccc; border-radius:0.125em; margin:0.125em; background-color:#f6f6f6; }

@@ -41,8 +41,7 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 
 .boatSetupForm { position: absolute; z-index:1500; background-color: #eee; border: 1px solid #ccc; width: 21.5em; min-height: 10em; margin: 0em; padding: 0.125em 0.25em; box-shadow: 0.125em 0.125em 0.5em 0em rgba(125, 125, 125, 0.5); }
 
-.paper { padding: 0.25em 0.5em; }
-
+.tbDiary { padding: 0.25em 0.5em; }
 .diaryPhotos{position:relative; height:95vh; width:100%;}
 .diaryPhotos .rcImageGallery{ background-color:#fff;}
 .diaryPhotos .rcImageGallery:focus { outline: none !important; background-color: #D8E9FF; }
@@ -100,9 +99,20 @@ body.nightTransition .diaryPhotos .rcImageGallery { transition: background-color
 .photoScreen .lnkNext > i {right:0.5em;}
 
 .rcCalendar.diaryCalendar { width: calc(100vw - 40px); max-width:40em; right:10px; }
-.rcCalendar.diaryCalendar .datesTable td { height:4em; }
-.rcCalendar.diaryCalendar .datesTable td a, .rcCalendar.diaryCalendar .datesTable td a:active, .rcCalendar.diaryCalendar .datesTable td a:visited {padding-top:0.25em;}
+.rcCalendar.diaryCalendar .datesTable .td { height:4em; }
+.rcCalendar.diaryCalendar .datesTable .td a, .rcCalendar.diaryCalendar .datesTable .td a:active, .rcCalendar.diaryCalendar .datesTable .td a:visited {padding-top:0.25em;}
 .rcCalendar.diaryCalendar .icons { margin-top:0.25em;}
 .rcCalendar.diaryCalendar .icons>i {margin:0em 0.125em; color:#666;}
-
 .rcCalendar.logbookCalendar{right:10px;}
+
+@media (max-width:600px){
+	.rcCalendar.logbookCalendar{right:0px; width:100%;}
+}
+
+@media (max-height:500px){
+	.rcCalendar.diaryCalendar .datesTable .td a, .rcCalendar.diaryCalendar .datesTable .td a:active, .rcCalendar.diaryCalendar .datesTable .td a:visited {padding-top:0em;}
+	.rcCalendar.diaryCalendar .datesTable .td { height:3.25em; }
+	.rcCalendar.diaryCalendar .icons { margin-top:0em;}
+	.rcCalendar .linkButton { min-height: unset; padding: 0em 0.25em;}
+	.rcCalendar .header>span { margin-top: 0em; }
+}

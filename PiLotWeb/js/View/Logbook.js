@@ -74,7 +74,7 @@ PiLot.View.Logbook = (function () {
 			let divCalendar = logbookControl.querySelector('.logbookCalendar');
 			let calendarLink = logbookControl.querySelector('.lblCalendarLink');
 			let calendarDate = logbookControl.querySelector('.lblCalendarDate');
-			this.calendar = new RC.Controls.Calendar($(divCalendar), $(calendarDate), $(calendarLink), this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes());
+			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes());
 			if (divCalendar.classList.contains('diaryCalendar')) {
 				this.diaryInfoCache = new PiLot.Model.Logbook.DiaryInfoCache();
 				new PiLot.View.Logbook.DiaryCalendar(this.calendar, this.diaryInfoCache);
@@ -1236,9 +1236,10 @@ PiLot.View.Logbook = (function () {
 		/// adds the icons for the data available for one day. Expects the data and the
 		/// control (the table cell or whatever container contains the day link)
 		addCalendarIcons: function (pDayInfo, pCell) {
-			const link = pCell.find('a');
-			link.find('.icons').remove();
-			let iconsDiv = RC.Utils.addDomObject('div', link, 'icons block');
+			const link = pCell.querySelector('a');
+			link.querySelectorAll('.icons').forEach(e => e.parentNode.removeChild(e));
+			const iconsDiv = RC.Utils.addDomObject('div', link, 'icons');
+			iconsDiv.classList.add('block');
 			if (pDayInfo.hasLogbook) this.addIcon(iconsDiv, 'icon-quill');
 			if (pDayInfo.hasTrack) this.addIcon(iconsDiv, 'icon-map2');
 			if (pDayInfo.hasPhotos) this.addIcon(iconsDiv, 'icon-pictures');

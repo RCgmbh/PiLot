@@ -66,7 +66,7 @@ PiLot.Templates.Logbook = {
 					<a href="#" class="lnkPreviousDay"><i class="icon-arrow-left2"></i></a><span 
 						class="lblCalendarDate lblCalendarLink inlineBlock marginLeft marginRight pointer"></span><a
 						href="#" class="lnkNextDay"><i class="icon-arrow-right2"></i></a>
-					<div class="logbookCalendar"></div>
+					<div class="logbookCalendar" hidden></div>
 				</div>
 			</div>
 			<div class="dataContainerHalf">
@@ -75,7 +75,7 @@ PiLot.Templates.Logbook = {
 			</div>
 			<div class="dataContainerHalf paddingRight">
 				<span class="block semiBold marginBottom" data-text="diary"></span>
-				<textarea class="tbDiary fullWidth paper" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+				<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 			</div>
 		</div>`,
 
@@ -87,7 +87,7 @@ PiLot.Templates.Logbook = {
 					<a href="#" class="lnkPreviousDay biggerText"><i class="icon-arrow-left2"></i></a><i
 						class="icon-calendar2 lblCalendarLink inlineBlock marginLeft marginRight pointer biggerText"></i><a
 						href="#" class="lnkNextDay biggerText"><i class="icon-arrow-right2"></i></a>
-					<div class="logbookCalendar diaryCalendar"></div>
+					<div class="logbookCalendar diaryCalendar" hidden></div>
 				</div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">

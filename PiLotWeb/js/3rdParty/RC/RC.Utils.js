@@ -67,13 +67,22 @@ RC.Utils = {
 	},
 
 	/// creates a dom object using the given tag, assigns css classes and adds it as last
-	/// child to pParent. All of them are represented as jQuery objects
+	/// child to pParent. Works with both jQuery objects and HTMLElements
 	addDomObject: function (pTag, pParent, pCssClass) {
 		var obj = document.createElement(pTag);
-		var result = $(obj).appendTo(pParent);
-		if (pCssClass) {
-			result.addClass(pCssClass);
-		}
+		let result;
+		if (pParent instanceof jQuery) {
+			result = $(obj).appendTo(pParent);
+			if (pCssClass) {
+				result.addClass(pCssClass);
+			}
+		} else {
+			result = obj;
+			pParent.appendChild(result);
+			if (pCssClass) {
+				result.classList.add(pCssClass);
+			}
+		}		
 		return result;
 	},
 
