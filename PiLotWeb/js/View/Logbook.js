@@ -66,22 +66,23 @@ PiLot.View.Logbook = (function () {
 
 		/// draws the page and finds the controls and binds handlers
 		draw: function () {
-			let logbookControl = PiLot.Utils.Common.createNode(this.template);
+			const logbookControl = PiLot.Utils.Common.createNode(this.template);
 			PiLot.Utils.Loader.getContentArea().appendChild(logbookControl);
 			this.lblFriendlyDate = logbookControl.querySelector('.lblFriendlyDate');
 			this.lblLogbook = logbookControl.querySelector('.lblLogbook');
 			this.lblTodaysLogbook = logbookControl.querySelector('.lblTodaysLogbook');
-			let divCalendar = logbookControl.querySelector('.logbookCalendar');
-			let calendarLink = logbookControl.querySelector('.lblCalendarLink');
-			let calendarDate = logbookControl.querySelector('.lblCalendarDate');
-			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes());
+			const divCalendar = logbookControl.querySelector('.logbookCalendar');
+			const calendarLink = logbookControl.querySelector('.lblCalendarLink');
+			const calendarDate = logbookControl.querySelector('.lblCalendarDate');
+			const locale = PiLot.Utils.Language.getLocale();
+			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes(), locale);
 			if (divCalendar.classList.contains('diaryCalendar')) {
 				this.diaryInfoCache = new PiLot.Model.Logbook.DiaryInfoCache();
 				new PiLot.View.Logbook.DiaryCalendar(this.calendar, this.diaryInfoCache);
 			}
 			this.lnkPreviousDay = logbookControl.querySelector('.lnkPreviousDay');
 			this.lnkNextDay = logbookControl.querySelector('.lnkNextDay');
-			let options = { isReadOnly: this.logbookReadonly, sortDescending: this.sortDescending };
+			const options = { isReadOnly: this.logbookReadonly, sortDescending: this.sortDescending };
 			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(logbookControl, this.currentBoatTime, options);
 			this.tbDiary = logbookControl.querySelector('.tbDiary');
 			if (this.tbDiary !== null) {
@@ -93,7 +94,7 @@ PiLot.View.Logbook = (function () {
 				this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
 				this.lblDistanceNm = this.plhDistance.querySelector('.lblDistanceNm');
 			}
-			let plhMap = logbookControl.querySelector('.plhMap');
+			const plhMap = logbookControl.querySelector('.plhMap');
 			if (plhMap !== null) {
 				this.map = this.map || new PiLot.View.Map.Seamap(plhMap, { persistMapState: false });
 			}

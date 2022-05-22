@@ -515,11 +515,12 @@ PiLot.View.Map = (function () {
 			this.selTrackMode.addEventListener('change', this.selTrackMode_change.bind(this));
 			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
 			const tbStartDate = optionsControl.querySelector('.tbStartDate');
-			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, this.calDate_change.bind(this));
+			const locale = PiLot.Utils.Language.getLocale();
+			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, this.calDate_change.bind(this), null, locale);
 			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
 			this.calStartDate.showDate();
 			const tbEndDate = optionsControl.querySelector('.tbEndDate');
-			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, this.calDate_change.bind(this));
+			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, this.calDate_change.bind(this), null, locale);
 			if (this.startTime && this.seconds) {
 				this.calEndDate.date(this.startTime.toLocal().plus({ seconds: this.seconds }).minus({ days: 1 }));
 			}

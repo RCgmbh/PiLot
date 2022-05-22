@@ -11,7 +11,7 @@ RC.Controls = (function () {
 	/// must be passed as an HTMLElement.
 	/// pOnDateSelected: a function which will be called when a day is selected in the calendar
 	/// possibility to add custom content into the day control: passs a function in setOnMonthRendered()
-	var Calendar = function (pContainer, pControlToAttach, pCalendarLink, pOnDateSelected, pUtcOffset) {
+	var Calendar = function (pContainer, pControlToAttach, pCalendarLink, pOnDateSelected, pUtcOffset, pLocale) {
 		this.container = pContainer;			// HTMLElement
 		this.attachedTo = pControlToAttach;		// HTMLElement
 		this.calendarLink = pCalendarLink;
@@ -20,6 +20,7 @@ RC.Controls = (function () {
 			this.onDateSelected = pOnDateSelected;
 		}
 		this.utcOffset = pUtcOffset || 0;
+		this.locale = pLocale || 'en';
 		this.onMonthRendered = null;
 		this.selectedDate = null;	// luxon object
 		this.firstDay = null;		// luxon object, the first day in the days view. Can be part of the previous month
@@ -108,7 +109,7 @@ RC.Controls = (function () {
 		/// click handler for the today link
 		lnkDaysToday_Click: function () {
 			const localNow = RC.Date.DateHelper.localNow(this.utcOffset).startOf('day');
-			this.date(DateTime.utc(localNow.year, localNow.month, localNow.day)); // we use utc generally
+			this.date(DateTime.utc(localNow.year, localNow.month, localNow.day).setLocale(this.locale)); // we use utc generally
 			this.renderCurrentView();
 			this.showDate();
 			this.dateSelected();
@@ -146,7 +147,7 @@ RC.Controls = (function () {
 		/// click handler for the years in the years table
 		year_Click: function (pYear) {
 			this.setYear(pYear);
-			this.changeMode(0);
+			this.changeMode(1);
 		},
 
 		/// keydown handler for the attached textfield
@@ -274,7 +275,6 @@ RC.Controls = (function () {
 			this.pnlYearsView.hidden = (this.mode !== 2);
 			this.pnlHeader.hidden = (this.mode === 2);
 			this.pnlHeaderMonth.hidden = (this.mode !== 0);
-			//this.pnlHeaderYear.hidden = (this.mode === 2);
 			this.firstDay = null;
 			this.lastDay = null;
 			switch (this.mode) {
@@ -304,7 +304,7 @@ RC.Controls = (function () {
 		addWeekDayHeader: function (pDaysTable) {
 			const header = this.addTableRow(pDaysTable, '');
 			let cell;
-			let loopDate = DateTime.utc();
+			let loopDate = DateTime.utc().setLocale(this.locale);
 			for (let i = 0; i < 7; i++) {
 				loopDate = loopDate.set({ weekday: this.calendarStartDayISO + i });
 				cell = this.addTableHeaderCell(header, 'day' + loopDate.weekday);
@@ -317,11 +317,11 @@ RC.Controls = (function () {
 		renderDaysView: function () {
 			this.container.querySelectorAll('.trDays').forEach(e => e.parentNode.removeChild(e));
 			this.dayCells = new Map();
-			let loopDate = DateTime.utc(this.currentYear, this.currentMonth, 1);
+			let loopDate = DateTime.utc(this.currentYear, this.currentMonth, 1).setLocale(this.locale);
 			const endDate = loopDate.plus({ months: 1 }).minus({ days: 1 }); // this is not exactly the end date, but as we always render one whole week, it's ok
 			this.renderMonthHeader(loopDate);
 			this.renderYearHeader(loopDate);
-			const today = RC.Date.DateHelper.localNow(this.utcOffset);
+			const today = RC.Date.DateHelper.localNow(this.utcOffset).setLocale(this.locale);
 			this.calendarStartDayISO = Math.max(Math.min(7, this.calendarStartDayISO), 1); // make sure we are within 1..7
 			while (loopDate.weekday !== this.calendarStartDayISO)  {
 				loopDate = loopDate.minus({ days: 1 });
@@ -363,7 +363,7 @@ RC.Controls = (function () {
 		renderMonthsView: function () {
 			this.container.querySelectorAll('.months .tr').forEach(e => e.parentNode.removeChild(e));
 			const today = RC.Date.DateHelper.localNow(this.utcOffset);
-			let loopDate = DateTime.utc(this.currentYear, 1, 1);
+			let loopDate = DateTime.utc(this.currentYear, 1, 1).setLocale(this.locale);
 			const currentDate = DateTime.utc(this.currentYear, this.currentMonth, 1);
 			this.renderYearHeader(currentDate);
 			let row;
@@ -372,7 +372,7 @@ RC.Controls = (function () {
 				if ((month-1) % 4 === 0) {
 					row = this.addTableRow(this.tblMonths, '');
 				}
-				cell = this.addTableCell(row, '');
+				cell = this.addTableCell(row, 'middle');
 				cell.innerText = loopDate.toLocaleString({ month: 'short' });
 				cell.addEventListener('click', this.month_Click.bind(this, month));
 				cell.classList.toggle('selected', ((this.selectedDate !== null) && loopDate.hasSame(this.selectedDate, 'months')));
@@ -394,7 +394,7 @@ RC.Controls = (function () {
 				if (i % 3 === 0) {
 					row = this.addTableRow(this.tblYears, '');
 				}
-				cell = this.addTableCell(row, '');
+				cell = this.addTableCell(row, 'middle');
 				cell.innerText = year.toString();
 				cell.addEventListener('click', this.year_Click.bind(this, year));
 				cell.classList.toggle('selected', year === this.currentYear);
@@ -419,7 +419,7 @@ RC.Controls = (function () {
 				}
 				const parts = dateText.split(/[.;:-\s]+/);
 				if (parts.length === 1) {
-					if ($.isNumeric(parts[0])) {
+					if (RC.Utils.isNumeric.isNumeric(parts[0])) {
 						date = DateTime.utc(now.year, now.month, now.day).plus({ days: Number(parts[0]) * sign });
 					}
 				} else if (RC.Utils.isNumeric(parts[0]) && RC.Utils.isNumeric(parts[1])) {

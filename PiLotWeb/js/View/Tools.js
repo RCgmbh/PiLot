@@ -70,11 +70,12 @@ PiLot.View.Tools = (function () {
 			loader.getContentArea().appendChild(this.pageContent);
 			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			let tbStartDate = this.pageContent.querySelector('.tbStartDate');
-			this.calStartDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalStartDate'), tbStartDate, null, null);
+			const locale = PiLot.Utils.Language.getLocale();
+			this.calStartDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalStartDate'), tbStartDate, null, null, null, locale);
 			this.tbStartTime = this.pageContent.querySelector('.tbStartTime');
 			this.pageContent.querySelector('.lnkStartTimeFromMap').addEventListener('click', this.lnkTimeFromMap_click.bind(this, this.calStartDate, this.tbStartTime));
 			var tbEndDate = this.pageContent.querySelector('.tbEndDate');
-			this.calEndDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalEndDate'), tbEndDate, null, null);
+			this.calEndDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalEndDate'), tbEndDate, null, null, null, locale);
 			this.tbEndTime = this.pageContent.querySelector('.tbEndTime');
 			this.pageContent.querySelector('.lnkEndTimeFromMap').addEventListener('click', this.lnkTimeFromMap_click.bind(this, this.calEndDate, this.tbEndTime));
 			this.pageContent.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
