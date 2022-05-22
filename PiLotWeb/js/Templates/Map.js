@@ -90,7 +90,7 @@ PiLot.Templates.Map = {
 	mapTrackOptions: { color: 'green' },
 
 	mapTrackSlider: `
-		<div class= "mapSliderContainer hidden">
+		<div class="mapSliderContainer" hidden>
 			<div class="inner"><div class="slider"></div></div>
 			<div class="time"></div>
 		</div>`,

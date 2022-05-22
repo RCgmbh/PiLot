@@ -15,7 +15,7 @@ h3 { font-size: 1.1em; }
   box-sizing: border-box;
 }
 input[type=text]::-ms-clear {display: none;}
-
+*[hidden] {display: none !important;}
 
 /* NIGHT MODE incl. TRANSITION */
 body.night, body.night .inlineTextbox {background-color:black;color:#ccc;}

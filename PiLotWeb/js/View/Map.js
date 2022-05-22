@@ -114,7 +114,11 @@ PiLot.View.Map = (function () {
 				if (this.showLayers) {
 					let tileSources = await PiLot.Model.Nav.readAllTileSourcesAsync();
 					for (const tileSource of tileSources) {
-						this.addTileLayer(PiLot.Utils.Common.toLocalUrl(tileSource.getLocalUrl()));
+						let localUrl = tileSource.getLocalUrl();
+						if ((localUrl.indexOf('https://') !== 0) && (localUrl.indexOf('http://') !== 0)) {
+							localUrl = PiLot.Utils.Common.toLocalUrl(localUrl);
+						}
+						this.addTileLayer(localUrl);
 					}
 				}
 				var isMapStateSet = false;
@@ -703,7 +707,7 @@ PiLot.View.Map = (function () {
 				if (pResetPosition) {
 					this.timeSlider.slider("value", 0);
 				}
-				this.timeSliderContainer.show();
+				this.timeSliderContainer[0].hidden = false;
 				this.historicPosition = this.track.getPositionAt(this.timeSlider.slider("option", "value"));
 				if (this.historicPosition != null) {
 					this.drawHistoricPosition();
@@ -719,7 +723,7 @@ PiLot.View.Map = (function () {
 				this.historicPositionMarker.remove();
 				this.historicPositionMarker = null;
 			}
-			this.timeSliderContainer.hide();
+			this.timeSliderContainer[0].hidden = true;
 		},
 
 		/// returns the position at the time selected by the time slider,

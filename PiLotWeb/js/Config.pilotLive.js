@@ -26,5 +26,9 @@ PiLot.Config = {
 
 	Media: {
 		libraryUrl: 'https://gutenberg.org/ebooks/bookshelf/374'
+	},
+
+	Language: {
+		availableLanguages: ['de', 'en']
 	}
 };
