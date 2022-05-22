@@ -318,8 +318,10 @@ PiLot.View.Admin = (function () {
 			this.loadNetworksAsync();
 		},
 
-		lnkName_click: async function (pSSID, pIsKnown, pNumber) {
-			if (!pIsKnown) {
+		lnkName_click: async function (pSSID, pIsAvailable, pIsKnown, pNumber) {
+			if (!pIsAvailable) {
+				alert(PiLot.Utils.Language.getText('wifiUnavailable'));
+			} else if (!pIsKnown) {
 				this.showKeyDialog(pSSID);
 			} else {
 				this.showHideWait(true);
@@ -387,13 +389,15 @@ PiLot.View.Admin = (function () {
 			const interval = window.setInterval(this.showOutput.bind(this, '.'), 1000);
 			const networks = await this.wifiHelper.getWiFiInfosAsync();
 			if (networks) {
-				networks.sort((a, b) => { return b.signalStrength - a.signalStrength; });
+				networks.sort(function (a, b) {
+					return (b.signalStrength || -100) - (a.signalStrength || -100) || a.ssid.localeCompare(b.ssid); 					
+				});
 				for (let i = 0; i < networks.length; i++) {
 					const node = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.networkInfo);
 					this.plhNetworks.appendChild(node);
 					const lnkName = node.querySelector('.lnkName');
 					lnkName.innerText = networks[i].ssid;
-					lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isKnown, networks[i].number));
+					lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isAvailable, networks[i].isKnown, networks[i].number));
 					const level = Math.ceil(networks[i].signalStrength / -33);
 					node.querySelector('.icoWeak').hidden = (level != 3);
 					node.querySelector('.icoMedium').hidden = (level != 2);
