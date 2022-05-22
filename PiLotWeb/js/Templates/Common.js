@@ -70,7 +70,7 @@ PiLot.Templates.Common = {
 	`,
 
 	loginForm: `
-		<div class="dialogPanel round center" style="width:50vw; min-width: 20em; max-width: 30em;">
+		<div class="dialogPanel round hCenter center" style="width:50vw; min-width: 20em; max-width: 30em;">
 			<div class="pnlLoginFailed feedbackBad marginAll hidden" data-text="loginFailed"></div>
 			<div class="pnlLoginForm marginAll feedbackWarning">
 				<div class="center">

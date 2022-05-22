@@ -6,7 +6,7 @@
 .triangleUp{border-bottom:0.5em solid black; border-top-style:none;}
 .triangleDown{border-top:0.5em solid black; border-bottom-style:none;}
 		
-.rcCalendar{ color:black; padding:0.125em; background-color:white; border:1px solid #aaa; border-radius:0.25em; width:22em; position:absolute; box-shadow:1px 1px 4px #666;}
+.rcCalendar{ color:black; padding:0.125em; background-color:white; border:1px solid #aaa; border-radius:0.25em; width:22em; min-width:20em; position:absolute; box-shadow:1px 1px 4px #666;}
 .rcCalendar a.linkButton { display:inline-block; background-color:#f6f6f6; border:1px solid #ccc; border-radius:0.125em; padding:0.25em; text-align:center; line-height:1.5em; padding-top:0.5em; min-width:2.75em; }
 .rcCalendar a.linkButton:hover { background-color:#eef; border-color:black;}
 .rcCalendar .th {text-align:center;}

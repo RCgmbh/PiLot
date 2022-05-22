@@ -99,14 +99,14 @@ body.night div.feedbackWarning, body.night span.feedbackWarning{border-color:#A3
 div.feedbackInfo, span.feedbackInfo{border-color:#4992FF; }
 body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; }
 
-.dialogPanel{ position: absolute;
+.dialogPanel{
+	position: absolute;
 	border: 1px solid #666;
 	background-color:white;
 	box-shadow: 0.5em 0.5em 1.5em -0.5em rgba(100, 100, 100, 0.7);
 	z-index:3500;
 }
 .dialogPanel.round { border-radius:0.25em; }
-.dialogPanel.center { left:0; right:0; margin-left:auto; margin-right: auto; }
 body.night .dialogPanel { background-color: black; }
 
 .sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
@@ -213,7 +213,8 @@ textarea.big{height:20em;}
 .flex{display:flex;}
 .left { text-align: left; }
 .middle { vertical-align: middle; }
-.center { text-align: center; margin-left: auto; margin-right: auto; }
+.center { text-align: center; }
+.hCenter { margin-left: auto; margin-right: auto; left:0; right:0; }
 .vCenter { display: flex; flex-direction:column; justify-content:center; }
 .right { text-align: right; }
 .floatRight{float:right;}
@@ -324,6 +325,15 @@ th.right, td.right { text-align:right !important;}
 
 .rcCalendar {z-index: 1200; }
 
+@media (max-width:400px){
+	.rcCalendar {left: 0px; right:0px; width:100vw;}
+}
+
+@media (max-height:500px){
+	.rcCalendar .linkButton { min-height: unset; padding: 0em 0.25em;}
+	.rcCalendar .header>span { margin-top: 0em; }
+}
+
 /* Moon */
 .moonContainer{height:10em; min-height:10em; width:64em; min-width:64em;}
 .moonImage { width:4em;height:4em;margin:3em 2em; z-index:2; float:left; position:relative;}
@@ -415,7 +425,7 @@ body { min-width: 20em; }
 #subMenu{ flex-grow: 5; display:flex; justify-content:flex-start; align-items:flex-end; }
 #subMenu > a { display:inline-block; min-width:2.25em; margin: 0em 0.25em; flex-basis:2.25em; flex-grow:1; max-width:4em; }
 #subMenu > a > i { font-size: 1.5em; line-height:1.25em;}
-#headerButtons { flex-grow:2; display:flex; justify-content:space-evenly; gap: 0.25em;}
+#headerButtons { flex-grow:2; max-width:20em; display:flex; justify-content:space-evenly; gap: 0.25em;}
 #dayNightButtons {display:flex; gap:0.125em;}
 #dayNightButtons > a { width:1.5em; text-align:center; }
 #dayNightButtons > a > i { font-size: 1.5em; }

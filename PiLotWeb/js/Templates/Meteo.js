@@ -72,8 +72,8 @@ PiLot.Templates.Meteo = {
 
 	moonInfo: `
 		<div class="dataContainerFull marginBottom marginRightBig">
-			<div class="borderBox bgLight center fullWidth">
-				<div class="moonContainer block center">
+			<div class="borderBox bgLight fullWidth">
+				<div class="moonContainer block hCenter center">
 					<img src="img/moonNew.svg" class="imgMoonNew moonImage active" />
 					<img src="img/moonWaxingCrescent.svg" class="imgMoonWaxingCrescent moonImage" />
 					<img src="img/moonFirstQuarter.svg" class="imgMoonFirstQuarter moonImage" />

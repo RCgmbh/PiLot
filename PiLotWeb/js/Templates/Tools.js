@@ -27,10 +27,10 @@ PiLot.Templates.Tools = {
 			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="gpsData"></span></h1>
 			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
 				<div class="marginBottomSmall"><span class="col4 inlineBlock" data-text="start"></span><input type="text" class="input4 tbStartDate"
-				/><div class="divCalStartDate"></div><input type="text" class="input3 tbStartTime" data-title="hhmm" /><a
+				/><div class="divCalStartDate" hidden></div><input type="text" class="input3 tbStartTime" data-title="hhmm" /><a
 				class="lnkStartTimeFromMap" href="#"><i class="icon-map2"></i></a></div>
 				<div class="marginBottomSmall"><span class="col4 inlineBlock" data-text="end"></span><input type="text" class="input4 tbEndDate"
-				/><div class="divCalEndDate"></div><input type="text" class="input3 tbEndTime" data-title="hhmm" /><a
+				/><div class="divCalEndDate" hidden></div><input type="text" class="input3 tbEndTime" data-title="hhmm" /><a
 				class="lnkEndTimeFromMap" href="#"><i class="icon-map2"></i></a></div>
 				<div class="marginBottomSmall"><span class="col4 inlineBlock"></span><button type="button" class="input7 btnLoadData marginBottom" data-text="loadData"></button></div>
 				<div class="col11 feedbackInfo divLoadingData hidden" data-text="loadingData"></div>
@@ -138,7 +138,7 @@ PiLot.Templates.Tools = {
 					<input type="checkbox" id="cbForceDownload"><label for="cbForceDownload" data-text="replaceTiles"></label>
 				</div>
 			</div>
-			<div class="dataContainerFull paddingRight divStats" style="display:flex">
+			<div class="dataContainerFull paddingRight divStats" style="display:flex; flex-wrap:wrap;">
 				<div><span data-text="zoom"></span>: <span class="lblZoom"></span> |&nbsp;</div>
 				<div><span data-text="downloaded"></span>: <span class="lblDownloadCount">0</span> <span data-text="tiles"></span>, <span class="lblDownloadKB">0</span> <span data-text="kb"></span> |&nbsp;</div>
 				<div><span data-text="remaining"></span>: <span class="lblPendingCount">0</span> <span data-text="tiles"></span></div>
