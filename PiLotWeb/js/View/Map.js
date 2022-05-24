@@ -712,7 +712,7 @@ PiLot.View.Map = (function () {
 		showTimeSlider: function (pResetPosition) {
 			if (this.track && this.track.getPositionsCount() > 0) {
 				if (pResetPosition) {
-					this.timeSlider.slider("value", 0);
+					this.timeSlider.value = 0;
 				}
 				this.timeSliderContainer.hidden = false;
 				this.historicPosition = this.track.getPositionAt(this.timeSlider.value)
