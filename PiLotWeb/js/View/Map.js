@@ -456,8 +456,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles sliding the slider
-		timeSlider_slide: function (event, ui) {
-			this.historicPosition = this.track.getPositionAt(ui.value * this.timeScaleFactor);
+		timeSlider_slide: function () {
+			this.historicPosition = this.track.getPositionAt(this.timeSlider.value * this.timeScaleFactor);
 			if (this.historicPosition !== null) {
 				this.drawHistoricPosition();
 			}
@@ -536,12 +536,18 @@ PiLot.View.Map = (function () {
 
 		/// adds the slider and binds events. 
 		addTimeSlider: function () {
-			this.timeSliderContainer = $(PiLot.Templates.Map.mapTrackSlider);
+			/*this.timeSliderContainer = $(PiLot.Templates.Map.mapTrackSlider);
 			this.timeSlider = this.timeSliderContainer.find('.slider');
 			$(this.map.getMapContainer()).after(this.timeSliderContainer);
 			this.timeSlider.slider({ min: 0, max: 1000 });
 			this.timeSlider.on('slide', this.timeSlider_slide.bind(this));
-			this.timeField = this.timeSliderContainer.find('.time');
+			this.timeField = this.timeSliderContainer.find('.time');*/
+			this.timeSliderContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapTrackSlider);
+			this.timeSlider = this.timeSliderContainer.querySelector(".slider");
+			this.map.getMapContainer().insertAdjacentElement('afterend', this.timeSliderContainer);
+			this.timeSlider.addEventListener('input', this.timeSlider_slide.bind(this));
+			this.timeField = this.timeSliderContainer.querySelector('.time');
+
 		},
 
 		/// this makes sure we have a time scale factor which allows
@@ -550,7 +556,8 @@ PiLot.View.Map = (function () {
 			if ((this.track !== null) && this.timeSlider) {
 				var trackLength = this.track.getPositionsCount();
 				this.timeScaleFactor = Math.ceil(trackLength / this.maxTimeSteps);
-				this.timeSlider.slider("option", "max", Math.ceil(trackLength / this.timeScaleFactor)-1);
+				//this.timeSlider.slider("option", "max", Math.ceil(trackLength / this.timeScaleFactor)-1);
+				this.timeSlider.setAttribute("max", Math.ceil(trackLength / this.timeScaleFactor) - 1);
 			}
 		},
 
@@ -707,8 +714,8 @@ PiLot.View.Map = (function () {
 				if (pResetPosition) {
 					this.timeSlider.slider("value", 0);
 				}
-				this.timeSliderContainer[0].hidden = false;
-				this.historicPosition = this.track.getPositionAt(this.timeSlider.slider("option", "value"));
+				this.timeSliderContainer.hidden = false;
+				this.historicPosition = this.track.getPositionAt(this.timeSlider.value)
 				if (this.historicPosition != null) {
 					this.drawHistoricPosition();
 				}
@@ -723,7 +730,7 @@ PiLot.View.Map = (function () {
 				this.historicPositionMarker.remove();
 				this.historicPositionMarker = null;
 			}
-			this.timeSliderContainer[0].hidden = true;
+			this.timeSliderContainer.hidden = true;
 		},
 
 		/// returns the position at the time selected by the time slider,

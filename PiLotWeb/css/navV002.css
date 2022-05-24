@@ -65,11 +65,14 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 .navCurrentPosition{display:inline-block; border:3px solid black; height:1em;width:1em; border-radius:0.5em;background-color:#eee; }
 .option.active > .navCurrentPosition {background-color:#FFBF49; }
 
-.mapSliderContainer {position: relative; display:block; width:calc(100% - 2em); left:2em; bottom: 3.5em; z-index: 650; margin-bottom:-2em; }
-.mapSliderContainer>.inner {display:inline-block; width:calc(95% - 8.6em);left: 5%;}
-.mapSliderContainer>.inner>.slider { background-color: rgba(125, 125, 125,0.25); height:0.75em; width: 100%; border: 1px solid #666; border-radius:3px;  }
-.mapSliderContainer>.inner>.slider .ui-slider-handle {z-index: 651; background-color:#666; Border:1px solid #333; border-radius:0px; height:1.75em; width:1.25em; left:-0.55em; top:-0.5em;}
+/*.mapSliderContainer {position: relative; display:flex; width:calc(100% - 1em); left:0.5em; bottom: 3.75em; z-index: 650; margin-bottom:-2em; }*/
+.mapSliderContainer {position: relative; display:flex; width:100%; bottom: 3.75em; margin-bottom:-2em; padding:0em 0.5em; z-index: 1050; }
+@media (max-height:400px){ .mapSliderContainer { padding-left: 4em; bottom:2.5em; } }
+.mapSliderContainer .slider { flex-grow:1; height: 0.75em; margin-top: 0.5em; background: rgba(125, 125, 125, 0.5);  outline: none;  -webkit-appearance: none; }
+.mapSliderContainer .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 1.25em; height: 2em; border-radius:3px; background: #666; cursor: pointer; }
+.mapSliderContainer .slider::-moz-range-thumb { width: 1.25em; height: 2em; background: #666; cursor: pointer; border-radius:3px; }
 .mapSliderContainer>.time{ display:inline-block; width:8.5em; height:1.75em; margin-left:0.5em;padding:0.125em; background-color: rgba(255, 255, 255, 0.7); border: 1px solid #666; border-radius:3px; vertical-align:middle; }
+
 /* NIGHT STYLES INCL TRANSITIONS */
 body.night .leaflet-container { background-color: black; }
 body.night img.leaflet-tile{filter: opacity(40%) saturate(150%);}

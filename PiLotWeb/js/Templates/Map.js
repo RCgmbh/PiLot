@@ -91,7 +91,7 @@ PiLot.Templates.Map = {
 
 	mapTrackSlider: `
 		<div class="mapSliderContainer" hidden>
-			<div class="inner"><div class="slider"></div></div>
+			<input type="range" class="slider" min="0" max="1000" value="0" />
 			<div class="time"></div>
 		</div>`,
 
