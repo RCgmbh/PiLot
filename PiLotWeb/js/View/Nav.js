@@ -701,23 +701,7 @@ PiLot.View.Nav = (function () {
 		/// handles the changeWaypoints event of the route
 		route_changeWaypoints: function (pSender, pArg) {
 			this.showTotalDistance();
-		},
-
-		/// handles the end of sorting the list. A bit smelly, 
-		/// this creates a new waypoints array, ordered by the
-		/// order of the divWayoint divs, and assings it to the route
-		sortable_stop: function (event, ui) {
-			let waypointNodes = Array.from(this.divWaypoints.childNodes);
-			let waypoints2 = new Array();
-			let waypointForm = null;
-			for (var i = 0; i < waypointNodes.length; i++) {
-				waypointForm = this.waypointForms.find(pItem => pItem.getHtmlElement() === waypointNodes[i]);
-				if (waypointForm !== null) {
-					waypoints2.push(waypointForm.waypoint);
-				}
-			}
-			this.route.setWaypoints(waypoints2);
-			this.showWaypoints(false);
+			this.showWaypoints(true);
 		},
 
 		/** loads the route from the server, if we have a valid routeId query string,
@@ -782,37 +766,18 @@ PiLot.View.Nav = (function () {
 		/// pResetAll to enforce redrawing of all waypoints, which is necessary to reflect
 		/// any deleted waypoints
 		showWaypoints: function (pResetAll) {
-			let waypointFormsChanged = false;
 			if (pResetAll) {
 				this.divWaypoints.clear();
 				this.waypointForms = new Array();
-				waypointFormsChanged = true;
 			}
 			var waypoints = this.route.getWaypoints();
 			for (var i = 0; i < waypoints.length; i++) {
 				if (!this.waypointForms.find(function (pValue) { return pValue.waypoint === waypoints[i] })){
 					this.waypointForms.push(new WaypointForm(waypoints[i], this, this.divWaypoints));
-					waypointFormsChanged = true;
 				}
 			}
 			this.waypointForms.forEach(function (pItem) {
 				pItem.showWaypoint();
-			});
-			if (waypointFormsChanged) {
-				this.attachSortable();
-			}
-		},
-
-		/// attaches the jquery ui sortable to the list of waypoints
-		attachSortable: function () {
-			var sortedHandler = this.sortable_stop.bind(this);
-			$(this.divWaypoints).sortable({
-				placeholder: "navWaypointPlaceholder",
-				forcePlaceholderSize: true,
-				opacity: 0.5,
-				handle: ".handle",
-				tolerance: "intersect",
-				stop: sortedHandler
 			});
 		},
 
@@ -886,11 +851,24 @@ PiLot.View.Nav = (function () {
 
 		/// click handler for the delete waypoint link
 		lnkDeleteWaypoint_click: function () {
+			event.preventDefault();
 			const message = PiLot.Utils.Language.getText('confirmDeleteWaypoint').replace("{{waypointName}}", this.waypoint.getName());
 			if (confirm(message)) {
 				this.routeDetail.getRoute().deleteWaypoint(this.waypoint, this);
 			}
 			return false;
+		},
+
+		lnkMoveUp_click: function () {
+			event.preventDefault();
+			const route = this.routeDetail.getRoute();
+			route.swapWaypoints(this.waypoint, route.getPreviousWaypoint(this.waypoint));
+		},
+
+		lnkMoveDown_click: function () {
+			event.preventDefault();
+			const route = this.routeDetail.getRoute();
+			route.swapWaypoints(this.waypoint, route.getNextWaypoint(this.waypoint));
 		},
 
 		/// change handler for the latitude form
@@ -918,6 +896,9 @@ PiLot.View.Nav = (function () {
 
 		/// draws the form based on the template, only needs to be called once
 		drawForm: function () {
+			const waypoints = this.routeDetail.getRoute().getWaypoints();
+			const index = waypoints.indexOf(this.waypoint);
+			const isLast = (index == waypoints.length - 1);
 			this.form = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.waypointForm);
 			this.container.appendChild(this.form);
 			this.tbWaypointName = this.form.querySelector('.tbWaypointName');
@@ -926,6 +907,16 @@ PiLot.View.Nav = (function () {
 				RC.Utils.selectOnFocus(this.tbWaypointName);
 				this.lnkDelete = this.form.querySelector('.lnkDeleteWaypoint');
 				this.lnkDelete.addEventListener('click', this.lnkDeleteWaypoint_click.bind(this));
+				const lnkMoveUp = this.form.querySelector('.lnkMoveUp');
+				if (index != 0) {
+					lnkMoveUp.addEventListener('click', this.lnkMoveUp_click.bind(this));
+				}
+				lnkMoveUp.classList.toggle('invisible', index == 0);
+				const lnkMoveDown = this.form.querySelector('.lnkMoveDown');
+				if (!isLast) {
+					lnkMoveDown.addEventListener('click', this.lnkMoveDown_click.bind(this));
+				}
+				lnkMoveDown.classList.toggle('invisible', isLast);
 				this.editLatitude = new PiLot.View.Nav.CoordinateForm(this.form.querySelector('.plhLatitude'), true).on('changeCoordinates', this.editLatitude_changeCoordinates.bind(this));
 				this.editLongitude = new PiLot.View.Nav.CoordinateForm(this.form.querySelector('.plhLongitude'), false).on('changeCoordinates', this.editLongitude_changeCoordinates.bind(this));
 

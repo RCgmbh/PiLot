@@ -82,9 +82,8 @@ PiLot.Templates.Nav = {
 				</div>
 				<div class="divButtons">
 					<a href="#" class="lnkDeleteWaypoint marginLeft linkButton"><i class="icon-trashcan"></i></a>
-					<span class="linkButton handle move"><span>
-						<i class="icon-arrow-up2"></i><i class="icon-arrow-down2"></i>
-					</span></span>
+					<a href="#" class="lnkMoveDown linkButton narrow"><i class="icon-arrow-down2"></i></a>
+					<a href="#" class="lnkMoveUp linkButton narrow"><i class="icon-arrow-up2"></i></a>					
 				</div>
 			</div>
 			<div class="block divLeg">

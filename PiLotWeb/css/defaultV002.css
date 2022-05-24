@@ -165,6 +165,7 @@ textarea.big{height:20em;}
 
 /* GENERAL CLASSES */
 .hidden, .block.hidden, .inlineBlock.hidden, .flex.hidden, a.hidden, span.hidden, div.hidden{display:none;}
+.invisible { visibility: hidden; }
 .fullHeight{height:100%; }
 .fullWidth { width: 100%; }
 .semiBold { font-weight:600; }
@@ -259,6 +260,7 @@ a.linkButton.active {color:#FFBF49;}
 .linkButton{transition: background-color 0.2s;}
 .linkButton{transition: color 0.5s;}
 button.linkButton { padding-top:0em; }
+.linkButton.narrow { min-width:1.75em; }
 
 a.tile { display:block; float:left; display:table; text-align:center; text-decoration:none; color:#000; border:1px solid #666; border-radius:0.5em;}
 a.tile.big {margin:1em; height:12em; width:12em;  }

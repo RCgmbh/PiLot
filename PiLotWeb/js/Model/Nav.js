@@ -106,10 +106,25 @@ PiLot.Model.Nav = (function () {
 			this.notifyObservers(pSender, 'addWaypoint', pWaypoint);
 		},
 
+		/// swaps two waypoints.
+		swapWaypoints: function (pWaypoint1, pWaypoint2) {
+			if (this.waypoints.includes(pWaypoint1) && this.waypoints.includes(pWaypoint2)) {
+				const index1 = this.waypoints.indexOf(pWaypoint1);
+				this.waypoints[this.waypoints.indexOf(pWaypoint2)] = pWaypoint1;
+				this.waypoints[index1] = pWaypoint2;
+				this.totalDistance = null;
+				this.saveToServer(null);
+				this.notifyObservers(this, 'changeWaypoints', this.waypoints);
+			}
+			else {
+				PiLot.log(`Invalid arguments in Route.swapWaypoints()`, 0);
+			}
+		},
+
 		/// deletes pWaypoint from the list of waypoints
 		deleteWaypoint: function (pWaypoint, pSender) {
 			this.totalDistance = null;
-			var index = this.waypoints.indexOf(pWaypoint);
+			let index = this.waypoints.indexOf(pWaypoint);
 			if (index > -1) {
 				this.waypoints.splice(index, 1);
 			}
@@ -120,9 +135,9 @@ PiLot.Model.Nav = (function () {
 		/// returns the waypoint just before pWaypoint, if 
 		/// pWaypoint is not null an not the first waypoint
 		getPreviousWaypoint: function (pWaypoint) {
-			var result = null;
+			let result = null;
 			if (pWaypoint != null) {
-				var index = this.waypoints.indexOf(pWaypoint);
+				const index = this.waypoints.indexOf(pWaypoint);
 				if (index > 0) {
 					result = this.waypoints[index - 1];
 				}
@@ -133,9 +148,9 @@ PiLot.Model.Nav = (function () {
 		/// returns the waypoint just after pWaypoint, if 
 		/// pWaypoint is not null an not the last waypoint
 		getNextWaypoint: function (pWaypoint) {
-			var result = null;
+			let result = null;
 			if (pWaypoint != null) {
-				var index = this.waypoints.indexOf(pWaypoint);
+				const index = this.waypoints.indexOf(pWaypoint);
 				if (index < this.waypoints.length - 1) {
 					result = this.waypoints[index + 1];
 				}
@@ -147,9 +162,9 @@ PiLot.Model.Nav = (function () {
 		getTotalDistance: function () {
 			if (this.totalDistance === null) {
 				this.totalDistance = 0;
-				var latLon1 = null;
-				var latLon2 = null;
-				for (var i = 1; i < this.waypoints.length; i++) {
+				let latLon1 = null;
+				let latLon2 = null;
+				for (let i = 1; i < this.waypoints.length; i++) {
 					latLon1 = this.waypoints[i - 1].getLatLon();
 					latLon2 = this.waypoints[i].getLatLon();
 					if (latLon1 && latLon2) {
@@ -164,7 +179,7 @@ PiLot.Model.Nav = (function () {
 		/// returns a numeric value indicating whether this is bigger, 
 		/// equal or less than pOther
 		compareTo: function (pOther, pCriterion, pSortAscending) {
-			var result = 0;
+			let result = 0;
 			if (pOther !== null) {
 				switch (pCriterion) {
 					case 'name':
