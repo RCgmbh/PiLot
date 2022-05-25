@@ -419,7 +419,7 @@ RC.Controls = (function () {
 				}
 				const parts = dateText.split(/[.;:-\s]+/);
 				if (parts.length === 1) {
-					if (RC.Utils.isNumeric.isNumeric(parts[0])) {
+					if (RC.Utils.isNumeric(parts[0])) {
 						date = DateTime.utc(now.year, now.month, now.day).plus({ days: Number(parts[0]) * sign });
 					}
 				} else if (RC.Utils.isNumeric(parts[0]) && RC.Utils.isNumeric(parts[1])) {
@@ -528,7 +528,7 @@ RC.Controls = (function () {
 				if (pDate === null) {
 					this.selectedDate = null;
 				} else if (pDate.isValid) {
-					this.selectedDate = pDate;
+					this.selectedDate = pDate.setLocale(this.locale);
 					this.currentYear = pDate.year;
 					this.currentMonth = pDate.month;
 				}

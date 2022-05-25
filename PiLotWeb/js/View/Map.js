@@ -376,6 +376,7 @@ PiLot.View.Map = (function () {
 		this.lnkShowTrack = null;
 		this.selTrackMode = null;
 		this.pnlCustomDates = null;
+		this.tbStartDate = null;
 		this.calStartDate = null;
 		this.calEndDate = null;
 		this.timeSliderContainer = null;
@@ -446,7 +447,7 @@ PiLot.View.Map = (function () {
 		/// handles changes in the dropdown
 		selTrackMode_change: function () {
 			this.readInputs();
-			RC.Utils.showHide(this.pnlCustomDates, this.selTrackMode.value === 'null');
+			this.pnlCustomDates.hidden = this.selTrackMode.value !== 'null';
 		},
 
 		/// handles changes in the start or end date fields. Dates
@@ -518,30 +519,26 @@ PiLot.View.Map = (function () {
 			this.selTrackMode.value = this.startTime ? "null" : this.seconds || "null";
 			this.selTrackMode.addEventListener('change', this.selTrackMode_change.bind(this));
 			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
-			const tbStartDate = optionsControl.querySelector('.tbStartDate');
+			this.tbStartDate = optionsControl.querySelector('.tbStartDate');
 			const locale = PiLot.Utils.Language.getLocale();
-			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, this.calDate_change.bind(this), null, locale);
+			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), this.tbStartDate, null, this.calDate_change.bind(this), null, locale);
 			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
 			this.calStartDate.showDate();
 			const tbEndDate = optionsControl.querySelector('.tbEndDate');
 			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, this.calDate_change.bind(this), null, locale);
 			if (this.startTime && this.seconds) {
 				this.calEndDate.date(this.startTime.toLocal().plus({ seconds: this.seconds }).minus({ days: 1 }));
+			} else {
+				this.calEndDate.date(this.endTime);
 			}
 			this.calEndDate.showDate();
-			RC.Utils.showHide(this.pnlCustomDates, this.startTime !== null);
+			this.pnlCustomDates.hidden = this.selTrackMode.value !== "null";
 			this.map.addSettingsItem(optionsControl);
-			RC.Utils.selectOnFocus(tbStartDate, tbEndDate);
+			RC.Utils.selectOnFocus(this.tbStartDate, tbEndDate);
 		},
 
 		/// adds the slider and binds events. 
 		addTimeSlider: function () {
-			/*this.timeSliderContainer = $(PiLot.Templates.Map.mapTrackSlider);
-			this.timeSlider = this.timeSliderContainer.find('.slider');
-			$(this.map.getMapContainer()).after(this.timeSliderContainer);
-			this.timeSlider.slider({ min: 0, max: 1000 });
-			this.timeSlider.on('slide', this.timeSlider_slide.bind(this));
-			this.timeField = this.timeSliderContainer.find('.time');*/
 			this.timeSliderContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapTrackSlider);
 			this.timeSlider = this.timeSliderContainer.querySelector(".slider");
 			this.map.getMapContainer().insertAdjacentElement('afterend', this.timeSliderContainer);
@@ -556,7 +553,6 @@ PiLot.View.Map = (function () {
 			if ((this.track !== null) && this.timeSlider) {
 				var trackLength = this.track.getPositionsCount();
 				this.timeScaleFactor = Math.ceil(trackLength / this.maxTimeSteps);
-				//this.timeSlider.slider("option", "max", Math.ceil(trackLength / this.timeScaleFactor)-1);
 				this.timeSlider.setAttribute("max", Math.ceil(trackLength / this.timeScaleFactor) - 1);
 			}
 		},
