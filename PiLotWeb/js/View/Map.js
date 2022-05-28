@@ -62,7 +62,7 @@ PiLot.View.Map = (function () {
 		this.minZoom = 3;  // default minZoom
 		this.maxZoom = 17; // default maxZoom
 		this.maxNativeZoom = 17; // default maxNativeZoom
-		this.attribution = '<a href="http://openstreetmap.com" target="_blank">Open Street Map</a> | <a href="http://openseamap.org" target="_blank">Open Sea Map</a>. The piLot map';
+		this.attribution = '<a href="http://openstreetmap.com" target="_blank">OSM</a> | <a href="http://openseamap.org" target="_blank">OpenSeaMap</a>';
 		this.readOptions(pOptions);
 		this.initialize();
 	};
