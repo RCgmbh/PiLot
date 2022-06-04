@@ -135,3 +135,10 @@ You can query multiple sensors from the other PiLot. Set the "id" value of each 
 
 #### CPU Temperature
 The cpu temerature is measured by an internal sensor that is there out of the box. So if you add a sensor to your configuration with sensorType="CPUTemperature", id="" and sensors > sensorType="temperature", you will get the CPU Temperature. The cpu temperature of the last hour will be displayed in the Admin section of the PiLot web application.
+
+Now you basically have a working PiLot, congratulations! You can now move on, and do some optimization to your system.
+
+
+\> [Optimize your system...](optimize.md)
+
+<< [Back to overview](user.md)
