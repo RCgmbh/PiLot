@@ -98,9 +98,40 @@ Each sensor has these attributes:
 
 For the different sensor types, there are some specific points to consider:
 #### I2C devices
+##### deviceType
+For I2C, use either "BMP180" (only for BMP180 devices), or "BMXX80" for BMP280, BME280 or BME680.
+##### id
 You find the id of an I2C device using the i2cdetect tool. You need to install the i2c-tools and then run i2cdetect:
 ```
 sudo apt install i2c-tools
 sudo i2cdetect -y 1
 ```
 This will show you the id of the i2c devices. The id is in HEX, but we need it in decimal. Therefore, if you get 76, enter 118, for 77 enter 119. For any other value, duckduckgo for "hexadecimal to decimal converter" or use something very smart like [Wolfram Alpha](https://www.wolframalpha.com/input?i=77+hexadecimal+to+decimal) to convert the hex value from i2cdetect into the dec value for sensors.json.
+##### sensorType
+Available tpyes are "temeperature" and "pressure"  for all sensors, and "humidity" for BME280 and BME680.
+
+#### OneWire devices
+##### deviceType
+For one wire devices, the deviceType is always "OneWTemperature".
+##### id
+To find the id of a one wire device, enter
+```
+ls /sys/bus/w1/devices
+```
+This will give you an output like `28-02199245db06  w1_bus_master1`. In this case, 28-02199245db06 will be the id for the device. It's actually an directory, so you might want to look arount a bit, and you will find the current sensor reading.
+##### sensorType
+For one wire devices, only "temperature" is allowed.
+
+#### PiLot
+You can get data from another PiLot, and treat it as if it was your own sensors data (so you can place another Raspberry PI with a temperature sensor outside). The data will be queried from the other PiLot, and will be stored locally.
+##### deviceType
+Always use the deviceType "PiLot" to query data from another PiLot.
+##### id
+The id is the host name or the IP address of the other PiLot, e.g. "pilot1" or "192.168.0.99". There are however some caveats:
+- the PiLot must be configured to accept HTTP request (which is the case if you performed a standard installation)
+- The call will be unauthenticated, so the anonymous user must have read permissions (which he does by default)
+##### sensors > id
+You can query multiple sensors from the other PiLot. Set the "id" value of each "sensor" object in the config file to the "name" value that was used on the other PiLot. So if you have a BMP180 sensor on that PiLot with sensors > name="temperature2", set id="temperature2" to request this data.
+
+#### CPU Temperature
+The cpu temerature is measured by an internal sensor that is there out of the box. So if you add a sensor to your configuration with sensorType="CPUTemperature", id="" and sensors > sensorType="temperature", you will get the CPU Temperature. The cpu temperature of the last hour will be displayed in the Admin section of the PiLot web application.
