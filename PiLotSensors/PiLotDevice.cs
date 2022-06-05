@@ -18,7 +18,7 @@ namespace PiLot.Sensors {
 
 		// TODO: Set this to 0 as soon as the api handles 0 by loading the current data
 		private const Int32 MAXSECONDSOLD = 120;
-		private const String APIURL = "http://{0}/pilotapi/api/v1";
+		private const String APIURL = "http://{0}/pilotapi/v1";
 
 		private List<SensorInfo> sensorInfos = null;
 		private DataProxy remoteApiProxy = null;
