@@ -9,8 +9,8 @@ Each of the following chapters contains a part of the entire setup process. Some
 4. [Install the web application](web.md)
 5. [Connect a GPS device and set up the GPS logging service](gps.md)
 6. [Install the photos import service](photoimport.md)
-7. Connect sensors and log sensor data
-8. Optimize your system
+7. [Connect sensors and log sensor data](sensors.md)
+8. [Optimize your system](optimize.md)
 9. Build a nice case
 
 **Advanced scenarios:**
