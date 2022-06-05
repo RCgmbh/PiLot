@@ -99,7 +99,8 @@ namespace PiLot.Data.Files {
 		/// it from the exif data.
 		/// </summary>
 		/// <param name="pImageData">The image data containing bytes, name and day</param>
-		public void SaveImageWithThumbnails(ImageData pImageData) {
+		/// <param name="pFileDate">Optionally pass a date which will be used if no EXIF data is available</param>
+		public void SaveImageWithThumbnails(ImageData pImageData, DateTime? pFileDate) {
 			Logger.Log($"PhotoDataConnector starting SaveImageWithThumbnail for {pImageData.Name}", LogLevels.DEBUG);
 			try {
 				Date? day = pImageData.Day;
@@ -107,19 +108,22 @@ namespace PiLot.Data.Files {
 				using (MemoryStream ms = new MemoryStream(pImageData.Bytes)) {
 					image = Image.Load(ms);
 					if (day == null) {
-						DateTime? imageDateTime = ImageHelper.GetImageDate(image);
+						DateTime? imageDateTime = ImageHelper.GetImageDate(image, pFileDate);
 						if(imageDateTime != null) {
 							day = new Date(imageDateTime.Value);
 						}
 					}
-					Assert.IsNotNull(day, $"Image {pImageData.Name} does not have a valid date and can not be processed.");
-					String datePath = this.GetPhotosFilePath(day.Value, true);
-					ImageHelper.EnsureOrientation(ref image);
-					String imageFilePath = this.GetImageFilePath(day.Value, pImageData.Name, false);
-					if (!File.Exists(imageFilePath)) {
-						image.Save(imageFilePath);
-					}					
-					this.CreateThumbnails(image, pImageData.Name, datePath);
+					if(day != null) {
+						String datePath = this.GetPhotosFilePath(day.Value, true);
+						ImageHelper.EnsureOrientation(ref image);
+						String imageFilePath = this.GetImageFilePath(day.Value, pImageData.Name, false);
+						if (!File.Exists(imageFilePath)) {
+							image.Save(imageFilePath);
+						}
+						this.CreateThumbnails(image, pImageData.Name, datePath);
+					} else {
+						Logger.Log($"Image {pImageData.Name} does not have a valid date and can not be processed.", LogLevels.ERROR);
+					}
 				}
 			} catch(Exception ex) {
 				Logger.Log(ex, "PhotoDataConnector.SaveImageWithThumbnails");

@@ -57,16 +57,19 @@ namespace PiLot.PhotosWatcher {
 				await Task.Delay(5 * 1000); // wait a moment to make sure the entire image will be copied
 				do {
 					if(this.queue.Count > 0) {
-						Byte[] bytes = FileHelper.TryReadFile(this.queue[0]);
-						if (bytes != null) {
-							this.dataConnector.SaveImageWithThumbnails(new ImageData() {
-								Bytes = bytes,
-								Name = Path.GetFileName(this.queue[0]),
-								Day = null
-							});
-						}
-						File.Delete(this.queue[0]);
-						this.queue.RemoveAt(0);
+						FileInfo fileInfo = new FileInfo(this.queue[0]);
+						if (fileInfo.Exists) {
+							Byte[] bytes = FileHelper.TryReadFile(this.queue[0]);
+							if (bytes != null) {
+								this.dataConnector.SaveImageWithThumbnails(new ImageData() {
+									Bytes = bytes,
+									Name = Path.GetFileName(this.queue[0]),
+									Day = null
+								}, fileInfo.CreationTime);
+							}
+							File.Delete(this.queue[0]);
+							this.queue.RemoveAt(0);
+						}						
 					}
 				}
 				while (this.queue.Count > 0);

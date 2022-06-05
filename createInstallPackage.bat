@@ -26,6 +26,9 @@ del  pilotinstall\resources\pilotapi\App_Data\users.*.json
 
 mkdir pilotinstall\resources\pilotphotoswatcher
 dotnet build PiLotPhotosWatcher -o pilotinstall\resources\pilotphotoswatcher -c release -r linux-arm --no-self-contained
+copy /y pilotinstall\resources\pilotphotoswatcher\app.default.config pilotinstall\resources\pilotphotoswatcher\PiLot.PhotosWatcher.dll.config
+del /s /q pilotinstall\resources\pilotphotoswatcher\app.*.config
+del /s /q pilotinstall\resources\pilotphotoswatcher\app.config
 
 mkdir pilotinstall\resources\pilotsensors
 dotnet build PiLotSensors -o pilotinstall\resources\pilotsensors -c release -r linux-arm --no-self-contained

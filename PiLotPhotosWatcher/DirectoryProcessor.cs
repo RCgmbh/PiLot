@@ -34,7 +34,7 @@ namespace PiLot.PhotosWatcher {
 							Bytes = bytes,
 							Name = anImage.Name,
 							Day = null
-						}) ;
+						}, anImage.CreationTime) ;
 						anImage.Delete();
 						successCounter++;
 					} else {

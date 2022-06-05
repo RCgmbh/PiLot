@@ -8,8 +8,24 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="app.default.config" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app.default.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PiLotDataFiles\PiLotDataFiles.csproj" />
     <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DirectoryProcessor.cs">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Compile>
   </ItemGroup>
 
 </Project>

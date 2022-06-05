@@ -12,6 +12,8 @@
  * THIS PROGRAM DOES IN NO WAY REPLACE SUITABLE NAVIGATION EQUIPMENT, UP-TO-DATE OFFICIAL CHARTS OR EDUCATED SEAMANSHIP.
  **/
 using System;
+using System.Configuration;
+using PiLot.Utils.Logger;
 
 namespace PiLot.PhotosWatcher {
 	
@@ -27,6 +29,8 @@ namespace PiLot.PhotosWatcher {
 				Console.WriteLine("Usage: PhotosWatcher.exe (watchDirectory) (outputDirectory) (watch | process) [verbose]");
 				return;
 			}
+			Program.ReadConfig();
+			Logger.Log("PiLot.PhotosWatcher started", LogLevels.INFO);
 			String action = PARAMWATCH;
 			String inputPath = args[0];
 			String outputPath = args[1];
@@ -49,21 +53,35 @@ namespace PiLot.PhotosWatcher {
 			}
 		}
 
+		private static void ReadConfig() {
+			String configLogLevel = ConfigurationManager.AppSettings["logLevel"];
+			LogLevels logLevel = LogLevels.ERROR;
+			Enum.TryParse<LogLevels>(configLogLevel, out logLevel);
+			String logfilePath = ConfigurationManager.AppSettings["logfilePath"];
+			Logger.SetupLogging(logfilePath, logLevel);
+		}
+
 		public static void WriteLine(String pString) {
 			if (Program.verbose) {
 				Console.WriteLine(pString);
+			} else {
+				Logger.Log(pString, LogLevels.DEBUG);
 			}
 		}
 
 		public static void WriteLine(String pFormat, Object pArg1) {
 			if (Program.verbose) {
 				Console.WriteLine(pFormat, pArg1);
+			} else {
+				Logger.Log(pFormat, pArg1, LogLevels.DEBUG);
 			}
 		}
 
 		public static void WriteLine(String pFormat, Object pArg1, Object pArg2) {
 			if (Program.verbose) {
 				Console.WriteLine(pFormat, pArg1, pArg2);
+			} else {
+				Logger.Log(pFormat, pArg1, pArg2, LogLevels.DEBUG);
 			}
 		}
 	}
