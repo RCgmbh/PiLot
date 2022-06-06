@@ -41,6 +41,7 @@ namespace PiLot.Utils.OS {
                 String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\""));
 				cmdResults.Add(this.SelectNetwork(networkNumber));
+				// todo: save config
             } else{
                 cmdResults.Add($"Unexpected result for Add netowrk: {addResult}");
             }
