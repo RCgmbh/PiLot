@@ -40,8 +40,9 @@ namespace PiLot.Utils.OS {
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\""));
                 String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\""));
-				cmdResults.Add(this.SelectNetwork(networkNumber));
-				// todo: save config
+				cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli enable_network {networkNumber}"));
+				cmdResults.Add($"Select network: {this.SelectNetwork(networkNumber)};");
+				cmdResults.Add($"Save config: {this.SaveConfig()};");
             } else{
                 cmdResults.Add($"Unexpected result for Add netowrk: {addResult}");
             }
@@ -70,6 +71,13 @@ namespace PiLot.Utils.OS {
         public String GetStatus(){
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli status");
             return cmdResult;
+        }
+
+        /// <summary>
+        /// Saves the wpa configuration
+        /// </summary>
+        private String SaveConfig(){
+            return this.systemHelper.CallCommand("sudo", "wpa_cli save_config");
         }
 
         /// <summary>
