@@ -7,7 +7,7 @@ PiLot.Templates.Boat = {
 		'<object type="image/svg+xml" style="height:100%; max-height:100%; max-width:100%; position:absolute;"></object>',
 
 	boatSetupForm: 
-		`<div class="boatSetupForm">
+		`<div class="boatSetupForm dialogPanel">
 			<span class="block semiBold marginBottom" data-text="boatSetup"></span>
 			<div class="plhFeatures"></div>
 			<a href="#" class="lnkSave fullWidth marginTop hidden linkButton" data-text="ok"></a>	

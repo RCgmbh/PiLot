@@ -1,15 +1,45 @@
-﻿.logbookEntry { max-width: 31.75em; min-width: 31.75em; display: flex; flex-wrap: wrap; justify-content: space-between; }
-.logbookEntry .titleContainer { display: flex; flex-grow: 1; width: 100%; }
-.logbookEntry .tbTitle { width: 20.5em; }
+﻿.logbookHeader { display:flex; flex-wrap: wrap-reverse; }
+.logbookHeader>* { padding: 0 0 0.75em 0; margin-top: 0.25em; margin-bottom: 0em; }
+.logbookHeader .lblFriendlyDate { margin-right:1em; }
+.logbookHeader .dateContainer { flex-grow:1; text-align:right;  }
+
+.logbookEntries { max-width: 41em; }
+.logbookEntry { }
+.logbookEntry .titleContainer { display: flex; width: 100%; gap:0.5em; }
+.logbookEntry .tbTime {width:4em; }
+.logbookEntry .tbTitle {width:8em; flex-grow:1; }
 .logbookEntry .lblTitle { flex-grow: 1; }
-.logbookBoxes { display: flex; justify-content: space-between; flex-grow: 1; }
-.logbookBox { min-height: 11em; padding: 0.125em 0.25em; border: 1px solid #ccc; width: 10.5em; }
+.logbookBoxes { display: flex; gap: 0.5em; flex-grow: 1; flex-wrap:nowrap; }
+.logbookBoxes .plhBoatSetup {border: none; width:10em; min-width:8em; max-width:50%;}
+.logbookBoxes .data { display: flex; flex-wrap: nowrap; gap:0.5em; flex-grow:1;}
+.logbookBoxes .data .logbookBox { flex-basis:8em; flex-grow:1; max-width: 15em; min-width: 8em;}
+.logbookBoxes .data.editable .logbookBox { flex-basis:10em; flex-grow:1; max-width: 15em; min-width: 10em;}
+.logbookBox { min-height: 11em; padding: 0.125em 0.25em; border: 1px solid #ccc; }
+
+@media (max-width:470px){
+	.logbookBoxes .data { flex-direction: column; gap:0em;}
+	.logbookBoxes .data .logbookBox { border: none; padding: 0em; background-color:unset; min-height:unset; min-width: unset; flex-basis: unset;}
+	.logbookBoxes .data .logbookBox .semiBold {display: none; }
+}
+
+@media (max-width:534px){
+	.logbookBoxes.editable .plhBoatSetup {width:7em;}
+	.logbookBoxes { flex-wrap:wrap; }
+	.logbookBoxes.editable .data { flex-direction: column; gap:0em;}
+	.logbookBoxes.editable .data .logbookBox { border: none; padding: 0em; background-color:unset; min-height:unset; flex-basis: unset;}
+	.logbookBoxes.editable .data .logbookBox .semiBold {display: none; }
+}
+
+.logbookBox>span,  .logbookBox>div { flex-grow:0; min-width: 7.5em; } 
+.logbookBox>span.semiBold, .logbookBox>div.semiBold { width: 100%; }
+.logbookBox>span:empty { display: none; }
 .logbookBox .label { width: 3.5em; display: inline-block; }
 .logbookBox .labelSmall { width: 2.3em; display: inline-block; }
-.logbookBox .labelIcon { width: 1.75em; display: inline-block; }
+.logbookBox .labelIcon { width: 1.5em; display: inline-block; }
 .logbookBox .labelIcon i { font-size: 1.25em; }
 .logbookBox .inlineTextbox { border-style: initial; padding-right: 0.125em; }
-.logbookEntry .linkButton { flex-grow: 1; }
+.logbookEntry .buttons { display:flex; flex-wrap:wrap; gap: 1em; }
+.logbookEntry .buttons .linkButton { flex-grow: 1; flex-basis:8em;}
 .logbookMeteo { background-color: #fafafa; }
 .logbookNav { background-color: #fafafa; }
 .logbookBoat { width: 10em; height: 11em; padding: 0em; position:relative; }
@@ -39,7 +69,7 @@
 body.night .logbookBox{border-color:#999}
 body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 
-.boatSetupForm { position: absolute; z-index:1500; background-color: #eee; border: 1px solid #ccc; width: 21.5em; min-height: 10em; margin: 0em; padding: 0.125em 0.25em; box-shadow: 0.125em 0.125em 0.5em 0em rgba(125, 125, 125, 0.5); }
+.boatSetupForm { background-color: #eee; border: 1px solid #ccc; border-radius:3px; width: calc(100vw - 2em); max-width: 21.5em; min-height: 10em; margin: 0em; padding: 0.125em 0.25em; }
 
 .tbDiary { padding: 0.25em 0.5em; }
 .diaryPhotos{position:relative; height:95vh; width:100%;}

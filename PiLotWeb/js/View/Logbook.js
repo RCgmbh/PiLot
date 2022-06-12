@@ -31,8 +31,10 @@ PiLot.View.Logbook = (function () {
 		this.mapTrack = null;							// the PiLot.View.Map.MapTrack for the daily track
 		this.plhPhotos = null;							// the placeholder where we will add the photo gallery
 		this.imageGallery = null;						// RC.Controls.ImageGallery.Gallery for the daily photos
+		this.pnlDiary = null;							// The panel containing diary text and distance
 		this.tbDiary = null;							// textbox for diary content
 		this.lblDiary = null;							// readonly diary content
+		this.diaryFontSize = null;							// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
 		this.plhDistance = null;						// distance container
 		this.lblDistanceKm = null;						// the label for distance in KM
 		this.lblDistanceNm = null;						// the label for distance in NM
@@ -42,6 +44,9 @@ PiLot.View.Logbook = (function () {
 
 		this.initialize();
 	}
+
+	LogbookPage.diaryFontSizes = [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5];
+	LogbookPage.diaryLineHeights = [1.5, 1.5, 1.25, 1.25, 1.25, 1.25, 1.25];
 
 	LogbookPage.prototype = {
 
@@ -64,6 +69,14 @@ PiLot.View.Logbook = (function () {
 			this.logbookDay.saveDiaryTextAsync();
 		},
 
+		lnkBiggerText_click: function () {
+			this.changeDiaryFontSize(1);
+		},
+
+		lnkSmallerText_click: function () {
+			this.changeDiaryFontSize(-1);
+		},
+
 		/// draws the page and finds the controls and binds handlers
 		draw: function () {
 			const logbookControl = PiLot.Utils.Common.createNode(this.template);
@@ -84,11 +97,21 @@ PiLot.View.Logbook = (function () {
 			this.lnkNextDay = logbookControl.querySelector('.lnkNextDay');
 			const options = { isReadOnly: this.logbookReadonly, sortDescending: this.sortDescending };
 			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(logbookControl, this.currentBoatTime, options);
+			this.pnlDiary = logbookControl.querySelector('.pnlDiary');
 			this.tbDiary = logbookControl.querySelector('.tbDiary');
 			if (this.tbDiary !== null) {
 				this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
-			} 
+			}
+			const lnkBiggerText = logbookControl.querySelector('.lnkBiggerText');
+			if (lnkBiggerText !== null) {
+				lnkBiggerText.addEventListener('click', this.lnkBiggerText_click.bind(this));
+			}
+			const lnkSmallerText = logbookControl.querySelector('.lnkSmallerText');
+			if (lnkSmallerText !== null) {
+				lnkSmallerText.addEventListener('click', this.lnkSmallerText_click.bind(this));
+			}
 			this.lblDiary = logbookControl.querySelector('.lblDiary');
+			this.applyDiaryFontSize();
 			this.plhDistance = logbookControl.querySelector('.plhDistance');
 			if (this.plhDistance !== null) {
 				this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
@@ -266,6 +289,25 @@ PiLot.View.Logbook = (function () {
 		/// Also saves the currently selected day to the user settings
 		changeDay: function (pDays) {
 			this.setDate(this.date.addDays(pDays));
+		},
+
+		changeDiaryFontSize: function (pChangeBy) {
+			this.diaryFontSize = Math.max(Math.min(LogbookPage.diaryFontSizes.length - 1, this.diaryFontSize + pChangeBy), 0);
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Logbook.diaryFontSize', this.diaryFontSize);
+			this.applyDiaryFontSize();
+		},
+
+		applyDiaryFontSize: function () {
+			if (this.pnlDiary) {
+				if (this.diaryFontSize === null) {
+					this.diaryFontSize = PiLot.Utils.Common.loadUserSetting('PiLot.View.Logbook.diaryFontSize');
+					if (this.diaryFontSize === null) {
+						this.diaryFontSize = LogbookPage.diaryFontSizes.indexOf(1);
+					}
+				}
+				this.pnlDiary.style.fontSize = LogbookPage.diaryFontSizes[this.diaryFontSize] + 'em';;
+				//this.pnlDiary.style.lineHeight = LogbookPage.diaryLineHeights[this.diaryFontSize] + 'em';
+			}
 		},
 
 		/// changes the current date and re-loads the data. 

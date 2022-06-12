@@ -2,7 +2,7 @@
 html, body, form{padding:0px; margin:0px; height:100%;}
 html { -ms-text-size-adjust: none;}
 body { display:flex; flex-direction: column; background-color:white; font-size:100%; font-weight:400;line-height:1.5em;}
-html, body, form, p, th, td, input, select, textarea { font-family: 'Open Sans', 'Segoe UI', Arial;}
+html, body, form, p, th, td, input, select, textarea { font-family: 'Segoe UI', 'Open Sans', Arial;}
 p, th, td, input, button, select, textarea, li, span { font-size:1em;}
 h1{ font-family: 'Lato', sans-serif; font-weight:700; line-height:1.1;}
 h2, h3, h4 { font-family: 'Open Sans', 'Segoe UI', Arial; font-weight: 600; }
@@ -74,7 +74,8 @@ body.night .rcCalendar .yearsPager { background-color:#666; }
 #resolutionInfo:after { content: "default"; font-size:12px;margin:2px;color:#666666;font-family:'Lucida Console';}
 
 /* CONTAINERS */
-.contentPadding{ padding-top:1em; padding-left:1em; flex-grow:1;}
+.contentPadding{ padding-top: 1em; padding-left: 1em; flex-grow:1;} /* fallback for clients that don't support min() */
+.contentPadding{ padding-top: min(1em, 4vh); padding-left: min(1em, 4vw); flex-grow:1;}
 .dataContainerQuarter { width: 25%; min-width: 10em; }
 .dataContainerThird { width: 33.33%; min-width: 13.33em; }
 .dataContainerHalf { width: 50%; min-width: 16em; }
@@ -177,25 +178,26 @@ textarea.big{height:20em;}
 .veryBigDisplayText{font-size:4em; line-height:1.25em;}
 .displayTextContainer { display: inline-block; margin: 0.5em 1em;}
 .ellipsisSpan, .ellipsisSpan>[display="block"]{display:block; white-space:nowrap; overflow:hidden;text-overflow:ellipsis;}
-.alignTop{vertical-align:top;}
-.marginTop{margin-top:1em;}
-.marginTopBig{margin-top:2em;}
-.marginTopSmall{margin-top:0.5em;}
-.marginRight{margin-right:1em;}
-.marginRightBig{margin-right:2em;}
-.marginRightSmall{margin-right:0.5em;}
-.marginBottom{margin-bottom:1em;}
-.marginBottomSmall{margin-bottom:0.5em;}
-.marginBottomBig{margin-bottom:2em;}
-.marginBottomVeryBig{margin-bottom:4em;}
-.marginLeft{margin-left:1em;}
-.marginLeftSmaller { margin-left: 0.25em; }
-.marginAll{margin:1em;}
-.marginAllSmall{margin:0.5em;}
-.marginLeftBig{margin-left:2em;}
-.marginNone{margin:0em;}
-.paddingAll{padding:1em;}
-.paddingAllSmall{padding:0.5em;}
+.alignTop  {vertical-align: top;}
+/* fallback for clients that don't support min() */
+.marginAll { margin: 1em;}
+.marginAllSmall { margin: 0.5em;}
+.marginTop { margin-top: 1em;}
+.marginTopBig { margin-top: 2em;}
+.marginTopSmall { margin-top: 0.5em;}
+.marginRight { margin-right: 1em;}
+.marginRightBig { margin-right: 2em;}
+.marginRightSmall { margin-right: 0.5em;}
+.marginBottom { margin-bottom: 1em;}
+.marginBottomBig { margin-bottom: 2em;}
+.marginBottomSmall { margin-bottom: 0.5em;}
+.marginBottomVeryBig { margin-bottom: 4em;}
+.marginLeft { margin-left: 1em;}
+.marginLeftSmaller { margin-left: 0.15em; }
+.marginLeftBig { margin-left: 2em;}
+.marginNone { margin:0em;}
+.paddingAll { padding: 1em;}
+.paddingAllSmall { padding: 0.5em;}
 .paddingTop { padding-top: 1em; }
 .paddingTopBig { padding-top: 2em; }
 .paddingTopSmall { padding-top: 0.5em; }
@@ -203,6 +205,32 @@ textarea.big{height:20em;}
 .paddingBottomBig { padding-bottom: 2em; }
 .paddingLeft { padding-left: 1em; }
 .paddingRight { padding-right: 1em; }
+/* well that might be a bit crazy, but we save some pixels on very small screens... */
+.marginAll { margin: min(1em, 4vh) min(1em, 4vw) min(1em, 4vh) min(1em, 4vw);}
+.marginAllSmall { margin: min(0.5em, 2vh) min(0.5em, 2vw) min(0.5em, 2vh) min(0.5em, 2vw);}
+.marginTop { margin-top: min(1em, 4vh);}
+.marginTopBig { margin-top: min(2em, 8vh);}
+.marginTopSmall { margin-top: min(0.5em, 2vh);}
+.marginRight { margin-right: min(1em, 4vw);}
+.marginRightBig { margin-right: min(2em, 8vw);}
+.marginRightSmall { margin-right: min(0.5em, 2vw);}
+.marginBottom { margin-bottom: min(1em, 4vh);}
+.marginBottomBig { margin-bottom: min(2em, 8vh);}
+.marginBottomSmall { margin-bottom: min(0.5em, 2vh);}
+.marginBottomVeryBig { margin-bottom: min(4em, 8vh);}
+.marginLeft { margin-left: min(1em, 4vw);}
+.marginLeftSmaller { margin-left: min(0.15em, 1vw); }
+.marginLeftBig { margin-left: min(2em, 8vw);}
+.marginNone { margin:0em;}
+.paddingAll { padding: min(1em, 4vh) min(1em, 4vw) min(1em, 4vh) min(1em, 4vw);}
+.paddingAllSmall { padding: min(0.5em, 2vh) min(0.5em, 2vw) min(0.5em, 2vh) min(0.5em, 2vw);}
+.paddingTop { padding-top: min(1em, 4vh); }
+.paddingTopBig { padding-top: min(2em, 8vh); }
+.paddingTopSmall { padding-top: min(0.5em, 2vh); }
+.paddingBottom { padding-bottom: min(1em, 4vh); }
+.paddingBottomBig { padding-bottom: min(2em, 8vh); }
+.paddingLeft { padding-left: min(1em, 4vw); }
+.paddingRight { padding-right: min(1em, 4vw); }
 .absolute{position:absolute}
 .floatLeft{float:left;}
 .clearAll{clear:both;}
@@ -434,7 +462,7 @@ body { min-width: 20em; }
 body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:none;}
 #dayNightButtons .btnNightMode, body.night #dayNightButtons .btnDayMode{display:flex;}
 #headerButtons a.btnUserInfo { }
-#clock{ margin-right:0.25em; text-align: right; display:flex; flex-direction: row; justify-content:center; align-items:center; font-size:0.75em;}
+#clock{ min-width:4.2em; display:flex; flex-direction: row; align-items:center; font-size:0.75em;}
 #mainMenu { display: none; min-width: 4em; width: 4em;  }
 #mainMenu > div { height: 4em; display:flex; justify-content: center;}
 #mainMenu > div > a { padding: 0.5em 0.25em; flex-grow:1; max-width: 2em; }
@@ -451,7 +479,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
 	#mainMenu > div > a { display: none; }
 	#mainMenu > div>a:nth-child(1) { display: inline-block; }
 	#mainMenu.expanded { position: relative; width: unset; z-index:unset; }
-	#clock{ margin-right:1em; font-size:1em; }
+	#clock{ margin-right:0.5em; font-size:1em; }
 	h1 { margin-left: 0em; }
 }
 
