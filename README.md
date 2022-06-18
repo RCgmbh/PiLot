@@ -68,6 +68,9 @@ Diary page:
 Meteo page with all environment sensor data:
 ![meteo](docs/screenshots/meteo-border.png)
 
+### Mobile views
+![map-mobile1](docs/screenshots/map-mobile1.png) ![map-mobile2](docs/screenshots/map-mobile2.png) ![map-mobile3](docs/screenshots/map-mobile3.png) ![nav-mobile](docs/screenshots/route-mobile.png) ![home-mobile](docs/screenshots/home-mobile-panorama.png) 
+
 ## Getting started 
 ### For users
 If you have a bit of time and curiosity, you can set up your own PiLot at no cost (except
