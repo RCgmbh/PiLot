@@ -15,7 +15,7 @@ namespace PiLot.API.ActionFilters {
 
 		public void OnActionExecuting(ActionExecutingContext actionContext) {
 			User currentUser = AuthenticationHelper.Instance.Authenticate(actionContext.HttpContext);
-			if (!AuthorizationHelper.Instance.UserHasSystemAccess(currentUser)) {
+			if (!AuthenticationHelper.Instance.AuthorizationHelper.UserHasSystemAccess(currentUser)) {
 				actionContext.Result = new StatusCodeResult(403);
 			}
 		}

@@ -1,24 +1,25 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-using PiLot.API.Helpers;
 using PiLot.Model.Users;
 
-namespace PiLot.API.ActionFilters {
+using PiLot.Backup.API.Helpers;
+
+namespace PiLot.Backup.API.ActionFilters {
 
 	/// <summary>
-	/// This is used to ensure read authorization in REST requests. If the user has no
-	/// read permission, a HTTP Status 403 is returned
+	/// This is used to ensure backup authorization in REST requests
 	/// </summary>
-	public class ReadAuthorizationFilter : IActionFilter {
+	public class BackupAuthorizationFilter : IActionFilter {
 
 		public void OnActionExecuted(ActionExecutedContext context) { }
 
 		public void OnActionExecuting(ActionExecutingContext actionContext) {
 			User currentUser = AuthenticationHelper.Instance.Authenticate(actionContext.HttpContext);
-			if (!AuthenticationHelper.Instance.AuthorizationHelper.UserCanRead(currentUser)) {
+			actionContext.HttpContext.Items.Add("user", currentUser);
+			if (!AuthenticationHelper.Instance.AuthorizationHelper.CanBackup(currentUser)) {
 				actionContext.Result = new StatusCodeResult(403);
-			}			
+			}
 		}
 	}
 }

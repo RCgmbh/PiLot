@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "PiLotBackupClient": {
+      "commandName": "Project",
+      "commandLineArgs": "verbose"
+    }
+  }
+}

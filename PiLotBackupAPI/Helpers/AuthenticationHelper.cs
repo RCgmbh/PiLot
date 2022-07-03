@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PiLot.API.Helpers {
+namespace PiLot.Backup.API.Helpers {
 
 	public class AuthenticationHelper: Auth.AuthenticationHelper {
 

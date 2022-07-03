@@ -7,16 +7,14 @@ using System.Text.Json;
 using PiLot.Utils.Logger;
 using PiLot.Model.Users;
 
-namespace PiLot.API.Helpers {
+namespace PiLot.Auth {
 
 	/// <summary>
-	/// This helps with reading authorization settings, and
-	/// implements some very basic caching.
+	/// This helps with reading authorization settings.
 	/// </summary>
 	public class AuthorizationHelper {
 
 		private const String AUTHFILE = "App_Data/authorization.json";
-		private const String APPKEY = "authorizationHelper";
 
 		private Dictionary<String, Role> roles = null;
 		private User anonymous = null;
@@ -24,27 +22,8 @@ namespace PiLot.API.Helpers {
 		/// <summary>
 		/// Private constructor. Use Instance instead
 		/// </summary>
-		private AuthorizationHelper() {
+		public AuthorizationHelper() {
 			this.LoadConfig();
-		}
-
-		/// <summary>
-		/// Singleton accessor, gets the current Instance from the
-		/// application, or creates a new instance and saves it
-		/// to the application
-		/// </summary>
-		public static AuthorizationHelper Instance {
-			get {
-				AuthorizationHelper result = null;
-				Object applicationItem = Program.GetApplicationObject(APPKEY);
-				if (applicationItem != null) {
-					result = applicationItem as AuthorizationHelper;
-				} else {
-					result = new AuthorizationHelper();
-					Program.SetApplicationObject(APPKEY, result);
-				}
-				return result;
-			}
 		}
 
 		/// <summary>
@@ -80,6 +59,14 @@ namespace PiLot.API.Helpers {
 		}
 
 		/// <summary>
+		/// Returns true, if pUser is not null and has canBackup Permission.
+		/// If pUser is null, the permissions for an unauthenticated user are returned
+		/// </summary>
+		public Boolean CanBackup(User pUser) {
+			return (pUser ?? this.anonymous)?.CanBackup() ?? false;
+		}
+
+		/// <summary>
 		/// Gets a Role from this.Roles. If the role does not exist, a warning is
 		/// logged and null is returned.
 		/// </summary>
@@ -106,9 +93,8 @@ namespace PiLot.API.Helpers {
 		/// This loads the config from file and deserializes the users and roles objects, 
 		/// resulting in a dictionary of roles and a dictionary of users
 		/// </summary>
-		private void LoadConfig() {
+		protected void LoadConfig() {
 			AuthorizationSettings settings = null;
-			//String authConfigFile = ConfigurationManager.AppSettings["authConfigFile"];
 			String authConfigFile = Path.Combine(AppContext.BaseDirectory, AUTHFILE);
 			if (File.Exists(authConfigFile)) {
 				try {
@@ -131,6 +117,5 @@ namespace PiLot.API.Helpers {
 				}
 			}
 		}
-
 	}
 }

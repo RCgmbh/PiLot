@@ -64,5 +64,12 @@ namespace PiLot.Model.Users {
 		public Boolean HasSystemAccess() {
 			return ((this.Role != null) && this.Role.HasSystemAccess);
 		}
+
+		/// <summary>
+		/// Gets whether the user can backup data 
+		/// </summary>
+		public Boolean CanBackup() {
+			return ((this.Role != null) && this.Role.CanBackup);
+		}
 	}
 }

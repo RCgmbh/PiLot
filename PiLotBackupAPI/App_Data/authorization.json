@@ -1,0 +1,12 @@
+﻿{
+	"roles": [
+		{
+			"name": "noaccess"
+		},
+		{
+			"name": "backup",
+			"canBackup": true
+		}
+	],
+	"anonymousRole": "noaccess"
+}

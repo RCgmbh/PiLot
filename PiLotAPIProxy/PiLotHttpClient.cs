@@ -26,7 +26,6 @@ namespace PiLot.APIProxy {
 		/// info
 		/// </summary>
 		/// <param name="pLoginHelper">A login helper, or null</param>
-		/// <param name="pApiUrl">the base api url, e.g. http://pilotapi/api/v1/Data</param>
 		public PiLotHttpClient(LoginHelper pLoginHelper) {
 			this.loginHelper = pLoginHelper;
 			HttpClientHandler handler = new HttpClientHandler();

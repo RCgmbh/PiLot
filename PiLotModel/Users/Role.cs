@@ -45,5 +45,13 @@ namespace PiLot.Model.Users {
 		public Boolean HasSystemAccess {
 			get; set;
 		} = false;
+
+		/// <summary>
+		/// Gets or sets whether the role grants access to backup data
+		/// </summary>
+		[JsonPropertyName("canBackup")]
+		public Boolean CanBackup {
+			get; set;
+		} = false;
 	}
 }

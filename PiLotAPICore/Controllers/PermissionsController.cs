@@ -29,7 +29,6 @@ namespace PiLot.API.Controllers {
 
 		[Route(Program.APIROOT + "[controller]/ReloadConfig")]
 		public String GetReloadConfig() {
-			AuthorizationHelper.Instance.ReloadConfig();
 			AuthenticationHelper.Instance.ReloadConfig();
 			return "OK";
 		}
@@ -41,11 +40,11 @@ namespace PiLot.API.Controllers {
 	public class UserInfo {
 
 		private User user;
-		private AuthorizationHelper authorizationHelper;
+		private Auth.AuthorizationHelper authorizationHelper;
 
 		public UserInfo(User pUser) {
 			this.user = pUser;
-			this.authorizationHelper = AuthorizationHelper.Instance;
+			this.authorizationHelper = AuthenticationHelper.Instance.AuthorizationHelper;
 		}
 
 		[JsonPropertyName("username")]
