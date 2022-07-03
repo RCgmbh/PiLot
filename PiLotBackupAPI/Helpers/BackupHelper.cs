@@ -21,12 +21,13 @@ namespace PiLot.Backup.API.Helpers {
 		/// <summary>
 		/// Backup GPS Data for one day
 		/// </summary>
-		/// <param name="pDate">The day to which the records belong</param>
 		/// <param name="pRecords">The gps records to save</param>
-		public static void BackupGpsData(Date pDate, List<GpsRecord> pRecords, String pClientName, DateTime pBackupTime) {
-			String backupPath = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
-			new GPSDataConnector(backupPath).SavePositions(pRecords, false);
-			Logger.Log("Recieved {0} GpsRecords for date {1:d} to backup", pRecords.Count, pDate, LogLevels.DEBUG);
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
+		public static void BackupGpsData(List<GpsRecord> pRecords, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new GPSDataConnector(backupDirectory.FullName).SavePositions(pRecords, true);
+			Logger.Log("Recieved {0} GpsRecords to backup", pRecords.Count, LogLevels.DEBUG);
 		}
 
 		/// <summary>
@@ -35,8 +36,8 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pDate">The day to which the records belong</param>
 		/// <param name="pRecords">The gps records to save</param>
 		public static void BackupLogbookData(LogbookDay pLogbookDay, String pClientName, DateTime pBackupTime) {
-			String backupPath = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
-			new LogbookDataConnector(backupPath).SaveLogbookDay(pLogbookDay, false);
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new LogbookDataConnector(backupDirectory.FullName).SaveLogbookDay(pLogbookDay, false);
 			Logger.Log("Recieved LogbookDay for date {0:d} to backup", pLogbookDay.Date, LogLevels.DEBUG);
 		}
 
@@ -44,9 +45,10 @@ namespace PiLot.Backup.API.Helpers {
 		/// Backup a single Route
 		/// </summary>
 		/// <param name="pRecords">The route to save</param>
-		public void BackupRoute(Route pRoute) {
-			//new RouteDataConnector(this.backupPath).SaveRoute(pRoute);
-			//Logger.Log("Recieved Route with ID {0} to backup", pRoute.RouteID, LogLevels.DEBUG);
+		public static void BackupRoute(Route pRoute, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new RouteDataConnector(backupDirectory.FullName).SaveRoute(pRoute);
+			Logger.Log("Recieved Route with ID {0} to backup", pRoute.RouteID, LogLevels.DEBUG);
 		}
 
 		/// <summary>
@@ -56,11 +58,13 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName"></param>
 		/// <param name="pBackupTime"></param>
 		public static void CommitBackup(String pClientName, DateTime pBackupTime) {
-			String tempPath = BackupHelper.GetBackupPath(pClientName, pBackupTime, false, true);
-			String finalPath = BackupHelper.GetBackupPath(pClientName, pBackupTime, false, false);
-			Directory.Move(tempPath, finalPath);
-			String clientRoot = BackupHelper.GetClientRoot(pClientName, false);
-			BackupHelper.ClearPreviousBackups(clientRoot);
+			DirectoryInfo tempDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, false, true);
+			if (tempDirectory.Exists) {
+				DirectoryInfo finalDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, false, false);
+				tempDirectory.MoveTo(finalDirectory.FullName);
+				DirectoryInfo clientRoot = BackupHelper.GetClientRoot(pClientName, false);
+				BackupHelper.ClearPreviousBackups(clientRoot);
+			}			
 		}
 
 		/// <summary>
@@ -70,28 +74,25 @@ namespace PiLot.Backup.API.Helpers {
 		/// data from the most recent backup. Also, older backups will be deleted
 		/// in order to match with the configured history structure
 		/// </summary>
-		private static String GetBackupPath(String pClientName, DateTime pBackupTime, Boolean pCrateIfMissing, Boolean pIsTemporary) {
-			String result = null;
-			String clientRoot = BackupHelper.GetClientRoot(pClientName, pCrateIfMissing);
-			if(clientRoot != null) {
+		private static DirectoryInfo GetBackupPath(String pClientName, DateTime pBackupTime, Boolean pCrateIfMissing, Boolean pIsTemporary) {
+			DirectoryInfo backupPath = null;
+			DirectoryInfo clientRoot = BackupHelper.GetClientRoot(pClientName, pCrateIfMissing);
+			if((clientRoot != null) && clientRoot.Exists) {
 				String dateDirectory = pBackupTime.ToString(DATEDIRECTORYFORMAT);
 				if (pIsTemporary) {
 					dateDirectory = dateDirectory + "_temp";
 				}
-				String backupPath = Path.Combine(clientRoot, dateDirectory);
-				result = backupPath;
-				if (!Directory.Exists(backupPath)){
+				backupPath = new DirectoryInfo(Path.Combine(clientRoot.FullName, dateDirectory));
+				if (!backupPath.Exists){
 					if (pCrateIfMissing) {
-						String latestBackup = BackupHelper.GetLatestBackupSet(clientRoot);
-						Directory.CreateDirectory(backupPath);
+						String latestBackup = BackupHelper.GetLatestBackupSet(clientRoot.FullName);
+						backupPath.Create();
 						Logger.Log("New backup folder created: {0}", backupPath, LogLevels.DEBUG);
-						BackupHelper.PrepopulateBackupSet(latestBackup, backupPath);
-					} else {
-						result = null;
-					}
+						BackupHelper.PrepopulateBackupSet(latestBackup, backupPath.FullName);
+					} 
 				}
 			}
-			return result;
+			return backupPath;
 		}
 
 		/// <summary>
@@ -125,16 +126,16 @@ namespace PiLot.Backup.API.Helpers {
 		/// we will keep the oldest backup set that is just younger than the interval in minutes.
 		/// </summary>
 		/// <param name="pClientRoot">the root directory for backup data for the current client</param>
-		private static void ClearPreviousBackups(String pClientRoot) {
+		private static void ClearPreviousBackups(DirectoryInfo pClientRoot) {
 			List<Int32> backupSetsInterval = new ConfigHelper().GetBackupSetsInterval();
 			backupSetsInterval.Sort();
 			backupSetsInterval.Reverse();
-			List<DirectoryInfo> backupSets = new DirectoryInfo(pClientRoot).GetDirectories().ToList();
+			List<DirectoryInfo> backupSets = pClientRoot.GetDirectories().ToList();
 			List<DirectoryInfo> deleteBackupSets = new List<DirectoryInfo>();
 			backupSets.Sort((x, y) => x.Name.CompareTo(y.Name));
 			DateTime backupTime;
 			DateTime utcNow = DateTime.UtcNow;
-			DateTime minDate = utcNow.AddMinutes(backupSetsInterval[0] * -1);
+			DateTime minDate;
 			Logger.Log("Current max age in minutes is {0}", backupSetsInterval[0], LogLevels.DEBUG);
 			foreach (DirectoryInfo aBackupSet in backupSets) {
 				minDate = utcNow.AddMinutes(backupSetsInterval[0] * -1);
@@ -146,7 +147,6 @@ namespace PiLot.Backup.API.Helpers {
 						Logger.Log("Backup Set {0} will be kept.", aBackupSet.Name, LogLevels.DEBUG);
 						if (backupSetsInterval.Count > 1) {
 							backupSetsInterval.RemoveAt(0);
-							minDate = utcNow.AddMinutes(backupSetsInterval[0] * -1);
 							Logger.Log("Current max age in minutes is {0}", backupSetsInterval[0], LogLevels.DEBUG);
 						} else {
 							break;
@@ -163,22 +163,22 @@ namespace PiLot.Backup.API.Helpers {
 
 		/// <summary>
 		/// Returns the root directory path for the backup data for a certain client.
-		/// Below this, the different backup sets are created. If the directory does
-		/// not exist and pCreateIfMissing is false, the result is null.
+		/// Below this, the different backup sets are created. 
 		/// </summary>
-		/// <param name="pClient">the client name, used as directory name</param>
-		private static String GetClientRoot(String pClientName, Boolean pCreateIfMissing = true) {
-			String result = null;
+		/// <param name="pClientName">the client name, used as directory name</param>
+		/// <param name="pCreateIfMissing">If true, the directory will be created if it does not exist yet</param>
+		private static DirectoryInfo GetClientRoot(String pClientName, Boolean pCreateIfMissing = true) {
 			if (pClientName.IndexOfAny(Path.GetInvalidPathChars()) > 0) {
 				throw new Exception(String.Format("Invalid characters in backupName: {0}", pClientName));
 			}
 			String rootFolderPath = ConfigurationManager.AppSettings["backupDir"];
 			String clientPath = Path.Combine(rootFolderPath, pClientName);
-			if (!Directory.Exists(clientPath) && pCreateIfMissing) {
-				Directory.CreateDirectory(clientPath);
-				result = clientPath;
+			if (!Directory.Exists(clientPath)) {
+				if (pCreateIfMissing) {
+					Directory.CreateDirectory(clientPath);
+				} 
 			}
-			return result;
+			return new DirectoryInfo(clientPath);
 		}
 	}
 }

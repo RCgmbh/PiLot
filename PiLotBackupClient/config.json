@@ -1,13 +1,23 @@
 {
 	"backupTargets": [
 		{
-			"targetUrl": "http://localhost/PiLotBackupAPINew/",
+			"targetUrl": "http://localhost/PiLotBackupAPINew",
 			"username": "test",
 			"password": "8888",
 			"backupTasks": [
 				{
 					"dataType": "Logbook",
 					"dataSource": "logbook",
+					"lastSuccess": null
+				},
+				{
+					"dataType": "GPS",
+					"dataSource": "gps",
+					"lastSuccess": null
+				},
+				{
+					"dataType": "Routes",
+					"dataSource": "routes",
 					"lastSuccess": null
 				}
 			]

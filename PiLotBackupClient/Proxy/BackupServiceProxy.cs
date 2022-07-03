@@ -20,23 +20,20 @@ namespace PiLot.Backup.Client.Proxies {
 		String apiUrl = null;
 
 		public BackupServiceProxy(String pTargetApiUrl, String pUsername, String pPassword) {
-			LoginHelper loginHelper = new LoginHelper(pTargetApiUrl, pUsername, pPassword);
 			this.apiUrl = $"{pTargetApiUrl}/pilotbackupapi/v1";
+			LoginHelper loginHelper = new LoginHelper(this.apiUrl, pUsername, pPassword);
 			this.httpClient = new PiLotHttpClient(loginHelper);
 		}
 
 		/// <summary>
-		/// Sends the gps records for one day to the server, and returns the number
-		/// of records that have been saved (which should actually be the Length
-		/// of pRecords)
+		/// Sends the gps records for one day to the server
 		/// </summary>
-		/// <param name="pDate">The day. All records must be from that day</param>
 		/// <param name="pTrack">The track of the day</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		/// <returns>True, if the call was successful, else false</returns>
-		public async Task<Boolean> BackupDailyTrackAsync(Date pDate, Track pTrack, DateTime pBackupTime) {
+		public async Task<Boolean> BackupDailyTrackAsync(Track pTrack, DateTime pBackupTime) {
 			Assert.IsNotNull(pTrack, "pTrack must not be null");
-			String url = $"{this.apiUrl}/DailyTracks/{pDate.Year}/{pDate.Month}/{pDate.Day}?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			String url = $"{this.apiUrl}/Track?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
 			String jsonString = JsonSerializer.Serialize(pTrack.GpsRecords);
 			return await this.httpClient.PutAsync(jsonString, url);
 		}
@@ -62,7 +59,7 @@ namespace PiLot.Backup.Client.Proxies {
 		/// <returns>True, if the call was successful, else false</returns>
 		public async Task<Boolean> BackupRouteAsync(Route pRoute, DateTime pBackupTime) {
 			Assert.IsNotNull(pRoute, "pRoute must not be null");
-			String url = $"{this.apiUrl}/Routes/{pRoute.RouteID}/?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			String url = $"{this.apiUrl}/Routes?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
 			String jsonString = JsonSerializer.Serialize(pRoute);
 			return await this.httpClient.PutAsync(jsonString, url);
 		}

@@ -28,6 +28,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
+      "ancmHostingModel": "InProcess",
       "dotnetRunMessages": "true",
       "applicationUrl": "http://localhost:5000"
     }

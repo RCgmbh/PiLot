@@ -49,7 +49,7 @@ namespace PiLot.APIProxy {
 			Logger.Log($"PiLotHttpClient.GetAsync<T>: Recieved Data: {stringResult.Data}, url: {pUrl}", LogLevels.DEBUG);
 			if (stringResult.Success) {
 				result.Success = true;
-				if (!String.IsNullOrEmpty(stringResult.Data) && stringResult.Data != "null") {
+				if (stringResult.MediaType == "application/json" && !String.IsNullOrEmpty(stringResult.Data) && stringResult.Data != "null") {
 					try {
 						result.Data = JsonSerializer.Deserialize<T>(stringResult.Data);
 					} catch (Exception ex) {
@@ -57,6 +57,8 @@ namespace PiLot.APIProxy {
 						result.Message = ex.Message;
 						Logger.Log($"PiLotHttpClient.GetAsync<T>: Error deserializing Data: {stringResult.Data}, error: {ex.Message}", LogLevels.ERROR);
 					}
+				} else {
+					result.Message = stringResult.Data;
 				}
 			} else {
 				result.Success = false;
@@ -113,6 +115,7 @@ namespace PiLot.APIProxy {
 				if (response.IsSuccessStatusCode) {
 					result.Data = await response.Content.ReadAsStringAsync();
 					result.Success = true;
+					result.MediaType = response.Content.Headers?.ContentType?.MediaType;
 					Logger.Log($"Done reading data. Response: {result.Data}", LogLevels.DEBUG);
 				} else if (
 					   ((response.StatusCode == HttpStatusCode.Unauthorized) || (response.StatusCode == HttpStatusCode.Forbidden))

@@ -22,4 +22,13 @@
     <Folder Include="App_Data\backup\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="App_Data\authorization.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="App_Data\users.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

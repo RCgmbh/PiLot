@@ -17,7 +17,15 @@ namespace PiLot.APIProxy {
 		public String Message {
 			get;
 			set;
-		}	
+		}
+		
+		/// <summary>
+		/// Gets or sets the media Type of the content, e.g. "text/html" or "appication/json"
+		/// </summary>
+		public String MediaType {
+			get;
+			set;
+		}
 	}
 
 	public class ProxyResult<T>: ProxyResult {
