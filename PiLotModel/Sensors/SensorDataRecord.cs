@@ -48,7 +48,7 @@ namespace PiLot.Model.Sensors {
 		}
 
 		/// <summary>
-		/// Gets or sets the utc timestamp of the record in Seconds from 1.1.1976
+		/// Gets or sets the utc timestamp of the record in Seconds from 1.1.1970
 		/// </summary>
 		[JsonPropertyName("utc")]
 		public Int32 UTC { 
