@@ -15,6 +15,7 @@ using System.Configuration;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using PiLot.Backup.Client.Helper;
 using PiLot.Backup.Client.Model;
 using PiLot.Backup.Client.Proxies;
@@ -27,27 +28,25 @@ namespace PiLot.Backup.Client {
 		private const Int32 TIMERINTERVALMS = 1000 * 60 * 5;
 		private static Boolean busy = false;
 
+		/// <summary>
+		/// Usage: ./PiLot.Backup.Client [verbose] 
+		/// </summary>
+		/// <param name="args">Add "verbose" so that the output is written to the console instead of the log</param>
 		static void Main(string[] args) {
 			Program.ReadLogConfig();
 			Logger.Log("Starting PiLot.Backup.Client", LogLevels.INFO);
 
 			List<String> argsList = args.ToList();
 			Boolean verbose = argsList.Any(a => a.ToLower() == "verbose");
-			Boolean wait = argsList.Any(a => a.ToLower() == "wait");
 			if (verbose) {
 				Out.SetMode(Out.Modes.Console);
 			}
-			if (wait) {
-				Console.WriteLine("hit any key to start");
-				Console.ReadKey();
-			}
 			Program.StartTimer();
-			if (wait) {
-				Console.WriteLine("hit any key to quit");
-				Console.ReadKey();
-			}			
 		}
 
+		/// <summary>
+		/// Reads the configuration for logging and sets up the logger
+		/// </summary>
 		private static void ReadLogConfig() {
 			String configLogLevel = ConfigurationManager.AppSettings["logLevel"];
 			LogLevels logLevel = LogLevels.ERROR;
@@ -61,11 +60,12 @@ namespace PiLot.Backup.Client {
 		/// </summary>
 		private static void StartTimer() {
 			DateTime start, end;
+			Int32 sleepMS;
 			while (true) {
 				start = DateTime.UtcNow;
 				Program.TimerEventAsync();
 				end = DateTime.UtcNow;
-				Int32 sleepMS = TIMERINTERVALMS - (Int32)(end - start).TotalMilliseconds;
+				sleepMS = TIMERINTERVALMS - (Int32)(end - start).TotalMilliseconds;
 				if (sleepMS > 0) {
 					Thread.Sleep(sleepMS);
 				}
@@ -84,7 +84,8 @@ namespace PiLot.Backup.Client {
 		}
 
 		/// <summary>
-		/// Performs the backup for each targets, if the target is reachable
+		/// Performs the backup for each target, if the target is reachable, and finally commits
+		/// the backup and updates the lastSuccess date if everything goes well
 		/// </summary>
 		private static async Task PerformBackup() {
 			ConfigHelper configHelper = new ConfigHelper();
@@ -135,6 +136,9 @@ namespace PiLot.Backup.Client {
 					break;
 				case DataTypes.Routes:
 					backupHelper = new RouteBackupHelper(pProxy);
+					break;
+				case DataTypes.SensorData:
+					backupHelper = new SensorDataBackupHelper(pProxy);
 					break;
 			}
 			if (backupHelper != null) {

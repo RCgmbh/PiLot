@@ -10,7 +10,7 @@ namespace PiLot.Model.Sensors {
 	/// the utc timestamp, the boatTime timestamp and the value itself. It
 	/// is used to present timelined data on the client.
 	/// </summary>
-	public class SensorDataRecord {
+	public class SensorDataRecord: IComparable<SensorDataRecord> {
 
 		private Int32 utc;
 		private Int32 boatTime;
@@ -72,6 +72,14 @@ namespace PiLot.Model.Sensors {
 		public Double? Value { 
 			get { return this.value; }
 			set { this.value = value; }
+		}
+
+		/// <summary>
+		/// Default comparer using UTC timestamp to compare two records, as usually
+		/// we want to sorty by UTC
+		/// </summary>
+		public int CompareTo(SensorDataRecord pOther) {
+			return this.UTC.CompareTo(pOther.UTC);
 		}
 	}
 }

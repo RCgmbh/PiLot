@@ -9,14 +9,13 @@ using PiLot.Data.Files;
 using PiLot.Model.Nav;
 using PiLot.Model.Logbook;
 using PiLot.Utils.Logger;
+using PiLot.Model.Sensors;
 
 namespace PiLot.Backup.API.Helpers {
 
 	public class BackupHelper {
 
 		public const String DATEDIRECTORYFORMAT = "yyyyMMdd-HHmm";
-
-		public enum DataTypes { Gps = 0, DateNumberSeries = 1, BoatConfig = 2, Route = 3, Logbook = 4 }
 
 		/// <summary>
 		/// Backup GPS Data for one day
@@ -33,8 +32,9 @@ namespace PiLot.Backup.API.Helpers {
 		/// <summary>
 		/// Backup Logbook Data for one day
 		/// </summary>
-		/// <param name="pDate">The day to which the records belong</param>
-		/// <param name="pRecords">The gps records to save</param>
+		/// <param name="pLogbookDay">The logbook day to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupLogbookData(LogbookDay pLogbookDay, String pClientName, DateTime pBackupTime) {
 			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
 			new LogbookDataConnector(backupDirectory.FullName).SaveLogbookDay(pLogbookDay, false);
@@ -44,11 +44,26 @@ namespace PiLot.Backup.API.Helpers {
 		/// <summary>
 		/// Backup a single Route
 		/// </summary>
-		/// <param name="pRecords">The route to save</param>
+		/// <param name="pRoute">The route to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupRoute(Route pRoute, String pClientName, DateTime pBackupTime) {
 			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
 			new RouteDataConnector(backupDirectory.FullName).SaveRoute(pRoute);
 			Logger.Log("Recieved Route with ID {0} to backup", pRoute.RouteID, LogLevels.DEBUG);
+		}
+
+		/// <summary>
+		/// Backs up sensor data
+		/// </summary>
+		/// <param name="pData">The array of records to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pSensorName">The sensor name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
+		public static void BackupSensorData(SensorDataRecord[] pData, String pSensorName, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new SensorDataConnector(backupDirectory.FullName).SaveDailyData(pData.ToList(), pSensorName);
+			Logger.Log($"Recieved {pData.Length} records for sensor {pSensorName} to backup", LogLevels.DEBUG);
 		}
 
 		/// <summary>

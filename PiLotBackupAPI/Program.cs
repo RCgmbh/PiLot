@@ -9,7 +9,6 @@
   
  The full license text is available at https://github.com/RCgmbh/PiLot/blob/master/LICENSE.
   
- THIS PROGRAM DOES IN NO WAY REPLACE SUITABLE NAVIGATION EQUIPMENT, UP-TO-DATE OFFICIAL CHARTS OR EDUCATED SEAMANSHIP.
  **/
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -65,15 +66,25 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Writes a set of Data tuples to a file, not verifying whether the file name matches
-		/// the data, so be careful.
+		/// Saves a set of Data records for one sensor to a file. All records must belong to 
+		/// the same day (based on utc).
 		/// </summary>
-		/// <param name="pData">a list of data sets containing utc, boatTime, value</param>
-		/// <param name="pFile">the file to write the data to</param>
-		public void SaveDailyData(List<SensorDataRecord> pData, FileInfo pFile) {
-			Assert.IsTrue(pFile.Exists);
-			List<String> lines = pData.Select(d => this.DataToString(d)).ToList();
-			File.WriteAllLines(pFile.FullName, lines);
+		/// <param name="pData">A list of data records all for the same day, containing utc, boatTime, value</param>
+		/// <param name="pDataSourceName">the name of the sensor</param>
+		public void SaveDailyData(List<SensorDataRecord> pData, String pDataSourceName) {
+			if(pData.Count > 0) {
+				Date utcDay = new Date(pData[0].UTC);
+				Int32 minTimestamp = DateTimeHelper.ToUnixTime(utcDay);
+				Int32 maxTimestamp = DateTimeHelper.ToUnixTime(utcDay.AddDays(1));
+				Assert.IsFalse(
+					pData.Exists(d => (d.UTC < minTimestamp) || (d.UTC > maxTimestamp)),
+					$"The sensor data for {pDataSourceName} contains invalid dates for {utcDay}"
+				);
+				pData.Sort();
+				List<String> lines = pData.Select(d => this.DataToString(d)).ToList();
+				FileInfo file = this.dataHelper.GetDataFile(pDataSourceName, utcDay, true);
+				File.WriteAllLines(file.FullName, lines);
+			}			
 		}
 
 		/// <summary>
@@ -139,26 +150,59 @@ namespace PiLot.Data.Files {
 			List<SensorDataRecord> rawData = new List<SensorDataRecord>();
 			while (loopDate <= endDate) {
 				FileInfo file = this.dataHelper.GetDataFile(pSensorName, loopDate);
-				if (file != null) {
-					try {
-						foreach (String aLine in File.ReadLines(file.FullName)) {
-							SensorDataRecord record = this.ParseLine(aLine);
-							if (record != null) {
-								if (boundaryCheck(record, minTime, maxTime)) {
-									rawData.Add(record);
-								}
-							}
-							if (record == null) {
-								Logger.Log($"Invalid content in data file {file.FullName}: {aLine}", LogLevels.WARNING);
-							}
-						}
-					} catch (Exception ex) {
-						Logger.Log(ex, "SensorDataConnector.ReadFileData");
+				foreach (SensorDataRecord aRecord in this.ReadRawData(file)) {
+					if (boundaryCheck(aRecord, minTime, maxTime)) {
+						rawData.Add(aRecord);
 					}
 				}
 				loopDate = loopDate.AddDays(1);
 			}
 			return new AggregatedSensorData(rawData, minTime, maxTime, pAggregateSeconds);
+		}
+
+		/// <summary>
+		/// Reads all data that has been changed after a certain time, by just reading those files
+		/// that have a younger changed after value. The result is clustered by date, giving one
+		/// list of SensorDataRecords per day.
+		/// </summary>
+		/// <param name="pSensorName">The name of the sensor</param>
+		/// <param name="pChangedAfter">The minimal changed date</param>
+		/// <returns></returns>
+		public Dictionary<Date, List<SensorDataRecord>> GetChangedDailyData(String pSensorName, DateTime pChangedAfter) {
+			Dictionary<Date, List<SensorDataRecord>> result = new Dictionary<Date, List<SensorDataRecord>>();
+			string dataPath = this.dataHelper.GetDataPath(pSensorName);
+			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
+			foreach (var aFile in dataDir.EnumerateFiles()) {
+				if (aFile.LastWriteTimeUtc > pChangedAfter) {
+					Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
+					result.Add(date, this.ReadRawData(aFile));
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// This returns a list of all SensorDataRecords for one day (by utc) and a given sensor.
+		/// </summary>
+		/// <param name="pDate">The day for which the data should be read</param>
+		private List<SensorDataRecord> ReadRawData(FileInfo pFile) {
+			List<SensorDataRecord> result = new List<SensorDataRecord>();
+			if ((pFile != null) && pFile.Exists) {
+				try {
+					foreach (String aLine in File.ReadLines(pFile.FullName)) {
+						SensorDataRecord record = this.ParseLine(aLine);
+						if (record != null) {
+							result.Add(record);
+						}
+						if (record == null) {
+							Logger.Log($"Invalid content in data file {pFile.FullName}: {aLine}", LogLevels.WARNING);
+						}
+					}
+				} catch (Exception ex) {
+					Logger.Log(ex, "SensorDataConnector.ReadFileData");
+				}
+			}
+			return result;
 		}
 
 		/// <summary>

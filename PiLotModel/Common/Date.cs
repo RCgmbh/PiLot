@@ -46,6 +46,5 @@ namespace PiLot.Model.Common {
 		public override string ToString() {
 			return $"{this.Year}-{this.Month}-{this.Day}";
 		}
-
 	}
 }
