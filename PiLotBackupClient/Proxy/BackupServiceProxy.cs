@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Text.Json;
 
@@ -7,6 +8,7 @@ using PiLot.Model.Logbook;
 using PiLot.APIProxy;
 using PiLot.Utils;
 using PiLot.Utils.DateAndTime;
+using PiLot.Model.Sensors;
 
 namespace PiLot.Backup.Client.Proxies {
 
@@ -61,6 +63,20 @@ namespace PiLot.Backup.Client.Proxies {
 			Assert.IsNotNull(pRoute, "pRoute must not be null");
 			String url = $"{this.apiUrl}/Routes?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
 			String jsonString = JsonSerializer.Serialize(pRoute);
+			return await this.httpClient.PutAsync(jsonString, url);
+		}
+
+		/// <summary>
+		/// Sends sensor data for one sensor and one Day the server to be backed up
+		/// </summary>
+		/// <param name="pRecords">The list of records</param>
+		/// <param name="pSensorName">The sensor name</param>
+		/// <param name="pBackupTime">The time of the current backup</param>
+		/// <returns>True, if the call was successful, else false</returns>
+		public async Task<Boolean> BackupSensorDataAsync(List<SensorDataRecord> pRecords, String pSensorName, DateTime pBackupTime) {
+			Assert.IsNotNull(pRecords, "pRecords must not be null");
+			String url = $"{this.apiUrl}/Data?sensorName={pSensorName}&backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			String jsonString = JsonSerializer.Serialize(pRecords);
 			return await this.httpClient.PutAsync(jsonString, url);
 		}
 

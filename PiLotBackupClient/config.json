@@ -19,6 +19,16 @@
 					"dataType": "Routes",
 					"dataSource": "routes",
 					"lastSuccess": null
+				},
+				{
+					"dataType": "SensorData",
+					"dataSource": "temperature1",
+					"lastSuccess": null
+				},
+				{
+					"dataType": "SensorData",
+					"dataSource": "pressure",
+					"lastSuccess": null
 				}
 			]
 		}

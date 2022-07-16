@@ -42,10 +42,6 @@ namespace System {
 			this.dateTime = pDateTime.AddTicks(-pDateTime.Ticks % TimeSpan.TicksPerDay);
 		}
 
-		public Date(Int64 pTicks) {
-			this.dateTime = new DateTime(pTicks).Date;
-		}
-
 		public Date(SerializationInfo info, StreamingContext context) : this() {
 			Int64 ticks = info.GetInt64("ticks");
 			this.dateTime = new DateTime(ticks).Date;

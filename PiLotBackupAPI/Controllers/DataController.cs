@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -30,8 +29,7 @@ namespace PiLot.Backup.API.Controllers {
 			Object userObj = this.HttpContext.Items["user"];
 			if(userObj != null) {
 				User user = (User)userObj;
-				try {
-					
+				try {					
 					BackupHelper.BackupSensorData(values, sensorName, user.Username, DateTimeHelper.FromUnixTime(backupTime));
 					result = this.Ok();
 				} catch (Exception ex) {

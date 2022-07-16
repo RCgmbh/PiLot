@@ -73,7 +73,7 @@ namespace PiLot.Data.Files {
 		/// <param name="pDataSourceName">the name of the sensor</param>
 		public void SaveDailyData(List<SensorDataRecord> pData, String pDataSourceName) {
 			if(pData.Count > 0) {
-				Date utcDay = new Date(pData[0].UTC);
+				Date utcDay = new Date(DateTimeHelper.FromUnixTime(pData[0].UTC));
 				Int32 minTimestamp = DateTimeHelper.ToUnixTime(utcDay);
 				Int32 maxTimestamp = DateTimeHelper.ToUnixTime(utcDay.AddDays(1));
 				Assert.IsFalse(

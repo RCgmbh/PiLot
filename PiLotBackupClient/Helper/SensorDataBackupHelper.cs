@@ -30,15 +30,15 @@ namespace PiLot.Backup.Client.Helper {
 			DateTime lastBackupDate = pTask.LastSuccess ?? new DateTime(0);
 			Dictionary<Date, List<SensorDataRecord>> changedData = new SensorDataConnector().GetChangedDailyData(pTask.DataSource, lastBackupDate);
 			Boolean serviceResult;
-			/*foreach (Date aDate in changedData.Keys) {
-				serviceResult = await this.proxy.BackupSensorDataAsync(changedData[aDate], pBackupTime);
+			foreach (Date aDate in changedData.Keys) {
+				serviceResult = await this.proxy.BackupSensorDataAsync(changedData[aDate], pTask.DataSource, pBackupTime);
 				if (serviceResult) {
-					Out.WriteDebug(String.Format("Track backupped for date {0:d}", aDate));
+					Out.WriteDebug(String.Format($"Sensor data backupped for sensor {pTask.DataSource} and date {aDate:d}"));
 				} else {
-					Out.WriteError(String.Format("Backing up track for date {0:d} failed", aDate));
+					Out.WriteError(String.Format($"Backing up sensor data for sensor {pTask.DataSource} and date {aDate:d} failed"));
 					success = false;
 				}
-			}*/
+			}
 			return success;
 		}
 	}
