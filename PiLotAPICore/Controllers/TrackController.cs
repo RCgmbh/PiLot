@@ -14,6 +14,12 @@ namespace PiLot.API.Controllers {
 	[ApiController]
 	public class TrackController : ControllerBase {
 
+		/// <summary>
+		/// Reads positions within a certain range
+		/// </summary>
+		/// <param name="startTime">Starttime in ms utc or boatTime</param>
+		/// <param name="endTime">Endtime in ms utc or boatTime</param>
+		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]

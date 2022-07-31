@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -85,14 +86,30 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Saves the diary text for a day
+		/// Saves multiple LogbookEntries, optionally allowing to delete
+		/// all existing entries for the given day.
+		/// </summary>
+		/// <param name="logbookEntry">The logbookEntry to save</param>
+		/// <returns>Ok, without any data</returns>
+		[Route(Program.APIROOT + "[controller]/entries/{year}/{month}/{day}")]
+		[HttpPut]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public ActionResult Put(List<LogbookEntry> logbookEntries, Int32 year, Int32 month, Int32 day, Boolean deleteExisting) {
+			Model.Common.Date date = new Model.Common.Date(year, month, day);
+			new LogbookDataConnector().SaveEntries(logbookEntries, date, deleteExisting);
+			return this.Ok();
+		}
+
+		/// <summary>
+		/// Saves the diary text for a day. Allows to choose whether the existing
+		/// text should be replaced, or the new text should just be appended.
 		/// </summary>
 		/// <returns>The LogbookDay where the text was set</returns>
 		[Route(Program.APIROOT + "[controller]/diary/{year}/{month}/{day}")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public ActionResult Put(DiaryText text, Int32 year, Int32 month, Int32 day) {
-			Boolean added = new LogbookDataConnector().SaveDiaryText(text, new Model.Common.Date(year, month, day), out LogbookDay logbookDay);
+		public ActionResult Put(DiaryText text, Int32 year, Int32 month, Int32 day, Boolean appendText) {
+			Boolean added = new LogbookDataConnector().SaveDiaryText(text, new Model.Common.Date(year, month, day), out LogbookDay logbookDay, appendText);
 			if (added) {
 				return this.StatusCode(StatusCodes.Status201Created, logbookDay);
 			} else {

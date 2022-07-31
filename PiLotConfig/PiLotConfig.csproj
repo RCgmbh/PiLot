@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>PiLot.Config</AssemblyName>
+    <RootNamespace>PiLot.Config</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+    <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
+  </ItemGroup>
+
+</Project>

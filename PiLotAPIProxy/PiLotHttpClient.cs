@@ -124,9 +124,9 @@ namespace PiLot.APIProxy {
 				) {
 					result = await this.GetAsync(pUrl, true);
 				} else {
-					result.Message = await response.Content.ReadAsStringAsync();
+					result.Message = $"Error reading {pUrl}: Status Code: {response.StatusCode}, Message: {await response.Content.ReadAsStringAsync()}";
 					result.Success = false;
-					Logger.Log($"Error reading data from {pUrl}: Status Code: {response.StatusCode}, Response Message: {result.Message}", LogLevels.ERROR);
+					Logger.Log(result.Message, LogLevels.ERROR);
 				}
 			} catch (Exception ex) {
 				result.Message = ex.Message;

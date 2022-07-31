@@ -6,37 +6,21 @@ using System.Text.Json;
 using PiLot.Model.Boat;
 using PiLot.Utils.Logger;
 
-namespace PiLot.Data.Files {
+namespace PiLot.Config {
 
 	/// <summary>
-	/// Helper class used to read Boat data
+	/// Helper class used to read the available Boat configuration
 	/// </summary>
-	public class BoatDataConnector {
-
-		public const String DATADIR = "boat";
-
-		#region instance variables
-
-		private DataHelper helper;
-
-		#endregion
+	public class BoatConfigReader {
+		
+		public const String CONFIGDIR = "boats";
 
 		#region constructors
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public BoatDataConnector() {
-			this.helper = new DataHelper();
-		}
-
-		/// <summary>
-		/// Creates a new RouteDataConnector for a specific data root path
-		/// </summary>
-		/// <param name="pDataRoot">root path</param>
-		public BoatDataConnector(String pDataRoot) {
-			this.helper = new DataHelper(pDataRoot);
-		}
+		public BoatConfigReader() { }
 
 		#endregion
 
@@ -46,10 +30,10 @@ namespace PiLot.Data.Files {
 		/// </summary>
 		public List<Object> ReadBoatConfigInfos() {
 			List<Object> result = new List<Object>();
-			DirectoryInfo boatDataDir = this.GetBoatConfigsDirectory();
-			if (boatDataDir.Exists) {
+			DirectoryInfo boatConfigDir = this.GetBoatConfigDirectory();
+			if (boatConfigDir.Exists) {
 				BoatConfig boatConfig;
-				foreach (FileInfo aFile in boatDataDir.GetFiles()) {
+				foreach (FileInfo aFile in boatConfigDir.GetFiles()) {
 					try {
 						boatConfig = this.ReadBoatConfig(aFile);
 						result.Add(new {
@@ -74,8 +58,8 @@ namespace PiLot.Data.Files {
 		public BoatConfig ReadBoatConfig(String pName) {
 			BoatConfig result = null;
 			if (!String.IsNullOrEmpty(pName)) {
-				DirectoryInfo dataDirectory = this.GetBoatConfigsDirectory();
-				FileInfo[] files = dataDirectory.GetFiles(pName + ".json");
+				DirectoryInfo configDirectory = this.GetBoatConfigDirectory();
+				FileInfo[] files = configDirectory.GetFiles(pName + ".json");
 				if (files.Length == 1) {
 					result = ReadBoatConfig(files[0]);
 					result.Name = pName;
@@ -87,8 +71,9 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// returns the directory of BoatConfigs in the filesystem. 
 		/// </summary>
-		private DirectoryInfo GetBoatConfigsDirectory() {
-			return new DirectoryInfo(this.helper.GetDataPath(DATADIR, true));
+		private DirectoryInfo GetBoatConfigDirectory() {
+			String configRoot = ConfigHelper.GetConfigDirectory();
+			return new DirectoryInfo(Path.Combine(configRoot, CONFIGDIR));
 		}
 
 		/// <summary>

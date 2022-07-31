@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.APIProxy;
+using PiLot.Config;
 using PiLot.Data.Files;
 using PiLot.Model.Common;
 using PiLot.Model.Logbook;
@@ -29,7 +30,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public List<Object> Get() {
-			List<PublishTarget> targets = new PublishingDataConnector().ReadPublishTargets();
+			List<PublishTarget> targets = new PublishingConfigReader().ReadPublishTargets();
 			return targets.Select(t => (Object)new {name = t.Name, displayName = t.DisplayName }).ToList();
 		}
 
@@ -42,7 +43,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public async Task<TargetData<DailyData>> Get(String targetName, Int32 year, Int32 month, Int32 day) {
 			TargetData<DailyData> result = new TargetData<DailyData>();
-			PublishTarget target = new PublishingDataConnector().GetPublishTarget(targetName);
+			PublishTarget target = new PublishingConfigReader().GetPublishTarget(targetName);
 			if(target != null) {
 				System.Date date = new System.Date(year, month, day);
 				LoginHelper loginHelper = new LoginHelper(target.APIUrl, target.Username, target.Password);
@@ -72,7 +73,7 @@ namespace PiLot.API.Controllers {
 		/// Loads the LogbookDay for pDate from the publish target.
 		/// </summary>
 		private async Task<TargetData<LogbookDay>> LoadLogbookDayAsync(PublishTarget pTarget, LoginHelper pLoginHelper, System.Date pDate) {
-		LogbookProxy logbookProxy = new LogbookProxy(pTarget.APIUrl, pLoginHelper);
+			LogbookProxy logbookProxy = new LogbookProxy(pTarget.APIUrl, pLoginHelper);
 			ProxyResult<LogbookDay> proxyResult = await logbookProxy.GetLogbookDayAsync(pDate);
 			TargetData<LogbookDay> result = new TargetData<LogbookDay>() {
 				Success = proxyResult.Success,

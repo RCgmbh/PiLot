@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.AspNetCore.Mvc;
 
-using PiLot.Data.Files;
+using PiLot.Config;
 using PiLot.Model.Nav;
 using PiLot.Model.Publishing;
 
@@ -37,7 +37,7 @@ namespace PiLot.API.Controllers {
 			Date date = new Date(year, month, day);
 			PublishJob currentJob = helper.GetJob(targetName, date);
 			if((currentJob == null) || (currentJob.IsFinished)) {
-				PublishTarget target = new PublishingDataConnector().GetPublishTarget(targetName);
+				PublishTarget target = new PublishingConfigReader().GetPublishTarget(targetName);
 				if(target == null) {
 					return this.NotFound();
 				} else {

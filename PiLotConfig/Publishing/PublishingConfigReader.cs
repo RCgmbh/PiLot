@@ -7,31 +7,19 @@ using System.Text.Json;
 using PiLot.Model.Publishing;
 using PiLot.Utils.Logger;
 
-namespace PiLot.Data.Files {
+namespace PiLot.Config {
 	
 	/// <summary>
-	/// Class for reading and writing sensor data from and to files
+	/// Class for reading and writing sensor configuration from files
 	/// </summary>
-	public class PublishingDataConnector {
+	public class PublishingConfigReader {
 
-		private DataHelper dataHelper;
-		public const String DATADIR = "publishing";
-		public const String FILENAME = "targets.json";
+		public const String FILENAME = "publishingTargets.json";
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public PublishingDataConnector() {
-			this.dataHelper = new DataHelper();
-		}
-
-		/// <summary>
-		/// Creates a PublishingDataConnector with a specific data root, useful i.e. for Backup
-		/// </summary>
-		/// <param name="pRootPath"></param>
-		public PublishingDataConnector(String pRootPath) {
-			this.dataHelper = new DataHelper(pRootPath);
-		}
+		public PublishingConfigReader() { }
 
 		/// <summary>
 		/// Reads a list of PublishTargets. If there are no targets configured, it returns
@@ -39,7 +27,7 @@ namespace PiLot.Data.Files {
 		/// </summary>
 		public List<PublishTarget> ReadPublishTargets() {
 			List<PublishTarget> result;
-			FileInfo file = this.GetFile();
+			FileInfo file = this.GetConfigFile();
 			if (file != null) {
 				String fileContent = File.ReadAllText(file.FullName);
 				result = JsonSerializer.Deserialize<List<PublishTarget>>(fileContent);
@@ -62,8 +50,9 @@ namespace PiLot.Data.Files {
 		/// returns the file containing the publishTargets. Returns null,
 		/// if the file does not exist.
 		/// </summary>
-		private FileInfo GetFile() {
-			String path = Path.Combine(this.dataHelper.GetDataPath(DATADIR, true), FILENAME);
+		private FileInfo GetConfigFile() {
+			String configRoot = ConfigHelper.GetConfigDirectory();
+			String path = Path.Combine(configRoot, FILENAME);
 			FileInfo result = new FileInfo(path);
 			if (!result.Exists) {
 				Logger.Log($"Did not find PublishTargets file at {path}", LogLevels.WARNING);

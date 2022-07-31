@@ -1,0 +1,19 @@
+﻿[
+	{
+		"name": "osm",
+		"onlineUrl": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+		"localPath": "/var/www/html/tiles/openstreetmap/{0}/{1}/{2}.png",
+		"localUrl": "/tiles/openstreetmap/{z}/{x}/{y}.png",
+		"minZoom": 1,
+		"maxZoom": 17
+	},
+	{
+		"name": "openseamap",
+		"onlineUrl": "http://t1.openseamap.org/seamark/{z}/{x}/{y}.png",
+		"localPath": "/var/www/html/tiles/openseamap/{0}/{1}/{2}.png",
+		"localUrl": "/tiles/openseamap/{z}/{x}/{y}.png",
+		"minZoom": 1,
+		"maxZoom": 17
+	}
+]
+

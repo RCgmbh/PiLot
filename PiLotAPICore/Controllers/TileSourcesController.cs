@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
-using PiLot.Data.Files;
+using PiLot.Config;
 using PiLot.Model.Tiles;
 
 namespace PiLot.API.Controllers {
@@ -22,7 +22,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public ActionResult GetReloadConfig() {
-			TileDataConnector.ReloadConfig();
+			TilesConfigReader.ReloadConfig();
 			return this.Ok();
 		}
 
@@ -34,7 +34,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public TileSource[] Get() {
-			return TileDataConnector.Instance.GetAllTileSources();
+			return TilesConfigReader.Instance.GetAllTileSources();
 		}
 	}
 }

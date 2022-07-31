@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
-using PiLot.Data.Files;
+using PiLot.Config;
 using PiLot.Model.Sensors;
 
 namespace PiLot.API.Controllers {
@@ -21,7 +21,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<SensorInfo> Get(String tag) {
-			return new SensorInfoConnector().ReadSensorInfos(tag);
+			return new SensorConfigReader().ReadSensorInfos(tag);
 		}
 
 		/// <summary>
@@ -31,7 +31,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<SensorInfo> Get() {
-			return new SensorInfoConnector().ReadSensorInfos();
+			return new SensorConfigReader().ReadSensorInfos();
 		}
 
 	}

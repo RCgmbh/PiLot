@@ -128,13 +128,8 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// Saves the name of the current BoatConfig
 		/// </summary>
-		public Boolean SetCurrentBoatConfigName(String pName) {
-			Boolean result = false;
-			if (new BoatDataConnector().ReadBoatConfig(pName) != null) {
-				this.PersistApplicationSetting(BOATCONFIGKEY, pName);
-				result = true;
-			}
-			return result;
+		public void SetCurrentBoatConfigName(String pName) {
+			this.PersistApplicationSetting(BOATCONFIGKEY, pName);
 		}
 
 		/// <summary>

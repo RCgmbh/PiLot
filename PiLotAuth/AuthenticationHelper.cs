@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 
+using PiLot.Config;
 using PiLot.Utils.Logger;
 using PiLot.Model.Users;
 
@@ -12,7 +13,7 @@ namespace PiLot.Auth{
 
 	public abstract class AuthenticationHelper {
 
-		private const String USERSFILE = "App_Data/users.json";
+		private const String USERSFILE = "users.json";
 
 		public const Double TOKENVALIDHOURS = 2;
 		public const String COOKIEKEY = "token";
@@ -127,7 +128,7 @@ namespace PiLot.Auth{
 		protected void LoadConfig() {
 			List<User> userInfos = null;
 			this.users = new Dictionary<String, User>();
-			String usersConfigFile = Path.Combine(AppContext.BaseDirectory, USERSFILE);
+			String usersConfigFile = Path.Combine(ConfigHelper.GetConfigDirectory(), USERSFILE);
 			if (File.Exists(usersConfigFile)) {
 				try {
 					String fileContent = null;

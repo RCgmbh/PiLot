@@ -7,32 +7,20 @@ using System.Text.Json;
 using PiLot.Model.Sensors;
 using PiLot.Utils;
 
-namespace PiLot.Data.Files {
+namespace PiLot.Config {
 
 	/// <summary>
-	/// Data connector to read information about available
+	/// Config connector to read information about available
 	/// Sensor data sources
 	/// </summary>
-	public class SensorInfoConnector {
+	public class SensorConfigReader {
 
-		private DataHelper dataHelper;
-		public const String DATADIR = "sensors";
 		public const String FILENAME = "sensors.json";
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public SensorInfoConnector() {
-			this.dataHelper = new DataHelper();
-		}
-
-		/// <summary>
-		/// Creates a SensorInfoConnector with a specific data root, useful i.e. for Backup
-		/// </summary>
-		/// <param name="pRootPath"></param>
-		public SensorInfoConnector(String pRootPath) {
-			this.dataHelper = new DataHelper(pRootPath);
-		}
+		public SensorConfigReader() { }
 
 		/// <summary>
 		/// Reads a list of SensorInfos, optionally filtered by a certain tag
@@ -55,7 +43,8 @@ namespace PiLot.Data.Files {
 		/// if the file does not exist.
 		/// </summary>
 		private FileInfo GetSensorFile() {
-			String path = Path.Combine(this.dataHelper.GetDataPath(DATADIR, true), FILENAME);
+			String configRoot = ConfigHelper.GetConfigDirectory();
+			String path = Path.Combine(configRoot, FILENAME);
 			FileInfo result = new FileInfo(path);
 			Assert.IsTrue(result.Exists, $"Did not find Sensors data file at {path}");
 			return result;

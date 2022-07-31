@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.Config;
 using PiLot.Data.Files;
 using PiLot.Model.Boat;
 
@@ -18,7 +19,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Object> Get() {
-			return new BoatDataConnector().ReadBoatConfigInfos();
+			return new BoatConfigReader().ReadBoatConfigInfos();
 		}
 
 		/// <summary>
@@ -37,7 +38,7 @@ namespace PiLot.API.Controllers {
 			} else {
 				name = id;
 			}
-			BoatConfig boatConfig = new BoatDataConnector().ReadBoatConfig(name);
+			BoatConfig boatConfig = new BoatConfigReader().ReadBoatConfig(name);
 			if (boatConfig != null) {
 				return this.Ok(boatConfig);
 			} else {

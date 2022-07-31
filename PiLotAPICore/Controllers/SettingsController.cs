@@ -46,19 +46,15 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Sets the current BoatConfig name, if such a config exists
+		/// Sets the current BoatConfig name
 		/// </summary>
 		/// <param name="name">The unique BoatConfig name</param>
 		[Route(Program.APIROOT + "[controller]/currentBoatConfigName")]
 		[HttpPut]
 		[ServiceFilter(typeof(SettingsAuthorizationFilter))]
 		public ActionResult PutCurrentBoatConfigName(String name) {
-			Boolean exists = new GlobalDataConnector().SetCurrentBoatConfigName(name);
-			if (exists) {
-				return this.Ok(name);
-			} else {
-				return this.NotFound();
-			}
+			new GlobalDataConnector().SetCurrentBoatConfigName(name);
+			return this.Ok(name);
 		}
 
 		/// <summary>

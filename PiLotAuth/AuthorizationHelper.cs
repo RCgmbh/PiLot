@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Text.Json;
 
+using PiLot.Config;
 using PiLot.Utils.Logger;
 using PiLot.Model.Users;
 
@@ -14,7 +15,7 @@ namespace PiLot.Auth {
 	/// </summary>
 	public class AuthorizationHelper {
 
-		private const String AUTHFILE = "App_Data/authorization.json";
+		private const String AUTHFILE = "authorization.json";
 
 		private Dictionary<String, Role> roles = null;
 		private User anonymous = null;
@@ -95,7 +96,7 @@ namespace PiLot.Auth {
 		/// </summary>
 		protected void LoadConfig() {
 			AuthorizationSettings settings = null;
-			String authConfigFile = Path.Combine(AppContext.BaseDirectory, AUTHFILE);
+			String authConfigFile = Path.Combine(ConfigHelper.GetConfigDirectory(), AUTHFILE);
 			if (File.Exists(authConfigFile)) {
 				try {
 					String fileContent = null;
