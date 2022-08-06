@@ -1,7 +1,8 @@
-﻿using PiLot.Utils.Logger;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+
+using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API.Helpers {
 
@@ -10,7 +11,7 @@ namespace PiLot.Backup.API.Helpers {
 	/// </summary>
 	public class ConfigHelper {
 
-		private const String CONFIGFILE = "App_Data/config.json";
+		private const String CONFIGFILE = "config.json";
 
 		private Config config = null;
 
@@ -55,7 +56,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// </summary>
 		private String ConfigPath {
 			get {
-				return Path.Combine(AppContext.BaseDirectory, CONFIGFILE);
+				return Path.Combine(PiLot.Config.ConfigHelper.GetConfigDirectory(), CONFIGFILE);
 			}
 		}
 	}

@@ -1,5 +1,5 @@
 [Unit]
-Description=PiLOT GPS Logger
+Description=PiLot GPS Logger
 After=pilotApi.service
 
 [Service]

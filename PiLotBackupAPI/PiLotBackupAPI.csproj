@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PiLotAuth\PiLotAuth.csproj" />
+    <ProjectReference Include="..\PiLotConfig\PiLotConfig.csproj" />
     <ProjectReference Include="..\PiLotDataFiles\PiLotDataFiles.csproj" />
     <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
     <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
@@ -23,10 +24,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="App_Data\authorization.json">
+    <Content Update="config\authorization.default.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Update="App_Data\users.json">
+    <Content Update="config\authorization.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="config\users.default.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="config\users.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

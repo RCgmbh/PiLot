@@ -10,11 +10,15 @@
 
   <ItemGroup>
     <None Remove="app.default.config" />
+    <None Remove="sensors.default.json" />
     <None Remove="sensors.example.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Content Include="app.default.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="sensors.default.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="sensors.example.json">

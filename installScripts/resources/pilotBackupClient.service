@@ -1,10 +1,10 @@
 [Unit]
-Description=PiLot Live Client
+Description=PiLot Backup Client
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/pilotliveclient
-ExecStart=/opt/pilotliveclient/PiLot.LiveClient
+WorkingDirectory=/opt/pilotbackupclient
+ExecStart=/opt/pilotbackupclient/PiLot.Backup.Client
 Restart=always
 RestartSec=2
 User=pi

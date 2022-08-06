@@ -1,0 +1,15 @@
+[
+	{
+		"deviceType": "CPUTemperature",
+		"id": "",
+		"interval": 30,
+		"sensors": [
+			{
+				"sensorType": "temperature",
+				"name": "cpuTemperature",
+				"displayName": "CPU Temperature",
+				"tags": [ "system" ]
+			}
+		]
+	}
+]

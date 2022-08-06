@@ -82,6 +82,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 		installScripts\05-install-gps-2.sh = installScripts\05-install-gps-2.sh
 		installScripts\06-install-photoswatcher.sh = installScripts\06-install-photoswatcher.sh
 		installScripts\07-install-sensorsLogger.sh = installScripts\07-install-sensorsLogger.sh
+		installScripts\08-install-backupAPI.sh = installScripts\08-install-backupAPI.sh
+		installScripts\09-install-backupClient.sh = installScripts\09-install-backupClient.sh
 		installScripts\10-install-liveclient.sh = installScripts\10-install-liveclient.sh
 		createInstallPackage.bat = createInstallPackage.bat
 	EndProjectSection
@@ -92,8 +94,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{
 		installScripts\resources\index.html = installScripts\resources\index.html
 		installScripts\resources\liveClient.service = installScripts\resources\liveClient.service
 		installScripts\resources\nginx.conf = installScripts\resources\nginx.conf
+		installScripts\resources\nginx.pilotbackupapi.conf = installScripts\resources\nginx.pilotbackupapi.conf
 		installScripts\resources\photosWatcher.service = installScripts\resources\photosWatcher.service
 		installScripts\resources\pilotApi.service = installScripts\resources\pilotApi.service
+		installScripts\resources\pilotBackupApi.service = installScripts\resources\pilotBackupApi.service
+		installScripts\resources\pilotBackupClient.service = installScripts\resources\pilotBackupClient.service
 		installScripts\resources\restoreIptables.service = installScripts\resources\restoreIptables.service
 		installScripts\resources\restoreIptables.sh = installScripts\resources\restoreIptables.sh
 		installScripts\resources\sensorsLogger.service = installScripts\resources\sensorsLogger.service
@@ -106,7 +111,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotAuth", "PiLotAuth\PiLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotBackupClient", "PiLotBackupClient\PiLotBackupClient.csproj", "{2944F797-5A34-4B32-89AC-FBC165CA40F6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotConfig", "PiLotConfig\PiLotConfig.csproj", "{4A3189CC-C622-4C21-853B-4D3AFC131C33}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotConfig", "PiLotConfig\PiLotConfig.csproj", "{4A3189CC-C622-4C21-853B-4D3AFC131C33}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

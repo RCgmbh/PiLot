@@ -10,13 +10,21 @@ chown pi:root /var/opt/pilot
 mkdir -p /var/log/pilot			#PiLot log directory
 chown pi:root /var/log/pilot
 mkdir -p /opt/pilotapi			#PiLot binaries
+mkdir -p /etc/pilot				#PiLot config directory
 
-# set up API including service
+# set up API
 cp -r resources/pilotapi/* /opt/pilotapi/
-mv resources/pilotapi/App_Data/global /var/opt/pilot/
-mv resources/pilotapi/App_Data/boat /var/opt/pilot/
-mv resources/pilotapi/App_Data/sensors /var/opt/pilot/
-mv resources/pilotapi/App_Data/tiles /var/opt/pilot/
+mv resources/pilotapi/data/* /var/opt/pilot/
+rm resources/pilotapi/data/
+# add config links in /etc/pilot
+ln /var/opt/pilot/PiLot.API.dll.config /etc/pilot/pilotapi.config
+ln /var/opt/pilot/config/authorization.json /etc/pilot/authorization.json
+ln /var/opt/pilot/config/users.json /etc/pilot/users.json
+ln /var/opt/pilot/config/publishingTargets.json /etc/pilot/publishingTargets.json
+ln /var/opt/pilot/config/sensors.json /etc/pilot/sensors.json
+ln /var/opt/pilot/config/tileSources.json /etc/pilot/tileSources.json
+ln -s /var/opt/pilot/config/boats /etc/pilot/boats
+# set up API service
 cp resources/pilotApi.service /etc/systemd/system/pilotApi.service
 chmod 446 /etc/systemd/system/pilotApi.service
 systemctl daemon-reload
@@ -35,14 +43,17 @@ chown -R pi:root /var/www/html/tiles
 mkdir /var/www/html/library
 chown -R pi:root /var/www/html/library
 cp resources/library/* /var/www/html/library/
-# todo: install samba, if it's not installed yet, and add share for library and maybe data
+# add link for Config.js to /etc/pilot
+ln /var/www/html/pilot/js/Config.js /etc/pilot/webappConfig.js
 
 # update nginx config
 apt install -y nginx
 cp /etc/nginx/sites-enabled/default backup/
 cp resources/nginx.conf /etc/nginx/sites-enabled/default
+mkdir /etc/nginx/locations
 systemctl restart nginx
 
+# add samba share if samba is installed
 if [ -e /etc/samba/smb.conf ]
 then 
 echo \

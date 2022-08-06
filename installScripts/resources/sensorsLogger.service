@@ -1,5 +1,5 @@
 [Unit]
-Description=PiLOT Sensors Logger
+Description=PiLot Sensors Logger
 
 [Service]
 Type=simple

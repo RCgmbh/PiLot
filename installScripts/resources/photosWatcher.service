@@ -1,5 +1,5 @@
 [Unit]
-Description=PiLOT Photo import
+Description=PiLot Photo Import
 
 [Service]
 Type=simple
