@@ -25,6 +25,31 @@ location /pilotbackupapi/ {
 
 Up for more advanced stuff? Why not have a look at the live tracking feature, which will be super easy to set up if you succeeded with the backup thing.
 
+### Configure users
+The PiLot backup server is only accessible for authorized users. The users are defined in the file '/etc/pilotbackupapi/users.json'. Go ahead and edit it:
+```
+sudo nano /etc/pilotbackupapi/users.json
+```
+You can have multiple users, again each within a curly brackets block, separated by colon: {},{}. For a first test, you can keep user "test" with password "8888".
+
+### Install the backup job
+The backup job has to run on your PiLot, as it directly accesses the data on the file system. Again, there is an istallation script:
+```
+cd ~/pilotinstall
+sudo sh 09-install-backupClient.sh
+```
+This will install the backup client as a service and enable it. By default, it will just backup locally, using the default credentials (test:8888), so it's easy to see if it works. To do so, you can have a look into the backup server data directory:
+```
+ls -l /var/opt/pilotbackup/
+```
+You should see a directory "test". For each user, a directory is created, which holds the backup sets. Sets ending in \_temp indicate that something went wrong. If you're lucky, you find information at `/var/log/pilotbackup`.
+
+### Configure the backup client
+As soon as you have installed the backup server where you want it, you have to tell the client the correct url, and provide username and password. This is all configured in '/etc/pilot/backupConfig.json'. The file can contain multiple backup targets, and you can even define, which data should be backed up. For now, just update the values for targetUrl, username and password, which have to match the user defined in the users.json file of the server.
+
+### Restore data from backup
+In case you want to restore the data from backup, it's easies to access the samba shares "Pilot Backup Data" on the server, and "Pilot Data" on the PiLot, and copy-paste the content of the desired backup set from the server to the client.
+
 \> [Set up live tracking...](livetracking.md)
 
 << [Back to overview](user.md)
