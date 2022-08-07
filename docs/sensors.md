@@ -101,9 +101,8 @@ For the different sensor types, there are some specific points to consider:
 ##### deviceType
 For I2C, use either "BMP180" (only for BMP180 devices), or "BMXX80" for BMP280, BME280 or BME680.
 ##### id
-You find the id of an I2C device using the i2cdetect tool. You need to install the i2c-tools and then run i2cdetect:
+You find the id of an I2C device using the i2cdetect tool, which was installed with i2c-tools we installed earlier. Run i2cdetect as follows:
 ```
-sudo apt install i2c-tools
 sudo i2cdetect -y 1
 ```
 This will show you the id of the i2c devices. The id is in HEX, but we need it in decimal. Therefore, if you get 76, enter 118, for 77 enter 119. For any other value, duckduckgo for "hexadecimal to decimal converter" or use something very smart like [Wolfram Alpha](https://www.wolframalpha.com/input?i=77+hexadecimal+to+decimal) to convert the hex value from i2cdetect into the dec value for sensors.json.
