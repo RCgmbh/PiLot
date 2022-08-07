@@ -4,7 +4,7 @@ The idea of the PiLot is that you connect to it via Wi-Fi and use a browser to i
 
 This step is mandatory, if you want to access the PiLot otuside of any existing network environment. If you intend to only use it in an existing Wi-Fi or LAN, or just want to connect screen, keyboard and mouse directly to the Raspberry Pi, you can skip this step.
 
-The first few settings require some manual actions, while for the second part there is a script, which automates the rest of the setup (but should only used for a blank installation, as described in the previous chapter). 
+The first few settings require some manual actions, while for the second part there is a script, which automates the rest of the setup (but should only be used for a blank installation, as described in the previous chapter). 
 
 First run `sudo raspi-config`, and in **Advanced Options** > **Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
 
