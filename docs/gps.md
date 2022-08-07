@@ -17,7 +17,7 @@ Now there is some software to be installed. There is a package "gpsd", which rea
 
 The first script installs gpsd and the python script, and it enables UART. While in the "pilotinstall" directory, start it by typing
 ```
-sudo sh 04-install-pgs-1.sh
+sudo sh 04-install-gps-1.sh
 ```
 When asked to do so, reboot (yes, it's still "sudo reboot now"). Then, when back connected to your raspi, and again in the pilotinstall directory, start the second part:
 ```
