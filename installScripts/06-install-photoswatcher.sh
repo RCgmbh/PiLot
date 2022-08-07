@@ -5,13 +5,20 @@ if [ `whoami` != root ]; then
     exit
 fi
 
-mkdir /home/pi/PhotoImport
+# create directories
+mkdir /home/pi/PhotoImport			# Photo import directory
 chown pi:pi /home/pi/PhotoImport
-mkdir /var/opt/pilot/photos
+mkdir -p /var/opt/pilot/photos		# Data directory for photos
 chown pi:pi /var/opt/pilot/photos
-mkdir /opt/pilotphotoswatcher/
+mkdir /opt/pilotphotoswatcher/		# Application binaries
+
+# install application
 cp -r resources/pilotphotoswatcher/* /opt/pilotphotoswatcher/
 
+# create config link in /etc/pilot
+ln /opt/pilotphotoswatcher/PiLot.PhotosWatcher.dll.config /etc/pilot/pilotPhotosWatcher.config
+
+# install service
 cp resources/photosWatcher.service /etc/systemd/system/photosWatcher.service
 systemctl daemon-reload
 systemctl enable photosWatcher

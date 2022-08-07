@@ -90,6 +90,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{1125EB22-4B62-4888-BD40-64C09E1A0F88}"
 	ProjectSection(SolutionItems) = preProject
+		installScripts\resources\backupClient.service = installScripts\resources\backupClient.service
 		installScripts\resources\gpsLogger.service = installScripts\resources\gpsLogger.service
 		installScripts\resources\index.html = installScripts\resources\index.html
 		installScripts\resources\liveClient.service = installScripts\resources\liveClient.service
@@ -98,7 +99,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "resources", "resources", "{
 		installScripts\resources\photosWatcher.service = installScripts\resources\photosWatcher.service
 		installScripts\resources\pilotApi.service = installScripts\resources\pilotApi.service
 		installScripts\resources\pilotBackupApi.service = installScripts\resources\pilotBackupApi.service
-		installScripts\resources\pilotBackupClient.service = installScripts\resources\pilotBackupClient.service
 		installScripts\resources\restoreIptables.service = installScripts\resources\restoreIptables.service
 		installScripts\resources\restoreIptables.sh = installScripts\resources\restoreIptables.sh
 		installScripts\resources\sensorsLogger.service = installScripts\resources\sensorsLogger.service

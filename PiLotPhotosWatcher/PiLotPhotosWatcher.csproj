@@ -5,6 +5,7 @@
     <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>PiLot.PhotosWatcher</AssemblyName>
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+		<RootNamespace>PiLot.PhotosWatcher</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

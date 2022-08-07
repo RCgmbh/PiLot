@@ -6,7 +6,6 @@ fi
 
 # prepare directories
 mkdir -p /var/opt/pilot			#PiLot data directory
-chown pi:root /var/opt/pilot
 mkdir -p /var/log/pilot			#PiLot log directory
 chown pi:root /var/log/pilot
 mkdir -p /opt/pilotapi			#PiLot binaries
@@ -14,16 +13,18 @@ mkdir -p /etc/pilot				#PiLot config directory
 
 # set up API
 cp -r resources/pilotapi/* /opt/pilotapi/
-mv resources/pilotapi/data/* /var/opt/pilot/
-rm resources/pilotapi/data/
+mv -r opt/pilotapi/data/* /var/opt/pilot/
+rm -r /opt/pilotapi/data
+chown -R pi:root /var/opt/pilot
+
 # add config links in /etc/pilot
-ln /var/opt/pilot/PiLot.API.dll.config /etc/pilot/pilotapi.config
-ln /var/opt/pilot/config/authorization.json /etc/pilot/authorization.json
-ln /var/opt/pilot/config/users.json /etc/pilot/users.json
-ln /var/opt/pilot/config/publishingTargets.json /etc/pilot/publishingTargets.json
-ln /var/opt/pilot/config/sensors.json /etc/pilot/sensors.json
-ln /var/opt/pilot/config/tileSources.json /etc/pilot/tileSources.json
-ln -s /var/opt/pilot/config/boats /etc/pilot/boats
+ln /opt/pilotapi/PiLot.API.dll.config /etc/pilot/pilotapi.config
+ln /opt/pilotapi/config/authorization.json /etc/pilot/authorization.json
+ln /opt/pilotapi/config/users.json /etc/pilot/users.json
+ln /opt/pilotapi/config/publishingTargets.json /etc/pilot/publishingTargets.json
+ln /opt/pilotapi/config/sensors.json /etc/pilot/sensors.json
+ln /opt/pilotapi/config/tileSources.json /etc/pilot/tileSources.json
+ln -s /opt/pilotapi/config/boats /etc/pilot/boats
 # set up API service
 cp resources/pilotApi.service /etc/systemd/system/pilotApi.service
 chmod 446 /etc/systemd/system/pilotApi.service
@@ -36,9 +37,8 @@ mkdir -p /var/www/html/pilot
 cp -r resources/pilotweb/* /var/www/html/pilot/
 cp /var/www/html/index.html backup/
 cp resources/index.html /var/www/html/
-mkdir /var/www/html/tiles
-mkdir /var/www/html/tiles/openstreetmap
-mkdir /var/www/html/tiles/openseamap
+mkdir -p /var/www/html/tiles/openstreetmap
+mkdir -p /var/www/html/tiles/openseamap
 chown -R pi:root /var/www/html/tiles
 mkdir /var/www/html/library
 chown -R pi:root /var/www/html/library

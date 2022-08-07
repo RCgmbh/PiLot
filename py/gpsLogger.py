@@ -2,6 +2,7 @@ from gps3 import gps3
 import urllib3
 import json
 from time import strftime, strptime, time, mktime, sleep
+import calendar
 
 def readPosition(record):
 	data = None

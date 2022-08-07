@@ -6,7 +6,7 @@ Type=simple
 WorkingDirectory=/opt/pilotbackupclient
 ExecStart=/opt/pilotbackupclient/PiLot.Backup.Client
 Restart=always
-RestartSec=2
+RestartSec=300
 User=pi
 Environment=DOTNET_ROOT=/opt/dotnet
 

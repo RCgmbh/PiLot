@@ -14,6 +14,7 @@ mkdir -p /etc/pilotbackupapi			# PiLot backup API config
 
 # set up Backup API
 cp -r resources/pilotbackupapi/* /opt/pilotbackupapi/
+
 # create config links in /etc/pilotbackupapi
 ln /opt/pilotbackupapi/PiLot.Backup.API.dll.config /etc/pilotbackupapi/pilotbackupapi.config
 ln /opt/pilotbackupapi/config/authorization.json /etc/pilotbackupapi/authorization.json

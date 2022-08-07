@@ -189,7 +189,7 @@ PiLot.View.Tools = (function () {
 				startDate = startDate.toLuxon();
 			} else {
 				startDate = RC.Date.DateOnly.fromObject(this.boatTime.now()).toLuxon();
-				endDate = this.boatTime.now();
+				endDate = this.boatTime.now().plus({ minutes: 1 });
 			}
 			this.calStartDate.date(startDate);
 			this.calStartDate.showDate();

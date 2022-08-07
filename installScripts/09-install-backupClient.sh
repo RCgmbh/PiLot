@@ -20,9 +20,9 @@ ln /opt/pilotbackupclient/PiLot.Backup.Client.dll.config /etc/pilot/pilotBackupC
 ln /opt/pilotbackupclient/config.json /etc/pilot/backupConfig.json
 
 # install service
-cp resources/pilotBackupClient.service /etc/systemd/system/pilotBackupClient.service
+cp resources/backupClient.service /etc/systemd/system/backupClient.service
 systemctl daemon-reload
-systemctl enable pilotBackupClient
-systemctl start pilotBackupClient
+systemctl enable backupClient
+systemctl start backupClient
 
 echo Done

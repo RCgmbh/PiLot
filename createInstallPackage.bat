@@ -4,6 +4,8 @@ xcopy /s /r /i installScripts\* pilotinstall\
 mkdir pilotinstall\resources\pilotapi
 mkdir pilotinstall\resources\pilotapi\config
 mkdir pilotinstall\resources\pilotapi\data\global
+mkdir pilotinstall\resources\pilotapi\data\logbook
+mkdir pilotinstall\resources\pilotapi\data\routes
 dotnet build PiLotApiCore -o pilotinstall\resources\pilotapi -c release -r linux-arm --no-self-contained
 copy /y pilotinstall\resources\pilotapi\app.default.config pilotinstall\resources\pilotapi\PiLot.API.dll.config
 del /s /q pilotinstall\resources\pilotapi\app.*.config
@@ -14,6 +16,8 @@ copy pilotinstall\resources\pilotapi\config\sensors.default.json pilotinstall\re
 del  pilotinstall\resources\pilotapi\config\sensors.*.json
 copy pilotinstall\resources\pilotapi\config\tileSources.default.json pilotinstall\resources\pilotapi\config\tileSources.json
 del  pilotinstall\resources\pilotapi\config\tileSources.*.json
+copy pilotinstall\resources\pilotapi\config\publishingTargets.default.json pilotinstall\resources\pilotapi\config\publishingTargets.json
+del  pilotinstall\resources\pilotapi\config\publishingTargets.*.json
 copy pilotinstall\resources\pilotapi\config\authorization.default.json pilotinstall\resources\pilotapi\config\authorization.json
 del  pilotinstall\resources\pilotapi\config\authorization.*.json
 copy pilotinstall\resources\pilotapi\config\users.default.json pilotinstall\resources\pilotapi\config\users.json
