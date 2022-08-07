@@ -1,7 +1,7 @@
 # PiLot
 ## Connect Sensors and log Data
 
-The PiLot will record sensor data and show you the current and past measurements, as well as for the air pressure the trend. The following hardware is currently supported (but much more can be added if needed, just create an Issue asking for a specific sensor type):
+The PiLot will record sensor data and show you the current and past measurements, and, for the air pressure, the trend. The following hardware is currently supported (but much more can be added if needed, just create an Issue asking for a specific sensor type):
 
 - BMP 180, BMP 280 for temperature and pressure
 - BME 280, BME 680 for temperature, pressure and humidity
