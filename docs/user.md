@@ -15,5 +15,7 @@ Each of the following chapters contains a part of the entire setup process. Some
 
 **Advanced scenarios:**
 
-10. [Set up the live tracking service](livetracking.md)
-11. Publish your data to another PiLot
+10. [Set up backup](backup.md)
+11. [Set up the live tracking service](livetracking.md)
+12. Publish your data to another PiLot
+13. Customize your boat
