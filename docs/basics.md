@@ -44,7 +44,7 @@ This will create a directory called "pilotinstall", which you can examine by typ
 ### Install Samba
 Samba gives you a convenient access to files on your PiLot from within Windows Explorer. If you install samba now, some useful shares will be created automatically  in future steps. There is a script which automates the installation. While still in the **pilotinstall** directory, enter this command to run the script (hint: after "00" hit the "tab"-key to autocomplete):
 ```
-sudo sh 00-intstall-samba.sh
+sudo sh 00-install-samba.sh
 ```
 Follow the instructions on the screen, and when asked for "New SMB password", enter the samba-password you want for your user "pi", which can be just the same password as you set before. Once the installation is done, open a windows explorer on your Windows machine, and in the address bar, enter **\\\\raspberrypi**, or if you changed the hostname, the new hostname instead of raspberrypi. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
 
