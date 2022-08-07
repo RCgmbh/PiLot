@@ -135,6 +135,8 @@ You can query multiple sensors from the other PiLot. Set the "id" value of each 
 #### CPU Temperature
 The cpu temerature is measured by an internal sensor that is there out of the box. So if you add a sensor to your configuration with sensorType="CPUTemperature", id="" and sensors > sensorType="temperature", you will get the CPU Temperature. The cpu temperature of the last hour will be displayed in the Admin section of the PiLot web application.
 
+Make sure your 'sensors.json' file in '/opt/pilotapi/config' (which by the way is linked to '/etc/pilot', like all relevant configuration files) represents the sensors you physically have on your system, then restart the "sensorsLogger" service on the "Administration" page of your PiLot web application. If everything went well, you will see the cpu temperature in the Administration area, and the meteo data in the meteo area.
+
 Now you basically have a working PiLot, congratulations! You can now move on, and do some optimization to your system.
 
 
