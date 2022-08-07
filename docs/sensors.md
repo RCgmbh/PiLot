@@ -54,9 +54,9 @@ Now turn off your PiLot and unplug the power cable. Connect the wires from the S
 If you connect multiple 1W-Sensors, you can connect them all to the same pins and need just one resistor for all.
 
 ### Update the sensors.json config file
-There is one single configuration file, which holds all information about the sensors to be logged. You need to update the file so that it represents the sensors you have actually connected to your PiLot. There is an example file coming with the installation, so you best start by copying the example file and replace the empty default file.
+There is one single configuration file, which holds all information about the sensors to be logged. You need to update the file so that it represents the sensors you have actually connected to your PiLot. There is an example file coming with the installation, so you best start by copying the example file and replace the empty default file, and then delete from the file what you don't need, and update ids and names where necessary.
 ```
-cd /var/opt/pilot/sensors
+cd /opt/pilotapi/config
 sudo cp sensors.example.json sensors.json
 ```
 The file contains devices, and every device contains one or more sensors. A BMP180, as an example, is one device, but contains two sensors: One for the temperature, and one for the air pressure. So this is represented as follows:
