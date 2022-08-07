@@ -23,8 +23,6 @@ location /pilotbackupapi/ {
 }
 ```
 
-Up for more advanced stuff? Why not have a look at the live tracking feature, which will be super easy to set up if you succeeded with the backup thing.
-
 ### Configure users
 The PiLot backup server is only accessible for authorized users. The users are defined in the file '/etc/pilotbackupapi/users.json'. Go ahead and edit it:
 ```
@@ -49,6 +47,8 @@ As soon as you have installed the backup server where you want it, you have to t
 
 ### Restore data from backup
 In case you want to restore the data from backup, it's easies to access the samba shares "Pilot Backup Data" on the server, and "Pilot Data" on the PiLot, and copy-paste the content of the desired backup set from the server to the client.
+
+Up for more advanced stuff? Why not have a look at the live tracking feature, which will be super easy to set up if you succeeded with the backup thing.
 
 \> [Set up live tracking...](livetracking.md)
 
