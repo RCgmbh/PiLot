@@ -27,8 +27,10 @@ Connect to your PiLot via SSH: Open a command window / terminal window, and ente
 ### Update your System
 In order to bring your system up to date, run `sudo apt update` which will look for the latest versions of the installed software packages, then run `sudo apt upgrade -y` which will actually install the latest versions. This might take a while, so go get a coffee, as there is some more work waiting.
 
-### Change the Hostname
-To make things between you and your raspi a bit more personal, run `sudo raspi-config`, and in **System Options** > **Hostname** enter a new hostname, if you don't want your PiLot to be just another "raspberrypi". If you plan to have multiple PiLots, give them all different hostnames.
+### Change the Hostname and Timezone
+To make things between you and your raspi a bit more personal, run `sudo raspi-config`, and in **1 System Options** > **S4 Hostname** enter a new hostname, if you don't want your PiLot to be just another "raspberrypi". If you plan to have multiple PiLots, give them all different hostnames.
+
+I would also suggest you set the timezone to UTC. The PiLot will offer to set the correct timezone ad hoc, which is useful if you cross timezones frequently. To avoid confusion, the timezone of the device should be UTC. You can select it under **5 Localization Options** > **L2 Timezone**
 
 When asked to reboot, select "yes", so that your changes can take effect. After a minute, try to reconnect, still using the user "pi", but with the new hostname, e.g. ssh pi@pilot. And of course enter the newly set password.
 
