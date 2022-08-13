@@ -4,6 +4,7 @@ using System.IO;
 using PiLot.Data.Files;
 using PiLot.Model.Photos;
 using PiLot.Utils.DateAndTime;
+using PiLot.Utils.Logger;
 
 namespace PiLot.PhotosWatcher {
 
@@ -39,7 +40,7 @@ namespace PiLot.PhotosWatcher {
 							successCounter++;
 						} catch {
 							errorCounter++;
-							// no logging needed, as logging will be done by the dataConnector
+							Logger.Log($"DirectoryProcessor.ProcessDirectory: Image could not be processed: {anImage.Name}", LogLevels.ERROR);
 						}
 					} else {
 						errorCounter++;

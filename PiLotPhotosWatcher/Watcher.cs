@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+
 using PiLot.Data.Files;
 using PiLot.Model.Photos;
 using PiLot.Utils.DateAndTime;
+using PiLot.Utils.Logger;
 
 namespace PiLot.PhotosWatcher {
 
@@ -69,7 +71,7 @@ namespace PiLot.PhotosWatcher {
 										Day = null
 									}, DateTimeHelper.Min(fileInfo.CreationTime, fileInfo.LastWriteTime));
 								} catch {
-									// no logging needed, as logging will be done by the dataConnector
+									Logger.Log($"Watcher.EnsureQueueProcessing: Image could not be processed: {fileInfo.Name}", LogLevels.ERROR);
 								}								
 							}
 							File.Delete(this.queue[0]);
