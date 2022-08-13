@@ -260,11 +260,15 @@ namespace PiLot.Data.Files {
 			Dictionary<Date, Track> result = new Dictionary<Date, Track>();
 			string dataPath = this.helper.GetDataPath(DATASOURCENAME);
 			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
-			foreach (var aFile in dataDir.EnumerateFiles()) {
-				if (aFile.LastWriteTimeUtc > pChangedAfter) {
-					Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
-					result.Add(date, this.ReadRecordsFromFile(aFile));
+			if (dataDir.Exists) {
+				foreach (var aFile in dataDir.EnumerateFiles()) {
+					if (aFile.LastWriteTimeUtc > pChangedAfter) {
+						Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
+						result.Add(date, this.ReadRecordsFromFile(aFile));
+					}
 				}
+			} else {
+				Logger.Log($"GPSDataConnector.GetChangedDailyData: gps directory not found at {dataPath}", LogLevels.WARNING);
 			}
 			return result;
 		}

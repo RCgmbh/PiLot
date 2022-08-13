@@ -182,9 +182,10 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// This returns a list of all SensorDataRecords for one day (by utc) and a given sensor.
+		/// This returns a list of all SensorDataRecords from a specified file, if the file exists.
+		/// Otherwise returns an empty list.
 		/// </summary>
-		/// <param name="pDate">The day for which the data should be read</param>
+		/// <param name="pFile">The file containing data. Can be null, which will return an empty list.</param>
 		private List<SensorDataRecord> ReadRawData(FileInfo pFile) {
 			List<SensorDataRecord> result = new List<SensorDataRecord>();
 			if ((pFile != null) && pFile.Exists) {
