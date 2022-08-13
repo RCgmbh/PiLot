@@ -37,7 +37,9 @@ namespace PiLot.Data.Files {
 		/// generically speaking from a source image to a target image.
 		/// </summary>
 		private static void CopyMedatata(Image pSource, Image pTarget) {
-			pTarget.Metadata.ExifProfile = pSource.Metadata.ExifProfile;
+			if(pSource.Metadata?.ExifProfile != null) {
+				pTarget.Metadata.ExifProfile = pSource.Metadata.ExifProfile;
+			}			
 		}
 
 		/// <summary>
@@ -46,7 +48,7 @@ namespace PiLot.Data.Files {
 		/// </summary>
 		public static void EnsureOrientation(ref Image pImage) {
 			try {
-				var orientationProperty = pImage.Metadata.ExifProfile.GetValue(ExifTag.Orientation);
+				var orientationProperty = pImage.Metadata?.ExifProfile?.GetValue(ExifTag.Orientation);
 				if (orientationProperty != null) {
 					RotateMode rotateMode = RotateMode.None;
 					switch (orientationProperty.Value) {
@@ -70,15 +72,16 @@ namespace PiLot.Data.Files {
 
 		/// <summary>
 		/// Tries to read the metadata from the file and returns the creation date. If no EXIF data
-		/// is available, it will take the FileDate, if one has been passed.
+		/// is available, it will take the pFileDate, if one has been passed.
 		/// </summary>
+		/// <param name="pFileDate">Pass the file's creation date as fallback</param>
 		public static DateTime? GetImageDate(Image pImage, DateTime? pFileDate) {
 			DateTime? result = null;
 			CultureInfo cultureInfo = CultureInfo.CurrentCulture;
 			DateTime testDate;
-			String dateTakenString = pImage.Metadata.ExifProfile.GetValue(ExifTag.DateTimeOriginal)?.Value;
+			String dateTakenString = pImage.Metadata?.ExifProfile?.GetValue(ExifTag.DateTimeOriginal)?.Value;
 			if (String.IsNullOrEmpty(dateTakenString)) {
-				dateTakenString = pImage.Metadata.ExifProfile.GetValue(ExifTag.DateTime)?.Value;
+				dateTakenString = pImage.Metadata?.ExifProfile?.GetValue(ExifTag.DateTime)?.Value;
 			}
 			if (!String.IsNullOrEmpty(dateTakenString) && (dateTakenString.Length >= 19)) {
 				if (DateTime.TryParseExact(dateTakenString.Substring(0, 19), "yyyy:MM:dd HH:mm:ss", cultureInfo, DateTimeStyles.AllowInnerWhite | DateTimeStyles.AllowTrailingWhite, out testDate)) {
@@ -87,6 +90,7 @@ namespace PiLot.Data.Files {
 					Logger.Log($"Image EXIF Date could not be parsed: {dateTakenString}", LogLevels.WARNING);
 				}
 			} if (result == null) {
+				Logger.Log($"ImageHelper.GetImageDate: No EXIF found. Falling back to file info.", LogLevels.WARNING);
 				result = pFileDate;
 			}
 			return result;
