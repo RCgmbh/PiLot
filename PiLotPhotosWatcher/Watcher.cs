@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using PiLot.Data.Files;
 using PiLot.Model.Photos;
+using PiLot.Utils.DateAndTime;
 
 namespace PiLot.PhotosWatcher {
 
@@ -61,11 +62,15 @@ namespace PiLot.PhotosWatcher {
 						if (fileInfo.Exists) {
 							Byte[] bytes = FileHelper.TryReadFile(this.queue[0]);
 							if (bytes != null) {
-								this.dataConnector.SaveImageWithThumbnails(new ImageData() {
-									Bytes = bytes,
-									Name = Path.GetFileName(this.queue[0]),
-									Day = null
-								}, fileInfo.CreationTime);
+								try {
+									this.dataConnector.SaveImageWithThumbnails(new ImageData() {
+										Bytes = bytes,
+										Name = Path.GetFileName(this.queue[0]),
+										Day = null
+									}, DateTimeHelper.Min(fileInfo.CreationTime, fileInfo.LastWriteTime));
+								} catch {
+									// no logging needed, as logging will be done by the dataConnector
+								}								
 							}
 							File.Delete(this.queue[0]);
 							this.queue.RemoveAt(0);

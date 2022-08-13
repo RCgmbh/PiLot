@@ -2,7 +2,7 @@
   "profiles": {
     "PiLotPhotosWatcher": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\Martin\\Desktop\\in\" \"C:\\Users\\Martin\\Desktop\\out\" process verbose"
+      "commandLineArgs": "\"C:\\Users\\Martin\\Desktop\\in\" \"C:\\Users\\Martin\\Desktop\\out\" process watch verbose"
     }
   }
 }

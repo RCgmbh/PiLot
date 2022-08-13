@@ -12,6 +12,7 @@
  * THIS PROGRAM DOES IN NO WAY REPLACE SUITABLE NAVIGATION EQUIPMENT, UP-TO-DATE OFFICIAL CHARTS OR EDUCATED SEAMANSHIP.
  **/
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using PiLot.Utils.Logger;
 
@@ -21,35 +22,29 @@ namespace PiLot.PhotosWatcher {
 
 		private const String PARAMWATCH = "watch";
 		private const String PARAMPROCESS = "process";
+		private const String PARAMVERBOSE = "verbose";
 
 		private static Boolean verbose = false;
 
 		public static void Main(String[] args) {
 			if (args.Length < 2) {
-				Console.WriteLine("Usage: PhotosWatcher.exe (watchDirectory) (outputDirectory) (watch | process) [verbose]");
+				Console.WriteLine("Usage: PhotosWatcher.exe (watchDirectory) (outputDirectory) [watch] [process] [verbose]");
 				return;
 			}
 			Program.ReadConfig();
 			Logger.Log("PiLot.PhotosWatcher started", LogLevels.INFO);
-			String action = PARAMWATCH;
+			Boolean doWatch, doProcess;
 			String inputPath = args[0];
 			String outputPath = args[1];
-			if (args.Length > 2) {
-				action = args[2];
+			List<String> argList = new List<string>(args);
+			doWatch = (argList.Exists(e => e.ToLower().Equals(PARAMWATCH)));
+			doProcess = (argList.Exists(e => e.ToLower().Equals(PARAMPROCESS)));
+			Program.verbose = (argList.Exists(e => e.ToLower().Equals(PARAMVERBOSE)));
+			if (doProcess) {
+				DirectoryProcessor.ProcessDirectory(inputPath, outputPath);
 			}
-			if ((args.Length > 3) && (args[3].ToLower().Equals("verbose"))) {
-				Program.verbose = true;
-			}
-			switch (action) {
-				case PARAMWATCH:
-					new Watcher(inputPath, outputPath);
-					break;
-				case PARAMPROCESS:
-					new DirectoryProcessor(inputPath, outputPath);
-					break;
-				default:
-					Console.WriteLine("Unknown action command: {0}", action);
-					break;
+			if (doWatch) {
+				new Watcher(inputPath, outputPath);
 			}
 		}
 

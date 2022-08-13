@@ -3,6 +3,7 @@ using System.IO;
 
 using PiLot.Data.Files;
 using PiLot.Model.Photos;
+using PiLot.Utils.DateAndTime;
 
 namespace PiLot.PhotosWatcher {
 
@@ -13,13 +14,11 @@ namespace PiLot.PhotosWatcher {
 	public class DirectoryProcessor {
 
 		/// <summary>
-		/// Default constructor, accepts the path of the folder to process
-		/// and the root path where to create date folders and move images
-		/// to
+		/// This processes all images within one directory
 		/// </summary>
-		/// <param name="pInputPath">The input path</param>
-		/// <param name="pOutputPath">The target path</param>
-		public DirectoryProcessor(String pInputPath, String pOutputPath) {
+		/// <param name="pInputPath">The path where the images to be processed are</param>
+		/// <param name="pOutputPath">The root data path</param>
+		public static void ProcessDirectory(String pInputPath, String pOutputPath) {
 			DirectoryInfo inputDirectory = new DirectoryInfo(pInputPath);
 			if (inputDirectory.Exists) {
 				Int32 successCounter = 0;
@@ -30,13 +29,18 @@ namespace PiLot.PhotosWatcher {
 				foreach (FileInfo anImage in inputDirectory.EnumerateFiles()) {
 					bytes = FileHelper.TryReadFile(anImage.FullName);
 					if(bytes != null) {
-						dataConnector.SaveImageWithThumbnails(new ImageData() {
-							Bytes = bytes,
-							Name = anImage.Name,
-							Day = null
-						}, anImage.CreationTime) ;
-						anImage.Delete();
-						successCounter++;
+						try {
+							dataConnector.SaveImageWithThumbnails(new ImageData() {
+								Bytes = bytes,
+								Name = anImage.Name,
+								Day = null
+							}, DateTimeHelper.Min(anImage.CreationTime, anImage.LastWriteTime));
+							anImage.Delete();
+							successCounter++;
+						} catch {
+							errorCounter++;
+							// no logging needed, as logging will be done by the dataConnector
+						}
 					} else {
 						errorCounter++;
 					}
