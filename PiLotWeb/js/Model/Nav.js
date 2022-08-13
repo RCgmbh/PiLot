@@ -579,17 +579,17 @@ PiLot.Model.Nav = (function () {
 		/// It updates all waypointLiveData for the most recent and all
 		/// future waypoints
 		calculateWaypointLiveData: function(){
-			var totalMiles = null;
-			var legMiles = null;
-			var legHours = 0;
-			var eta = this.boatTime.now();
-			var waypoints = this.route.getWaypoints();
-			var waypoint = null;
-			var waypointLiveData = null;
-			var isNextWaypoint = false;
-			var isPastWaypoint = false;
-			var isFinalWaypoint = false;
-			for (var i = 0; i < waypoints.length; i++) {
+			let totalMiles = null;
+			let legMiles = null;
+			let legHours = 0;
+			let eta = this.boatTime.now();
+			const waypoints = this.route.getWaypoints();
+			let waypoint = null;
+			let waypointLiveData = null;
+			let isNextWaypoint = false;
+			let isPastWaypoint = false;
+			let isFinalWaypoint = false;
+			for (let i = 0; i < waypoints.length; i++) {
 				waypoint = waypoints[i];
 				waypointLiveData = this.waypointsLiveData.get(waypoint);
 				if (this.latestPosition !== null) {

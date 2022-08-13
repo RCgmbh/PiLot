@@ -4,7 +4,7 @@ PiLot.Templates = PiLot.Templates || {};
 PiLot.Templates.Nav = {
 
 	navPage: `
-		<div class="navPage">
+		<div class="navPage hCenter fullWidth">
 			<div class="divData navData">
 				<div class="divDirection"></div>
 				<div class="divSpeed"></div>
@@ -101,7 +101,7 @@ PiLot.Templates.Nav = {
 
 	liveRoute: `
 		<div class="navLiveRoute">
-			<span class="lblRouteName hidden"></span>
+			<span class="lblRouteName" hidden></span>
 			<div class="divWaypoints"></div>
 		</div>`,
 
@@ -109,10 +109,10 @@ PiLot.Templates.Nav = {
 		<div class="navWaypoint">
 			<div class="divWaypointName">
 				<span class="lblIcon">
-					<span class="iconPastWP hidden"><i class="icon-checkmark5 "></i></span>
-					<span class="iconNextWP hidden"><i class="icon-location2"></i></span>
-					<span class="iconAheadWP hidden"><i class="icon-location "></i></span>
-					<span class="iconFinalWP hidden"><i class="icon-flag"></i></span>
+					<span class="iconPastWP" hidden><i class="icon-checkmark5 "></i></span>
+					<span class="iconNextWP" hidden><i class="icon-location2"></i></span>
+					<span class="iconAheadWP" hidden><i class="icon-location "></i></span>
+					<span class="iconFinalWP" hidden><i class="icon-flag"></i></span>
 				</span>
 				<div class="lblName"></div>
 			</div>

@@ -354,7 +354,7 @@ PiLot.View.Nav = (function () {
 			this.vmgIndicator = new PiLot.View.Nav.MotionDisplay(divSpeed, PiLot.Templates.Nav.vmgIndicator, null, 1).showHide(true);
 			this.positionIndicator = new PositionIndicator(this.divPosition);
 			if (this.routeObserver !== null) {
-				this.liveRoute = new LiveRoute($(navPage), this.routeObserver);
+				this.liveRoute = new LiveRoute(navPage, this.routeObserver);
 			}
 			new NavOptions(contentArea, this, this.liveRoute);
 		},
@@ -1009,15 +1009,15 @@ PiLot.View.Nav = (function () {
 		/// tells the LiveWaypoints to draw themeselves to the Waypoints 
 		/// placeholder
 		draw: function () {
-			this.container = $(PiLot.Templates.Nav.liveRoute);
-			this.container.appendTo(this.parentContainer);
-			this.lblRouteName = this.container.find('.lblRouteName');
+			this.container = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.liveRoute);
+			this.parentContainer.appendChild(this.container);
+			this.lblRouteName = this.container.querySelector('.lblRouteName');
 			if (this.routeObserver !== null) {
 				RC.Utils.setText(this.lblRouteName, this.routeObserver.getRoute().getName());
 			}
 			this.showHideRouteName();
-			var divWaypoints = this.container.find('.divWaypoints');
-			for (var i = 0; i < this.liveWaypoints.length; i++) {
+			const divWaypoints = this.container.querySelector('.divWaypoints');
+			for (let i = 0; i < this.liveWaypoints.length; i++) {
 				this.liveWaypoints[i].draw(divWaypoints);
 			}
 		},
@@ -1061,14 +1061,14 @@ PiLot.View.Nav = (function () {
 			this.showHideRouteName();
 		},
 
-		/// shows or hides the route name bases on the currently set value.
+		/// shows or hides the route name based on the currently set value.
 		showHideRouteName: function () {
-			this.lblRouteName.toggle(this.showRouteName);
+			this.lblRouteName.hidden = !this.showRouteName;
 		},
 
 		/// shows or hides the entire control
 		showHide: function (pIsVisible) {
-			this.container.toggle(pIsVisible);
+			this.container.hidden = !pIsVisible;
 		}
 	};
 
@@ -1109,19 +1109,19 @@ PiLot.View.Nav = (function () {
 
 		/// draws the control base on the template into pPlaceholder
 		draw: function (pPlaceholder) {
-			this.divWaypoint = $(PiLot.Templates.Nav.liveWaypoint);
-			this.divWaypoint.appendTo(pPlaceholder);
-			this.iconPastWP = this.divWaypoint.find('.iconPastWP');
-			this.iconAheadWP = this.divWaypoint.find('.iconAheadWP');
-			this.iconNextWP = this.divWaypoint.find('.iconNextWP');
-			this.iconFinalWP = this.divWaypoint.find('.iconFinalWP');
-			this.lblName = this.divWaypoint.find('.lblName');
-			this.pnlLatLon = this.divWaypoint.find('.pnlLatLon');
-			this.lblLat = this.divWaypoint.find('.lblLat');
-			this.lblLon = this.divWaypoint.find('.lblLon');
-			this.lblETA = this.divWaypoint.find('.lblETA');
-			this.lblDist = this.divWaypoint.find('.lblDist');
-			this.lblBearing = this.divWaypoint.find('.lblBearing');
+			this.divWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.liveWaypoint);
+			pPlaceholder.appendChild(this.divWaypoint);
+			this.iconPastWP = this.divWaypoint.querySelector('.iconPastWP');
+			this.iconAheadWP = this.divWaypoint.querySelector('.iconAheadWP');
+			this.iconNextWP = this.divWaypoint.querySelector('.iconNextWP');
+			this.iconFinalWP = this.divWaypoint.querySelector('.iconFinalWP');
+			this.lblName = this.divWaypoint.querySelector('.lblName');
+			this.pnlLatLon = this.divWaypoint.querySelector('.pnlLatLon');
+			this.lblLat = this.divWaypoint.querySelector('.lblLat');
+			this.lblLon = this.divWaypoint.querySelector('.lblLon');
+			this.lblETA = this.divWaypoint.querySelector('.lblETA');
+			this.lblDist = this.divWaypoint.querySelector('.lblDist');
+			this.lblBearing = this.divWaypoint.querySelector('.lblBearing');
 			this.update(true, true, true);
 		},
 
@@ -1129,41 +1129,37 @@ PiLot.View.Nav = (function () {
 		/// also shows/hides this
 		update: function (pUpdateStaticData, pUpdateLiveData, pUpdateVisibility) {
 			if (pUpdateStaticData) {
-				this.lblName.text(this.waypoint.getName());
+				this.lblName.innerText = this.waypoint.getName();
 				if (this.liveRoute.getShowCoordinates()) {
-					var latLon = this.waypoint.getLatLon();
+					const latLon = this.waypoint.getLatLon();
 					if (latLon !== null) {
 						RC.Utils.setText(this.lblLat, PiLot.Utils.Nav.toCoordinateString(latLon.lat, true, true));
 						RC.Utils.setText(this.lblLon, PiLot.Utils.Nav.toCoordinateString(latLon.lon, false, true));
 					}
-					if (!this.pnlLatLon.is(':visible')) {
-						this.pnlLatLon.show();
-					}
+					this.pnlLatLon.hidden = false;
 				} else {
-					if (this.pnlLatLon.is(':visible')) {
-						this.pnlLatLon.hide();
-					}
+					this.pnlLatLon.hidden = true;
 				}
 			}
-			var liveData = null;
+			let liveData = null;
 			if (pUpdateLiveData) {
 				liveData = this.routeObserver.getLiveData(this.waypoint);
 				if (liveData !== null) {
 					RC.Utils.setText(this.lblETA, (liveData.eta !== null) ? liveData.eta.toFormat('HH:mm') : '--:--');
 					RC.Utils.setText(this.lblDist, (liveData.miles !== null) ? liveData.miles.toFixed(1) : '--');
 					RC.Utils.setText(this.lblBearing, (liveData.bearing !== null) ? RC.Utils.toFixedLength(liveData.bearing, 3, 0) : '---');
-					this.divWaypoint.toggleClass('active', liveData.isNextWaypoint === true);
-					this.divWaypoint.toggleClass('past', liveData.isPastWaypoint === true);
-					this.iconPastWP.toggle(liveData.isPastWaypoint === true);
-					this.iconAheadWP.toggle(liveData.isPastWaypoint === false && liveData.isNextWaypoint === false && liveData.isFinalWaypoint === false);
-					this.iconNextWP.toggle(liveData.isNextWaypoint === true && liveData.isFinalWaypoint === false && liveData.isPastWaypoint === false);
-					this.iconFinalWP.toggle(liveData.isFinalWaypoint === true && liveData.isPastWaypoint === false);
+					this.divWaypoint.classList.toggle('active', liveData.isNextWaypoint);
+					this.divWaypoint.classList.toggle('past', liveData.isPastWaypoint);
+					this.iconPastWP.hidden = (!liveData.isPastWaypoint);
+					this.iconAheadWP.hidden = (liveData.isPastWaypoint || liveData.isNextWaypoint || liveData.isFinalWaypoint);
+					this.iconNextWP.hidden = (!liveData.isNextWaypoint || liveData.isFinalWaypoint || liveData.isPastWaypoint);
+					this.iconFinalWP.hidden = (!liveData.isFinalWaypoint || liveData.isPastWaypoint);
 				}
 			}
 			if (pUpdateVisibility) {
 				liveData = liveData || this.routeObserver.getLiveData(this.waypoint);
-				var waypointsMode = this.liveRoute.getWaypointsMode();
-				var doShow;
+				const waypointsMode = this.liveRoute.getWaypointsMode();
+				let doShow;
 				if (liveData.hasData) {
 					doShow =
 						   (liveData.isPastWaypoint === true && waypointsMode.showPastWaypoints)
@@ -1173,15 +1169,7 @@ PiLot.View.Nav = (function () {
 				} else {
 					doShow = !this.hideByDefault;
 				}
-				if (doShow && !this.divWaypoint.is(':visible')) {
-					this.divWaypoint.slideDown('fast');
-				} else if (!doShow && this.divWaypoint.is(':visible')) {
-					if (this.hideByDefault) {
-						this.divWaypoint.hide();
-					} else {
-						this.divWaypoint.slideUp('fast');
-					}
-				} 
+				this.divWaypoint.hidden = !doShow;
 			}
 		}
 	};

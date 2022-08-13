@@ -35,17 +35,17 @@
 .navOutdatedDataWarning { z-index:1100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
 body.night .navOutdatedDataWarning { color: #ccc; background-color: rgba(0, 0, 0, 0.8); }
 
-.navLiveRoute { padding: 0em 0em 0em 2em; font-size:2em; }
+.navLiveRoute { padding: 0em 0em 0em 2em; font-size:2em; max-width:60em; }
 .navLiveRoute .lblRouteName { font-size: 1.25em; padding:0.5rem 0rem 0.25rem 0rem; display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width: 100%; text-align: center;}
 .navLiveRoute .divWaypoints { display: flex; flex-direction: column; align-items: stretch; margin-top:1em;}
-.navLiveRoute .navWaypoint { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; min-width: 10em; max-width: 50em; flex-grow: 1; margin-bottom: 0.25em; }
+.navLiveRoute .navWaypoint { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: space-evenly; align-items: flex-end; min-width: 10em; flex-grow: 1; margin-bottom: 0.25em; }
 .navLiveRoute .navWaypoint.past { color: #999; }
 .navLiveRoute .divWaypointName { width: 12em; max-width: 18em; flex-grow: 1; display: flex; align-items: center; }
 .navLiveRoute .divWaypointName .lblIcon{ margin-right: 0.5em; font-size:1em; line-height:0.75em; }
 .navLiveRoute .divWaypointName .lblName{ font-size: 1.5em; line-height: 1.25; display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space:nowrap; }
 .navLiveRoute .pnlLatLon { margin-left: 0.5em; margin-right: 0.5em; padding-bottom: 0.25em; text-align: right; }
 .navLiveRoute .pnlLatLon span { display: inline-block; width: 7em; margin-top:0.5em; }
-.navLiveRoute .divEtaDistBear { min-width: 15em; flex-grow: 1; text-align: center; padding-bottom: 0.25em; }
+.navLiveRoute .divEtaDistBear { min-width: 15em; max-width:15em; flex-grow: 0; text-align: center; padding-bottom: 0.25em; }
 .navLiveRoute .divWaypointName, .navLiveRoute .pnlLatLon, .navLiveRoute .divEtaDistBear {margin-bottom: 0.5em; }
 .navLiveRoute .divEtaDistBear > span { display:inline-block; }
 .navLiveRoute .divEtaDistBear > span:nth-child(1) { margin-right: 0.5em; }
