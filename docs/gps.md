@@ -28,7 +28,11 @@ When asked to do so, reboot (yes, it's still "sudo reboot now"). Then, when back
 cd ~/pilotinstall
 sudo sh 05-install-gps-2.sh
 ```
-Now place your PiLot close to a window, and be patient. Depending on your gps reciever and the weather, it can take some time (minutes, tens of minutes) until it has a fix. As soon as you have a fix, you will see your current position on the map in the PiLot web application. Well done! Now let's move on, and do some photos stuff...
+Now place your PiLot close to a window, and be patient. Depending on your gps reciever and the weather, it can take some time (minutes, tens of minutes) until it has a fix. As soon as you have a fix, you will see your current position on the map in the PiLot web application. Well done! 
+
+Hint: On the Administration page, which is close to the Settings page and has an icon looking like a terminal window, there is the "Services" section, where you can stop and start the gps service.
+
+Now let's move on, and do some photos stuff...
 
 \> [Install the photos import service...](photoimport.md)
 
