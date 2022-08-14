@@ -36,7 +36,6 @@ copy /y pilotinstall\resources\pilotsensors\app.default.config pilotinstall\reso
 del /s /q pilotinstall\resources\pilotsensors\app.*.config
 del /s /q pilotinstall\resources\pilotsensors\app.config
 move /y pilotinstall\resources\pilotsensors\sensors.example.json pilotinstall\resources\pilotapi\config\
-move /y pilotinstall\resources\pilotsensors\sensors.default.json pilotinstall\resources\pilotapi\config\
 del /s /q pilotinstall\resources\pilotsensors\sensors.*.json
 del /s /q pilotinstall\resources\pilotsensors\sensors.json
 
@@ -47,6 +46,7 @@ rd /s /q pilotinstall\resources\pilotweb\App_Data
 del /s /q pilotinstall\resources\pilotweb\*.publishproj
 copy pilotinstall\resources\pilotweb\js\Config.default.js pilotinstall\resources\pilotweb\js\Config.js
 del /s /q pilotinstall\resources\pilotweb\js\Config.*.js
+del /s /q pilotinstall\resources\pilotweb\test*.html
 
 mkdir pilotinstall\resources\library
 xcopy /s /r /i  ..\..\pilot\defaultlibrary\* pilotinstall\resources\library\

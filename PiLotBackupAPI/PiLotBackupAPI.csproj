@@ -7,10 +7,6 @@
 		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
 
-	<ItemGroup>
-		<FrameworkReference Include="Microsoft.AspNetCore.App" />
-	</ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\PiLotAuth\PiLotAuth.csproj" />
     <ProjectReference Include="..\PiLotConfig\PiLotConfig.csproj" />
