@@ -13,7 +13,7 @@ mkdir -p /etc/pilot				#PiLot config directory
 
 # set up API
 cp -r resources/pilotapi/* /opt/pilotapi/
-mv -r opt/pilotapi/data/* /var/opt/pilot/
+mv /opt/pilotapi/data/* /var/opt/pilot/
 rm -r /opt/pilotapi/data
 chown -R pi:root /var/opt/pilot
 

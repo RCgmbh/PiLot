@@ -1,5 +1,6 @@
 rd /s /q pilotinstall
 mkdir pilotinstall
+mkdir pilotinstall\backup
 xcopy /s /r /i installScripts\* pilotinstall\
 mkdir pilotinstall\resources\pilotapi
 mkdir pilotinstall\resources\pilotapi\config
