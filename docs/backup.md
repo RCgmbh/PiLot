@@ -3,7 +3,7 @@
 
 As you will collect a lot of data, you will sooner or later want to have that data backed up somewhere. After all it's not impossible to lose your data, be it because the SD card fails, you lose your pilot or you delete some data by mistake.
 
-The PiLot comes with a simple backup tool. It consists of a client application and a server component. The client runs on your PiLot, and sends changed data to the server every few minutes. The server offers a http interface (a REST API), which recieves the data and saves it. The server will save multiple backup sets, so that you will have the the data from before a few minutes, the data from yesterday, before yesterday, last week, last month and last year or so.
+The PiLot comes with a simple backup tool. It consists of a client application and a server component. The client runs on your PiLot, and sends changed data to the server every few minutes. The server offers a http interface (a REST API), which recieves the data and saves it. The server will save multiple backup sets, so that you will have the data from a few minutes ago, the data from yesterday, before yesterday, last week, last month and last year or so.
 
 ### Install the server
 In the simplest, but admittedly not the most reasonable setup, you set up the backup server on your PiLot. This will however not help, if your SD card breaks or you lose your device. Giving you some historic data, it might help you recover mistakenly deleted data. If you have two PiLots, you might want to install the backup server on both of them, and let them backup their data on each other. You can also install the server component on your desktop machine or on a server available online. 
@@ -15,7 +15,7 @@ Installing the backup server (called pilot backup api) on your PiLot is easy. Th
 cd ~/pilotinstall
 sudo sh 08-install-backupAPI.sh
 ```
-This will set up the API, which runs as a service. It will also configure nginx to forward calls to the http://hostname/pilotbackupapi url to the port 5002. **Important**: This depends on the line "include locations/\*", which is part of the nginx config file we created when installing the pilot web application. On a system where the pilot web application has not been installed, you have to make sure to have the following block within the "server"-section of the nginx configuration file '/etc/nginx/sites-enabled/default':
+This will set up the API, which runs as a service. It will also configure nginx to forward calls to the http://hostname/pilotbackupapi url to the port 5002. **Important**: This depends on the line "include locations/\*", which is part of the nginx config file we created when installing the pilot web application. On a system where the pilot web application has not been installed, you have to make sure to have the following block within the "server"-section of the nginx configuration file `/etc/nginx/sites-enabled/default`:
 
 ```
 location /pilotbackupapi/ {
@@ -24,7 +24,7 @@ location /pilotbackupapi/ {
 ```
 
 ### Configure users
-The PiLot backup server is only accessible for authorized users. The users are defined in the file '/etc/pilotbackupapi/users.json'. Go ahead and edit it:
+The PiLot backup server is only accessible for authorized users. The users are defined in the file `/etc/pilotbackupapi/users.json`. Go ahead and edit it:
 ```
 sudo nano /etc/pilotbackupapi/users.json
 ```

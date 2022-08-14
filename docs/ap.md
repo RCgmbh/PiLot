@@ -6,7 +6,7 @@ This step is mandatory, if you want to access the PiLot otuside of any existing 
 
 The first few settings require some manual actions, while for the second part there is a script, which automates the rest of the setup (but should only be used for a blank installation, as described in the previous chapter). 
 
-First run `sudo raspi-config`, and in **Advanced Options** > **Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
+First run `sudo raspi-config`, and in **6 Advanced Options** > **A4 Network Interface Names**, enable "predictable network interface names". This will give you a very new understanding of the word "predictable". When asked to reboot, select "yes", so that your changes can take effect.
 
 Now let's have a look at our network devices. As soon as you have re-connected, type `ifonfig`, and you will see a list of devices. The cryptic names, such as "enxb827eb356c2a", are the predictable network interface names. Yes, right, they don't seem predictable at first, but they acutally are. Without enabling predictable names, if you have two wireless network adapters, one will be wlan0, and the other wlan1. But every time you boot, they can switch names, so you actually can't predict which physical device will be wlan0, and which will be wlan1. The predictable names however will remain the same, as long as you don't change the hardware. So if you always want to use the network adapter with the huge antenna to access the far away marina Wi-Fi, then you will want the onboard wlan interface for the access point. But - oh no! The internal interface still has a much too simple name, like "wlan1". We also want to give it a fixed, predictable name. Thats quite simple: First, look at the result of ifconfig for the device called "wlan0" or "wlan1". Now copy the value after "ether", which is of the form b8:27:cb:60:49:6f. See what I have marked in the below picture:
 
@@ -44,7 +44,7 @@ When the script asks you to do so, reboot your PiLot.
 
 It might happen that you lose connection to your PiLot, as the script changes some network settings. If for a few minutes, the console does not change, close your console, and reconnect using ssh in a new console and reboot it.
 
-When it comes back online, re-connect using ssh. After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
+When it comes back online, re-connect using ssh. After the reboot, you should see the "pilot" (or whatever you named it) wireless network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
 
 ### Manual setup
 If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.

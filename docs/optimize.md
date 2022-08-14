@@ -1,6 +1,6 @@
 # PiLot - getting started
 ## Optimize your system
-There are some things that can be done, to make the PiLot a bit more stable and performing.
+There are some things that can be adjusted to make the PiLot a bit more stable and performing.
 
 ### Disable Syslog
 While the Syslog is a great thing when it comes to analyzing problems, it does create a lot of input/output operations, and increases the risk of leaving a corrupted memory card after an unexpected power loss. So, if you can live without the logs, you can disable syslog like this:
