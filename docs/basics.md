@@ -7,7 +7,7 @@ Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/so
 
 Once finished writing, keep the card connected to your computer. If you don't see the card in your file explorer, unplug it and plug it in again, it will usually be displayed as a drive called "boot". Create those two files directly in the root directory:
 1. Create an empty text file called just "SSH" (no extension, no content). This will allow you to connect to your PiLot by ssh.
-2. If you have a second Wi-Fi adapter on your raspi (the first one is the built-in), you should allow the PiLot to connect to your Wif-Fi. Create a text file called "wpa_supplicant.conf", and using a text editor, insert this content (you can skip this, if you use a cable to connect the raspi to your network):
+2. If you have a second Wi-Fi adapter on your raspi (the first one is the built-in), you should allow the PiLot to connect to your Wi-Fi. Create a text file called "wpa_supplicant.conf", and using a text editor, insert this content (you can skip this, if you use a cable to connect the raspi to your network):
 ```
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
