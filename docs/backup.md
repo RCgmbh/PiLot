@@ -3,7 +3,7 @@
 
 As you will collect a lot of data, you will sooner or later want to have that data backed up somewhere. After all it's not impossible to lose your data, be it because the SD card fails, you lose your pilot or you delete some data by mistake.
 
-The PiLot comes with a simple backup tool. It consists of a client application and a server component. The client runs on your PiLot, and sends changed data to the server every few minutes. The server offers a http interface (a REST API), which recieves the data and saves it. The server will save multiple backup sets, so that you will have the the data from before a few minutes, the data from yesterday, before yesterday, last week, last month and last year or so.
+The PiLot comes with a simple backup tool. It consists of a client application and a server component. The client runs on your PiLot, and sends changed data to the server every few minutes. The server offers a http interface (a REST API), which recieves the data and saves it. The server will save multiple backup sets, so that you will have the data from a few minutes ago, the data from yesterday, before yesterday, last week, last month and last year or so.
 
 ### Install the server
 In the simplest, but admittedly not the most reasonable setup, you set up the backup server on your PiLot. This will however not help, if your SD card breaks or you lose your device. Giving you some historic data, it might help you recover mistakenly deleted data. If you have two PiLots, you might want to install the backup server on both of them, and let them backup their data on each other. You can also install the server component on your desktop machine or on a server available online. 
