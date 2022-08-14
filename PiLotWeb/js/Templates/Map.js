@@ -67,7 +67,7 @@ PiLot.Templates.Map = {
 
 	mapShowTrack:`
 		<div class="option">
-			<a href="#">
+			<a class="block fullWidth" href="#">
 				<span class="label" data-text="showTrack"></span>
 				<span class="icon"><i class="icon-history"></i></span>
 			</a>

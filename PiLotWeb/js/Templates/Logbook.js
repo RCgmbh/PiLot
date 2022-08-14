@@ -283,7 +283,7 @@ PiLot.Templates.Logbook = {
 							<input type="checkbox" class="cbPublishLogbook" /><i class="icon-arrow-right"></i><br />
 							<input type="checkbox" class="cbOverwriteLogbook" /><i class="icon-trashcan"></i>
 						</div>
-						<div class="logbookEntries divTargetLogbookEntries"></div>
+						<div class="divTargetLogbookEntries logbookEntries"></div>
 					</div>
 					<div class="title paddingTop">
 						<div class="summary"><span class="lblLocalPhotosCount">...</span> <span data-text="images"></span></div>

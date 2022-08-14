@@ -51,7 +51,7 @@
 .pnlPublish > div.title > div.summary {flex: 0 0 40%; }
 .pnlPublish div.map {min-height:10em;height:30vh; min-width:10em; border:1px solid #333}
 .pnlPublish .diaryText {flex: 1 0 10em; overflow:auto;font-size:0.75em;line-height:1.25em;max-height:50vh;}
-.pnlPublish .logbookEntries, .pnlPublish .logbookEntries, .pnlPublish .photos {width: calc(50% - 2em); max-height:9em; overflow:auto; background-color:#eee;}
+.pnlPublish .logbookEntries, .pnlPublish .photos {width: calc(50% - 2em); max-height:9em; max-width:unset; overflow:auto; background-color:#eee;}
 .pnlPublish .logbookEntries > div{white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 .pnlPublish .photos {width: 50%; max-width: 50%; max-height:50vh; overflow:auto; display:flex; flex-wrap:wrap; justify-content:space-evenly;}
 .pnlPublish .photos > div {width: 138px; padding-top: 5px; text-align:center; display: flex; flex-direction: column; justify-content: flex-end; margin: 5px; }
