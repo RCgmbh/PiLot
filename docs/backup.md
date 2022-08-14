@@ -15,7 +15,7 @@ Installing the backup server (called pilot backup api) on your PiLot is easy. Th
 cd ~/pilotinstall
 sudo sh 08-install-backupAPI.sh
 ```
-This will set up the API, which runs as a service. It will also configure nginx to forward calls to the http://hostname/pilotbackupapi url to the port 5002. **Important**: This depends on the line "include locations/\*", which is part of the nginx config file we created when installing the pilot web application. On a system where the pilot web application has not been installed, you have to make sure to have the following block within the "server"-section of the nginx configuration file '/etc/nginx/sites-enabled/default':
+This will set up the API, which runs as a service. It will also configure nginx to forward calls to the http://hostname/pilotbackupapi url to the port 5002. **Important**: This depends on the line "include locations/\*", which is part of the nginx config file we created when installing the pilot web application. On a system where the pilot web application has not been installed, you have to make sure to have the following block within the "server"-section of the nginx configuration file `/etc/nginx/sites-enabled/default`:
 
 ```
 location /pilotbackupapi/ {
@@ -24,7 +24,7 @@ location /pilotbackupapi/ {
 ```
 
 ### Configure users
-The PiLot backup server is only accessible for authorized users. The users are defined in the file '/etc/pilotbackupapi/users.json'. Go ahead and edit it:
+The PiLot backup server is only accessible for authorized users. The users are defined in the file `/etc/pilotbackupapi/users.json`. Go ahead and edit it:
 ```
 sudo nano /etc/pilotbackupapi/users.json
 ```
