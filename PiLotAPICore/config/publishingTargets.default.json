@@ -2,7 +2,7 @@
 	{
 		"name": "website",
 		"displayName": "My Website",
-		"apiUrl": "http://pilot.mywebsite.org/pilotapi/api/v1",
+		"apiUrl": "http://pilot.mywebsite.org/pilotapi/v1",
 		"webUrl": "http://pilot.mywebsite.org",
 		"username": "test",
 		"password": "8888"

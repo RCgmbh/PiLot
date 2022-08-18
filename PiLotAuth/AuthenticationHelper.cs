@@ -99,7 +99,7 @@ namespace PiLot.Auth{
 		}
 
 		/// <summary>
-		/// Reloads the config from file
+		/// Reloads the users and authentication config from file
 		/// </summary>
 		public void ReloadConfig() {
 			this.users = null;
