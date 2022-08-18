@@ -2,7 +2,7 @@
 ## Publish data
 
 ### Overview
-You can publish data from one PiLot to another PiLot. This is helpful if you have multiple devices and want to sync data between them. Or if you want to publish data to a public website. For instance, you can publish your live position data using the [live tracking service](live.md) while you're underway, and at the end of the day additionally publish your logbook, diary and photos. The publishing feature lets you select in detail what you want to publish or not.
+You can publish data from one PiLot to another PiLot. This is helpful if you have multiple devices and want to sync data between them. Or if you want to publish data to a public website. For instance, you can publish your live position data using the [live tracking service](livetracking.md) while you're underway, and at the end of the day additionally publish your logbook, diary and photos. The publishing feature lets you select in detail what you want to publish or not.
 
 As the publishing feature is part of the standard installation, it only takes some configuration to make work. Let's walk throught an example setup, where you have one PiLot (let's call it pilot1) which is mobile and you take with you. This will be the client, which publishes data in our example. Then you have and a second PiLot (let's call it pilot2), which sits on your desktop, is always on and something like your everyday computer, but also has the PiLot web application installed. You want to have all your diaries, tracks, logbooks and photos available on that one too, for redundancy and to have all data available just in case you feel like reading some of last year's diaries. In short, you want to publish data from pilot1, the client, to pilot2, the server.
 
