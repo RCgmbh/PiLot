@@ -68,4 +68,8 @@ That's basically it. All you have to do is take one of the existing boats, chang
 
 Be aware that errors might occur, if you didn't properly match the items. You might get some information in the browser console.
 
+There is more advanced stuff, like setting up a proper backup. Give it a try!
+
+\> [Set up backup...](backup.md)
+
 << [Back to overview](user.md)
