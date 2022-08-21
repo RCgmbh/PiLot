@@ -11,11 +11,11 @@ Each of the following chapters contains a part of the entire setup process. Some
 6. [Install the photos import service](photoimport.md)
 7. [Connect sensors and log sensor data](sensors.md)
 8. [Optimize your system](optimize.md)
-9. Build a nice case
+9. [Build a nice case](case.md)
 
 **Advanced scenarios:**
 
-10. [Set up backup](backup.md)
-11. [Set up the live tracking service](livetracking.md)
-12. [Publish your data to another PiLot](publish.md)
-13. Customize your boat
+10. [Customize your boat](boat.md)
+11. [Set up backup](backup.md)
+12. [Set up the live tracking service](livetracking.md)
+13. [Publish your data to another PiLot](publish.md)

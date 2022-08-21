@@ -59,8 +59,6 @@ sudo systemctl restart pilotApi
 
 That's already it. Now open the pilot web application on pilot1, go to the logbook page (with the quill icon), add some diary text, create some logbook entries and make sure the gps logger is running. Then change to the diary page (the one with the book icon), make sure you're logged in as admin (click on the smiley on top right) and you should see the "Publish" button at the bottom of the diary page. Klicking it will show the publishing page, where you can select "PiLot2" as target, then select which data you want to publish and hit the "Publish" button. When done, the data for that day will be available on PiLot2 as well.
 
-Now, finally, to make it all complete, it's time to draw your boat! To see how, move on to the next page.
-
-\> [Customize your boat...](boat.md)
+Now, well... that's basically it. You have a full-featured PiLot, so it's time to go on the water and see how it works! For any ideas, questions or other feedback, just crate an issue. Good luck and have fun with your PiLot. And don't forget, always have official, up-to date charts with you along with the PiLot.
 
 << [Back to overview](user.md)
