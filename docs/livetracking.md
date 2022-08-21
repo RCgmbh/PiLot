@@ -44,6 +44,6 @@ Now, to start the service, on the PiLot Application on your PiLot, go to "Admini
 
 Well done, but there is more:
 
-\> [Publish your data...?](publish.md)
+\> [Publish your data...](publish.md)
 
 << [Back to overview](user.md)
