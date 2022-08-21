@@ -42,6 +42,8 @@ The value for **localapi** should be ok. For **remoteAPI**, enter the url of the
 
 Now, to start the service, on the PiLot Application on your PiLot, go to "Administration", then "Services", where you can start and stop the different PiLot services. Start the service "liveClient", and after some seconds you should see your PiLot's position on your website. 
 
-\> [What's next...?](tbd.md)
+Well done, but there is more:
+
+\> [Publish your data...?](publish.md)
 
 << [Back to overview](user.md)
