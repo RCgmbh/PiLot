@@ -12,6 +12,6 @@ Good luck!
 
 When you're done with the handicraft, let's get back to some computer stuffs. But we remain in the creative corner for a while:
 
-/> [Draw your boat...](boat.md)
+\> [Draw your boat...](boat.md)
 
 << [Back to overview](user.md)
