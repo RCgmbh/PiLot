@@ -1,5 +1,5 @@
 # PiLot - getting started
-## Optimize your system
+## Build a Case
 
 Now it's time to work with your hands. Your PiLot of course needs a nice case. Depending on how many components you used (gps, sensors), and whether you want to have an inbuilt battery or powerbank, and of course depending on the Raspberry Pi form factor you chose, you will end up with either a tiny or a bit bigger device. Of course you can buy a ready-to use case, 3d-print one or take a piece of plywood and a fretsaw and build something from scratch.
 
