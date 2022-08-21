@@ -43,7 +43,7 @@ ls -l /var/opt/pilotbackup/
 You should see a directory "test". For each user, a directory is created, which holds the backup sets. Sets ending in \_temp indicate that something went wrong. If you're lucky, you find information at `/var/log/pilotbackup`.
 
 ### Configure the backup client
-As soon as you have installed the backup server where you want it, you have to tell the client the correct url, and provide username and password. This is all configured in '/etc/pilot/backupConfig.json'. The file can contain multiple backup targets, and you can even define which data should be backed up. For now, just update the values for targetUrl, username and password, which have to match the user defined in the users.json file of the server.
+As soon as you have installed the backup server where you want it, you have to tell the client the correct url, and provide username and password. This is all configured in `/etc/pilot/backupConfig.json`. The file can contain multiple backup targets, and you can even define which data should be backed up. For now, just update the values for targetUrl, username and password, which have to match the user defined in the users.json file of the server.
 
 ### Restore data from backup
 In case you want to restore the data from backup, it's easiest to access the samba shares "Pilot Backup Data" on the server, and "Pilot Data" on the PiLot, and copy-paste the content of the desired backup set from the server to the client.
