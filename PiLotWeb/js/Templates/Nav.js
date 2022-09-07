@@ -50,14 +50,16 @@ PiLot.Templates.Nav = {
 				<div id="divRoute"></div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
-				<div id="divMap" class="map navMap borderDark"></div>
+				<div style="position:fixed">
+					<div id="divMap" class="map navMap borderDark"></div>
+				</div>
 			</div>
 		</div>`,
 
 	editRouteForm: `
 		<div>
 			<span class="bigDisplayText block">
-				<input type="text" class="tbRouteName input8 inlineBlock inlineTextbox marginBottom" value="" />
+				<input type="text" class="tbRouteName inlineBlock inlineTextbox fullWidth marginBottom" value="" />
 			</span>
 			<span class="semiBold inlineBlock marginBottomSmall"><span data-text="totalDistance"></span> <span class="lblTotalDistance"></span> <span data-text="nm"></span></span>
 			<div class="divWaypoints marginBottom"></div>
@@ -67,6 +69,7 @@ PiLot.Templates.Nav = {
 				<div>
 				<div class="block marginBottom">
 					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRight iconActiveRoute"></i><span data-text="activateRoute"></span></a> |
+					<a href="#" class="lnkCopyRoute marginLeft marginRight"><i class="icon-copy marginRight"></i><span data-text="copy"></span></a> |
 					<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRight"></i><span data-text="deleteRoute"></span></a>
 				</div>
 			</div>

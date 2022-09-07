@@ -672,6 +672,14 @@ PiLot.View.Nav = (function () {
 			return false;
 		},
 
+		/** click handler for the "copy" link */
+		lnkCopyRoute_click: function () {
+			this.route.setRouteId(null);
+			this.route.setName(`${this.route.getName()}-Copy`);
+			this.showRoute();
+			this.saveRoute();
+		},
+
 		/// click handler for the "delete route" link. Deletes the route, ignoring the result
 		lnkDeleteRoute_click: function () {
 			if (confirm(PiLot.Utils.Language.getText('confirmDeleteRoute'))) {
@@ -726,15 +734,18 @@ PiLot.View.Nav = (function () {
 			this.tbRouteName = routeContainer.querySelector('.tbRouteName');
 			this.lnkActivate = routeContainer.querySelector('.lnkActivateRoute');
 			const lnkAddWaypoint = routeContainer.querySelector('.lnkAddWaypoint');
+			const lnkCopyRoute = routeContainer.querySelector('.lnkCopyRoute');
 			const lnkDeleteRoute = routeContainer.querySelector('.lnkDeleteRoute');
 			if (PiLot.Permissions.canWrite()) {
 				this.tbRouteName.addEventListener('change', this.tbRouteName_changed.bind(this));
 				RC.Utils.selectOnFocus(this.tbRouteName);
 				lnkAddWaypoint.addEventListener('click', this.lnkAddWaypoint_click.bind(this));
+				lnkCopyRoute.addEventListener('click', this.lnkCopyRoute_click.bind(this));
 				lnkDeleteRoute.addEventListener('click', this.lnkDeleteRoute_click.bind(this));
 			} else {
 				this.tbRouteName.setAttribute('readonly', true);
 				lnkAddWaypoint.remove();
+				lnkCopyRoute.remove();
 				lnkDeleteRoute.remove();
 			}
 			if (PiLot.Permissions.canChangeSettings) {
