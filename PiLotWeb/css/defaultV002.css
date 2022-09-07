@@ -259,6 +259,7 @@ textarea.big{height:20em;}
 
 .green { color: #23B223; }
 .red, a.red, a.red:hover, a.red:visited { color: #FF4949; }
+.orange {color:#FFBF49;}
 
 /* LINKS, BUTTONS */
 a, a:visited, a:active{color:#3265AD;}

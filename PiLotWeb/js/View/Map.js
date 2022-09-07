@@ -923,6 +923,7 @@ PiLot.View.Map = (function () {
 		},
 
 		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['selectWaypoint']);
 			if (this.routeObserver !== null) {
 				this.routeObserver.on('recieveGpsData', this.routeObserver_gpsChanged.bind(this));
 				this.routeObserver.on('changeLeg', this.routeObserver_legChanged.bind(this));
@@ -935,6 +936,11 @@ PiLot.View.Map = (function () {
 			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
 			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
 			this.route.on('changeWaypoints', this.route_changeWaypoints.bind(this));
+		},
+
+		/** registers an observer which will be called when pEvent happens */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		/// reads the persisted user settings

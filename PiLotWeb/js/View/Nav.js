@@ -636,6 +636,7 @@ PiLot.View.Nav = (function () {
 			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
 			this.route.on('moveWaypoint', this.route_moveWaypoint.bind(this));
 			this.route.on('changeWaypoints', this.route_changeWaypoints.bind(this));
+			this.route.on('rename', this.route_rename.bind(this));
 			this.showRoute();
 		},
 
@@ -670,6 +671,11 @@ PiLot.View.Nav = (function () {
 			PiLot.Model.Nav.saveActiveRouteIdAsync(activeRouteId);
 			this.lnkActivate.classList.toggle('active', this.isActiveRoute);
 			return false;
+		},
+
+		/** click handler for the "reverse route" link */
+		lnkReverseRoute_click: function () {
+			this.route.reverse(this);
 		},
 
 		/** click handler for the "copy" link */
@@ -712,6 +718,11 @@ PiLot.View.Nav = (function () {
 			this.showWaypoints(true);
 		},
 
+		/// handles the rename event of the route
+		route_rename: function (pSender, pArg) {
+			this.tbRouteName.value = this.route.getName();
+		},
+
 		/** loads the route from the server, if we have a valid routeId query string,
 		 *  otherwise returns a new route.
 		 */
@@ -734,17 +745,20 @@ PiLot.View.Nav = (function () {
 			this.tbRouteName = routeContainer.querySelector('.tbRouteName');
 			this.lnkActivate = routeContainer.querySelector('.lnkActivateRoute');
 			const lnkAddWaypoint = routeContainer.querySelector('.lnkAddWaypoint');
+			const lnkReverseRoute = routeContainer.querySelector('.lnkReverseRoute');
 			const lnkCopyRoute = routeContainer.querySelector('.lnkCopyRoute');
 			const lnkDeleteRoute = routeContainer.querySelector('.lnkDeleteRoute');
 			if (PiLot.Permissions.canWrite()) {
 				this.tbRouteName.addEventListener('change', this.tbRouteName_changed.bind(this));
 				RC.Utils.selectOnFocus(this.tbRouteName);
 				lnkAddWaypoint.addEventListener('click', this.lnkAddWaypoint_click.bind(this));
+				lnkReverseRoute.addEventListener('click', this.lnkReverseRoute_click.bind(this));
 				lnkCopyRoute.addEventListener('click', this.lnkCopyRoute_click.bind(this));
 				lnkDeleteRoute.addEventListener('click', this.lnkDeleteRoute_click.bind(this));
 			} else {
 				this.tbRouteName.setAttribute('readonly', true);
 				lnkAddWaypoint.remove();
+				lnkReverseRoute.remove();
 				lnkCopyRoute.remove();
 				lnkDeleteRoute.remove();
 			}

@@ -50,9 +50,7 @@ PiLot.Templates.Nav = {
 				<div id="divRoute"></div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
-				<div style="position:fixed">
-					<div id="divMap" class="map navMap borderDark"></div>
-				</div>
+				<div id="divMap" class="map navMap borderDark"></div>
 			</div>
 		</div>`,
 
@@ -69,6 +67,7 @@ PiLot.Templates.Nav = {
 				<div>
 				<div class="block marginBottom">
 					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRight iconActiveRoute"></i><span data-text="activateRoute"></span></a> |
+					<a href="#" class="lnkReverseRoute marginLeft marginRight"><i class="icon-arrow-left2 marginRight"></i><span data-text="reverseRoute"></span></a> |
 					<a href="#" class="lnkCopyRoute marginLeft marginRight"><i class="icon-copy marginRight"></i><span data-text="copy"></span></a> |
 					<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRight"></i><span data-text="deleteRoute"></span></a>
 				</div>

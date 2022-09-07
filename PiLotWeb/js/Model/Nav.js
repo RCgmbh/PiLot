@@ -121,6 +121,19 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
+		/**
+		 * Reverses the waypoints, so that the first becomes the last and so on,
+		 * and just for fun it tries to reverse the name of the route, if it's in
+		 * the form A - B. Then saves the route and fires the respective events.
+		 * */
+		reverse: function (pSender) {
+			this.waypoints.reverse();
+			this.name = this.name.split(' - ').reverse().join(' - ');
+			this.saveToServer(null);
+			this.notifyObservers(pSender, 'rename', this);
+			this.notifyObservers(pSender, 'changeWaypoints', this.waypoints);
+		},
+
 		/// deletes pWaypoint from the list of waypoints
 		deleteWaypoint: function (pWaypoint, pSender) {
 			this.totalDistance = null;
