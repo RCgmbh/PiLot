@@ -1,5 +1,7 @@
 # PiLot - getting started
-This guide will lead you through the steps of building up your own Raspberry Pi based boating system - the PiLot. You don't need any special knowledge - if you can do basic stuff with a computer, you should be fine. Some of the steps are optional, so don't worry if the guide at first appears quite long. If everything goes well, you should be done within an afternoon. But better reserve a full weekend.
+This guide will lead you through the steps of building up your own Raspberry Pi based boating system - the PiLot. You don't need any special knowledge - if you can do basic stuff with a computer, have some endurance and a lot of curiosity, then you will make it.
+
+If everything goes well, you should be done with the software-part within an afternoon. But better reserve a full weekend. When it comes to building a nice case, you can of course spend an infinite amount of time (it's called 'hobby').
 
 Each of the following chapters contains a part of the entire setup process. Some of them are mandatory, others are optional. Some are easy, others a bit more complicated. So, cast off!
 
