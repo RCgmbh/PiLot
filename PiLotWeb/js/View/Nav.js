@@ -723,6 +723,16 @@ PiLot.View.Nav = (function () {
 			this.tbRouteName.value = this.route.getName();
 		},
 
+		mapRoute_selectWaypoint: function (pSender, pArg) {
+			console.log(`selectWaypoint: ${pArg}`);
+			this.highlightWaypoint(pArg);
+		},
+
+		mapRoute_unselectWaypoint: function (pSender, pArg) {
+			console.log(`unselectWaypoint: ${pArg}`);
+			this.highlightWaypoint(null);
+		},
+
 		/** loads the route from the server, if we have a valid routeId query string,
 		 *  otherwise returns a new route.
 		 */
@@ -784,7 +794,9 @@ PiLot.View.Nav = (function () {
 			this.showWaypoints();
 			this.showActiveState();
 			const lockRoute = !PiLot.Permissions.canWrite();
-			new PiLot.View.Map.MapRoute(this.map, this.route, { showRoute: true, lockRoute: lockRoute, showOptions: false }).draw().fitMap();
+			const mapRoute = new PiLot.View.Map.MapRoute(this.map, this.route, { showRoute: true, lockRoute: lockRoute, showOptions: false }).draw().fitMap();
+			mapRoute.on('selectWaypoint', this.mapRoute_selectWaypoint.bind(this));
+			mapRoute.on('unselectWaypoint', this.mapRoute_unselectWaypoint.bind(this));
 		},
 
 		/// shows the waypoints (create the forms if necessary, refresh all values). Pass
@@ -804,6 +816,12 @@ PiLot.View.Nav = (function () {
 			this.waypointForms.forEach(function (pItem) {
 				pItem.showWaypoint();
 			});
+		},
+
+		highlightWaypoint: function (pIndex) {
+			for (let i = 0; i < this.waypointForms.length; i++) {
+				this.waypointForms[i].highlight(i == pIndex);
+			}
 		},
 
 		/// shows the total distance of the route in the label
@@ -979,6 +997,15 @@ PiLot.View.Nav = (function () {
 				this.lblDistance.innerText = PiLot.Utils.Common.metersToNauticalMiles(leg.distance).toFixed(1);
 				this.lblBearing.innerText = RC.Utils.toFixedLength(leg.bearing, 3, 0);
 			}
+		},
+
+		/**
+		 * Allows to highlight a waypoint, by making the title bold, or
+		 * to reset the highlight.
+		 * @param {Boolean} pIsHighlight - true: highlight, false: reset
+		 */
+		highlight: function (pIsHighlight) {
+			this.tbWaypointName.classList.toggle('bold', pIsHighlight);
 		},
 
 		/// returns the outmost html element representing

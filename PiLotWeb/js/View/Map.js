@@ -891,6 +891,7 @@ PiLot.View.Map = (function () {
 	var MapRoute = function (pMap, pRoute, pOptions) {
 		this.map = pMap;
 		this.route = pRoute;
+		this.observers = null;
 		this.routeObserver = null;
 		this.lnkOptionShowRoute = null;
 		this.lnkOptionLockRoute = null;
@@ -923,7 +924,7 @@ PiLot.View.Map = (function () {
 		},
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['selectWaypoint']);
+			this.observers = RC.Utils.initializeObservers(['selectWaypoint', 'unselectWaypoint']);
 			if (this.routeObserver !== null) {
 				this.routeObserver.on('recieveGpsData', this.routeObserver_gpsChanged.bind(this));
 				this.routeObserver.on('changeLeg', this.routeObserver_legChanged.bind(this));
@@ -1032,23 +1033,36 @@ PiLot.View.Map = (function () {
 
 		route_delete: function () { },
 
+		mapWaypoint_select: function (pSender, pArg) {
+			const index = this.route.getWaypoints().indexOf(pArg.getWaypoint());
+			RC.Utils.notifyObservers(this, this.observers, 'selectWaypoint', index);
+		},
+
+		mapWaypoint_unselect: function (pSender, pArg) {
+			RC.Utils.notifyObservers(this, this.observers, 'unselectWaypoint', null);
+		},
+
 		/// draws the route to the map, but only if this.showRoute is true
 		draw: function (pResetWaypointPositions) {
 			if (this.showRoute) {
-				var waypoints = this.route.getWaypoints();
-				var waypoint = null;
+				const waypoints = this.route.getWaypoints();
+				let waypoint = null;
 				if (this.mapWaypoints === null) {
 					this.mapWaypoints = new Map();
 				}
-				var mapWaypoint = null;
-				var liveData = null;
-				var previousMapWayoint = null;
-				for (var i = 0; i < waypoints.length; i++) {
+				let mapWaypoint = null;
+				let liveData = null;
+				let previousMapWayoint = null;
+				for (let i = 0; i < waypoints.length; i++) {
 					waypoint = waypoints[i];
 					if (!this.mapWaypoints.has(waypoint)) {
-						this.mapWaypoints.set(waypoint, new MapWaypoint(this, waypoint));
-					}
-					mapWaypoint = this.mapWaypoints.get(waypoint);
+						mapWaypoint = new MapWaypoint(this, waypoint);
+						mapWaypoint.on('select', this.mapWaypoint_select.bind(this));
+						mapWaypoint.on('unselect', this.mapWaypoint_unselect.bind(this));
+						this.mapWaypoints.set(waypoint, mapWaypoint);
+					} else {
+						mapWaypoint = this.mapWaypoints.get(waypoint);
+					}					
 					if (this.routeObserver != null) {
 						liveData = this.routeObserver.getLiveData(waypoint);
 					} else {
@@ -1131,6 +1145,7 @@ PiLot.View.Map = (function () {
 	/// represents the waypoint being drawn onto the map. 
 	var MapWaypoint = function (pMapRoute, pWaypoint) {
 		this.marker = null;
+		this.observers = null;
 		// marker popup and controls within
 		this.markerPopup = null;
 		this.markerPopupContent = null;
@@ -1154,8 +1169,14 @@ PiLot.View.Map = (function () {
 	MapWaypoint.prototype = {
 
 		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['select', 'unselect']);
 			this.waypoint.on('move', this.waypoint_move.bind(this));
 			this.waypoint.on('rename', this.waypoint_rename.bind(this));
+		},
+
+		/** registers an observer which will be called when pEvent happens */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		/// handles moving the waypoint. Updates the marker,
@@ -1195,6 +1216,7 @@ PiLot.View.Map = (function () {
 		/// handles clicks on the marker, showing the popup
 		marker_click: function () {
 			this.showMarkerPopup();
+			RC.Utils.notifyObservers(this, this.observers, 'select', this);
 		},
 
 		/// handles the click on the leg by ad hoc binding a popup with 
@@ -1227,6 +1249,10 @@ PiLot.View.Map = (function () {
 		/// sets the outgoing leg
 		setOutgoingLeg: function (pOutgoingLeg) {
 			this.outgoingLeg = pOutgoingLeg;
+		},
+
+		getWaypoint: function () {
+			return this.waypoint;
 		},
 
 		/// gets the latLng for the waypoint assigned to this
@@ -1360,6 +1386,7 @@ PiLot.View.Map = (function () {
 		removeMarkerPopup: function () {
 			this.marker.unbindPopup();
 			this.markerPopup = null;
+			RC.Utils.notifyObservers(this, this.observers, 'unselect', this);
 		},
 
 		/// updates the popup content in order to reflect waypoint properties
