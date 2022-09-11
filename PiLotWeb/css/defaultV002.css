@@ -111,7 +111,7 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 body.night .dialogPanel { background-color: black; }
 
 .sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
-.sideMenu, .sideMenu a, .sideMenu a:hover, .sideMenu a:visited {color:#eee; }
+.sideMenu, .sideMenu a.expandCollapse, .sideMenu a.option, .sideMenu a.expandCollapse:hover, .sideMenu aoption:hover .sideMenu a.expandCollapse:visited, .sideMenu a.option:visited {color:#eee; }
 .sideMenu>.expandCollapse{text-align:center;width:3em;}
 .sideMenu>.expandCollapse>i{font-size:1.5em;}
 .sideMenu>.option{ width:3em; min-height:3em; border:1px solid black; padding-top:0.75em; margin-bottom:0.25em;border-radius:0.25em;width:auto;display:block;text-align:center;}
@@ -119,7 +119,7 @@ body.night .dialogPanel { background-color: black; }
 .sideMenu>.option .label{margin-right:1em; display:none;}
 .sideMenu.expanded>.option .label{display:inline-block; }
 .sideMenu.expanded>.option .icon{margin-right:0.5em;}
-.sideMenu>.option.active, .sideMenu>a.option.active .sideMenu>a.expandCollapse:hover, .sideMenu>.option.active a { color:#FFBF49; }
+.sideMenu>.option.active, .sideMenu>a.option.active, .sideMenu>a:visited.option.active .sideMenu>a.expandCollapse:hover, .sideMenu>.option.active a { color:#FFBF49; }
 .sideMenu>.option:hover { background-color:#666; }
 .sideMenu>.option .hidden, .sideMenu>.option label.hidden, .sideMenu.expanded>.option .label.hidden{ display:none; }
 .sideMenu>.expandCollapse{display:inline-block; margin-bottom:0.5em;}
