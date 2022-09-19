@@ -6,6 +6,7 @@ Config.js
 app.config
 /pilotinstall
 pilotinstall.*
+app.json
 authorization.json
 users.json
 publishingTargets.json
