@@ -90,7 +90,6 @@ PiLot.Utils.Common = {
 	 * after /api/v1, using a leading / as in /Ping. If an absolute url starting
 	 * with http: or https: is passed, that very url will be returned
 	 */
-	
 	toApiUrl: function (pApiPath) {
 		let path;
 		if (!pApiPath.startsWith('http:') && !pApiPath.startsWith('https:')) {
@@ -102,6 +101,21 @@ PiLot.Utils.Common = {
 			path = pApiPath;
 		}
 		return path
+	},
+
+	/**
+	 * Tries to ping the server. Throws an error, if the server does not respond
+	 * afer a certain time.
+	 * @param {Number} pTimeoutMS - The milliseconds to wait before timeout
+	 * @returns {Boolean} true, if the server can be reached, else false
+	 */
+	pingServerAsync: async function (pTimeoutMS) {
+		const timeoutPromise = new Promise((resolve, reject) =>
+			setTimeout(() => resolve(null), pTimeoutMS)
+		);
+		const pingPromise = this.getFromServerAsync('/Ping');
+		const result = await Promise.race([timeoutPromise, pingPromise]);
+		return result === 'OK';
 	},
 
 	/**
@@ -126,6 +140,16 @@ PiLot.Utils.Common = {
 	 */
 	postToServerAsync: async function (pApiPath, pData = null) {
 		return await PiLot.Utils.Common.sendToServerAsync(pApiPath, pData, 'POST', true, true);
+	},
+
+	/**
+	 * Gets data from the server and returns an object or null
+	 * @param {string} pApiPath - the relative Path, as in /Ping/1
+	 * @returns {Object} the result data
+	 */
+	getFromServerAsync: async function (pApiPath) {
+		const result = await PiLot.Utils.Common.sendToServerAsync(pApiPath, null, 'GET', true, false);
+		return result.data;
 	},
 
 	/**
@@ -180,15 +204,6 @@ PiLot.Utils.Common = {
 			}
 		}
 		return result;
-	},
-
-	/**
-	 * Gets data from the server and returns an object or null
-	 * @param {string} pApiPath - the relative Path, as in /Ping/1
-	 */
-	getFromServerAsync: async function (pApiPath) {
-		const result = await PiLot.Utils.Common.sendToServerAsync(pApiPath, null, 'GET', true, false);
-		return result.data;
 	},
 
 	/**

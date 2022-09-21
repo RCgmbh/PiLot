@@ -96,6 +96,15 @@ PiLot.Templates.Admin = {
 		</div>
 	`,
 
+	shutdownPage: `
+		<div class="contentPadding">
+			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="shutDown"></span></h1>
+			<div class="feedbackGood pnlAvailable col18 marginBottom" data-text="pilotAvailable"></div>
+			<div class="feedbackWarning pnlShuttingDown col18" data-text="pilotShuttingDown" hidden></div>
+			<div class="feedbackNeutral pnlUnavailable col18 marginBottom" data-text="pilotUnavailable" hidden></div>
+		</div>
+	`,
+
 	wifiPage: `
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>

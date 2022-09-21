@@ -58,7 +58,8 @@ PiLot.Utils.Loader = (function () {
 				services: 'services',
 				log: 'logs',
 				status: 'status',
-				time: 'time'
+				time: 'time',
+				shutdown: 'shutdown'
 			}
 		}
 	};
@@ -290,6 +291,10 @@ PiLot.Utils.Loader = (function () {
 				case pages.system.admin.time:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.BoatTimePage(); };
+					break;
+				case pages.system.admin.shutdown:
+					dependencies = [defaultScripts, adminScripts];
+					startAction = function () { new PiLot.View.Admin.ShutdownPage(); };
 					break;
 				default:
 					startAction = function () { alert(`Unknown page: ${page}`); };

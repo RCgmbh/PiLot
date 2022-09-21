@@ -27,20 +27,7 @@ PiLot.View.Admin = (function () {
 			pageContent.querySelector('.lnkServices').setAttribute('href', loader.createPageLink(loader.pages.system.admin.services));
 			pageContent.querySelector('.lnkSystemStatus').setAttribute('href', loader.createPageLink(loader.pages.system.admin.status));
 			pageContent.querySelector('.lnkLog').setAttribute('href', loader.createPageLink(loader.pages.system.admin.log));
-			pageContent.querySelector('.lnkShutDown').addEventListener('click', this.lnkShutDown_click);
-		},
-
-		/**
-		 * Handles the click on "Shut down" by showing a confirm dialog and then calling
-		 * the shut down action against the api, then loads a nice image
-		 * @param {Event} e
-		 */
-		lnkShutDown_click: function (e) {
-			e.preventDefault();
-			if (window.confirm(PiLot.Utils.Language.getText('confirmShutDown'))) {
-				document.location = 'img/evening.jpg';
-				fetch(PiLot.Utils.Common.toApiUrl(`/System/shutdown`), { method: 'PUT' });
-			}
+			pageContent.querySelector('.lnkShutDown').setAttribute('href', loader.createPageLink(loader.pages.system.admin.shutdown));
 		}
 	};
 
@@ -284,6 +271,98 @@ PiLot.View.Admin = (function () {
 			const result = await PiLot.Utils.Common.putToServerAsync(`/Services/${this.serviceName}/${pAction}`);
 			this.showStatus(result.data);
 		}
+	};
+
+	/**
+	 * This incombarably sophisticated piece of software engineering ingenuity represents
+	 * a page that is shown when the PiLot is shutting down. Now only does it show a dialog
+	 * where the user has to confirm the shutdown, but also it observes whethere the PiLot 
+	 * is still available, and shows green, orange and red boxes with kind text inside to let
+	 * the user have no doubt about the current state of the computer. Rarely have there been
+	 * more lines of code with less use.
+	 * */
+	var ShutdownPage = function () {
+		this.pingInterval = null;
+		this.previousResult = null;
+
+		this.pnlAvailable = null;
+		this.pnlShuttingDown = null;
+		this.pnlUnavailable = null;
+
+		this.initialize();
+	};
+
+	ShutdownPage.prototype = {
+
+		initialize: function () {
+			this.draw();
+			this.callPing();
+			this.startPing(2000);
+		},
+
+		draw: function () {
+			const loader = PiLot.Utils.Loader;
+			const contentArea = loader.getContentArea();
+			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.shutdownPage));
+			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
+			this.pnlAvailable = contentArea.querySelector('.pnlAvailable');
+			this.pnlShuttingDown = contentArea.querySelector('.pnlShuttingDown');
+			this.pnlUnavailable = contentArea.querySelector('.pnlUnavailable');
+			setTimeout(this.showConfirmDialog.bind(this), 100);
+		},
+
+		/** Shows a confirm dialog and then calls the shut down action against the api */
+		showConfirmDialog: function () {
+			if (window.confirm(PiLot.Utils.Language.getText('confirmShutDown'))) {
+				this.pnlShuttingDown.hidden = false;
+				this.pnlAvailable.hidden = true;
+				fetch(PiLot.Utils.Common.toApiUrl(`/System/shutdown`), { method: 'PUT' });
+			}
+		},
+
+		/**
+		 * Starts the ping interval, which regularily tries to reach the PiLot
+		 * @param {Number} pInterval - the interval in ms
+		 */
+		startPing: function (pInterval) {
+			if (this.pingInterval) {
+				clearInterval(this.pingInterval);
+			}			
+			this.pingInterval = setInterval(this.callPing.bind(this), pInterval);
+		},
+
+		/** calls the ping REST endpoint and does stuffs with the result */
+		callPing: async function () {
+			let result = await PiLot.Utils.Common.pingServerAsync(5000);
+			this.handlePingResult(result);
+		},
+
+		/**
+		 * Handles the ping result. When the state changes, a whole lot of 
+		 * magic is done, such as changing to a faster ping interval, if 
+		 * the device is available, or a slower if it's not available (to
+		 * not make the wakeup too stressing)
+		 * @param {Boolean} pResult - true, if pinging was successful
+		 */
+		handlePingResult: function (pResult) {
+			if (pResult !== this.previousResult) {
+				this.showAvailable(pResult);
+				this.startPing(pResult ? 2000 : 30000);
+				this.previousResult = pResult;
+			}
+		},
+
+		/**
+		 * Shows the apropriate colored boxes with kind texts inside.
+		 * @param {Boolean} pAvailable - true: PiLot is available
+		 */
+		showAvailable: function (pAvailable) {
+			this.pnlAvailable.hidden = !pAvailable;
+			this.pnlUnavailable.hidden = pAvailable;
+			if (!pAvailable) {
+				this.pnlShuttingDown.hidden = true;
+			}
+		},
 	};
 
 	/** The page showing the list of available wireless networks and allowing to connect to them */
@@ -592,6 +671,7 @@ PiLot.View.Admin = (function () {
 		SystemStatusPage: SystemStatusPage,
 		ServicesPage: ServicesPage,
 		ServiceInfo: ServiceInfo,
+		ShutdownPage: ShutdownPage,
 		LogFilesPage: LogFilesPage
 	};
 

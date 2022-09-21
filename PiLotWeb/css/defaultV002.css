@@ -88,13 +88,14 @@ body.night .rcCalendar .yearsPager { background-color:#666; }
 .chartError{border:1px solid #FF4949;}
 .chartWait{border:1px solid #666666;}
 
-div.feedbackGood, div.feedbackBad, div.feedbackInfo, div.feedbackWarning, span.feedbackGood, span.feedbackBad, span.feedbackInfo, span.feedbackWarning{
+div.feedbackGood, div.feedbackBad, div.feedbackInfo, div.feedbackWarning, div.feedbackNeutral, span.feedbackGood, span.feedbackBad, span.feedbackInfo, span.feedbackWarning{
     display:block; clear:both; padding:0.5em 0.75em; border-width: 1px 1px 1px 0.5em; border-style:solid; text-align:left; 
 }
 div.feedbackGood.hidden, div.feedbackBad.hidden, div.feedbackWarning.hidden, div.feedbackInfo.hidden, div.feedbackNeutral.hidden{display:none;}
 div.feedbackGood, span.feedbackGood{border-color:#23B223; }
 div.feedbackBad, span.feedbackBad{border-color:#FF4949; }
 div.feedbackWarning, span.feedbackWarning{border-color:#FFAD49; }
+div.feedbackNeutral{border-color:#ccc;}
 body.night div.feedbackBad, body.night span.feedbackBad{border-color:#A53030; }
 body.night div.feedbackWarning, body.night span.feedbackWarning{border-color:#A36630; }
 div.feedbackInfo, span.feedbackInfo{border-color:#4992FF; }
@@ -163,6 +164,7 @@ textarea.big{height:20em;}
 .col4 { width: 6em; }
 .col6 { width: 9em; }
 .col11{ width: 16.5em; }
+.col18{ width: 27em;}
 
 /* GENERAL CLASSES */
 .hidden, .block.hidden, .inlineBlock.hidden, .flex.hidden, a.hidden, span.hidden, div.hidden{display:none;}
