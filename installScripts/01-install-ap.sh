@@ -7,7 +7,7 @@ inetWiFiAdapter=""
 # the name of the ethernet adapter for internet access as found in ifconfig:
 inetEthAdapter=""
 # the name of the PiLot Wi-Fi:
-ssid=""
+ssid="pilot"
 # the Wi-Fi password, 8-63 characters:
 passphrase=""
 # the static ip of the pilot with netmask:
@@ -107,5 +107,6 @@ then
 else
  echo "skipping NAT configuration, no inetAdapter defined"
 fi
-echo "Done. Please use 'sudo reboot now' to restart"
+echo "Done. The pilot will reboot now"
+reboot now
 fi
