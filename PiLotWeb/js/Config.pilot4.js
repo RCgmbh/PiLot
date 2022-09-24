@@ -19,7 +19,6 @@ PiLot.Config = {
 
 	System: {
 		Admin: {
-			services: ['gpsLogger', 'photosWatcher', 'sensorsLogger', 'renderd'],
 			servicesUpdateInterval: 2	// interval to update service status, in seconds
 		}
 	},

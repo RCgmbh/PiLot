@@ -19,7 +19,6 @@ PiLot.Config = {
 
 	System: {
 		Admin: {
-			services: [],
 			servicesUpdateInterval: 60	// interval to update service status, in seconds
 		}
 	},
