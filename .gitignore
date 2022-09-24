@@ -3,6 +3,7 @@
 launch.json
 tasks.json
 Config.js
+Config.pilot*.js
 app.config
 /pilotinstall
 pilotinstall.*
