@@ -72,7 +72,7 @@ PiLot.Templates.Map = {
 				<span class="icon"><i class="icon-history"></i></span>
 			</a>
 			<div class="label">
-				<select class="label marginBottomSmall">
+				<select class="input6 marginBottomSmall">
 					<option value="3600">1h</option>
 					<option value="28800">8h</option>
 					<option value="86400">24h</option>
@@ -81,8 +81,8 @@ PiLot.Templates.Map = {
 					<option value="null" data-text="userdefined"></option>
 				</select>
 				<div class="label marginBottomSmall pnlCustomDates">
-					<span class="inlineBlock input2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate" hidden></div><br />
-					<span class="inlineBlock input2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate" hidden></div>
+					<span class="inlineBlock col2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate" hidden></div><br />
+					<span class="inlineBlock col2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate" hidden></div>
 				</div>
 			</div>
 		</div>`,
