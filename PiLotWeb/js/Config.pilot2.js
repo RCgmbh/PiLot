@@ -6,7 +6,7 @@
  * */
 PiLot.Config = {
 
-	apiUrl: '/pilotapi/api/v1',			// the relative url of the API
+	apiUrl: '/pilotapi/v1',				// the relative url of the API
 
 	Nav: {
 		GPSObserver : {
