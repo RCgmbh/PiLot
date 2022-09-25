@@ -104,26 +104,23 @@ namespace PiLot.Data.Files {
 			Logger.Log($"PhotoDataConnector starting SaveImageWithThumbnail for {pImageData.Name}", LogLevels.DEBUG);
 			try {
 				Date? day = pImageData.Day;
-				Image image;
-				using (MemoryStream ms = new MemoryStream(pImageData.Bytes)) {
-					image = Image.Load(ms);
-					if (day == null) {
-						DateTime? imageDateTime = ImageHelper.GetImageDate(image, pFileDate);
-						if(imageDateTime != null) {
-							day = new Date(imageDateTime.Value);
-						}
+				Image image = Image.Load(pImageData.Bytes);
+				if (day == null) {
+					DateTime? imageDateTime = ImageHelper.GetImageDate(image, pFileDate);
+					if(imageDateTime != null) {
+						day = new Date(imageDateTime.Value);
 					}
-					if(day != null) {
-						String datePath = this.GetPhotosFilePath(day.Value, true);
-						ImageHelper.EnsureOrientation(ref image);
-						String imageFilePath = this.GetImageFilePath(day.Value, pImageData.Name, false);
-						if (!File.Exists(imageFilePath)) {
-							image.Save(imageFilePath);
-						}
-						this.CreateThumbnails(image, pImageData.Name, datePath);
-					} else {
-						Logger.Log($"Image {pImageData.Name} does not have a valid date and can not be processed.", LogLevels.ERROR);
+				}
+				if(day != null) {
+					String datePath = this.GetPhotosFilePath(day.Value, true);
+					ImageHelper.EnsureOrientation(ref image);
+					String imageFilePath = this.GetImageFilePath(day.Value, pImageData.Name, false);
+					if (!File.Exists(imageFilePath)) {
+						image.Save(imageFilePath);
 					}
+					this.CreateThumbnails(image, pImageData.Name, datePath);
+				} else {
+					Logger.Log($"Image {pImageData.Name} does not have a valid date and can not be processed.", LogLevels.ERROR);
 				}
 			} catch(Exception ex) {
 				Logger.Log(ex, "PhotoDataConnector.SaveImageWithThumbnails");

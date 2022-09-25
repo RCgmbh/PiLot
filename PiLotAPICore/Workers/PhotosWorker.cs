@@ -71,8 +71,12 @@ namespace PiLot.API.Workers {
 		private void ProcessPhotos() {
 			this.isProcessing = true;
 			do {
-				this.dataConnector.SaveImageWithThumbnails(this.queue[0], null);
-				this.queue.RemoveAt(0);
+				try {
+					this.dataConnector.SaveImageWithThumbnails(this.queue[0], null);
+				} catch { 
+				} finally {
+					this.queue.RemoveAt(0);
+				}				
 			} while (this.queue.Count > 0);
 			this.isProcessing = false;
 		}

@@ -8,6 +8,7 @@ using PiLot.Utils.Logger;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Workers;
+using System.Threading.Tasks;
 
 namespace PiLot.API.Controllers {
 
@@ -38,7 +39,7 @@ namespace PiLot.API.Controllers {
 		/// <returns></returns>
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		[HttpPut]
-		public ActionResult Put(String day, String fileName) {
+		public async Task<ActionResult> Put(String day, String fileName) {
 			Stream requestStream = this.Request.Body;
 			if (requestStream != null) {
 				try {
@@ -46,8 +47,12 @@ namespace PiLot.API.Controllers {
 					if (!String.IsNullOrEmpty(day)) {
 						date = new Date(DateTime.ParseExact(day, QSDATEFORMAT, null));
 					}
-					Byte[] bytesInStream = new Byte[requestStream.Length];
-					requestStream.Read(bytesInStream, 0, (int)bytesInStream.Length);
+					long? length = this.Request.ContentLength;
+					Byte[] bytesInStream = new Byte[length.Value];
+					int bytesRead = 0;
+					while (bytesRead < length.Value) { // wow. Spent a sunday afternoon with this. ReadAsync does not read all, but just some bytes...
+						bytesRead += await requestStream.ReadAsync(bytesInStream, bytesRead, (int)bytesInStream.Length - bytesRead);
+					}					
 					Logger.Log($"PhotoController recieved {bytesInStream.Length} bytes for {fileName}", LogLevels.DEBUG);
 					PhotosWorker.Instance.ProcessPhoto(new ImageData() {
 						Bytes = bytesInStream,
