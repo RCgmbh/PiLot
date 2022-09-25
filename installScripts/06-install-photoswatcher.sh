@@ -6,7 +6,7 @@ if [ `whoami` != root ]; then
 fi
 
 # create directories
-mkdir /home/pi/PhotoImport			# Photo import directory
+mkdir -p /home/pi/PhotoImport		# Photo import directory
 chown pi:pi /home/pi/PhotoImport
 mkdir -p /var/opt/pilot/photos		# Data directory for photos
 chown pi:pi /var/opt/pilot/photos

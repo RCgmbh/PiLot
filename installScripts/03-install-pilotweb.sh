@@ -40,7 +40,7 @@ cp resources/index.html /var/www/html/
 mkdir -p /var/www/html/tiles/openstreetmap
 mkdir -p /var/www/html/tiles/openseamap
 chown -R pi:root /var/www/html/tiles
-mkdir /var/www/html/library
+mkdir -p /var/www/html/library
 chown -R pi:root /var/www/html/library
 cp resources/library/* /var/www/html/library/
 # add link for Config.js to /etc/pilot
