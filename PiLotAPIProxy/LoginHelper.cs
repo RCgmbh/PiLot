@@ -65,7 +65,7 @@ namespace PiLot.APIProxy {
 			String jsonString = JsonSerializer.Serialize(new Credentials(this.username, this.password));
 			HttpContent content = new StringContent(jsonString, Encoding.UTF8, "application/json");
 			String url = this.apiControllerUrl + "/login";
-			Logger.Log($"trying to log in at {url}: {jsonString}", LogLevels.DEBUG);
+			Logger.Log($"trying to log in at {url} with username {this.username}", LogLevels.DEBUG);
 			while (this.isAuthenticating) {
 				Thread.Sleep(100);
 			}
