@@ -187,6 +187,8 @@ namespace PiLot.Backup.API.Helpers {
 				throw new Exception(String.Format("Invalid characters in backupName: {0}", pClientName));
 			}
 			String rootFolderPath = ConfigurationManager.AppSettings["backupDir"];
+			rootFolderPath = rootFolderPath.Replace("~", AppContext.BaseDirectory);
+			Logger.Log($"Backup root folder: {rootFolderPath}", LogLevels.DEBUG);
 			String clientPath = Path.Combine(rootFolderPath, pClientName);
 			if (!Directory.Exists(clientPath)) {
 				if (pCreateIfMissing) {
