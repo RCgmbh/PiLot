@@ -65,6 +65,7 @@ namespace PiLot.Backup.API {
 			LogLevels logLevel = LogLevels.ERROR;
 			Enum.TryParse<LogLevels>(configLogLevel, out logLevel);
 			String logfilePath = ConfigurationManager.AppSettings["logfilePath"];
+			logfilePath = logfilePath.Replace("~", AppContext.BaseDirectory);
 			Logger.SetupLogging(logfilePath, logLevel);
 			Logger.Log("PiLot.Backup.API is starting", LogLevels.INFO);
 		}

@@ -172,11 +172,15 @@ namespace PiLot.Data.Files {
 			Dictionary<Date, List<SensorDataRecord>> result = new Dictionary<Date, List<SensorDataRecord>>();
 			string dataPath = this.dataHelper.GetDataPath(pSensorName);
 			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
-			foreach (var aFile in dataDir.EnumerateFiles()) {
-				if (aFile.LastWriteTimeUtc > pChangedAfter) {
-					Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
-					result.Add(date, this.ReadRawData(aFile));
+			if (dataDir.Exists) {
+				foreach (var aFile in dataDir.EnumerateFiles()) {
+					if (aFile.LastWriteTimeUtc > pChangedAfter) {
+						Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
+						result.Add(date, this.ReadRawData(aFile));
+					}
 				}
+			} else {
+				Logger.Log($"SensorDataConnector.GetChangedDailyData: Invalid directory: {dataPath}", LogLevels.WARNING);
 			}
 			return result;
 		}

@@ -19,11 +19,15 @@
 		<None Remove="app.default.config" />
 		<None Remove="config.default.json" />
 		<None Remove="config.json" />
+		<None Remove="config.pilot4.json" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<Content Include="app.config" />
 		<Content Include="app.default.config">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+		<Content Include="config.pilot4.json">
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 		<Content Include="config.default.json">
