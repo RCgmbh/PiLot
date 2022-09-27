@@ -175,8 +175,11 @@ namespace PiLot.Data.Files {
 			if (dataDir.Exists) {
 				foreach (var aFile in dataDir.EnumerateFiles()) {
 					if (aFile.LastWriteTimeUtc > pChangedAfter) {
-						Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
-						result.Add(date, this.ReadRawData(aFile));
+						if(Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
+							result.Add(date, this.ReadRawData(aFile));
+						} else {
+							Logger.Log($"Filename does not represent a date: {aFile.FullName}", LogLevels.WARNING);
+						}						
 					}
 				}
 			} else {
