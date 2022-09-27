@@ -104,7 +104,7 @@ PiLot.Templates.Logbook = {
 				<div class="plhLogbookEntries logbookEntries"></div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
-				<div class="plhMap navMap borderDark"></div>
+				<div class="plhMap navMap borderDark marginBottom"></div>
 			</div>
 			<div class="dataContainerFull paddingRight paddingBottom">
 				<div class="diaryPhotos"></div>
