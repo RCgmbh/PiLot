@@ -361,6 +361,8 @@ th.right, td.right { text-align:right !important;}
 
 .timeLabel { display: inline-block; width: 12em; }
 #clockCanvas {max-width:90vw; max-height:90vh;}
+.logfile { max-height:calc(100vh - 200px); overflow:auto; overflow-wrap: anywhere; }
+.logfile>br {margin-bottom:0.5em;}
 
 .rcCalendar {z-index: 1200; }
 

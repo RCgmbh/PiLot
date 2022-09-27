@@ -147,11 +147,11 @@ PiLot.Templates.Admin = {
 		<div class="contentPadding marginRight">
 			<h1><a href="#" class="lnkSettings" data-text="administration"></a> : <span data-text="logfiles"></span></h1>
 			<div style="border:1px solid #666; font-family: Lucida Console;" class="divLogFile fullWidth marginBottom hidden">
-				<div style="display:flex; justify-content:space-between" class="fullWidth paddingAll">
+				<div class="fullWidth paddingAll bgLight" style="display:flex; justify-content:space-between" >
 					<span class="lblFilename"></span>
 					<a href="#" class="lnkCloseLogFile"><i class="icon-cross"></i></a>
 				</div>
-				<div class="divContent paddingAll"></div>
+				<div class="divContent paddingAll logfile"></div>
 			</div>
 			<div class="divLogFilesList">
 				<table class="tblLogFiles dgTable marginBottom">
