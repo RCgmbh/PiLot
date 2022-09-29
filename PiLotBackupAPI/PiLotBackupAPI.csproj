@@ -20,9 +20,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="app.config">
-      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
-    </Content>
     <Content Update="config\authorization.default.json">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

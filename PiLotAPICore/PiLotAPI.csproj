@@ -8,16 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="config\authorization.pilot0.json" />
-    <Content Remove="config\authorization.pilot2.json" />
-    <Content Remove="config\authorization.pilot4.json" />
-    <Content Remove="config\authorization.pilotLive.json" />
-    <Content Remove="config\publishingTargets.pilot2.json" />
-    <Content Remove="config\tileSources.pilotLive.json" />
-    <Content Remove="config\users.pilotLive.json" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PiLotAPIProxy\PiLotAPIProxy.csproj" />
     <ProjectReference Include="..\PiLotAuth\PiLotAuth.csproj" />
     <ProjectReference Include="..\PiLotConfig\PiLotConfig.csproj" />
@@ -29,16 +19,5 @@
   <ItemGroup>
     <Folder Include="App_Data\photos\" />
   </ItemGroup>
-
-  <ItemGroup>
-    <None Include="config\authorization.pilot0.json" />
-    <None Include="config\authorization.pilot2.json" />
-    <None Include="config\authorization.pilot4.json" />
-    <None Include="config\authorization.pilotLive.json" />
-    <None Include="config\publishingTargets.pilot2.json" />
-    <None Include="config\tileSources.pilotLive.json" />
-    <None Include="config\users.pilotLive.json" />
-  </ItemGroup>
-
 
 </Project>
