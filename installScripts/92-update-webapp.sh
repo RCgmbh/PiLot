@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# This will get the latest sources and update all PiLot components. Git must be installed and the PiLot repository must have been created before.
+# This will get the latest sources and update the PiLot web app and its rest APIcomponents. Git must be installed and the PiLot repository must have been created before.
 # The dotnet SDK must have been installed before. 
 #
 # See 91-update-prerequisites.sh

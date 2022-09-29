@@ -87,6 +87,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 		installScripts\10-install-liveclient.sh = installScripts\10-install-liveclient.sh
 		installScripts\91-update-prerequisites.sh = installScripts\91-update-prerequisites.sh
 		installScripts\92-update-webapp.sh = installScripts\92-update-webapp.sh
+		installScripts\96-update-backupClient.sh = installScripts\96-update-backupClient.sh
 		createInstallPackage.bat = createInstallPackage.bat
 	EndProjectSection
 EndProject
