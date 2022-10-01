@@ -116,6 +116,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotBackupClient", "PiLotB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotConfig", "PiLotConfig\PiLotConfig.csproj", "{4A3189CC-C622-4C21-853B-4D3AFC131C33}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotDemoDataSender", "PiLotDemoDataSender\PiLotDemoDataSender.csproj", "{74031253-0084-4FD8-BBF4-15E5E26FF65C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -186,6 +188,10 @@ Global
 		{4A3189CC-C622-4C21-853B-4D3AFC131C33}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A3189CC-C622-4C21-853B-4D3AFC131C33}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A3189CC-C622-4C21-853B-4D3AFC131C33}.Release|Any CPU.Build.0 = Release|Any CPU
+		{74031253-0084-4FD8-BBF4-15E5E26FF65C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{74031253-0084-4FD8-BBF4-15E5E26FF65C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{74031253-0084-4FD8-BBF4-15E5E26FF65C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{74031253-0084-4FD8-BBF4-15E5E26FF65C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
