@@ -85,6 +85,43 @@ namespace PiLot.Model.Nav {
 			this.Longitude = λ2 * 180 / Math.PI;
 		}
 
+		/// <summary>
+		/// Returns the point at given fraction between ‘this’ point and specified point.
+		/// See http://www.movable-type.co.uk/scripts/latlong.html
+		/// </summary>
+		/// <param name="pOther">Destination point</param>
+		/// <param name="pFraction">Fraction between the two points (0 = this point, 1 = specified point)</param>
+		/// <returns>Intermediate point between this point and destination point</returns>
+		public LatLon IntermediatePointTo(LatLon pOther, float pFraction) {
+			var φ1 = this.Latitude * Math.PI / 180;
+			var λ1 = this.Longitude * Math.PI / 180;
+			var φ2 = pOther.Latitude * Math.PI / 180;
+			var λ2 = pOther.Longitude * Math.PI / 180;
+			var sinφ1 = Math.Sin(φ1);
+			var cosφ1 = Math.Cos(φ1);
+			var sinλ1 = Math.Sin(λ1);
+			var cosλ1 = Math.Cos(λ1);
+			var sinφ2 = Math.Sin(φ2);
+			var cosφ2 = Math.Cos(φ2);
+			var sinλ2 = Math.Sin(λ2);
+			var cosλ2 = Math.Cos(λ2);
+
+			// distance between points
+			var Δφ = φ2 - φ1;
+			var Δλ = λ2 - λ1;
+			var a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) + Math.Cos(φ1) * Math.Cos(φ2) * Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
+			var δ = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+			var A = Math.Sin((1 - pFraction) * δ) / Math.Sin(δ);
+			var B = Math.Sin(pFraction * δ) / Math.Sin(δ);
+			var x = A * cosφ1 * cosλ1 + B * cosφ2 * cosλ2;
+			var y = A * cosφ1 * sinλ1 + B * cosφ2 * sinλ2;
+			var z = A * sinφ1 + B * sinφ2;
+			var φ3 = Math.Atan2(z, Math.Sqrt(x * x + y * y));
+			var λ3 = Math.Atan2(y, x);
+			LatLon result = new LatLon(φ3 * 180 / Math.PI, (λ3 * 180 / Math.PI + 540) % 360 - 180); // normalise lon to −180..+180°
+			return result;
+		}
+
 		public override string ToString() {
 			return $"{this.Latitude:00.000} / {this.Longitude:000.000}";
 		}
