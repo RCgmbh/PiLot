@@ -46,5 +46,18 @@ namespace PiLot.Model.Common {
 		public override string ToString() {
 			return $"{this.Year}-{this.Month}-{this.Day}";
 		}
+
+		/// <summary>
+		/// Returns whether two dates are equal
+		/// </summary>
+		public static Boolean Equals(Date pDate1, Date pDate2) {
+			return (
+				   (pDate1 != null)
+				&& (pDate2 != null)
+				&& (pDate1.Year == pDate2.Year)
+				&& (pDate1.Month == pDate2.Month)
+				&& (pDate1.Day == pDate2.Day)
+			);
+		}
 	}
 }
