@@ -38,6 +38,7 @@ PiLot.View.Logbook = (function () {
 		this.plhDistance = null;						// distance container
 		this.lblDistanceKm = null;						// the label for distance in KM
 		this.lblDistanceNm = null;						// the label for distance in NM
+		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
 		this.lnkEdit = null;							// link opening the editable view of a diary page
 		this.lnkEditTrack = null;						// link pointing to the tools page to edit the gps track
 		this.lnkPublish = null;							// the link to publish all data
@@ -121,6 +122,7 @@ PiLot.View.Logbook = (function () {
 			if (plhMap !== null) {
 				this.map = this.map || new PiLot.View.Map.Seamap(plhMap, { persistMapState: false });
 			}
+			this.pnlSpeedDiagram = logbookControl.querySelector('.pnlSpeedDiagram');
 			this.plhPhotos = logbookControl.querySelector('.diaryPhotos');
 			this.lnkEdit = logbookControl.querySelector('.lnkEdit');
 			RC.Utils.showHide(this.lnkEdit, PiLot.Model.Common.Permissions.canWrite());
@@ -228,6 +230,7 @@ PiLot.View.Logbook = (function () {
 			PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true).then(function (pTrack) {
 				this.showTrackAsync(pTrack);
 				this.showDistance(pTrack.getDistance());
+				this.showSpeedDiagram(pTrack);
 			}.bind(this));
 		},
 
@@ -386,6 +389,16 @@ PiLot.View.Logbook = (function () {
 					this.lblDistanceKm.innerText = km;
 					this.lblDistanceNm.innerText = nm;
 				}
+			}
+		},
+
+		/**
+		 * Shows the speed diagram for the track that has been loaded
+		 * @param {any} pTrack
+		 */
+		showSpeedDiagram: function (pTrack) {
+			if (this.pnlSpeedDiagram !== null) {
+				new PiLot.View.Tools.SpeedDiagram(this.pnlSpeedDiagram, pTrack);
 			}
 		},
 

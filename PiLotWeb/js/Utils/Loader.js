@@ -225,7 +225,7 @@ PiLot.Utils.Loader = (function () {
 					startAction = function () { new PiLot.View.Logbook.LogbookPage(PiLot.Templates.Logbook.logbookPage, false, true, 'Logbook'); };
 					break;
 				case pages.logbook.diary:
-					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts];
+					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts, toolsScripts, flotScripts];
 					startAction = function () { new PiLot.View.Logbook.LogbookPage(PiLot.Templates.Logbook.diaryPage, true, false, 'Diary'); };
 					break;
 				case pages.logbook.publish:
