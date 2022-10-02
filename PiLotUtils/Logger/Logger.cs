@@ -25,7 +25,7 @@ namespace PiLot.Utils.Logger {
 		/// This needs to be called by them who use the logger in order to properly set up logging.
 		/// The logger himself will not try to get any settings, as
 		/// </summary>
-		/// <param name="pLogFolder">The folder to log to. use ./blah for app-relative paths</param>
+		/// <param name="pLogFolder">The folder to log to. use ./blah or .\blah for app-relative paths</param>
 		/// <param name="pLogLevel">The log level</param>
 		/// <param name="pDoLogStackTrace">Set to true, to log the entire stack trace</param>
 		public static void SetupLogging(String pLogFolder, LogLevels pLogLevel, Boolean pDoLogStackTrace = false) {
@@ -117,20 +117,11 @@ namespace PiLot.Utils.Logger {
 
 		/// <summary>
 		/// Gets the absolute file path to the log folder, based on the "logFolder"
-		/// that has been initialized. If it starts with "." it's understood as
-		/// relative path, otherwise it's understood as absolute path.
+		/// that has been initialized.
 		/// </summary>
 		public static String LogFolderPath {
 			get {
-				String result = null;
-				if (!String.IsNullOrEmpty(Logger.logFolder)) {
-					if (Logger.logFolder[0] == '.') {
-						result = Path.Combine(AppContext.BaseDirectory, Logger.logFolder);
-					} else {
-						result = Logger.logFolder;
-					}
-				}
-				return result;
+				return Logger.logFolder;
 			}
 		}
 
