@@ -19,11 +19,11 @@ namespace PiLotDemoDataSender {
 
 		private static readonly PiLot.Model.Common.Date[] days = {
 			new PiLot.Model.Common.Date(2020, 6, 15),
-			new PiLot.Model.Common.Date(2020, 11, 11),
-			new PiLot.Model.Common.Date(2020, 6, 19) 
+			new PiLot.Model.Common.Date(2020, 6, 19),
+			new PiLot.Model.Common.Date(2020, 11, 11) 
 		};
 
-		private static readonly Int32[] routeIDs = { 2, 1, 3 };
+		private static readonly Int32[] routeIDs = { 2, 3, 1 };
 		private const String boatName = "cruiser320";
 
 		private static Timer timer = null;
@@ -102,20 +102,22 @@ namespace PiLotDemoDataSender {
 			Int32 index = Program.currentDay.Day % Program.days.Length;
 			PiLot.Model.Common.Date date = Program.days[index];
 			Program.dailyTrack = Program.GetDailyTrack(date);
+			Int32 hoursOffset = new Random().Next(0, 8);
+			Console.WriteLine($"Offset hours set to {hoursOffset}");
 			Int32 offsetDays = (Int32)(Program.currentDay.ToDateTime() - date.ToDateTime()).TotalDays;
-			Int32 offsetDaysInSeconds = offsetDays * 24 * 60 * 60 + 8 * 60 * 60;
-			Int64 offsetDaysInMs = (Int64)offsetDaysInSeconds * 1000;
+			Int32 offsetSeconds = offsetDays * 24 * 3600 + hoursOffset * 3600;
+			Int64 offsetMs = (Int64)offsetSeconds * 1000;
 			List<GpsRecord> records = Program.dailyTrack.GpsRecords;
 			foreach (GpsRecord aRecord in records){
-				aRecord.UTC = aRecord.UTC + offsetDaysInMs;
+				aRecord.UTC = aRecord.UTC + offsetMs;
 				aRecord.BoatTime = null;
 			}
 			LogbookDay logbookDay = new LogbookDataConnector().ReadLogbookDay(date);
 			Program.dailyLogbook = new LogbookDay(Program.currentDay);
 			if(logbookDay != null) {
 				foreach(LogbookEntry aLogbookEntry in logbookDay.LogbookEntries) {
-					aLogbookEntry.Utc += offsetDaysInSeconds;
-					aLogbookEntry.BoatTime += offsetDaysInSeconds;
+					aLogbookEntry.Utc += offsetSeconds;
+					aLogbookEntry.BoatTime += offsetSeconds;
 					aLogbookEntry.EntryID = null;
 					Program.dailyLogbook.SetEntry(aLogbookEntry);
 				}
@@ -132,16 +134,16 @@ namespace PiLotDemoDataSender {
 
 		private static async Task SendDataAsync(DateTime pStartTime) {
 			DateTime now = DateTime.UtcNow;
-			Int64 nowS = DateTimeHelper.ToUnixTime(now);
-			Int64 nowMs = nowS * 1000;
-			Int64 lastSendS = DateTimeHelper.ToUnixTime(Program.lastSendDate.Value);
-			Int64 lastSendMs = lastSendS * 1000;
+			Int64 nowSeconds = DateTimeHelper.ToUnixTime(now);
+			Int64 nowMs = nowSeconds * 1000;
+			Int64 lastSendSeconds = DateTimeHelper.ToUnixTime(Program.lastSendDate.Value);
+			Int64 lastSendMs = lastSendSeconds * 1000;
 			GpsRecord[] positions = Program.dailyTrack.GpsRecords.FindAll(r => ((r.UTC > lastSendMs) && (r.UTC <= nowMs))).ToArray();
 			Console.WriteLine($"Sending {positions.Length} gps positions");
 			if (positions.Length > 0) {
 				await Program.positionProxy.PutPositionsAsync(positions);
 			}
-			List<LogbookEntry> entries = dailyLogbook.LogbookEntries.FindAll(e => ((e.Utc > lastSendS) && (e.Utc <= nowS)));
+			List<LogbookEntry> entries = dailyLogbook.LogbookEntries.FindAll(e => ((e.Utc > lastSendSeconds) && (e.Utc <= nowSeconds)));
 			Console.WriteLine($"Sending {entries.Count} logbook entries");
 			if (entries.Count > 0) {
 				await logbookProxy.PutLogbookEntriesAsync(entries, currentDay, false);
