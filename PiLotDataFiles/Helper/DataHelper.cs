@@ -36,7 +36,7 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// Constructor for a specific data root path, e.g. when working with backup data
 		/// </summary>
-		/// <param name="pDataRootPath">the data root path, e.g. /home/backup/</param>
+		/// <param name="pDataRootPath">the data root path, e.g. /home/backup/, .\App_Data etc.</param>
 		public DataHelper(String pDataRootPath) {
 			if (pDataRootPath != null) {
 				this.dataRootPath = pDataRootPath;
