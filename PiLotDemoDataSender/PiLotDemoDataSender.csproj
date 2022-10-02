@@ -8,16 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="app.config" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="app.config">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\PiLotAPIProxy\PiLotAPIProxy.csproj" />
     <ProjectReference Include="..\PiLotDataFiles\PiLotDataFiles.csproj" />
     <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
