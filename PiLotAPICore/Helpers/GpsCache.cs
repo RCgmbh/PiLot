@@ -4,6 +4,7 @@ using System.Linq;
 
 using PiLot.Data.Files;
 using PiLot.Model.Nav;
+using PiLot.Utils.Logger;
 
 namespace PiLot.API.Helpers {
 
@@ -41,6 +42,7 @@ namespace PiLot.API.Helpers {
 			this.records = new List<GpsRecord>();
 			this.globalDataConnector = new GlobalDataConnector();
 			this.gpsDataConnector = new GPSDataConnector();
+			Logger.Log("GpsCache: New instance created", LogLevels.DEBUG);
 		}
 
 		/// <summary>
@@ -79,6 +81,7 @@ namespace PiLot.API.Helpers {
 		public List<GpsRecord> GetLatestRecords(Int64 pMinDateUTCMS) {
 			List<GpsRecord> result = this.records.FindAll(r => r.UTC > pMinDateUTCMS);
 			result.Sort();
+			Logger.Log($"GpsCache.GetLatestRecords: Having {this.records.Count} items in cache, returning {result.Count} items.", LogLevels.DEBUG);
 			return result;
 		}
 
@@ -92,6 +95,7 @@ namespace PiLot.API.Helpers {
 				pRecord.BoatTime = pRecord.UTC + utcOffset;
 				this.records.Insert(0, pRecord);
 				this.records.Sort((x, y) => y.UTC.CompareTo(x.UTC));
+				Logger.Log($"GpsCache.AddRecord: Having {this.records.Count} items in cache.", LogLevels.DEBUG);
 				this.CropRecords();
 				this.PersistLatest();
 			}
@@ -107,6 +111,7 @@ namespace PiLot.API.Helpers {
 		private void CropRecords() {
 			if (this.records.Count > MAXLENGTH) {
 				this.records.RemoveRange(MAXLENGTH - 1, this.records.Count - MAXLENGTH);
+				Logger.Log($"GpsCache.CropRecords: Having {this.records.Count} items in cache.", LogLevels.DEBUG);
 			}
 		}
 
