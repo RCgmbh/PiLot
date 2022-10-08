@@ -560,6 +560,19 @@ PiLot.Model.Logbook = (function () {
 	};
 
 	/**
+	 * Uploads a photo to the server
+	 * @param {Byte[]} pBytes - the image bytes as array
+	 * @param {String} pFilename - the original filename
+	 * @param {RC.Date.DateOnly} pDate - the image date
+	 */
+	var uploadPhotoAsync = async function (pBytes, pFilename, pDate) {
+		PiLot.log('PiLot.Logbook.Model.uploadPhotoAsync', 3);
+		const url = `/Photos?day=${pDate.toLuxon().toFormat('yyyy-MM-dd')}&fileName=${pFilename}`;
+		const result = await PiLot.Utils.Common.putToServerAsync(url, pBytes, true);
+		return result;
+	};
+
+	/**
 	 * Loads an array of objects from the server, representing the
 	 * configured publish targets.
 	 * @returns [{name, displayName}]
@@ -631,6 +644,7 @@ PiLot.Model.Logbook = (function () {
 		loadLogbookDayAsync: loadLogbookDayAsync,
 		loadCurrentBoatSetupAsync: loadCurrentBoatSetupAsync,
 		loadDailyImageCollectionAsync: loadDailyImageCollectionAsync,
+		uploadPhotoAsync: uploadPhotoAsync,
 		loadPublishTargetsAsync: loadPublishTargetsAsync,
 		loadDailyDataAsync: loadDailyDataAsync,
 		loadJobStatusAsync: loadJobStatusAsync,

@@ -34,11 +34,12 @@ PiLot.View.Logbook = (function () {
 		this.pnlDiary = null;							// The panel containing diary text and distance
 		this.tbDiary = null;							// textbox for diary content
 		this.lblDiary = null;							// readonly diary content
-		this.diaryFontSize = null;							// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
+		this.diaryFontSize = null;						// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
 		this.plhDistance = null;						// distance container
 		this.lblDistanceKm = null;						// the label for distance in KM
 		this.lblDistanceNm = null;						// the label for distance in NM
 		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
+		this.plhImageUpload = null;						// placeholder for the image upload
 		this.lnkEdit = null;							// link opening the editable view of a diary page
 		this.lnkEditTrack = null;						// link pointing to the tools page to edit the gps track
 		this.lnkPublish = null;							// the link to publish all data
@@ -124,6 +125,7 @@ PiLot.View.Logbook = (function () {
 			}
 			this.pnlSpeedDiagram = logbookControl.querySelector('.pnlSpeedDiagram');
 			this.plhPhotos = logbookControl.querySelector('.diaryPhotos');
+			this.plhImageUpload = logbookControl.querySelector('.plhImageUpload');
 			this.lnkEdit = logbookControl.querySelector('.lnkEdit');
 			RC.Utils.showHide(this.lnkEdit, PiLot.Model.Common.Permissions.canWrite());
 			this.lnkEditTrack = logbookControl.querySelector('.lnkEditTrack');
@@ -269,6 +271,7 @@ PiLot.View.Logbook = (function () {
 			this.showFriendlyDate();
 			this.showDiaryText();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
+			this.showImageUpload();
 			this.loadTrack();
 			this.loadPhotos();
 		},
@@ -398,7 +401,12 @@ PiLot.View.Logbook = (function () {
 		 */
 		showSpeedDiagram: function (pTrack) {
 			if (this.pnlSpeedDiagram !== null) {
-				new PiLot.View.Tools.SpeedDiagram(this.pnlSpeedDiagram, pTrack);
+				if (pTrack && pTrack.getPositionsCount() > 0) {
+					this.pnlSpeedDiagram.hidden = false;
+					new PiLot.View.Tools.SpeedDiagram(this.pnlSpeedDiagram, pTrack);
+				} else {
+					this.pnlSpeedDiagram.hidden = true;
+				}				
 			}
 		},
 
@@ -424,6 +432,13 @@ PiLot.View.Logbook = (function () {
 			this.logbookDay.setDiaryText(this.tbDiary.value);
 			this.logbookDay.saveDiaryTextAsync();
 		},
+
+		/** Shows the image upload component, if the placeholder is there */
+		showImageUpload: function () {
+			if (this.plhImageUpload !== null) {
+				new LogbookImageUpload(this.plhImageUpload, this.logbookDay);
+			}
+		}
 	};
 
 	/// Class LogbookEntries
@@ -926,6 +941,82 @@ PiLot.View.Logbook = (function () {
 			});
 		}
 	}
+
+	/**
+	 * A control to upload a photo into the logbook
+	 * @param {HTMLElement} pContainer - to container where the control will be added
+	 * @param {PiLot.Model.Nav.LogbookDay} pLogbookDay - the current LogbookDay
+	 */
+	var LogbookImageUpload = function (pContainer, pLogbookDay) {
+
+		this.container = pContainer;
+		this.logbookDay = pLogbookDay;
+		this.filePreviewReader = null;
+		this.fileDataReader = null;
+		this.fileImageUpload = null;
+		this.imgPreview = null;
+		this.btnSend = null;
+		this.pnlUploading = null;
+		this.pnlUploadSuccess = null;
+		this.pnlInvalidType = null;
+
+		this.initialize();
+	};
+
+	LogbookImageUpload.prototype = {
+
+		initialize: function () {
+			this.filePreviewReader = new FileReader();
+			this.filePreviewReader.onload = this.filePreviewReader_load.bind(this);
+			this.fileDataReader = new FileReader();
+			this.fileDataReader.onloadend = this.fileDataReader_loadend.bind(this)
+			this.draw();
+		},
+
+		fileImageUpload_change: function (e) {
+			if (this.fileImageUpload.files[0].type === "image/jpeg") {
+				this.pnlInvalidType.hidden = true;
+				this.filePreviewReader.readAsDataURL(this.fileImageUpload.files[0]);
+				this.imgPreview.hidden = true;
+			} else {
+				this.pnlInvalidType.hidden = false;
+			}
+		},
+
+		filePreviewReader_load: function (e) {
+			this.imgPreview.setAttribute('src', this.filePreviewReader.result);
+			this.imgPreview.hidden = false;
+			this.btnSend.hidden = false;
+			this.pnlUploadSuccess.hidden = true;
+		},
+
+		btnSend_click: function () {
+			this.fileDataReader.readAsArrayBuffer(this.fileImageUpload.files[0]);
+			this.btnSend.hidden = true;
+			this.pnlUploading.hidden = false;
+		},
+
+		fileDataReader_loadend: async function () {
+			const file = this.fileImageUpload.files[0];
+			await PiLot.Model.Logbook.uploadPhotoAsync(this.fileDataReader.result, file.name, this.logbookDay.getDay());
+			this.pnlUploading.hidden = true;
+			this.pnlUploadSuccess.hidden = false;
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookImageUpload);
+			this.container.appendChild(control);
+			this.fileImageUpload = control.querySelector('.fileImageUpload');
+			this.fileImageUpload.addEventListener('change', this.fileImageUpload_change.bind(this));
+			this.imgPreview = control.querySelector('.imgPreview');
+			this.btnSend = control.querySelector('.btnSend');
+			this.btnSend.addEventListener('click', this.btnSend_click.bind(this));
+			this.pnlUploading = control.querySelector('.pnlUploading');
+			this.pnlUploadSuccess = control.querySelector('.pnlUploadSuccess');
+			this.pnlInvalidType = control.querySelector('.pnlInvalidType');
+		}
+
+	};
 
 	/**
 	 * The publish page lists the logbook data and allows it to be published to

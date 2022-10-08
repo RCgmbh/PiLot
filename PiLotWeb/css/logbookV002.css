@@ -65,6 +65,8 @@
 
 .pnlJobInfo .pnlMessages{max-height:15em; overflow:auto;}
 
+.logbookImageUpload { display:flex; flex-direction:column; gap:0.5em; width:20em; }
+
 /* night styles for logbook */
 body.night .logbookBox{border-color:#999}
 body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }

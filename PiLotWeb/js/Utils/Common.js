@@ -124,10 +124,11 @@ PiLot.Utils.Common = {
 	 * toServerObject(), that function will be used to json serialize it.
 	 * @param {string} pApiPath - the relative Path, as in /Ping
 	 * @param {Object} pData - the data as object which will be jsonized, or null
+	 * @param {Boolean} pSendRawData - Set to true, if no jsonifying is wanted (e.g. when sending binary data)
 	 * @returns {Object} an object with {data, status}
 	 */
-	putToServerAsync: async function (pApiPath, pData = null) {
-		return await PiLot.Utils.Common.sendToServerAsync(pApiPath, pData, 'PUT', true, true);
+	putToServerAsync: async function (pApiPath, pData = null, pSendRawData = false) {
+		return await PiLot.Utils.Common.sendToServerAsync(pApiPath, pData, 'PUT', true, true, pSendRawData);
 	},
 
 	/**
@@ -159,24 +160,29 @@ PiLot.Utils.Common = {
 	 * @param {String} pMethod - the http method, e.g. 'PUT'
 	 * @param {Boolean} pLoginOnAuthError - if true (default), a login prompt is shown when recieving an auth error
 	 * @param {Boolean} pRetrAfterLogin - if set to true (default is false), the request will be re-sent when the login succeeds
+	 * @param {Boolean} pSendRawData - Set to true, if no jsonifying is wanted (e.g. when sending binary data)
 	 * @returns {Object} an object with {data: object, status: http code, ok: Boolean}
 	 */
-	sendToServerAsync: async function (pApiPath, pData, pMethod, pLoginOnAuthError = true, pRetryAfterLogin = false) {
+	sendToServerAsync: async function (pApiPath, pData, pMethod, pLoginOnAuthError = true, pRetryAfterLogin = false, pSendRawData = false) {
 		let result = { data: null, status: null, ok: false };
 		const url = PiLot.Utils.Common.toApiUrl(pApiPath);
 		const options = { method: pMethod, credentials: 'same-origin' };
-		const replacer = function (key, value) {
-			let result;
-			if ((value !== null) && (typeof value !== 'undefined') && (typeof value.toServerObject === 'function')) {
-				result = value.toServerObject();
-			} else {
-				result = value;
+		if (!pSendRawData) {
+			const replacer = function (key, value) {
+				let result;
+				if ((value !== null) && (typeof value !== 'undefined') && (typeof value.toServerObject === 'function')) {
+					result = value.toServerObject();
+				} else {
+					result = value;
+				}
+				return result;
+			};
+			if (pData !== null) {
+				options.headers = { 'Content-Type': 'application/json' };
+				options.body = JSON.stringify(pData, replacer);
 			}
-			return result;
-		};
-		if (pData !== null) {
-			options.headers = { 'Content-Type': 'application/json' };
-			options.body = JSON.stringify(pData, replacer);
+		} else {
+			options.body = pData;
 		}
 		const response = await fetch(url, options);
 		result.status = response.status;
