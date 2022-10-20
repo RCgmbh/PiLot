@@ -1125,7 +1125,11 @@ PiLot.Model.Nav = (function () {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		/// starts fetching the data
+		/**
+		 * starts fetching the data. We don't start the inverval yet, as the
+		 * first request against the Positions api might take a moment. Therefore 
+		 * the interval is crated only in the success handler.
+		 * */
 		start: function () {
 			if (this.interval === null) {
 				this.fetchDataAsync();
@@ -1144,7 +1148,8 @@ PiLot.Model.Nav = (function () {
 		// reads the position data from the API
 		fetchDataAsync: async function () {
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-			this.loadLatestPositionsAsync().then(positions => this.fetchDataSuccess(positions));
+			const positions = await this.loadLatestPositionsAsync();
+			this.fetchDataSuccess(positions);
 		},
 
 		/**
