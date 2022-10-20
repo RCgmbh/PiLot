@@ -77,6 +77,7 @@ PiLot.Templates.Logbook = {
 				<span class="block semiBold marginBottom" data-text="diary"></span>
 				<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 			</div>
+			<div class="plhLogbookPhotos dataContainerHalf paddingRight"></div>
 			<div class="plhImageUpload dataContainerHalf paddingRight"></div>
 		</div>`,
 
@@ -311,15 +312,24 @@ PiLot.Templates.Logbook = {
 	publishPagePhoto: `<div><img class="imgPhoto" /><div class="label"><input type="checkbox" class="cbSelectPhoto"><label class="lblName"></label></div></div>`,
 
 	logbookImageUpload: `
-		<div class="logbookImageUpload marginTop hCenter">
-			<h3>Image Upload</h3>
-			<input type="file" class="fileImageUpload" />
-			<img src="#" class="imgPreview" hidden />
-			<button class="btnSend" hidden>Send</button>
-			<div class="pnlUploading feedbackNeutral" hidden>Uploading...</div>
-			<div class="pnlUploadSuccess feedbackGood" hidden>Upload complete</div>
-			<div class="pnlInvalidType feedbackBad" hidden>Invalid type. only jpeg is supported.</div>
+		<div class="marginTop marginBottom hCenter">
+			<span class="semiBold block marginBottom" data-text="photoUpload"></span>
+			<div class="logbookImageUpload hCenter">
+				<input type="file" class="fileImageUpload" accept="image/jpeg" />
+				<img src="#" class="imgPreview" hidden />
+				<button class="btnSend" hidden data-text="upload"></button>
+				<div class="pnlUploading feedbackNeutral" hidden data-text="uploading"></div>
+				<div class="pnlUploadSuccess feedbackGood" hidden data-text="uploadComplete"></div>
+				<div class="pnlInvalidType feedbackBad" hidden data-text="uploadInvalidType"></div>
+			</div>
 		</div>
-	`
+	`,
+
+	logbookPhotos: `<div class="plhPhotos" style="display:flex;gap:1em; flex-direction:row;flex-wrap:wrap;justify-content:center"></div>`,
+
+	logbookPhoto: `<div style="width:10em; height:10em; display:flex; flex-direction:column; justify-content:center;">
+			<img class="imgPhoto" style="max-height:100%; max-width:100%; margin-left:auto; margin-right: auto;" />
+		</div>`
+
 
 };

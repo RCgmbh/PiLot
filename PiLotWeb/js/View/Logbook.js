@@ -39,7 +39,7 @@ PiLot.View.Logbook = (function () {
 		this.lblDistanceKm = null;						// the label for distance in KM
 		this.lblDistanceNm = null;						// the label for distance in NM
 		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
-		this.plhImageUpload = null;						// placeholder for the image upload
+		this.logbookPhotos = null;						// PiLot.View.Logbook.LogbookPhotos
 		this.lnkEdit = null;							// link opening the editable view of a diary page
 		this.lnkEditTrack = null;						// link pointing to the tools page to edit the gps track
 		this.lnkPublish = null;							// the link to publish all data
@@ -125,7 +125,14 @@ PiLot.View.Logbook = (function () {
 			}
 			this.pnlSpeedDiagram = logbookControl.querySelector('.pnlSpeedDiagram');
 			this.plhPhotos = logbookControl.querySelector('.diaryPhotos');
-			this.plhImageUpload = logbookControl.querySelector('.plhImageUpload');
+			const plhLogbookPhotos = logbookControl.querySelector('.plhLogbookPhotos');
+			if (plhLogbookPhotos !== null) {
+				this.logbookPhotos = new LogbookPhotos(plhLogbookPhotos);
+			}
+			const plhImageUpload = logbookControl.querySelector('.plhImageUpload');
+			if (plhImageUpload !== null) {
+				new LogbookImageUpload(plhImageUpload, this);
+			}
 			this.lnkEdit = logbookControl.querySelector('.lnkEdit');
 			RC.Utils.showHide(this.lnkEdit, PiLot.Model.Common.Permissions.canWrite());
 			this.lnkEditTrack = logbookControl.querySelector('.lnkEditTrack');
@@ -271,7 +278,6 @@ PiLot.View.Logbook = (function () {
 			this.showFriendlyDate();
 			this.showDiaryText();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
-			this.showImageUpload();
 			this.loadTrack();
 			this.loadPhotos();
 		},
@@ -326,10 +332,16 @@ PiLot.View.Logbook = (function () {
 			this.bindLnkEdit();
 			this.bindLnkEditTrack();
 			this.bindLnkPublish();
+			this.setLogbookPhotosDate();
 			this.saveDate();
 			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 			window.history.pushState({}, '', url);
 			this.load();
+		},
+
+		/** access for this.date */
+		getDate: function () {
+			return this.date;
 		},
 
 		/// saves the currently selected date to the user settings
@@ -433,10 +445,10 @@ PiLot.View.Logbook = (function () {
 			this.logbookDay.saveDiaryTextAsync();
 		},
 
-		/** Shows the image upload component, if the placeholder is there */
-		showImageUpload: function () {
-			if (this.plhImageUpload !== null) {
-				new LogbookImageUpload(this.plhImageUpload, this.logbookDay);
+		/** Sets the current date to the LogbookPhotos, if we have one */
+		setLogbookPhotosDate: function () {
+			if (this.logbookPhotos !== null) {
+				this.logbookPhotos.setDate(this.date);
 			}
 		}
 	};
@@ -466,7 +478,7 @@ PiLot.View.Logbook = (function () {
 			this.readOptions(pOptions);
 			this.findControls();
 			if (!this.isReadOnly) {
-				this.gpsObserver = new PiLot.Model.Nav.GPSObserver();
+				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({autoStart:false});
 			}
 		},
 
@@ -778,8 +790,9 @@ PiLot.View.Logbook = (function () {
 					let lat = null;
 					let lon = null;
 					if (latestPosition) {
-						lat = latestPosition.latLon.lat;
-						lon = latestPosition.latLon.lon;
+						const latLon = latestPosition.getLatLon();
+						lat = latLon.lat;
+						lon = latLon.lon;
 					}
 					this.showNavData(lat, lon, this.gpsObserver.getCOG(), this.gpsObserver.getSOG());
 				}
@@ -945,12 +958,12 @@ PiLot.View.Logbook = (function () {
 	/**
 	 * A control to upload a photo into the logbook
 	 * @param {HTMLElement} pContainer - to container where the control will be added
-	 * @param {PiLot.Model.Nav.LogbookDay} pLogbookDay - the current LogbookDay
+	 * @param {PiLot.View.Logbook.LogbookPage} pLogbookPage - the logbook page, needed to get the current date
 	 */
-	var LogbookImageUpload = function (pContainer, pLogbookDay) {
+	var LogbookImageUpload = function (pContainer, pLogbookPage) {
 
 		this.container = pContainer;
-		this.logbookDay = pLogbookDay;
+		this.logbookPage = pLogbookPage;
 		this.filePreviewReader = null;
 		this.fileDataReader = null;
 		this.fileImageUpload = null;
@@ -998,7 +1011,7 @@ PiLot.View.Logbook = (function () {
 
 		fileDataReader_loadend: async function () {
 			const file = this.fileImageUpload.files[0];
-			await PiLot.Model.Logbook.uploadPhotoAsync(this.fileDataReader.result, file.name, this.logbookDay.getDay());
+			await PiLot.Model.Logbook.uploadPhotoAsync(this.fileDataReader.result, file.name, this.logbookPage.getDate());
 			this.pnlUploading.hidden = true;
 			this.pnlUploadSuccess.hidden = false;
 		},
@@ -1015,7 +1028,63 @@ PiLot.View.Logbook = (function () {
 			this.pnlUploadSuccess = control.querySelector('.pnlUploadSuccess');
 			this.pnlInvalidType = control.querySelector('.pnlInvalidType');
 		}
+	};
 
+	var LogbookPhotos = function (pContainer) {
+		this.container = pContainer;
+		this.imageCollection = null;		// RC.ImageGallery.ImageCollection
+		this.plhPhotos = null;				// HTMLElement
+
+		this.initialize();
+	};
+
+	LogbookPhotos.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPhotos);
+			this.container.appendChild(control);
+			this.plhPhotos = this.container.querySelector('.plhPhotos');
+		},
+
+		loadImageCollectionAsync: async function (pDay) {
+			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDay);
+			this.plhPhotos.clear();
+			this.imageCollection.getImageNames().forEach(function (anImage) {
+				new LogbookPhoto(this.plhPhotos, anImage, this.imageCollection);
+			}.bind(this));			
+		},
+
+		setDate: function (pDate) {
+			this.loadImageCollectionAsync(pDate);
+		}
+	};
+
+	LogbookPhoto = function (pContainer, pImageName, pImageCollection) {
+		this.container = pContainer;					// HTMLElement
+		this.imageName = pImageName;					// String (the original image name)
+		this.imageCollection = pImageCollection;		// RC.ImageGallery.ImageCollection
+
+		this.initialize();
+	};
+
+	LogbookPhoto.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPhoto);
+			this.container.appendChild(control);
+			const image = control.querySelector('.imgPhoto');
+			const imageSize = Math.max(control.clientHeight, control.clientWidth);
+			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + this.imageName;
+			image.src = imageUrl;
+		}
 	};
 
 	/**
