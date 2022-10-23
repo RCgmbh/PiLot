@@ -28,10 +28,12 @@ namespace PiLot.Config {
 		public List<PublishTarget> ReadPublishTargets() {
 			List<PublishTarget> result;
 			FileInfo file = this.GetConfigFile();
-			if (file != null) {
+			if (file.Exists) {
 				String fileContent = File.ReadAllText(file.FullName);
 				result = JsonSerializer.Deserialize<List<PublishTarget>>(fileContent);
-			} else result = new List<PublishTarget>();
+			} else { 
+				result = new List<PublishTarget>();
+			}
 			return result;
 		}
 

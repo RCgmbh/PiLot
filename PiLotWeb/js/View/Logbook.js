@@ -3,17 +3,8 @@ PiLot.View = PiLot.View || {};
 
 PiLot.View.Logbook = (function () {
 
-	/// class LogbookPage, representing the page containing the logbook, either in editable form or in readonly form (a.k.a. diary page).
-	/// Parameters:
-	/// pTemplate: the template to be used to create the page, different templates for logbook and diary
-	/// pLogbookReadonly: if true, items are read only, no items can ge added
-	/// pSortLogbookEntriesDesc: sort entries by time descending, having the newest on top
-	/// pSettingsContext: a string key to use when storing the selected date.
-	var LogbookPage = function (pTemplate, pLogbookReadonly, pSortLogbookEntriesDesc, pSettingsContext) {
-		this.template = pTemplate						// the template used to draw the page
-		this.logbookReadonly = pLogbookReadonly			// if true, the logbook is readonly
-		this.sortDescending = pSortLogbookEntriesDesc	// if true, lobookEntries will be sorted descening (default: ascending)
-		this.settingsContext = pSettingsContext			// a key used to separate different user settings, e.g. one for the logbook, one for the diary
+	/// class DiaryPage, representing the page containing the diary.
+	var DiaryPage = function () {
 		this.currentBoatTime = null;					// the current boatTime, needed when creating new entries and for setting default date
 		this.logbookDay = null;							// the logbookDay being displayed
 		this.date = null;								// the RC.Date.DateOnly currently selected
@@ -21,8 +12,6 @@ PiLot.View.Logbook = (function () {
 
 		// controls
 		this.lblFriendlyDate = null;					// span showing the friendly date
-		this.lblLogbook = null;							// the title for the non-today logbook page
-		this.lblTodaysLogbook = null;					// the title to be shown if the current date is today
 		this.calendar = null;							// PiLot.View.Logbook.DiaryCalendar to select the date			
 		this.lnkPreviousDay = null;						// the link to go back one day
 		this.lnkNextDay = null;							// the link to go to the next day
@@ -39,7 +28,7 @@ PiLot.View.Logbook = (function () {
 		this.lblDistanceKm = null;						// the label for distance in KM
 		this.lblDistanceNm = null;						// the label for distance in NM
 		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
-		this.logbookPhotos = null;						// PiLot.View.Logbook.LogbookPhotos
+		this.plhImageUpload = null;						// placeholder where the image upload component will be added
 		this.lnkEdit = null;							// link opening the editable view of a diary page
 		this.lnkEditTrack = null;						// link pointing to the tools page to edit the gps track
 		this.lnkPublish = null;							// the link to publish all data
@@ -47,8 +36,7 @@ PiLot.View.Logbook = (function () {
 		this.initialize();
 	}
 
-	LogbookPage.diaryFontSizes = [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5];
-	LogbookPage.diaryLineHeights = [1.5, 1.5, 1.25, 1.25, 1.25, 1.25, 1.25];
+	DiaryPage.diaryFontSizes = [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5];
 
 	LogbookPage.prototype = {
 
@@ -81,63 +69,38 @@ PiLot.View.Logbook = (function () {
 
 		/// draws the page and finds the controls and binds handlers
 		draw: function () {
-			const logbookControl = PiLot.Utils.Common.createNode(this.template);
-			PiLot.Utils.Loader.getContentArea().appendChild(logbookControl);
-			this.lblFriendlyDate = logbookControl.querySelector('.lblFriendlyDate');
-			this.lblLogbook = logbookControl.querySelector('.lblLogbook');
-			this.lblTodaysLogbook = logbookControl.querySelector('.lblTodaysLogbook');
-			const divCalendar = logbookControl.querySelector('.logbookCalendar');
-			const calendarLink = logbookControl.querySelector('.lblCalendarLink');
-			const calendarDate = logbookControl.querySelector('.lblCalendarDate');
+			const diaryControl = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.diaryPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(diaryControl);
+			this.lblFriendlyDate = diaryControl.querySelector('.lblFriendlyDate');
+			const divCalendar = diaryControl.querySelector('.logbookCalendar');
+			const calendarLink = diaryControl.querySelector('.lblCalendarLink');
+			const calendarDate = diaryControl.querySelector('.lblCalendarDate');
 			const locale = PiLot.Utils.Language.getLocale();
 			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes(), locale);
-			if (divCalendar.classList.contains('diaryCalendar')) {
-				this.diaryInfoCache = new PiLot.Model.Logbook.DiaryInfoCache();
-				new PiLot.View.Logbook.DiaryCalendar(this.calendar, this.diaryInfoCache);
-			}
-			this.lnkPreviousDay = logbookControl.querySelector('.lnkPreviousDay');
-			this.lnkNextDay = logbookControl.querySelector('.lnkNextDay');
-			const options = { isReadOnly: this.logbookReadonly, sortDescending: this.sortDescending };
-			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(logbookControl, this.currentBoatTime, options);
-			this.pnlDiary = logbookControl.querySelector('.pnlDiary');
-			this.tbDiary = logbookControl.querySelector('.tbDiary');
-			if (this.tbDiary !== null) {
-				this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
-			}
-			const lnkBiggerText = logbookControl.querySelector('.lnkBiggerText');
-			if (lnkBiggerText !== null) {
-				lnkBiggerText.addEventListener('click', this.lnkBiggerText_click.bind(this));
-			}
-			const lnkSmallerText = logbookControl.querySelector('.lnkSmallerText');
-			if (lnkSmallerText !== null) {
-				lnkSmallerText.addEventListener('click', this.lnkSmallerText_click.bind(this));
-			}
-			this.lblDiary = logbookControl.querySelector('.lblDiary');
+			this.diaryInfoCache = new PiLot.Model.Logbook.DiaryInfoCache();
+			new PiLot.View.Logbook.DiaryCalendar(this.calendar, this.diaryInfoCache);
+			this.lnkPreviousDay = diaryControl.querySelector('.lnkPreviousDay');
+			this.lnkNextDay = diaryControl.querySelector('.lnkNextDay');
+			const options = { isReadOnly: true, sortDescending: false };
+			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(diaryControl, this.currentBoatTime, options);
+			this.pnlDiary = diaryControl.querySelector('.pnlDiary');
+			this.tbDiary = diaryControl.querySelector('.tbDiary');
+			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
+			diaryControl.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
+			diaryControl.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
+			this.lblDiary = diaryControl.querySelector('.lblDiary');
 			this.applyDiaryFontSize();
-			this.plhDistance = logbookControl.querySelector('.plhDistance');
-			if (this.plhDistance !== null) {
-				this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
-				this.lblDistanceNm = this.plhDistance.querySelector('.lblDistanceNm');
-			}
-			const plhMap = logbookControl.querySelector('.plhMap');
-			if (plhMap !== null) {
-				this.map = this.map || new PiLot.View.Map.Seamap(plhMap, { persistMapState: false });
-			}
-			this.pnlSpeedDiagram = logbookControl.querySelector('.pnlSpeedDiagram');
-			this.plhPhotos = logbookControl.querySelector('.diaryPhotos');
-			const plhLogbookPhotos = logbookControl.querySelector('.plhLogbookPhotos');
-			if (plhLogbookPhotos !== null) {
-				this.logbookPhotos = new LogbookPhotos(plhLogbookPhotos);
-			}
-			const plhImageUpload = logbookControl.querySelector('.plhImageUpload');
-			if (plhImageUpload !== null) {
-				new LogbookImageUpload(plhImageUpload, this);
-			}
-			this.lnkEdit = logbookControl.querySelector('.lnkEdit');
+			this.plhDistance = diaryControl.querySelector('.plhDistance');
+			this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
+			this.lblDistanceNm = this.plhDistance.querySelector('.lblDistanceNm');
+			this.map = this.map || new PiLot.View.Map.Seamap(diaryControl.querySelector('.plhMap'), { persistMapState: false });
+			this.pnlSpeedDiagram = diaryControl.querySelector('.pnlSpeedDiagram');
+			this.plhImageUpload = diaryControl.querySelector('.plhImageUpload');
+			this.lnkEdit = diaryControl.querySelector('.lnkEdit');
 			RC.Utils.showHide(this.lnkEdit, PiLot.Model.Common.Permissions.canWrite());
-			this.lnkEditTrack = logbookControl.querySelector('.lnkEditTrack');
+			this.lnkEditTrack = diaryControl.querySelector('.lnkEditTrack');
 			RC.Utils.showHide(this.lnkEditTrack, PiLot.Model.Common.Permissions.canWrite());
-			this.lnkPublish = logbookControl.querySelector('.lnkPublish');
+			this.lnkPublish = diaryControl.querySelector('.lnkPublish');
 			RC.Utils.showHide(this.lnkPublish, PiLot.Model.Common.Permissions.hasSystemAccess());
 		},
 
@@ -156,7 +119,7 @@ PiLot.View.Logbook = (function () {
 		/** Loads the date from the user settings, if there is any  */
 		loadDateFromSetting: function () {
 			let result = null;
-			let settingValue = PiLot.Utils.Common.loadUserSetting('PiLot.View.Logbook.' + this.settingsContext + '.currentDate');
+			let settingValue = PiLot.Utils.Common.loadUserSetting('PiLot.View.Logbook.diary.currentDate');
 			if (settingValue) {
 				let settingDate = RC.Date.DateOnly.fromObject(settingValue);
 				if (settingDate) {
@@ -226,49 +189,49 @@ PiLot.View.Logbook = (function () {
 
 		/// Loads the LogbookDay and shows it in the LogbookDayForm.
 		/// If no LogbookDay is found, a new LogbookDay is created
-		load: function () {
-			PiLot.Model.Logbook.loadLogbookDayAsync(this.date)
-				.then(result => this.showData(result || new PiLot.Model.Logbook.LogbookDay(this.date)));
+		loadLogbookDayAsync: async function () {
+			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.date);
+			if (logbookDay === null){
+				logbookDay = new PiLot.Model.Logbook.LogbookDay(this.date);
+			}
+			this.showData(logbookDay);
 		},
 
 		/// tries to load the track and show it on the map
-		loadTrack: function () {
+		loadTrackAsync: async function () {
 			this.showDistance(null);
 			let startMS = this.date.toLuxon().toMillis();
 			let endMS = this.date.addDays(1).toLuxon().toMillis();
-			PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true).then(function (pTrack) {
-				this.showTrackAsync(pTrack);
-				this.showDistance(pTrack.getDistance());
-				this.showSpeedDiagram(pTrack);
-			}.bind(this));
+			const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
+			this.showTrackAsync(pTrack);
+			this.showDistance(pTrack.getDistance());
+			this.showSpeedDiagram(pTrack);
 		},
 
 		/** If we have a photos panel, this tries to load photos for the day,
 		 * and creates an image gallery with the photos shows them in the image gallery
 		 */
-		loadPhotos: async function () {
-			if (this.plhPhotos !== null) {
-				let imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.logbookDay.getDay());
-				RC.Utils.showHide(this.plhPhotos, true);
-				if (imageCollection.getImagesCount() > 0) {
-					if (this.imageGallery !== null) {
-						this.imageGallery.setImageCollection(imageCollection);
-					} else {
-						let galleryOptions = {
-							paddingTop: 20,
-							paddingRight: 20,
-							paddingBottom: 20,
-							paddingLeft: 20,
-							imageSpaceH: 5,
-							imageSpaceV: 5,
-							minHeightUsed: 0.75,
-							autoFocus: false
-						};
-						this.imageGallery = new RC.ImageGallery.Gallery(this.plhPhotos, imageCollection, galleryOptions);
-					}
+		loadPhotosAsync: async function () {
+			let imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.logbookDay.getDay());
+			RC.Utils.showHide(this.plhPhotos, true);
+			if (imageCollection.getImagesCount() > 0) {
+				if (this.imageGallery !== null) {
+					this.imageGallery.setImageCollection(imageCollection);
 				} else {
-					RC.Utils.showHide(this.plhPhotos, false);
+					let galleryOptions = {
+						paddingTop: 20,
+						paddingRight: 20,
+						paddingBottom: 20,
+						paddingLeft: 20,
+						imageSpaceH: 5,
+						imageSpaceV: 5,
+						minHeightUsed: 0.75,
+						autoFocus: false
+					};
+					this.imageGallery = new RC.ImageGallery.Gallery(this.plhPhotos, imageCollection, galleryOptions);
 				}
+			} else {
+				RC.Utils.showHide(this.plhPhotos, false);
 			}
 		},
 
@@ -278,8 +241,8 @@ PiLot.View.Logbook = (function () {
 			this.showFriendlyDate();
 			this.showDiaryText();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
-			this.loadTrack();
-			this.loadPhotos();
+			this.loadTrackAsync();
+			this.loadPhotosAsync();
 		},
 
 		/// shows the currently selected date in friendly form
@@ -287,13 +250,6 @@ PiLot.View.Logbook = (function () {
 			if (this.lblFriendlyDate !== null) {
 				const locale = PiLot.Utils.Language.getLocale();
 				this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale(locale).toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
-			}
-			let isToday = this.date.contains(this.currentBoatTime.now());
-			if (this.lblTodaysLogbook !== null) {
-				RC.Utils.showHide(this.lblTodaysLogbook, isToday);
-			}
-			if (this.lblLogbook !== null) {
-				RC.Utils.showHide(this.lblLogbook, !isToday);
 			}
 		},
 
@@ -304,7 +260,7 @@ PiLot.View.Logbook = (function () {
 		},
 
 		changeDiaryFontSize: function (pChangeBy) {
-			this.diaryFontSize = Math.max(Math.min(LogbookPage.diaryFontSizes.length - 1, this.diaryFontSize + pChangeBy), 0);
+			this.diaryFontSize = Math.max(Math.min(DiaryPage.diaryFontSizes.length - 1, this.diaryFontSize + pChangeBy), 0);
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Logbook.diaryFontSize', this.diaryFontSize);
 			this.applyDiaryFontSize();
 		},
@@ -314,11 +270,10 @@ PiLot.View.Logbook = (function () {
 				if (this.diaryFontSize === null) {
 					this.diaryFontSize = PiLot.Utils.Common.loadUserSetting('PiLot.View.Logbook.diaryFontSize');
 					if (this.diaryFontSize === null) {
-						this.diaryFontSize = LogbookPage.diaryFontSizes.indexOf(1);
+						this.diaryFontSize = DiaryPage.diaryFontSizes.indexOf(1);
 					}
 				}
-				this.pnlDiary.style.fontSize = LogbookPage.diaryFontSizes[this.diaryFontSize] + 'em';;
-				//this.pnlDiary.style.lineHeight = LogbookPage.diaryLineHeights[this.diaryFontSize] + 'em';
+				this.pnlDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
 			}
 		},
 
@@ -336,7 +291,7 @@ PiLot.View.Logbook = (function () {
 			this.saveDate();
 			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 			window.history.pushState({}, '', url);
-			this.load();
+			this.loadLogbookDayAsync();
 		},
 
 		/** access for this.date */

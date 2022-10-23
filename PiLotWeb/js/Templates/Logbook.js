@@ -56,29 +56,12 @@ PiLot.Templates.Logbook = {
 	],
 
 	logbookPage: `
-		<div class="contentPadding">		
-			<div class="dataContainerFull marginBottom logbookHeader">
-				<h1 class="inlineBlock">
-					<span class="lblTodaysLogbook hidden" data-text="todaysLogbook"></span>
-					<span class="lblLogbook hidden" data-text="logbook"></span>
-				</h1>
-				<div class="inlineBlock marginRight dateContainer">
-					<a href="#" class="lnkPreviousDay"><i class="icon-arrow-left2"></i></a><span 
-						class="lblCalendarDate lblCalendarLink inlineBlock marginLeft marginRight pointer"></span><a
-						href="#" class="lnkNextDay"><i class="icon-arrow-right2"></i></a>
-					<div class="logbookCalendar" hidden></div>
-				</div>
-			</div>
+		<div class="contentPadding">
+			<h1 class="inlineBlock" data-text="logbook"></h1>
 			<div class="dataContainerHalf paddingRight">
 				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 				<div class="plhLogbookEntries logbookEntries"></div>
 			</div>
-			<div class="dataContainerHalf paddingRight">
-				<span class="block semiBold marginBottom" data-text="diary"></span>
-				<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-			</div>
-			<div class="plhLogbookPhotos dataContainerHalf paddingRight"></div>
-			<div class="plhImageUpload dataContainerHalf paddingRight"></div>
 		</div>`,
 
 	diaryPage: `
