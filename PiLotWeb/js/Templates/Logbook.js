@@ -86,7 +86,10 @@ PiLot.Templates.Logbook = {
 						<span data-text="distance"></span>: <span class="lblDistanceKm"></span> <span data-text="km"></span> / <span class="lblDistanceNm"></span> <span data-text="nm"></span>
 					</div>
 				</div>
+				<span class="block semiBold marginBottom" data-text="diary" hidden></span>
+				<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false" hidden></textarea>
 				<div class="plhLogbookEntries logbookEntries"></div>
+				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
 				<div class="plhMap navMap borderDark marginBottom"></div>

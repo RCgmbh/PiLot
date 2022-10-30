@@ -55,8 +55,9 @@ PiLot.Model.Logbook = (function () {
 		 * Automagically creates a new entry, using all data that is available
 		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - the current setup or null
 		 * @param {PiLot.Model.Nav.GpsObserver} pGpsObserver - a gps observer, not null
+		 * @param {boolean} pDoSave - if true, the new entry will be saved automatically
 		 */
-		autoAddEntryAsync: async function (pBoatSetup, pGpsObserver) {
+		autoAddEntryAsync: async function (pBoatSetup, pGpsObserver, pDoSave) {
 			const title = pBoatSetup ? pBoatSetup.getName() : '';
 			const meteoData = new PiLot.Model.Meteo.DataLoader();
 			const result = await Promise.all([
@@ -76,7 +77,9 @@ PiLot.Model.Logbook = (function () {
 			}
 			logbookEntry.setCOG(pGpsObserver.getCOG());
 			logbookEntry.setSOG(pGpsObserver.getSOG());
-			await logbookEntry.saveAsync();
+			if (pDoSave) {
+				await logbookEntry.saveAsync();
+			}
 		},
 
 		/// sorts the entries by time. Default is Ascending, except for pDescending
@@ -155,8 +158,9 @@ PiLot.Model.Logbook = (function () {
 	};
 
 	/**
-	 * Loads the lates BoatSetup that was used no later than pDate for the current
-	 * BoatConfig
+	 * Loads the latest BoatSetup that was used no later than pDate for the current
+	 * BoatConfig. Returns both, the BoatSetup and the BoatConfig. This is useful, 
+	 * because me might get no boatSetup, but then still get the current boatConfig.
 	 * @param {date} pDate - only setups no later than pDate will be returned
 	 * @returns {Object} an object {currentBoatConfig, latestBoatSetup}
 	 */

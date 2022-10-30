@@ -704,7 +704,7 @@ PiLot.View.Boat = (function () {
 		createLogbookEntryAsync: async function (pBoatSetup) {
 			const today = RC.Date.DateOnly.fromObject(this.boatTime.now());
 			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(today) || new PiLot.Model.Logbook.LogbookDay(today);
-			await logbookDay.autoAddEntryAsync(pBoatSetup, this.gpsObserver);
+			await logbookDay.autoAddEntryAsync(pBoatSetup, this.gpsObserver, true);
 			const loader = PiLot.Utils.Loader;
 			const page = loader.createPageLink(loader.pages.logbook.logbook);
 			window.location = `${page}&editLatest=true&d=today`;
