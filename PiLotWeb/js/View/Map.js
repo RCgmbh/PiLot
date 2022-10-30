@@ -1,6 +1,7 @@
 ﻿var PiLot = PiLot || {};
 PiLot.View = PiLot.View || {};
 
+/** In order to not have it all in the Nav namespace, there is a separate namespace for map specific views. */
 PiLot.View.Map = (function () {
 
 	/**

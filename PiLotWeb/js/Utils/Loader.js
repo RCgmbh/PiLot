@@ -135,6 +135,7 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/Model/Logbook.js', priority: 10 },
 		{ url: 'js/Templates/Logbook.js', priority: 10 },
 		{ url: 'js/View/Logbook.js', priority: 10 },
+		{ url: 'js/View/Diary.js', priority: 10 },
 		{ url: 'js/3rdParty/divers/zingtouch.js', priority: 5}
 	];
 
