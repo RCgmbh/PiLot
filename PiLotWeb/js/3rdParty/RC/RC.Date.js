@@ -51,6 +51,7 @@ RC.Date.DateHelper = {
 	 * date: if pDay was provided, the day plus the time as luxon
 	 * @param {String} pTimeString - The string to parse
 	 * @param {Object} pDay - an optional date to add the time to, luxon and RC.Date should work
+	 * @return {Object} Object with minutes: int, date: luxon
 	 */
 	parseTime: function (pTimeString, pDay) {
 		let result = {minutes: 0, date: null};

@@ -32,7 +32,7 @@ PiLot.Model.Admin = (function () {
 
 	/**
 	 * Gets the list of all services the web gui is allowed to see and manage
-	 * @returns {String[]}
+	 * @return {String[]}
 	 * */
 	var getServicesAsync = async function () {
 		return await PiLot.Utils.Common.getFromServerAsync ('/Services');
@@ -45,7 +45,7 @@ PiLot.Model.Admin = (function () {
 
 		/**
 		 * Gets the list of known or available wireless networks 
-		 * @returns {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
+		 * @return {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
 		getWiFiInfosAsync:  async function () {
 			return await PiLot.Utils.Common.getFromServerAsync('/WiFi');

@@ -161,7 +161,7 @@ PiLot.Utils.Common = {
 	 * @param {Boolean} pLoginOnAuthError - if true (default), a login prompt is shown when recieving an auth error
 	 * @param {Boolean} pRetrAfterLogin - if set to true (default is false), the request will be re-sent when the login succeeds
 	 * @param {Boolean} pSendRawData - Set to true, if no jsonifying is wanted (e.g. when sending binary data)
-	 * @returns {Object} an object with {data: object, status: http code, ok: Boolean}
+	 * @return {Object} an object with {data: object, status: http code, ok: Boolean}
 	 */
 	sendToServerAsync: async function (pApiPath, pData, pMethod, pLoginOnAuthError = true, pRetryAfterLogin = false, pSendRawData = false) {
 		let result = { data: null, status: null, ok: false };
