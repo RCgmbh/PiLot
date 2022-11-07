@@ -168,6 +168,18 @@ RC.Date.DateOnly.prototype = {
 		return result;
 	},
 
+	/**
+	 * @param {RC.Date.DateOnly} pOther - the date to compare to
+	 * @returns {Boolean} true, if date, month and year are the same
+	 */
+	equals: function (pOther) {
+		return (
+			this.day === pOther.day
+			&& this.month === pOther.month
+			&& this.year === pOther.year
+		);
+	},
+
 	/// returns a luxon object with the given day, month, year. The object
 	/// will always be in the UTC Timezone
 	toLuxon: function () {
