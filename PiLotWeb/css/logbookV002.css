@@ -5,6 +5,7 @@
 
 .logbookEntries { max-width: 41em; }
 .logbookEntry { }
+.dialogPanel.logbookEntry{ width:100vw; max-width:36em; }
 .logbookEntry .titleContainer { display: flex; width: 100%; gap:0.5em; }
 .logbookEntry .tbTime {width:4em; }
 .logbookEntry .tbTitle {width:8em; flex-grow:1; }

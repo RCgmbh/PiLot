@@ -56,8 +56,10 @@ PiLot.Templates.Logbook = {
 	],
 
 	logbookPage: `
-		<div class="contentPadding">
-			<h1 class="inlineBlock" data-text="logbook"></h1>
+		<div class="contentPadding fullHeight">
+			<div class="dataContainerFull">
+				<h1 class="inlineBlock" data-text="logbook"></h1>
+			</div>
 			<div class="dataContainerHalf paddingRight">
 				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 				<div class="plhLogbookEntries logbookEntries"></div>
@@ -67,7 +69,7 @@ PiLot.Templates.Logbook = {
 	logbookEntryContainer:`<div></div>`,
 
 	logbookEntryForm: `
-		<div class="logbookEntry marginBottom">
+		<div class="logbookEntry dialogPanel hCenter marginAll paddingAllSmall hCenter" hidden>
 			<div class="marginBottomSmall titleContainer">
 				<input type="text" class="tbTime" placeholder="hh:mm"
 				/><input type="text" class="tbTitle" data-title="title"

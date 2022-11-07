@@ -134,6 +134,7 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/3rdParty/RC/RC.ImageGallery.js', priority: 10 },
 		{ url: 'js/Model/Logbook.js', priority: 10 },
 		{ url: 'js/Templates/Logbook.js', priority: 10 },
+		{ url: 'js/Templates/Diary.js', priority: 10 },
 		{ url: 'js/View/Logbook.js', priority: 10 },
 		{ url: 'js/View/Diary.js', priority: 10 },
 		{ url: 'js/3rdParty/divers/zingtouch.js', priority: 5}
@@ -223,15 +224,15 @@ PiLot.Utils.Loader = (function () {
 					break;
 				case pages.logbook.logbook:
 					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts];
-					startAction = function () { new PiLot.View.Logbook.LogbookPage(PiLot.Templates.Logbook.logbookPage, false, true, 'Logbook'); };
+					startAction = function () { new PiLot.View.Logbook.LogbookPage(); };
 					break;
 				case pages.logbook.diary:
 					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts, toolsScripts, flotScripts];
-					startAction = function () { new PiLot.View.Logbook.DiaryPage(); };
+					startAction = function () { new PiLot.View.Diary.DiaryPage(); };
 					break;
 				case pages.logbook.publish:
 					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts];
-					startAction = function () { new PiLot.View.Logbook.PublishLogbookPage(); };
+					startAction = function () { new PiLot.View.Diary.PublishDiaryPage(); };
 					break;
 				case pages.media.games:
 					dependencies = [defaultScripts, mediaScripts];

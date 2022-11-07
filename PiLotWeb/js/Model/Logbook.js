@@ -215,6 +215,15 @@ PiLot.Model.Logbook = (function () {
 			this.observers = RC.Utils.initializeObservers(['changeTime', 'save']);			
 		},
 
+		/**
+		 * Registers an observer that will be called when pEvent happens.
+		 * @param {String} pEvent - 'changeTime', 'save'
+		 * @param {Function} pCallback - The method to call 
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
 		/** @return {PiLot.Model.Logbook.LogbookDay} */
 		getLogbookDay: function () {
 			return this.logbookDay;
@@ -259,12 +268,13 @@ PiLot.Model.Logbook = (function () {
 		 */
 		setTimeOfDay: function (pSeconds, pBoatTimeObject) {
 			let boatTimeObject;
+			let previousMS = null;
 			if (this.dateTime) {
 				boatTimeObject = new PiLot.Model.Common.BoatTime(this.dateTime.offset, false);
+				previousMS = this.dateTime.toMillis()
 			} else {
 				boatTimeObject = pBoatTimeObject;
 			}
-			let previousMS = this.dateTime.toMillis();
 			this.dateTime = boatTimeObject.fromSeconds(this.logbookDay.getDay().totalSeconds() + pSeconds);
 			if(this.dateTime.toMillis() !== previousMS){
 				RC.Utils.notifyObservers(this, this.observers, 'changeTime', null);

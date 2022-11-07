@@ -3,9 +3,70 @@ PiLot.View = PiLot.View || {};
 
 PiLot.View.Logbook = (function () {
 
-	var LogbookPage = function () { };
+	/**
+	 * The LogbookPage allows to enter and edit logbook entries for the current day. This
+	 * is very much like the open paperbook on the nav table. For editing data of past days,
+	 * the diary page is used. This one here has the sole goal of quickly and correctly 
+	 * create new logbook entries.
+	 * */
+	var LogbookPage = function () {
 
-	LogbookPage.prototype = {};
+		this.logbookDay = null;			// business object
+		this.boatTime = null;			// business object
+		this.gpsObserver = null;		// business object
+
+		this.editForm = null;			// control
+		this.logbookEntries = null;		// control
+
+		this.initializeAsync();
+	};
+
+	LogbookPage.prototype = {
+
+		initializeAsync: async function () {
+			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			this.gpsObserver = new PiLot.Model.Nav.GPSObserver(null, this.boatTime);
+			await this.loadLogbookDayAsync();
+			this.draw();
+		},
+
+		/**
+		 * Click handler. This also makes sure the logbookDay is reloaded, if the day has 
+		 * changed since the page loaded, so that we don't mess things up around midnight.
+		 * */
+		lnkAddEntry_click: async function () {
+			const today = this.boatTime.today();
+			if (!this.logbookDay.getDay().equals(today)) {
+				await this.loadLogbookDayAsync();
+			}
+			this.editForm.showDefaultValuesAsync(this.logbookDay);
+		},
+
+		/** Loads the current logbookDay, of if none exists, creates a new one */
+		loadLogbookDayAsync: async function () {
+			this.logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.boatTime.today());
+			if (this.logbookDay === null) {
+				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(this.boatTime.today());
+			}
+		},
+
+		/** draws the form and shows the current day's logbookEntries */
+		draw: function () {
+			const logbookPage = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(logbookPage);
+			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
+			const plhLogbookEntries = logbookPage.querySelector('.plhLogbookEntries');
+			this.logbookEntries = new LogbookEntries(plhLogbookEntries, this.editForm, this.boatTime, { isReadOnly: false, sortDescending: true });
+			logbookPage.querySelector('.lnkAddEntry').addEventListener('click', this.lnkAddEntry_click.bind(this));
+			this.showLogbookDay();
+		},
+
+		/** Shows the current day's logbookEntries */
+		showLogbookDay: function () {
+			this.logbookEntries.showLogbookDay(this.logbookDay)
+		}
+
+	};
 	
 	/**
 	 * Class LogbookEntries
@@ -33,7 +94,7 @@ PiLot.View.Logbook = (function () {
 
 		initialize: function (pOptions) {
 			this.readOptions(pOptions);
-			//this.editForm = this.editForm || new PiLot.View.Logbook.LogbookEntryForm()
+			this.editForm = this.editForm || new PiLot.View.Logbook.LogbookEntryForm()
 		},
 
 		/** reads the options and assigns the values to instance variables */
@@ -65,7 +126,7 @@ PiLot.View.Logbook = (function () {
 			this.showData();
 		},
 
-		/** shows the data.  */
+		/** Clears and re-draws the entries  */
 		showData: function () {
 			this.container.clear();
 			this.logbookDay.sortEntries(false);
@@ -77,8 +138,9 @@ PiLot.View.Logbook = (function () {
 
 		/** Shows a LogBookEntry */
 		showLogbookEntry: function (pLogbookEntry,) {
-			const form = new PiLot.View.Logbook.LogbookEntryControl(
+			const control = new PiLot.View.Logbook.LogbookEntryControl(
 				this.container,
+				this.editForm,
 				pLogbookEntry,
 				this.isReadOnly
 			);
@@ -124,7 +186,8 @@ PiLot.View.Logbook = (function () {
 	LogbookEntryControl.prototype = {
 
 		initialize: function () {
-			this.draw()
+			this.logbookEntry.on('save', this.logbookEntry_save.bind(this));
+			this.draw();
 		},
 
 		/** handles click on the delete icon by showing a confirmation message, then deleting the entry */
@@ -141,7 +204,7 @@ PiLot.View.Logbook = (function () {
 			this.editForm.showLogbookEntryAsync(this.logbookEntry);
 		},
 
-		/** handler for the change event of the item, refreshes the data */
+		/** handler for the save event of the item, refreshes the data */
 		logbookEntry_save: function(){
 			this.showData();
 		},
@@ -443,7 +506,7 @@ PiLot.View.Logbook = (function () {
 		/** shows the form and sets focus on the first field */
 		showForm: function(){
 			this.control.hidden = false;
-			this.tbTime.focuse();
+			this.tbTime.focus();
 		},
 
 		/** hides the form */
