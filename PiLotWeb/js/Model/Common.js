@@ -30,9 +30,14 @@ PiLot.Model.Common = (function () {
 
 	BoatTime.prototype = {
 
-		/// returns the current boat time as luxon DateTime.
+		/** @returns {DateTime} the current boat time as luxon DateTime */
 		now: function () {
 			return this.fromMillisUTC(this.utcNowUnix() * 1000);
+		},
+
+		/** @returns {RC.Date.DateOnly} the current day */
+		today: function () {
+			return RC.Date.DateOnly.fromObject(this.now());
 		},
 
 		/// gets UTC now, corrected by clientErrorOffsetSeconds, therefore
@@ -144,12 +149,14 @@ PiLot.Model.Common = (function () {
 		return result;
 	};
 
-	/// Gets the current boatTime either from the instance or from the server
-	/// Usage: PiLot.Model.Common.getCurrentBoatTymeAsync.then({b=> blah;});
-	/// or const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-	/// This also measures the entire time of the request/response, and adds
-	/// a part of it to correct the client error in order to get a best
-	/// possible quess of the client/server difference
+	/**
+	 * Gets the current boatTime either from the instance or from the server
+	 * Usage: PiLot.Model.Common.getCurrentBoatTymeAsync.then({b=> blah;});
+	 * or const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+	 * This also measures the entire time of the request/response, and adds
+	 * a part of it to correct the client error in order to get a best
+	 * possible quess of the client/server difference
+	 * */
 	async function getCurrentBoatTimeAsync() {
 		if (currentBoatTime === null) {
 			const requestTime = luxon.DateTime.utc();
