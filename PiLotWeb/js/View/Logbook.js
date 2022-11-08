@@ -94,7 +94,8 @@ PiLot.View.Logbook = (function () {
 
 		initialize: function (pOptions) {
 			this.readOptions(pOptions);
-			this.editForm = this.editForm || new PiLot.View.Logbook.LogbookEntryForm()
+			this.editForm = this.editForm || new PiLot.View.Logbook.LogbookEntryForm();
+			this.editForm.on('save', this.editForm_save.bind(this));
 		},
 
 		/** reads the options and assigns the values to instance variables */
@@ -105,31 +106,35 @@ PiLot.View.Logbook = (function () {
 			}
 		},
 
+		editForm_save: function () {
+			this.showData();
+		},
+
 		/** Generic handler for all kinds of changes of a logbookDay, just re-shows the data */
 		logbookDay_change: function(){
-			this.showData();
+			//this.showData();
 		},
 
 		/**
 		 * Shows the logbookEntries for pLogbookDay. Binds event handlers to make sure
 		 * we refresh the view when LogbookEntries are changed or removed (we don't need
-		 * to observe "addEntry", as this is alwasy followed by 'changeEntryTime')
+		 * to observe "addEntry", as this is always followed by 'changeEntryTime')
 		 */
 		showLogbookDay: function (pLogbookDay) {
-			if(this.logbookDay){
-				this.logbookDay.off();
-			}
+			//if(this.logbookDay){
+			//	this.logbookDay.off();
+			//}
 			this.logbookDay = pLogbookDay;
-			const eventHandler = this.logbookDay_change.bind(this);
-			this.logbookDay.on('deleteEntry', eventHandler);
-			this.logbookDay.on('changeEntryTime', eventHandler);
+			//const eventHandler = this.logbookDay_change.bind(this);
+			//this.logbookDay.on('deleteEntry', eventHandler);
+			//this.logbookDay.on('changeEntryTime', eventHandler);
 			this.showData();
 		},
 
 		/** Clears and re-draws the entries  */
 		showData: function () {
 			this.container.clear();
-			this.logbookDay.sortEntries(false);
+			this.logbookDay.sortEntries(this.sortDescending);
 			const logbookEntries = this.logbookDay.getLogbookEntries();
 			for (let i = 0; i < logbookEntries.length; i++) {
 				this.showLogbookEntry(logbookEntries[i]);
@@ -144,6 +149,7 @@ PiLot.View.Logbook = (function () {
 				pLogbookEntry,
 				this.isReadOnly
 			);
+			control.showData();
 		}
 	};
 
@@ -186,7 +192,6 @@ PiLot.View.Logbook = (function () {
 	LogbookEntryControl.prototype = {
 
 		initialize: function () {
-			this.logbookEntry.on('save', this.logbookEntry_save.bind(this));
 			this.draw();
 		},
 
@@ -204,11 +209,7 @@ PiLot.View.Logbook = (function () {
 			this.editForm.showLogbookEntryAsync(this.logbookEntry);
 		},
 
-		/** handler for the save event of the item, refreshes the data */
-		logbookEntry_save: function(){
-			this.showData();
-		},
-		
+	
 		/** creates the display form */ 
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryControl);
@@ -327,6 +328,8 @@ PiLot.View.Logbook = (function () {
 		this.boatSetupForm = null;			/// PiLot.View.Boat.BoatSetupForm
 		this.btnSave = null;
 		this.btnCancel = null;
+
+		this.observers = null;				// observers used by RC.Utils observers pattern
 		
 		this.initialize();
 	};
@@ -334,7 +337,17 @@ PiLot.View.Logbook = (function () {
 	LogbookEntryForm.prototype = {
 
 		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['save']);
 			this.draw();
+		},
+
+		/**
+		 * Registers an observer that will be called when pEvent happens.
+		 * @param {String} pEvent - 'save'
+		 * @param {Function} pCallback - The method to call 
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		/** handles clicks on the save button */
@@ -343,6 +356,7 @@ PiLot.View.Logbook = (function () {
 			await this.readInputAsync();
 			await this.logbookEntry.saveAsync();
 			this.hide();
+			RC.Utils.notifyObservers(this, this.observers, 'save', this.logbookEntry);
 		},
 
 		/** handles clicks on the cancel button */
@@ -404,11 +418,12 @@ PiLot.View.Logbook = (function () {
 		 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - The logbook day needed to create a new item
 		 * */
 		showDefaultValuesAsync: async function(pLogbookDay){
+			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.showTime(boatTime.now());
-			this.tbTitle = '';
-			this.tbNotes = '';
+			this.tbTitle.value = '';
+			this.tbNotes.value = '';
 			const meteo = await new PiLot.Model.Meteo.DataLoader().loadLogbookMeteoAsync();
 			this.showMeteo(meteo);
 			let lat = null;
@@ -423,7 +438,7 @@ PiLot.View.Logbook = (function () {
 				
 			}
 			this.showNavData(lat, lon, this.gpsObserver.getCOG(), this.gpsObserver.getSOG());
-			this.tbLog = '';
+			this.tbLog.value = '';
 			await this.showLatestBoatSetupAsync();
 			this.showForm();
 		},
@@ -432,14 +447,15 @@ PiLot.View.Logbook = (function () {
 		 * Shows an empty form. Only the boatSetup is preset based on the latest setup of the current logbookDay
 		 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - The logbook day needed to create a new item
 		 * */
-		showEmptyFormAsync: async function(pLogbookDay){
+		showEmptyFormAsync: async function (pLogbookDay) {
+			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			this.showTime(null);
-			this.tbTitle = '';
-			this.tbNotes = '';
+			this.tbTitle.value = '';
+			this.tbNotes.value = '';
 			this.showMeteo({});
 			this.showNavData(null, null, null, null);
-			this.tbLog = '';
+			this.tbLog.value = '';
 			await this.showLatestBoatSetupAsync();
 			this.showForm();
 		},

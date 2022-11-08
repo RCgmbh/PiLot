@@ -13,7 +13,7 @@ PiLot.Model.Logbook = (function () {
 		this.day = pDay;					// the day as DateOnly, in BoatTime
 		this.diaryText = '';				// the diary text for this day, as String
 		this.logbookEntries = null;			// the array of logook entries
-		this.observers = null;				// observers used by RC.Utils observers pattern
+		//this.observers = null;				// observers used by RC.Utils observers pattern
 		this.initialize();
 	};
 
@@ -21,7 +21,7 @@ PiLot.Model.Logbook = (function () {
 	LogbookDay.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['addEntry', 'deleteEntry', 'changeEntryTime']);
+			//this.observers = RC.Utils.initializeObservers(['addEntry', 'deleteEntry', 'changeEntryTime']);
 			this.logbookEntries = new Array();
 		},
 
@@ -30,24 +30,24 @@ PiLot.Model.Logbook = (function () {
 		 * @param {String} pEvent - 'addEntry', 'deleteEntry', 'changeEntry'
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
+		/*on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-		},
+		},*/
 
 		/** Removes ALL observers for a ALL Events */
-		off: function(){
+		/*off: function(){
 			RC.Utils.removeObservers(this.observers, 'addEntry');
 			RC.Utils.removeObservers(this.observers, 'deleteEntry');
 			RC.Utils.removeObservers(this.observers, 'changeEntryTime');
-		},
+		},*/
 
 		/**
 		 * Handler for changes of any of the logbookEntries, fires the changeEntry event
 		 * @param {PiLot.Model.Logbook.LogbookEntry} pEntry 
 		 */
-		logbookEntry_changeTime: function(pEntry){
+		/*logbookEntry_changeTime: function(pEntry){
 			RC.Utils.notifyObservers(this, this.observers, 'changeEntryTime', pEntry);
-		},
+		},*/
 
 		/** @return {RC.Date.DateOnly} */
 		getDay: function () {
@@ -81,8 +81,8 @@ PiLot.Model.Logbook = (function () {
 				entry = new PiLot.Model.Logbook.LogbookEntry(this);
 			}
 			this.logbookEntries.push(entry);
-			RC.Utils.notifyObservers(this, this.observers, 'addEntry', entry);
-			entry.on('changeTime', this.logbookEntry_changeTime.bind(this));
+			//RC.Utils.notifyObservers(this, this.observers, 'addEntry', entry);
+			//entry.on('changeTime', this.logbookEntry_changeTime.bind(this));
 			return entry;
 		},
 
@@ -102,7 +102,7 @@ PiLot.Model.Logbook = (function () {
 			if (index > -1) {
 				this.logbookEntries.splice(index, 1);
 			}
-			RC.Utils.notifyObservers(this, this.observers, 'deleteEntry', null);
+			//RC.Utils.notifyObservers(this, this.observers, 'deleteEntry', null);
 		},
 
 		/**
@@ -204,7 +204,7 @@ PiLot.Model.Logbook = (function () {
 		this.meteo = {};				// an anonymous object containing meteo data
 		this.boatSetup = null			// a PiLot.Model.Boat.BoatSetup representing the boatSetup at the time of this entry
 		this.notes = null;				// additional text for longer comments
-		this.observers = null;			// observers used by RC.Utils observers pattern
+		//this.observers = null;			// observers used by RC.Utils observers pattern
 		this.initialize();
 	};
 
@@ -212,7 +212,7 @@ PiLot.Model.Logbook = (function () {
 	LogbookEntry.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['changeTime', 'save']);			
+			//this.observers = RC.Utils.initializeObservers(['changeTime', 'save']);			
 		},
 
 		/**
@@ -220,9 +220,9 @@ PiLot.Model.Logbook = (function () {
 		 * @param {String} pEvent - 'changeTime', 'save'
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
+		/*on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-		},
+		},*/
 
 		/** @return {PiLot.Model.Logbook.LogbookDay} */
 		getLogbookDay: function () {
@@ -268,17 +268,17 @@ PiLot.Model.Logbook = (function () {
 		 */
 		setTimeOfDay: function (pSeconds, pBoatTimeObject) {
 			let boatTimeObject;
-			let previousMS = null;
+			//let previousMS = null;
 			if (this.dateTime) {
 				boatTimeObject = new PiLot.Model.Common.BoatTime(this.dateTime.offset, false);
-				previousMS = this.dateTime.toMillis()
+				//previousMS = this.dateTime.toMillis()
 			} else {
 				boatTimeObject = pBoatTimeObject;
 			}
 			this.dateTime = boatTimeObject.fromSeconds(this.logbookDay.getDay().totalSeconds() + pSeconds);
-			if(this.dateTime.toMillis() !== previousMS){
-				RC.Utils.notifyObservers(this, this.observers, 'changeTime', null);
-			}			
+			//if(this.dateTime.toMillis() !== previousMS){
+			//	RC.Utils.notifyObservers(this, this.observers, 'changeTime', null);
+			//}			
 		},
 
 		getTitle: function () {
@@ -397,7 +397,7 @@ PiLot.Model.Logbook = (function () {
 			const result = await PiLot.Utils.Common.putToServerAsync(`/Logbook/entry`, this);
 			if (result.ok) {
 				this.entryId = result.data.entryId;
-				RC.Utils.notifyObservers(this, this.observers, 'save', null);
+				//RC.Utils.notifyObservers(this, this.observers, 'save', null);
 			} else {
 				PiLot.Utils.Common.log(`Error saving LogbookEntry`, 0);
 			}
