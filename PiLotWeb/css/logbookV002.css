@@ -39,8 +39,6 @@
 .logbookBox .labelIcon { width: 1.5em; display: inline-block; }
 .logbookBox .labelIcon i { font-size: 1.25em; }
 .logbookBox .inlineTextbox { border-style: initial; padding-right: 0.125em; }
-.logbookEntry .buttons { display:flex; flex-wrap:wrap; gap: 1em; }
-.logbookEntry .buttons .linkButton { flex-grow: 1; flex-basis:8em;}
 .logbookMeteo { background-color: #fafafa; }
 .logbookNav { background-color: #fafafa; }
 .logbookBoat { width: 10em; height: 11em; padding: 0em; position:relative; }

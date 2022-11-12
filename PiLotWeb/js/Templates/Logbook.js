@@ -69,7 +69,7 @@ PiLot.Templates.Logbook = {
 	logbookEntryContainer:`<div></div>`,
 
 	logbookEntryForm: `
-		<div style="position:fixed;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0, 0, 0, 0.75); z-index:3500;" class="vCenter" hidden>
+		<div class="overlay vCenter" hidden>
 			<div class="logbookEntry dialogPanel hCenter marginAll paddingAllSmall hCenter">
 				<div class="marginBottomSmall titleContainer">
 					<input type="text" class="tbTime" placeholder="hh:mm"
@@ -77,7 +77,6 @@ PiLot.Templates.Logbook = {
 					/><a href="#" class="btnDeleteEntry inlineBlock" data-title="delete"><i class="icon-bin"></i></a>
 				</div>
 				<div class="logbookBoxes editable marginBottomSmall">
-					<div class="plhBoatSetupForm hidden"></div>
 					<div class="plhBoatSetup logbookBox logbookBoat"></div>
 					<div class="data">
 						<div class="logbookBox logbookMeteo">
@@ -120,9 +119,9 @@ PiLot.Templates.Logbook = {
 					</div>	
 				</div>
 				<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" data-title="remarks"></textarea>
-				<div class="buttons">
-					<a href="#" class="btnCancel block linkButton" data-text="cancel"></a>
-					<a href="#" class="btnSave block linkButton" data-text="save"></a>
+				<div class="buttons reverse">
+					<a href="#" class="btnSave linkButton bold" data-text="save"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>
 			</div>
 		</div>`,

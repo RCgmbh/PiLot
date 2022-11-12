@@ -111,6 +111,8 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 .dialogPanel.round { border-radius:0.25em; }
 body.night .dialogPanel { background-color: black; }
 
+.overlay { position:fixed;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0, 0, 0, 0.75); z-index:3500; }
+
 .sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
 .sideMenu,
 .sideMenu a.expandCollapse, .sideMenu a.expandCollapse:hover, .sideMenu a.expandCollapse:visited, 
@@ -299,6 +301,10 @@ a.linkButton.active {color:#FFBF49;}
 button.linkButton { padding-top:0em; }
 .linkButton.narrow { min-width:1.75em; }
 
+.buttons { display:flex; flex-wrap:wrap; gap: 1em; }
+.buttons.reverse {  flex-direction:row-reverse; }
+.buttons .linkButton { flex-grow: 1; flex-basis:8em;}
+
 a.tile { display:block; float:left; display:table; text-align:center; text-decoration:none; color:#000; border:1px solid #666; border-radius:0.5em;}
 a.tile.big {margin:1em; height:12em; width:12em;  }
 a.tile.big { transition: color 0.2s, background-color 0.2s; }
@@ -386,8 +392,6 @@ th.right, td.right { text-align:right !important;}
 .boatConfigSlider > .configNameFrame{height: 1.5em; text-align: center; font-size: 1.5em;}
 .boatConfigSlider > .imageFrame { height: 400px; width: 360px; border: 3px solid black; overflow: hidden; display: flex; margin-bottom: 1em;}
 .boatConfigSlider > .imageFrame > img { height: 100%; }
-.boatConfigSlider > .buttons { display: flex; justify-content: space-between; }
-.boatConfigSlider > .buttons > .linkButton { flex-grow: 1; }
 
 /* start page control for boat setup */
 .startPageBoat { flex-grow: 1; display: flex; flex-direction: row; flex-wrap: wrap; }

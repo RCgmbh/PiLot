@@ -62,13 +62,14 @@ PiLot.View.Boat = (function () {
 	/// a config file on the server. It expects a BoatImageConfig. Clicking
 	/// the link triggers pOnClick
 	var BoatImageLink = function (pBoatImageConfig, pContainer, pOnClick) {
-		this.container = pContainer;				/// the HTMLElement where this will be added
-		this.onClick = pOnClick;					/// a click handler that will be bound directly onto the svg object
-		this.boatImageConfig = pBoatImageConfig;	/// a config containing the imageUrl for the boat image
-		this.boatSetup = null;						/// the boat setup to be shown in the image
-		this.imageObject = null;					/// the HTMLElement representation of the <object>
-		this.imageSvgDoc = null;					/// the document element of the svg object; null until this.imageLoaded
-		this.imageLoaded = false;					/// set to true, as soon as the svg image is loaded
+		this.container = pContainer;				// the HTMLElement where this will be added
+		this.onClick = pOnClick;					// a click handler that will be bound directly onto the svg object
+		this.boatImageConfig = pBoatImageConfig;	// a config containing the imageUrl for the boat image
+		this.boatSetup = null;						// the boat setup to be shown in the image
+		this.imageObject = null;					// the HTMLElement representation of the <object>
+		this.imageSvgDoc = null;					// the document element of the svg object; null until this.imageLoaded
+		this.imageSvg = null;						// the svg element of the image; null until this.imageLoaded
+		this.imageLoaded = false;					// set to true, as soon as the svg image is loaded
 		this.observers = null;
 		this.initialize();
 	};
@@ -83,7 +84,11 @@ PiLot.View.Boat = (function () {
 			this.draw();
 		},
 
-		/// registers an observer which will be called when pEvent happens
+		/**
+		 * Registers an observer that will be called when pEvent happens.
+		 * @param {String} pEvent - 'imageLoaded'
+		 * @param {Function} pCallback - The method to call
+		 * */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
@@ -95,17 +100,20 @@ PiLot.View.Boat = (function () {
 			this.loadImage();
 		},
 
-		/// handles changes in the boatSetupForm, Expecting the sender
-		/// to be the boatSetupForm
-		boatSetupForm_change: function (pSender, pArg) {
+
+		/** handle the "apply" event of the form, by refreshing the image */
+		boatSetupForm_apply: function (pSender, pArg) {
 			this.showBoatSetup(pSender.getBoatSetup());
 		},
 
-		/// this fires when the image is loaded. As it is also triggered when
-		/// the object is added without the data being set, we need to check
-		/// for the svg element being there
+		/**
+		 * This fires when the image is loaded. As it is also triggered when the object is added without
+		 * the data being set, we need to check for the svg element being there
+		 * */
 		image_load: function () {
-			if (this.imageObject.contentDocument.querySelector('svg')) {
+			this.imageSvg = this.imageObject.contentDocument.querySelector('svg');
+			//if (this.imageObject.contentDocument.querySelector('svg')) {
+			if (this.imageSvg) {
 				PiLot.log('BoatImageLink: image loaded', 3);
 				this.imageLoaded = true;
 				RC.Utils.notifyObservers(this, this.observers, 'imageLoaded', null);
@@ -119,18 +127,19 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/// click handler for the image, calls the onClick function, if
-		/// there is any.
+		/** click handler for the image, calls the onClick function, if there is any. */
 		image_click: function () {
 			if (typeof this.onClick === 'function') {
 				this.onClick.call();
 			}
 		},
 
-		/// loads the svg object, if it hasn't been loaded before. As soon as
-		/// it's loaded, if this.onClick is not null, this.onClick will be 
-		/// attached to the svg itselft, and a pointer cursor style will be
-		/// attached to the svg dom element within the svg object
+		/**
+		 * loads the svg object, if it hasn't been loaded before. As soon as
+		 * it's loaded, if this.onClick is not null, this.onClick will be 
+		 * attached to the svg itselft, and a pointer cursor style will be
+		 * attached to the svg dom element within the svg object
+		 * */
 		loadImage: function () {
 			if (this.boatImageConfig !== null) {
 				PiLot.log('BoatImageLink: loading svg image', 3);
@@ -138,7 +147,7 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/// applies the current boat setup to the image
+		/** applies the current boat setup to the image */
 		applyBoatSetup: function () {
 			if (this.imageLoaded && (this.boatSetup !== null)) {
 				PiLot.log('BoatImageLink: applying Boat setup', 3);
@@ -150,9 +159,11 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/// creates or refreshes the image, showing a certain setup, if the setup
-		/// refers to the same boat config as this.
-		/// pSetup is a PiLot.Model.Boat.BoatSetup
+		/**
+		 * creates or refreshes the image, showing a certain setup, if the setup
+		 * refers to the same boat config as this.
+		 * @param {PiLot.Model.Boat.BoatSetup} - pSetup
+		 * */
 		showBoatSetup: function (pSetup) {
 			if (pSetup !== null) {
 				PiLot.log('BoatImageLink: showing Boat setup', 3);
@@ -167,58 +178,78 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/// this shows the state of one feature on the image. it hides all
-		/// feature guis that are not associated to that pStateId and shows all
-		/// that are associated to pStateId
+		/**
+		 * This shows the state of one feature on the image. it hides all
+		 * feature guis that are not associated to that pStateId and shows all
+		 * that are associated to pStateId
+		 * @param {Number} pFeatureId
+		 * @param {Number} pStateId
+		 * */
 		showFeatureState: function (pFeatureId, pStateId) {
-			var boatSvg = this.imageObject.contentDocument.querySelector('svg');
-			if (boatSvg !== null) {
-				var featureGuis = this.boatImageConfig.getFeatureGuis(pFeatureId);
+			//let boatSvg = this.imageObject.contentDocument.querySelector('svg');
+			//if (boatSvg !== null) {
+			if (this.imageSvg !== null) {
+				let featureGuis = this.boatImageConfig.getFeatureGuis(pFeatureId);
 				if (featureGuis !== null) {
 					// we first hide all guis for inactive features
-					this.showHideFeatureGui(boatSvg, featureGuis, pStateId, false);
+					this.showHideFeatureGui(featureGuis, pStateId, false);
 					// then we show the guis for all active features. This can't be done
 					// in the first loop as some guis could be hidden again afterwards
-					this.showHideFeatureGui(boatSvg, featureGuis, pStateId, true);
+					this.showHideFeatureGui(featureGuis, pStateId, true);
 				}
 			} else {
 				PiLot.log('boatSvg is null', 2);
 			}
 		},
 
-		showHideFeatureGui: function (pBoatSvg, pFeatureGuis, pCurrentStateId, pDoShow) {
+		/**
+		 * Shows or hides an element of the image based on the state of the corresponding feature
+		 * @param {Map} pFeatureGuis - [featureId, Map[stateId, svgObjectId]]
+		 * @param {Number} pCurrentStateId - The current state of the feature to showHide
+		 * @param {Boolean} pDoShow - true to show, false to hide
+		 */
+		showHideFeatureGui: function (pFeatureGuis, pCurrentStateId, pDoShow) {
 			pFeatureGuis.forEach(function (pGuis, pStateId) {
 				if (pDoShow === (pStateId === pCurrentStateId)) {
 					pGuis.split(';').forEach(function (aGui) {
-						var element = pBoatSvg.getElementById(aGui);
+						let element = this.imageSvg.getElementById(aGui);
 						if (element !== null) {
 							element.style.display = pDoShow ? 'block' : 'none';
 						} else {
 							PiLot.log('Unknown element: ' + aGui, 0);
 						}
-					});
+					}.bind(this));
 				}
-			});
+			}.bind(this));
 		},
 
-		/// attaches a boat setup form which will be shown when clicking the image
+		/**
+		 * Attaches a boat setup form which will be shown when clicking the image,
+		 * and observe its "apply" event, so that we can the refresh the image
+		 * based on the form's current setup
+		 * */
 		attachForm: function (pBoatSetupForm) {
 			this.onClick = function () {
-				pBoatSetupForm.showHide();
+				pBoatSetupForm.show();
 			};
-			this.showBoatSetup(pBoatSetupForm.getBoatSetup());
-			pBoatSetupForm.on('change', this.boatSetupForm_change.bind(this));
+			//this.showBoatSetup(pBoatSetupForm.getBoatSetup());
+			pBoatSetupForm.on('apply', this.boatSetupForm_apply.bind(this));
 		},
 
-		/// detaches a boatSetupForm, so that nothing happens when clicking the
-		/// image, and the image does not change when changing the form
+		/** 
+		 * Detaches a boatSetupForm, so that nothing happens when clicking the
+		 * image, and the image does not change when changing the form
+		 * */
 		detachForm: function (pBoatSetupForm) {
 			this.onClick = null;
-			pBoatSetupForm.off('change');
+			pBoatSetupForm.off('apply');
 		},
 
-		/// sets a custom handler to be called on click. If a BoatSetupForm
-		/// has been attached before, it will likely not work anymore
+		/**
+		 * Sets a custom handler to be called on click. If a BoatSetupForm
+		 * has been attached before, it will likely not work anymore
+		 * @param {Function} pHandler - the onclick handler
+		 * */
 		setOnClick: function (pHandler) {
 			this.onClick = pHandler;
 			if (this.imageSvgDoc) {
@@ -238,14 +269,13 @@ PiLot.View.Boat = (function () {
 	/// with dropdowns for the featureStates
 	/// @param pBoatConfig: the boat config, for which the features will be shown
 	/// @param pContainer: a HTMLElement object to which the form will be appended
-	/// @param pShowSaveButton: if true, a button will be shown at the end of the form, triggering the "save" event
-	var BoatSetupForm = function (pBoatConfig, pContainer, pShowSaveButton = false) {
+	var BoatSetupForm = function (pBoatConfig, pContainer) {
 		this.boatConfig = pBoatConfig;							// the boat config, containing all features and states
 		this.boatSetup = null;								 	// the current boat setup, a PiLot.Model.Boat.BoatSetup
 		this.container = pContainer;							// the container containing this, HTMLElement
+		this.control = null;
 		this.plhFeatures = null;								// the placeholder where we will add the selectors
-		this.showSaveButton = pShowSaveButton;					// decides whether to show the save button
-		this.selectors = null;									// a map with key = featureId, value = dropdown control ($)
+		this.selectors = null;									// a map with key = featureId, value = dropdown control
 		this.observers = null;									// functions to call when settings change
 		this.initialize();
 	};
@@ -255,39 +285,39 @@ PiLot.View.Boat = (function () {
 		initialize: function () {
 			this.selectors = new Map();
 			this.initializeObservers();
-			this.bindGlobalHandlers();
 			this.draw();
 		},
 
-		bindGlobalHandlers: function () {
-			document.body.addEventListener('click', this.body_click.bind(this));
-			this.container.addEventListener('click', this.container_click.bind(this));
-		},
-
 		initializeObservers: function () {
-			this.observers = RC.Utils.initializeObservers(['show', 'change', 'save', 'close']);
+			//this.observers = RC.Utils.initializeObservers(['show', 'change', 'save', 'close']); // add cancel?
+			this.observers = RC.Utils.initializeObservers(['show', 'hide', 'apply']);
 		},
 
-		body_click: function (event) {
-			$(this.container).fadeOut('fast');
-			RC.Utils.notifyObservers(this, this.observers, 'close', this);
+		control_keydown: function (e) {
+			console.log(e);
+			switch (e.key) {
+				case "Escape":
+					this.cancel();
+					break;
+				case "Enter":
+					this.apply();
+					break;
+			}
 		},
 
-		lnkSave_click: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'save', this);
+		btnOk_click: function () {
+			this.apply();
 		},
 
-		/// stops propagation for all clicks within the container, so that 
-		/// we don't close the form by triggering body_click
-		container_click: function (event) {
-			event.stopPropagation();
+		btnCancel_click: function () {
+			this.cancel();			
 		},
 
 		/// handles changes to a dropdown with feature states
 		selFeatureStates_change: function (pFeatureId, pDropdown) {
 			const stateId = Number(pDropdown.value);
 			this.boatSetup.setFeatureState(pFeatureId, stateId);
-			RC.Utils.notifyObservers(this, this.observers, 'change', pFeatureId);
+			//RC.Utils.notifyObservers(this, this.observers, 'change', pFeatureId);
 		},
 
 		/// registers an observer which will be called when pEvent happens
@@ -300,29 +330,49 @@ PiLot.View.Boat = (function () {
 			RC.Utils.removeObservers(this.observers, pEvent);
 		},
 
-		showHide: function () {
-			if (RC.Utils.isVisible(this.container)) {
-				$(this.container).fadeOut('fast');
-				RC.Utils.notifyObservers(this, this.observers, 'hide', this);
-			} else {
-				$(this.container).fadeIn('fast');
-				RC.Utils.notifyObservers(this, this.observers, 'show', this);
-			}
-		},
-
 		/// draws the control based on two templates, one for the container
 		/// of the entire control, one for the repeating section of dropdowns
 		/// for the feature states
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
-			this.container.append(control);
-			this.plhFeatures = control.querySelector('.plhFeatures');
-			const lnkSave = control.querySelector('.lnkSave');
-			RC.Utils.toggleClass(lnkSave, 'hidden', !this.showSaveButton);
-			lnkSave.addEventListener('click', this.lnkSave_click.bind(this));
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
+			this.container.append(this.control);
+			this.control.addEventListener("keydown", this.control_keydown.bind(this));
+			this.plhFeatures = this.control.querySelector('.plhFeatures');
+			const btnOk = this.control.querySelector('.btnBoatSetupOk');
+			btnOk.addEventListener('click', this.btnOk_click.bind(this));
+			const btnCancel = this.control.querySelector('.btnBoatSetupCancel');
+			btnCancel.addEventListener('click', this.btnCancel_click.bind(this));
 			if (this.boatConfig !== null) {
 				this.drawSelectors();
 			}
+		},
+
+		/** this just fires the apply event and closes the form. Nothin happens, if it's not observed */
+		apply: function () {
+			this.readInput();
+			this.hide();
+			RC.Utils.notifyObservers(this, this.observers, 'apply', this);
+		},
+
+		cancel: function () {
+			this.showBoatSetup(this.boatSetup);
+			this.hide();
+		},
+
+		/** Shows the form and focuses on the first field */
+		show: function () {
+			this.control.hidden = false;
+			const firstSelector = this.plhFeatures.querySelector('select');
+			if (firstSelector) {
+				firstSelector.focus();
+			}
+			RC.Utils.notifyObservers(this, this.observers, 'show', this);
+		},
+
+		/** Hides the form */
+		hide: function () {
+			this.control.hidden = true;
+			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
 		},
 
 		/// sets the boatConfig and draws the feature selectors if necessary
@@ -339,7 +389,7 @@ PiLot.View.Boat = (function () {
 				this.plhFeatures.removeChild(this.plhFeatures.lastChild);
 			}
 			this.selectors.clear();
-			this.boatConfig.getFeatures().forEach(function (pFeature, pFeatureKey) {
+			this.boatConfig.getFeatures().forEach(function (pFeature, pFeatureId) {
 				var featureSelect = RC.Utils.stringToNode(PiLot.Templates.Boat.boatFeatureSelect);
 				this.plhFeatures.append(featureSelect);
 				RC.Utils.setText(featureSelect.querySelector('.lblFeatureName'), pFeature.getName());
@@ -347,14 +397,14 @@ PiLot.View.Boat = (function () {
 				pFeature.getStates().forEach(function (aState) {
 					selFeatureStates.append(new Option(aState.getName(), aState.getStateId()));
 				});
-				selFeatureStates.addEventListener('change', this.selFeatureStates_change.bind(this, pFeatureKey, selFeatureStates));
-				this.selectors.set(pFeatureKey, selFeatureStates);
+				//selFeatureStates.addEventListener('change', this.selFeatureStates_change.bind(this, pFeatureId, selFeatureStates));
+				this.selectors.set(pFeatureId, selFeatureStates);
 			}.bind(this));
 		},
 
 		/// sets and shows a boat setup defined by a PiLot.Model.Boat.BoatSetup, if the setup matches
 		/// the current boat config
-		setBoatSetup: function (pSetup) {
+		showBoatSetup: function (pSetup) {
 			if (pSetup) {
 				if (this.boatConfig === null) {
 					this.setBoatConfig(pSetup.getBoatConfig());
@@ -370,6 +420,13 @@ PiLot.View.Boat = (function () {
 					}
 				}
 			}
+		},
+
+		readInput: function () {
+			this.selectors.forEach(function (v, k, m) {
+				const stateId = Number(v.value);
+				this.boatSetup.setFeatureState(k, stateId);
+			}.bind(this));
 		},
 
 		/// returns a map with key = featureId and value = stateId for the 
@@ -612,7 +669,7 @@ PiLot.View.Boat = (function () {
 				this.boatImageLink = new PiLot.View.Boat.BoatImageLink(this.imageConfig, imageContainer, null);
 				this.boatImageLink.on('imageLoaded', this.boatImage_loaded.bind(this));
 				this.boatImageLink.showBoatSetup(this.boatSetup);
-				this.boatSetupForm = new BoatSetupForm(null, this.plhBoatSetupForm, true);
+				this.boatSetupForm = new BoatSetupForm(null, this.plhBoatSetupForm);
 				this.boatSetupForm.setBoatSetup(this.boatSetup);
 				this.boatSetupForm.on('save', this.boatSetupForm_save.bind(this));
 				this.boatSetupForm.on('show', this.boatSetupForm_show.bind(this));

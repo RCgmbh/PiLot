@@ -7,10 +7,13 @@ PiLot.Templates.Boat = {
 		'<object type="image/svg+xml" style="height:100%; max-height:100%; max-width:100%; position:absolute;"></object>',
 
 	boatSetupForm: 
-		`<div class="boatSetupForm dialogPanel">
+		`<div class="boatSetupForm dialogPanel" hidden>
 			<span class="block semiBold marginBottom" data-text="boatSetup"></span>
 			<div class="plhFeatures"></div>
-			<a href="#" class="lnkSave fullWidth marginTop hidden linkButton" data-text="ok"></a>	
+			<div class="buttons reverse marginTop">
+				<a href="#" class="btnBoatSetupOk linkButton bold" data-text="ok"></a>
+				<a href="#" class="btnBoatSetupCancel linkButton" data-text="cancel"></a>
+			</div>
 		</div>`,
 
 	boatFeatureSelect:
@@ -31,8 +34,8 @@ PiLot.Templates.Boat = {
 						<img  /> 
 					</div>
 					<div class="buttons">
-						<a href="#" class="btnLeft block linkButton marginRight"><i class="icon-arrow-left"></i></a>
-						<a href="#" class="btnRight block linkButton marginLeft"><i class="icon-arrow-right"></i></a>
+						<a href="#" class="btnLeft block linkButton"><i class="icon-arrow-left"></i></a>
+						<a href="#" class="btnRight block linkButton"><i class="icon-arrow-right"></i></a>
 					</div>
 				</div>
 			</div>

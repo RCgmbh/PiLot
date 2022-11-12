@@ -49,7 +49,7 @@ PiLot.Model.Boat = (function () {
 			this.rawConfig = pRawConfig;
 		},
 
-		/// returns a map with all features (key: featureId, value: BoatFeature)
+		/** returns a map with all features. The key is the feature's id (number), the value is the feature (BoatFeature) */
 		getFeatures: function () {
 			return this.features;
 		},
@@ -108,13 +108,14 @@ PiLot.Model.Boat = (function () {
 		return result;
 	};
 
-	/// A single feature of the boat, e.g a sail or the engine, which
-	/// can has different states (set, reefed)
+	/**
+	 * A single feature of the boat, e.g a sail or the engine, which can has different states (set, reefed)
+	 * */
 	BoatFeature = function (pFeatureId, pName) {
-		this.featureId = pFeatureId;	// the is, a number, unique for the boat
+		this.featureId = pFeatureId;	// the is a number, unique for the boat
 		this.name = pName;				// the name of the feature
 		this.states = null;				// a Map (key = stateId, value = FeatureState object)
-		this.transitions = null;		// a Map (key = transitionId, value = FeaturesTransition object)
+		//this.transitions = null;		// a Map (key = transitionId, value = FeaturesTransition object)
 		this.initialize();
 	};
 

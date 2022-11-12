@@ -365,6 +365,10 @@ PiLot.View.Logbook = (function () {
 			this.hide();
 		},
 
+		boatSetupForm_save: function () {
+
+		},
+
 		/** creates the editForm, without displaying an item  */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryForm)
@@ -387,7 +391,7 @@ PiLot.View.Logbook = (function () {
 			this.tbSOG = this.control.querySelector('.tbSOG');
 			this.tbLog = this.control.querySelector('.tbLog');
 			this.editBoatSetupImage = new PiLot.View.Boat.BoatImageLink(null, this.control.querySelector('.plhBoatSetup'), null);
-			this.boatSetupForm = new PiLot.View.Boat.BoatSetupForm(null, this.control.querySelector('.plhBoatSetupForm'));
+			this.boatSetupForm = new PiLot.View.Boat.BoatSetupForm(null, this.control.querySelector('.logbookBoxes'));
 			this.editBoatSetupImage.attachForm(this.boatSetupForm);
 			this.btnSave = this.control.querySelector('.btnSave');
 			this.btnSave.addEventListener('click', this.btnSave_click.bind(this));
@@ -479,7 +483,7 @@ PiLot.View.Logbook = (function () {
 		showBoatSetup: function (pBoatSetup) {
 			if (pBoatSetup !== null) {
 				this.boatSetupForm.setBoatConfig(pBoatSetup.getBoatConfig());
-				this.boatSetupForm.setBoatSetup(pBoatSetup);
+				this.boatSetupForm.showBoatSetup(pBoatSetup);
 				this.editBoatSetupImage.showBoatSetup(pBoatSetup);
 			}
 		},
