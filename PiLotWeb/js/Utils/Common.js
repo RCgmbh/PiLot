@@ -319,5 +319,32 @@ PiLot.Utils.Common = {
 			}			
 			pDropdown.appendChild(option);
 		});
+	},
+
+	/**
+	 * Binds a simple handler for Escape and Enter keys to a control. For both, a method
+	 * can be passed. For Enter, the method is only called, if it did not come from a 
+	 * textarea element.
+	 * @param {HTMLElement} pElement - The method to bind the event listener to
+	 * @param {Function} pOnEsc - The function to call when Esc was hit
+	 * @param {function} pOnEnter - The function to call when enter was hit
+	 */
+	bindKeyHandlers: function (pElement, pOnEsc, pOnEnter) {
+		pElement.addEventListener('keydown', function (e) {
+			switch (e.key) {
+				case "Escape":
+					if (pOnEsc instanceof Function) {
+						e.stopPropagation();
+						pOnEsc();
+					}
+					break;
+				case "Enter":
+					if ((pOnEnter instanceof Function) && !(e.target instanceof HTMLTextAreaElement)) {
+						e.stopPropagation();
+						pOnEnter();
+					}
+					break;
+			}
+		});
 	}
 };

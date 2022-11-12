@@ -20,7 +20,9 @@ PiLot.View.Diary = (function () {
 		this.calendar = null;							// PiLot.View.Logbook.DiaryCalendar to select the date			
 		this.lnkPreviousDay = null;						// the link to go back one day
 		this.lnkNextDay = null;							// the link to go to the next day
+		this.editForm = null;							// PiLot.View.Logbook.LogbokEntryForm to add new or edit existing entries
 		this.logbookEntriesControl = null;				// PiLot.View.Logbook.LogbookEntries control which will be added on the fly
+		this.lnkAddLogbookEntry = null;					// The link to add a new logbook entry
 		this.map = null;								// PiLot.View.Nav.Seamap showing the track of the day
 		this.mapTrack = null;							// the PiLot.View.Map.MapTrack for the daily track
 		this.pnlDiary = null;							// The panel containing diary text and distance
@@ -57,9 +59,16 @@ PiLot.View.Diary = (function () {
 			this.setDate(date);
 		},
 
+		/** Handler for the new item link click. Shows the form for a new entry with the latest boat setup */
+		lnkAddLogbookEntry_click: function () {
+			const latestBoatSetup = this.logbookDay.getLatestBoatSetup();
+			this.editForm.showEmptyFormAsync(this.logbookDay, latestBoatSetup);
+		},
+
 		/** change handler for the diary field, assigns the text and saves the changes. */
 		tbDiary_change: function () {
 			this.logbookDay.setDiaryText(this.tbDiary.value);
+			this.showDiaryText();
 			this.logbookDay.saveDiaryTextAsync();
 		},
 
@@ -73,8 +82,10 @@ PiLot.View.Diary = (function () {
 			this.changeDiaryFontSize(-1);
 		},
 
-		lnkEdit_click: function () {
-			// todo
+		/** Change handler for the edit mode checkbox */
+		cbEditMode_change: function (e) {
+			this.setReadOnly(!e.target.checked);
+			return false;
 		},
 
 		/** draws the page and finds the controls and binds handlers */
@@ -90,11 +101,12 @@ PiLot.View.Diary = (function () {
 			new PiLot.View.Diary.DiaryCalendar(this.calendar, this.diaryInfoCache);
 			this.lnkPreviousDay = diaryPage.querySelector('.lnkPreviousDay');
 			this.lnkNextDay = diaryPage.querySelector('.lnkNextDay');
-			const options = { isReadOnly: true, sortDescending: false, autoFillNewItems: false };
-			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(diaryPage, this.currentBoatTime, options);
+			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(null);
+			const options = { isReadOnly: false, sortDescending: false, autoFillNewItems: false };
+			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(diaryPage.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
+			this.lnkAddLogbookEntry = diaryPage.querySelector('.lnkAddLogbookEntry');
+			this.lnkAddLogbookEntry.addEventListener('click', this.lnkAddLogbookEntry_click.bind(this));
 			this.pnlDiary = diaryPage.querySelector('.pnlDiary');
-			this.tbDiary = diaryPage.querySelector('.tbDiary');
-			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			diaryPage.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			diaryPage.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
 			this.lblDiary = diaryPage.querySelector('.lblDiary');
@@ -102,17 +114,19 @@ PiLot.View.Diary = (function () {
 			this.plhDistance = diaryPage.querySelector('.plhDistance');
 			this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
 			this.lblDistanceNm = this.plhDistance.querySelector('.lblDistanceNm');
+			this.pnlEditDiary = diaryPage.querySelector('.pnlEditDiary');
+			this.tbDiary = diaryPage.querySelector('.tbDiary');
+			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlSpeedDiagram = diaryPage.querySelector('.pnlSpeedDiagram');
 			this.plhPhotos = diaryPage.querySelector('.plhPhotos');
 			this.plhImageUpload = diaryPage.querySelector('.plhImageUpload');
-			const lnkEdit = diaryPage.querySelector('.lnkEdit');
-			RC.Utils.showHide(lnkEdit, PiLot.Model.Common.Permissions.canWrite());
-			lnkEdit.addEventListener('click', this.lnkEdit_click.bind(this));
+			const cbEditMode = diaryPage.querySelector('.cbEditMode');
+			cbEditMode.addEventListener('change', this.cbEditMode_change.bind(this));
 			this.lnkEditTrack = diaryPage.querySelector('.lnkEditTrack');
-			RC.Utils.showHide(this.lnkEditTrack, PiLot.Model.Common.Permissions.canWrite());
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
-			RC.Utils.showHide(this.lnkPublish, PiLot.Model.Common.Permissions.hasSystemAccess());
+			RC.Utils.showHide(diaryPage.querySelector('.pnlEdit'), PiLot.Model.Common.Permissions.hasSystemAccess());
+			this.setReadOnly(true);
 		},
 
 		/// sets the date based on the user settings, the value from the url or now
@@ -240,6 +254,17 @@ PiLot.View.Diary = (function () {
 			this.loadPhotosAsync();
 		},
 
+		/**
+		 * Switches between the read-only and the edit mode
+		 * @param {Boolean} pReadOnly
+		 */
+		setReadOnly: function (pReadOnly) {
+			this.logbookEntriesControl.setReadOnly(pReadOnly);
+			this.lnkAddLogbookEntry.hidden = pReadOnly;
+			this.pnlDiary.hidden = !pReadOnly;
+			this.pnlEditDiary.hidden = pReadOnly;
+		},
+
 		/** shows the currently selected date in friendly form */
 		showFriendlyDate: function () {
 			const locale = PiLot.Utils.Language.getLocale();
@@ -304,13 +329,6 @@ PiLot.View.Diary = (function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Diary.currentDate', settingsValue)
 		},
 
-		/** makes sure we have a LogbookDay, creates one if necessary */
-		/*ensureLogbookDay: function () {
-			if (this.logbookDay === null) {
-				this.logbookDay = new PiLot.Logbook.Model.LogbookDay();
-			}
-		},*/
-
 		/** takes a track and shows it on the map */
 		showTrackAsync: async function (pTrack) {
 			if (pTrack.getPositionsCount() > 0) {
@@ -370,11 +388,8 @@ PiLot.View.Diary = (function () {
 
 		/** shows the diary text of the current logbookDay */
 		showDiaryText: function () {
-			const diaryText = this.logbookDay.getDiaryText(); //(this.logbookDay !== null ? this.logbookDay.getDiaryText() : '');
-			if (diaryText !== '') {
-				RC.Utils.showHide(this.lblDiary, true);
-			}
-			this.lblDiary.innerText = diaryText;
+			this.tbDiary.value = this.logbookDay.getDiaryText();
+			this.lblDiary.innerText = this.logbookDay.getDiaryText();
 		},
 
 		/**

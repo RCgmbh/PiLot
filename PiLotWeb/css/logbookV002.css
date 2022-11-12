@@ -6,7 +6,7 @@
 .logbookEntries { max-width: 41em; }
 .logbookEntry { }
 .dialogPanel.logbookEntry{ width:100vw; max-width:36em; }
-.logbookEntry .titleContainer { display: flex; width: 100%; gap:0.5em; }
+.logbookEntry .titleContainer { display: flex; width: 100%; gap:1em; }
 .logbookEntry .tbTime {width:4em; }
 .logbookEntry .tbTitle {width:8em; flex-grow:1; }
 .logbookEntry .lblTitle { flex-grow: 1; }
@@ -29,6 +29,14 @@
 	.logbookBoxes.editable .data { flex-direction: column; gap:0em;}
 	.logbookBoxes.editable .data .logbookBox { border: none; padding: 0em; background-color:unset; min-height:unset; flex-basis: unset;}
 	.logbookBoxes.editable .data .logbookBox .semiBold {display: none; }
+}
+
+@media (max-width:543px){
+ .logbookEntry.dialogPanel {top:0;}
+}
+
+@media (max-height:410px){
+ .logbookEntry.dialogPanel {top:0;}
 }
 
 .logbookBox>span,  .logbookBox>div { flex-grow:0; min-width: 7.5em; } 

@@ -160,20 +160,19 @@ PiLot.View.Boat = (function () {
 		},
 
 		/**
-		 * creates or refreshes the image, showing a certain setup, if the setup
-		 * refers to the same boat config as this.
+		 * creates or refreshes the image, showing a certain setup.
 		 * @param {PiLot.Model.Boat.BoatSetup} - pSetup
 		 * */
 		showBoatSetup: function (pSetup) {
 			if (pSetup !== null) {
 				PiLot.log('BoatImageLink: showing Boat setup', 3);
-				if (this.boatImageConfig === null) {
+				if (this.boatImageConfig && (pSetup.getBoatConfigName() === this.boatImageConfig.getBoatConfigName())) {
+					this.boatSetup = pSetup;
+					this.applyBoatSetup();
+				} else {
 					this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(pSetup.getBoatConfig());
 					this.boatSetup = pSetup;
 					this.loadImage();
-				} else if (pSetup.getBoatConfigName() === this.boatImageConfig.getBoatConfigName()) {
-					this.boatSetup = pSetup;
-					this.applyBoatSetup();
 				}
 			}
 		},
@@ -186,8 +185,6 @@ PiLot.View.Boat = (function () {
 		 * @param {Number} pStateId
 		 * */
 		showFeatureState: function (pFeatureId, pStateId) {
-			//let boatSvg = this.imageObject.contentDocument.querySelector('svg');
-			//if (boatSvg !== null) {
 			if (this.imageSvg !== null) {
 				let featureGuis = this.boatImageConfig.getFeatureGuis(pFeatureId);
 				if (featureGuis !== null) {
@@ -289,20 +286,7 @@ PiLot.View.Boat = (function () {
 		},
 
 		initializeObservers: function () {
-			//this.observers = RC.Utils.initializeObservers(['show', 'change', 'save', 'close']); // add cancel?
 			this.observers = RC.Utils.initializeObservers(['show', 'hide', 'apply']);
-		},
-
-		control_keydown: function (e) {
-			console.log(e);
-			switch (e.key) {
-				case "Escape":
-					this.cancel();
-					break;
-				case "Enter":
-					this.apply();
-					break;
-			}
 		},
 
 		btnOk_click: function () {
@@ -313,30 +297,25 @@ PiLot.View.Boat = (function () {
 			this.cancel();			
 		},
 
-		/// handles changes to a dropdown with feature states
-		selFeatureStates_change: function (pFeatureId, pDropdown) {
-			const stateId = Number(pDropdown.value);
-			this.boatSetup.setFeatureState(pFeatureId, stateId);
-			//RC.Utils.notifyObservers(this, this.observers, 'change', pFeatureId);
-		},
-
-		/// registers an observer which will be called when pEvent happens
+		/**
+		 * Registers an observer that will be called when pEvent happens.
+		 * @param {String} pEvent - 'show', 'hide', 'apply'
+		 * @param {Function} pCallback - The method to call 
+		 * */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		/// removes all registered observers for a certain event
+		/** Removes all registered observers for a certain event */
 		off: function (pEvent) {
 			RC.Utils.removeObservers(this.observers, pEvent);
 		},
 
-		/// draws the control based on two templates, one for the container
-		/// of the entire control, one for the repeating section of dropdowns
-		/// for the feature states
+		/** Draws the form */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
 			this.container.append(this.control);
-			this.control.addEventListener("keydown", this.control_keydown.bind(this));
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.cancel.bind(this), this.apply.bind(this));
 			this.plhFeatures = this.control.querySelector('.plhFeatures');
 			const btnOk = this.control.querySelector('.btnBoatSetupOk');
 			btnOk.addEventListener('click', this.btnOk_click.bind(this));
@@ -347,13 +326,14 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/** this just fires the apply event and closes the form. Nothin happens, if it's not observed */
+		/** Reads the data and applies it to the BoatSetup, then hides the form */
 		apply: function () {
 			this.readInput();
 			this.hide();
 			RC.Utils.notifyObservers(this, this.observers, 'apply', this);
 		},
 
+		/** Hides the form */
 		cancel: function () {
 			this.showBoatSetup(this.boatSetup);
 			this.hide();
@@ -375,7 +355,7 @@ PiLot.View.Boat = (function () {
 			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
 		},
 
-		/// sets the boatConfig and draws the feature selectors if necessary
+		/** sets the boatConfig and draws the feature selectors if necessary */
 		setBoatConfig: function (pBoatConfig) {
 			if ((this.boatConfig === null) || (pBoatConfig !== this.boatConfig)) {
 				this.boatConfig = pBoatConfig;
@@ -383,7 +363,7 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/// adds the dropdowns with the states for each feature
+		/** Adds the dropdowns with the states for each feature */
 		drawSelectors: function () {
 			while (this.plhFeatures.firstChild) {
 				this.plhFeatures.removeChild(this.plhFeatures.lastChild);
@@ -397,13 +377,14 @@ PiLot.View.Boat = (function () {
 				pFeature.getStates().forEach(function (aState) {
 					selFeatureStates.append(new Option(aState.getName(), aState.getStateId()));
 				});
-				//selFeatureStates.addEventListener('change', this.selFeatureStates_change.bind(this, pFeatureId, selFeatureStates));
 				this.selectors.set(pFeatureId, selFeatureStates);
 			}.bind(this));
 		},
 
-		/// sets and shows a boat setup defined by a PiLot.Model.Boat.BoatSetup, if the setup matches
-		/// the current boat config
+		/**
+		 * sets and shows a boat setup, if the setup matches the current boat config
+		 * @param {PiLot.Model.Boat.BoatSetup} pSetup
+		 * */
 		showBoatSetup: function (pSetup) {
 			if (pSetup) {
 				if (this.boatConfig === null) {
@@ -422,6 +403,7 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
+		/** Reads the selected feature states from the selectors and applies them to the boatSetup */
 		readInput: function () {
 			this.selectors.forEach(function (v, k, m) {
 				const stateId = Number(v.value);
@@ -429,8 +411,7 @@ PiLot.View.Boat = (function () {
 			}.bind(this));
 		},
 
-		/// returns a map with key = featureId and value = stateId for the 
-		/// currently selected boat setup.
+		/** @returns {PiLot.Model.Boat.BoatSetup} the currently selected BoatSetup */
 		getBoatSetup: function () {
 			return this.boatSetup;
 		}

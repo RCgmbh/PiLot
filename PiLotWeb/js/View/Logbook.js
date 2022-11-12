@@ -80,11 +80,12 @@ PiLot.View.Logbook = (function () {
 		this.container = pContainer;					// HTMLElement object where the entries will be added
 		this.editForm = pEditForm;						// one edit form used to edit existing and create new items
 		this.currentBoatTime = pCurrentBoatTime;		// the current BoatTime used for new Entries
+		this.logbookEntryControls = null;				// an array of all PiLot.View.Logbook.LogbookEntryControl elements
 		this.gpsObserver = null;						// a GPS Observer used to auto-populate NAV Data
 		this.logbookDay = null;							// the Model object
 		this.date = null;								// the date as RC.Date.DateOnly
 		this.sortDescending = false;					// If true, the latest logbookEntries will appear on top
-		this.isReadOnly = false;						// If true, no add button is expected, no edit icons are shown
+		this.isReadOnly = false;						// If true, no delete- nor edit icons are shown for the entries
 		
 		// controls
 		this.initialize(pOptions);
@@ -94,8 +95,8 @@ PiLot.View.Logbook = (function () {
 
 		initialize: function (pOptions) {
 			this.readOptions(pOptions);
-			this.editForm = this.editForm || new PiLot.View.Logbook.LogbookEntryForm();
-			this.editForm.on('save', this.editForm_save.bind(this));
+			this.logbookEntryControls = [];
+			this.draw();
 		},
 
 		/** reads the options and assigns the values to instance variables */
@@ -106,13 +107,14 @@ PiLot.View.Logbook = (function () {
 			}
 		},
 
-		editForm_save: function () {
+		/** Generic handler for all kinds of changes of a logbookDay, just re-shows the data */
+		logbookDay_change: function(){
 			this.showData();
 		},
 
-		/** Generic handler for all kinds of changes of a logbookDay, just re-shows the data */
-		logbookDay_change: function(){
-			//this.showData();
+		/** Actually nothing much to draw, as items will be added directly to this.container */
+		draw: function () {
+			this.editForm = this.editForm || new PiLot.View.Logbook.LogbookEntryForm();
 		},
 
 		/**
@@ -121,27 +123,39 @@ PiLot.View.Logbook = (function () {
 		 * to observe "addEntry", as this is always followed by 'changeEntryTime')
 		 */
 		showLogbookDay: function (pLogbookDay) {
-			//if(this.logbookDay){
-			//	this.logbookDay.off();
-			//}
+			if(this.logbookDay){
+				this.logbookDay.off();
+			}
 			this.logbookDay = pLogbookDay;
-			//const eventHandler = this.logbookDay_change.bind(this);
-			//this.logbookDay.on('deleteEntry', eventHandler);
-			//this.logbookDay.on('changeEntryTime', eventHandler);
+			const eventHandler = this.logbookDay_change.bind(this);
+			this.logbookDay.on('saveEntry', eventHandler);
+			this.logbookDay.on('deleteEntry', eventHandler);
 			this.showData();
+		},
+
+		/**
+		 * Sets the form readonly or not, by hiding/showing the edit- and delete icons
+		 * on the logbook entries
+		 * @param {Boolean} pReadOnly
+		 */
+		setReadOnly: function (pReadonly) {
+			this.isReadOnly = pReadonly;
+			this.logbookEntryControls.forEach(control => control.setReadOnly(pReadonly));
 		},
 
 		/** Clears and re-draws the entries  */
 		showData: function () {
 			this.container.clear();
+			this.logbookEntryControls = [];
 			this.logbookDay.sortEntries(this.sortDescending);
 			const logbookEntries = this.logbookDay.getLogbookEntries();
 			for (let i = 0; i < logbookEntries.length; i++) {
-				this.showLogbookEntry(logbookEntries[i]);
+				const control = this.showLogbookEntry(logbookEntries[i]);
+				this.logbookEntryControls.push(control);
 			}
 		},
 
-		/** Shows a LogBookEntry */
+		/** Shows a LogBookEntry and returns the control */
 		showLogbookEntry: function (pLogbookEntry,) {
 			const control = new PiLot.View.Logbook.LogbookEntryControl(
 				this.container,
@@ -150,6 +164,7 @@ PiLot.View.Logbook = (function () {
 				this.isReadOnly
 			);
 			control.showData();
+			return control;
 		}
 	};
 
@@ -165,13 +180,13 @@ PiLot.View.Logbook = (function () {
 		this.entriesContainer = pContainer;			// a HTMLElement object where the control will be added
 		this.editForm = pEditForm;					// a LogbookEntryForm use to edit this
 		this.logbookEntry = pLogbookEntry;			// the business object to show
-		this.isReadOnly = pIsReadOnly;				// if true, the edit link will not be shown, and edit mode is not supported
+		this.isReadOnly = pIsReadOnly;				// if true, the delete- and edit links will not be shown
 		
 		// controls: HTMLElement objects
 		this.lblTime = null;
 		this.lblTitle = null;
-		this.btnEdit = null;
-		this.btnDelete = null;
+		this.btnEditEntry = null;
+		this.btnDeleteEntry = null;
 		this.lblNotes = null;
 		this.lblWeather = null;
 		this.lblTemperature = null;
@@ -218,11 +233,9 @@ PiLot.View.Logbook = (function () {
 			this.lblTitle = control.querySelector('.lblTitle');
 			this.lblNotes = control.querySelector('.lblNotes');
 			this.btnEditEntry = control.querySelector('.btnEditEntry');
-			if (this.isReadOnly) {
-				RC.Utils.showHide(this.btnEditEntry, false);
-			} else {
-				this.btnEditEntry.addEventListener('click', this.btnEditEntry_click.bind(this));
-			}
+			this.btnEditEntry.addEventListener('click', this.btnEditEntry_click.bind(this));
+			this.btnDeleteEntry = control.querySelector('.btnDeleteEntry');
+			this.btnDeleteEntry.addEventListener('click', this.btnDeleteEntry_click.bind(this));
 			this.lblWeather = control.querySelector('.lblWeather');
 			this.lblTemperature = control.querySelector('.lblTemperature');
 			this.lblPressure = control.querySelector('.lblPressure');
@@ -235,6 +248,7 @@ PiLot.View.Logbook = (function () {
 			this.lblSOG = control.querySelector('.lblSOG');
 			this.lblLog = control.querySelector('.lblLog');
 			this.showBoatSetupImage = new PiLot.View.Boat.BoatImageLink(null, control.querySelector('.plhBoatSetup'), null);
+			this.setReadOnly(this.isReadOnly);
 		},
 
 		/** shows the data of the LogbookEntry */
@@ -261,6 +275,15 @@ PiLot.View.Logbook = (function () {
 			this.showLabeledText(this.lblSOG, this.logbookEntry.getSOG(), 1);
 			this.showLabeledText(this.lblLog, this.logbookEntry.getLog(), 1);
 			this.showBoatSetupImage.showBoatSetup(this.logbookEntry.getBoatSetup());
+		},
+
+		/**
+		 * Sets the form readonly or not, by hiding/showing the edit- and delete icon
+		 * @param {Boolean} pReadOnly
+		 */
+		setReadOnly: function (pReadOnly) {
+			this.btnDeleteEntry.hidden = pReadOnly;
+			this.btnEditEntry.hidden = pReadOnly;
 		},
 
 		/** 
@@ -294,7 +317,7 @@ PiLot.View.Logbook = (function () {
 		/** deletes a logbook entry and notifies the observers */
 		deleteEntryAsync: async function () {
 			const success = await this.logbookEntry.deleteAsync();
-			RC.Utils.notifyObservers(this, this.observers, `delete`, null);
+			RC.Utils.notifyObservers(this, this.observers, 'delete', null);
 		}
 	}
 
@@ -353,10 +376,7 @@ PiLot.View.Logbook = (function () {
 		/** handles clicks on the save button */
 		btnSave_click: async function (e) {
 			e.preventDefault();
-			await this.readInputAsync();
-			await this.logbookEntry.saveAsync();
-			this.hide();
-			RC.Utils.notifyObservers(this, this.observers, 'save', this.logbookEntry);
+			this.saveAsync();
 		},
 
 		/** handles clicks on the cancel button */
@@ -365,14 +385,11 @@ PiLot.View.Logbook = (function () {
 			this.hide();
 		},
 
-		boatSetupForm_save: function () {
-
-		},
-
 		/** creates the editForm, without displaying an item  */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryForm)
 			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.saveAsync.bind(this));
 			this.tbTime = this.control.querySelector('.tbTime');
 			this.tbTitle = this.control.querySelector('.tbTitle');
 			this.tbNotes = this.control.querySelector('.tbNotes');
@@ -450,8 +467,9 @@ PiLot.View.Logbook = (function () {
 		/**
 		 * Shows an empty form. Only the boatSetup is preset based on the latest setup of the current logbookDay
 		 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - The logbook day needed to create a new item
+		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - Optionally pass a boat setup to use
 		 * */
-		showEmptyFormAsync: async function (pLogbookDay) {
+		showEmptyFormAsync: async function (pLogbookDay, pBoatSetup = null) {
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			this.showTime(null);
@@ -460,7 +478,11 @@ PiLot.View.Logbook = (function () {
 			this.showMeteo({});
 			this.showNavData(null, null, null, null);
 			this.tbLog.value = '';
-			await this.showLatestBoatSetupAsync();
+			if (pBoatSetup) {
+				this.showBoatSetup(pBoatSetup);
+			} else {
+				await this.showLatestBoatSetupAsync();
+			}			
 			this.showForm();
 		},
 
@@ -532,6 +554,14 @@ PiLot.View.Logbook = (function () {
 		/** hides the form */
 		hide: function(){
 			this.control.hidden = true;
+		},
+
+		/** Reads the input, saves the data and closes the form */
+		saveAsync: async function () {
+			await this.readInputAsync();
+			await this.logbookEntry.saveAsync();
+			this.hide();
+			RC.Utils.notifyObservers(this, this.observers, 'save', this.logbookEntry);
 		},
 
 		/**

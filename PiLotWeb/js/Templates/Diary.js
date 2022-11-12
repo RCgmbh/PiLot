@@ -25,22 +25,24 @@ PiLot.Templates.Diary = {
 						<span data-text="distance"></span>: <span class="lblDistanceKm"></span> <span data-text="km"></span> / <span class="lblDistanceNm"></span> <span data-text="nm"></span>
 					</div>
 				</div>
-				<span class="block semiBold marginBottom" data-text="diary" hidden></span>
-				<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false" hidden></textarea>
+				<div class="pnlEditDiary marginBottom" hidden>
+					<span class="block semiBold marginBottom" data-text="diary"></span>
+					<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+				</div>
 				<div class="plhLogbookEntries logbookEntries"></div>
-				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
+				<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
 				<div class="plhMap navMap borderDark marginBottom"></div>
 				<div class="pnlSpeedDiagram marginBottom"></div>
 			</div>
-			<div class="dataContainerFull paddingRight paddingBottom">
+			<div class="dataContainerFull paddingRight paddingBottom" hidden>
 				<div class="diaryPhotos"></div>
 			</div>
-			<div class="dataContainerFull paddingBottom">
-				<a href="#" class="lnkEdit block linkButton marginRight paddingLeft paddingRight hidden" data-text="edit"></a>
-				<a href="#" class="lnkEditTrack block linkButton marginRight paddingLeft paddingRight hidden" data-text="editTrack"></a>
-				<a href="#" class="lnkPublish block linkButton marginRight paddingLeft paddingRight hidden" data-text="publish"></a>
+			<div class="pnlEdit dataContainerFull paddingBottom">
+				<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> |
+				<a href="#" class="lnkEditTrack marginLeft marginRight" data-text="editTrack"></a> | 
+				<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
 			</div>
 		</div>`,
 

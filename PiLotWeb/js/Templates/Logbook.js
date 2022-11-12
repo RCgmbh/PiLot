@@ -69,12 +69,12 @@ PiLot.Templates.Logbook = {
 	logbookEntryContainer:`<div></div>`,
 
 	logbookEntryForm: `
-		<div class="overlay vCenter" hidden>
-			<div class="logbookEntry dialogPanel hCenter marginAll paddingAllSmall hCenter">
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="logbookEntry dialogPanel hCenter paddingAllSmall hCenter">
 				<div class="marginBottomSmall titleContainer">
 					<input type="text" class="tbTime" placeholder="hh:mm"
-					/><input type="text" class="tbTitle" data-title="title"
-					/><a href="#" class="btnDeleteEntry inlineBlock" data-title="delete"><i class="icon-bin"></i></a>
+					/><input type="text" class="tbTitle" data-title="title" />
 				</div>
 				<div class="logbookBoxes editable marginBottomSmall">
 					<div class="plhBoatSetup logbookBox logbookBoat"></div>
@@ -129,8 +129,9 @@ PiLot.Templates.Logbook = {
 	logbookEntryControl:
 		`<div class="logbookEntry marginBottom">
 			<div class="titleContainer">
-				<span class="lblTime inlineBlock semiBold marginRight"></span> <span class="lblTitle inlineBlock semiBold"></span>
-				<a href="#" class="btnEditEntry inlineBlock"><i class="icon-pencil"></i></a>
+				<span class="lblTime inlineBlock semiBold"></span> <span class="lblTitle inlineBlock semiBold"></span>
+				<a href="#" class="btnEditEntry inlineBlock" data-title="edit"><i class="icon-pencil"></i></a>
+				<a href="#" class="btnDeleteEntry inlineBlock" data-title="delete"><i class="icon-bin"></i></a>
 			</div>
 			<div class="marginBottomSmall block lblNotes"></div>
 			<div class="logbookBoxes marginBottomSmall">
