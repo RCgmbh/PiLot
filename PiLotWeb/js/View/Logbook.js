@@ -212,7 +212,6 @@ PiLot.View.Logbook = (function () {
 
 		/** handles click on the delete icon by showing a confirmation message, then deleting the entry */
 		btnDeleteEntry_click: function (e) {
-			e.preventDefault();
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeleteLogbookEntry'))) {
 				this.deleteEntryAsync();
 			}
@@ -220,7 +219,6 @@ PiLot.View.Logbook = (function () {
 
 		/** handles clicks on the edit icon, by showing the edit form for this entry */		
 		btnEditEntry_click: function (e) {
-			e.preventDefault();
 			this.editForm.showLogbookEntryAsync(this.logbookEntry);
 		},
 
@@ -360,7 +358,7 @@ PiLot.View.Logbook = (function () {
 	LogbookEntryForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['save']);
+			this.observers = RC.Utils.initializeObservers(['show', 'hide', 'save']);
 			this.draw();
 		},
 
@@ -437,8 +435,9 @@ PiLot.View.Logbook = (function () {
 		/**
 		 * Shows default values for nav and sensor data, and empties all other fields. Then shows the form.
 		 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - The logbook day needed to create a new item
+		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - Optionally pass a boat setup.
 		 * */
-		showDefaultValuesAsync: async function(pLogbookDay){
+		showDefaultValuesAsync: async function(pLogbookDay, pBoatSetup = false){
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
@@ -460,7 +459,11 @@ PiLot.View.Logbook = (function () {
 			}
 			this.showNavData(lat, lon, this.gpsObserver.getCOG(), this.gpsObserver.getSOG());
 			this.tbLog.value = '';
-			await this.showLatestBoatSetupAsync();
+			if (pBoatSetup !== null) {
+				this.showBoatSetup(pBoatSetup);
+			} else {
+				await this.showLatestBoatSetupAsync();
+			}
 			this.showForm();
 		},
 
@@ -548,12 +551,14 @@ PiLot.View.Logbook = (function () {
 		/** shows the form and sets focus on the first field */
 		showForm: function(){
 			this.control.hidden = false;
+			RC.Utils.notifyObservers(this, this.observers, 'show', this);
 			this.tbTime.focus();
 		},
 
 		/** hides the form */
 		hide: function(){
 			this.control.hidden = true;
+			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
 		},
 
 		/** Reads the input, saves the data and closes the form */

@@ -574,10 +574,10 @@ PiLot.View.Diary = (function () {
 
 		/** Draws the page */
 		draw: function () {
-			let x = PublishLogbookPage.MAXIMAGESIZE;
+			let x = PublishDiaryPage.MAXIMAGESIZE;
 			let loader = PiLot.Utils.Loader;
 			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.logbook.logbook);
-			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.publishDiaryPage);
+			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.publishDiaryPage);
 			loader.getContentArea().appendChild(pageContent);
 			this.ddlPublishTarget = pageContent.querySelector('.ddlPublishTarget');
 			this.icoWait = pageContent.querySelector('.icoWait');

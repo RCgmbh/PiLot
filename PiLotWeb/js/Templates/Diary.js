@@ -39,7 +39,7 @@ PiLot.Templates.Diary = {
 			<div class="dataContainerFull paddingRight paddingBottom" hidden>
 				<div class="diaryPhotos"></div>
 			</div>
-			<div class="pnlEdit dataContainerFull paddingBottom">
+			<div class="pnlEdit dataContainerFull marginBottom">
 				<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> |
 				<a href="#" class="lnkEditTrack marginLeft marginRight" data-text="editTrack"></a> | 
 				<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
