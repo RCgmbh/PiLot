@@ -138,9 +138,9 @@ PiLot.View.Logbook = (function () {
 		 * on the logbook entries
 		 * @param {Boolean} pReadOnly
 		 */
-		setReadOnly: function (pReadonly) {
+		toggleReadOnly: function (pReadonly) {
 			this.isReadOnly = pReadonly;
-			this.logbookEntryControls.forEach(control => control.setReadOnly(pReadonly));
+			this.logbookEntryControls.forEach(control => control.toggleReadOnly(pReadonly));
 		},
 
 		/** Clears and re-draws the entries  */
@@ -246,7 +246,7 @@ PiLot.View.Logbook = (function () {
 			this.lblSOG = control.querySelector('.lblSOG');
 			this.lblLog = control.querySelector('.lblLog');
 			this.showBoatSetupImage = new PiLot.View.Boat.BoatImageLink(null, control.querySelector('.plhBoatSetup'), null);
-			this.setReadOnly(this.isReadOnly);
+			this.toggleReadOnly(this.isReadOnly);
 		},
 
 		/** shows the data of the LogbookEntry */
@@ -279,7 +279,7 @@ PiLot.View.Logbook = (function () {
 		 * Sets the form readonly or not, by hiding/showing the edit- and delete icon
 		 * @param {Boolean} pReadOnly
 		 */
-		setReadOnly: function (pReadOnly) {
+		toggleReadOnly: function (pReadOnly) {
 			this.btnDeleteEntry.hidden = pReadOnly;
 			this.btnEditEntry.hidden = pReadOnly;
 		},
@@ -364,7 +364,7 @@ PiLot.View.Logbook = (function () {
 
 		/**
 		 * Registers an observer that will be called when pEvent happens.
-		 * @param {String} pEvent - 'save'
+		 * @param {String} pEvent - 'show', 'hide', 'save'
 		 * @param {Function} pCallback - The method to call 
 		 * */
 		on: function (pEvent, pCallback) {
@@ -437,7 +437,7 @@ PiLot.View.Logbook = (function () {
 		 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - The logbook day needed to create a new item
 		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - Optionally pass a boat setup.
 		 * */
-		showDefaultValuesAsync: async function(pLogbookDay, pBoatSetup = false){
+		showDefaultValuesAsync: async function(pLogbookDay, pBoatSetup = null){
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();

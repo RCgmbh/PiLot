@@ -81,17 +81,18 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 .boatSetupForm { background-color: #eee; border: 1px solid #ccc; border-radius:3px; width: calc(100vw - 2em); max-width: 21.5em; min-height: 10em; margin: 0em; padding: 0.125em 0.25em; }
 
 .tbDiary { padding: 0.25em 0.5em; }
-.diaryPhotos{position:relative; height:95vh; width:100%;}
-.diaryPhotos .rcImageGallery{ background-color:#fff;}
-.diaryPhotos .rcImageGallery:focus { outline: none !important; background-color: #D8E9FF; }
+.diaryPhotos { width:100%; display:flex; gap:2em; flex-direction:row; flex-wrap:wrap; justify-content:center; padding:0.125em 0.125em 1em 0.125em; }
 
-body.night .diaryPhotos .rcImageGallery { background-color: #000;  border-color: #111 #222 #222 #111;}
-body.night .diaryPhotos .rcImageGallery:focus { background-color: #092C56; }
-body.nightTransition .diaryPhotos .rcImageGallery { transition: background-color 1s, color 1s, border-color 1s }
-
-.thumbnail { box-shadow: 0.125em 0.125em 0.25em 0 #666; margin: 0.125em 0 0 0.125em; }
-.thumbnail:hover { box-shadow: 0.25em 0.25em 0.25em 0 #666; margin:0em 0.125em 0.125em 0em; }
+.thumbnailContainer {
+	min-width: 12em; width:25vw; max-width:24em; 
+	min-height: 12em; height:25vw; max-height:24em; 
+	display:flex; flex-direction:column; justify-content:center;
+}
+.thumbnail { max-height:100%; max-width:100%; margin: 0.5em auto 0em auto; box-shadow: 0.5em 0.5em 1em 0 #666; }
+.thumbnail:hover { box-shadow: 0.5em 0.5em 1em 0 #214372; cursor:pointer;}
+.thumbnail { transition: box-shadow 0.5s }
 .photoScreen {
+	display:flex;
 	position: fixed;
 	width: 100%;
 	height: 100%;
@@ -99,14 +100,10 @@ body.nightTransition .diaryPhotos .rcImageGallery { transition: background-color
 	left: 0%;
 	z-index: 10000;
 	background-color: rgba(0, 0, 0, 1);
-	box-shadow: 0em 0em 0.5em 0.25em #000;
-	border-radius: 0em;
-	border: 1px solid white;
-	text-align:center;	
 }
 
 .photoScreen .photo{
-	max-width:100%; max-height:100%;
+	max-width:100%; max-height:100%; margin:auto;
 }
 
 .photoScreen .lnkPrevious, .photoScreen .lnkNext {
@@ -117,8 +114,13 @@ body.nightTransition .diaryPhotos .rcImageGallery { transition: background-color
 	color:#eee;
 	height:100%;
 	width: 4em;
-	background-color:#333;
+	background-color: rgba(68, 82, 86, 0.8);
 	transition: all 0.2s
+}
+
+.photoScreen.fullscreen .lnkPrevious, .photoScreen.fullscreen .lnkNext{
+	background-color: rgba(51, 51, 51, 0);
+	color: rgba(238, 238, 238, 0);
 }
 
 .photoScreen .lnkPrevious {
@@ -130,7 +132,8 @@ body.nightTransition .diaryPhotos .rcImageGallery { transition: background-color
 }
 
 .photoScreen .lnkPrevious:hover, .photoScreen .lnkNext:hover{
-	color:#fff; background-color:#666;
+	background-color: rgba(68, 82, 86, 0.8);	
+	color: #B2D3FF;
 }
 
 .photoScreen .lnkPrevious > i, .photoScreen .lnkNext > i {font-size:2em; top:50%; position:absolute;}

@@ -611,7 +611,8 @@ PiLot.View.Boat = (function () {
 		},
 
 		/** Handles the save event of the boat setup form creating a new Logbook entry */
-		logbookEntryForm_save: function () {
+		logbookEntryForm_save: async function () {
+			await this.loadCurrentSetupAsync();
 			this.boatImageLink.showBoatSetup(this.boatSetup);
 			if (this.alternativeSetupsShown) {
 				this.showAlternativeBoatSetups();

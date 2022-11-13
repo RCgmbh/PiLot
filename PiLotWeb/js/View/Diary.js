@@ -33,8 +33,8 @@ PiLot.View.Diary = (function () {
 		this.lblDistanceKm = null;						// the label for distance in km
 		this.lblDistanceNm = null;						// the label for distance in nm
 		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
-		this.plhPhotos = null;							// the placeholder where we will add the photo gallery
-		this.imageGallery = null;						// RC.Controls.ImageGallery.Gallery for the daily photos
+		//this.plhPhotoGallery = null;					// the placeholder where we will add the photo gallery
+		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery for the daily photos
 		this.plhImageUpload = null;						// placeholder where the image upload component will be added
 		this.lnkEditTrack = null;						// link that leads to the tools page where the track can be edited
 		this.lnkPublish = null;							// the link leading to the publishing page for the same date
@@ -84,7 +84,7 @@ PiLot.View.Diary = (function () {
 
 		/** Change handler for the edit mode checkbox */
 		cbEditMode_change: function (e) {
-			this.setReadOnly(!e.target.checked);
+			this.toggleReadOnly(!e.target.checked);
 			return false;
 		},
 
@@ -119,17 +119,18 @@ PiLot.View.Diary = (function () {
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlSpeedDiagram = diaryPage.querySelector('.pnlSpeedDiagram');
-			this.plhPhotos = diaryPage.querySelector('.plhPhotos');
-			this.plhImageUpload = diaryPage.querySelector('.plhImageUpload');
+			const plhPhotoGallery = diaryPage.querySelector('.plhPhotoGallery');
+			this.photoGallery = new DiaryPhotoGallery(plhPhotoGallery);
+			this.plhPhotoUpload = diaryPage.querySelector('.plhPhotoUpload');
 			const cbEditMode = diaryPage.querySelector('.cbEditMode');
 			cbEditMode.addEventListener('change', this.cbEditMode_change.bind(this));
 			this.lnkEditTrack = diaryPage.querySelector('.lnkEditTrack');
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
 			RC.Utils.showHide(diaryPage.querySelector('.pnlEdit'), PiLot.Model.Common.Permissions.hasSystemAccess());
-			this.setReadOnly(true);
+			this.toggleReadOnly(true);
 		},
 
-		/// sets the date based on the user settings, the value from the url or now
+		/** sets the date based on the user settings, the value from the url or now */
 		initializeDate: function () {
 			let date = PiLot.Utils.Common.parseQsDate(this.currentBoatTime);
 			if (date === null) {
@@ -206,60 +207,21 @@ PiLot.View.Diary = (function () {
 			this.showData();
 		},
 
-		/** tries to load the track and show it on the map */
-		loadTrackAsync: async function () {
-			this.showDistance(null);
-			const startMS = this.date.toLuxon().toMillis();
-			const endMS = this.date.addDays(1).toLuxon().toMillis();
-			const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
-			this.showTrackAsync(track);
-			this.showDistance(track.getDistance());
-			this.showSpeedDiagram(track);
-		},
-
-		/**
-		 * If we have a photos panel, this tries to load photos for the day,
-		 * and creates an image gallery with the photos shows them in the image gallery
-		 */
-		loadPhotosAsync: async function () {
-			/*let imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.logbookDay.getDay());
-			RC.Utils.showHide(this.plhPhotos, true);
-			if (imageCollection.getImagesCount() > 0) {
-				if (this.imageGallery !== null) {
-					this.imageGallery.setImageCollection(imageCollection);
-				} else {
-					let galleryOptions = {
-						paddingTop: 20,
-						paddingRight: 20,
-						paddingBottom: 20,
-						paddingLeft: 20,
-						imageSpaceH: 5,
-						imageSpaceV: 5,
-						minHeightUsed: 0.75,
-						autoFocus: false
-					};
-					this.imageGallery = new RC.ImageGallery.Gallery(this.plhPhotos, imageCollection, galleryOptions);
-				}
-			} else {
-				RC.Utils.showHide(this.plhPhotos, false);
-			}*/
-		},
-
 		/** shows the logbook data for the current LogbookDay */
 		showData: function () {
 			this.showFriendlyDate();
 			this.showDiaryText();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
 			this.loadTrackAsync();
-			this.loadPhotosAsync();
+			this.showPhotosAsync();
 		},
 
 		/**
 		 * Switches between the read-only and the edit mode
 		 * @param {Boolean} pReadOnly
 		 */
-		setReadOnly: function (pReadOnly) {
-			this.logbookEntriesControl.setReadOnly(pReadOnly);
+		toggleReadOnly: function (pReadOnly) {
+			this.logbookEntriesControl.toggleReadOnly(pReadOnly);
 			this.lnkAddLogbookEntry.hidden = pReadOnly;
 			this.pnlDiary.hidden = !pReadOnly;
 			this.pnlEditDiary.hidden = pReadOnly;
@@ -308,7 +270,7 @@ PiLot.View.Diary = (function () {
 			this.bindPreviousNextButtons();
 			this.bindLnkEditTrack();
 			this.bindLnkPublish();
-			this.setLogbookPhotosDate();
+			//this.setDiaryPhotosDate();
 			this.saveDate();
 			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 			window.history.pushState({}, '', url);
@@ -327,6 +289,17 @@ PiLot.View.Diary = (function () {
 				settingsValue = this.date;
 			}
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Diary.currentDate', settingsValue)
+		},
+
+		/** tries to load the track and show it on the map */
+		loadTrackAsync: async function () {
+			this.showDistance(null);
+			const startMS = this.date.toLuxon().toMillis();
+			const endMS = this.date.addDays(1).toLuxon().toMillis();
+			const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
+			this.showTrackAsync(track);
+			this.showDistance(track.getDistance());
+			this.showSpeedDiagram(track);
 		},
 
 		/** takes a track and shows it on the map */
@@ -396,12 +369,15 @@ PiLot.View.Diary = (function () {
 		 * reads the value from the diary textfield, assigns it to the current LogbookDay and saves the day back to the server
 		 * */
 		saveDiaryText: function () {
-			//this.ensureLogbookDay();
 			this.logbookDay.setDiaryText(this.tbDiary.value);
 			this.logbookDay.saveDiaryTextAsync();
 		},
 
-		/** Sets the current date to the LogbookPhotos, if we have one */
+		showPhotosAsync: async function () {
+			this.photoGallery.showPhotosAsync(this.date);
+		},
+
+		/** Sets the current date to the DiaryPhotos, if we have one */
 		setLogbookPhotosDate: function () {
 			/*if (this.logbookPhotos !== null) {
 				this.logbookPhotos.setDate(this.date);
@@ -410,11 +386,173 @@ PiLot.View.Diary = (function () {
 	};
 
 	/**
+	 * The photo gallery for the Diary, showing all photos of the day, and allows to open them. In
+	 * edit-mode (read-only=false), the photos can also be deleted.
+	 * @param {HTMLElement} pContainer - the container where the gallery will be created
+	 */
+	var DiaryPhotoGallery = function (pContainer) {
+		this.container = pContainer;
+		this.control = null;
+		this.plhPhotos = null;				// HTMLElement
+		this.pnlPhotoScreen = null;			// HTMLElement
+		this.imgFullSize = null;			// HTMLImageElement
+		this.keyHandler = null;
+		this.imageCollection = null;
+		this.imageIndex = -1;
+		this.hideNavTimeout = null;
+		this.initialize();
+	};
+
+	DiaryPhotoGallery.prototype = {
+
+		initialize: function () {
+			this.keyHandler = this.document_keydown.bind(this);
+			this.draw();
+		},
+
+		photo_click: function (pArg) {
+			this.showFullImage(pArg);
+		},
+
+		lnkPrevious_click: function () {
+			this.changeFullImage(-1);
+		},
+
+		lnkNext_click: function () {
+			this.changeFullImage(1);
+		},
+
+		image_load: function () {
+			this.preloadFullImage();
+			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), 2000);
+		},
+
+		imgFullSize_click: function () {
+			this.toggleNavigation(true);
+			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), 5000);
+		},
+
+		document_keydown: function (e) {
+			switch (e.key) {
+				case "Escape":
+					this.hideFullImage();
+					break;
+				case "ArrowLeft":
+					this.changeFullImage(-1);
+					break;
+				case "ArrowRight":
+					this.changeFullImage(1);
+					break;
+			}
+		},
+
+		draw: function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhotos);
+			this.container.appendChild(this.control);
+			this.plhPhotos = this.container.querySelector('.plhPhotos');
+			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
+			this.imgFullSize = this.container.querySelector('.imgFullSize');
+			this.imgFullSize.addEventListener('load', this.image_load.bind(this));
+			this.imgFullSize.addEventListener('click', this.imgFullSize_click.bind(this));
+			this.container.querySelector('.lnkPrevious').addEventListener('click', this.lnkPrevious_click.bind(this));
+			this.container.querySelector('.lnkNext').addEventListener('click', this.lnkNext_click.bind(this));
+		},
+
+		showPhotosAsync: async function (pDate) {
+			this.plhPhotos.clear();
+			await this.loadImageCollectionAsync(pDate);
+		},
+
+		toggleReadOnly: function (pReadOnly) {
+
+		},
+
+		toggleVisible: function (pVisible) {
+			this.control.hidden = !pVisible;
+		},
+
+		toggleNavigation: function (pVisible) {
+			this.pnlPhotoScreen.classList.toggle('fullscreen', !pVisible);
+			window.clearTimeout(this.hideNavTimeout);
+		},
+
+		loadImageCollectionAsync: async function (pDay) {
+			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDay);
+			this.imageCollection.getImageNames().forEach(function (anImage) {
+				const onclick = this.photo_click.bind(this, anImage);
+				const photo = new DiaryPhoto(this.plhPhotos, anImage, this.imageCollection, onclick);
+			}.bind(this));
+			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
+		},
+
+		showFullImage: function (pImageName) {
+			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
+			this.setFullImageUrl(pImageName);
+			this.pnlPhotoScreen.hidden = false;
+			document.addEventListener('keydown', this.keyHandler);
+		},
+
+		changeFullImage: function (pChangeBy) {
+			this.toggleNavigation(true);
+			const imageNames = this.imageCollection.getImageNames();
+			this.imageIndex = (this.imageIndex + pChangeBy + imageNames.length) % imageNames.length;
+			this.setFullImageUrl(imageNames[this.imageIndex]);
+		},
+
+		setFullImageUrl: function (pImageName) {
+			this.imgFullSize.src = this.getFullImageUrl(pImageName);
+		},
+
+		preloadFullImage: function () {
+			const imageNames = this.imageCollection.getImageNames();
+			const imageUrl = this.getFullImageUrl(imageNames[(this.imageIndex + 1) % imageNames.length]);
+			const image = new Image();
+			image.src = imageUrl;
+		},
+
+		getFullImageUrl: function (pImageName) {
+			const imageSize = Math.max(this.imgFullSize.clientHeight, this.imgFullSize.clientWidth);
+			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + pImageName;
+			return imageUrl;
+		},
+
+		hideFullImage: function () {
+			document.removeEventListener('keydown', this.keyHandler);
+			this.pnlPhotoScreen.hidden = true;
+		}
+	};
+
+	var DiaryPhoto = function (pContainer, pImageName, pImageCollection, pOnClick) {
+		this.container = pContainer;					// HTMLElement
+		this.imageName = pImageName;					// String (the original image name)
+		this.imageCollection = pImageCollection;		// RC.ImageGallery.ImageCollection
+		this.onclick = pOnClick;						// Function
+		this.initialize();
+	};
+
+	DiaryPhoto.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhoto);
+			this.container.appendChild(control);
+			const image = control.querySelector('.imgPhoto');
+			const imageSize = Math.max(control.clientHeight, control.clientWidth);
+			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + this.imageName;
+			image.src = imageUrl;
+			image.addEventListener('click', this.onclick);
+		}
+	};
+
+	/**
 	 * A control to upload a photo into the diary
 	 * @param {HTMLElement} pContainer - to container where the control will be added
 	 * @param {PiLot.View.Logbook.LogbookPage} pLogbookPage - the logbook page, needed to get the current date
 	 */
-	var DiaryImageUpload = function (pContainer, pLogbookPage) {
+	var DiaryPhotoUpload = function (pContainer, pLogbookPage) {
 
 		this.container = pContainer;
 		this.logbookPage = pLogbookPage;
@@ -430,7 +568,7 @@ PiLot.View.Diary = (function () {
 		this.initialize();
 	};
 
-	DiaryImageUpload.prototype = {
+	DiaryPhotoUpload.prototype = {
 
 		initialize: function () {
 			this.filePreviewReader = new FileReader();
@@ -481,63 +619,6 @@ PiLot.View.Diary = (function () {
 			this.pnlUploading = control.querySelector('.pnlUploading');
 			this.pnlUploadSuccess = control.querySelector('.pnlUploadSuccess');
 			this.pnlInvalidType = control.querySelector('.pnlInvalidType');
-		}
-	};
-
-	var LogbookPhotos = function (pContainer) {
-		this.container = pContainer;
-		this.imageCollection = null;		// RC.ImageGallery.ImageCollection
-		this.plhPhotos = null;				// HTMLElement
-
-		this.initialize();
-	};
-
-	LogbookPhotos.prototype = {
-
-		initialize: function () {
-			this.draw();
-		},
-
-		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPhotos);
-			this.container.appendChild(control);
-			this.plhPhotos = this.container.querySelector('.plhPhotos');
-		},
-
-		loadImageCollectionAsync: async function (pDay) {
-			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDay);
-			this.plhPhotos.clear();
-			this.imageCollection.getImageNames().forEach(function (anImage) {
-				new LogbookPhoto(this.plhPhotos, anImage, this.imageCollection);
-			}.bind(this));			
-		},
-
-		setDate: function (pDate) {
-			this.loadImageCollectionAsync(pDate);
-		}
-	};
-
-	var LogbookPhoto = function (pContainer, pImageName, pImageCollection) {
-		this.container = pContainer;					// HTMLElement
-		this.imageName = pImageName;					// String (the original image name)
-		this.imageCollection = pImageCollection;		// RC.ImageGallery.ImageCollection
-
-		this.initialize();
-	};
-
-	LogbookPhoto.prototype = {
-
-		initialize: function () {
-			this.draw();
-		},
-
-		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPhoto);
-			this.container.appendChild(control);
-			const image = control.querySelector('.imgPhoto');
-			const imageSize = Math.max(control.clientHeight, control.clientWidth);
-			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + this.imageName;
-			image.src = imageUrl;
 		}
 	};
 

@@ -78,16 +78,17 @@ PiLot.Templates.Tools = {
 	`,
 
 	speedDiagram: `
-		<div>
-			<div style="display:flex; justify-content:flex-end" class="marginBottomSmall">
-				<div class="marginLeft">
+		<div style="padding: 0.5em 0.25em 0.25em 0.25em; border:1px solid #ccc;">
+			<div style="display:flex; gap:1em;" class="marginBottomSmall paddingRight">
+				<span class="semiBold" style="flex-grow:1;" data-text="speedDiagram"></span>
+				<div>
 					<span data-text="unit"></span>: <select class="ddlUnit">
 						<option value="ms" data-text="metersPerSecondShort"></option>
 						<option value="kts" data-text="kn"></option>
 						<option value="kmh" data-text="kmh"></option>
 					</select>
 				</div>
-				<div class="marginLeft">
+				<div>
 					Sample: <select class="ddlSample">
 						<option value="10">10 s</option>
 						<option value="30">30 s</option>
@@ -99,7 +100,7 @@ PiLot.Templates.Tools = {
 					</select>
 				</div>
 			</div>
-			<div style="width:100%; height:20vh; min-height:200px; border:1px solid #666;" class="pnlChart"></div>
+			<div style="width:100%; height:20vh; min-height:200px;" class="pnlChart"></div>
 		</div>
 	`,
 

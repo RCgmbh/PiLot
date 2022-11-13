@@ -29,15 +29,16 @@ PiLot.Templates.Diary = {
 					<span class="block semiBold marginBottom" data-text="diary"></span>
 					<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 				</div>
-				<div class="plhLogbookEntries logbookEntries"></div>
+				<div class="plhLogbookEntries logbookEntries hCenter"></div>
 				<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
 				<div class="plhMap navMap borderDark marginBottom"></div>
-				<div class="pnlSpeedDiagram marginBottom"></div>
+				<div class="pnlSpeedDiagram marginTop marginBottom"></div>
 			</div>
-			<div class="dataContainerFull paddingRight paddingBottom" hidden>
-				<div class="diaryPhotos"></div>
+			<div class="dataContainerFull paddingRight marginBottom">
+				<div class="plhPhotoGallery marginBottom"></div>
+				<div class="plhPhotoUpload marginBottom" hidden></div>
 			</div>
 			<div class="pnlEdit dataContainerFull marginBottom">
 				<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> |
@@ -143,10 +144,19 @@ PiLot.Templates.Diary = {
 		</div>
 	`,
 
-	diaryPhotos: `<div class="plhPhotos" style="display:flex;gap:1em; flex-direction:row;flex-wrap:wrap;justify-content:center"></div>`,
+	diaryPhotos: `
+		<div>
+			<div class="pnlPhotoScreen photoScreen" hidden>
+				<a href="#" class="lnkPrevious"><i class="icon-circle-left"></i></a>
+				<img src="" class="imgFullSize photo" />
+				<a href="#" class="lnkNext"><i class="icon-circle-right"></i></a>
+			</div>
+			<div class="plhPhotos diaryPhotos">
+			</div>
+		</div>`,
 
-	diaryPhoto: `<div style="width:10em; height:10em; display:flex; flex-direction:column; justify-content:center;">
-			<img class="imgPhoto" style="max-height:100%; max-width:100%; margin-left:auto; margin-right: auto;" />
+	diaryPhoto: `<div class="thumbnailContainer">
+			<img class="imgPhoto thumbnail" />
 		</div>`
 
 

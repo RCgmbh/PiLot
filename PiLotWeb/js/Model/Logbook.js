@@ -6,7 +6,7 @@ PiLot.Model.Logbook = (function () {
 	/**
 	 * Class LogbookDay 
 	 * A LogbookDay encapsulates all logbook entries plus the free-text diary for one day.
-	 * Observable events are addEntry, deleteEntry, changeEntryTime
+	 * Observable events are saveEntry, deleteEntry
 	 * @param {RC.Date.DateOnly} pDay
 	 * */
 	var LogbookDay = function (pDay) {
@@ -27,7 +27,7 @@ PiLot.Model.Logbook = (function () {
 
 		/**
 		 * Registers an observer that will be called when pEvent happens.
-		 * @param {String} pEvent - 'addEntry', 'deleteEntry', 'changeEntry'
+		 * @param {String} pEvent - 'saveEntry', 'deleteEntry'
 		 * @param {Function} pCallback - The method to call 
 		 * */
 		on: function (pEvent, pCallback) {
@@ -36,23 +36,16 @@ PiLot.Model.Logbook = (function () {
 
 		/** Removes ALL observers for a ALL Events */
 		off: function(){
-			RC.Utils.removeObservers(this.observers, 'addEntry');
+			RC.Utils.removeObservers(this.observers, 'saveEntry');
 			RC.Utils.removeObservers(this.observers, 'deleteEntry');
-			RC.Utils.removeObservers(this.observers, 'changeEntryTime');
 		},
 
-		/**
-		 * Handler for changes of any of the logbookEntries, fires the changeEntry event
-		 * @param {PiLot.Model.Logbook.LogbookEntry} pEntry 
-		 */
-		/*logbookEntry_changeTime: function(pEntry){
-			RC.Utils.notifyObservers(this, this.observers, 'changeEntryTime', pEntry);
-		},*/
-
+		/** Handler for when the item is saved, notifies observers */
 		logbookEntry_save: function(pEntry){
 			RC.Utils.notifyObservers(this, this.observers, 'saveEntry', pEntry);
 		},
 
+		/** Handler for when the item is being deleted  */
 		logbookEntry_delete: function (pEntry) {
 			RC.Utils.notifyObservers(this, this.observers, 'deleteEntry', pEntry);
 		},
@@ -81,7 +74,7 @@ PiLot.Model.Logbook = (function () {
 		 * Adds an entry to this.logbookEntries. If pLogbookEntry is null, 
 		 * a new entry is created. The added entry is returned as result.
 		 * @param {PiLot.Model.Logbook.LogbookEntry|null} pLogbookEntry
-		 * @return {PiLot.Model.Logbook.LogbookEntry}
+		 * @return {PiLot.Model.Logbook.LogbookEntry} - The new or added entry
 		 * */
 		addEntry: function (pLogbookEntry) {
 			let entry = pLogbookEntry;
@@ -89,7 +82,6 @@ PiLot.Model.Logbook = (function () {
 				entry = new PiLot.Model.Logbook.LogbookEntry(this);
 			}
 			this.logbookEntries.push(entry);
-			//RC.Utils.notifyObservers(this, this.observers, 'addEntry', entry);
 			entry.on('save', this.logbookEntry_save.bind(this));
 			entry.on('delete', this.logbookEntry_delete.bind(this));
 			return entry;
@@ -111,7 +103,6 @@ PiLot.Model.Logbook = (function () {
 			if (index > -1) {
 				this.logbookEntries.splice(index, 1);
 			}
-			//RC.Utils.notifyObservers(this, this.observers, 'deleteEntry', null);
 		},
 
 		/**
@@ -198,7 +189,7 @@ PiLot.Model.Logbook = (function () {
 
 	/** 
 	 * Class LogbookEntry.
-	 * Observable events: changeTime, save
+	 * Observable events: save, delete
 	 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - the LogbookDay (don't try without one)
 	 * */
 	var LogbookEntry = function (pLogbookDay) {
@@ -233,17 +224,17 @@ PiLot.Model.Logbook = (function () {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		/** @return {PiLot.Model.Logbook.LogbookDay} */
+		/** @returns {PiLot.Model.Logbook.LogbookDay} */
 		getLogbookDay: function () {
 			return this.logbookDay;
 		},
 
-		/** gets the entryId */
+		/** @returns {Number} */
 		getEntryId: function () {
 			return this.entryId;
 		},
 
-		/** sets the entryId */
+		/** @param {Number} pEntryId */
 		setEntryId: function (pEntryId) {
 			this.entryId = pEntryId;
 		},
@@ -260,8 +251,8 @@ PiLot.Model.Logbook = (function () {
 
 		/**
 		 * Sets the time of the entry, both in UTC and in BoatTime 
-		 * @param {number} pUtc - the UTC timestamp in seconds from epoc
-		 * @param {number} pBoatTime - the BoatTime timestamp in seconds from epoc
+		 * @param {Number} pUtc - the UTC timestamp in seconds from epoc
+		 * @param {Number} pBoatTime - the BoatTime timestamp in seconds from epoc
 		 */
 		setTime: function (pUtc, pBoatTime) {
 			this.dateTime = new PiLot.Model.Common.BoatTime((pBoatTime - pUtc) / 60, false).fromSeconds(pBoatTime);
@@ -272,22 +263,17 @@ PiLot.Model.Logbook = (function () {
 		 * the actual offset of this.dateTime, or, if there is no dateTime yet,
 		 * the BoatTime provided. This allows to both set and update the times,
 		 * while either using the current BoatTime or keeping any existing offset
-		 * @param {number} pSeconds - seconds since midnight
+		 * @param {Number} pSeconds - seconds since midnight
 		 * @param {PiLot.Model.Common.BoatTime} - the current BoatTime
 		 */
 		setTimeOfDay: function (pSeconds, pBoatTimeObject) {
 			let boatTimeObject;
-			//let previousMS = null;
 			if (this.dateTime) {
 				boatTimeObject = new PiLot.Model.Common.BoatTime(this.dateTime.offset, false);
-				//previousMS = this.dateTime.toMillis()
 			} else {
 				boatTimeObject = pBoatTimeObject;
 			}
 			this.dateTime = boatTimeObject.fromSeconds(this.logbookDay.getDay().totalSeconds() + pSeconds);
-			//if(this.dateTime.toMillis() !== previousMS){
-			//	RC.Utils.notifyObservers(this, this.observers, 'changeTime', null);
-			//}			
 		},
 
 		getTitle: function () {
@@ -305,7 +291,7 @@ PiLot.Model.Logbook = (function () {
 		/// sets or updates the coordinates based on latitude and longitude.
 		/// returns whether the value has been updated
 		setLatLng: function (pLat, pLng) {
-			var result = false;
+			let result = false;
 			if ((pLat !== null) && (pLng !== null)) {
 				if (this.latLng === null) {
 					this.latLng = new L.LatLng(pLat, pLng);
@@ -414,7 +400,7 @@ PiLot.Model.Logbook = (function () {
 
 		/** 
 		 * Deletes an entry from the logbook day and deletes the item from the server.
-		 * @return {Boolean} whether deletion was successful
+		 * @returns {Boolean} whether deletion was successful
 		 * */
 		deleteAsync: async function () {
 			const path = `/Logbook/entry/${this.entryId}`;
@@ -589,8 +575,8 @@ PiLot.Model.Logbook = (function () {
 		 * Loads consolidated data for each day of a month from the server. The result is
 		 * an array of objects {hasTrack, hasLogbook, hasPhotos}, with exactly one object
 		 * per day, sorted by date ascending
-		 * @param {any} pYear
-		 * @param {any} pMonth
+		 * @param {Number} pYear
+		 * @param {Number} pMonth
 		 */
 		loadLogbookMonthAsync: async function (pYear, pMonth) {
 			return await PiLot.Utils.Common.getFromServerAsync(`/Logbook/${pYear}/${pMonth}`);
@@ -601,7 +587,7 @@ PiLot.Model.Logbook = (function () {
 	 * Loads the photos for one day, returning info about the photos root, the
 	 * thumbnail folders and the image names. This can be passed to an image
 	 * gallery control.
-	 * @param {any} pDate
+	 * @param {RC.Date.DateOnly} pDate
 	 */
 	var loadDailyImageCollectionAsync = async function (pDate) {
 		PiLot.log('PiLot.Logbook.Model.loadDailyImageCollectionAsync', 3);
@@ -626,7 +612,7 @@ PiLot.Model.Logbook = (function () {
 	/**
 	 * Loads an array of objects from the server, representing the
 	 * configured publish targets.
-	 * @return {{name, displayName}[]}
+	 * @returns {Object[]} with {name, displayName}
 	 */
 	var loadPublishTargetsAsync = async function () {
 		PiLot.log('PiLot.Logbook.Model.loadPublishTargetsAsync', 3);
