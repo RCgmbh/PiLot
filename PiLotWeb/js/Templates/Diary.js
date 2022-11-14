@@ -147,6 +147,14 @@ PiLot.Templates.Diary = {
 	diaryPhotos: `
 		<div>
 			<div class="pnlPhotoScreen photoScreen" hidden>
+				<div class="pnlOptions">
+					<div>
+						<a href="#" target="_blank" download class="lnkDownload marginLeft"><i class="icon-download2"></i></a>
+						<a href="#" target="_blank" class="lnkOpenBlank marginLeft"><i class="icon-popout"></i></a>
+						<a href="#" class="lnkDelete marginLeft"><i class="icon-trashcan"></i></a>
+					</div>
+					<a href="#" class="lnkClose"><i class="icon-cancel3"></i></a>
+				</div>
 				<a href="#" class="lnkPrevious"><i class="icon-circle-left"></i></a>
 				<img src="" class="imgFullSize photo" />
 				<a href="#" class="lnkNext"><i class="icon-circle-right"></i></a>

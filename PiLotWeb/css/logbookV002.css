@@ -84,8 +84,8 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 .diaryPhotos { width:100%; display:flex; gap:2em; flex-direction:row; flex-wrap:wrap; justify-content:center; padding:0.125em 0.125em 1em 0.125em; }
 
 .thumbnailContainer {
-	min-width: 12em; width:25vw; max-width:24em; 
-	min-height: 12em; height:25vw; max-height:24em; 
+	min-width: 15em; width:25vw; max-width:24em; 
+	min-height: 15em; height:25vw; max-height:24em; 
 	display:flex; flex-direction:column; justify-content:center;
 }
 .thumbnail { max-height:100%; max-width:100%; margin: 0.5em auto 0em auto; box-shadow: 0.5em 0.5em 1em 0 #666; }
@@ -106,39 +106,65 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 	max-width:100%; max-height:100%; margin:auto;
 }
 
-.photoScreen .lnkPrevious, .photoScreen .lnkNext {
+.photoScreen .lnkPrevious, .photoScreen .lnkNext, .photoScreen .pnlOptions {
 	position:absolute;
-	text-align:center;
-	top:0px;
-	display:block;
-	color:#eee;
-	height:100%;
-	width: 4em;
+	display:flex;
 	background-color: rgba(68, 82, 86, 0.8);
-	transition: all 0.2s
+	transition: all 0.5s
 }
 
-.photoScreen.fullscreen .lnkPrevious, .photoScreen.fullscreen .lnkNext{
+.photoScreen .lnkPrevious, .photoScreen .lnkNext, .photoScreen .pnlOptions a {
+	color:#fff;
+	transition: all 0.5s
+}
+
+.photoScreen .pnlOptions {
+	width:100%;
+	height: 3em;
+	justify-content:space-between;
+	align-items:center;
+	padding:0em 1em;
+}
+
+.photoScreen .lnkPrevious, .photoScreen .lnkNext {
+	align-items:center;
+	justify-content:center;
+	top:40%;
+	height:20%;
+	width: 4em;
+	max-width:10vw;
+	min-width:2.5em;
+}
+
+.photoScreen.fullscreen .lnkPrevious, .photoScreen.fullscreen .lnkNext, .photoScreen.fullscreen .pnlOptions {
 	background-color: rgba(51, 51, 51, 0);
+}
+
+.photoScreen.fullscreen a, .photoScreen.fullscreen a:hover, .photoScreen.fullscreen a:active, .photoScreen.fullscreen a:visited {
 	color: rgba(238, 238, 238, 0);
 }
 
 .photoScreen .lnkPrevious {
 	left: 0px;
+	border-top-right-radius:0.25em;
+	border-bottom-right-radius:0.25em;
 }
 
 .photoScreen .lnkNext {
 	right: 0px;
+	border-top-left-radius:0.25em;
+	border-bottom-left-radius:0.25em;
 }
 
-.photoScreen .lnkPrevious:hover, .photoScreen .lnkNext:hover{
-	background-color: rgba(68, 82, 86, 0.8);	
+.photoScreen a:hover {
 	color: #B2D3FF;
 }
 
-.photoScreen .lnkPrevious > i, .photoScreen .lnkNext > i {font-size:2em; top:50%; position:absolute;}
-.photoScreen .lnkPrevious > i {left:0.5em;}
-.photoScreen .lnkNext > i {right:0.5em;}
+.photoScreen.fullscreen a:hover {
+	/*color: #fff;*/
+}
+
+.photoScreen a > i {font-size:2em; }
 
 .rcCalendar.diaryCalendar { width: calc(100vw - 40px); max-width:40em; right:10px; }
 .rcCalendar.diaryCalendar .datesTable .td { height:4em; }

@@ -647,6 +647,11 @@ RC.ImageGallery = (function () {
 			return result;
 		},
 
+		/** @returns {String} the root url, where the original images can be found */
+		getRootUrl: function () {
+			return this.rootUrl;
+		},
+
 		/// gets the image names within the collection
 		getImageNames: function(){
 			return this.imageNames;

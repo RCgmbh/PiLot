@@ -393,12 +393,16 @@ PiLot.View.Diary = (function () {
 	var DiaryPhotoGallery = function (pContainer) {
 		this.container = pContainer;
 		this.control = null;
+		this.lnkDownload = null;
+		this.lnkOpenBlank = null;
+		this.lnkDelete = null;
 		this.plhPhotos = null;				// HTMLElement
 		this.pnlPhotoScreen = null;			// HTMLElement
 		this.imgFullSize = null;			// HTMLImageElement
 		this.keyHandler = null;
 		this.imageCollection = null;
 		this.imageIndex = -1;
+		this.navigationVisible = false;
 		this.hideNavTimeout = null;
 		this.initialize();
 	};
@@ -410,26 +414,37 @@ PiLot.View.Diary = (function () {
 			this.draw();
 		},
 
+		lnkDelete_click: function () {
+
+		},
+
+		lnkClose_click: function () {
+			this.hideFullImage();
+			event.preventDefault();
+		},
+
 		photo_click: function (pArg) {
 			this.showFullImage(pArg);
+			event.preventDefault();
 		},
 
 		lnkPrevious_click: function () {
 			this.changeFullImage(-1);
+			event.preventDefault();
 		},
 
 		lnkNext_click: function () {
 			this.changeFullImage(1);
+			event.preventDefault();
 		},
 
 		image_load: function () {
+			this.imgFullSize.hidden = false;
 			this.preloadFullImage();
-			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), 2000);
 		},
 
 		imgFullSize_click: function () {
-			this.toggleNavigation(true);
-			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), 5000);
+			this.toggleNavigation(!this.navigationVisible);
 		},
 
 		document_keydown: function (e) {
@@ -443,12 +458,19 @@ PiLot.View.Diary = (function () {
 				case "ArrowRight":
 					this.changeFullImage(1);
 					break;
+				case "Home":
+					this.setFullImageIndex(0);
+					break;
 			}
 		},
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhotos);
 			this.container.appendChild(this.control);
+			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
+			this.lnkDownload = this.control.querySelector('.lnkDownload');
+			this.lnkOpenBlank = this.control.querySelector('.lnkOpenBlank');
+			this.lnkDelete = this.control.querySelector('lnkDelete');
 			this.plhPhotos = this.container.querySelector('.plhPhotos');
 			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
 			this.imgFullSize = this.container.querySelector('.imgFullSize');
@@ -464,16 +486,24 @@ PiLot.View.Diary = (function () {
 		},
 
 		toggleReadOnly: function (pReadOnly) {
-
+			this.lnkDelete.hidden = pReadOnly;
 		},
 
 		toggleVisible: function (pVisible) {
 			this.control.hidden = !pVisible;
 		},
 
+		showNavigation: function (pForSeconds) {
+			this.toggleNavigation(true);
+			window.clearTimeout(this.hideNavTimeout);
+			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), pForSeconds * 1000);
+		},
+
 		toggleNavigation: function (pVisible) {
+			this.navigationVisible = pVisible;
 			this.pnlPhotoScreen.classList.toggle('fullscreen', !pVisible);
 			window.clearTimeout(this.hideNavTimeout);
+			this.hideNavTimeout = null;
 		},
 
 		loadImageCollectionAsync: async function (pDay) {
@@ -489,18 +519,25 @@ PiLot.View.Diary = (function () {
 			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
 			this.setFullImageUrl(pImageName);
 			this.pnlPhotoScreen.hidden = false;
+			this.showNavigation(4);
 			document.addEventListener('keydown', this.keyHandler);
 		},
 
+		setFullImageIndex: function (pIndex) {
+			this.imageIndex = pIndex;
+			this.setFullImageUrl(this.imageCollection.getImageNames()[this.imageIndex]);
+		},
+
 		changeFullImage: function (pChangeBy) {
-			this.toggleNavigation(true);
 			const imageNames = this.imageCollection.getImageNames();
-			this.imageIndex = (this.imageIndex + pChangeBy + imageNames.length) % imageNames.length;
-			this.setFullImageUrl(imageNames[this.imageIndex]);
+			this.setFullImageIndex((this.imageIndex + pChangeBy + imageNames.length) % imageNames.length);
 		},
 
 		setFullImageUrl: function (pImageName) {
 			this.imgFullSize.src = this.getFullImageUrl(pImageName);
+			this.imgFullSize.hidden = true;
+			this.lnkDownload.href = this.getOriginalImageUrl(pImageName);
+			this.lnkOpenBlank.href = this.getOriginalImageUrl(pImageName);
 		},
 
 		preloadFullImage: function () {
@@ -511,9 +548,13 @@ PiLot.View.Diary = (function () {
 		},
 
 		getFullImageUrl: function (pImageName) {
-			const imageSize = Math.max(this.imgFullSize.clientHeight, this.imgFullSize.clientWidth);
+			const imageSize = Math.max(this.pnlPhotoScreen.clientHeight, this.pnlPhotoScreen.clientWidth);
 			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + pImageName;
 			return imageUrl;
+		},
+
+		getOriginalImageUrl: function (pImageName) {
+			return this.imageCollection.getRootUrl() + pImageName;
 		},
 
 		hideFullImage: function () {
