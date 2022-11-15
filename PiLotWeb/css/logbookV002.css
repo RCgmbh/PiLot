@@ -106,24 +106,39 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 	max-width:100%; max-height:100%; margin:auto;
 }
 
-.photoScreen .lnkPrevious, .photoScreen .lnkNext, .photoScreen .pnlOptions {
+.photoScreen .lnkPrevious, .photoScreen .lnkNext, .photoScreen .pnlOptions, .photoScreen .pnlFooter {
 	position:absolute;
 	display:flex;
 	background-color: rgba(68, 82, 86, 0.8);
 	transition: all 0.5s
 }
 
-.photoScreen .lnkPrevious, .photoScreen .lnkNext, .photoScreen .pnlOptions a {
+.photoScreen a, .photoScreen span, .photoScreen div {
 	color:#fff;
 	transition: all 0.5s
 }
 
-.photoScreen .pnlOptions {
+.photoScreen .pnlOptions, .photoScreen .pnlFooter {
 	width:100%;
 	height: 3em;
-	justify-content:space-between;
 	align-items:center;
 	padding:0em 1em;
+	justify-content:space-between;
+}
+
+.photoScreen .pnlOptions {
+	height: 2.5em;
+}
+
+.photoScreen .pnlFooter {
+	height: 1.75em;
+	bottom:0px;
+}
+
+.photoScreen .pnlFooter .lblFileName{
+	white-space: nowrap;
+	overflow:hidden;
+	text-overflow:ellipsis;
 }
 
 .photoScreen .lnkPrevious, .photoScreen .lnkNext {
@@ -136,11 +151,11 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 	min-width:2.5em;
 }
 
-.photoScreen.fullscreen .lnkPrevious, .photoScreen.fullscreen .lnkNext, .photoScreen.fullscreen .pnlOptions {
+.photoScreen.fullscreen > div, .photoScreen.fullscreen > a {
 	background-color: rgba(51, 51, 51, 0);
 }
 
-.photoScreen.fullscreen a, .photoScreen.fullscreen a:hover, .photoScreen.fullscreen a:active, .photoScreen.fullscreen a:visited {
+.photoScreen.fullscreen a, .photoScreen.fullscreen a:hover, .photoScreen.fullscreen span, .photoScreen.fullscreen div  {
 	color: rgba(238, 238, 238, 0);
 }
 

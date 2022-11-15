@@ -158,6 +158,12 @@ PiLot.Templates.Diary = {
 				<a href="#" class="lnkPrevious"><i class="icon-circle-left"></i></a>
 				<img src="" class="imgFullSize photo" />
 				<a href="#" class="lnkNext"><i class="icon-circle-right"></i></a>
+				<div class="pnlFooter">
+					<span class="lblFileName"></span>
+					<div>
+						<span class="lblPhotoIndex"></span>/<span class="lblPhotoTotal"></span>
+					</div>
+				</div>
 			</div>
 			<div class="plhPhotos diaryPhotos">
 			</div>

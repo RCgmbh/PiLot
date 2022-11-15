@@ -386,8 +386,8 @@ PiLot.View.Diary = (function () {
 	};
 
 	/**
-	 * The photo gallery for the Diary, showing all photos of the day, and allows to open them. In
-	 * edit-mode (read-only=false), the photos can also be deleted.
+	 * The photo gallery for the Diary, showing thumbnails of all photos of the day, and allows to
+	 * open them. In edit-mode (read-only=false), the photos can also be deleted.
 	 * @param {HTMLElement} pContainer - the container where the gallery will be created
 	 */
 	var DiaryPhotoGallery = function (pContainer) {
@@ -399,6 +399,9 @@ PiLot.View.Diary = (function () {
 		this.plhPhotos = null;				// HTMLElement
 		this.pnlPhotoScreen = null;			// HTMLElement
 		this.imgFullSize = null;			// HTMLImageElement
+		this.lblFileName = null;			// HTMLElement
+		this.lblPhotoIndex = null;			// HTMLElement
+		this.lblPhotoTotal = null;			// HTMLElement
 		this.keyHandler = null;
 		this.imageCollection = null;
 		this.imageIndex = -1;
@@ -418,48 +421,58 @@ PiLot.View.Diary = (function () {
 
 		},
 
+		/** Closes the currently displayed photo */
 		lnkClose_click: function () {
-			this.hideFullImage();
+			this.hidePhoto();
 			event.preventDefault();
 		},
 
-		photo_click: function (pArg) {
-			this.showFullImage(pArg);
+		/**
+		 * Opens the photo
+		 * @param {String} pArg - the image name
+		 */
+		thumbnail_click: function (pArg) {
+			this.showPhoto(pArg);
 			event.preventDefault();
 		},
 
+		/** Shows the previous photo (looping through) */
 		lnkPrevious_click: function () {
-			this.changeFullImage(-1);
+			this.changePhoto(-1);
 			event.preventDefault();
 		},
 
+		/** Shows the next photo (looping through) */
 		lnkNext_click: function () {
-			this.changeFullImage(1);
+			this.changePhoto(1);
 			event.preventDefault();
 		},
 
+		/** Shows the photo as soon as it has been loades, and triggers preloading the next one */
 		image_load: function () {
 			this.imgFullSize.hidden = false;
-			this.preloadFullImage();
+			this.preloadNextPhoto();
 		},
 
+		/** Handles clicks on the photo by showing/hiding the navigation */
 		imgFullSize_click: function () {
 			this.toggleNavigation(!this.navigationVisible);
 		},
 
+		/** Handles some keys. This is only bound to the document while a full photo is being displayed */
 		document_keydown: function (e) {
 			switch (e.key) {
 				case "Escape":
-					this.hideFullImage();
+					this.hidePhoto();
 					break;
 				case "ArrowLeft":
-					this.changeFullImage(-1);
+					this.changePhoto(-1);
 					break;
 				case "ArrowRight":
-					this.changeFullImage(1);
+					this.changePhoto(1);
 					break;
 				case "Home":
-					this.setFullImageIndex(0);
+					this.setPhotoIndex(0);
 					break;
 			}
 		},
@@ -478,27 +491,76 @@ PiLot.View.Diary = (function () {
 			this.imgFullSize.addEventListener('click', this.imgFullSize_click.bind(this));
 			this.container.querySelector('.lnkPrevious').addEventListener('click', this.lnkPrevious_click.bind(this));
 			this.container.querySelector('.lnkNext').addEventListener('click', this.lnkNext_click.bind(this));
+			this.lblFileName = this.control.querySelector('.lblFileName');
+			this.lblPhotoIndex = this.control.querySelector('.lblPhotoIndex');
+			this.lblPhotoTotal = this.control.querySelector('.lblPhotoTotal');
 		},
 
+		/**
+		 * Loads and shows the photos for a certain date
+		 * @param {RC.Date.DateOnly} pDate
+		 */
 		showPhotosAsync: async function (pDate) {
 			this.plhPhotos.clear();
-			await this.loadImageCollectionAsync(pDate);
+			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDate);
+			this.imageCollection.getImageNames().forEach(function (anImage) {
+				const onclick = this.thumbnail_click.bind(this, anImage);
+				const thumbnail = new Thumbnail(this.plhPhotos, anImage, this.imageCollection, onclick);
+			}.bind(this));
+			this.lblPhotoTotal.innerText = this.imageCollection.getImagesCount();
+			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
 		},
 
+		/**
+		 * Shows or hides the delete option in the detail view
+		 * @param {Boolean} pReadOnly
+		 */
 		toggleReadOnly: function (pReadOnly) {
 			this.lnkDelete.hidden = pReadOnly;
 		},
 
+		/**
+		 * Shows or hides the entire control. The control is automatically hidden
+		 * if there are no images for the selected date.
+		 * @param {Boolean} pVisible
+		 */
 		toggleVisible: function (pVisible) {
 			this.control.hidden = !pVisible;
 		},
 
+		/**
+		 * Opens a photo in full size view
+		 * @param {String} pImageName - the image name, without any path prefix
+		 */
+		showPhoto: function (pImageName) {
+			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
+			this.setPhotoUrl(pImageName);
+			this.pnlPhotoScreen.hidden = false;
+			this.showNavigation(4);
+			this.lblFileName.innerText = pImageName;
+			document.addEventListener('keydown', this.keyHandler);
+		},
+
+		/** Hides the full-size photo screen */
+		hidePhoto: function () {
+			document.removeEventListener('keydown', this.keyHandler);
+			this.pnlPhotoScreen.hidden = true;
+		},
+
+		/**
+		 * Shows the navigation for a few seconds, and makes sure it will be hidden automatically
+		 * @param {Number} pForSeconds - The duration to show the navigation in seconds
+		 */
 		showNavigation: function (pForSeconds) {
 			this.toggleNavigation(true);
 			window.clearTimeout(this.hideNavTimeout);
 			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), pForSeconds * 1000);
 		},
 
+		/**
+		 * Shows or hides the navigation and kills the timeout that would automatically hide it.
+		 * @param {any} pVisible
+		 */
 		toggleNavigation: function (pVisible) {
 			this.navigationVisible = pVisible;
 			this.pnlPhotoScreen.classList.toggle('fullscreen', !pVisible);
@@ -506,64 +568,65 @@ PiLot.View.Diary = (function () {
 			this.hideNavTimeout = null;
 		},
 
-		loadImageCollectionAsync: async function (pDay) {
-			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDay);
-			this.imageCollection.getImageNames().forEach(function (anImage) {
-				const onclick = this.photo_click.bind(this, anImage);
-				const photo = new DiaryPhoto(this.plhPhotos, anImage, this.imageCollection, onclick);
-			}.bind(this));
-			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
-		},
-
-		showFullImage: function (pImageName) {
-			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
-			this.setFullImageUrl(pImageName);
-			this.pnlPhotoScreen.hidden = false;
-			this.showNavigation(4);
-			document.addEventListener('keydown', this.keyHandler);
-		},
-
-		setFullImageIndex: function (pIndex) {
-			this.imageIndex = pIndex;
-			this.setFullImageUrl(this.imageCollection.getImageNames()[this.imageIndex]);
-		},
-
-		changeFullImage: function (pChangeBy) {
+		/**
+		 * Changes the photo shown in full size by changing its index
+		 * @param {Number} pChangeBy
+		 */
+		changePhoto: function (pChangeBy) {
 			const imageNames = this.imageCollection.getImageNames();
-			this.setFullImageIndex((this.imageIndex + pChangeBy + imageNames.length) % imageNames.length);
+			this.setPhotoIndex((this.imageIndex + pChangeBy + imageNames.length) % imageNames.length);
 		},
 
-		setFullImageUrl: function (pImageName) {
-			this.imgFullSize.src = this.getFullImageUrl(pImageName);
+		/**
+		 * Sets the photo shown in full size identified by its index in the collection
+		 * @param {Number} pIndex
+		 */
+		setPhotoIndex: function (pIndex) {
+			this.imageIndex = pIndex;
+			this.setPhotoUrl(this.imageCollection.getImageNames()[this.imageIndex]);
+		},
+
+		/**
+		 * Sets the url of the photo shown in full size, and sets the link urls for download and blank
+		 * @param {String} pImageName - The image name, without any path prefix
+		 */
+		setPhotoUrl: function (pImageName) {
+			this.imgFullSize.src = this.getPhotoUrl(pImageName);
 			this.imgFullSize.hidden = true;
 			this.lnkDownload.href = this.getOriginalImageUrl(pImageName);
 			this.lnkOpenBlank.href = this.getOriginalImageUrl(pImageName);
+			this.lblPhotoIndex.innerText = this.imageIndex + 1;
 		},
 
-		preloadFullImage: function () {
+		/** Requests the next photo of the collection from the server, so that it will be displayed quickly */
+		preloadNextPhoto: function () {
 			const imageNames = this.imageCollection.getImageNames();
-			const imageUrl = this.getFullImageUrl(imageNames[(this.imageIndex + 1) % imageNames.length]);
+			const imageUrl = this.getPhotoUrl(imageNames[(this.imageIndex + 1) % imageNames.length]);
 			const image = new Image();
 			image.src = imageUrl;
 		},
 
-		getFullImageUrl: function (pImageName) {
+		/**
+		 * Calculates the url of the photo to show in full size based on the available space. Because I didn't
+		 * really grasp the srcset thing.
+		 * @param {String} pImageName - the image name, without any path prefix.
+		 */
+		getPhotoUrl: function (pImageName) {
 			const imageSize = Math.max(this.pnlPhotoScreen.clientHeight, this.pnlPhotoScreen.clientWidth);
 			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + pImageName;
 			return imageUrl;
 		},
 
+		/**
+		 * Gets the url of an image in its original size
+		 * @param {String} pImageName - the image name, without any path prefix.
+		 */
 		getOriginalImageUrl: function (pImageName) {
 			return this.imageCollection.getRootUrl() + pImageName;
-		},
-
-		hideFullImage: function () {
-			document.removeEventListener('keydown', this.keyHandler);
-			this.pnlPhotoScreen.hidden = true;
 		}
 	};
 
-	var DiaryPhoto = function (pContainer, pImageName, pImageCollection, pOnClick) {
+	var Thumbnail = function (pContainer, pImageName, pImageCollection, pOnClick) {
 		this.container = pContainer;					// HTMLElement
 		this.imageName = pImageName;					// String (the original image name)
 		this.imageCollection = pImageCollection;		// RC.ImageGallery.ImageCollection
@@ -571,7 +634,7 @@ PiLot.View.Diary = (function () {
 		this.initialize();
 	};
 
-	DiaryPhoto.prototype = {
+	Thumbnail.prototype = {
 
 		initialize: function () {
 			this.draw();
