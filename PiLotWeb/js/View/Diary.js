@@ -626,6 +626,13 @@ PiLot.View.Diary = (function () {
 		}
 	};
 
+	/**
+	 * Represents a single thumbnail image. 
+	 * @param {HTMLElement} pContainer - the container where the images should be added
+	 * @param {String} pImageName - the name of the image, without any path prefix
+	 * @param {RC.ImageGallery.ImageCollection} pImageCollection - the image collection for the day
+	 * @param {Function} pOnClick - the handler for the click on the image
+	 */
 	var Thumbnail = function (pContainer, pImageName, pImageCollection, pOnClick) {
 		this.container = pContainer;					// HTMLElement
 		this.imageName = pImageName;					// String (the original image name)
@@ -707,7 +714,7 @@ PiLot.View.Diary = (function () {
 
 		fileDataReader_loadend: async function () {
 			const file = this.fileImageUpload.files[0];
-			await PiLot.Model.Logbook.uploadPhotoAsync(this.fileDataReader.result, file.name, this.logbookPage.getDate());
+			await PiLot.Model.Logbook.uploadPhotoAsync(this.logbookPage.getDate(), file.name, this.fileDataReader.result);
 			this.pnlUploading.hidden = true;
 			this.pnlUploadSuccess.hidden = false;
 		},

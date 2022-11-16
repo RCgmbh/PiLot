@@ -130,6 +130,28 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Deletes an image and all its thumbnails
+		/// </summary>
+		/// <param name="pImageName">The image name, without any path prefix</param>
+		/// <param name="pDay">The day of the image</param>
+		public void DeleteImageWithThumbnails(Date pDay, String pImageName) {
+			String imagePath = this.GetImageFilePath(pDay, pImageName, false);
+			if (File.Exists(imagePath)) {
+				File.Delete(imagePath);
+				Logger.Log($"Deleted photo at {imagePath}", LogLevels.DEBUG);
+			}
+			String directoryPath = this.GetPhotosFilePath(pDay, false);
+			String thumbnailPath;
+			foreach (String aDirectory in Directory.GetDirectories(directoryPath)) {
+				thumbnailPath = Path.Combine(aDirectory, pImageName);
+				if (File.Exists(thumbnailPath)) {
+					File.Delete(thumbnailPath);
+					Logger.Log($"Deleted photo at {thumbnailPath}", LogLevels.DEBUG);
+				}
+			}
+		}
+
+		/// <summary>
 		/// returns a relative path in the form /photos/date/ for the photos folder of a certain date
 		/// </summary>
 		private String GetPhotosRelativePath(Date pDay) {

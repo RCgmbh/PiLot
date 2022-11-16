@@ -602,12 +602,19 @@ PiLot.Model.Logbook = (function () {
 	 * @param {String} pFilename - the original filename
 	 * @param {RC.Date.DateOnly} pDate - the image date
 	 */
-	var uploadPhotoAsync = async function (pBytes, pFilename, pDate) {
+	var uploadPhotoAsync = async function (pDate, pFilename, pBytes) {
 		PiLot.log('PiLot.Logbook.Model.uploadPhotoAsync', 3);
 		const url = `/Photos?day=${pDate.toLuxon().toFormat('yyyy-MM-dd')}&fileName=${pFilename}`;
 		const result = await PiLot.Utils.Common.putToServerAsync(url, pBytes, true);
 		return result;
 	};
+
+	var deletePhotoAsync = async function (pDate, pFilename) {
+		PiLot.log('PiLot.Logbook.Model.deletePhotoAsync', 3);
+		const url = `/Photos?day=${pDate.toLuxon().toFormat('yyyy-MM-dd')}&fileName=${pFilename}`;
+		const result = await PiLot.Utils.Common.deleteFromServerAsync(url);
+		return result;
+	}
 
 	/**
 	 * Loads an array of objects from the server, representing the
@@ -682,6 +689,7 @@ PiLot.Model.Logbook = (function () {
 		loadCurrentBoatSetupAsync: loadCurrentBoatSetupAsync,
 		loadDailyImageCollectionAsync: loadDailyImageCollectionAsync,
 		uploadPhotoAsync: uploadPhotoAsync,
+		deletePhotoAsync: deletePhotoAsync,
 		loadPublishTargetsAsync: loadPublishTargetsAsync,
 		loadDailyDataAsync: loadDailyDataAsync,
 		loadJobStatusAsync: loadJobStatusAsync,
