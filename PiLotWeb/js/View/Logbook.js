@@ -212,6 +212,7 @@ PiLot.View.Logbook = (function () {
 
 		/** handles click on the delete icon by showing a confirmation message, then deleting the entry */
 		btnDeleteEntry_click: function (e) {
+			e.preventDefault();
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeleteLogbookEntry'))) {
 				this.deleteEntryAsync();
 			}
@@ -219,6 +220,7 @@ PiLot.View.Logbook = (function () {
 
 		/** handles clicks on the edit icon, by showing the edit form for this entry */		
 		btnEditEntry_click: function (e) {
+			e.preventDefault();
 			this.editForm.showLogbookEntryAsync(this.logbookEntry);
 		},
 

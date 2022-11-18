@@ -359,7 +359,7 @@ RC.Utils = {
 	},
 
 	/**
-	 * splits a string using no a single delimiter, but allowing an array of delimiters
+	 * splits a string using not a single delimiter, but allowing an array of delimiters
 	 * @param {String} pString - the input string to split
 	 * @param {String[]} pDelimeters - the list of delimiters
 	 */
@@ -380,14 +380,14 @@ RC.Utils = {
 
 // Array Remove - By John Resig (MIT Licensed)
 Array.prototype.remove = function (from, to) {
-	var rest = this.slice((to || from) + 1 || this.length);
+	const rest = this.slice((to || from) + 1 || this.length);
 	this.length = from < 0 ? this.length + from : from;
 	return this.push.apply(this, rest);
 };
 
 // swaps two items in an array, without performing any checks
 Array.prototype.swap = Array.prototype.swap || function (pIndex1, pIndex2) {
-	var item = this[pIndex1];
+	const item = this[pIndex1];
 	this[pIndex1] = this[pIndex2];
 	this[pIndex2] = item;
 };
@@ -399,7 +399,7 @@ Array.prototype.last = Array.prototype.last || function () {
 
 // returns a new array which only contains each value once
 Array.prototype.distinct = Array.prototype.distinct || function () {
-	var result = new Array();
+	let result = new Array();
 	this.forEach(function (arrayItem) {
 		if (!result.some(function (resultItem) { return resultItem === arrayItem })) {
 			result.push(arrayItem);
@@ -410,9 +410,9 @@ Array.prototype.distinct = Array.prototype.distinct || function () {
 
 // allows to query a Map for an existing value
 Map.prototype.hasValue = Map.prototype.hasValue || function (pValue) {
-	var result = false;
-	var iterator = this.values();
-	var next = iterator.next();
+	let result = false;
+	const iterator = this.values();
+	let next = iterator.next();
 	while (!next.done) {
 		if (next.value === pValue) {
 			result = true;

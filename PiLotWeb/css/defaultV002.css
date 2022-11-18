@@ -260,6 +260,7 @@ textarea.big{height:20em;}
 .preLine {white-space: pre-Line;}
 .bgLight { background-color: #eee; }
 .bgLightBlue { background-color: #B2D3FF; }
+.borderLight { border: 1px solid #ccc;}
 .borderLightBlue { border-color: #B2D3FF; }
 .borderDark { border:1px solid #999; }
 .bw { filter: grayscale(80%); }

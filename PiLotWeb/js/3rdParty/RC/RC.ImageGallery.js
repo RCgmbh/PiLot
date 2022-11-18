@@ -662,8 +662,23 @@ RC.ImageGallery = (function () {
 			return this.imageNames.length;
 		},
 
+		/**
+		 * Adds a single image to the collection
+		 * @param {String} pImageName - the filename without path prefix
+		 */
 		addImageName: function(pImageName){
 			this.imageNames.push(pImageName);
+		},
+
+		/**
+		 * Removes an image from the collection, if it's present.
+		 * @param {String} pImageName - the filename without any path prefix
+		 */
+		removeImageName: function (pImageName) {
+			const index = this.imageNames.indexOf(pImageName);
+			if (index > -1) {
+				this.imageNames.remove(index, index);
+			}
 		}
 	};
 

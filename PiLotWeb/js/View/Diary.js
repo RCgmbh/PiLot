@@ -398,6 +398,7 @@ PiLot.View.Diary = (function () {
 	 */
 	var DiaryPhotoGallery = function (pContainer) {
 		this.container = pContainer;
+		this.date = null;
 		this.control = null;
 		this.lnkDownload = null;
 		this.lnkOpenBlank = null;
@@ -424,13 +425,16 @@ PiLot.View.Diary = (function () {
 		},
 
 		lnkDelete_click: function () {
-
+			const fileName = this.imageCollection.getImageNames()[this.imageIndex]
+			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePhoto'))) {
+				this.deletePhoto(fileName);
+			}
 		},
 
 		/** Closes the currently displayed photo */
-		lnkClose_click: function (event) {
+		lnkClose_click: function (pEvent) {
 			this.hidePhoto();
-			event.preventDefault();
+			pEvent.preventDefault();
 		},
 
 		/**
@@ -442,15 +446,15 @@ PiLot.View.Diary = (function () {
 		},
 
 		/** Shows the previous photo (looping through) */
-		lnkPrevious_click: function (event) {
+		lnkPrevious_click: function (pEvent) {
 			this.changePhoto(-1);
-			event.preventDefault();
+			pEvent.preventDefault();
 		},
 
 		/** Shows the next photo (looping through) */
-		lnkNext_click: function (event) {
+		lnkNext_click: function (pEvent) {
 			this.changePhoto(1);
-			event.preventDefault();
+			pEvent.preventDefault();
 		},
 
 		/** Shows the photo as soon as it has been loades, and triggers preloading the next one */
@@ -489,6 +493,7 @@ PiLot.View.Diary = (function () {
 			this.lnkDownload = this.control.querySelector('.lnkDownload');
 			this.lnkOpenBlank = this.control.querySelector('.lnkOpenBlank');
 			this.lnkDelete = this.control.querySelector('.lnkDelete');
+			this.lnkDelete.addEventListener('click', this.lnkDelete_click.bind(this));
 			this.plhPhotos = this.container.querySelector('.plhPhotos');
 			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
 			this.imgFullSize = this.container.querySelector('.imgFullSize');
@@ -506,8 +511,9 @@ PiLot.View.Diary = (function () {
 		 * @param {RC.Date.DateOnly} pDate
 		 */
 		loadPhotosAsync: async function (pDate) {
+			this.date = pDate;
 			this.plhPhotos.clear();
-			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDate);
+			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
 			this.showPhotos();
 		},
 		
@@ -530,6 +536,19 @@ PiLot.View.Diary = (function () {
 		 */
 		addPhoto: function(pFileName){
 			this.imageCollection.addImageName(pFileName);
+			this.showPhotos();
+		},
+
+		/**
+		 * Sends the delete request for a photo to the server, and removes it from
+		 * the currently displayed collection (as reloading the collection might
+		 * still bring the photo, not having completed the delete I/O Operation)
+		 * @param {String} pFileName - The filename without any path prefix
+		 */
+		deletePhoto: function (pFileName) {
+			PiLot.Model.Logbook.deletePhotoAsync(this.date, pFileName);
+			this.imageCollection.removeImageName(pFileName);
+			this.hidePhoto();
 			this.showPhotos();
 		},
 
@@ -696,7 +715,7 @@ PiLot.View.Diary = (function () {
 
 		ensureReloadInterval: function(){
 			if(!this.reloadInterval){
-				this.reloadInterval = window.setInterval(this.reloadImage.bind(this), 2000);
+				this.reloadInterval = window.setInterval(this.reloadImage.bind(this), 5000);
 			}
 		},
 
@@ -748,9 +767,10 @@ PiLot.View.Diary = (function () {
 		},
 
 		fileImageUpload_change: function (e) {
-			if (this.fileImageUpload.files[0].type === "image/jpeg") {
+			if (this.fileImageUpload.files[0].type === 'image/jpeg') {
 				this.pnlInvalidType.hidden = true;
 				this.filePreviewReader.readAsDataURL(this.fileImageUpload.files[0]);
+				this.imgPreview.src = '';
 				this.imgPreview.hidden = true;
 			} else {
 				this.pnlInvalidType.hidden = false;
@@ -793,11 +813,18 @@ PiLot.View.Diary = (function () {
 		},
 
 		/** 
-		 * Shows or hides the entire control
+		 * Shows or hides the entire control. When showing, resets the state
+		 * by hiding some controls
 		 * @param {Boolean} pVisible
 		 * */
 		toggleVisible: function(pVisible){
 			this.control.hidden = !pVisible;
+			if (pVisible) {
+				this.imgPreview.hidden = true;
+				this.pnlUploading.hidden = true;
+				this.pnlUploadSuccess.hidden = true;
+				this.fileImageUpload.value = "";
+			}
 		}
 	};
 

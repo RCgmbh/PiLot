@@ -131,7 +131,7 @@ PiLot.Templates.Diary = {
 	publishPagePhoto: `<div><img class="imgPhoto" /><div class="label"><input type="checkbox" class="cbSelectPhoto"><label class="lblName"></label></div></div>`,
 
 	diaryPhotoUpload: `
-		<div class="marginTop marginBottom hCenter bgLight paddingAll">
+		<div class="marginBottom hCenter borderLight paddingAllSmall">
 			<span class="semiBold block marginBottom" data-text="photoUpload"></span>
 			<div class="logbookImageUpload hCenter">
 				<input type="file" class="fileImageUpload" accept="image/jpeg" />
