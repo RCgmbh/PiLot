@@ -38,7 +38,7 @@ PiLot.Templates.Diary = {
 			</div>
 			<div class="dataContainerFull paddingRight marginBottom">
 				<div class="plhPhotoGallery marginBottom"></div>
-				<div class="plhPhotoUpload marginBottom" hidden></div>
+				<div class="plhPhotoUpload marginBottom"></div>
 			</div>
 			<div class="pnlEdit dataContainerFull marginBottom">
 				<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> |
@@ -130,8 +130,8 @@ PiLot.Templates.Diary = {
 
 	publishPagePhoto: `<div><img class="imgPhoto" /><div class="label"><input type="checkbox" class="cbSelectPhoto"><label class="lblName"></label></div></div>`,
 
-	diaryImageUpload: `
-		<div class="marginTop marginBottom hCenter">
+	diaryPhotoUpload: `
+		<div class="marginTop marginBottom hCenter bgLight paddingAll">
 			<span class="semiBold block marginBottom" data-text="photoUpload"></span>
 			<div class="logbookImageUpload hCenter">
 				<input type="file" class="fileImageUpload" accept="image/jpeg" />
@@ -170,7 +170,7 @@ PiLot.Templates.Diary = {
 		</div>`,
 
 	diaryPhoto: `<div class="thumbnailContainer">
-			<img class="imgPhoto thumbnail" />
+			<img class="imgPhoto thumbnail" src="" />
 		</div>`
 
 

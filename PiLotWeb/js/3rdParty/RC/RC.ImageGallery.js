@@ -660,6 +660,10 @@ RC.ImageGallery = (function () {
 		/// gets the number of images in this collection
 		getImagesCount: function () {
 			return this.imageNames.length;
+		},
+
+		addImageName: function(pImageName){
+			this.imageNames.push(pImageName);
 		}
 	};
 

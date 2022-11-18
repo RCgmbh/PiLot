@@ -35,7 +35,7 @@ PiLot.View.Diary = (function () {
 		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
 		//this.plhPhotoGallery = null;					// the placeholder where we will add the photo gallery
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery for the daily photos
-		this.plhImageUpload = null;						// placeholder where the image upload component will be added
+		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
 		this.lnkEditTrack = null;						// link that leads to the tools page where the track can be edited
 		this.lnkPublish = null;							// the link leading to the publishing page for the same date
 
@@ -82,6 +82,12 @@ PiLot.View.Diary = (function () {
 			this.changeDiaryFontSize(-1);
 		},
 
+		/** Upload handler for the photo upload */
+		photoUpload_upload: function(pSender, pArg){
+			//this.showPhotosAsync();
+			this.photoGallery.addPhoto(pArg);
+		},
+
 		/** Change handler for the edit mode checkbox */
 		cbEditMode_change: function (e) {
 			this.toggleReadOnly(!e.target.checked);
@@ -119,9 +125,13 @@ PiLot.View.Diary = (function () {
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlSpeedDiagram = diaryPage.querySelector('.pnlSpeedDiagram');
+			if(PiLot.Model.Common.Permissions.canWrite()){	
+				const plhPhotoUpload = diaryPage.querySelector('.plhPhotoUpload');
+				this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this);
+				this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
+			}
 			const plhPhotoGallery = diaryPage.querySelector('.plhPhotoGallery');
 			this.photoGallery = new DiaryPhotoGallery(plhPhotoGallery);
-			this.plhPhotoUpload = diaryPage.querySelector('.plhPhotoUpload');
 			const cbEditMode = diaryPage.querySelector('.cbEditMode');
 			cbEditMode.addEventListener('change', this.cbEditMode_change.bind(this));
 			this.lnkEditTrack = diaryPage.querySelector('.lnkEditTrack');
@@ -225,6 +235,10 @@ PiLot.View.Diary = (function () {
 			this.lnkAddLogbookEntry.hidden = pReadOnly;
 			this.pnlDiary.hidden = !pReadOnly;
 			this.pnlEditDiary.hidden = pReadOnly;
+			this.photoGallery.toggleReadOnly(pReadOnly)
+			if(this.photoUpload){
+				this.photoUpload.toggleVisible(!pReadOnly);
+			}
 		},
 
 		/** shows the currently selected date in friendly form */
@@ -270,7 +284,6 @@ PiLot.View.Diary = (function () {
 			this.bindPreviousNextButtons();
 			this.bindLnkEditTrack();
 			this.bindLnkPublish();
-			//this.setDiaryPhotosDate();
 			this.saveDate();
 			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 			window.history.pushState({}, '', url);
@@ -374,15 +387,8 @@ PiLot.View.Diary = (function () {
 		},
 
 		showPhotosAsync: async function () {
-			this.photoGallery.showPhotosAsync(this.date);
+			this.photoGallery.loadPhotosAsync(this.date);
 		},
-
-		/** Sets the current date to the DiaryPhotos, if we have one */
-		setLogbookPhotosDate: function () {
-			/*if (this.logbookPhotos !== null) {
-				this.logbookPhotos.setDate(this.date);
-			}*/
-		}
 	};
 
 	/**
@@ -422,7 +428,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		/** Closes the currently displayed photo */
-		lnkClose_click: function () {
+		lnkClose_click: function (event) {
 			this.hidePhoto();
 			event.preventDefault();
 		},
@@ -433,17 +439,16 @@ PiLot.View.Diary = (function () {
 		 */
 		thumbnail_click: function (pArg) {
 			this.showPhoto(pArg);
-			event.preventDefault();
 		},
 
 		/** Shows the previous photo (looping through) */
-		lnkPrevious_click: function () {
+		lnkPrevious_click: function (event) {
 			this.changePhoto(-1);
 			event.preventDefault();
 		},
 
 		/** Shows the next photo (looping through) */
-		lnkNext_click: function () {
+		lnkNext_click: function (event) {
 			this.changePhoto(1);
 			event.preventDefault();
 		},
@@ -483,7 +488,7 @@ PiLot.View.Diary = (function () {
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.lnkDownload = this.control.querySelector('.lnkDownload');
 			this.lnkOpenBlank = this.control.querySelector('.lnkOpenBlank');
-			this.lnkDelete = this.control.querySelector('lnkDelete');
+			this.lnkDelete = this.control.querySelector('.lnkDelete');
 			this.plhPhotos = this.container.querySelector('.plhPhotos');
 			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
 			this.imgFullSize = this.container.querySelector('.imgFullSize');
@@ -500,15 +505,32 @@ PiLot.View.Diary = (function () {
 		 * Loads and shows the photos for a certain date
 		 * @param {RC.Date.DateOnly} pDate
 		 */
-		showPhotosAsync: async function (pDate) {
+		loadPhotosAsync: async function (pDate) {
 			this.plhPhotos.clear();
 			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(pDate);
+			this.showPhotos();
+		},
+		
+		/** Shows the photos based on the current imageCollection */
+		showPhotos: function(){
+			this.plhPhotos.clear();
+			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
 			this.imageCollection.getImageNames().forEach(function (anImage) {
 				const onclick = this.thumbnail_click.bind(this, anImage);
 				const thumbnail = new Thumbnail(this.plhPhotos, anImage, this.imageCollection, onclick);
 			}.bind(this));
 			this.lblPhotoTotal.innerText = this.imageCollection.getImagesCount();
-			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
+		},
+
+		/**
+		 * Manually adds a photo to the collection. This is useful to avoid timing
+		 * problems when uploading (the photo isn't actually saved when the upload
+		 * promise resolves)
+		 * @param {String} pFileName - the image file without any path prefix
+		 */
+		addPhoto: function(pFileName){
+			this.imageCollection.addImageName(pFileName);
+			this.showPhotos();
 		},
 
 		/**
@@ -638,6 +660,8 @@ PiLot.View.Diary = (function () {
 		this.imageName = pImageName;					// String (the original image name)
 		this.imageCollection = pImageCollection;		// RC.ImageGallery.ImageCollection
 		this.onclick = pOnClick;						// Function
+		this.image = null;
+		this.reloadInterval = null;
 		this.initialize();
 	};
 
@@ -647,14 +671,37 @@ PiLot.View.Diary = (function () {
 			this.draw();
 		},
 
+		image_error: function(pEvent){
+			this.ensureReloadInterval();
+		},
+
+		image_load: function(pEvent){
+			if(this.reloadInterval){
+				window.clearInterval(this.reloadInterval);
+				this.reloadInterval = null;
+			}
+		},
+
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhoto);
 			this.container.appendChild(control);
-			const image = control.querySelector('.imgPhoto');
+			this.image = control.querySelector('.imgPhoto');
 			const imageSize = Math.max(control.clientHeight, control.clientWidth);
 			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + this.imageName;
-			image.src = imageUrl;
-			image.addEventListener('click', this.onclick);
+			this.image.src = imageUrl;
+			this.image.addEventListener('click', this.onclick);
+			this.image.addEventListener('load', this.image_load.bind(this));
+			this.image.addEventListener('error', this.image_error.bind(this));
+		},
+
+		ensureReloadInterval: function(){
+			if(!this.reloadInterval){
+				this.reloadInterval = window.setInterval(this.reloadImage.bind(this), 2000);
+			}
+		},
+
+		reloadImage: function(){
+			this.image.src = this.image.src;
 		}
 	};
 
@@ -667,6 +714,7 @@ PiLot.View.Diary = (function () {
 
 		this.container = pContainer;
 		this.logbookPage = pLogbookPage;
+		this.control = null;
 		this.filePreviewReader = null;
 		this.fileDataReader = null;
 		this.fileImageUpload = null;
@@ -675,18 +723,28 @@ PiLot.View.Diary = (function () {
 		this.pnlUploading = null;
 		this.pnlUploadSuccess = null;
 		this.pnlInvalidType = null;
-
+		this.observers = null;			// observers used by RC.Utils observers pattern
 		this.initialize();
 	};
 
 	DiaryPhotoUpload.prototype = {
 
 		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['upload']);
 			this.filePreviewReader = new FileReader();
 			this.filePreviewReader.onload = this.filePreviewReader_load.bind(this);
 			this.fileDataReader = new FileReader();
 			this.fileDataReader.onloadend = this.fileDataReader_loadend.bind(this)
 			this.draw();
+		},
+
+		/**
+		 * Registers an observer that will be called when pEvent happens.
+		 * @param {String} pEvent - 'upload'
+		 * @param {Function} pCallback - The method to call 
+		 * */
+		 on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		fileImageUpload_change: function (e) {
@@ -715,21 +773,31 @@ PiLot.View.Diary = (function () {
 		fileDataReader_loadend: async function () {
 			const file = this.fileImageUpload.files[0];
 			await PiLot.Model.Logbook.uploadPhotoAsync(this.logbookPage.getDate(), file.name, this.fileDataReader.result);
+			RC.Utils.notifyObservers(this, this.observers, 'upload', file.name);
+			this.imgPreview.hidden = true;
 			this.pnlUploading.hidden = true;
 			this.pnlUploadSuccess.hidden = false;
 		},
 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.diaryImageUpload);
-			this.container.appendChild(control);
-			this.fileImageUpload = control.querySelector('.fileImageUpload');
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhotoUpload);
+			this.container.appendChild(this.control);
+			this.fileImageUpload = this.control.querySelector('.fileImageUpload');
 			this.fileImageUpload.addEventListener('change', this.fileImageUpload_change.bind(this));
-			this.imgPreview = control.querySelector('.imgPreview');
-			this.btnSend = control.querySelector('.btnSend');
+			this.imgPreview = this.control.querySelector('.imgPreview');
+			this.btnSend = this.control.querySelector('.btnSend');
 			this.btnSend.addEventListener('click', this.btnSend_click.bind(this));
-			this.pnlUploading = control.querySelector('.pnlUploading');
-			this.pnlUploadSuccess = control.querySelector('.pnlUploadSuccess');
-			this.pnlInvalidType = control.querySelector('.pnlInvalidType');
+			this.pnlUploading = this.control.querySelector('.pnlUploading');
+			this.pnlUploadSuccess = this.control.querySelector('.pnlUploadSuccess');
+			this.pnlInvalidType = this.control.querySelector('.pnlInvalidType');
+		},
+
+		/** 
+		 * Shows or hides the entire control
+		 * @param {Boolean} pVisible
+		 * */
+		toggleVisible: function(pVisible){
+			this.control.hidden = !pVisible;
 		}
 	};
 
