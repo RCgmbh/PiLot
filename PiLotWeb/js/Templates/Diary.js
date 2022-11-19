@@ -29,7 +29,7 @@ PiLot.Templates.Diary = {
 					<span class="block semiBold marginBottom" data-text="diary"></span>
 					<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 				</div>
-				<div class="plhLogbookEntries logbookEntries hCenter"></div>
+				<div class="plhLogbookEntries logbookEntries"></div>
 				<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
@@ -46,7 +46,6 @@ PiLot.Templates.Diary = {
 				<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
 			</div>
 		</div>`,
-
 
 	publishDiaryPage: `
 		<div class="contentPadding">
@@ -172,6 +171,4 @@ PiLot.Templates.Diary = {
 	diaryPhoto: `<div class="thumbnailContainer">
 			<img class="imgPhoto thumbnail" src="" />
 		</div>`
-
-
 };

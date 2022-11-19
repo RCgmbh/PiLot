@@ -78,9 +78,6 @@ PiLot.View.Boat = (function () {
 
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['imageLoaded']);
-			if (this.container instanceof jQuery) {
-				this.container = this.container.get()[0];
-			}
 			this.draw();
 		},
 
@@ -112,7 +109,6 @@ PiLot.View.Boat = (function () {
 		 * */
 		image_load: function () {
 			this.imageSvg = this.imageObject.contentDocument.querySelector('svg');
-			//if (this.imageObject.contentDocument.querySelector('svg')) {
 			if (this.imageSvg) {
 				PiLot.log('BoatImageLink: image loaded', 3);
 				this.imageLoaded = true;
@@ -544,8 +540,6 @@ PiLot.View.Boat = (function () {
 		this.boatSetup = null;					// the boat's current setup
 		this.imageConfig = null;				// the image config which will be created based on the boat config
 		this.boatImageLink = null;				// the PiLot.View.Boat.BoatImageLink
-		//this.boatSetupForm = null;			// the PiLot.View.Boat.BoatSetupForm
-		//this.plhBoatSetupForm = null;			// the container where the boat setup form will be addded
 		this.logbookEntryForm
 		this.plhAlternativeSetups = null;		// the container for alternative images. 
 		this.pendingImages = 0;					// a counter to keep track of unloaded images
@@ -665,11 +659,6 @@ PiLot.View.Boat = (function () {
 				this.logbookEntryForm.on('save', this.logbookEntryForm_save.bind(this));
 				this.logbookEntryForm.on('show', this.logbookEntryForm_show.bind(this));
 				this.logbookEntryForm.on('hide', this.logbookEntryForm_hide.bind(this));
-				//this.boatSetupForm = new BoatSetupForm(null, this.plhBoatSetupForm);
-				//this.boatSetupForm.showBoatSetup(this.boatSetup);
-				//this.boatSetupForm.on('save', this.boatSetupForm_save.bind(this));
-				//this.boatSetupForm.on('show', this.boatSetupForm_show.bind(this));
-				//this.boatSetupForm.on('hide', this.boatSetupForm_close.bind(this));
 				this.isMinimized = this.startPage.isMinimized(this);
 				this.setAlternativesColumn();
 				this.ensureClickHandler();
@@ -703,11 +692,8 @@ PiLot.View.Boat = (function () {
 		ensureUpdate: function () {
 			if (!this.updateInterval) {
 				this.updateInterval = window.setInterval(async function () {
-					//if (this.boatSetupForm) {
-						await this.loadCurrentSetupAsync();
-						this.boatImageLink.showBoatSetup(this.boatSetup);
-						//this.boatSetupForm.setBoatSetup(this.boatSetup);
-					//}
+					await this.loadCurrentSetupAsync();
+					this.boatImageLink.showBoatSetup(this.boatSetup);
 				}.bind(this), this.updateIntervalSeconds * 1000);;
 			}
 		},
@@ -751,23 +737,15 @@ PiLot.View.Boat = (function () {
 			divAlternativeSetupTemplate.remove();
 		},
 
+		/**
+		 * Shows the form allowing to create a logbook entry with current data and a specific BoatSetup
+		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - The boat setup to preset
+		 */
 		showLogbookEntryFormAsync: async function (pBoatSetup) {
 			const today = RC.Date.DateOnly.fromObject(this.boatTime.now());
 			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(today) || new PiLot.Model.Logbook.LogbookDay(today);
 			this.logbookEntryForm.showDefaultValuesAsync(logbookDay, pBoatSetup || this.boatSetup);
 		}
-
-		/// creates a logbook entry with a certain setup, using all information that is
-		/// available (gps, meteo) and redirects to the logbook page
-		/// @param pBoatSetup: PiLot.Model.Boat.BoatSetup
-		/*createLogbookEntryAsync: async function (pBoatSetup) {
-			const today = RC.Date.DateOnly.fromObject(this.boatTime.now());
-			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(today) || new PiLot.Model.Logbook.LogbookDay(today);
-			await logbookDay.autoAddEntryAsync(pBoatSetup, this.gpsObserver, true);
-			const loader = PiLot.Utils.Loader;
-			const page = loader.createPageLink(loader.pages.logbook.logbook);
-			window.location = `${page}&editLatest=true&d=today`;
-		}*/
 	};
 
 	return {

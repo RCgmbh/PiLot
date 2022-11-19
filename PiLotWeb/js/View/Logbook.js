@@ -11,12 +11,18 @@ PiLot.View.Logbook = (function () {
 	 * */
 	var LogbookPage = function () {
 
-		this.logbookDay = null;			// business object
-		this.boatTime = null;			// business object
-		this.gpsObserver = null;		// business object
-
-		this.editForm = null;			// control
-		this.logbookEntries = null;		// control
+		this.logbookDay = null;			// PiLot.Model.Logbook.LogbookDay
+		this.boatTime = null;			// PiLot.Model.Common.BoatTime
+		this.gpsObserver = null;		// PiLot.Model.Nav.GPSObserver
+		this.boatConfig = null;			// PiLot.Model.Boat.BoatConfig, the current boat config
+		this.boatImageConfig = null;	// PiLot.View.Boat.BoatImageConfig
+		this.editForm = null;			// PiLot.View.Logbook.LogbookEntryForm
+		this.logbookEntries = null;		// PiLot.View.Logbook.LogbookEntries
+		this.pnlNoEntries = null;		// HTMLElement
+		this.pnlRecentSetups = null;	// HTMLElement
+		this.plhRecentSetups = null;	// HTMLElement
+		this.pnlDefaultSetups = null;	// HTMLElement
+		this.plhDefaultSetups = null;	// HTMLElement
 
 		this.initializeAsync();
 	};
@@ -24,22 +30,43 @@ PiLot.View.Logbook = (function () {
 	LogbookPage.prototype = {
 
 		initializeAsync: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			await Promise.all(
+				[PiLot.Model.Common.getCurrentBoatTimeAsync(), PiLot.Model.Boat.loadCurrentConfigAsync()]
+			).then(results => {
+				this.boatTime = results[0];
+				this.boatConfig = results[1];
+				this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
+			});
 			this.gpsObserver = new PiLot.Model.Nav.GPSObserver(null, this.boatTime);
 			await this.loadLogbookDayAsync();
 			this.draw();
+			this.showLogbookDay();
 		},
 
-		/**
-		 * Click handler. This also makes sure the logbookDay is reloaded, if the day has 
-		 * changed since the page loaded, so that we don't mess things up around midnight.
-		 * */
+		/** Click handler for the add entry link * */
 		lnkAddEntry_click: async function () {
-			const today = this.boatTime.today();
-			if (!this.logbookDay.getDay().equals(today)) {
-				await this.loadLogbookDayAsync();
-			}
-			this.editForm.showDefaultValuesAsync(this.logbookDay);
+			this.showEntryFormAsync(null);
+		},
+
+		/** Handles all changes of the LogbookDay */
+		logbookDay_change: function () {
+			this.showNewEntryLinks();
+			this.updateNoEntries();
+		},
+
+		/** draws the form  */
+		draw: function () {
+			const logbookPage = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(logbookPage);
+			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
+			const plhLogbookEntries = logbookPage.querySelector('.plhLogbookEntries');
+			this.logbookEntries = new LogbookEntries(plhLogbookEntries, this.editForm, this.boatTime, { isReadOnly: false, sortDescending: true });
+			this.pnlNoEntries = logbookPage.querySelector('.pnlNoEntries');
+			logbookPage.querySelector('.lnkAddEntry').addEventListener('click', this.lnkAddEntry_click.bind(this));
+			this.pnlRecentSetups = logbookPage.querySelector('.pnlRecentSetups');
+			this.plhRecentSetups = logbookPage.querySelector('.plhRecentSetups');
+			this.pnlDefaultSetups = logbookPage.querySelector('.pnlDefaultSetups');
+			this.plhDefaultSetups = logbookPage.querySelector('.plhDefaultSetups');
 		},
 
 		/** Loads the current logbookDay, of if none exists, creates a new one */
@@ -48,24 +75,73 @@ PiLot.View.Logbook = (function () {
 			if (this.logbookDay === null) {
 				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(this.boatTime.today());
 			}
+			this.logbookDay.on('saveEntry', this.logbookDay_change.bind(this));
+			this.logbookDay.on('deleteEntry', this.logbookDay_change.bind(this));
 		},
-
-		/** draws the form and shows the current day's logbookEntries */
-		draw: function () {
-			const logbookPage = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPage);
-			PiLot.Utils.Loader.getContentArea().appendChild(logbookPage);
-			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
-			const plhLogbookEntries = logbookPage.querySelector('.plhLogbookEntries');
-			this.logbookEntries = new LogbookEntries(plhLogbookEntries, this.editForm, this.boatTime, { isReadOnly: false, sortDescending: true });
-			logbookPage.querySelector('.lnkAddEntry').addEventListener('click', this.lnkAddEntry_click.bind(this));
-			this.showLogbookDay();
-		},
-
+				
 		/** Shows the current day's logbookEntries */
 		showLogbookDay: function () {
-			this.logbookEntries.showLogbookDay(this.logbookDay)
-		}
+			this.logbookEntries.showLogbookDay(this.logbookDay);
+			this.showNewEntryLinks();
+			this.updateNoEntries();
+		},
 
+		/** Updates the visibility of the "no entries" info based on the current day */
+		updateNoEntries: function () {
+			this.pnlNoEntries.hidden = this.logbookDay.hasEntries();
+		},
+
+		/**
+		 * Shows the entry form for a specific or the current setup. Also makes sure the logbookDay is reloaded,
+		 * if the day has changed since the page loaded, so that we don't mess things up around midnight. 
+		 * */
+		showEntryFormAsync: async function (pSetup) {
+			const today = this.boatTime.today();
+			if (!this.logbookDay.getDay().equals(today)) {
+				await this.loadLogbookDayAsync();
+			}
+			this.editForm.showDefaultValuesAsync(this.logbookDay, pSetup);
+		},
+
+
+		showNewEntryLinks: function () {
+			const hasRecent = this.createBoatImageLinks(this.logbookDay.getLogbookEntries().map(i => i.getBoatSetup()), this.plhRecentSetups);
+			this.pnlRecentSetups.hidden = !hasRecent;
+			const hasDefault = this.createBoatImageLinks(this.boatConfig.getBoatSetups(), this.plhDefaultSetups);
+			this.pnlDefaultSetups.hidden = !hasDefault;
+		},
+
+		/**
+		 * Fills a container with a set of Boat setup images, each linked to the entry form
+		 * for that specific setup.
+		 * @param {PiLot.Boat.Model.BoatSetup[]} pBoatSetups
+		 * @param {HTMLElement} pContainer
+		 */
+		createBoatImageLinks: function (pBoatSetups, pContainer) {
+			let result = false;
+			const displayedSetups = []
+			pContainer.clear();
+			for (let i = 0; i < pBoatSetups.length; i++) {
+				if (!displayedSetups.some(s => s.equals(pBoatSetups[i]))) {
+					const imageLink = this.createBoatImageLink(pContainer, this.showEntryFormAsync.bind(this, pBoatSetups[i]));
+					imageLink.showBoatSetup(pBoatSetups[i]);
+					displayedSetups.push(pBoatSetups[i]);
+					result = true;
+				}
+			}
+			return result;
+		},
+
+		/**
+		 * Creates a single BoatImageLink, using a template to wrap around
+		 * @param {HTMLElement} pContainer
+		 * @param {Function} pOnClick
+		 */
+		createBoatImageLink: function (pContainer, pOnClick) {
+			const element = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookNewEntryImage);
+			pContainer.appendChild(element);
+			return new PiLot.View.Boat.BoatImageLink(this.boatImageConfig, element, pOnClick);
+		}
 	};
 	
 	/**
@@ -333,6 +409,8 @@ PiLot.View.Logbook = (function () {
 		
 		// controls: HTMLElement objects
 		this.control = null;				/// the entire control created from the template
+		this.lblTitleAddEntry = null;
+		this.lblTitleEditEntry = null;
 		this.tbTime = null;
 		this.tbTitle = null;
 		this.tbNotes = null;
@@ -390,6 +468,8 @@ PiLot.View.Logbook = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryForm)
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.saveAsync.bind(this));
+			this.lblTitleAddEntry = this.control.querySelector('.lblTitleAddEntry');
+			this.lblTitleEditEntry = this.control.querySelector('.lblTitleEditEntry');
 			this.tbTime = this.control.querySelector('.tbTime');
 			this.tbTitle = this.control.querySelector('.tbTitle');
 			this.tbNotes = this.control.querySelector('.tbNotes');
@@ -444,7 +524,7 @@ PiLot.View.Logbook = (function () {
 			this.logbookDay = pLogbookDay;
 			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.showTime(boatTime.now());
-			this.tbTitle.value = '';
+			this.showDefaultTile(pBoatSetup);
 			this.tbNotes.value = '';
 			const meteo = await new PiLot.Model.Meteo.DataLoader().loadLogbookMeteoAsync();
 			this.showMeteo(meteo);
@@ -478,7 +558,7 @@ PiLot.View.Logbook = (function () {
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			this.showTime(null);
-			this.tbTitle.value = '';
+			this.showDefaultTile(pBoatSetup);
 			this.tbNotes.value = '';
 			this.showMeteo({});
 			this.showNavData(null, null, null, null);
@@ -524,6 +604,16 @@ PiLot.View.Logbook = (function () {
 			this.tbTime.value = text;			
 		},
 
+		/**
+		 * Sets the name of a BoatSetup as title, to be used for new entries
+		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup
+		 */
+		showDefaultTile: function (pBoatSetup) {
+			if (pBoatSetup) {
+				this.tbTitle.value = pBoatSetup.getName() || '';
+			}
+		},
+
 		/** 
 		 * expects a meteo object and shows them values in the input fields. Not all fields need to be
 		 * present in the object, an empty object will just empty all fields.
@@ -553,6 +643,8 @@ PiLot.View.Logbook = (function () {
 		/** shows the form and sets focus on the first field */
 		showForm: function(){
 			this.control.hidden = false;
+			this.lblTitleAddEntry.hidden = !!this.logbookEntry;
+			this.lblTitleEditEntry.hidden = !this.logbookEntry;
 			RC.Utils.notifyObservers(this, this.observers, 'show', this);
 			this.tbTime.focus();
 		},

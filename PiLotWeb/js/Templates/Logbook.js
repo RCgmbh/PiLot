@@ -56,22 +56,40 @@ PiLot.Templates.Logbook = {
 	],
 
 	logbookPage: `
-		<div class="contentPadding fullHeight">
-			<div class="dataContainerFull">
-				<h1 class="inlineBlock" data-text="logbook"></h1>
-			</div>
-			<div class="dataContainerHalf paddingRight">
-				<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
-				<div class="plhLogbookEntries logbookEntries"></div>
+		<div class="contentPadding fullHeight logbookPage">
+			<h1 class="fullWidth" data-text="logbook"></h1>
+			<div style="display:flex; flex-direction:row; flex-wrap: wrap-reverse; justify-content:flex-start;">
+				<div class="marginRightBig marginBottom" style="flex-grow:2; max-width: 56em;">
+					<div class="pnlNoEntries feedbackInfo" data-text="noLogbookEntries" hidden></div>
+					<div class="plhLogbookEntries logbookEntries"></div>
+				</div>
+				<div class="marginBottom addEntryLinks" style="flex-grow:1; flex-basis: 25vw;">
+					<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
+					<div style="display:flex; flex-direction:column; gap:0.5em;">
+						<div class="pnlRecentSetups" hidden>
+							<span class="semiBold block marginBottomSmall" data-text="recentlyUsed"></span>
+							<div class="plhRecentSetups flexRowWrap"></div>
+						</div>
+						<div class="pnlDefaultSetups" hidden>
+							<span class="semiBold block marginBottomSmall" data-text="predefined">Vordefiniert</span>
+							<div class="plhDefaultSetups flexRowWrap"></div>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>`,
 
-	logbookEntryContainer:`<div></div>`,
+	logbookEntryContainer: `<div></div>`,
+
+	logbookNewEntryImage: `
+		<div class="newEntryImage"></div>`,
 
 	logbookEntryForm: `
 		<div class="fullHeight fullWidth absolute vCenter" hidden>
 			<div class="overlay"></div>
 			<div class="logbookEntry dialogPanel hCenter paddingAllSmall hCenter">
+				<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
+				<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
 				<div class="marginBottomSmall titleContainer">
 					<input type="text" class="tbTime" placeholder="hh:mm"
 					/><input type="text" class="tbTitle" data-title="title" />

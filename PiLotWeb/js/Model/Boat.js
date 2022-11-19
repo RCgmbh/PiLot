@@ -115,7 +115,6 @@ PiLot.Model.Boat = (function () {
 		this.featureId = pFeatureId;	// the is a number, unique for the boat
 		this.name = pName;				// the name of the feature
 		this.states = null;				// a Map (key = stateId, value = FeatureState object)
-		//this.transitions = null;		// a Map (key = transitionId, value = FeaturesTransition object)
 		this.initialize();
 	};
 

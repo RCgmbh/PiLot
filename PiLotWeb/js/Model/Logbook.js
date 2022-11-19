@@ -50,31 +50,36 @@ PiLot.Model.Logbook = (function () {
 			RC.Utils.notifyObservers(this, this.observers, 'deleteEntry', pEntry);
 		},
 
-		/** @return {RC.Date.DateOnly} */
+		/** @returns {RC.Date.DateOnly} */
 		getDay: function () {
 			return this.day;
 		},
 
-		/** @param {String} pText */
+		/** @params {String} pText */
 		setDiaryText: function (pText) {
 			this.diaryText = pText;
 		},
 
-		/** @return {String} */
+		/** @returns {String} */
 		getDiaryText: function () {
 			return this.diaryText;
 		},
 
-		/** @return {PiLot.Model.Logbook.LogbookEntry[]} */ 
+		/** @returns {PiLot.Model.Logbook.LogbookEntry[]} */ 
 		getLogbookEntries: function () {
 			return this.logbookEntries;
+		},
+
+		/** @returns {Boolean} */
+		hasEntries: function () {
+			return this.logbookEntries.length > 0;
 		},
 
 		/** 
 		 * Adds an entry to this.logbookEntries. If pLogbookEntry is null, 
 		 * a new entry is created. The added entry is returned as result.
 		 * @param {PiLot.Model.Logbook.LogbookEntry|null} pLogbookEntry
-		 * @return {PiLot.Model.Logbook.LogbookEntry} - The new or added entry
+		 * @returns {PiLot.Model.Logbook.LogbookEntry} - The new or added entry
 		 * */
 		addEntry: function (pLogbookEntry) {
 			let entry = pLogbookEntry;
@@ -107,7 +112,7 @@ PiLot.Model.Logbook = (function () {
 
 		/**
 		 * Gets a clone of the boatSetup for the latest entry on this LogbookDay, can be null
-		 * @return {PiLot.Model.BoatSetup|null}
+		 * @returns {PiLot.Model.BoatSetup|null}
 		 * */
 		getLatestBoatSetup: function () {
 			let result = null;
@@ -125,7 +130,7 @@ PiLot.Model.Logbook = (function () {
 
 		/** 
 		 * Saves the current diary text back to the server 
-		 * @return {Object} an object with {data: object, status: http code, ok: Boolean}
+		 * @returns {Object} an object with {data: object, status: http code, ok: Boolean}
 		 * */
 		saveDiaryTextAsync: async function () {
 			const serverObject = {

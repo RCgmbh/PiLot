@@ -250,6 +250,7 @@ textarea.big{height:20em;}
 .inlineBlock{display:inline-block;}
 .block{display:block;}
 .flex{display:flex;}
+.flexRowWrap { display:flex; flex-direction:row; flex-wrap: wrap; }
 .left { text-align: left; }
 .middle { vertical-align: middle; }
 .center { text-align: center; }
