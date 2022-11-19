@@ -19,11 +19,7 @@ PiLot.View.Tools = (function () {
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.system.tools.data));
 			const lnkTiles = pageContent.querySelector('.lnkTiles');
-			if (PiLot.Permissions.canWrite()) {
-				lnkTiles.setAttribute('href', loader.createPageLink(loader.pages.system.tools.tiles));
-			} else {
-				lnkTiles.remove();
-			}			
+			PiLot.Utils.Common.bindOrHideEditLink(lnkTiles, null, loader.createPageLink(loader.pages.system.tools.tiles));
 		}
 	};
 

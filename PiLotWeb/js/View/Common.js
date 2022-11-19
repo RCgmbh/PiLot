@@ -309,16 +309,16 @@ PiLot.View.Common = (function () {
 					{ page: pages.nav.routes, html: '<i class="icon-linegraph"></i>' }
 				]
 			}, {
-				section: pages.meteo,
-				links: [
-					{ page: pages.meteo.overview, html: '<i class="icon-thermometer"></i>' }
-				]
-			}, {
 				section: pages.logbook,
 				links: [
 					{ page: pages.logbook.diary, html: '<i class="icon-book3"></i>' },
 					{ page: pages.logbook.logbook, html: '<i class="icon-pen2"></i>', auth: PiLot.Permissions.canWrite }
 					
+				]
+			}, {
+				section: pages.meteo,
+				links: [
+					{ page: pages.meteo.overview, html: '<i class="icon-thermometer"></i>' }
 				]
 			}, {
 				section: pages.media,

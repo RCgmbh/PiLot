@@ -125,7 +125,7 @@ PiLot.View.Diary = (function () {
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlSpeedDiagram = diaryPage.querySelector('.pnlSpeedDiagram');
-			if(PiLot.Model.Common.Permissions.canWrite()){	
+			if(PiLot.Permissions.canWrite()){	
 				const plhPhotoUpload = diaryPage.querySelector('.plhPhotoUpload');
 				this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this);
 				this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
@@ -136,7 +136,7 @@ PiLot.View.Diary = (function () {
 			cbEditMode.addEventListener('change', this.cbEditMode_change.bind(this));
 			this.lnkEditTrack = diaryPage.querySelector('.lnkEditTrack');
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
-			RC.Utils.showHide(diaryPage.querySelector('.pnlEdit'), PiLot.Model.Common.Permissions.hasSystemAccess());
+			RC.Utils.showHide(diaryPage.querySelector('.pnlEdit'), PiLot.Permissions.canWrite());
 			this.toggleReadOnly(true);
 		},
 
@@ -235,7 +235,6 @@ PiLot.View.Diary = (function () {
 			this.lnkAddLogbookEntry.hidden = pReadOnly;
 			this.pnlDiary.hidden = !pReadOnly;
 			this.pnlEditDiary.hidden = pReadOnly;
-			this.photoGallery.toggleReadOnly(pReadOnly)
 			if(this.photoUpload){
 				this.photoUpload.toggleVisible(!pReadOnly);
 			}
@@ -424,7 +423,8 @@ PiLot.View.Diary = (function () {
 			this.draw();
 		},
 
-		lnkDelete_click: function () {
+		lnkDelete_click: function (pEvent) {
+			pEvent.preventDefault();
 			const fileName = this.imageCollection.getImageNames()[this.imageIndex]
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePhoto'))) {
 				this.deletePhoto(fileName);
@@ -493,7 +493,7 @@ PiLot.View.Diary = (function () {
 			this.lnkDownload = this.control.querySelector('.lnkDownload');
 			this.lnkOpenBlank = this.control.querySelector('.lnkOpenBlank');
 			this.lnkDelete = this.control.querySelector('.lnkDelete');
-			this.lnkDelete.addEventListener('click', this.lnkDelete_click.bind(this));
+			PiLot.Utils.Common.bindOrHideEditLink(this.lnkDelete, this.lnkDelete_click.bind(this));
 			this.plhPhotos = this.container.querySelector('.plhPhotos');
 			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
 			this.imgFullSize = this.container.querySelector('.imgFullSize');
@@ -514,11 +514,11 @@ PiLot.View.Diary = (function () {
 			this.date = pDate;
 			this.plhPhotos.clear();
 			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
-			this.showPhotos();
+			this.showThumbnails();
 		},
 		
 		/** Shows the photos based on the current imageCollection */
-		showPhotos: function(){
+		showThumbnails: function(){
 			this.plhPhotos.clear();
 			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
 			this.imageCollection.getImageNames().forEach(function (anImage) {
@@ -536,7 +536,7 @@ PiLot.View.Diary = (function () {
 		 */
 		addPhoto: function(pFileName){
 			this.imageCollection.addImageName(pFileName);
-			this.showPhotos();
+			this.showThumbnails();
 		},
 
 		/**
@@ -549,15 +549,7 @@ PiLot.View.Diary = (function () {
 			PiLot.Model.Logbook.deletePhotoAsync(this.date, pFileName);
 			this.imageCollection.removeImageName(pFileName);
 			this.hidePhoto();
-			this.showPhotos();
-		},
-
-		/**
-		 * Shows or hides the delete option in the detail view
-		 * @param {Boolean} pReadOnly
-		 */
-		toggleReadOnly: function (pReadOnly) {
-			this.lnkDelete.hidden = pReadOnly;
+			this.showThumbnails();
 		},
 
 		/**
@@ -690,10 +682,12 @@ PiLot.View.Diary = (function () {
 			this.draw();
 		},
 
+		/** If the thumbnail can not be loaded, it probably has not been generated, so we start a timer to re-check */
 		image_error: function(pEvent){
 			this.ensureReloadInterval();
 		},
 
+		/** If whe had an interval to re-load this thumbnail, we can now clear it */
 		image_load: function(pEvent){
 			if(this.reloadInterval){
 				window.clearInterval(this.reloadInterval);
@@ -713,12 +707,14 @@ PiLot.View.Diary = (function () {
 			this.image.addEventListener('error', this.image_error.bind(this));
 		},
 
+		/** Starts on single interval to reload the image after a while */
 		ensureReloadInterval: function(){
 			if(!this.reloadInterval){
 				this.reloadInterval = window.setInterval(this.reloadImage.bind(this), 5000);
 			}
 		},
 
+		/** Tries to reload the image by just resetting the src */
 		reloadImage: function(){
 			this.image.src = this.image.src;
 		}
@@ -955,7 +951,7 @@ PiLot.View.Diary = (function () {
 			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.date);
 			this.showLogbook(logbookDay, this.divLocalDiaryText, this.lblLocalDiaryLength, this.divLocalLogbookEntries, this.lblLocalLogbookEntriesCount);
 			const dailyPhotos = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
-			this.showPhotos(dailyPhotos, this.divLocalPhotos, this.lblLocalPhotosCount, true);
+			this.showThumbnails(dailyPhotos, this.divLocalPhotos, this.lblLocalPhotosCount, true);
 		},
 
 		/** loads the target data to show in the publish form ("right side") */
@@ -963,12 +959,12 @@ PiLot.View.Diary = (function () {
 			this.icoWait.hidden = false;
 			this.showTrackAsync(null, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
 			this.showLogbook(null, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
-			this.showPhotos(null, this.divTargetPhotos, this.lblTargetPhotosCount, false);
+			this.showThumbnails(null, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 			this.targetData = await PiLot.Model.Logbook.loadDailyDataAsync(this.targetName, this.date);
 			if (this.targetData.success) {
 				this.showTrackAsync(this.targetData.data.track, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
 				this.showLogbook(this.targetData.data.logbookDay, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
-				this.showPhotos(this.targetData.data.photoInfos, this.divTargetPhotos, this.lblTargetPhotosCount, false);
+				this.showThumbnails(this.targetData.data.photoInfos, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 				this.cbSelectPhotos.setState(2);
 				this.applyCbPhotosState();
 			} else {
@@ -1008,7 +1004,7 @@ PiLot.View.Diary = (function () {
 			}.bind(this));
 		},
 
-		showPhotos: function (pPhotoInfos, pContainer, pPhotosCountControl, pShowCheckboxes) {
+		showThumbnails: function (pPhotoInfos, pContainer, pPhotosCountControl, pShowCheckboxes) {
 			pContainer.clear();
 			if (pPhotoInfos) {
 				let thumbnailFolder = pPhotoInfos.getFolderUrl(PublishDiaryPage.THUMBNAILSIZE);

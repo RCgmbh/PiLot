@@ -529,11 +529,7 @@ PiLot.View.Nav = (function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routesPage));
 			const lnkAddRoute = contentArea.querySelector('.lnkAddRoute');
-			if (PiLot.Permissions.canWrite()) {
-				lnkAddRoute.setAttribute('href', PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routeDetails));
-			} else {
-				lnkAddRoute.parentNode.removeChild(lnkAddRoute);
-			}
+			PiLot.Utils.Common.bindOrHideEditLink(lnkAddRoute, null, PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routeDetails))
 			this.plhTable = contentArea.querySelector('.plhTable');
 			this.drawTable();
 		},
@@ -723,17 +719,18 @@ PiLot.View.Nav = (function () {
 			this.tbRouteName.value = this.route.getName();
 		},
 
+		/** Handlers selecting a waypoint on the map by highlighting the corresponding form element */
 		mapRoute_selectWaypoint: function (pSender, pArg) {
-			console.log(`selectWaypoint: ${pArg}`);
 			this.highlightWaypoint(pArg);
 		},
 
+		/** Handlers unselecting a waypoint on the map by de-highlighting all form elements */
 		mapRoute_unselectWaypoint: function (pSender, pArg) {
-			console.log(`unselectWaypoint: ${pArg}`);
 			this.highlightWaypoint(null);
 		},
 
-		/** loads the route from the server, if we have a valid routeId query string,
+		/** 
+		 *  Loads the route from the server, if we have a valid routeId query string,
 		 *  otherwise returns a new route.
 		 */
 		loadRoute: async function() {
