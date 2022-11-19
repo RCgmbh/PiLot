@@ -40,10 +40,15 @@ PiLot.Templates.Diary = {
 				<div class="plhPhotoGallery marginBottom"></div>
 				<div class="plhPhotoUpload marginBottom"></div>
 			</div>
-			<div class="pnlEdit dataContainerFull marginBottom">
-				<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> |
-				<a href="#" class="lnkEditTrack marginLeft marginRight" data-text="editTrack"></a> | 
-				<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
+			
+			<div class="flexRowWrap dataContainerFull paddingRight" style="justify-content:space-between; flex-wrap:wrap-reverse;">
+				<div class="pnlEdit marginRight marginBottom">
+					<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> |
+					<a href="#" class="lnkEditTrack marginLeft marginRight" data-text="editTrack"></a> | 
+					<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
+				</div>
+				<a href="#" class="marginBottom"><i class="biggerText icon-circle-up"></i></a>
+				
 			</div>
 		</div>`,
 

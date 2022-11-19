@@ -136,7 +136,7 @@ PiLot.View.Diary = (function () {
 			cbEditMode.addEventListener('change', this.cbEditMode_change.bind(this));
 			this.lnkEditTrack = diaryPage.querySelector('.lnkEditTrack');
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
-			RC.Utils.showHide(diaryPage.querySelector('.pnlEdit'), PiLot.Permissions.canWrite());
+			diaryPage.querySelector('.pnlEdit').hidden = !PiLot.Permissions.canWrite();
 			this.toggleReadOnly(true);
 		},
 
