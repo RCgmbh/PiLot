@@ -57,7 +57,8 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 .divWaypoints .navWaypointForm .divWaypoint { display: flex; min-width: 16em; max-width: 50em; align-items: center; }
 .divWaypoints .navWaypointForm .divWaypoint .tbWaypointName { flex-grow: 1; margin-right:0.125em; }
 .divWaypoints .navWaypointForm .divWaypoint .divLatLon { min-width: 10em; flex-grow: 0; }
-.divWaypoints .navWaypointForm .divWaypoint .divButtons { flex-grow: 0; width: 9em; min-width:9em; display:flex; justify-content:space-between;}
+.divWaypoints .navWaypointForm .divWaypoint .divButtons { flex-grow: 0; width: 6em; min-width:6em; display:flex; justify-content:space-between;}
+.divWaypoints .navWaypointForm .divWaypoint .divButtons a>i { font-size: 1.5em;}
 
 .sideMenu.expanded { width: 14em; }
 .sideMenu.expanded>.option{ width:13em; }

@@ -82,10 +82,12 @@ PiLot.Templates.Nav = {
 				<div class="divLatLon">
 					<span class="plhLatitude inlineBlock marginRight"></span><span class="plhLongitude inlineBlock"></span> 
 				</div>
-				<div class="divButtons">
-					<a href="#" class="lnkDeleteWaypoint marginLeft linkButton"><i class="icon-trashcan"></i></a>
-					<a href="#" class="lnkMoveDown linkButton narrow"><i class="icon-arrow-down2"></i></a>
-					<a href="#" class="lnkMoveUp linkButton narrow"><i class="icon-arrow-up2"></i></a>					
+				<div class="divButtons marginLeft">
+					<a href="#" class="lnkDeleteWaypoint"><i class="icon-trashcan"></i></a>
+					<div>
+						<a href="#" class="lnkMoveDown"><i class="icon-arrow-down2"></i></a>
+						<a href="#" class="lnkMoveUp"><i class="icon-arrow-up2"></i></a>
+					</div>
 				</div>
 			</div>
 			<div class="block divLeg">
