@@ -346,5 +346,25 @@ PiLot.Utils.Common = {
 					break;
 			}
 		});
+	},
+
+	/**
+	 * Takes a link, and eihter binds a click handler, if the user has write permissions,
+	 * or hides the link
+	 * @param {HTMLAnchorElement} pLink - the link to bind or hide
+	 * @param {Function} pFunction - the function to bind on the click event
+	 * @param {String} pHref - optionally bind an url instead of the click handler
+	 */
+	bindOrHideEditLink: function (pLink, pFunction, pHref = null) {
+		if (PiLot.Model.Common.Permissions.canWrite()) {
+			if (pFunction) {
+				pLink.addEventListener('click', pFunction);
+			}
+			if (pHref) {
+				pLink.href = pHref;
+			}			
+		} else {
+			pLink.hidden = true;
+		}
 	}
 };
