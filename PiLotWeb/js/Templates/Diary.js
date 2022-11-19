@@ -9,7 +9,7 @@ PiLot.Templates.Diary = {
 				<h1 class="inlineBlock lblFriendlyDate"></h1>
 				<div class="inlineBlock marginRight dateContainer">
 					<a href="#" class="lnkPreviousDay biggerText"><i class="icon-arrow-left2"></i></a><i
-						class="icon-calendar2 lblCalendarLink inlineBlock marginLeft marginRight pointer biggerText"></i><a
+						class="icon-calendar2 lblCalendarLink inlineBlock marginLeftSmall marginRightSmall pointer biggerText"></i><a
 						href="#" class="lnkNextDay biggerText"><i class="icon-arrow-right2"></i></a>
 					<div class="logbookCalendar diaryCalendar" hidden></div>
 				</div>

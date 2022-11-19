@@ -318,7 +318,9 @@ PiLot.View.Tools = (function () {
 		this.container = pContainer;	// the HTML Element to which this will be added
 		this.pnlChart = null;			// the HTML Element representing the canvas for the diagram
 		this.chart = null;				// the Chart object, a PiLot.Utils.Chart.DataChart
+		this.pnlUnit = null;			// the HTML Element containing the Unit dropdown and its label
 		this.ddlUnit = null;			// the HMTL Element representing the Unit dropdown
+		this.pnlSample = null;			// the HTML Element containing the Sample dropdown and its label
 		this.ddlSample = null;			// the HTML Element representing the sample dropdown
 		this.samples = null;			// an array holding the samples, which are arrays
 		this.boatTimeOffsets = null;	// an array with objects{validFrom, offset}
@@ -343,12 +345,15 @@ PiLot.View.Tools = (function () {
 			this.container.clear();
 			this.container.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Tools.speedDiagram));
 			this.pnlChart = this.container.querySelector('.pnlChart');
+			this.pnlUnit = this.container.querySelector('.pnlUnit');
 			this.ddlUnit = this.container.querySelector('.ddlUnit');
 			this.ddlUnit.value = this.unit;
 			this.ddlUnit.addEventListener('change', this.ddlUnit_change.bind(this));
+			this.pnlSample = this.container.querySelector('.pnlSample');
 			this.ddlSample = this.container.querySelector('.ddlSample');
 			this.ddlSample.value = this.sampleSeconds.toString();
 			this.ddlSample.addEventListener('change', this.ddlSample_change.bind(this));
+			this.container.querySelector('.lnkSettings').addEventListener('click', this.lnkSettings_click.bind(this));
 			this.createSamples();
 			this.drawChart();
 		},
@@ -365,6 +370,12 @@ PiLot.View.Tools = (function () {
 			this.setSampleSeconds(Number(this.ddlSample.value));
 			this.createSamples();
 			this.setChartData();
+		},
+
+		/** Swaps visibility of the two settings items */
+		lnkSettings_click: function () {
+			this.pnlSample.hidden = !this.pnlSample.hidden;
+			this.pnlUnit.hidden = !this.pnlUnit.hidden;
 		},
 
 		// creates an array of arrays representing the speed at a certain time.
