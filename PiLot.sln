@@ -116,7 +116,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotBackupClient", "PiLotB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotConfig", "PiLotConfig\PiLotConfig.csproj", "{4A3189CC-C622-4C21-853B-4D3AFC131C33}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotDemoDataSender", "PiLotDemoDataSender\PiLotDemoDataSender.csproj", "{74031253-0084-4FD8-BBF4-15E5E26FF65C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDemoDataSender", "PiLotDemoDataSender\PiLotDemoDataSender.csproj", "{74031253-0084-4FD8-BBF4-15E5E26FF65C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sqlScripts", "sqlScripts", "{54DC7590-ECE2-4214-8EF5-741B548B9E9C}"
+	ProjectSection(SolutionItems) = preProject
+		sqlScripts\poi.sql = sqlScripts\poi.sql
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
