@@ -47,7 +47,7 @@ PiLot.Templates.Diary = {
 					<a href="#" class="lnkEditTrack marginLeft marginRight" data-text="editTrack"></a> | 
 					<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
 				</div>
-				<a href="#" class="marginBottom"><i class="biggerText icon-circle-up"></i></a>
+				<a href="#" class="lnkTop marginBottom"><i class="biggerText icon-circle-up"></i></a>
 				
 			</div>
 		</div>`,

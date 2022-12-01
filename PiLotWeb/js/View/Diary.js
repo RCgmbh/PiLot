@@ -36,6 +36,7 @@ PiLot.View.Diary = (function () {
 		//this.plhPhotoGallery = null;					// the placeholder where we will add the photo gallery
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery for the daily photos
 		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
+		this.lnkTop = null;								// link to go back to the page top
 		this.lnkEditTrack = null;						// link that leads to the tools page where the track can be edited
 		this.lnkPublish = null;							// the link leading to the publishing page for the same date
 
@@ -132,6 +133,7 @@ PiLot.View.Diary = (function () {
 			}
 			const plhPhotoGallery = diaryPage.querySelector('.plhPhotoGallery');
 			this.photoGallery = new DiaryPhotoGallery(plhPhotoGallery);
+			this.lnkTop = diaryPage.querySelector('.lnkTop');
 			const cbEditMode = diaryPage.querySelector('.cbEditMode');
 			cbEditMode.addEventListener('change', this.cbEditMode_change.bind(this));
 			this.lnkEditTrack = diaryPage.querySelector('.lnkEditTrack');
@@ -214,16 +216,19 @@ PiLot.View.Diary = (function () {
 			if (this.logbookDay === null){
 				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(this.date);
 			}
-			this.showData();
+			this.showDataAsync();
 		},
 
 		/** shows the logbook data for the current LogbookDay */
-		showData: function () {
+		showDataAsync: async function () {
 			this.showFriendlyDate();
 			this.showDiaryText();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
-			this.loadTrackAsync();
-			this.showPhotosAsync();
+			await Promise.all([
+				this.loadTrackAsync(),
+				this.showPhotosAsync()
+			]);
+			this.showTopLink();
 		},
 
 		/**
@@ -244,6 +249,10 @@ PiLot.View.Diary = (function () {
 		showFriendlyDate: function () {
 			const locale = PiLot.Utils.Language.getLocale();
 			this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale(locale).toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+		},
+
+		showTopLink: function () {
+			this.lnkTop.hidden = document.body.scrollHeight <= window.innerHeight;
 		},
 
 		/** changes the current day by pDays and re-loads the data. Also saves the currently selected day to the user settings */
@@ -1011,7 +1020,7 @@ PiLot.View.Diary = (function () {
 				pPhotosCountControl.innerText = pPhotoInfos.getImagesCount();
 				const idPrefix = pContainer.id || (Math.random() * 10 ^ 6).toFixed(0);
 				pPhotoInfos.getImageNames().forEach(function (pPhoto) {
-					const imageContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.publishPagePhoto);
+					const imageContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.publishPagePhoto);
 					const imageId = `${idPrefix}_${pPhoto}`;
 					pContainer.appendChild(imageContainer);
 					const image = imageContainer.querySelector('.imgPhoto');
