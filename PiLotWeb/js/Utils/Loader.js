@@ -438,10 +438,11 @@ PiLot.Utils.Loader = (function () {
 		 * @param {string} pFileUrl - The url of the file to load 
 		 */
 		addScriptReference: function (pFileUrl) {
+			let fileUrl = pFileUrl + '?v=003';
 			const head = document.querySelector('head');
-			if (!head.querySelector(`[src="${pFileUrl}"]`)) {
+			if (!head.querySelector(`[src="${fileUrl}"]`)) {
 				let scriptElement = document.createElement('script');
-				scriptElement.src = pFileUrl;
+				scriptElement.src = fileUrl;
 				scriptElement.type = 'text/javascript';
 				scriptElement.addEventListener('load', this.onScriptLoaded.bind(this));
 				this.pendingScripts++;
@@ -472,7 +473,7 @@ PiLot.Utils.Loader = (function () {
 	 * @param {String} pPage - one of them Loader.pages
 	 */
 	function createPageLink(pPage) {
-		return `${HTMLFILE}?${PAGEKEY}=${pPage}`;
+		return `${HTMLFILE}?${PAGEKEY}=${pPage}&v=003`;
 	}
 
 	return {
