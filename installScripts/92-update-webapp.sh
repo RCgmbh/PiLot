@@ -15,7 +15,7 @@ fi
 cd /home/pi/repos/PiLot
 git pull
 echo "Copy website data"
-sudo rsync -vr PiLotWeb/* /var/www/html/pilot/ --exclude 'js/Config*.js'
+rsync -vr PiLotWeb/* /var/www/html/pilot/ --exclude 'js/Config*.js'
 echo "Copy website data done."
 echo "Build and install latest API Version"
 systemctl stop gpsLogger
