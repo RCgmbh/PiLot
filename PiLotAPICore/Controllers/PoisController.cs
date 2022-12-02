@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.Data.Postgres.Nav;
+using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
 
@@ -29,6 +30,7 @@ namespace PiLot.API.Controllers {
 			[FromQuery] Double maxLat,
 			[FromQuery] Double maxLon
 		) {
+			Logger.Log("PoisController.Get", LogLevels.INFO);
 			return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon);
 		}
 	}
