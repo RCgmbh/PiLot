@@ -15,6 +15,7 @@ namespace PiLot.Data.Postgres.Nav {
 			List<List<Object>> result = new List<List<Object>>();
 			NpgsqlConnection connection = null;
 			try {
+				Logger.Log($"connectionString: {this.ConnectionString}", LogLevels.INFO);
 				connection = new NpgsqlConnection(this.ConnectionString);
 				String query = "SELECT * FROM find_pois(@min_lat, @min_lng, @max_lat, @max_lng);";
 				NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
