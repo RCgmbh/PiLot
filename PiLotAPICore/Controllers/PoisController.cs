@@ -30,7 +30,7 @@ namespace PiLot.API.Controllers {
 			[FromQuery] Double maxLat,
 			[FromQuery] Double maxLon
 		) {
-			Logger.Log("PoisController.Get", LogLevels.INFO);
+			Logger.Log("PoisController.Get", LogLevels.DEBUG);
 			return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon);
 		}
 	}
