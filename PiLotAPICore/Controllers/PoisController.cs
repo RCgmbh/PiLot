@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
-//using PiLot.Data.Postgres.Nav;
+using PiLot.Data.Postgres.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
@@ -19,10 +19,12 @@ namespace PiLot.API.Controllers {
 		/// Gets all poins within a certain area, with a specific category
 		/// and a set of features
 		/// </summary>
-		/// <param name="dataSource">the name of the data source.</param>
-		/// <param name="startTimeUnix">Seconds from epoc UTC</param>
-		/// <param name="endTimeUnix">Seconds from epoc UTC</param>
-		/// <param name="aggregateSeconds">The data will be aggregated into chunks summarizing n seconds</param>
+		/// <param name="minLat">Minimal latitude, degrees WGS84</param>
+		/// <param name="minLon">Minimal longitude, degrees WGS84</param>
+		/// <param name="maxLat">Maximal latitude, degrees WGS84</param>
+		/// <param name="maxLon">Maximal lontitude, degrees WGS84</param>
+		/// <param name="categories">Array of category ids</param>
+		/// <param name="features">Array of feature ids</param>
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
@@ -45,8 +47,7 @@ namespace PiLot.API.Controllers {
 				Logger.Log(ex, "PoisController.Get");
 				throw;
 			}
-			//return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
-			return null;
+			return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
 		}
 
 		/// <summary>

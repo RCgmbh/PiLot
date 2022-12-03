@@ -276,8 +276,11 @@ PiLot.Model.Nav = (function () {
 		return loadRouteAsync('current');
 	};
 
-	/// loads the route with ID pRouteId from the server. Pass "current"
-	/// as pRouteId to get the currently active route.
+	/**
+	 * Loads the route with ID pRouteId from the server. Pass "current"
+	 * as pRouteId to get the currently active route.
+	 * @param {String} pRouteId - The id (usually a number) or "current"
+	 * */
 	var loadRouteAsync = async function (pRouteId) {
 		const json = await PiLot.Utils.Common.getFromServerAsync(`/Routes/${pRouteId}`);
 		const result = Route.fromData(json);
@@ -300,6 +303,130 @@ PiLot.Model.Nav = (function () {
 			});
 		} else {
 			PiLot.log(`Inalid result in loadAllRoutesAsync: ${json}`, 0);
+		}
+		return result;
+	};
+
+	/**
+	 * Represents a point of interest
+	 * @param {Number} id - not null
+	 * @param {String} pTitle - not null
+	 * @param {Number} pCategoryId - The ID of the category, not null
+	 * @param {Number[]} pFeatureIds - The ids of all features this has, not null
+	 * @param {Number} pLat - Latitude in degrees WGS84, not null
+	 * @param {Number} pLon - Longitude in degrees WGS84, not null
+	 * @param {DateTime} pValidFrom - Valid from in UTC, Luxon object, nullable
+	 * @param {DateTime} pValidTo - Valid to in UTC, Luxon object, nullable
+	 */
+	var Poi = function (pId, pTitle, pCategoryId, pFeatureIds, pLat, pLon, pValidFrom, pValidTo) {
+		this.id = pId;
+		this.title = pTitle;
+		this.categoryId = pCategoryId;
+		this.featureIds = pFeatureIds;
+		this.latLng = null;
+		this.setLatLng(pLat, pLon);
+		this.validFrom = pValidFrom;
+		this.validTo = pValidTo;
+		this.detailsLoaded = false;
+		this.description = null;
+		this.properties = null;
+	};
+
+	Poi.prototype = {
+
+		initialize: function () { },
+
+		getId: function () { return this.id; },
+		setId: function (pId) { this.id = pId; },
+
+		/// gets the Poi position as Leaflet LatLng object
+		getLatLng: function () {
+			return this.latLng;
+		},
+
+		/// sets the Poi coordinates based on latitude and longitude
+		setLatLng: function (pLat, pLng) {
+			if ((pLat !== null) && (pLng !== null)) {
+				if (this.latLng === null) {
+					this.latLng = new L.LatLng(pLat, pLng);
+				} else {
+					this.latLng.lat = pLat;
+					this.latLng.lng = pLng;
+				}
+			}
+		},
+
+		/** @returns {String} */
+		getTitle: function () { return this.title; },
+
+		/**  @param {String} pTitle */
+		setTitle: function (pTitle) { this.title = pTitle; },
+
+		/** @returns {Number} */
+		getCategoryId: function () { return this.categoryId; },
+
+		/** @param {Number} pCategoryId */
+		setCategoryId: function (pCategoryId) { this.categoryId = pCategoryId; },
+
+		/** @returns {Number[]} */
+		getFeatureIds: function () { return this.featureIds; },
+
+		/** @param {Number[]} pFeatureIds */
+		setFeatureIds: function (pFeatureIds) { this.featureIds = pFeatureIds; },
+
+		/** Loads the details from the server */
+		loadDetailsAsync: async function () { },
+
+		/** Saves the Poi back to the server */
+		saveAsync: async function () { },
+
+		/** Deletes the Poi */
+		deleteAsync: async function () { }
+
+	};
+
+	/**
+	 * Creates a Poi from an array, as it is delivered from the server.
+	 * @param {Object[]} pData
+	 */
+	Poi.fromArray = function (pData) {
+		let result = null;
+		if (Array.isArray(pData)) {
+			result = new Poi(
+				pData[0],
+				pData[1],
+				pData[2],
+				pData[3],
+				pData[4],
+				pData[5],
+				RC.Date.DateHelper.isoToLuxon(pData[6]),
+				RC.Date.DateHelper.isoToLuxon(pData[7])
+			);			
+		} else {
+			PiLot.log('Did not get an array for Poi.fromArray.', 0);
+		}
+		return result;
+	};
+
+	/**
+	* Loads Pois for a certain area, category and features from the server
+    * @returns {PiLot.Model.Nav.Poi[]};
+	* */
+	var loadPoisAsync = async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pCategories, pFeatures) {
+		const result = [];
+		const categories = pCategories.join(',');
+		const features = pFeatures.join(',');
+		const url = `/Pois?minLat=${pMinLat}&minLon=${pMinLon}&maxLat=${pMaxLat}&maxLon=${pMaxLon}&categories=${categories}&features=${features}`;
+		const json = await PiLot.Utils.Common.getFromServerAsync(url);
+		if (Array.isArray(json)) {
+			for (let i = 0; i < json.length; i++) {
+				const poi = Poi.fromArray(json[i]);
+				if (poi) {
+					result.push(poi);
+				}
+			}
+		} else {
+			PiLot.log('Did not get an array from Poi endpoint.', 0);
 		}
 		return result;
 	};
@@ -964,9 +1091,9 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * Loads a track from the server, using UTC for start and end time
-	 * @param {number} pStartUTC - the start time in milliseconds from epoc, in UTC or BoatTime
-	 * @param {number} pEndUTC - the end time in milliseconds from epoc, in UTC or BoatTime
-	 * @param {boolean} pIsBoatTime - If true, start and end are BoatTime, else UTC
+	 * @param {Number} pStartUTC - the start time in milliseconds from epoc, in UTC or BoatTime
+	 * @param {Number} pEndUTC - the end time in milliseconds from epoc, in UTC or BoatTime
+	 * @param {Boolean} pIsBoatTime - If true, start and end are BoatTime, else UTC
 	 */
 	var loadTrackAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
 		const url = `/Track?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
@@ -977,9 +1104,9 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * Deletes GPS positions within a certain time frame from the server
-	 * @param {number} pStartTime - Begin of deletion interval in seconds, either UTC or BoatTime
-	 * @param {number} pEndTime - End of deletion interval in seconds, either UTC or BoatTime
-	 * @param {boolean} pIsBoatTime - If true, start and end are intepreted as BoatTime, else as UTC
+	 * @param {Number} pStartTime - Begin of deletion interval in seconds, either UTC or BoatTime
+	 * @param {Number} pEndTime - End of deletion interval in seconds, either UTC or BoatTime
+	 * @param {Boolean} pIsBoatTime - If true, start and end are intepreted as BoatTime, else as UTC
 	 */
 	var deleteGPSPositionsAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
 		const url = PiLot.Utils.Common.toApiUrl(`/Track?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`);
@@ -1392,6 +1519,7 @@ PiLot.Model.Nav = (function () {
 	/// Returning the class and static method definitions
 	return {
 		Route: Route,
+		Poi: Poi,
 		Waypoint: Waypoint,
 		Track: Track,
 		GPSRecord: GPSRecord,
@@ -1405,6 +1533,7 @@ PiLot.Model.Nav = (function () {
 		loadActiveRouteIdAsync: loadActiveRouteIdAsync,
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
+		loadPoisAsync: loadPoisAsync,
 		loadTrackAsync: loadTrackAsync,
 		deleteGPSPositionsAsync: deleteGPSPositionsAsync
 	};

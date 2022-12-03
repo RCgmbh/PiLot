@@ -200,5 +200,31 @@ PiLot.Templates.Nav = {
 				<span class="lblLonPrefix prefix"></span> <span class="lblLonDegrees value">---</span><span>°</span> <span class="lblLonMinutes value">--.---</span><span>'</span>
 			</div>
 		</div>
-	`
+	`,
+
+	poi_object: '<i class="icon-location"></i>',
+
+	poi_health: '<i class="icon-health"></i>',
+
+	poi_lock: '<img src="img/icons/lock.svg" />',
+
+	poi_marina: '<img src="img/icons/lock.svg" />',
+
+	poi_gazstation: '<img src="img/icons/lock.svg" />',
+
+	poi_mooring: '<img src="img/icons/mooring.svg" />',
+
+	poi_anchorage: '<i class="icon-anchor"></i>',
+
+	poi_toilet: '<i class="icon-man-woman"></i>',
+
+	poi_restaurant: '<i class="icon-spoon-knife"></i>',
+
+	poi_shop: '<i class="icon-cart"></i>',
+
+	poi_obstacle: '<i class="icon-warning2"></i>',
+
+	poi_information: '<i class="icon-info2"></i>',
+
+	poi_event: '<i class="icon-pin"></i>',
 };

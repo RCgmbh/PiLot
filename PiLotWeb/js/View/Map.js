@@ -130,6 +130,7 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
+				new PoiLayer(1, this);
 				this.isMapLoaded = true;
 			}
 			return this;
@@ -352,6 +353,62 @@ PiLot.View.Map = (function () {
 		/// closes the popup
 		close: function () {
 			this.popup.remove();
+		}
+	};
+
+	/**
+	 * A map layer containing points of interest for a certain category
+	 * @param {Number} pCategoryId
+	 * @param {PiLot.View.Map.Seamap} pSeamap
+	 */
+	var PoiLayer = function (pCategoryId, pSeamap) {
+		this.categoryId = pCategoryId;
+		this.seamap = pSeamap;					
+		this.poisMap = null;					// map with key=poi.id and value={poi, marker}
+		this.initializeAsync();
+	};
+
+	PoiLayer.prototype = {
+
+		initializeAsync: async function () {
+			this.poisMap = new Map();
+			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
+			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
+			await this.loadPoisAsync();
+		},
+
+		leafletMap_moveend: function () {
+			this.loadPoisAsync();
+		},
+
+		leafletMap_zoomend: function () {
+			this.loadPoisAsync();
+		},
+
+		leafletMap_click: function (pSender) {
+			console.log(pSender);
+		},
+
+		loadPoisAsync: async function () {
+			const bounds = this.seamap.getLeafletMap().getBounds();
+			const minPoint = bounds.getSouthWest();
+			const maxPoint = bounds.getNorthEast();
+			const pois = await PiLot.Model.Nav.loadPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, [/*this.categoryId*/12, 13, 14, 15, 16, 17, 18, 19], []);
+			pois.forEach(function (p) { this.showPoi(p) }.bind(this));
+			console.log(pois);
+		},
+
+		showPoi: function (pPoi) {
+			if (!this.poisMap.has(pPoi.getId())) {
+				//const iconHtml = '<i class="icon-man-woman"></i>';
+				const iconHtml = '<img src="img/icons/lock.svg" />';
+				const icon = L.divIcon({
+					className: 'poiMarker', iconSize: [36, 36], html: iconHtml
+				});
+				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: true, autoPan: true });
+				marker.addTo(this.seamap.getLeafletMap());
+				this.poisMap.set(pPoi.getId(), { poi: pPoi, marker: marker });
+			}
 		}
 	};
 
@@ -1279,7 +1336,7 @@ PiLot.View.Map = (function () {
 		/// is falsy, only the marker icon will be updated
 		drawMarker: function (pResetPosition) {
 			if (this.waypoint.hasPosition()) {
-				var iconHtml;
+				let iconHtml;
 				if (this.waypointLiveData && this.waypointLiveData.isNextWaypoint) {
 					iconHtml = '<i class="icon-location2"></i>';
 				} else if ((this.waypointLiveData !== null) && this.waypointLiveData.isPastWaypoint) {
@@ -1289,10 +1346,10 @@ PiLot.View.Map = (function () {
 				} else {
 					iconHtml = '<i class="icon-location"></i>';
 				}
-				var icon = L.divIcon({
+				const icon = L.divIcon({
 					className: 'navWaypointMarker', iconSize: [36, 36], html: iconHtml
 				});
-				var latLon = this.waypoint.getLatLon();
+				const latLon = this.waypoint.getLatLon();
 				if (this.marker === null) {
 					this.marker = L.marker(latLon, { icon: icon, draggable: true, autoPan: true });
 					this.marker.on('dragstart', this.marker_dragstart.bind(this));

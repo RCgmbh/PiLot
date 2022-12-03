@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-//using Npgsql;
+using Npgsql;
 
 using PiLot.Utils.Logger;
 
@@ -13,7 +13,20 @@ namespace PiLot.Data.Postgres.Nav {
 	/// </summary>
 	public class PoiDataConnector {
 
-		/*public List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures) {
+		/// <summary>
+		/// Finds pois based on coordinates, categories and features. All results are within the provided
+		/// rectangle, belong one of the provided categories and have all of the required features.
+		/// The result is a list of Object-arrays, directly as it is returned by the postgresql function.
+		/// Not all attributes are read, in order to keep the resulting data as slim as possible.
+		/// </summary>
+		/// <param name="pMinLat">Minimal latitude, degrees WGS84</param>
+		/// <param name="pMinLon">Minimal longitude, degrees WGS84</param>
+		/// <param name="pMaxLat">Maximal latitude, degrees WGS84</param>
+		/// <param name="pMaxLon">Maximal lontitude, degrees WGS84</param>
+		/// <param name="pCategories">Array of category ids</param>
+		/// <param name="pFeatures">Array of feature ids</param>
+		/// <returns>List of Obect[] with id, title, category_id, feature_ids, lat, lon, valid from, valid to</returns>
+		public List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures) {
 			Logger.Log("PoiDataConnector.FindPois", LogLevels.DEBUG);
 			List<Object[]> result = new List<Object[]>();
 			NpgsqlConnection connection = null;
@@ -51,6 +64,6 @@ namespace PiLot.Data.Postgres.Nav {
 			get {
 				return ConfigurationManager.AppSettings["connectionString"];
 			}			
-		}*/
+		}
 	}
 }
