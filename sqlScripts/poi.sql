@@ -61,10 +61,35 @@ CREATE TABLE pois(
 	valid_to timestamp
 );
 
+CREATE INDEX pois_coordinats_index
+  ON pois
+  USING GIST (coordinates);
+
 GRANT SELECT ON pois TO pilotweb;
 GRANT INSERT ON pois TO pilotweb;
 GRANT UPDATE ON pois TO pilotweb;
 GRANT DELETE ON pois TO pilotweb;
+
+/*------------VIEW all_pois -------------------------------*/
+
+DROP VIEW IF EXISTS all_pois;
+
+CREATE VIEW all_pois AS 
+	SELECT 
+		id,
+		title,
+		description,
+		category_id,
+		array_agg(f.feature_id) as feature_ids,
+		properties,
+		ST_Y(coordinates::geometry) AS latitude,
+		ST_X(coordinates::geometry) AS longitude,
+		valid_from,
+		valid_to
+	FROM pois LEFT JOIN poi_features__pois f ON pois.id = f.poi_id
+	GROUP BY pois.id;
+
+GRANT SELECT ON all_pois TO pilotweb;
 
 /*----------- FUNCTION insert_poi -------------------------*/
 DROP FUNCTION IF EXISTS insert_poi;
@@ -95,7 +120,7 @@ GRANT EXECUTE ON FUNCTION insert_poi TO pilotweb;
 
 DROP FUNCTION IF EXISTS find_pois;
 
-CREATE OR REPLACE FUNCTION find_pois(
+CREATE FUNCTION find_pois(
 	min_lat double precision,
 	min_lng double precision,
 	max_lat double precision,
@@ -105,28 +130,23 @@ CREATE OR REPLACE FUNCTION find_pois(
 ) RETURNS TABLE (
 	id bigint,
 	title text,
-	description text,
 	category_id integer,
-	features integer[],
-	properties jsonb,
+	feature_ids integer[],
 	latitude double precision,
 	longitude double precision,
 	valid_from timestamp,
 	valid_to timestamp
 ) AS $$
-	SELECT * FROM
-	(SELECT 
+	SELECT 
 		id,
 		title,
-		description,
 		category_id,
-		array_agg(f.feature_id) as feature_ids,
-		properties,
-		ST_Y(coordinates::geometry) AS latitude,
-		ST_X(coordinates::geometry) AS longitude,
+		feature_ids,
+		latitude,
+		longitude,
 		valid_from,
 		valid_to
-	FROM pois LEFT JOIN poi_features__pois f ON pois.id = f.poi_id
+	FROM all_pois
 	WHERE
 		ST_Intersects (
 			coordinates,
@@ -138,11 +158,8 @@ CREATE OR REPLACE FUNCTION find_pois(
 				4326 -- projection epsg-code
 			)::geography(POLYGON) 
 		)
-		AND category_id = ANY (categories)
-		--AND feature_id = ANY (features)
-		--AND feature_ids = features > hmm, we actually only want records that have all required features
-	GROUP BY pois.id) as pois
-	WHERE features <@ pois.feature_ids
+	AND category_id = ANY (categories)
+	AND features <@ feature_ids
 $$
 LANGUAGE SQL;
 
