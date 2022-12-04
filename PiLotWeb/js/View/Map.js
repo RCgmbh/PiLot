@@ -368,6 +368,31 @@ PiLot.View.Map = (function () {
 		this.initializeAsync();
 	};
 
+	//todo
+	/*
+	> MapPois: the one who is responsible for showing pois on the map
+	 - Loads Categories and Features from the server
+	 - Adds the mapPoiSettings to the map, requesting the current settings
+	 - Observes changes in settings 
+			removeCategory: remove markers
+			addCategory: reload
+			removeFeature: reload
+			addFeature: remove markers
+	 - takes the map
+	 - loads the pois
+	 - draws them to the map
+	 - observes movements of the map
+	 - creates a details popup and binds click handler to show it on each POI
+
+	> MapPoiSettings:
+	 - Loads and saves user settings for POIs
+	 - icon and dialog to select Categories and Features
+	 - global show/hide switch
+
+	> PoiCategoryList
+	  - checkbox-List with icons and tree structure
+	*/
+
 	PoiLayer.prototype = {
 
 		initializeAsync: async function () {

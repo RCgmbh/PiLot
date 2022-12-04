@@ -28,29 +28,65 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <returns>List of Obect[] with id, title, category_id, feature_ids, lat, lon, valid from, valid to</returns>
 		public List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures) {
 			Logger.Log("PoiDataConnector.FindPois", LogLevels.DEBUG);
+			String query = "SELECT * FROM find_pois(@min_lat, @min_lng, @max_lat, @max_lng, @categories, @features);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@min_lat", pMinLat));
+			pars.Add(("@min_lng", pMinLon));
+			pars.Add(("@max_lat", pMaxLat));
+			pars.Add(("@max_lng", pMaxLon));
+			pars.Add(("@categories", pCategories));
+			pars.Add(("@features", pFeatures));
+			return this.ReadData(query, pars);
+		}
+
+		/// <summary>
+		/// Reads all poi_categories
+		/// </summary>
+		/// <returns>List of Arrays with id, parent_id and name</returns>
+		public List<Object[]> ReadPoiCategories() {
+			Logger.Log("PoiDataConnector.ReadPoiCategories", LogLevels.DEBUG);
+			return this.ReadData("SELECT * FROM poi_categories");
+		}
+
+		/// <summary>
+		/// Reads all poi_features
+		/// </summary>
+		/// <returns>List of Arrays with id and name</returns>
+		public List<Object[]> ReadPoiFeatures() {
+			Logger.Log("PoiDataConnector.ReadPoiCategories", LogLevels.DEBUG);
+			return this.ReadData("SELECT * FROM poi_categories");
+		}
+
+		/// <summary>
+		/// Reads data and returns a list of Object-arrays, containing each field for each record
+		/// as it is returned from the query
+		/// </summary>
+		/// <param name="pQuery">Well... the query</param>
+		/// <param name="pParams">The parameters with name and value</param>
+		/// <returns></returns>
+		private List<Object[]> ReadData(String pQuery, List<(String, Object)> pParams = null) {
 			List<Object[]> result = new List<Object[]>();
 			NpgsqlConnection connection = null;
 			try {
-				Logger.Log($"connectionString: {this.ConnectionString}", LogLevels.DEBUG);
-				connection = new NpgsqlConnection(this.ConnectionString);
-				String query = "SELECT * FROM find_pois(@min_lat, @min_lng, @max_lat, @max_lng, @categories, @features);";
-				NpgsqlCommand cmd = new NpgsqlCommand(query, connection);
-				cmd.Parameters.AddWithValue("@min_lat", pMinLat);
-				cmd.Parameters.AddWithValue("@min_lng", pMinLon);
-				cmd.Parameters.AddWithValue("@max_lat", pMaxLat);
-				cmd.Parameters.AddWithValue("@max_lng", pMaxLon);
-				cmd.Parameters.AddWithValue("@categories", pCategories);
-				cmd.Parameters.AddWithValue("@features", pFeatures);
+				String connectionString = ConfigurationManager.AppSettings["connectionString"];
+				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
+				connection = new NpgsqlConnection(connectionString);
+				NpgsqlCommand cmd = new NpgsqlCommand(pQuery, connection);
+				if (pParams != null) {
+					foreach (var aParam in pParams) {
+						cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+					}
+				}
 				connection.Open();
 				NpgsqlDataReader reader = cmd.ExecuteReader();
 				while (reader.Read()) {
-					Object[] values = new Object[8];
+					Object[] values = new Object[reader.FieldCount];
 					reader.GetValues(values);
 					result.Add(values);
 				}
 				reader.Close();
-			} catch(Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.FindPois");
+			} catch (Exception ex) {
+				Logger.Log(ex, "PoiDataConnector.ReadData");
 				throw;
 			} finally {
 				if ((connection != null) && (connection.State == ConnectionState.Open)) {
@@ -60,10 +96,5 @@ namespace PiLot.Data.Postgres.Nav {
 			return result;
 		}
 
-		private String ConnectionString {
-			get {
-				return ConfigurationManager.AppSettings["connectionString"];
-			}			
-		}
 	}
 }

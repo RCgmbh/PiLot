@@ -51,6 +51,28 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Gets the list of all poi categories, having id, parent_id and title
+		/// </summary>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/categories")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<Object[]> GetCategories( ) {
+			Logger.Log("PoisController.GetPoiCategories", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadPoiCategories();
+		}
+
+		/// <summary>
+		/// Gets the list of all poi categories, having id, parent_id and title
+		/// </summary>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/features")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<Object[]> GetFeatures() {
+			Logger.Log("PoisController.GetPoiFeatures", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadPoiFeatures();
+		}
+
+		/// <summary>
 		/// Parses a comma separated string into an int array. No error handling included.
 		/// </summary>
 		/// <param name="pString">comma separated values, e.g. 1, 3, 42</param>

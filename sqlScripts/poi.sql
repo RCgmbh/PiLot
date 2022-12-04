@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS poi_categories;
 CREATE TABLE poi_categories(
 	id serial PRIMARY KEY,
 	parent_id integer REFERENCES poi_categories,
-	title text NOT NULL
+	name text NOT NULL
 );
 
 GRANT SELECT ON poi_categories TO pilotweb;
@@ -34,7 +34,7 @@ DROP TABLE IF EXISTS poi_features;
 
 CREATE TABLE poi_features(
 	id serial PRIMARY KEY,
-	title text NOT NULL
+	name text NOT NULL
 );
 
 /*---------- TABLE poi_features_pois -----------------------*/

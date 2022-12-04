@@ -409,6 +409,42 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
+	 * A category for a poi. Has an id, a name and maybe a parent
+	 * @param {number} pId
+	 * @param {string} pName
+	 */
+	var PoiCategory = function (pId, pName) {
+		this.id = pId;
+		this.name = pName;
+		this.parent = null;
+	};
+
+	PoiCategory.prototype = {
+
+		initialize: function () { },
+
+		getId: function () {
+			return this.id;
+		},
+
+		getParent: function () {
+			return this.parent;
+		},
+
+		setParent: function (pParent) {
+			this.parent = pParent;
+		},
+
+		getName: function () {
+			return this.name;
+		},
+
+		setName: function (pName) {
+			this.name = pName;
+		}
+	};
+
+	/**
 	* Loads Pois for a certain area, category and features from the server
     * @returns {PiLot.Model.Nav.Poi[]};
 	* */
