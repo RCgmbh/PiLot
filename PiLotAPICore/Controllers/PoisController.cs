@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.Data.Postgres.Nav;
+using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
@@ -51,18 +52,18 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Gets the list of all poi categories, having id, parent_id and title
+		/// Gets the list of all poi categories
 		/// </summary>
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]/categories")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<Object[]> GetCategories( ) {
+		public List<PoiCategory> GetCategories( ) {
 			Logger.Log("PoisController.GetPoiCategories", LogLevels.DEBUG);
 			return new PoiDataConnector().ReadPoiCategories();
 		}
 
 		/// <summary>
-		/// Gets the list of all poi categories, having id, parent_id and title
+		/// Gets the list of all poi features, having id and name
 		/// </summary>
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]/features")]

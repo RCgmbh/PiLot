@@ -208,9 +208,9 @@ PiLot.Templates.Nav = {
 
 	poi_lock: '<img src="img/icons/lock.svg" />',
 
-	poi_marina: '<img src="img/icons/lock.svg" />',
+	poi_marina: `<img src="img/icons/marina.svg" />`,
 
-	poi_gazstation: '<img src="img/icons/lock.svg" />',
+	poi_gazstation: '<img src="img/icons/gazstation.svg" />',
 
 	poi_mooring: '<img src="img/icons/mooring.svg" />',
 
