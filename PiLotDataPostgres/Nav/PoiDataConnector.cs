@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
 using Npgsql;
-
+using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Data.Postgres.Nav {
@@ -42,10 +42,38 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <summary>
 		/// Reads all poi_categories
 		/// </summary>
-		/// <returns>List of Arrays with id, parent_id and name</returns>
-		public List<Object[]> ReadPoiCategories() {
+		/// <returns>List PoiCategories</returns>
+		public List<PoiCategory> ReadPoiCategories() {
 			Logger.Log("PoiDataConnector.ReadPoiCategories", LogLevels.DEBUG);
-			return this.ReadData("SELECT * FROM poi_categories");
+			List<PoiCategory> result = new List<PoiCategory>();
+			NpgsqlConnection connection = null;
+			try {
+				String connectionString = ConfigurationManager.AppSettings["connectionString"];
+				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
+				connection = new NpgsqlConnection(connectionString);
+				NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM poi_categories", connection);
+				connection.Open();
+				NpgsqlDataReader reader = cmd.ExecuteReader();
+				while (reader.Read()) {
+					PoiCategory category = new PoiCategory(){
+						ID = reader.GetInt32("id"),
+						Name = reader.GetString("name")
+					};
+					if(!reader.IsDBNull("parent_id")){
+						category.ParentId = reader.GetInt32("parent_id");
+					}
+					result.Add(category);
+				}
+				reader.Close();
+			} catch (Exception ex) {
+				Logger.Log(ex, "PoiDataConnector.ReadPoiCategories");
+				throw;
+			} finally {
+				if ((connection != null) && (connection.State == ConnectionState.Open)) {
+					connection.Close();
+				}
+			}
+			return result;
 		}
 
 		/// <summary>
@@ -53,8 +81,8 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		/// <returns>List of Arrays with id and name</returns>
 		public List<Object[]> ReadPoiFeatures() {
-			Logger.Log("PoiDataConnector.ReadPoiCategories", LogLevels.DEBUG);
-			return this.ReadData("SELECT * FROM poi_categories");
+			Logger.Log("PoiDataConnector.ReadPoiFeatures", LogLevels.DEBUG);
+			return this.ReadData("SELECT * FROM poi_features");
 		}
 
 		/// <summary>

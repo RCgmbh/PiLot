@@ -130,7 +130,7 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
-				new PoiLayer(1, this);
+				new MapPois(this);
 				this.isMapLoaded = true;
 			}
 			return this;
@@ -357,14 +357,13 @@ PiLot.View.Map = (function () {
 	};
 
 	/**
-	 * A map layer containing points of interest for a certain category
-	 * @param {Number} pCategoryId
+	 * The class responsible for showing points of interest on the map
 	 * @param {PiLot.View.Map.Seamap} pSeamap
 	 */
-	var PoiLayer = function (pCategoryId, pSeamap) {
-		this.categoryId = pCategoryId;
+	var MapPois = function (pSeamap) {
 		this.seamap = pSeamap;					
 		this.poisMap = null;					// map with key=poi.id and value={poi, marker}
+		this.categoriesMap = null;				// map with key=category.id and value = category
 		this.initializeAsync();
 	};
 
@@ -393,7 +392,7 @@ PiLot.View.Map = (function () {
 	  - checkbox-List with icons and tree structure
 	*/
 
-	PoiLayer.prototype = {
+	MapPois.prototype = {
 
 		initializeAsync: async function () {
 			this.poisMap = new Map();
@@ -414,31 +413,63 @@ PiLot.View.Map = (function () {
 			console.log(pSender);
 		},
 
+		/**
+		 * Loads the pois based on the current settings and shows them on the map
+		 * */
 		loadPoisAsync: async function () {
 			const bounds = this.seamap.getLeafletMap().getBounds();
 			const minPoint = bounds.getSouthWest();
 			const maxPoint = bounds.getNorthEast();
-			const pois = await PiLot.Model.Nav.loadPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, [/*this.categoryId*/12, 13, 14, 15, 16, 17, 18, 19], []);
+			this.categoriesMap = await PiLot.Model.Nav.loadPoiCategoriesAsync(); // todo: get all and selected categories from Settings
+			const categoryIds = [];
+			for (const aKey of this.categoriesMap.keys()){
+				categoryIds.push(aKey);
+			}
+			const pois = await PiLot.Model.Nav.loadPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
 			pois.forEach(function (p) { this.showPoi(p) }.bind(this));
-			console.log(pois);
 		},
 
-		showPoi: function (pPoi) {
+		/**
+		 * Creates a leaflet marker for the poi, if it hasn't been created before, and adds the marker
+		 * to the poi map.
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 * @param {any} pCategories
+		 */
+		showPoi: function (pPoi, pCategories) {
+			let marker = null;
 			if (!this.poisMap.has(pPoi.getId())) {
-				//const iconHtml = '<i class="icon-man-woman"></i>';
-				const iconHtml = '<img src="img/icons/lock.svg" />';
+				const iconHtml = PiLot.Templates.Nav[`poi_${this.categoriesMap.get(pPoi.getCategoryId()).getName()}`];
 				const icon = L.divIcon({
-					className: 'poiMarker', iconSize: [36, 36], html: iconHtml
+					className: 'poiMarker', iconSize: [null, null], html: iconHtml
 				});
-				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: true, autoPan: true });
+				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: true, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
 				this.poisMap.set(pPoi.getId(), { poi: pPoi, marker: marker });
+			} else {
+				marker = this.poisMap.get(pPoi.getId()).marker;
 			}
+			this.setMarkerSize(marker);
+		},
+
+		/**
+		 * This implements a specific logic to size the markers a bit bigger on higher zoom levels.
+		 * The styles are assigned directly in order to override what was set by leaflet. This might
+		 * probably be done a bit more elegant one day.
+		 * @param {L.marker} pMarker - the leaflet marker element
+		 */
+		setMarkerSize: function (pMarker) {
+			const markerElement = pMarker.getElement();
+			const iconSize = Math.max(this.seamap.getCurrentZoom() * 4 - 20, 8);
+			markerElement.style.height = `${iconSize}px`;
+			markerElement.style.width = `${iconSize}px`;
+			markerElement.style.marginTop = `${iconSize / -2}px`;
+			markerElement.style.marginLeft = `${iconSize / -2}px`;
+			markerElement.style.fontSize = `${iconSize / 24}em`;
 		}
 	};
 
 	/// Class MapTrack represents the presentation of a track
-	/// on the map. Constructor expects a Map and a Track plus start/end time
+	/// on the map.
 	var MapTrack = function (pMap, pBoatTime, pGpsObserver, pOptions) {
 		this.map = pMap;
 		this.boatTime = pBoatTime;

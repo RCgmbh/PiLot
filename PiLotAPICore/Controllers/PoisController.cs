@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.Data.Postgres.Nav;
+using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {

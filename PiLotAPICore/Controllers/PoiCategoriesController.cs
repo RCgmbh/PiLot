@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.Data.Postgres.Nav;
+using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
@@ -21,7 +21,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<Object[]> GetCategories( ) {
+		public List<PoiCategory> GetCategories( ) {
 			Logger.Log("PoisController.GetPoiCategories", LogLevels.DEBUG);
 			return new PoiDataConnector().ReadPoiCategories();
 		}

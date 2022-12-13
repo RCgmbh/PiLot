@@ -18,15 +18,17 @@ DROP FUNCTION IF EXISTS insert_poi_category;
 
 CREATE FUNCTION insert_poi_category(
 	parent_id integer,
-	title text
+	name text
 ) RETURNS integer AS '
 	INSERT INTO poi_categories(
-		parent_id, title
+		parent_id, name
 	) VALUES (
-		parent_id, title
+		parent_id, name
 	)
 	RETURNING id
 ' LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
 
 /*---------- TABLE poi_features --------------------------*/
 
@@ -37,14 +39,10 @@ CREATE TABLE poi_features(
 	name text NOT NULL
 );
 
-/*---------- TABLE poi_features_pois -----------------------*/
-
-DROP TABLE IF EXISTS poi_features__pois;
-
-CREATE TABLE poi_features__pois(
-	feature_id integer references poi_features NOT NULL,
-	poi_id integer references pois NOT NULL
-);
+GRANT SELECT ON poi_features TO pilotweb;
+GRANT INSERT ON poi_features TO pilotweb;
+GRANT UPDATE ON poi_features TO pilotweb;
+GRANT DELETE ON poi_features TO pilotweb;
 
 /*---------- TABLE pois ----------------------------------*/
 
@@ -70,6 +68,21 @@ GRANT INSERT ON pois TO pilotweb;
 GRANT UPDATE ON pois TO pilotweb;
 GRANT DELETE ON pois TO pilotweb;
 
+
+/*---------- TABLE poi_features_pois -----------------------*/
+
+DROP TABLE IF EXISTS poi_features__pois;
+
+CREATE TABLE poi_features__pois(
+	feature_id integer references poi_features NOT NULL,
+	poi_id integer references pois NOT NULL
+);
+
+GRANT SELECT ON poi_features__pois TO pilotweb;
+GRANT INSERT ON poi_features__pois TO pilotweb;
+GRANT UPDATE ON poi_features__pois TO pilotweb;
+GRANT DELETE ON poi_features__pois TO pilotweb;
+
 /*------------VIEW all_pois -------------------------------*/
 
 DROP VIEW IF EXISTS all_pois;
@@ -82,6 +95,7 @@ CREATE VIEW all_pois AS
 		category_id,
 		array_agg(f.feature_id) as feature_ids,
 		properties,
+		coordinates,
 		ST_Y(coordinates::geometry) AS latitude,
 		ST_X(coordinates::geometry) AS longitude,
 		valid_from,
@@ -104,19 +118,20 @@ CREATE FUNCTION insert_poi(
 	valid_from timestamp,
 	valid_to timestamp
 )
-RETURNS void AS 
+RETURNS integer AS 
 '
 	INSERT INTO pois(
 		title, description, category_id, properties, coordinates, valid_from, valid_to
 	) VALUES (
 		title, description, category_id, properties, ST_MakePoint(longitude, latitude), valid_from, valid_to
-	);
+	)
+	RETURNING ID;
 '
 LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION insert_poi TO pilotweb;
 
-/*----------- FUNCTION insert_poi -------------------------*/
+/*----------- FUNCTION find_pois -------------------------*/
 
 DROP FUNCTION IF EXISTS find_pois;
 
@@ -163,9 +178,40 @@ CREATE FUNCTION find_pois(
 $$
 LANGUAGE SQL;
 
---SELECT * FROM find_pois(45, -10, 48, -5, '{1, 2}', '{1,2}')
-
 GRANT EXECUTE ON FUNCTION find_pois TO pilotweb;
+
+/*----------- FUNCTION read_poi -------------------------------------*/
+
+DROP FUNCTION IF EXISTS read_poi;
+
+CREATE FUNCTION read_poi(
+	poi_id bigint
+) RETURNS TABLE (
+	id bigint,
+	title text,
+	category_id integer,
+	feature_ids integer[],
+	latitude double precision,
+	longitude double precision,
+	valid_from timestamp,
+	valid_to timestamp
+) AS $$
+	SELECT 
+		id,
+		title,
+		category_id,
+		feature_ids,
+		latitude,
+		longitude,
+		valid_from,
+		valid_to
+	FROM all_pois
+	WHERE
+		id = poi_id
+$$
+LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION read_poi TO pilotweb;
 
 /*----------- Not used as long as raspi postgis does not support ST_AsGeoJson -------------------------*/
 

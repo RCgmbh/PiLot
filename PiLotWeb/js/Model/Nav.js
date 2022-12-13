@@ -409,43 +409,7 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
-	 * A category for a poi. Has an id, a name and maybe a parent
-	 * @param {number} pId
-	 * @param {string} pName
-	 */
-	var PoiCategory = function (pId, pName) {
-		this.id = pId;
-		this.name = pName;
-		this.parent = null;
-	};
-
-	PoiCategory.prototype = {
-
-		initialize: function () { },
-
-		getId: function () {
-			return this.id;
-		},
-
-		getParent: function () {
-			return this.parent;
-		},
-
-		setParent: function (pParent) {
-			this.parent = pParent;
-		},
-
-		getName: function () {
-			return this.name;
-		},
-
-		setName: function (pName) {
-			this.name = pName;
-		}
-	};
-
-	/**
-	* Loads Pois for a certain area, category and features from the server
+	* Loads Pois for a certain area, categories and features from the server
     * @returns {PiLot.Model.Nav.Poi[]};
 	* */
 	var loadPoisAsync = async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pCategories, pFeatures) {
@@ -466,6 +430,74 @@ PiLot.Model.Nav = (function () {
 		}
 		return result;
 	};
+
+	/**
+	 * A category for a poi. Has an id, a name and maybe a parent
+	 * @param {number} pId
+	 * @param {string} pName
+	 */
+	var PoiCategory = function (pId, pName) {
+		this.id = pId;
+		this.name = pName;
+		this.parent = null;
+		this.children = null;
+		this.initialize();
+	};
+
+	PoiCategory.prototype = {
+
+		initialize: function () {
+			this.children = [];
+		},
+
+		getId: function () {
+			return this.id;
+		},
+
+		getParent: function () {
+			return this.parent;
+		},
+
+		setParent: function (pParent) {
+			if(!this.parent && pParent){
+				this.parent = pParent;
+				this.parent.addChild(this);
+			} else {
+				PiLot.log('The category already has a parent. The parent can not change', 0);
+			}
+		},
+
+		getName: function () {
+			return this.name;
+		},
+
+		setName: function (pName) {
+			this.name = pName;
+		},
+
+		addChild: function(pChild){
+			this.children.push(pChild);
+		}
+	};
+
+	var loadPoiCategoriesAsync = async function(){
+		const result = new Map();
+		const json = await PiLot.Utils.Common.getFromServerAsync('/PoiCategories');
+		if (Array.isArray(json)) {
+			for (let i = 0; i < json.length; i++) {
+				const poiCategory = new PoiCategory(json[i].id, json[i].name);
+				result.set(poiCategory.getId(), poiCategory);
+			}
+			for (let i = 0; i < json.length; i++) {
+				if(json[i].parentId){
+					result.get(json[i].id).setParent(result.get(json[i].parentId));
+				}
+			}
+		} else {
+			PiLot.log('Did not get an array from Poi endpoint.', 0);
+		}
+		return result;
+	}
 
 	/// Class Waypoint, representing one waypoint being part of a track.
 	/// The constructor expects the route, a geodesy LatLon object as pLatLong,
@@ -1570,6 +1602,7 @@ PiLot.Model.Nav = (function () {
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
 		loadPoisAsync: loadPoisAsync,
+		loadPoiCategoriesAsync: loadPoiCategoriesAsync,
 		loadTrackAsync: loadTrackAsync,
 		deleteGPSPositionsAsync: deleteGPSPositionsAsync
 	};
