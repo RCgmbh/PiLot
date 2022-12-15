@@ -95,6 +95,19 @@ PiLot.Templates.Map = {
 			<div class="time"></div>
 		</div>`,
 
+	poiDetails: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="poiDetails dialogPanel hCenter paddingAllSmall hCenter">
+				<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
+				<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
+				<div class="marginBottomSmall titleContainer">
+					<input type="text" class="tbTime" placeholder="hh:mm"
+					/><input type="text" class="tbTitle" data-title="title" />
+				</div>
+			</div>
+		</div>`,
+
 	startPageMap: `
 		<div class="divMap navMap border fullHeight hidden" style="flex-grow:1;"></div>
 		<a href="#" class="tile stretch hidden">

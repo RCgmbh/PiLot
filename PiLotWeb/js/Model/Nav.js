@@ -409,10 +409,10 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
-	* Loads Pois for a certain area, categories and features from the server
+	* Finds Pois for a certain area, categories and features from the server
     * @returns {PiLot.Model.Nav.Poi[]};
 	* */
-	var loadPoisAsync = async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pCategories, pFeatures) {
+	var findPoisAsync = async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pCategories, pFeatures) {
 		const result = [];
 		const categories = pCategories.join(',');
 		const features = pFeatures.join(',');
@@ -427,6 +427,16 @@ PiLot.Model.Nav = (function () {
 			}
 		} else {
 			PiLot.log('Did not get an array from Poi endpoint.', 0);
+		}
+		return result;
+	};
+
+	var loadPoiAsync = async function(pId){
+		let result = null;
+		const url = `/Pois/${pId}`;
+		const json = await PiLot.Utils.Common.getFromServerAsync(url);
+		if(json && Array.isArray(json)){
+			result = Poi.fromArray(json)
 		}
 		return result;
 	};
@@ -480,24 +490,6 @@ PiLot.Model.Nav = (function () {
 		}
 	};
 
-	var loadPoiCategoriesAsync = async function(){
-		const result = new Map();
-		const json = await PiLot.Utils.Common.getFromServerAsync('/PoiCategories');
-		if (Array.isArray(json)) {
-			for (let i = 0; i < json.length; i++) {
-				const poiCategory = new PoiCategory(json[i].id, json[i].name);
-				result.set(poiCategory.getId(), poiCategory);
-			}
-			for (let i = 0; i < json.length; i++) {
-				if(json[i].parentId){
-					result.get(json[i].id).setParent(result.get(json[i].parentId));
-				}
-			}
-		} else {
-			PiLot.log('Did not get an array from Poi endpoint.', 0);
-		}
-		return result;
-	}
 
 	/// Class Waypoint, representing one waypoint being part of a track.
 	/// The constructor expects the route, a geodesy LatLon object as pLatLong,
@@ -1601,7 +1593,8 @@ PiLot.Model.Nav = (function () {
 		loadActiveRouteIdAsync: loadActiveRouteIdAsync,
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
-		loadPoisAsync: loadPoisAsync,
+		findPoisAsync: findPoisAsync,
+		loadPoiAsync: loadPoiAsync,
 		loadPoiCategoriesAsync: loadPoiCategoriesAsync,
 		loadTrackAsync: loadTrackAsync,
 		deleteGPSPositionsAsync: deleteGPSPositionsAsync

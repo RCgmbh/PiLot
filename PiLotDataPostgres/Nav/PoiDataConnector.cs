@@ -40,6 +40,23 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Reads a poi with a certain id from the database and returns it as an array of all fields,
+		/// exactly as they are returned by the db. If no record is found, returns null.
+		/// </summary>
+		public Object[] ReadPoi(Int64 pPoiId){
+			Object[] result = null;
+			Logger.Log($"PoiDataConnector.ReadPoi({pPoiId})", LogLevels.DEBUG);
+			String query = "SELECT * FROM read_poi(@poi_id);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@poi_id", pPoiId));
+			List<Object[]> resultList = this.ReadData(query, pars);
+			if(resultList.Count == 1){
+				result = resultList[0];
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// Reads all poi_categories
 		/// </summary>
 		/// <returns>List PoiCategories</returns>

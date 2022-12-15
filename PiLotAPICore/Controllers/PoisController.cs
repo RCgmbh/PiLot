@@ -17,7 +17,7 @@ namespace PiLot.API.Controllers {
 	public class PoisController : ControllerBase {
 
 		/// <summary>
-		/// Gets all poins within a certain area, with a specific category
+		/// Gets all pois within a certain area, with a specific category
 		/// and a set of features
 		/// </summary>
 		/// <param name="minLat">Minimal latitude, degrees WGS84</param>
@@ -49,6 +49,18 @@ namespace PiLot.API.Controllers {
 				throw;
 			}
 			return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
+		}
+
+		/// <summary>
+		/// Gets a poi by its id or null, if there is no such poi
+		/// </summary>
+		/// <param name="id">The id of the poi</param>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/{id}")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public Object[] Get(Int64 id) {
+			Logger.Log("PoisController.Get", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadPoi(id);
 		}
 
 		/// <summary>

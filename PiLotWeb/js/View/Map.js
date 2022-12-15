@@ -413,6 +413,11 @@ PiLot.View.Map = (function () {
 			console.log(pSender);
 		},
 
+		poiMarker_click: async function(pPoiId){
+			const poi = await PiLot.Model.Nav.loadPoiAsync(pPoiId);
+			console.log(poi);
+		},
+
 		/**
 		 * Loads the pois based on the current settings and shows them on the map
 		 * */
@@ -425,7 +430,7 @@ PiLot.View.Map = (function () {
 			for (const aKey of this.categoriesMap.keys()){
 				categoryIds.push(aKey);
 			}
-			const pois = await PiLot.Model.Nav.loadPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
+			const pois = await PiLot.Model.Nav.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
 			pois.forEach(function (p) { this.showPoi(p) }.bind(this));
 		},
 
@@ -444,6 +449,7 @@ PiLot.View.Map = (function () {
 				});
 				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: true, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
+				marker.on('click', this.poiMarker_click.bind(this, pPoi.getId()));
 				this.poisMap.set(pPoi.getId(), { poi: pPoi, marker: marker });
 			} else {
 				marker = this.poisMap.get(pPoi.getId()).marker;

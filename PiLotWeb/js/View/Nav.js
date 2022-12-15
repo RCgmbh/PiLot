@@ -1223,6 +1223,39 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
+	/**
+	 * This represents the control which is used to show all details about one specific
+	 * Point of interest. It can be created once and then be reused to show different pois.
+	 */
+	var PoiDetails = function(){
+		this.controlElement = null;		//HTMLElement representing the entire control
+		this.initialize();
+	};
+
+	PoiDetails.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		draw: function(){
+
+		},
+
+		/**
+		 * Shows the data of a poi.
+		 * @param {PiLot.Model.Nav.Poi} pPoi - the Poi to show, not null  
+		 */
+		showPoi: function(pPoi){
+			this.controlElement.hidden = false;
+		},
+
+		/** Hides the entire control */
+		hide: function(){
+			this.controlElement.hidden = true;
+		}
+	};
+
 	/// The control to be used on the start page, showing telemetry and
 	/// route information
 	var StartPageNav = function (pContainer, pStartPage, pBoatTime, pGpsObserver) {
