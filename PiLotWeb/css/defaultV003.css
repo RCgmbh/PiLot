@@ -177,6 +177,7 @@ textarea.big{height:20em;}
 /* GENERAL CLASSES */
 .hidden, .block.hidden, .inlineBlock.hidden, .flex.hidden, a.hidden, span.hidden, div.hidden{display:none;}
 .invisible { visibility: hidden; }
+.overflowHidden { overflow: hidden; }
 .fullHeight{height:100%; }
 .fullWidth { width: 100%; }
 .semiBold { font-weight:600; }

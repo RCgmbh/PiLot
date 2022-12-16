@@ -641,7 +641,8 @@ PiLot.View.Logbook = (function () {
 		},
 
 		/** shows the form and sets focus on the first field */
-		showForm: function(){
+		showForm: function () {
+			document.body.classList.toggle('overflowHidden', true);
 			this.control.hidden = false;
 			this.lblTitleAddEntry.hidden = !!this.logbookEntry;
 			this.lblTitleEditEntry.hidden = !this.logbookEntry;
@@ -650,7 +651,8 @@ PiLot.View.Logbook = (function () {
 		},
 
 		/** hides the form */
-		hide: function(){
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
 			this.control.hidden = true;
 			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
 		},
