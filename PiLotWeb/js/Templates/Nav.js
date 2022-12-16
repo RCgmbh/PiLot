@@ -202,6 +202,50 @@ PiLot.Templates.Nav = {
 		</div>
 	`,
 
+	poiDetails: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
+				<div class="marginBottomSmall flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
+					<div class="plhCategoryIcon poiIcon marginRight" style="flex-grow:0;"></div>
+					<span class="lblCategoryName italic" style="flex-grow:1;"></span>
+					<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
+				</div>
+				<span class="lblTitle marginBottomSmall block semiBold"></span>
+				<div class="poiDetailFields flexColumn marginBottomSmall">
+					<div hidden><span class="label" data-text="features"></span><li class="liFeatures value"></li></div>
+					<div><span class="label" data-text="description"></span><span class="lblDescription value"></span></div>
+					<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
+					<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
+					<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
+				</div>
+				<div class="buttons reverse">
+					<a href="#" class="btnClose linkButton" data-text="close"></a>
+				</div>
+			</div>
+		</div>`,
+
+	/*poiForm: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
+				<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
+				<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
+				
+				<span class="lblTitle marginBottomSmall block semiBold"></span>
+				<div class="poiDetailFields flexColumn marginBottomSmall">
+					<div hidden><span class="label" data-text="features"></span><li class="liFeatures value"></li></div>
+					<div><span class="label" data-text="description"></span><span class="lblDescription value"></span></div>
+					<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
+					<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
+					<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
+				</div>
+				<div class="buttons reverse">
+					<a href="#" class="btnClose linkButton" data-text="close"></a>
+				</div>
+			</div>
+		</div>`,*/
+
 	poi_object: '<i class="icon-location"></i>',
 
 	poi_health: '<i class="icon-health"></i>',

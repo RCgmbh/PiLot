@@ -182,6 +182,7 @@ textarea.big{height:20em;}
 .fullWidth { width: 100%; }
 .semiBold { font-weight:600; }
 .bold { font-weight:700; }
+.italic { font-style:italic; }
 .biggerText { font-size: 1.5em; line-height:1.25em; }
 .warning{color:#FF4949;}
 .bigDisplayText{font-size:2em; line-height:1.25em;}
@@ -253,6 +254,7 @@ textarea.big{height:20em;}
 .block{display:block;}
 .flex{display:flex;}
 .flexRowWrap { display:flex; flex-direction:row; flex-wrap: wrap; }
+.flexColumn { display:flex; flex-direction:column; }
 .left { text-align: left; }
 .middle { vertical-align: middle; }
 .center { text-align: center; }

@@ -29,7 +29,7 @@ RC.Date.DateHelper = {
 	/** Converts an ISO String (like 2022-12-02T13:24:56) to an utc based luxon DateTime */
 	isoToLuxon: function (pISOString) {
 		let result = null;
-		if (typeof (pISOString === 'string')) {
+		if (typeof (pISOString) === 'string') {
 			result = DateTime.fromISO(pISOString, { zone: 'utc' });
 		} 
 		return result;

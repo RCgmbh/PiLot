@@ -189,8 +189,10 @@ CREATE FUNCTION read_poi(
 ) RETURNS TABLE (
 	id bigint,
 	title text,
+	description text,
 	category_id integer,
 	feature_ids integer[],
+	properties jsonb,
 	latitude double precision,
 	longitude double precision,
 	valid_from timestamp,
@@ -199,8 +201,10 @@ CREATE FUNCTION read_poi(
 	SELECT 
 		id,
 		title,
+		description,
 		category_id,
 		feature_ids,
+		properties,
 		latitude,
 		longitude,
 		valid_from,

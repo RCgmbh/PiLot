@@ -311,17 +311,17 @@ PiLot.Model.Nav = (function () {
 	 * Represents a point of interest
 	 * @param {Number} id - not null
 	 * @param {String} pTitle - not null
-	 * @param {Number} pCategoryId - The ID of the category, not null
+	 * @param {PiLot.Model.Nav.PoiCategory} pCategory - The category, not null
 	 * @param {Number[]} pFeatureIds - The ids of all features this has, not null
 	 * @param {Number} pLat - Latitude in degrees WGS84, not null
 	 * @param {Number} pLon - Longitude in degrees WGS84, not null
 	 * @param {DateTime} pValidFrom - Valid from in UTC, Luxon object, nullable
 	 * @param {DateTime} pValidTo - Valid to in UTC, Luxon object, nullable
 	 */
-	var Poi = function (pId, pTitle, pCategoryId, pFeatureIds, pLat, pLon, pValidFrom, pValidTo) {
+	var Poi = function (pId, pTitle, pCategory, pFeatureIds, pLat, pLon, pValidFrom, pValidTo) {
 		this.id = pId;
 		this.title = pTitle;
-		this.categoryId = pCategoryId;
+		this.category = pCategory;
 		this.featureIds = pFeatureIds;
 		this.latLng = null;
 		this.setLatLng(pLat, pLon);
@@ -356,26 +356,55 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/** @returns {String} */
+		/** @returns {string} */
 		getTitle: function () { return this.title; },
 
-		/**  @param {String} pTitle */
+		/**  @param {string} pTitle */
 		setTitle: function (pTitle) { this.title = pTitle; },
 
-		/** @returns {Number} */
-		getCategoryId: function () { return this.categoryId; },
+		/** @returns {PiLot.Model.Nav.PoiCategory} */
+		getCategory: function () { return this.category; },
 
-		/** @param {Number} pCategoryId */
-		setCategoryId: function (pCategoryId) { this.categoryId = pCategoryId; },
+		/** @param {PiLot.Model.Nav.PoiCategory} pCategory */
+		setCategoryId: function (pCategory) { this.category = pCategory; },
 
-		/** @returns {Number[]} */
+		/** @returns {number[]} */
 		getFeatureIds: function () { return this.featureIds; },
 
-		/** @param {Number[]} pFeatureIds */
+		/** @param {number[]} pFeatureIds */
 		setFeatureIds: function (pFeatureIds) { this.featureIds = pFeatureIds; },
 
-		/** Loads the details from the server */
-		loadDetailsAsync: async function () { },
+		/** @returns {string} */
+		getDescription: function () { return this.description; },
+
+		/**  @param {string} pDescription */
+		setDescription: function (pDescription) { this.description = pDescription; },
+
+		/** @returns {Object} */
+		getProperties: function () { return this.properties; },
+
+		/** @param {Object} pProperties */
+		setProperties: function (pProperties) { this.properties = pProperties; },
+
+		/** @returns {DateTime} */
+		getValidFrom: function () { return this.validFrom; },
+
+		/** @param {DateTime} pValidFrom */
+		setValidFrom: function (pValidFrom) { this.validFrom = pValidFrom },
+
+		/** @returns {DateTime} */
+		getValidTo: function () { return this.validTo; },
+
+		/** @param {DateTime} pValidTo*/
+		setValidTo: function (pValidTo) { this.validTo = pValidTo },
+
+		/** Makes sure the (description, properties) have been loaded from the server */
+		ensureDetailsAsync: async function () {
+			if (!this.detailsLoaded) {
+				await PiLot.Service.Nav.PoiService.getInstance().loadPoiDetailsAsync(this);
+				this.detailsLoaded = true;
+			}
+		},
 
 		/** Saves the Poi back to the server */
 		saveAsync: async function () { },
@@ -383,62 +412,6 @@ PiLot.Model.Nav = (function () {
 		/** Deletes the Poi */
 		deleteAsync: async function () { }
 
-	};
-
-	/**
-	 * Creates a Poi from an array, as it is delivered from the server.
-	 * @param {Object[]} pData
-	 */
-	Poi.fromArray = function (pData) {
-		let result = null;
-		if (Array.isArray(pData)) {
-			result = new Poi(
-				pData[0],
-				pData[1],
-				pData[2],
-				pData[3],
-				pData[4],
-				pData[5],
-				RC.Date.DateHelper.isoToLuxon(pData[6]),
-				RC.Date.DateHelper.isoToLuxon(pData[7])
-			);			
-		} else {
-			PiLot.log('Did not get an array for Poi.fromArray.', 0);
-		}
-		return result;
-	};
-
-	/**
-	* Finds Pois for a certain area, categories and features from the server
-    * @returns {PiLot.Model.Nav.Poi[]};
-	* */
-	var findPoisAsync = async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pCategories, pFeatures) {
-		const result = [];
-		const categories = pCategories.join(',');
-		const features = pFeatures.join(',');
-		const url = `/Pois?minLat=${pMinLat}&minLon=${pMinLon}&maxLat=${pMaxLat}&maxLon=${pMaxLon}&categories=${categories}&features=${features}`;
-		const json = await PiLot.Utils.Common.getFromServerAsync(url);
-		if (Array.isArray(json)) {
-			for (let i = 0; i < json.length; i++) {
-				const poi = Poi.fromArray(json[i]);
-				if (poi) {
-					result.push(poi);
-				}
-			}
-		} else {
-			PiLot.log('Did not get an array from Poi endpoint.', 0);
-		}
-		return result;
-	};
-
-	var loadPoiAsync = async function(pId){
-		let result = null;
-		const url = `/Pois/${pId}`;
-		const json = await PiLot.Utils.Common.getFromServerAsync(url);
-		if(json && Array.isArray(json)){
-			result = Poi.fromArray(json)
-		}
-		return result;
 	};
 
 	/**
@@ -1580,6 +1553,7 @@ PiLot.Model.Nav = (function () {
 	return {
 		Route: Route,
 		Poi: Poi,
+		PoiCategory: PoiCategory,
 		Waypoint: Waypoint,
 		Track: Track,
 		GPSRecord: GPSRecord,
@@ -1593,9 +1567,6 @@ PiLot.Model.Nav = (function () {
 		loadActiveRouteIdAsync: loadActiveRouteIdAsync,
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
-		findPoisAsync: findPoisAsync,
-		loadPoiAsync: loadPoiAsync,
-		loadPoiCategoriesAsync: loadPoiCategoriesAsync,
 		loadTrackAsync: loadTrackAsync,
 		deleteGPSPositionsAsync: deleteGPSPositionsAsync
 	};

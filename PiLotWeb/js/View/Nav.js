@@ -1228,7 +1228,18 @@ PiLot.View.Nav = (function () {
 	 * Point of interest. It can be created once and then be reused to show different pois.
 	 */
 	var PoiDetails = function(){
-		this.controlElement = null;		//HTMLElement representing the entire control
+		this.control = null;			//HTMLElement representing the entire control
+		this.plhCategoryIcon = null;	//HTMLElement where the icon is inserted
+		this.lblCategoryName = null;	//HTMLSpanElement showing the category name
+		this.lblTitle = null;			//HTMLSpanElement showing the poi title
+		this.liFeatures = null;			//HTMLUListElement listing all features of this poi
+		this.lblDescription = null;		//HTMLSpanElement showing the description text
+		this.pnlProperties = null;		//HTMLDivElement for label and value of properties
+		this.lblProperties = null;		//HTMLSpanElement containing the properties
+		this.pnlValidFrom = null;		//HTMLDivElement for label and value of valid from
+		this.lblValidFrom = null;		//HTMLSpanElement showing the valid from value
+		this.pnlValidTo = null;			//HTMLDivElement for label and value of valid to
+		this.lblValidTo = null;			//HTMLSpanElement showing the valid to value
 		this.initialize();
 	};
 
@@ -1238,8 +1249,27 @@ PiLot.View.Nav = (function () {
 			this.draw();
 		},
 
-		draw: function(){
+		btnClose_click: function () {
+			this.hide();
+		},
 
+		draw: function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiDetails);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
+			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
+			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
+			this.lblTitle = this.control.querySelector('.lblTitle');
+			this.liFeatures = this.control.querySelector('.liFeatures');
+			this.lblDescription = this.control.querySelector('.lblDescription');
+			this.pnlProperties = this.control.querySelector('.pnlProperties');
+			this.lblProperties = this.control.querySelector('.lblProperties');
+			this.pnlValidFrom = this.control.querySelector('.pnlValidFrom');
+			this.lblValidFrom = this.control.querySelector('.lblValidFrom');
+			this.pnlValidTo = this.control.querySelector('.pnlValidTo');
+			this.lblValidTo = this.control.querySelector('.lblValidTo');
+			this.control.querySelector('.btnClose').addEventListener('click', this.btnClose_click.bind(this));
+			this.control.querySelector('.lnkClose').addEventListener('click', this.btnClose_click.bind(this));
 		},
 
 		/**
@@ -1247,12 +1277,49 @@ PiLot.View.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi - the Poi to show, not null  
 		 */
 		showPoi: function(pPoi){
-			this.controlElement.hidden = false;
+			this.control.hidden = false;
+			const categoryName = pPoi.getCategory().getName();
+			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];
+			this.lblCategoryName.innerText = PiLot.Utils.Language.getText(categoryName);
+			this.lblTitle.innerText = pPoi.getTitle();
+			this.liFeatures.clear();
+			// todo: show features
+			let description = pPoi.getDescription();
+			description = this.replaceLinks(description);
+			description = description.replace('\n', '<br/>');
+			this.lblDescription.innerHTML = description;
+			// todo: show properties
+			this.showDate(pPoi.getValidFrom(), this.pnlValidFrom, this.lblValidFrom);
+			this.showDate(pPoi.getValidTo(), this.pnlValidTo, this.lblValidTo);
+		},
+
+		replaceLinks: function (pText) {
+			if (pText) {
+				// http://, https://, ftp://
+				const urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+				// www. without http:// or https://
+				var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+				// Email addresses
+				var emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.[a-zA-Z]{2,6})+/gim;
+				return pText
+					.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
+					.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
+					.replace(emailAddressPattern, '<a href="mailto:$&">$&</a>');
+			} else return pText;
+		},
+
+		showDate: function (pDate, pPanel, pLabel) {
+			if (pDate !== null) {
+				pPanel.hidden = false;
+				pLabel.innerText = pDate.toLocaleString(DateTime.DATETIME_SHORT);
+			} else {
+				pPanel.hidden = true;
+			}
 		},
 
 		/** Hides the entire control */
 		hide: function(){
-			this.controlElement.hidden = true;
+			this.control.hidden = true;
 		}
 	};
 
@@ -1489,6 +1556,7 @@ PiLot.View.Nav = (function () {
 		RoutesList: RoutesList,
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,
+		PoiDetails: PoiDetails,
 		StartPageNav: StartPageNav
 	};
 

@@ -280,6 +280,11 @@ PiLot.View.Map = (function () {
 			return this.mapContainer;
 		},
 
+		/** @returns {PiLot.View.Map.MapContextPopup} */
+		getContextPopup: function () {
+			return this.contextPopup;
+		},
+
 		/// gets the maximal zoom supported by the map
 		getMaxZoom: function () {
 			return this.maxZoom;
@@ -364,33 +369,9 @@ PiLot.View.Map = (function () {
 		this.seamap = pSeamap;					
 		this.poisMap = null;					// map with key=poi.id and value={poi, marker}
 		this.categoriesMap = null;				// map with key=category.id and value = category
+		this.poiDetailControl = null;			// PiLot.View.Nav.PoiDetails
 		this.initializeAsync();
 	};
-
-	//todo
-	/*
-	> MapPois: the one who is responsible for showing pois on the map
-	 - Loads Categories and Features from the server
-	 - Adds the mapPoiSettings to the map, requesting the current settings
-	 - Observes changes in settings 
-			removeCategory: remove markers
-			addCategory: reload
-			removeFeature: reload
-			addFeature: remove markers
-	 - takes the map
-	 - loads the pois
-	 - draws them to the map
-	 - observes movements of the map
-	 - creates a details popup and binds click handler to show it on each POI
-
-	> MapPoiSettings:
-	 - Loads and saves user settings for POIs
-	 - icon and dialog to select Categories and Features
-	 - global show/hide switch
-
-	> PoiCategoryList
-	  - checkbox-List with icons and tree structure
-	*/
 
 	MapPois.prototype = {
 
@@ -398,6 +379,7 @@ PiLot.View.Map = (function () {
 			this.poisMap = new Map();
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
+			this.addContextPopupLink();
 			await this.loadPoisAsync();
 		},
 
@@ -413,9 +395,17 @@ PiLot.View.Map = (function () {
 			console.log(pSender);
 		},
 
-		poiMarker_click: async function(pPoiId){
-			const poi = await PiLot.Model.Nav.loadPoiAsync(pPoiId);
-			console.log(poi);
+		poiMarker_click: async function(pPoi){
+			await pPoi.ensureDetailsAsync();
+			if (this.poiDetailControl === null) {
+				this.poiDetailControl = new PiLot.View.Nav.PoiDetails();
+			}
+			this.poiDetailControl.showPoi(pPoi);
+		},
+
+		lnkAddPoi_click: function (pMapEvent, pClickEvent) {
+			console.log(pMapEvent);
+			console.log(pClickEvent);
 		},
 
 		/**
@@ -425,12 +415,13 @@ PiLot.View.Map = (function () {
 			const bounds = this.seamap.getLeafletMap().getBounds();
 			const minPoint = bounds.getSouthWest();
 			const maxPoint = bounds.getNorthEast();
-			this.categoriesMap = await PiLot.Model.Nav.loadPoiCategoriesAsync(); // todo: get all and selected categories from Settings
+			const poiService = PiLot.Service.Nav.PoiService.getInstance();
+			this.categoriesMap = await poiService.getCategoriesAsync(); // todo: get all and selected categories from Settings
 			const categoryIds = [];
 			for (const aKey of this.categoriesMap.keys()){
 				categoryIds.push(aKey);
 			}
-			const pois = await PiLot.Model.Nav.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
+			const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
 			pois.forEach(function (p) { this.showPoi(p) }.bind(this));
 		},
 
@@ -443,13 +434,13 @@ PiLot.View.Map = (function () {
 		showPoi: function (pPoi, pCategories) {
 			let marker = null;
 			if (!this.poisMap.has(pPoi.getId())) {
-				const iconHtml = PiLot.Templates.Nav[`poi_${this.categoriesMap.get(pPoi.getCategoryId()).getName()}`];
+				const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
 				const icon = L.divIcon({
 					className: 'poiMarker', iconSize: [null, null], html: iconHtml
 				});
 				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: true, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
-				marker.on('click', this.poiMarker_click.bind(this, pPoi.getId()));
+				marker.on('click', this.poiMarker_click.bind(this, pPoi));
 				this.poisMap.set(pPoi.getId(), { poi: pPoi, marker: marker });
 			} else {
 				marker = this.poisMap.get(pPoi.getId()).marker;
@@ -471,7 +462,15 @@ PiLot.View.Map = (function () {
 			markerElement.style.marginTop = `${iconSize / -2}px`;
 			markerElement.style.marginLeft = `${iconSize / -2}px`;
 			markerElement.style.fontSize = `${iconSize / 24}em`;
-		}
+		},
+
+		/** Adds the "add POI" link to the context popup */
+		addContextPopupLink: function () {
+			if (PiLot.Permissions.canWrite()) {
+				const link = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddPoiLink);
+				this.seamap.getContextPopup().addLink(link, this.lnkAddPoi_click.bind(this));
+			}			
+		},
 	};
 
 	/// Class MapTrack represents the presentation of a track
@@ -1101,7 +1100,7 @@ PiLot.View.Map = (function () {
 			if (locked) {
 				this.map.contextPopup.removeLink(this.lnkAddWaypoint);
 			} else {
-				this.map.contextPopup.addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
+				this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
 			}
 		},
 
@@ -1214,7 +1213,7 @@ PiLot.View.Map = (function () {
 		addContextPopupLink: function () {
 			if (!this.lockRoute) {
 				this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
-				this.map.contextPopup.addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
+				this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
 			}
 		},
 
@@ -1277,7 +1276,6 @@ PiLot.View.Map = (function () {
 		this.lnkDelete = null;
 		// leg and leg popup
 		this.incomingLeg = null;
-		this.legPopup = null;
 		this.outgoingLeg = null;
 		// other controls / view objects
 		this.mapRoute = pMapRoute;
@@ -1345,7 +1343,8 @@ PiLot.View.Map = (function () {
 			if (!this.mapRoute.getIsLocked()) {
 				const legPopupContent = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLegPopup);
 				legPopupContent.querySelector('.lnkInsertWaypoint').addEventListener('click', this.lnkInsertWaypoint_click.bind(this, e));
-				this.legPopup = this.incomingLeg.bindPopup(legPopupContent, { autoPan: false }).addTo(this.mapRoute.getLeafletMap()).openPopup();
+				const legPopup = L.popup();
+				legPopup.setLatLng(e.latlng).setContent(legPopupContent).openOn(this.mapRoute.getLeafletMap());
 			}
 		},
 
@@ -1362,7 +1361,7 @@ PiLot.View.Map = (function () {
 		/// is the leflet event, the second is the jquery event.
 		lnkInsertWaypoint_click: function (mapEvent, linkEvent) {
 			linkEvent.preventDefault();
-			this.legPopup.closePopup();
+			this.mapRoute.getLeafletMap().closePopup();
 			this.waypoint.insertBefore(mapEvent.latlng);
 		},
 
@@ -1513,23 +1512,23 @@ PiLot.View.Map = (function () {
 		/// and, if available, live data
 		updateMarkerPopup: function () {
 			if (this.markerPopup !== null) {
-				var eta = null;
-				var bearing = null;
-				var distance = null;
+				let eta = null;
+				let bearing = null;
+				let distance = null;
 				if (this.waypointLiveData !== null) {
 					eta = this.waypointLiveData.eta;
 					bearing = this.waypointLiveData.bearing;
 					distance = this.waypointLiveData.miles;
 				}
-				var latLonText = PiLot.Utils.Nav.latLonToString(this.waypoint.getLatLon());
-				var etaText = (eta !== null) ? eta.toFormat('HH:mm') : '--:--';
-				var distanceText = (distance !== null) ? distance.toFixed(1) : '--';
-				var bearingText = (bearing !== null) ? RC.Utils.toFixedLength(bearing, 3, 0) : '---';
-				RC.Utils.setText(this.lblName, this.waypoint.getName());
-				RC.Utils.setText(this.lblLatLng, latLonText);
-				RC.Utils.setText(this.lblEta, etaText);
-				RC.Utils.setText(this.lblDist, distanceText);
-				RC.Utils.setText(this.lblBearing, bearingText);
+				const latLonText = PiLot.Utils.Nav.latLonToString(this.waypoint.getLatLon());
+				const etaText = (eta !== null) ? eta.toFormat('HH:mm') : '--:--';
+				const distanceText = (distance !== null) ? distance.toFixed(1) : '--';
+				const bearingText = (bearing !== null) ? RC.Utils.toFixedLength(bearing, 3, 0) : '---';
+				this.lblName.innerText = this.waypoint.getName();
+				this.lblLatLng.innerText = latLonText;
+				this.lblEta.innerText = etaText;
+				this.lblDist.innerText = distanceText;
+				this.lblBearing.innerText = bearingText;
 				RC.Utils.showHide(this.lnkDelete, !this.mapRoute.lockRoute);
 			}
 		},

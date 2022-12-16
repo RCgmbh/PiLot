@@ -65,6 +65,8 @@ PiLot.Templates.Map = {
 
 	mapAddWaypointLink: '<a href="#" data-text="addWaypoint"></a>',
 
+	mapAddPoiLink: '<a href="#" data-text="addPoi"></a>',
+
 	mapShowTrack:`
 		<div class="option">
 			<a class="block fullWidth" href="#">
