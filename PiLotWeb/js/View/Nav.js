@@ -1277,7 +1277,7 @@ PiLot.View.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi - the Poi to show, not null  
 		 */
 		showPoi: function(pPoi){
-			this.control.hidden = false;
+			this.show();
 			const categoryName = pPoi.getCategory().getName();
 			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];
 			this.lblCategoryName.innerText = PiLot.Utils.Language.getText(categoryName);
@@ -1317,8 +1317,198 @@ PiLot.View.Nav = (function () {
 			}
 		},
 
+		/** Shows the control */
+		show: function () {
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+		},
+
 		/** Hides the entire control */
-		hide: function(){
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
+			this.control.hidden = true;
+		}
+	};
+
+	/** Represents the form that is used to enter or edit a point of interest */
+	var PoiForm = function () {
+		this.poi = null;				// PiLot.Model.Nav.Poi
+		this.mapPois = null;			// PiLot.View.Map.MapPois, optional for new pois to be added to the map
+
+		this.control = null;			
+		this.lblTitleAddPoi = null;
+		this.lblTitleEditPoi = null;
+		this.tbTitle = null;
+		this.ddlCategory = null;
+		this.tbDescription = null;
+		this.editLatitude = null;
+		this.editLongitude = null;
+		this.lblAllowDrag = null;
+		this.cbAllowDrag = null;
+		this.calValidFrom = null;
+		this.calValidTo = null;
+
+		this.initializeAsync();
+	};
+
+	PoiForm.prototype = {
+
+		initializeAsync: async function () {
+			await this.drawAsync();
+		},
+
+		btnSave_click: async function (e) {
+			e.preventDefault();
+			if (await this.saveDataAsync()) {
+				this.hide();
+			}
+		},
+
+		btnCancel_click: function (e) {
+			e.preventDefault();
+			this.hide();
+		},
+
+		drawAsync: async function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.btnCancel_click.bind(this));
+			this.lblTitleAddPoi = this.control.querySelector('.lblTitleAddPoi');
+			this.lblTitleEditPoi = this.control.querySelector('.lblTitleEditPoi');
+			this.tbTitle = this.control.querySelector('.tbTitle');
+			this.ddlCategory = this.control.querySelector('.ddlCategory');
+			this.tbDescription = this.control.querySelector('.tbDescription');
+			this.editLatitude = new CoordinateForm(this.control.querySelector('.plhLatitude'), true);
+			this.editLongitude = new CoordinateForm(this.control.querySelector('.plhLongitude'), false);
+			this.lblAllowDrag = this.control.querySelector('.lblAllowDrag');
+			this.cbAllowDrag = this.control.querySelector('.cbAllowDrag');
+			const locale = PiLot.Utils.Language.getLocale();
+			this.calValidFrom = new RC.Controls.Calendar(this.control.querySelector('.calValidFrom'), this.control.querySelector('.tbValidFrom'), null, null, null, locale);
+			this.calValidTo = new RC.Controls.Calendar(this.control.querySelector('.calValidTo'), this.control.querySelector('.tbValidTo'), null, null, null, locale);
+			this.control.querySelector('.btnSave').addEventListener('click', this.btnSave_click.bind(this));
+			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
+			await this.populateCategoriesAsync();
+		},
+
+		/** Populates the category dropdown with a hierarchic, ordered list of categories */
+		populateCategoriesAsync: async function () {
+			const poiService = PiLot.Service.Nav.PoiService.getInstance();
+			const allCategories = await poiService.getCategoriesAsync();
+			const rootCategories = [];
+			allCategories.forEach(function (v, k) {
+				if (v.getLevel() === 0) {
+					rootCategories.push(v);
+				}
+			});
+			const ddlCategories = [];
+			this.addChildCategoriesRec(rootCategories, ddlCategories);
+			RC.Utils.fillDropdown(this.ddlCategory, ddlCategories, null);
+		},
+
+		/**
+		 * Recursively adds a list of categories to an array, which can be used to fill
+		 * the "category" dropdown. Also responsible for sorting the elements per level
+		 * and to indent items based on their level.
+		 * @param {PiLot.Model.Nav.PoiCategory[]} pCategories - categories to add
+		 * @param {[[]]} pResult - array of arrays with [value, text]
+		 */
+		addChildCategoriesRec: function (pCategories, pResult) {
+			const categoriesWithTitle = [];
+			pCategories.forEach(function (c) {
+				categoriesWithTitle.push({ title: PiLot.Utils.Language.getText(c.getName()), category: c });
+			});
+			categoriesWithTitle.sort((a, b) => a.title.localeCompare(b.title));
+			let ddlTitle;
+			let category;
+			for (let i = 0; i < categoriesWithTitle.length; i++) {
+				category = categoriesWithTitle[i].category;
+				ddlTitle = "";
+				for (let j = 0; j < category.getLevel(); j++) {
+					ddlTitle += "- "
+				}
+				ddlTitle += categoriesWithTitle[i].title;
+				pResult.push([category.getId(), ddlTitle]);
+				this.addChildCategoriesRec(category.getChildren(), pResult);
+			}
+		},
+
+		showEmpty: function (pMapPois = null, pLatLng = null) {
+			this.poi = null;
+			this.mapPois = pMapPois;
+			this.show();
+			this.populateFields(pLatLng);
+		},
+
+		showPoi: function (pPoi, pMapPois = null) {
+			this.poi = pPoi;
+			this.mapPois = pMapPois;
+			this.show();
+			this.populateFields();
+		},
+
+		populateFields: function (pLatLng = null) {
+			this.lblTitleAddPoi.hidden = this.poi !== null;
+			this.lblTitleEditPoi.hidden = this.poi === null;
+			let latLng;
+			if (this.poi !== null) {
+				this.tbTitle.value = this.poi.getTitle();
+				this.ddlCategory.value = this.poi.getCategory().getId();
+				this.tbDescription.value = this.poi.getDescription();
+				latLng = this.poi.getLatLng();
+				this.calValidFrom.date(this.poi.getValidFrom());
+				this.calValidTo.date(this.poi.getValidTo());
+			} else {
+				this.tbTitle.value = "";
+				this.ddlCategory.value = "";
+				this.tbDescription.value = "";
+				latLng = pLatLng;
+				this.calValidFrom.date(null);
+				this.calValidTo.date(null);
+			}
+			this.editLatitude.setCoordinate(latLng ? latLng.lat : null).showCoordinate();
+			this.editLongitude.setCoordinate(latLng ? latLng.lng : null).showCoordinate();
+			this.cbAllowDrag.checked = false;
+			this.calValidFrom.showDate(this.calValidFrom.date());
+			this.calValidTo.showDate(this.calValidTo.date());
+			this.tbTitle.focus();
+		},
+
+		saveDataAsync: async function () {
+			const allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+			let category = null;
+			if (RC.Utils.isNumeric(this.ddlCategory.value)){
+				category = allCategories.get(Number(this.ddlCategory.value));
+			}
+			const lat = this.editLatitude.getCoordinate();
+			const lon = this.editLongitude.getCoordinate();
+			if (category && lat && lon) {
+				this.poi = this.poi || new PiLot.Model.Nav.Poi();
+				this.poi.setTitle(this.tbTitle.value);
+				this.poi.setCategory(category);
+				this.poi.setDescription(this.tbDescription.value);
+				this.poi.setLatLng(lat, lon);
+				this.poi.setValidFrom(this.calValidFrom.date());
+				this.poi.setValidTo(this.calValidTo.date());
+				await this.poi.saveAsync();
+				if (this.mapPois) {
+					this.mapPois.showPoi(this.poi, true, this.cbAllowDrag.checked);
+				}
+				this.hide();
+			} else {
+				// show error
+			}
+			
+		},
+
+		/** Shows the control */
+		show: function () {
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+		},
+
+		/** Hides the entire control */
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
 			this.control.hidden = true;
 		}
 	};
@@ -1557,6 +1747,7 @@ PiLot.View.Nav = (function () {
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,
 		PoiDetails: PoiDetails,
+		PoiForm: PoiForm,
 		StartPageNav: StartPageNav
 	};
 

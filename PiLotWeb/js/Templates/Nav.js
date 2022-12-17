@@ -225,26 +225,34 @@ PiLot.Templates.Nav = {
 			</div>
 		</div>`,
 
-	/*poiForm: `
+	poiForm: `
 		<div class="fullHeight fullWidth absolute vCenter" hidden>
 			<div class="overlay"></div>
 			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
 				<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
 				<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
-				
-				<span class="lblTitle marginBottomSmall block semiBold"></span>
-				<div class="poiDetailFields flexColumn marginBottomSmall">
-					<div hidden><span class="label" data-text="features"></span><li class="liFeatures value"></li></div>
-					<div><span class="label" data-text="description"></span><span class="lblDescription value"></span></div>
-					<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
-					<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
-					<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
+				<div class="calValidTo" style="top:2em;" hidden></div>
+				<div class="calValidFrom" style="top:2em;" hidden></div>
+				<div class="poiForm marginBottom">
+					<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
+					<select class="ddlCategory marginBottomSmall"></select>
+					<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
+					<div class="flexRowWrap">
+						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex marginBottomSmall"></div></div>
+						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex marginBottomSmall"></div></div>
+					</div>
+					<label class="lblAllowDrag marginRight marginBottomSmall inlineBlock"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
+					<div class="flexRowWrap">
+						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validFrom">:</span><input type="text" class="tbValidFrom input4" /></div>
+						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validTo">:</span><input type="text" class="tbValidTo input4" /></div>
+					</div>
 				</div>
-				<div class="buttons reverse">
-					<a href="#" class="btnClose linkButton" data-text="close"></a>
+				<div class="buttons reverse marginBottomSmall">
+					<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>
 			</div>
-		</div>`,*/
+		</div>`,
 
 	poi_object: '<i class="icon-location"></i>',
 

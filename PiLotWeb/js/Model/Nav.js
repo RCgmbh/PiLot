@@ -309,16 +309,16 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * Represents a point of interest
-	 * @param {Number} id - not null
-	 * @param {String} pTitle - not null
-	 * @param {PiLot.Model.Nav.PoiCategory} pCategory - The category, not null
-	 * @param {Number[]} pFeatureIds - The ids of all features this has, not null
-	 * @param {Number} pLat - Latitude in degrees WGS84, not null
-	 * @param {Number} pLon - Longitude in degrees WGS84, not null
-	 * @param {DateTime} pValidFrom - Valid from in UTC, Luxon object, nullable
-	 * @param {DateTime} pValidTo - Valid to in UTC, Luxon object, nullable
+	 * @param {Number} id
+	 * @param {String} pTitle
+	 * @param {PiLot.Model.Nav.PoiCategory} pCategory - The category
+	 * @param {Number[]} pFeatureIds - The ids of all features this has
+	 * @param {Number} pLat - Latitude in degrees WGS84
+	 * @param {Number} pLon - Longitude in degrees WGS84
+	 * @param {DateTime} pValidFrom - Valid from in UTC, Luxon object
+	 * @param {DateTime} pValidTo - Valid to in UTC, Luxon object
 	 */
-	var Poi = function (pId, pTitle, pCategory, pFeatureIds, pLat, pLon, pValidFrom, pValidTo) {
+	var Poi = function (pId = null, pTitle = null, pCategory = null, pFeatureIds = null, pLat = null, pLon = null, pValidFrom = null, pValidTo = null) {
 		this.id = pId;
 		this.title = pTitle;
 		this.category = pCategory;
@@ -366,7 +366,7 @@ PiLot.Model.Nav = (function () {
 		getCategory: function () { return this.category; },
 
 		/** @param {PiLot.Model.Nav.PoiCategory} pCategory */
-		setCategoryId: function (pCategory) { this.category = pCategory; },
+		setCategory: function (pCategory) { this.category = pCategory; },
 
 		/** @returns {number[]} */
 		getFeatureIds: function () { return this.featureIds; },
@@ -407,7 +407,9 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/** Saves the Poi back to the server */
-		saveAsync: async function () { },
+		saveAsync: async function () {
+			
+		},
 
 		/** Deletes the Poi */
 		deleteAsync: async function () { }
@@ -458,8 +460,16 @@ PiLot.Model.Nav = (function () {
 			this.name = pName;
 		},
 
+		getLevel: function () {
+			return (this.parent ? this.parent.getLevel() + 1 : 0);
+		},
+
 		addChild: function(pChild){
 			this.children.push(pChild);
+		},
+
+		getChildren: function () {
+			return this.children;
 		}
 	};
 

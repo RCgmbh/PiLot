@@ -370,6 +370,7 @@ PiLot.View.Map = (function () {
 		this.poisMap = null;					// map with key=poi.id and value={poi, marker}
 		this.categoriesMap = null;				// map with key=category.id and value = category
 		this.poiDetailControl = null;			// PiLot.View.Nav.PoiDetails
+		this.poiFormControl = null;				// PiLot.View.Nav.PoiForm
 		this.initializeAsync();
 	};
 
@@ -377,6 +378,7 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			this.poisMap = new Map();
+			this.poiFormControl = new PiLot.View.Nav.PoiForm();
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 			this.addContextPopupLink();
@@ -403,9 +405,8 @@ PiLot.View.Map = (function () {
 			this.poiDetailControl.showPoi(pPoi);
 		},
 
-		lnkAddPoi_click: function (pMapEvent, pClickEvent) {
-			console.log(pMapEvent);
-			console.log(pClickEvent);
+		lnkAddPoi_click: async function (pMapEvent, pClickEvent) {
+			this.poiFormControl.showEmpty(this, pMapEvent.latlng);
 		},
 
 		/**
@@ -422,30 +423,42 @@ PiLot.View.Map = (function () {
 				categoryIds.push(aKey);
 			}
 			const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
-			pois.forEach(function (p) { this.showPoi(p) }.bind(this));
+			pois.forEach(function (p) { this.showPoi(p, false) }.bind(this));
 		},
 
 		/**
 		 * Creates a leaflet marker for the poi, if it hasn't been created before, and adds the marker
 		 * to the poi map.
 		 * @param {PiLot.Model.Nav.Poi} pPoi
-		 * @param {any} pCategories
+		 * @param {boolean} pResetExisting - Set to true, if position and icon should be reset
+		 * @param {boolean} pSetDraggable - Set to true, if the marker should be draggable
 		 */
-		showPoi: function (pPoi, pCategories) {
+		showPoi: function (pPoi, pResetExisting, pSetDraggable) {
 			let marker = null;
 			if (!this.poisMap.has(pPoi.getId())) {
-				const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
-				const icon = L.divIcon({
-					className: 'poiMarker', iconSize: [null, null], html: iconHtml
-				});
-				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: true, autoPan: true });
+				let icon = this.createPoiIcon(pPoi);
+				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
 				this.poisMap.set(pPoi.getId(), { poi: pPoi, marker: marker });
 			} else {
 				marker = this.poisMap.get(pPoi.getId()).marker;
+				marker.options.draggable = pSetDraggable;
+				if (pResetExisting) {
+					marker.setIcon(this.createPoiIcon(pPoi));
+					marker.setLatLng(pPoi.getLatLng());
+				}
 			}
 			this.setMarkerSize(marker);
+		},
+
+		/** Creates the icon for the poi with the right content based on the poi category */
+		createPoiIcon: function (pPoi) {
+			const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
+			const result = L.divIcon({
+				className: 'poiMarker', iconSize: [null, null], html: iconHtml
+			});
+			return result;
 		},
 
 		/**
@@ -459,8 +472,8 @@ PiLot.View.Map = (function () {
 			const iconSize = Math.max(this.seamap.getCurrentZoom() * 4 - 20, 8);
 			markerElement.style.height = `${iconSize}px`;
 			markerElement.style.width = `${iconSize}px`;
-			markerElement.style.marginTop = `${iconSize / -2}px`;
-			markerElement.style.marginLeft = `${iconSize / -2}px`;
+			markerElement.style.marginTop = `${iconSize * -1}px`;
+			markerElement.style.marginLeft = `${iconSize * -1}px`;
 			markerElement.style.fontSize = `${iconSize / 24}em`;
 		},
 
