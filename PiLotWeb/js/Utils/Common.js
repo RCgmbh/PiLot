@@ -356,7 +356,6 @@ PiLot.Utils.Common = {
 	 * @param {String} pHref - optionally bind an url instead of the click handler
 	 */
 	bindOrHideEditLink: function (pLink, pFunction, pHref = null) {
-		//if (PiLot.Model.Common.Permissions.canWrite()) {
 		if (PiLot.Permissions.canWrite()) {
 			if (pFunction) {
 				pLink.addEventListener('click', pFunction);

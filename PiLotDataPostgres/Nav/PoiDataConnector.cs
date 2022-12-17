@@ -4,6 +4,7 @@ using System.Configuration;
 using System.Data;
 using Npgsql;
 using PiLot.Model.Nav;
+using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Data.Postgres.Nav {
@@ -52,6 +53,66 @@ namespace PiLot.Data.Postgres.Nav {
 			List<Object[]> resultList = this.ReadData(query, pars);
 			if(resultList.Count == 1){
 				result = resultList[0];
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Inserts or updates a POI in the DB and returns the ID
+		/// </summary>
+		/// <param name="pPoi">The poi to save, not null</param>
+		/// <returns>The pois ID</returns>
+		public Int64 SavePoi(Poi pPoi) {
+			Logger.Log("PoiDataConnector.SavePoi", LogLevels.DEBUG);
+			Int64? result = null;
+			String command;
+			if(pPoi.ID == null) {
+				command = "SELECT * FROM insert_poi(@p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
+			} else {
+				command = "SELECT * FROM update_poi(@p_id, @p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
+				result = pPoi.ID;
+			}
+			NpgsqlConnection connection = null;
+			try {
+				String connectionString = ConfigurationManager.AppSettings["connectionString"];
+				connection = new NpgsqlConnection(connectionString);
+				NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
+				if(pPoi.ID != null) {
+					cmd.Parameters.AddWithValue("@p_id", pPoi.ID);
+				}
+				cmd.Parameters.AddWithValue("@p_title", pPoi.Title);
+				cmd.Parameters.AddWithValue("@p_description", pPoi.Description);
+				cmd.Parameters.AddWithValue("@p_category_id", pPoi.CategoryID);
+				cmd.Parameters.AddWithValue("@p_properties", DBNull.Value);
+				cmd.Parameters.AddWithValue("@p_latitude", pPoi.Latitude);
+				cmd.Parameters.AddWithValue("@p_longitude", pPoi.Longitude);
+				cmd.Parameters.AddWithValue("@p_valid_from", this.NullableUnixToDateTime(pPoi.ValidFrom));
+				cmd.Parameters.AddWithValue("@p_valid_to", this.NullableUnixToDateTime(pPoi.ValidTo));
+				connection.Open();
+				Object cmdResult = cmd.ExecuteScalar();
+				if(pPoi.ID == null) {
+					result = (Int64)cmdResult;
+				}
+			} catch (Exception ex) {
+				Logger.Log(ex, "PoiDataConnector.SavePoi");
+				throw;
+			} finally {
+				if ((connection != null) && (connection.State == ConnectionState.Open)) {
+					connection.Close();
+				}
+			}
+			return result.Value;
+		}
+
+		/// <summary>
+		/// Converts a DateTime in seconds since epoc into a date time, accepting null values
+		/// </summary>
+		/// <param name="pUnixTime">The dateTime in Unix or null</param>
+		/// <returns>DateTime or DBNull.Value</returns>
+		private Object NullableUnixToDateTime(Int32? pUnixTime) {
+			Object result = DBNull.Value;
+			if(pUnixTime != null) {
+				result = DateTimeHelper.FromUnixTime(pUnixTime.Value);
 			}
 			return result;
 		}

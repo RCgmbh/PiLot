@@ -1226,8 +1226,12 @@ PiLot.View.Nav = (function () {
 	/**
 	 * This represents the control which is used to show all details about one specific
 	 * Point of interest. It can be created once and then be reused to show different pois.
+	 * @param {PiLot.View.Nav.PoiForm} pPoiForm - The edit form to use when editing this poi
+	 * @param {PiLot.View.Map.MapPois} pMapPois - Connecting this to a map will allow moving the poi
 	 */
-	var PoiDetails = function(){
+	var PoiDetails = function(pPoiFormControl, pMapPois = null){
+		this.poiFormControl = pPoiFormControl;
+		this.mapPois = pMapPois;
 		this.control = null;			//HTMLElement representing the entire control
 		this.plhCategoryIcon = null;	//HTMLElement where the icon is inserted
 		this.lblCategoryName = null;	//HTMLSpanElement showing the category name
@@ -1249,14 +1253,21 @@ PiLot.View.Nav = (function () {
 			this.draw();
 		},
 
-		btnClose_click: function () {
+		lnkClose_click: function () {
 			this.hide();
 		},
+
+		lnkEdit_click: function () { },
+
+		lnkMove_click: function () { },
+
+		lnkDelete_click: function () { },
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiDetails);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
+			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
 			this.lblTitle = this.control.querySelector('.lblTitle');
@@ -1268,15 +1279,17 @@ PiLot.View.Nav = (function () {
 			this.lblValidFrom = this.control.querySelector('.lblValidFrom');
 			this.pnlValidTo = this.control.querySelector('.pnlValidTo');
 			this.lblValidTo = this.control.querySelector('.lblValidTo');
-			this.control.querySelector('.btnClose').addEventListener('click', this.btnClose_click.bind(this));
-			this.control.querySelector('.lnkClose').addEventListener('click', this.btnClose_click.bind(this));
+			PiLot.Utils.Common.bindOrHideEditLink(this.control.querySelector('.lnkEdit'), this.lnkEdit_click.bind(this));
+			PiLot.Utils.Common.bindOrHideEditLink(this.control.querySelector('.lnkMove'), this.lnkMove_click.bind(this));
+			PiLot.Utils.Common.bindOrHideEditLink(this.control.querySelector('.lnkDelete'), this.lnkDelete_click.bind(this));
 		},
 
 		/**
 		 * Shows the data of a poi.
 		 * @param {PiLot.Model.Nav.Poi} pPoi - the Poi to show, not null  
 		 */
-		showPoi: function(pPoi){
+		showPoi: function (pPoi) {
+			this.mapPois = pMapPois;
 			this.show();
 			const categoryName = pPoi.getCategory().getName();
 			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];

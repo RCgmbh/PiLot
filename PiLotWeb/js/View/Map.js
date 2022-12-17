@@ -285,6 +285,11 @@ PiLot.View.Map = (function () {
 			return this.contextPopup;
 		},
 
+		/** allows to manually close the context popup */
+		closeContextPopup: function () {
+			this.contextPopup.close();
+		},
+
 		/// gets the maximal zoom supported by the map
 		getMaxZoom: function () {
 			return this.maxZoom;
@@ -400,13 +405,14 @@ PiLot.View.Map = (function () {
 		poiMarker_click: async function(pPoi){
 			await pPoi.ensureDetailsAsync();
 			if (this.poiDetailControl === null) {
-				this.poiDetailControl = new PiLot.View.Nav.PoiDetails();
+				this.poiDetailControl = new PiLot.View.Nav.PoiDetails(this.poiFormControl);
 			}
 			this.poiDetailControl.showPoi(pPoi);
 		},
 
 		lnkAddPoi_click: async function (pMapEvent, pClickEvent) {
 			this.poiFormControl.showEmpty(this, pMapEvent.latlng);
+			this.seamap.closeContextPopup();
 		},
 
 		/**
@@ -423,7 +429,7 @@ PiLot.View.Map = (function () {
 				categoryIds.push(aKey);
 			}
 			const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
-			pois.forEach(function (p) { this.showPoi(p, false) }.bind(this));
+			pois.forEach(function (p) { this.showPoi(p, false, false) }.bind(this));
 		},
 
 		/**
@@ -435,8 +441,15 @@ PiLot.View.Map = (function () {
 		 */
 		showPoi: function (pPoi, pResetExisting, pSetDraggable) {
 			let marker = null;
+			if (pResetExisting && this.poisMap.has(pPoi.getId())) {
+				this.poisMap.get(pPoi.getId().marker.remove());
+				this.poisMap.delete(pPoi.getId());
+			}
 			if (!this.poisMap.has(pPoi.getId())) {
-				let icon = this.createPoiIcon(pPoi);
+				const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
+				const icon = L.divIcon({
+					className: 'poiMarker', iconSize: [null, null], html: iconHtml
+				});
 				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
@@ -444,21 +457,8 @@ PiLot.View.Map = (function () {
 			} else {
 				marker = this.poisMap.get(pPoi.getId()).marker;
 				marker.options.draggable = pSetDraggable;
-				if (pResetExisting) {
-					marker.setIcon(this.createPoiIcon(pPoi));
-					marker.setLatLng(pPoi.getLatLng());
-				}
 			}
 			this.setMarkerSize(marker);
-		},
-
-		/** Creates the icon for the poi with the right content based on the poi category */
-		createPoiIcon: function (pPoi) {
-			const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
-			const result = L.divIcon({
-				className: 'poiMarker', iconSize: [null, null], html: iconHtml
-			});
-			return result;
 		},
 
 		/**
@@ -469,12 +469,20 @@ PiLot.View.Map = (function () {
 		 */
 		setMarkerSize: function (pMarker) {
 			const markerElement = pMarker.getElement();
-			const iconSize = Math.max(this.seamap.getCurrentZoom() * 4 - 20, 8);
+			const iconSize = Math.max(this.seamap.getCurrentZoom() * 5 - 40, 8);
 			markerElement.style.height = `${iconSize}px`;
 			markerElement.style.width = `${iconSize}px`;
 			markerElement.style.marginTop = `${iconSize * -1}px`;
 			markerElement.style.marginLeft = `${iconSize * -1}px`;
 			markerElement.style.fontSize = `${iconSize / 24}em`;
+		},
+
+		/**
+		 * Opens the edit form for a certain poi
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		editPoi: function (pPoi) {
+			this.poiFormControl.showPoi(pPoi, this);
 		},
 
 		/** Adds the "add POI" link to the context popup */

@@ -56,7 +56,9 @@ CREATE TABLE pois(
 	properties jsonb,
 	coordinates geography(POINT, 4326) NOT NULL,
 	valid_from timestamp,
-	valid_to timestamp
+	valid_to timestamp,
+	date_created timestamp NOT NULL,
+	date_changed timestamp NOT NULL,
 );
 
 CREATE INDEX pois_coordinats_index
@@ -109,27 +111,66 @@ GRANT SELECT ON all_pois TO pilotweb;
 DROP FUNCTION IF EXISTS insert_poi;
 
 CREATE FUNCTION insert_poi(
-	title text,
-	description text,
-	category_id integer,
-	properties jsonb,
-	latitude double precision,
-	longitude double precision,
-	valid_from timestamp,
-	valid_to timestamp
+	p_title text,
+	p_description text,
+	p_category_id integer,
+	p_properties jsonb,
+	p_latitude double precision,
+	p_longitude double precision,
+	p_valid_from timestamp,
+	p_valid_to timestamp
 )
-RETURNS integer AS 
+RETURNS bigint AS 
 '
 	INSERT INTO pois(
-		title, description, category_id, properties, coordinates, valid_from, valid_to
+		title, description, category_id, properties,
+		coordinates,
+		valid_from, valid_to, date_created, date_changed
 	) VALUES (
-		title, description, category_id, properties, ST_MakePoint(longitude, latitude), valid_from, valid_to
+		p_title, p_description, p_category_id, p_properties,
+		ST_MakePoint(p_longitude, p_latitude),
+		p_valid_from, p_valid_to, NOW(), NOW()
 	)
 	RETURNING ID;
 '
 LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION insert_poi TO pilotweb;
+GRANT USAGE, SELECT ON SEQUENCE pois_id_seq TO pilotweb;
+
+/*----------- FUNCTION update_pois -------------------------*/
+
+DROP FUNCTION IF EXISTS update_poi;
+
+CREATE FUNCTION update_poi(
+	p_id bigint,
+	p_title text,
+	p_description text,
+	p_category_id integer,
+	p_properties jsonb,
+	p_latitude double precision,
+	p_longitude double precision,
+	p_valid_from timestamp,
+	p_valid_to timestamp
+)
+RETURNS VOID AS 
+'
+	UPDATE pois
+	SET
+		title = p_title,
+		description = p_description,
+		category_id = p_category_id,
+		properties = p_properties,
+		coordinates = ST_MakePoint(p_longitude, p_latitude),
+		valid_from = p_valid_from,
+		valid_to = p_valid_to,
+		date_changed = NOW()
+	WHERE
+		id = p_id
+'
+LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION update_poi TO pilotweb;
 
 /*----------- FUNCTION find_pois -------------------------*/
 

@@ -52,6 +52,18 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Saves a Poi.
+		/// </summary>
+		/// <param name="poi">The POI to save</param>
+		/// <returns>The ID of the poi</returns>
+		[HttpPut]
+		[Route(Program.APIROOT + "[controller]")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public Int64 Put(Poi poi) {
+			return new PoiDataConnector().SavePoi(poi);
+		}
+
+		/// <summary>
 		/// Gets a poi by its id or null, if there is no such poi
 		/// </summary>
 		/// <param name="id">The id of the poi</param>

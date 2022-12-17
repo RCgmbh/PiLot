@@ -60,6 +60,14 @@ PiLot.Service.Nav = (function () {
 		},
 
 		/**
+		 * Saves a poi to the server and returns its id
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		savePoi: async function (pPoi) {
+			return await PiLot.Utils.Common.putToServerAsync('/Pois', pPoi);
+		},
+
+		/**
 		 * Creates a Poi from an array, as it is delivered from the server.
 		 * @param {Object[]} pData
 		 */

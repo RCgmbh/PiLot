@@ -337,6 +337,7 @@ PiLot.Model.Nav = (function () {
 		initialize: function () { },
 
 		getId: function () { return this.id; },
+
 		setId: function (pId) { this.id = pId; },
 
 		/// gets the Poi position as Leaflet LatLng object
@@ -408,7 +409,20 @@ PiLot.Model.Nav = (function () {
 
 		/** Saves the Poi back to the server */
 		saveAsync: async function () {
-			
+			const obj = {
+				id: this.id,
+				title: this.title,
+				description: this.description,
+				categoryId: this.category.getId(),
+				featureIds: [],
+				properties: null,
+				latitude: this.latLng.lat,
+				longitude: this.latLng.lng,
+				validFrom: this.validFrom ? RC.Date.DateHelper.luxonToUnix(this.validFrom) : null,
+				validTo: this.validTo ? RC.Date.DateHelper.luxonToUnix(this.validTo) : null,
+			};
+			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoi(obj);
+			this.id = result.data;
 		},
 
 		/** Deletes the Poi */
