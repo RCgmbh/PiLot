@@ -426,7 +426,9 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/** Deletes the Poi */
-		deleteAsync: async function () { }
+		deleteAsync: async function () {
+			await PiLot.Service.Nav.PoiService.getInstance().deletePoi(this);
+		}
 
 	};
 

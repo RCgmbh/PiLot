@@ -68,6 +68,14 @@ PiLot.Service.Nav = (function () {
 		},
 
 		/**
+		 * Deletes a poi 
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		deletePoi: async function (pPoi) {
+			return await PiLot.Utils.Common.deleteFromServerAsync(`/Pois/${pPoi.getId()}`);
+		},
+
+		/**
 		 * Creates a Poi from an array, as it is delivered from the server.
 		 * @param {Object[]} pData
 		 */

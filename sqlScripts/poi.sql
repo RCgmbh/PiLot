@@ -138,7 +138,7 @@ LANGUAGE SQL;
 GRANT EXECUTE ON FUNCTION insert_poi TO pilotweb;
 GRANT USAGE, SELECT ON SEQUENCE pois_id_seq TO pilotweb;
 
-/*----------- FUNCTION update_pois -------------------------*/
+/*----------- FUNCTION update_poi -------------------------*/
 
 DROP FUNCTION IF EXISTS update_poi;
 
@@ -171,6 +171,22 @@ RETURNS VOID AS
 LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION update_poi TO pilotweb;
+
+/*----------- FUNCTION delete_poi -------------------------*/
+
+DROP FUNCTION IF EXISTS delete_poi;
+
+CREATE FUNCTION delete_poi(
+	p_id bigint
+)
+RETURNS void AS 
+'
+	DELETE FROM pois
+	WHERE id = p_id;
+'
+LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION delete_poi TO pilotweb;
 
 /*----------- FUNCTION find_pois -------------------------*/
 

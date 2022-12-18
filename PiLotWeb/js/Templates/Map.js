@@ -12,6 +12,8 @@ PiLot.Templates.Map = {
 			</a>
 		</div>`,
 
+	mapLayersIcon: `<a href="" class="sideMenu mapLayersIcon"><i class="icon-stack4 biggerText"></i></a>`,
+
 	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,
 
 	mapWaypointPopup: `

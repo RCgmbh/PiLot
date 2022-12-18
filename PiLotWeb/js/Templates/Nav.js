@@ -242,10 +242,10 @@ PiLot.Templates.Nav = {
 					<select class="ddlCategory marginBottomSmall"></select>
 					<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
 					<div class="flexRowWrap">
-						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex marginBottomSmall"></div></div>
-						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex marginBottomSmall"></div></div>
+						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
+						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
 					</div>
-					<label class="lblAllowDrag marginRight marginBottomSmall inlineBlock"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
+					<label class="lblAllowDrag marginRight marginBottomSmall block"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
 					<div class="flexRowWrap">
 						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validFrom">:</span><input type="text" class="tbValidFrom input4" /></div>
 						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validTo">:</span><input type="text" class="tbValidTo input4" /></div>
@@ -283,4 +283,8 @@ PiLot.Templates.Nav = {
 	poi_information: '<i class="icon-info2"></i>',
 
 	poi_event: '<i class="icon-pin"></i>',
+
+	poi_measuringstation: '<i class="icon-meter2"</i>',
+
+	poi_sight: '<i class="icon-eye"</i>'
 };

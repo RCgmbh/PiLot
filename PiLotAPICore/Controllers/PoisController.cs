@@ -76,6 +76,17 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Deletes a poi by its id, if it exists
+		/// </summary>
+		[HttpDelete]
+		[Route(Program.APIROOT + "[controller]/{id}")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public void Delete(Int64 id) {
+			Logger.Log("PoisController.Delete", LogLevels.DEBUG);
+			new PoiDataConnector().DeletePoi(id);
+		}
+
+		/// <summary>
 		/// Parses a comma separated string into an int array. No error handling included.
 		/// </summary>
 		/// <param name="pString">comma separated values, e.g. 1, 3, 42</param>

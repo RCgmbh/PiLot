@@ -105,6 +105,31 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Deletes a POI from the DB
+		/// </summary>
+		/// <param name="pPoiID">The id of the poi, not null</param>
+		public void DeletePoi(Int64 pPoiID) {
+			Logger.Log("PoiDataConnector.DeletePoi", LogLevels.DEBUG);
+			String command = "SELECT * FROM delete_poi(@p_id)";
+			NpgsqlConnection connection = null;
+			try {
+				String connectionString = ConfigurationManager.AppSettings["connectionString"];
+				connection = new NpgsqlConnection(connectionString);
+				NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
+				cmd.Parameters.AddWithValue("@p_id", pPoiID);
+				connection.Open();
+				Object cmdResult = cmd.ExecuteNonQuery();
+			} catch (Exception ex) {
+				Logger.Log(ex, "PoiDataConnector.DeletePoi");
+				throw;
+			} finally {
+				if ((connection != null) && (connection.State == ConnectionState.Open)) {
+					connection.Close();
+				}
+			}
+		}
+
+		/// <summary>
 		/// Converts a DateTime in seconds since epoc into a date time, accepting null values
 		/// </summary>
 		/// <param name="pUnixTime">The dateTime in Unix or null</param>

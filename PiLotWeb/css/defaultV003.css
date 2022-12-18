@@ -113,7 +113,7 @@ body.night .dialogPanel { background-color: black; }
 
 .overlay { position:fixed;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0, 0, 0, 0.75); z-index:3500; }
 
-.sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
+.sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; padding-top:0.5em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
 .sideMenu,
 .sideMenu a.expandCollapse, .sideMenu a.expandCollapse:hover, .sideMenu a.expandCollapse:visited, 
 .sideMenu a.option, .sideMenu a.option:hover, .sideMenu a.option:visited,
@@ -121,6 +121,7 @@ body.night .dialogPanel { background-color: black; }
 .sideMenu>.expandCollapse{text-align:center;width:3em;}
 .sideMenu>.expandCollapse>i{font-size:1.5em;}
 .sideMenu>.option{ width:3em; min-height:3em; border:1px solid black; padding-top:0.75em; margin-bottom:0.25em;border-radius:0.25em;width:auto;display:block;text-align:center;}
+.sideMenu>.option.noBorder { border:none; }
 .sideMenu.expanded>.option{ text-align:left; padding-left:0.5em; }
 .sideMenu>.option .label{margin-right:1em; display:none;}
 .sideMenu.expanded>.option .label{display:inline-block; }
@@ -522,7 +523,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
  /* show day night buttons as buttons, not just icons */
 @media (min-height:600px) and (min-width:600px){
 	#dayNightButtons a { border:1px solid #333; border-radius:0.25em; margin: 0.25em 0em; color:unset; color: #333; background-color: #eee; }
-	.sideMenu{ width:4em; margin:0.75em 0.25em; padding:0.5em; padding-bottom:0.25em; }
+	.sideMenu{ margin:0.75em 0.25em; }
 }
 
 @media (max-width: 968px) { /* full width for dataContainerHalfNarrow*/

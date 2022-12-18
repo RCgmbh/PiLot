@@ -1229,21 +1229,22 @@ PiLot.View.Nav = (function () {
 	 * @param {PiLot.View.Nav.PoiForm} pPoiForm - The edit form to use when editing this poi
 	 * @param {PiLot.View.Map.MapPois} pMapPois - Connecting this to a map will allow moving the poi
 	 */
-	var PoiDetails = function(pPoiFormControl, pMapPois = null){
-		this.poiFormControl = pPoiFormControl;
+	var PoiDetails = function(pPoiForm, pMapPois = null){
+		this.poiForm = pPoiForm;
 		this.mapPois = pMapPois;
-		this.control = null;			//HTMLElement representing the entire control
-		this.plhCategoryIcon = null;	//HTMLElement where the icon is inserted
-		this.lblCategoryName = null;	//HTMLSpanElement showing the category name
-		this.lblTitle = null;			//HTMLSpanElement showing the poi title
-		this.liFeatures = null;			//HTMLUListElement listing all features of this poi
-		this.lblDescription = null;		//HTMLSpanElement showing the description text
-		this.pnlProperties = null;		//HTMLDivElement for label and value of properties
-		this.lblProperties = null;		//HTMLSpanElement containing the properties
-		this.pnlValidFrom = null;		//HTMLDivElement for label and value of valid from
-		this.lblValidFrom = null;		//HTMLSpanElement showing the valid from value
-		this.pnlValidTo = null;			//HTMLDivElement for label and value of valid to
-		this.lblValidTo = null;			//HTMLSpanElement showing the valid to value
+		this.poi = null;				// PiLot.Model.Nav.Poi
+		this.control = null;			// HTMLElement representing the entire control
+		this.plhCategoryIcon = null;	// HTMLElement where the icon is inserted
+		this.lblCategoryName = null;	// HTMLSpanElement showing the category name
+		this.lblTitle = null;			// HTMLSpanElement showing the poi title
+		this.liFeatures = null;			// HTMLUListElement listing all features of this poi
+		this.lblDescription = null;		// HTMLSpanElement showing the description text
+		this.pnlProperties = null;		// HTMLDivElement for label and value of properties
+		this.lblProperties = null;		// HTMLSpanElement containing the properties
+		this.pnlValidFrom = null;		// HTMLDivElement for label and value of valid from
+		this.lblValidFrom = null;		// HTMLSpanElement showing the valid from value
+		this.pnlValidTo = null;			// HTMLDivElement for label and value of valid to
+		this.lblValidTo = null;			// HTMLSpanElement showing the valid to value
 		this.initialize();
 	};
 
@@ -1257,11 +1258,29 @@ PiLot.View.Nav = (function () {
 			this.hide();
 		},
 
-		lnkEdit_click: function () { },
+		lnkEdit_click: function (e) {
+			!!e && e.preventDefault();
+			this.poiForm.showPoi(this.poi);
+			this.hide();
+		},
 
-		lnkMove_click: function () { },
+		lnkMove_click: function (e) {
+			!!e && e.preventDefault();
+			this.mapPois.showPoi(this.poi, true, true);
+			this.hide();
+		},
 
-		lnkDelete_click: function () { },
+		lnkDelete_click: function (e) {
+			!!e && e.preventDefault();
+			const message = PiLot.Utils.Language.getText('confirmDeletePoi');
+			if (window.confirm(message)) {
+				this.poi.deleteAsync();
+				if (this.mapPois) {
+					this.mapPois.removePoi(this.poi);
+				}
+				this.hide();
+			}
+		},
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiDetails);
@@ -1279,9 +1298,12 @@ PiLot.View.Nav = (function () {
 			this.lblValidFrom = this.control.querySelector('.lblValidFrom');
 			this.pnlValidTo = this.control.querySelector('.pnlValidTo');
 			this.lblValidTo = this.control.querySelector('.lblValidTo');
+			const lnkMove = this.control.querySelector('.lnkMove');
 			PiLot.Utils.Common.bindOrHideEditLink(this.control.querySelector('.lnkEdit'), this.lnkEdit_click.bind(this));
-			PiLot.Utils.Common.bindOrHideEditLink(this.control.querySelector('.lnkMove'), this.lnkMove_click.bind(this));
+			PiLot.Utils.Common.bindOrHideEditLink(lnkMove, this.lnkMove_click.bind(this));
 			PiLot.Utils.Common.bindOrHideEditLink(this.control.querySelector('.lnkDelete'), this.lnkDelete_click.bind(this));
+			lnkMove.hidden = lnkMove.hidden || !this.mapPois;
+			
 		},
 
 		/**
@@ -1289,21 +1311,21 @@ PiLot.View.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi - the Poi to show, not null  
 		 */
 		showPoi: function (pPoi) {
-			this.mapPois = pMapPois;
+			this.poi = pPoi;
 			this.show();
-			const categoryName = pPoi.getCategory().getName();
+			const categoryName = this.poi.getCategory().getName();
 			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];
 			this.lblCategoryName.innerText = PiLot.Utils.Language.getText(categoryName);
-			this.lblTitle.innerText = pPoi.getTitle();
+			this.lblTitle.innerText = this.poi.getTitle();
 			this.liFeatures.clear();
 			// todo: show features
-			let description = pPoi.getDescription();
+			let description = this.poi.getDescription();
 			description = this.replaceLinks(description);
 			description = description.replace('\n', '<br/>');
 			this.lblDescription.innerHTML = description;
 			// todo: show properties
-			this.showDate(pPoi.getValidFrom(), this.pnlValidFrom, this.lblValidFrom);
-			this.showDate(pPoi.getValidTo(), this.pnlValidTo, this.lblValidTo);
+			this.showDate(this.poi.getValidFrom(), this.pnlValidFrom, this.lblValidFrom);
+			this.showDate(this.poi.getValidTo(), this.pnlValidTo, this.lblValidTo);
 		},
 
 		replaceLinks: function (pText) {
@@ -1343,10 +1365,13 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
-	/** Represents the form that is used to enter or edit a point of interest */
-	var PoiForm = function () {
+	/**
+	 * Represents the form that is used to enter or edit a point of interest 
+	 * @param {PiLot.View.Map.MapPois} pMapPois - optional, to ensure markers are added/updated
+	 * */
+	var PoiForm = function (pMapPois) {
 		this.poi = null;				// PiLot.Model.Nav.Poi
-		this.mapPois = null;			// PiLot.View.Map.MapPois, optional for new pois to be added to the map
+		this.mapPois = pMapPois;
 
 		this.control = null;			
 		this.lblTitleAddPoi = null;
@@ -1371,14 +1396,14 @@ PiLot.View.Nav = (function () {
 		},
 
 		btnSave_click: async function (e) {
-			e.preventDefault();
+			!!e && e.preventDefault();
 			if (await this.saveDataAsync()) {
 				this.hide();
 			}
 		},
 
 		btnCancel_click: function (e) {
-			e.preventDefault();
+			!!e && e.preventDefault();
 			this.hide();
 		},
 
@@ -1445,20 +1470,31 @@ PiLot.View.Nav = (function () {
 			}
 		},
 
-		showEmpty: function (pMapPois = null, pLatLng = null) {
+		/**
+		 * Shows the form for entering a new poi
+		 * @param {LatLng} pLatLng - optionally pass a position
+		 */
+		showEmpty: function (pLatLng = null) {
 			this.poi = null;
-			this.mapPois = pMapPois;
 			this.show();
 			this.populateFields(pLatLng);
 		},
 
-		showPoi: function (pPoi, pMapPois = null) {
+		/**
+		 * Shows the form to edit a poi
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		showPoi: function (pPoi) {
 			this.poi = pPoi;
-			this.mapPois = pMapPois;
 			this.show();
 			this.populateFields();
 		},
 
+		/**
+		 * Populates the form fields with the current poi, or empties them, if there
+		 * is no poi. For creating new pois, a position can be passed.
+		 * @param {LatLng} pLatLng - optionally pass a position to pre-set
+		 */
 		populateFields: function (pLatLng = null) {
 			this.lblTitleAddPoi.hidden = this.poi !== null;
 			this.lblTitleEditPoi.hidden = this.poi === null;
@@ -1486,6 +1522,7 @@ PiLot.View.Nav = (function () {
 			this.tbTitle.focus();
 		},
 
+		/** Reads the data from the form, assigns the fields to the existing or a new poi, and saves it. */
 		saveDataAsync: async function () {
 			const allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
 			let category = null;
@@ -1508,7 +1545,7 @@ PiLot.View.Nav = (function () {
 				}
 				this.hide();
 			} else {
-				// show error
+				alert(PiLot.Utils.Language.getText('mandatoryPoiFields'));
 			}
 			
 		},

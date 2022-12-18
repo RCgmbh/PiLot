@@ -50,6 +50,7 @@ PiLot.View.Map = (function () {
 	var Seamap = function (pContainer, pOptions) {
 		this.mapContainer = pContainer;
 		this.settingsContainer = null;
+		this.mapLayersIcon = null;
 		this.hasSettings = false;		// we need this to show the settings menu when unhiding (showing) the map
 		this.contextPopup = null;
 		this.leafletMap = null;
@@ -85,15 +86,22 @@ PiLot.View.Map = (function () {
 
 		initialize: function () {
 			this.addSettingsContainer();
+			this.addMapLayersIcon();
 		},
 
 		/// adds the sliding settings menu and attaches
 		/// the expand/collapse script
 		addSettingsContainer: function () {
-			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer)
+			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer);
 			this.mapContainer.insertAdjacentElement('beforebegin', this.settingsContainer);
 			this.settingsContainer.querySelector('a.expandCollapse').addEventListener('click', this.toggleSettingsContainer.bind(this));
 			RC.Utils.showHide(this.settingsContainer, false);
+		},
+
+		/** Adds the icon which will open the poi/layers menu */
+		addMapLayersIcon: function () {
+			this.mapLayersIcon = RC.Utils.stringToNode(PiLot.Templates.Map.mapLayersIcon);
+			this.mapContainer.insertAdjacentElement('afterbegin', this.mapLayersIcon);
 		},
 
 		/// switches between expanded and collapsed state of the settings container
@@ -107,6 +115,7 @@ PiLot.View.Map = (function () {
 			if (this.hasSettings) {
 				RC.Utils.showHide(this.settingsContainer, true);
 			}
+
 			if (!this.isMapLoaded) {
 				PiLot.log("PiLot.Nav.Map.DrawMap", 3);
 				this.leafletMap = new L.Map(this.mapContainer, { zoomControl: false });
@@ -372,7 +381,7 @@ PiLot.View.Map = (function () {
 	 */
 	var MapPois = function (pSeamap) {
 		this.seamap = pSeamap;					
-		this.poisMap = null;					// map with key=poi.id and value={poi, marker}
+		this.pois = null;						// map with key=poi.id and value={poi, marker}
 		this.categoriesMap = null;				// map with key=category.id and value = category
 		this.poiDetailControl = null;			// PiLot.View.Nav.PoiDetails
 		this.poiFormControl = null;				// PiLot.View.Nav.PoiForm
@@ -382,8 +391,8 @@ PiLot.View.Map = (function () {
 	MapPois.prototype = {
 
 		initializeAsync: async function () {
-			this.poisMap = new Map();
-			this.poiFormControl = new PiLot.View.Nav.PoiForm();
+			this.pois = new Map();
+			this.poiFormControl = new PiLot.View.Nav.PoiForm(this);
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 			this.addContextPopupLink();
@@ -405,13 +414,19 @@ PiLot.View.Map = (function () {
 		poiMarker_click: async function(pPoi){
 			await pPoi.ensureDetailsAsync();
 			if (this.poiDetailControl === null) {
-				this.poiDetailControl = new PiLot.View.Nav.PoiDetails(this.poiFormControl);
+				this.poiDetailControl = new PiLot.View.Nav.PoiDetails(this.poiFormControl, this);
 			}
 			this.poiDetailControl.showPoi(pPoi);
 		},
 
+		poiMarker_moveEnd: async function (pPoi, pMoveEvent) {
+			const latLng = pMoveEvent.target.getLatLng();
+			pPoi.setLatLng(latLng.lat, latLng.lng);
+			pPoi.saveAsync();
+		},
+
 		lnkAddPoi_click: async function (pMapEvent, pClickEvent) {
-			this.poiFormControl.showEmpty(this, pMapEvent.latlng);
+			this.poiFormControl.showEmpty(pMapEvent.latlng);
 			this.seamap.closeContextPopup();
 		},
 
@@ -441,11 +456,10 @@ PiLot.View.Map = (function () {
 		 */
 		showPoi: function (pPoi, pResetExisting, pSetDraggable) {
 			let marker = null;
-			if (pResetExisting && this.poisMap.has(pPoi.getId())) {
-				this.poisMap.get(pPoi.getId().marker.remove());
-				this.poisMap.delete(pPoi.getId());
+			if (pResetExisting) {
+				this.removePoi(pPoi);
 			}
-			if (!this.poisMap.has(pPoi.getId())) {
+			if (!this.pois.has(pPoi.getId())) {
 				const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
 				const icon = L.divIcon({
 					className: 'poiMarker', iconSize: [null, null], html: iconHtml
@@ -453,12 +467,26 @@ PiLot.View.Map = (function () {
 				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
-				this.poisMap.set(pPoi.getId(), { poi: pPoi, marker: marker });
+				if (pSetDraggable) {
+					marker.on('moveend', this.poiMarker_moveEnd.bind(this, pPoi));
+				}
+				this.pois.set(pPoi.getId(), { poi: pPoi, marker: marker });
 			} else {
-				marker = this.poisMap.get(pPoi.getId()).marker;
+				marker = this.pois.get(pPoi.getId()).marker;
 				marker.options.draggable = pSetDraggable;
 			}
 			this.setMarkerSize(marker);
+		},
+
+		/**
+		 * Removes a poi marker from the map
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		removePoi: function (pPoi) {
+			if(this.pois.has(pPoi.getId())) {
+				this.pois.get(pPoi.getId()).marker.remove();
+				this.pois.delete(pPoi.getId());
+			}
 		},
 
 		/**
@@ -469,7 +497,7 @@ PiLot.View.Map = (function () {
 		 */
 		setMarkerSize: function (pMarker) {
 			const markerElement = pMarker.getElement();
-			const iconSize = Math.max(this.seamap.getCurrentZoom() * 5 - 40, 8);
+			const iconSize = Math.min(Math.max(this.seamap.getCurrentZoom() * 5 - 40, 12), 36);
 			markerElement.style.height = `${iconSize}px`;
 			markerElement.style.width = `${iconSize}px`;
 			markerElement.style.marginTop = `${iconSize * -1}px`;
