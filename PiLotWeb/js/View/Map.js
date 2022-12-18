@@ -50,7 +50,8 @@ PiLot.View.Map = (function () {
 	var Seamap = function (pContainer, pOptions) {
 		this.mapContainer = pContainer;
 		this.settingsContainer = null;
-		this.mapLayersIcon = null;
+		this.icoMapLayers = null;
+		this.mapLayersSettings = null;	// PiLot.View.Map.MapLayersSettings
 		this.hasSettings = false;		// we need this to show the settings menu when unhiding (showing) the map
 		this.contextPopup = null;
 		this.leafletMap = null;
@@ -89,6 +90,11 @@ PiLot.View.Map = (function () {
 			this.addMapLayersIcon();
 		},
 
+		icoMapLayers_click: function (e) {
+			e.preventDefault();
+			this.mapLayersSettings.show();
+		},
+
 		/// adds the sliding settings menu and attaches
 		/// the expand/collapse script
 		addSettingsContainer: function () {
@@ -100,8 +106,9 @@ PiLot.View.Map = (function () {
 
 		/** Adds the icon which will open the poi/layers menu */
 		addMapLayersIcon: function () {
-			this.mapLayersIcon = RC.Utils.stringToNode(PiLot.Templates.Map.mapLayersIcon);
-			this.mapContainer.insertAdjacentElement('afterbegin', this.mapLayersIcon);
+			this.icoMapLayers = RC.Utils.stringToNode(PiLot.Templates.Map.mapLayersIcon);
+			this.mapContainer.insertAdjacentElement('afterbegin', this.icoMapLayers);
+			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
 		},
 
 		/// switches between expanded and collapsed state of the settings container
@@ -139,7 +146,8 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
-				new MapPois(this);
+				this.mapLayersSettings = new MapLayersSettings();
+				new MapPois(this, this.mapLayersSettings);
 				this.isMapLoaded = true;
 			}
 			return this;
@@ -372,6 +380,78 @@ PiLot.View.Map = (function () {
 		/// closes the popup
 		close: function () {
 			this.popup.remove();
+		}
+	};
+
+	var MapLayersSettings = function () {
+		this.showPois = false;				// Boolean, if false, no pois at all will be shown
+		this.categoryIds = null;			// number[] holding the arrays of ids to show
+		this.allCategories = null;
+		this.control = null;
+		this.cbShowPois = null;
+		this.plhCategories = null;
+		this.initializeAsync();
+	};
+
+	MapLayersSettings.prototype = {
+
+		initializeAsync: async function () {
+			this.allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+			this.loadSettings();
+			this.drawAsync();
+		},
+
+		btnApply_click: function (e) {
+			e.preventDefault();
+		},
+
+		btnCancel_click: function (e) {
+			e.preventDefault();
+			this.hide();
+		},
+
+		drawAsync: async function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
+			this.cbShowPois = this.control.querySelector('.cbShowPois');
+			this.cbShowPois.checked = this.showPois;
+			this.plhCategories = this.control.querySelector('.plhCategories');
+			this.drawCategories();
+		},
+
+		drawCategories: function () {
+			const sortedLList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
+		},
+
+		loadSettings: function () {
+			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
+			this.showPois = (settings && settings.showPois) || true;
+			this.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
+		},
+
+		saveSettings: function () {
+			const obj = {
+				showPois: this.showPois,
+				categoryIds: this.categoryIds
+			};
+			PiLot.Utils.Common.saveUserSetting('mapLayers', obj);
+		},
+
+		apply: function () {
+
+		},
+
+		/** Shows the control */
+		show: function () {
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+		},
+
+		/** Hides the entire control */
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
+			this.control.hidden = true;
 		}
 	};
 

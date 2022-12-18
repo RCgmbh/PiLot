@@ -205,7 +205,7 @@ PiLot.Templates.Nav = {
 	poiDetails: `
 		<div class="fullHeight fullWidth absolute vCenter" hidden>
 			<div class="overlay"></div>
-			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
+			<div class="poiDetails dialogPanel hCenter hCenter">
 				<div class="paddingAllSmall">
 					<div class="marginBottomSmall flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
 						<div class="plhCategoryIcon poiIcon marginRight" style="flex-grow:0;"></div>
@@ -221,7 +221,7 @@ PiLot.Templates.Nav = {
 						<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
 					</div>
 				</div>
-				<div class="flexRowWrap" style="justify-content:space-between;">
+				<div class="flexRowWrap bgLight" style="justify-content:space-between;">
 					<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
 					<a href="#" class="lnkMove marginAllSmall"><i class="icon-unlocked2 marginRightSmall"></i><span data-text="move"></span></a>
 					<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>

@@ -14,6 +14,27 @@ PiLot.Templates.Map = {
 
 	mapLayersIcon: `<a href="" class="sideMenu mapLayersIcon"><i class="icon-stack4 biggerText"></i></a>`,
 
+	mapLayersSettings: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="mapLayerSettings dialogPanel hCenter hCenter paddingAllSmall">
+				<div class="marginBottom flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
+					<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>
+					<span class="semiBold" data-text="mapLayerSettings"></span>
+				</div>
+				<span class="block semiBold" data-text="pois"></span>
+				<label class="marginRight marginBottomSmall block"><input type="checkbox" class="cbShowPois" /><span data-text="showPois"></span></label>
+				<div class="marginBottomSmall flexRowWrap">	
+					<span class="label" data-text="categories"></span>
+					<div class="plhCategories value flexColumn"></div>
+				</div>
+				<div class="buttons reverse marginBottomSmall">
+					<a href="#" class="btnApply linkButton semiBold" data-text="ok"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				</div>
+			</div>
+		</div>`,
+
 	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,
 
 	mapWaypointPopup: `

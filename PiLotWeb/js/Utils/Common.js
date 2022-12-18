@@ -7,12 +7,12 @@ PiLot.Utils.Common = {
 	loadUserSetting: function (pKey) {
 		var json = null;
 		var result = null;
-		if (typeof (Storage) !== "undefined") {
+		if (typeof Storage !== "undefined") {
 			json = localStorage.getItem(pKey);
 		} else {
 			console.log('local storage ist not supported, settings can not be loaded.');
 		}
-		if ((json !== null) && (json !== 'undefined')) {
+		if ((json !== null) && (typeof json !== 'undefined')) {
 			try {
 				result = JSON.parse(json);
 			}
@@ -26,7 +26,7 @@ PiLot.Utils.Common = {
 	/// saves a value, which can be any type of object to the local
 	/// storage as json.
 	saveUserSetting: function (pKey, pValue) {
-		if (typeof (Storage) !== "undefined") {
+		if (typeof Storage !== "undefined") {
 			localStorage.setItem(pKey, JSON.stringify(pValue));
 		} else {
 			PiLot.log('no local storage available', 0);
@@ -35,7 +35,7 @@ PiLot.Utils.Common = {
 
 	/// clears the entire local storage
 	clearUserSettings: function () {
-		if (typeof (Storage) !== "undefined") {
+		if (typeof Storage !== "undefined") {
 			localStorage.clear();
 		} else {
 			PiLot.log('no local storage available', 0);

@@ -1432,42 +1432,20 @@ PiLot.View.Nav = (function () {
 		populateCategoriesAsync: async function () {
 			const poiService = PiLot.Service.Nav.PoiService.getInstance();
 			const allCategories = await poiService.getCategoriesAsync();
-			const rootCategories = [];
-			allCategories.forEach(function (v, k) {
-				if (v.getLevel() === 0) {
-					rootCategories.push(v);
-				}
-			});
+			const sortedList = new CategoriesList(allCategories).getSortedList();
 			const ddlCategories = [];
-			this.addChildCategoriesRec(rootCategories, ddlCategories);
-			RC.Utils.fillDropdown(this.ddlCategory, ddlCategories, null);
-		},
-
-		/**
-		 * Recursively adds a list of categories to an array, which can be used to fill
-		 * the "category" dropdown. Also responsible for sorting the elements per level
-		 * and to indent items based on their level.
-		 * @param {PiLot.Model.Nav.PoiCategory[]} pCategories - categories to add
-		 * @param {[[]]} pResult - array of arrays with [value, text]
-		 */
-		addChildCategoriesRec: function (pCategories, pResult) {
-			const categoriesWithTitle = [];
-			pCategories.forEach(function (c) {
-				categoriesWithTitle.push({ title: PiLot.Utils.Language.getText(c.getName()), category: c });
-			});
-			categoriesWithTitle.sort((a, b) => a.title.localeCompare(b.title));
 			let ddlTitle;
 			let category;
-			for (let i = 0; i < categoriesWithTitle.length; i++) {
-				category = categoriesWithTitle[i].category;
+			for (let i = 0; i < sortedList.length; i++) {
+				category = sortedList[i].category;
 				ddlTitle = "";
 				for (let j = 0; j < category.getLevel(); j++) {
 					ddlTitle += "- "
 				}
-				ddlTitle += categoriesWithTitle[i].title;
-				pResult.push([category.getId(), ddlTitle]);
-				this.addChildCategoriesRec(category.getChildren(), pResult);
+				ddlTitle += sortedList[i].title;
+				ddlCategories.push([category.getId(), ddlTitle]);
 			}
+			RC.Utils.fillDropdown(this.ddlCategory, ddlCategories, null);
 		},
 
 		/**
@@ -1560,6 +1538,60 @@ PiLot.View.Nav = (function () {
 		hide: function () {
 			document.body.classList.toggle('overflowHidden', false);
 			this.control.hidden = true;
+		}
+	};
+
+	/**
+	 * This creates a list of poi ategories to be used in guis, where the 
+	 * hierarchy of categories should be visible. The list is sorted by 
+	 * translated title, and the children are always shown directly after the parent.
+	 * @param {Map} pCategoriesMap - Map with key = id, value = category
+	 */
+	var CategoriesList = function (pCategoriesMap) {
+		this.categoriesMap = pCategoriesMap;
+		this.categoriesList = null;
+		this.initialize();
+	};
+
+	CategoriesList.prototype = {
+
+		initialize: function () {
+			this.buildList();
+		},
+
+		/** Gets the root categories, and starts building the list by passing them to the recursion */
+		buildList: function () {
+			this.categoriesList = [];
+			const rootCategories = [];
+			this.categoriesMap.forEach(function (v, k) {
+				if (v.getLevel() === 0) {
+					rootCategories.push(v);
+				}
+			});
+			this.addChildCategoriesRec(rootCategories);
+		},
+
+		/**
+		 * Takes an array of categories, translates them titles, and sorts them by title. Then
+		 * adds each category (and recursively its children) to an array of {title, category}
+		 * @param {PiLot.Model.Nav.PoiCategory[]} pCategories - the list of categories
+		 */
+		addChildCategoriesRec: function (pCategories) {
+			const categoriesWithTitle = [];
+			pCategories.forEach(function (c) {
+				categoriesWithTitle.push({ title: PiLot.Utils.Language.getText(c.getName()), category: c });
+			});
+			categoriesWithTitle.sort((a, b) => a.title.localeCompare(b.title));
+			for (let i = 0; i < categoriesWithTitle.length; i++) {
+				category = categoriesWithTitle[i].category;
+				this.categoriesList.push(categoriesWithTitle[i])
+				this.addChildCategoriesRec(category.getChildren());
+			}			
+		},
+
+		/** @returns {Object[]} with {title, category} sorted by parent-child and title */
+		getSortedList: function () {
+			return this.categoriesList;
 		}
 	};
 
@@ -1798,6 +1830,7 @@ PiLot.View.Nav = (function () {
 		LiveRoute: LiveRoute,
 		PoiDetails: PoiDetails,
 		PoiForm: PoiForm,
+		CategoriesList: CategoriesList,
 		StartPageNav: StartPageNav
 	};
 

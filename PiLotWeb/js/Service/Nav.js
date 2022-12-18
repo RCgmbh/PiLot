@@ -7,7 +7,7 @@ PiLot.Service.Nav = (function () {
 
     /** Helper class to access all poi related services. Does some caching too. */
     var PoiService = function(){
-        this.categories = null;
+		this.categories = null;			// Map with key = id, value = category
         this.initialize();
     };
 
@@ -132,7 +132,7 @@ PiLot.Service.Nav = (function () {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);
 			}
 			return result;
-		}
+		},
     };
 
     /** Singleton accessor returning the current instance of the PoiService object */
