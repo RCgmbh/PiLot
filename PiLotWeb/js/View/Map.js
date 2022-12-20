@@ -92,8 +92,7 @@ PiLot.View.Map = (function () {
 
 		icoMapLayers_click: function (e) {
 			e.preventDefault();
-			this.mapLayersSettings = this.mapLayersSettings || new MapLayersSettings();
-			this.mapLayersSettings.show();
+			this.mapLayersSettings.showAsync();
 		},
 
 		/// adds the sliding settings menu and attaches
@@ -110,6 +109,7 @@ PiLot.View.Map = (function () {
 			this.icoMapLayers = RC.Utils.stringToNode(PiLot.Templates.Map.mapLayersIcon);
 			this.mapContainer.insertAdjacentElement('afterbegin', this.icoMapLayers);
 			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
+			this.mapLayersSettings = new MapLayersSettings();
 		},
 
 		/// switches between expanded and collapsed state of the settings container
@@ -383,28 +383,55 @@ PiLot.View.Map = (function () {
 		}
 	};
 
-// todo: either pass pAllCategories to MapLayersSettings and MapPois, or try to use .then instead
-// of await in the PoisService in order to aviod concurrency?
-
+	/**
+	 * This control allows selecting the poi categories to show. It is also the one to ask, if
+	 * you want to know what are the currently selected categories, even if the control is not
+	 * being displayed, which might feel a bit weird.
+	 * */
 	var MapLayersSettings = function () {
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
-		this.categoryIds = null;			// number[] holding the arrays of ids to show
+		this.categoryIds = null;			// number[] holding the ids to show
 		this.allCategories = null;			// Map
-		this.control = null;
-		this.cbShowPois = null;
-		this.plhCategories = null;
+		this.control = null;				// HTMLElement
+		this.cbShowPois = null;				// HTMLInputElement
+		this.plhCategories = null;			// HTMLDivElement
+		this.observers = null;				// Used for the RC observer pattern
 		this.initialize();
 	};
 
 	MapLayersSettings.prototype = {
 
-		initializeAsync: async function () {
-			this.loadSettings();
-			this.draw();
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['applySettings']);
+		},
+
+		/**
+		 * registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent - 'applySettings'
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		/**
+		 * Handles changes of the category checkboxes
+		 * @param {number} pCategoryId
+		 */
+		cbCategory_change: function (pCategoryId, e) {
+			if (e.target.checked) {
+				if (!this.categoryIds.includes(pCategoryId)) {
+					this.categoryIds.push(pCategoryId);
+				}
+			} else {
+				if (this.categoryIds.includes(pCategoryId)) {
+					this.categoryIds.remove(this.categoryIds.indexOf(pCategoryId));
+				}
+			}
 		},
 
 		btnApply_click: function (e) {
 			e.preventDefault();
+			this.apply();
 		},
 
 		btnCancel_click: function (e) {
@@ -412,44 +439,92 @@ PiLot.View.Map = (function () {
 			this.hide();
 		},
 
-		draw: function () {
+		/** @returns {Object} {showPois: boolean, categoryIds: number[]} */
+		getSettingsAsync: async function () {
+			await this.loadSettingsAsync();
+			return this.createSettingsObject();
+		},
+
+		/** Draws the form. Async (and therefore not called in initialize()) because it triggers loading the categories. */
+		drawAsync: async function () {
+			await this.loadSettingsAsync();
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.showPois;
 			this.plhCategories = this.control.querySelector('.plhCategories');
-			this.drawCategories();
+			await this.drawCategoriesAsync();
+			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
+			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
 		},
 
-		drawCategories: function () {
-			const sortedLList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
+		/** Loads the categories and shows them with checkbox and label, including quite a complicated indentation meccano. */
+		drawCategoriesAsync: async function () {
+			await this.ensureCategoriesAsync();
+			const sortedList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
+			this.plhCategories.clear();
+			sortedList.forEach(function (c) {
+				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayerCheckbox);
+				const divIndent = cbControl.querySelector('.divIndent');
+				const level = c.category.getLevel();
+				if (level === 0) {
+					divIndent.hidden = true;
+				} else if (level > 1) {
+					for (let i = 2; i <= level; i++) {
+						divIndent.insertBefore(divIndent.clone());
+					}
+				}
+				const cbCategory = cbControl.querySelector('.cbCategory');
+				cbCategory.checked = this.categoryIds.includes(c.category.getId());
+				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, c.category.getId()));
+				cbControl.querySelector('.lblCategory').innerText = c.title;
+				this.plhCategories.appendChild(cbControl);
+			}.bind(this));
 		},
 
-		ensureCategoriesAsync: async function(){
-			this.allCategories = this.allCategories || await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
-		},
-
-		loadSettings: function () {
+		/** 
+		 *  Loads the settings from the browser. Async as it need the list of all categories,
+		 *  just becaus it tries to be nice and defaults to "all"
+		 * */
+		loadSettingsAsync: async function () {
+			await this.ensureCategoriesAsync();
 			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
-			this.showPois = (settings && settings.showPois) || true;
+			this.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
 			this.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
 		},
 
+		/** Saves the settings to the browser */
 		saveSettings: function () {
-			const obj = {
+			PiLot.Utils.Common.saveUserSetting('mapLayers', this.createSettingsObject());
+		},
+
+		/** Creates a simple object that is used not only to save, but also to communicate the current settings. */
+		createSettingsObject: function () {
+			return {
 				showPois: this.showPois,
 				categoryIds: this.categoryIds
 			};
-			PiLot.Utils.Common.saveUserSetting('mapLayers', obj);
 		},
 
+		/** Makes sure the map of all categories has been loaded. */
+		ensureCategoriesAsync: async function () {
+			this.allCategories = this.allCategories || await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+		},
+
+		/** Applies the current selection and notifies observers */
 		apply: function () {
-
+			this.showPois = this.cbShowPois.checked;
+			this.saveSettings();
+			RC.Utils.notifyObservers(this, this.observers, 'applySettings', this);
+			this.hide();
 		},
 
-		/** Shows the control */
-		show: function () {
+		/** Shows the control. Async, because on first show, the form is drawn, which requires loading the categories */
+		showAsync: async function () {
+			if (!this.control) {
+				await this.drawAsync();
+			}
 			document.body.classList.toggle('overflowHidden', true);
 			this.control.hidden = false;
 		},
@@ -464,13 +539,15 @@ PiLot.View.Map = (function () {
 	/**
 	 * The class responsible for showing points of interest on the map
 	 * @param {PiLot.View.Map.Seamap} pSeamap
+	 * @param {PiLot.View.Map.MapLayersSettings} pSettingsControl
 	 */
-	var MapPois = function (pSeamap) {
-		this.seamap = pSeamap;					
-		this.pois = null;						// map with key=poi.id and value={poi, marker}
-		this.categoriesMap = null;				// map with key=category.id and value = category
-		this.poiDetailControl = null;			// PiLot.View.Nav.PoiDetails
-		this.poiFormControl = null;				// PiLot.View.Nav.PoiForm
+	var MapPois = function (pSeamap, pSettingsControl) {
+		this.seamap = pSeamap;
+		this.settingsControl = pSettingsControl;
+		this.pois = null;							// map with key=poi.id and value={poi, marker}
+		this.categoriesMap = null;					// map with key=category.id and value = category
+		this.poiDetailControl = null;				// PiLot.View.Nav.PoiDetails
+		this.poiFormControl = null;					// PiLot.View.Nav.PoiForm
 		this.initializeAsync();
 	};
 
@@ -480,6 +557,7 @@ PiLot.View.Map = (function () {
 			this.pois = new Map();
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
+			this.settingsControl.on('applySettings', this.settings_applySettings.bind(this));
 			this.addContextPopupLink();
 			await this.loadPoisAsync();
 		},
@@ -492,8 +570,9 @@ PiLot.View.Map = (function () {
 			this.loadPoisAsync();
 		},
 
-		leafletMap_click: function (pSender) {
-			console.log(pSender);
+		settings_applySettings: function (pSender) {
+			this.clearPois();
+			this.loadPoisAsync();
 		},
 
 		poiMarker_click: async function(pPoi){
@@ -515,6 +594,7 @@ PiLot.View.Map = (function () {
 			this.seamap.closeContextPopup();
 		},
 
+		/** Returns the form to show poi details. Creates it, if necessary */
 		getPoiForm: function(){
 			this.poiFormControl = this.poiFormControl || new PiLot.View.Nav.PoiForm(this);
 			return this.poiFormControl;
@@ -528,13 +608,11 @@ PiLot.View.Map = (function () {
 			const minPoint = bounds.getSouthWest();
 			const maxPoint = bounds.getNorthEast();
 			const poiService = PiLot.Service.Nav.PoiService.getInstance();
-			this.categoriesMap = await poiService.getCategoriesAsync(); // todo: get all and selected categories from Settings
-			const categoryIds = [];
-			for (const aKey of this.categoriesMap.keys()){
-				categoryIds.push(aKey);
-			}
-			const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, categoryIds, []);
-			pois.forEach(function (p) { this.showPoi(p, false, false) }.bind(this));
+			const settings = await this.settingsControl.getSettingsAsync();
+			if (settings.showPois) {
+				const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, settings.categoryIds, []);
+				pois.forEach(function (p) { this.showPoi(p, false, false) }.bind(this));
+			}			
 		},
 
 		/**
@@ -577,6 +655,14 @@ PiLot.View.Map = (function () {
 				this.pois.get(pPoi.getId()).marker.remove();
 				this.pois.delete(pPoi.getId());
 			}
+		},
+
+		/** Remove all pois from the map */
+		clearPois: function () {
+			this.pois.forEach(function (v, k) {
+				v.marker.remove();
+			});
+			this.pois = new Map();
 		},
 
 		/**

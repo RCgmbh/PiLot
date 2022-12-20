@@ -22,17 +22,27 @@ PiLot.Templates.Map = {
 					<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>
 					<span class="semiBold" data-text="mapLayerSettings"></span>
 				</div>
-				<span class="block semiBold" data-text="pois"></span>
-				<label class="marginRight marginBottomSmall block"><input type="checkbox" class="cbShowPois" /><span data-text="showPois"></span></label>
-				<div class="marginBottomSmall flexRowWrap">	
-					<span class="label" data-text="categories"></span>
-					<div class="plhCategories value flexColumn"></div>
+				<div class="marginBottom labelValues30-70">
+					<label class="">
+						<span data-text="showPois" class="semiBold label"></span>
+						<span class="value"><input type="checkbox" class="cbShowPois" /></span>
+					</label>
+					<div>
+						<span class="label" data-text="categories"></span>
+						<div class="plhCategories value flexColumn"></div>
+					</div>
 				</div>
 				<div class="buttons reverse marginBottomSmall">
 					<a href="#" class="btnApply linkButton semiBold" data-text="ok"></a>
 					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>
 			</div>
+		</div>`,
+
+	mapLayerCheckbox: `
+		<div class="flex">
+			<span class="divIndent col1 inlineBlock"></span>
+			<label class="marginRight inlineBlock flex"><input type="checkbox" class="cbCategory" /><span class="lblCategory"></span></label>
 		</div>`,
 
 	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,

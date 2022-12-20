@@ -213,7 +213,7 @@ PiLot.Templates.Nav = {
 						<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
 					</div>
 					<span class="lblTitle marginBottomSmall block semiBold"></span>
-					<div class="poiDetailFields flexColumn marginBottomSmall">
+					<div class="labelValues30-70 flexColumn marginBottomSmall">
 						<div hidden><span class="label" data-text="features"></span><li class="liFeatures value"></li></div>
 						<div><span class="label" data-text="description"></span><span class="lblDescription value"></span></div>
 						<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
