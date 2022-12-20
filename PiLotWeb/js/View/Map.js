@@ -92,6 +92,7 @@ PiLot.View.Map = (function () {
 
 		icoMapLayers_click: function (e) {
 			e.preventDefault();
+			this.mapLayersSettings = this.mapLayersSettings || new MapLayersSettings();
 			this.mapLayersSettings.show();
 		},
 
@@ -146,7 +147,6 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
-				this.mapLayersSettings = new MapLayersSettings();
 				new MapPois(this, this.mapLayersSettings);
 				this.isMapLoaded = true;
 			}
@@ -383,22 +383,24 @@ PiLot.View.Map = (function () {
 		}
 	};
 
+// todo: either pass pAllCategories to MapLayersSettings and MapPois, or try to use .then instead
+// of await in the PoisService in order to aviod concurrency?
+
 	var MapLayersSettings = function () {
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
 		this.categoryIds = null;			// number[] holding the arrays of ids to show
-		this.allCategories = null;
+		this.allCategories = null;			// Map
 		this.control = null;
 		this.cbShowPois = null;
 		this.plhCategories = null;
-		this.initializeAsync();
+		this.initialize();
 	};
 
 	MapLayersSettings.prototype = {
 
 		initializeAsync: async function () {
-			this.allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
 			this.loadSettings();
-			this.drawAsync();
+			this.draw();
 		},
 
 		btnApply_click: function (e) {
@@ -410,7 +412,7 @@ PiLot.View.Map = (function () {
 			this.hide();
 		},
 
-		drawAsync: async function () {
+		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
@@ -422,6 +424,10 @@ PiLot.View.Map = (function () {
 
 		drawCategories: function () {
 			const sortedLList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
+		},
+
+		ensureCategoriesAsync: async function(){
+			this.allCategories = this.allCategories || await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
 		},
 
 		loadSettings: function () {
@@ -472,7 +478,6 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			this.pois = new Map();
-			this.poiFormControl = new PiLot.View.Nav.PoiForm(this);
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 			this.addContextPopupLink();
@@ -494,7 +499,7 @@ PiLot.View.Map = (function () {
 		poiMarker_click: async function(pPoi){
 			await pPoi.ensureDetailsAsync();
 			if (this.poiDetailControl === null) {
-				this.poiDetailControl = new PiLot.View.Nav.PoiDetails(this.poiFormControl, this);
+				this.poiDetailControl = new PiLot.View.Nav.PoiDetails(this.getPoiForm(), this);
 			}
 			this.poiDetailControl.showPoi(pPoi);
 		},
@@ -506,8 +511,13 @@ PiLot.View.Map = (function () {
 		},
 
 		lnkAddPoi_click: async function (pMapEvent, pClickEvent) {
-			this.poiFormControl.showEmpty(pMapEvent.latlng);
+			this.getPoiForm().showEmpty(pMapEvent.latlng);
 			this.seamap.closeContextPopup();
+		},
+
+		getPoiForm: function(){
+			this.poiFormControl = this.poiFormControl || new PiLot.View.Nav.PoiForm(this);
+			return this.poiFormControl;
 		},
 
 		/**
