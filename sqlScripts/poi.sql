@@ -16,17 +16,20 @@ GRANT DELETE ON poi_categories TO pilotweb;
 
 DROP FUNCTION IF EXISTS insert_poi_category;
 
-CREATE FUNCTION insert_poi_category(
-	parent_id integer,
-	name text
-) RETURNS integer AS '
+CREATE OR REPLACE FUNCTION public.insert_poi_category(
+	p_parent_id integer,
+	p_name text
+)
+    RETURNS integer
+    LANGUAGE 'sql'
+AS $BODY$
 	INSERT INTO poi_categories(
 		parent_id, name
 	) VALUES (
-		parent_id, name
+		p_parent_id, p_name
 	)
 	RETURNING id
-' LANGUAGE SQL;
+$BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
 

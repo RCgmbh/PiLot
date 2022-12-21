@@ -392,6 +392,7 @@ PiLot.View.Map = (function () {
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
 		this.categoryIds = null;			// number[] holding the ids to show
 		this.allCategories = null;			// Map
+		this.categoryCheckboxes = null;		// Map with key = categoryId, value = checkbox;
 		this.control = null;				// HTMLElement
 		this.cbShowPois = null;				// HTMLInputElement
 		this.plhCategories = null;			// HTMLDivElement
@@ -415,18 +416,11 @@ PiLot.View.Map = (function () {
 
 		/**
 		 * Handles changes of the category checkboxes
-		 * @param {number} pCategoryId
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
 		 */
-		cbCategory_change: function (pCategoryId, e) {
-			if (e.target.checked) {
-				if (!this.categoryIds.includes(pCategoryId)) {
-					this.categoryIds.push(pCategoryId);
-				}
-			} else {
-				if (this.categoryIds.includes(pCategoryId)) {
-					this.categoryIds.remove(this.categoryIds.indexOf(pCategoryId));
-				}
-			}
+		cbCategory_change: function (pCategory, e) {
+			this.setCategorySelected(pCategory, e.target.checked);
+			this.updateRelatedCheckboxes(pCategory, e.target.checked, true, true);
 		},
 
 		btnApply_click: function (e) {
@@ -462,25 +456,30 @@ PiLot.View.Map = (function () {
 		/** Loads the categories and shows them with checkbox and label, including quite a complicated indentation meccano. */
 		drawCategoriesAsync: async function () {
 			await this.ensureCategoriesAsync();
+			this.categoryCheckboxes = new Map();
 			const sortedList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
 			this.plhCategories.clear();
-			sortedList.forEach(function (c) {
+			for (let i = 0; i < sortedList.length; i++) {
+				const category = sortedList[i].category;
 				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayerCheckbox);
 				const divIndent = cbControl.querySelector('.divIndent');
-				const level = c.category.getLevel();
+				const level = category.getLevel();
 				if (level === 0) {
 					divIndent.hidden = true;
 				} else if (level > 1) {
 					for (let i = 2; i <= level; i++) {
-						divIndent.insertBefore(divIndent.clone());
+						divIndent.parentNode.insertBefore(divIndent.cloneNode(), divIndent);
 					}
 				}
 				const cbCategory = cbControl.querySelector('.cbCategory');
-				cbCategory.checked = this.categoryIds.includes(c.category.getId());
-				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, c.category.getId()));
-				cbControl.querySelector('.lblCategory').innerText = c.title;
+				this.categoryCheckboxes.set(category.getId(), cbCategory);
+				const isSelected = this.categoryIds.includes(category.getId());
+				cbCategory.checked = isSelected;
+				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, category));
+				cbControl.querySelector('.lblCategory').innerText = sortedList[i].title;
 				this.plhCategories.appendChild(cbControl);
-			}.bind(this));
+				this.updateRelatedCheckboxes(category, isSelected, true, false);
+			}
 		},
 
 		/** 
@@ -510,6 +509,69 @@ PiLot.View.Map = (function () {
 		/** Makes sure the map of all categories has been loaded. */
 		ensureCategoriesAsync: async function () {
 			this.allCategories = this.allCategories || await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+		},
+
+		/**
+		 * Set a category selected or unselected, by adding/removing its id from the list
+		 * of category IDs, as necessary
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
+		 * @param {boolean} pSelected
+		 */
+		setCategorySelected: function (pCategory, pSelected) {
+			let hasChanged = false;
+			if (pSelected) {
+				if (!this.categoryIds.includes(pCategory.getId())) {
+					this.categoryIds.push(pCategory.getId());
+					hasChanged = true;
+				}
+			} else {
+				if (this.categoryIds.includes(pCategory.getId())) {
+					this.categoryIds.remove(this.categoryIds.indexOf(pCategory.getId()));
+					hasChanged = true;
+				}
+			}
+			return hasChanged;
+		},
+
+		/**
+		 * Aww, I don't know, this seems a bit complicated. Basically we just want to set the
+		 * parent checkbox to checked, if all children are checked, unchecked if no child is
+		 * checked and indeterminate else. And we want to check/uncheck all children, if the
+		 * parent is checked/unchecked. Just like a simple checkbox-tree should behave.
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory - the category that has been changed
+		 * @param {boolean} pIsSelected - the new state of the catgory
+		 * @param {boolean} pUpdateParent - if true, we update the parent in order to reflect the changes
+		 * @param {boolean} pUpdateChildren - if true, we update all children to refelect the changes
+		 */
+		updateRelatedCheckboxes: function (pCategory, pIsSelected, pUpdateParent, pUpdateChildren) {
+			if (pCategory !== null) {
+				if (pUpdateParent) {
+					const parent = pCategory.getParent();
+					if (parent) {
+						const categoryCheckbox = this.categoryCheckboxes.get(parent.getId());
+						let allChildrenChecked = true;
+						let anyChildChecked = false;
+						parent.getChildren().forEach(function (aChild) {
+							const selected = this.categoryIds.includes(aChild.getId());
+							anyChildChecked |= selected;
+							allChildrenChecked &= selected;
+						}.bind(this));
+						categoryCheckbox.indeterminate = anyChildChecked != allChildrenChecked;
+						categoryCheckbox.checked = anyChildChecked;
+						this.setCategorySelected(parent, anyChildChecked);
+						this.updateRelatedCheckboxes(parent, anyChildChecked, true, false);
+					}
+				}
+				if (pUpdateChildren) {
+					pCategory.getChildren().forEach(function (aChild) {
+						const categoryCheckbox = this.categoryCheckboxes.get(aChild.getId());
+						categoryCheckbox.checked = pIsSelected;
+						categoryCheckbox.indeterminate = false;
+						this.setCategorySelected(aChild, pIsSelected)
+						this.updateRelatedCheckboxes(aChild, pIsSelected, false, true);
+					}.bind(this));
+				}
+			}			
 		},
 
 		/** Applies the current selection and notifies observers */
