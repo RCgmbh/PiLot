@@ -391,9 +391,9 @@ PiLot.View.Map = (function () {
 	var MapLayersSettings = function () {
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
 		this.categoryIds = null;			// number[] holding the ids to show
-		this.allCategories = null;			// Map
-		this.categoryCheckboxes = null;		// Map with key = categoryId, value = checkbox;
-		this.control = null;				// HTMLElement
+		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
+		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, selectedChildren: number};
+		this.control = null;				// HTMLElement - the outermost element
 		this.cbShowPois = null;				// HTMLInputElement
 		this.plhCategories = null;			// HTMLDivElement
 		this.observers = null;				// Used for the RC observer pattern
@@ -453,7 +453,10 @@ PiLot.View.Map = (function () {
 			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
 		},
 
-		/** Loads the categories and shows them with checkbox and label, including quite a complicated indentation meccano. */
+		/** 
+		 * Loads the categories and shows them with checkbox and label, including quite a complicated indentation meccano.
+		 * Also makes sure that the selectedChildren values are initialized correctly.
+		 * */
 		drawCategoriesAsync: async function () {
 			await this.ensureCategoriesAsync();
 			this.categoryCheckboxes = new Map();
@@ -472,9 +475,12 @@ PiLot.View.Map = (function () {
 					}
 				}
 				const cbCategory = cbControl.querySelector('.cbCategory');
-				this.categoryCheckboxes.set(category.getId(), cbCategory);
+				this.categoryCheckboxes.set(category, { checkbox: cbCategory, selectedChildren: 0 });
 				const isSelected = this.categoryIds.includes(category.getId());
 				cbCategory.checked = isSelected;
+				if (isSelected && category.getParent()) {
+					this.categoryCheckboxes.get(category.getParent()).selectedChildren++;
+				}
 				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, category));
 				cbControl.querySelector('.lblCategory').innerText = sortedList[i].title;
 				this.plhCategories.appendChild(cbControl);
@@ -513,7 +519,8 @@ PiLot.View.Map = (function () {
 
 		/**
 		 * Set a category selected or unselected, by adding/removing its id from the list
-		 * of category IDs, as necessary
+		 * of category IDs, as necessary. Also makes sure the selectedChildren values are
+		 * update correctly
 		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
 		 * @param {boolean} pSelected
 		 */
@@ -528,6 +535,12 @@ PiLot.View.Map = (function () {
 				if (this.categoryIds.includes(pCategory.getId())) {
 					this.categoryIds.remove(this.categoryIds.indexOf(pCategory.getId()));
 					hasChanged = true;
+				}
+			}
+			if (hasChanged) {
+				const parent = pCategory.getParent();
+				if (parent) {
+					this.categoryCheckboxes.get(parent).selectedChildren += (pSelected ? 1 : -1);
 				}
 			}
 			return hasChanged;
@@ -548,30 +561,27 @@ PiLot.View.Map = (function () {
 				if (pUpdateParent) {
 					const parent = pCategory.getParent();
 					if (parent) {
-						const categoryCheckbox = this.categoryCheckboxes.get(parent.getId());
-						let allChildrenChecked = true;
-						let anyChildChecked = false;
-						parent.getChildren().forEach(function (aChild) {
-							const selected = this.categoryIds.includes(aChild.getId());
-							anyChildChecked |= selected;
-							allChildrenChecked &= selected;
-						}.bind(this));
-						categoryCheckbox.indeterminate = anyChildChecked != allChildrenChecked;
-						categoryCheckbox.checked = anyChildChecked;
-						this.setCategorySelected(parent, anyChildChecked);
-						this.updateRelatedCheckboxes(parent, anyChildChecked, true, false);
+						const parentCheckboxObject = this.categoryCheckboxes.get(parent);
+						const allChildrenChecked = (parent.getChildren().length === parentCheckboxObject.selectedChildren);
+						const anyChildChecked = parentCheckboxObject.selectedChildren > 0;
+						parentCheckboxObject.checkbox.indeterminate = (anyChildChecked && !allChildrenChecked);
+						if (this.setCategorySelected(parent, anyChildChecked)) {
+							parentCheckboxObject.checkbox.checked = anyChildChecked;
+							this.updateRelatedCheckboxes(parent, anyChildChecked, true, false);
+						}
 					}
 				}
 				if (pUpdateChildren) {
 					pCategory.getChildren().forEach(function (aChild) {
-						const categoryCheckbox = this.categoryCheckboxes.get(aChild.getId());
-						categoryCheckbox.checked = pIsSelected;
-						categoryCheckbox.indeterminate = false;
-						this.setCategorySelected(aChild, pIsSelected)
-						this.updateRelatedCheckboxes(aChild, pIsSelected, false, true);
+						const childCheckboxObject = this.categoryCheckboxes.get(aChild);
+						childCheckboxObject.checkbox.indeterminate = false;
+						if (this.setCategorySelected(aChild, pIsSelected)) {
+							childCheckboxObject.checkbox.checked = pIsSelected;
+							this.updateRelatedCheckboxes(aChild, pIsSelected, false, true);
+						}						
 					}.bind(this));
 				}
-			}			
+			}
 		},
 
 		/** Applies the current selection and notifies observers */
