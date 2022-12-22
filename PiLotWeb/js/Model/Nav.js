@@ -489,6 +489,39 @@ PiLot.Model.Nav = (function () {
 		}
 	};
 
+	/**
+	 * A category for a poi. Has an id, a name and maybe a parent
+	 * @param {number} pId
+	 * @param {string} pName
+	 */
+	var PoiFeature = function (pId, pName, pLabels) {
+		this.id = pId;
+		this.name = pName;
+		this.labels = pLabels;
+		this.initialize();
+	};
+
+	PoiFeature.prototype = {
+
+		initialize: function () { },
+
+		getId: function () {
+			return this.id;
+		},
+
+		getName: function () {
+			return this.name;
+		},
+
+		setName: function (pName) {
+			this.name = pName;
+		},
+
+		getLabel: function (pLanguage) {
+			return this.labels[pLanguage] || this.name;
+		}
+	};
+
 
 	/// Class Waypoint, representing one waypoint being part of a track.
 	/// The constructor expects the route, a geodesy LatLon object as pLatLong,
@@ -1580,6 +1613,7 @@ PiLot.Model.Nav = (function () {
 		Route: Route,
 		Poi: Poi,
 		PoiCategory: PoiCategory,
+		PoiFeature: PoiFeature,
 		Waypoint: Waypoint,
 		Track: Track,
 		GPSRecord: GPSRecord,

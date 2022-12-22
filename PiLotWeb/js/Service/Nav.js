@@ -8,6 +8,7 @@ PiLot.Service.Nav = (function () {
     /** Helper class to access all poi related services. Does some caching too. */
     var PoiService = function(){
 		this.categories = null;			// Map with key = id, value = category
+		this.features = null;			// Map with key = id, value = feature
         this.initialize();
     };
 
@@ -127,6 +128,43 @@ PiLot.Service.Nav = (function () {
 					if (json[i].parentId) {
 						result.get(json[i].id).setParent(result.get(json[i].parentId));
 					}
+				}
+			} else {
+				PiLot.log('Did not get an array from Poi endpoint.', 0);
+			}
+			return result;
+		},
+
+		/** 
+		 * Gets the cached map of all features
+		 * @returns {Map} key: id, value: feature
+		 * */
+		getFeaturesAsync: async function () {
+			await this.ensureFeaturesLoadedAsync();
+			return this.features;
+		},
+
+		/** Makes sure this.features is populated with the features from the server */
+		ensureFeaturesLoadedAsync: async function () {
+			if (this.features === null) {
+				this.features = await this.loadFeaturesAsync();
+			}
+		},
+
+		/** Loads the features from the server */
+		loadFeaturesAsync: async function () {
+			const result = new Map();
+			const json = await PiLot.Utils.Common.getFromServerAsync('/PoiFeatures');
+			if (Array.isArray(json)) {
+				for (let i = 0; i < json.length; i++) {
+					let labels = json[i].labels;
+					if (typeof (labels) === 'string') {
+						labels = JSON.parse(labels);
+					} else {
+						labels = null;
+					}
+					const poiFeature = new PiLot.Model.Nav.PoiFeature(json[i].id, json[i].name, labels);
+					result.set(poiFeature.getId(), poiFeature);
 				}
 			} else {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);

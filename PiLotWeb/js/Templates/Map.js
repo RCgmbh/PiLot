@@ -23,13 +23,17 @@ PiLot.Templates.Map = {
 					<span class="semiBold" data-text="mapLayerSettings"></span>
 				</div>
 				<div class="marginBottom labelValues30-70">
-					<label class="">
+					<label class="borderBottom borderLight paddingBottomSmall">
 						<span data-text="showPois" class="semiBold label"></span>
 						<span class="value"><input type="checkbox" class="cbShowPois" /></span>
 					</label>
-					<div>
+					<div class="borderBottom borderLight paddingBottomSmall">
 						<span class="label" data-text="categories"></span>
 						<div class="plhCategories value flexColumn"></div>
+					</div>
+					<div class="paddingBottomSmall">
+						<span class="label" data-text="features"></span>
+						<div class="plhFeatures value flexColumn"></div>
 					</div>
 				</div>
 				<div class="buttons reverse marginBottomSmall">
@@ -39,7 +43,7 @@ PiLot.Templates.Map = {
 			</div>
 		</div>`,
 
-	mapLayerCheckbox: `
+	poiCategoryCheckbox: `
 		<div class="flex">
 			<span class="divIndent col1 inlineBlock"></span>
 			<label class="marginRight inlineBlock flex"><input type="checkbox" class="cbCategory" /><span class="lblCategory"></span></label>

@@ -1254,7 +1254,9 @@ PiLot.View.Nav = (function () {
 			this.draw();
 		},
 
-		lnkClose_click: function () {
+		lnkClose_click: function (e) {
+			!!e && e.preventDefault();
+			this.mapPois.showPoi(this.poi, true, false);
 			this.hide();
 		},
 
@@ -1596,6 +1598,81 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
+	var PoiFeaturesSelector = function () {
+		this.control = null;
+		this.checkboxMap = null;			// Map with key: feature, value: {checkboxControl, checkbox}
+		this.currentLanguage = null;
+		this.tbSearch = null;
+		this.initialize();
+	};
+
+	PoiFeaturesSelector.prototype = {
+
+		initialize: function () {
+			this.checkboxMap = new Map();
+			this.currentLanguage = PiLot.Utils.Language.getLanguage();
+		},
+
+		tbSearch_keyUp: function (e) {
+			this.filterFeatures(e.target.value);
+		},
+
+		lnkClear_click: function (e) {
+			e.preventDefault();
+			this.tbSearch.value = '';
+			this.filterFeatures('');
+		},
+
+		drawAsync: async function (pContainer) {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiFeaturesSelector);
+			pContainer.appendChild(this.control);
+			this.tbSearch = this.control.querySelector('.tbSearch');
+			this.tbSearch.addEventListener('keyup', this.tbSearch_keyUp.bind(this));
+			this.control.querySelector('.lnkClear').addEventListener('click', this.lnkClear_click.bind(this));
+			const plhFeatureCheckboxes = this.control.querySelector('.plhFeatureCheckboxes');
+			const sortedFeatures = await this.getSortedFeaturesAsync();
+			sortedFeatures.forEach(function (pFeature) {
+				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
+				const cbCheckbox = cbControl.querySelector('.cbCheckbox');
+				const lblLabel = cbControl.querySelector('.lblLabel');
+				this.checkboxMap.set(pFeature.feature, { checkboxControl: cbControl, checkbox: cbCheckbox });
+				lblLabel.innerText = pFeature.label;
+				plhFeatureCheckboxes.appendChild(cbControl);
+			}.bind(this));
+		},
+
+		/**
+		 * Call this to add the control (and actually draw it) to a containing element
+		 * @param {HTMLDivElement} pContainer - The container where this will be added
+		 * @returns {Promise} - The promise that will resolve once the control is drawn.
+		 */
+		addControlAsync: function (pContainer) {
+			return this.drawAsync(pContainer);
+		},
+
+		getSortedFeaturesAsync: async function () {
+			const result = [];
+			const allFeatures = await PiLot.Service.Nav.PoiService.getInstance().getFeaturesAsync();
+			allFeatures.forEach(function (pFeature) {
+				const label = pFeature.getLabel(this.currentLanguage);
+				result.push({ label: label, feature: pFeature });
+			}.bind(this));
+			result.sort((a, b) => a.label.localeCompare(b.label));
+			return result;
+		},
+
+		filterFeatures: function (pKey) {
+			const key = pKey.toLowerCase();
+			this.checkboxMap.forEach(function (pCheckboxObj, pFeature) {
+				pCheckboxObj.checkboxControl.hidden = key !== '' && !pFeature.getLabel(this.currentLanguage).toLowerCase().includes(key);
+			}.bind(this));
+		},
+
+		setSelectedFeatureIds: function () { },
+
+		getSelectedFeatureIds: function () { }
+	};
+
 	/// The control to be used on the start page, showing telemetry and
 	/// route information
 	var StartPageNav = function (pContainer, pStartPage, pBoatTime, pGpsObserver) {
@@ -1831,6 +1908,7 @@ PiLot.View.Nav = (function () {
 		LiveRoute: LiveRoute,
 		PoiDetails: PoiDetails,
 		PoiForm: PoiForm,
+		PoiFeaturesSelector: PoiFeaturesSelector,
 		CategoriesList: CategoriesList,
 		StartPageNav: StartPageNav
 	};

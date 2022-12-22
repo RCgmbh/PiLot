@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.Data.Postgres.Nav;
+using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
@@ -20,9 +21,9 @@ namespace PiLot.API.Controllers {
 		/// Gets the list of all poi features, having id and title
 		/// </summary>
 		[HttpGet]
-		[Route(Program.APIROOT + "[controller]/features")]
+		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<Object[]> GetFeatures() {
+		public List<PoiFeature> GetFeatures() {
 			Logger.Log("PoisController.GetPoiFeatures", LogLevels.DEBUG);
 			return new PoiDataConnector().ReadPoiFeatures();
 		}

@@ -393,9 +393,10 @@ PiLot.View.Map = (function () {
 		this.categoryIds = null;			// number[] holding the ids to show
 		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
 		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, selectedChildren: number};
+		this.allCategories = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
 		this.cbShowPois = null;				// HTMLInputElement
-		this.plhCategories = null;			// HTMLDivElement
+		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
 		this.observers = null;				// Used for the RC observer pattern
 		this.initialize();
 	};
@@ -404,6 +405,7 @@ PiLot.View.Map = (function () {
 
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['applySettings']);
+			this.ensureFeaturesAsync();
 		},
 
 		/**
@@ -447,8 +449,7 @@ PiLot.View.Map = (function () {
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.showPois;
-			this.plhCategories = this.control.querySelector('.plhCategories');
-			await this.drawCategoriesAsync();
+			await Promise.all([this.drawCategoriesAsync(), this.drawFeaturesAsync()]);
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
 		},
@@ -461,10 +462,11 @@ PiLot.View.Map = (function () {
 			await this.ensureCategoriesAsync();
 			this.categoryCheckboxes = new Map();
 			const sortedList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
-			this.plhCategories.clear();
+			const plhCategories = this.control.querySelector('.plhCategories');
+			plhCategories.clear();
 			for (let i = 0; i < sortedList.length; i++) {
 				const category = sortedList[i].category;
-				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayerCheckbox);
+				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.poiCategoryCheckbox);
 				const divIndent = cbControl.querySelector('.divIndent');
 				const level = category.getLevel();
 				if (level === 0) {
@@ -483,9 +485,15 @@ PiLot.View.Map = (function () {
 				}
 				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, category));
 				cbControl.querySelector('.lblCategory').innerText = sortedList[i].title;
-				this.plhCategories.appendChild(cbControl);
+				plhCategories.appendChild(cbControl);
 				this.updateRelatedCheckboxes(category, isSelected, true, false);
 			}
+		},
+
+		drawFeaturesAsync: async function () {
+			const plhFeatures = this.control.querySelector('.plhFeatures');
+			this.featuresSelector = new PiLot.View.Nav.PoiFeaturesSelector();
+			await this.featuresSelector.addControlAsync(plhFeatures);
 		},
 
 		/** 
@@ -515,6 +523,11 @@ PiLot.View.Map = (function () {
 		/** Makes sure the map of all categories has been loaded. */
 		ensureCategoriesAsync: async function () {
 			this.allCategories = this.allCategories || await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+		},
+
+		/** Makes sure the map of all features has been loaded. */
+		ensureFeaturesAsync: async function () {
+			this.allFeatures = this.allFeatures || await PiLot.Service.Nav.PoiService.getInstance().getFeaturesAsync();
 		},
 
 		/**

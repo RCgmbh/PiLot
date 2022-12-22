@@ -182,10 +182,36 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <summary>
 		/// Reads all poi_features
 		/// </summary>
-		/// <returns>List of Arrays with id and name</returns>
-		public List<Object[]> ReadPoiFeatures() {
+		/// <returns>List PoiFeature</returns>
+		public List<PoiFeature> ReadPoiFeatures() {
 			Logger.Log("PoiDataConnector.ReadPoiFeatures", LogLevels.DEBUG);
-			return this.ReadData("SELECT * FROM poi_features");
+			List<PoiFeature> result = new List<PoiFeature>();
+			NpgsqlConnection connection = null;
+			try {
+				String connectionString = ConfigurationManager.AppSettings["connectionString"];
+				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
+				connection = new NpgsqlConnection(connectionString);
+				NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM poi_features", connection);
+				connection.Open();
+				NpgsqlDataReader reader = cmd.ExecuteReader();
+				while (reader.Read()) {
+					PoiFeature feature = new PoiFeature() {
+						ID = reader.GetInt32("id"),
+						Name = reader.GetString("name"),
+						Labels = reader.GetValue("labels")
+					};
+					result.Add(feature);
+				}
+				reader.Close();
+			} catch (Exception ex) {
+				Logger.Log(ex, "PoiDataConnector.ReadPoiFeatures");
+				throw;
+			} finally {
+				if ((connection != null) && (connection.State == ConnectionState.Open)) {
+					connection.Close();
+				}
+			}
+			return result;
 		}
 
 		/// <summary>

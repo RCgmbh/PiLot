@@ -33,13 +33,16 @@ $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
 
+
+
 /*---------- TABLE poi_features --------------------------*/
 
 DROP TABLE IF EXISTS poi_features;
 
 CREATE TABLE poi_features(
 	id serial PRIMARY KEY,
-	name text NOT NULL
+	name text NOT NULL,
+	labels jsonb
 );
 
 GRANT SELECT ON poi_features TO pilotweb;
@@ -47,6 +50,27 @@ GRANT INSERT ON poi_features TO pilotweb;
 GRANT UPDATE ON poi_features TO pilotweb;
 GRANT DELETE ON poi_features TO pilotweb;
 
+
+/*-----------FUNCTION insert_poi_feature -----------------*/
+
+DROP FUNCTION IF EXISTS insert_poi_feature;
+
+CREATE OR REPLACE FUNCTION public.insert_poi_feature(
+	p_name text,
+	p_labels jsonb
+)
+    RETURNS integer
+    LANGUAGE 'sql'
+AS $BODY$
+	INSERT INTO poi_features(
+		name, labels
+	) VALUES (
+		p_name, p_labels
+	)
+	RETURNING id
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION insert_poi_feature to pilotweb;
 /*---------- TABLE pois ----------------------------------*/
 
 DROP TABLE IF EXISTS pois;

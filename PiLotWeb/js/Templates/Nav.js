@@ -258,6 +258,12 @@ PiLot.Templates.Nav = {
 			</div>
 		</div>`,
 
+	poiFeaturesSelector: `
+		<div>
+			<input type="text" class="tbSearch input6 marginBottomSmall" data-title="search" /><a href="#" class="lnkClear" style="margin-left:-1.5em;"><i class="icon-cross"></i></a>
+			<div class="plhFeatureCheckboxes flexRowWrap"></div>
+		</div>`,
+
 	poi_object: '<i class="icon-location"></i>',
 
 	poi_health: '<i class="icon-health"></i>',

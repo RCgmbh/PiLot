@@ -217,6 +217,7 @@ textarea.big{height:20em;}
 .paddingTopSmall { padding-top: 0.5em; }
 .paddingBottom { padding-bottom: 1em; }
 .paddingBottomBig { padding-bottom: 2em; }
+.paddingBottomSmall { padding-bottom: 0.5em; }
 .paddingLeft { padding-left: 1em; }
 .paddingRight { padding-right: 1em; }
 /* well that might be a bit crazy, but we save some pixels on very small screens... */
@@ -243,6 +244,7 @@ textarea.big{height:20em;}
 .paddingTopSmall { padding-top: min(0.5em, 2vh); }
 .paddingBottom { padding-bottom: min(1em, 4vh); }
 .paddingBottomBig { padding-bottom: min(2em, 8vh); }
+.paddingBottomSmall { padding-bottom: min(0.5em, 2vh); }
 .paddingLeft { padding-left: min(1em, 4vw); }
 .paddingRight { padding-right: min(1em, 4vw); }
 .absolute{position:absolute}
@@ -269,6 +271,7 @@ textarea.big{height:20em;}
 .bgLight { background-color: #eee; }
 .bgLightBlue { background-color: #B2D3FF; }
 .borderLight { border: 1px solid #ccc;}
+.borderBottom { border-style: none; border-bottom-style: solid; }
 .borderLightBlue { border-color: #B2D3FF; }
 .borderDark { border:1px solid #999; }
 .bw { filter: grayscale(80%); }
