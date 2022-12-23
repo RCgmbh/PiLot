@@ -241,15 +241,19 @@ PiLot.Templates.Nav = {
 					<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
 					<select class="ddlCategory marginBottomSmall"></select>
 					<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
+					<div class="flexColumn marginBottomSmall">
+						<span data-text="features"></span>
+						<div class="plhFeatures borderLight paddingAllSmall"></div>
+					</div>
 					<div class="flexRowWrap">
 						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
 						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
 					</div>
-					<label class="lblAllowDrag marginRight marginBottomSmall block"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
 					<div class="flexRowWrap">
 						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validFrom">:</span><input type="text" class="tbValidFrom input4" /></div>
 						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validTo">:</span><input type="text" class="tbValidTo input4" /></div>
 					</div>
+					<label class="lblAllowDrag marginRight marginBottomSmall block"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
 				</div>
 				<div class="buttons reverse marginBottomSmall">
 					<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
@@ -261,7 +265,7 @@ PiLot.Templates.Nav = {
 	poiFeaturesSelector: `
 		<div>
 			<input type="text" class="tbSearch input6 marginBottomSmall" data-title="search" /><a href="#" class="lnkClear" style="margin-left:-1.5em;"><i class="icon-cross"></i></a>
-			<div class="plhFeatureCheckboxes flexRowWrap"></div>
+			<div class="plhFeatureCheckboxes flexRowWrap" style="max-height:20vh; overflow:auto;"></div>
 		</div>`,
 
 	poi_object: '<i class="icon-location"></i>',

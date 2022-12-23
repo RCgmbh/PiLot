@@ -71,6 +71,13 @@ AS $BODY$
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_feature to pilotweb;
+
+/*select insert_poi_feature('drinkingWater', '{"de": "Trinkwasser", "en": "Drinking Water"}');
+select insert_poi_feature('wasteWater', '{"de": "Schmutzwasser", "en": "Waste water"}');
+select insert_poi_feature('guestPlaces', '{"de": "Gästeplätze", "en": "Guest places"}');
+select insert_poi_feature('toilet', '{"de": "Toilette", "en": "Toilet"}');
+select insert_poi_feature('shower', '{"de": "Dusche", "en": "Shower"}');*/
+
 /*---------- TABLE pois ----------------------------------*/
 
 DROP TABLE IF EXISTS pois;

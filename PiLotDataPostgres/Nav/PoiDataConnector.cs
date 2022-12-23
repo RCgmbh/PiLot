@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
+using System.Linq;
 using Npgsql;
+using PiLot.Data.Postgres.Helper;
 using PiLot.Model.Nav;
 using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
@@ -13,6 +15,12 @@ namespace PiLot.Data.Postgres.Nav {
 	/// Reads and writes POIs from/to the database
 	/// </summary>
 	public class PoiDataConnector {
+
+		private DBHelper dbHelper;
+
+		public PoiDataConnector() {
+			this.dbHelper = new DBHelper();
+		}
 
 		/// <summary>
 		/// Finds pois based on coordinates, categories and features. All results are within the provided
@@ -37,7 +45,7 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@max_lng", pMaxLon));
 			pars.Add(("@categories", pCategories));
 			pars.Add(("@features", pFeatures));
-			return this.ReadData(query, pars);
+			return this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
 		}
 
 		/// <summary>
@@ -50,7 +58,7 @@ namespace PiLot.Data.Postgres.Nav {
 			String query = "SELECT * FROM read_poi(@poi_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@poi_id", pPoiId));
-			List<Object[]> resultList = this.ReadData(query, pars);
+			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
 			if(resultList.Count == 1){
 				result = resultList[0];
 			}
@@ -72,36 +80,45 @@ namespace PiLot.Data.Postgres.Nav {
 				command = "SELECT * FROM update_poi(@p_id, @p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
 				result = pPoi.ID;
 			}
-			NpgsqlConnection connection = null;
-			try {
-				String connectionString = ConfigurationManager.AppSettings["connectionString"];
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
-				if(pPoi.ID != null) {
-					cmd.Parameters.AddWithValue("@p_id", pPoi.ID);
-				}
-				cmd.Parameters.AddWithValue("@p_title", pPoi.Title);
-				cmd.Parameters.AddWithValue("@p_description", pPoi.Description);
-				cmd.Parameters.AddWithValue("@p_category_id", pPoi.CategoryID);
-				cmd.Parameters.AddWithValue("@p_properties", DBNull.Value);
-				cmd.Parameters.AddWithValue("@p_latitude", pPoi.Latitude);
-				cmd.Parameters.AddWithValue("@p_longitude", pPoi.Longitude);
-				cmd.Parameters.AddWithValue("@p_valid_from", this.NullableUnixToDateTime(pPoi.ValidFrom));
-				cmd.Parameters.AddWithValue("@p_valid_to", this.NullableUnixToDateTime(pPoi.ValidTo));
-				connection.Open();
-				Object cmdResult = cmd.ExecuteScalar();
-				if(pPoi.ID == null) {
-					result = (Int64)cmdResult;
-				}
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.SavePoi");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
+			List<(String, Object)> pars = new List<(String, Object)>();
+			if (pPoi.ID != null) {
+				pars.Add(("@p_id", pPoi.ID));
+			}
+			pars.Add(("@p_title", pPoi.Title));
+			pars.Add(("@p_description", pPoi.Description));
+			pars.Add(("@p_category_id", pPoi.CategoryID));
+			pars.Add(("@p_properties", DBNull.Value));
+			pars.Add(("@p_latitude", pPoi.Latitude));
+			pars.Add(("@p_longitude", pPoi.Longitude));
+			pars.Add(("@p_valid_from", this.NullableUnixToDateTime(pPoi.ValidFrom)));
+			pars.Add(("@p_valid_to", this.NullableUnixToDateTime(pPoi.ValidTo)));
+			result = this.dbHelper.ExecuteCommand<Int64>(command, pars);
+			this.SavePoiFeatures(result.Value, pPoi.FeatureIDs);
+			return result.Value;
+		}
+
+		/// <summary>
+		/// Deletes and the re-creates all records in poi_features__pois for a poi id and 
+		/// a list of features. Should probably at least go into a transaction, or even
+		/// better pass the list of features and let one single function do it all.
+		/// </summary>
+		/// <param name="pPoiID">The poi ID</param>
+		/// <param name="pFeatureIDs">The list of feature ids for the poi</param>
+		private void SavePoiFeatures(Int64 pPoiID, Int32[] pFeatureIDs) {
+			Logger.Log("PoiDataConnector.SavePoiFeatures", LogLevels.DEBUG);
+			String cmdDelete = "DELETE FROM poi_features__pois WHERE poi_id = @poi_id;";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@poi_id", pPoiID));
+			this.dbHelper.ExecuteCommand<Object>(cmdDelete, pars);
+			if (pFeatureIDs != null) {
+				String cmdInsert = "INSERT INTO poi_features__pois VALUES (@feature_id, @poi_id)";
+				(String, Object) parFeatureId = ("@feature_id", null);
+				pars.Add(parFeatureId);
+				foreach (Int32 aFeatureId in pFeatureIDs) {
+					parFeatureId.Item2 = aFeatureId;
+					this.dbHelper.ExecuteCommand<Object>(cmdInsert, pars);
 				}
 			}
-			return result.Value;
 		}
 
 		/// <summary>
@@ -111,22 +128,9 @@ namespace PiLot.Data.Postgres.Nav {
 		public void DeletePoi(Int64 pPoiID) {
 			Logger.Log("PoiDataConnector.DeletePoi", LogLevels.DEBUG);
 			String command = "SELECT * FROM delete_poi(@p_id)";
-			NpgsqlConnection connection = null;
-			try {
-				String connectionString = ConfigurationManager.AppSettings["connectionString"];
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand(command, connection);
-				cmd.Parameters.AddWithValue("@p_id", pPoiID);
-				connection.Open();
-				Object cmdResult = cmd.ExecuteNonQuery();
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.DeletePoi");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
-				}
-			}
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_id", pPoiID));
+			this.dbHelper.ExecuteCommand<Object>(command, pars);
 		}
 
 		/// <summary>
@@ -145,36 +149,23 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <summary>
 		/// Reads all poi_categories
 		/// </summary>
-		/// <returns>List PoiCategories</returns>
+		/// <returns>List of PoiCategories</returns>
 		public List<PoiCategory> ReadPoiCategories() {
 			Logger.Log("PoiDataConnector.ReadPoiCategories", LogLevels.DEBUG);
-			List<PoiCategory> result = new List<PoiCategory>();
-			NpgsqlConnection connection = null;
-			try {
-				String connectionString = ConfigurationManager.AppSettings["connectionString"];
-				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM poi_categories", connection);
-				connection.Open();
-				NpgsqlDataReader reader = cmd.ExecuteReader();
-				while (reader.Read()) {
-					PoiCategory category = new PoiCategory(){
-						ID = reader.GetInt32("id"),
-						Name = reader.GetString("name")
-					};
-					if(!reader.IsDBNull("parent_id")){
-						category.ParentId = reader.GetInt32("parent_id");
-					}
-					result.Add(category);
-				}
-				reader.Close();
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.ReadPoiCategories");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
-				}
+			String query = "SELECT * FROM poi_categories";
+			return this.dbHelper.ReadData<PoiCategory>(query, new Func<NpgsqlDataReader, PoiCategory>(this.ReadPoiCategory));
+		}
+
+		/// <summary>
+		/// Helper to create a PoiCategory out of a db record
+		/// </summary>
+		private PoiCategory ReadPoiCategory(NpgsqlDataReader pReader) {
+			PoiCategory result = new PoiCategory() {
+				ID = pReader.GetInt32("id"),
+				Name = pReader.GetString("name")
+			};
+			if (!pReader.IsDBNull("parent_id")) {
+				result.ParentId = pReader.GetInt32("parent_id");
 			}
 			return result;
 		}
@@ -185,73 +176,20 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <returns>List PoiFeature</returns>
 		public List<PoiFeature> ReadPoiFeatures() {
 			Logger.Log("PoiDataConnector.ReadPoiFeatures", LogLevels.DEBUG);
-			List<PoiFeature> result = new List<PoiFeature>();
-			NpgsqlConnection connection = null;
-			try {
-				String connectionString = ConfigurationManager.AppSettings["connectionString"];
-				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand("SELECT * FROM poi_features", connection);
-				connection.Open();
-				NpgsqlDataReader reader = cmd.ExecuteReader();
-				while (reader.Read()) {
-					PoiFeature feature = new PoiFeature() {
-						ID = reader.GetInt32("id"),
-						Name = reader.GetString("name"),
-						Labels = reader.GetValue("labels")
-					};
-					result.Add(feature);
-				}
-				reader.Close();
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.ReadPoiFeatures");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
-				}
-			}
-			return result;
+			String query = "SELECT * FROM poi_features";
+			return this.dbHelper.ReadData<PoiFeature>(query,  new Func<NpgsqlDataReader, PoiFeature>(this.ReadPoiFeature));
 		}
 
 		/// <summary>
-		/// Reads data and returns a list of Object-arrays, containing each field for each record
-		/// as it is returned from the query
+		/// Helper to create a PoiFeature from a db record
 		/// </summary>
-		/// <param name="pQuery">Well... the query</param>
-		/// <param name="pParams">The parameters with name and value</param>
-		/// <returns></returns>
-		private List<Object[]> ReadData(String pQuery, List<(String, Object)> pParams = null) {
-			List<Object[]> result = new List<Object[]>();
-			NpgsqlConnection connection = null;
-			try {
-				String connectionString = ConfigurationManager.AppSettings["connectionString"];
-				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand(pQuery, connection);
-				if (pParams != null) {
-					foreach (var aParam in pParams) {
-						cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
-					}
-				}
-				connection.Open();
-				NpgsqlDataReader reader = cmd.ExecuteReader();
-				while (reader.Read()) {
-					Object[] values = new Object[reader.FieldCount];
-					reader.GetValues(values);
-					result.Add(values);
-				}
-				reader.Close();
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.ReadData");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
-				}
-			}
+		private PoiFeature ReadPoiFeature(NpgsqlDataReader pReader) {
+			PoiFeature result = new PoiFeature() {
+				ID = pReader.GetInt32("id"),
+				Name = pReader.GetString("name"),
+				Labels = pReader.GetValue("labels")
+			};
 			return result;
 		}
-
 	}
 }

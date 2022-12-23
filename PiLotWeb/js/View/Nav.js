@@ -1381,6 +1381,7 @@ PiLot.View.Nav = (function () {
 		this.tbTitle = null;
 		this.ddlCategory = null;
 		this.tbDescription = null;
+		this.poiFeaturesSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
 		this.editLatitude = null;
 		this.editLongitude = null;
 		this.lblAllowDrag = null;
@@ -1427,7 +1428,8 @@ PiLot.View.Nav = (function () {
 			this.calValidTo = new RC.Controls.Calendar(this.control.querySelector('.calValidTo'), this.control.querySelector('.tbValidTo'), null, null, null, locale);
 			this.control.querySelector('.btnSave').addEventListener('click', this.btnSave_click.bind(this));
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
-			await this.populateCategoriesAsync();
+			await Promise.all([this.populateCategoriesAsync(), this.addFeaturesSelectorAsync()]);
+
 		},
 
 		/** Populates the category dropdown with a hierarchic, ordered list of categories */
@@ -1448,6 +1450,11 @@ PiLot.View.Nav = (function () {
 				ddlCategories.push([category.getId(), ddlTitle]);
 			}
 			RC.Utils.fillDropdown(this.ddlCategory, ddlCategories, null);
+		},
+
+		addFeaturesSelectorAsync: async function () {
+			this.poiFeaturesSelector = new PoiFeaturesSelector();
+			await this.poiFeaturesSelector.addControlAsync(this.control.querySelector('.plhFeatures'));
 		},
 
 		/**
