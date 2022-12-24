@@ -173,7 +173,6 @@ GRANT EXECUTE ON FUNCTION insert_poi TO pilotweb;
 GRANT USAGE, SELECT ON SEQUENCE pois_id_seq TO pilotweb;
 
 /*----------- FUNCTION update_poi -------------------------*/
-
 DROP FUNCTION IF EXISTS update_poi;
 
 CREATE FUNCTION update_poi(
@@ -187,7 +186,7 @@ CREATE FUNCTION update_poi(
 	p_valid_from timestamp,
 	p_valid_to timestamp
 )
-RETURNS VOID AS 
+RETURNS bigint AS 
 '
 	UPDATE pois
 	SET
@@ -201,6 +200,7 @@ RETURNS VOID AS
 		date_changed = NOW()
 	WHERE
 		id = p_id
+	RETURNING p_id;
 '
 LANGUAGE SQL;
 
@@ -215,6 +215,8 @@ CREATE FUNCTION delete_poi(
 )
 RETURNS void AS 
 '
+	DELETE FROM poi_features__pois
+	WHERE poi_id = p_id;
 	DELETE FROM pois
 	WHERE id = p_id;
 '

@@ -390,10 +390,11 @@ PiLot.View.Map = (function () {
 	 * */
 	var MapLayersSettings = function () {
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
-		this.categoryIds = null;			// number[] holding the ids to show
+		this.categoryIds = null;			// number[] holding the ids of the categories to show
 		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
 		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, selectedChildren: number};
-		this.allCategories = null;			// Map, as it comes from the service (key: id, value: feature)
+		this.featureIds = null;				// number[] holding the ids of the features to filter by
+		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
 		this.cbShowPois = null;				// HTMLInputElement
 		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
@@ -494,6 +495,7 @@ PiLot.View.Map = (function () {
 			const plhFeatures = this.control.querySelector('.plhFeatures');
 			this.featuresSelector = new PiLot.View.Nav.PoiFeaturesSelector();
 			await this.featuresSelector.addControlAsync(plhFeatures);
+			this.featuresSelector.setSelectedFeatureIds(this.featureIds);
 		},
 
 		/** 
@@ -501,10 +503,11 @@ PiLot.View.Map = (function () {
 		 *  just becaus it tries to be nice and defaults to "all"
 		 * */
 		loadSettingsAsync: async function () {
-			await this.ensureCategoriesAsync();
+			await Promise.all([this.ensureCategoriesAsync(), this.ensureFeaturesAsync()]);
 			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
 			this.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
 			this.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
+			this.featureIds = (settings && settings.featureIds) || [];
 		},
 
 		/** Saves the settings to the browser */
@@ -516,7 +519,8 @@ PiLot.View.Map = (function () {
 		createSettingsObject: function () {
 			return {
 				showPois: this.showPois,
-				categoryIds: this.categoryIds
+				categoryIds: this.categoryIds,
+				featureIds: this.featureIds
 			};
 		},
 
@@ -600,6 +604,7 @@ PiLot.View.Map = (function () {
 		/** Applies the current selection and notifies observers */
 		apply: function () {
 			this.showPois = this.cbShowPois.checked;
+			this.featureIds = this.featuresSelector.getSelectedFeatureIds();
 			this.saveSettings();
 			RC.Utils.notifyObservers(this, this.observers, 'applySettings', this);
 			this.hide();
@@ -695,7 +700,7 @@ PiLot.View.Map = (function () {
 			const poiService = PiLot.Service.Nav.PoiService.getInstance();
 			const settings = await this.settingsControl.getSettingsAsync();
 			if (settings.showPois) {
-				const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, settings.categoryIds, []);
+				const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, settings.categoryIds, settings.featureIds);
 				pois.forEach(function (p) { this.showPoi(p, false, false) }.bind(this));
 			}			
 		},

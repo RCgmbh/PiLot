@@ -322,7 +322,7 @@ PiLot.Model.Nav = (function () {
 		this.id = pId;
 		this.title = pTitle;
 		this.category = pCategory;
-		this.featureIds = pFeatureIds;
+		this.setFeatureIds( pFeatureIds);
 		this.latLng = null;
 		this.setLatLng(pLat, pLon);
 		this.validFrom = pValidFrom;
@@ -373,7 +373,13 @@ PiLot.Model.Nav = (function () {
 		getFeatureIds: function () { return this.featureIds; },
 
 		/** @param {number[]} pFeatureIds */
-		setFeatureIds: function (pFeatureIds) { this.featureIds = pFeatureIds; },
+		setFeatureIds: function (pFeatureIds) {
+			if (pFeatureIds && (pFeatureIds.length === 1) && (pFeatureIds[0] === 0)) {
+				this.featureIds = [];
+			} else {
+				this.featureIds = pFeatureIds || [];
+			}
+		},
 
 		/** @returns {string} */
 		getDescription: function () { return this.description; },
@@ -414,7 +420,7 @@ PiLot.Model.Nav = (function () {
 				title: this.title,
 				description: this.description,
 				categoryId: this.category.getId(),
-				featureIds: [],
+				featureIds: this.featureIds,
 				properties: null,
 				latitude: this.latLng.lat,
 				longitude: this.latLng.lng,

@@ -1237,7 +1237,7 @@ PiLot.View.Nav = (function () {
 		this.plhCategoryIcon = null;	// HTMLElement where the icon is inserted
 		this.lblCategoryName = null;	// HTMLSpanElement showing the category name
 		this.lblTitle = null;			// HTMLSpanElement showing the poi title
-		this.liFeatures = null;			// HTMLUListElement listing all features of this poi
+		this.ulFeatures = null;			// HTMLUListElement listing all features of this poi
 		this.lblDescription = null;		// HTMLSpanElement showing the description text
 		this.pnlProperties = null;		// HTMLDivElement for label and value of properties
 		this.lblProperties = null;		// HTMLSpanElement containing the properties
@@ -1292,7 +1292,7 @@ PiLot.View.Nav = (function () {
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
 			this.lblTitle = this.control.querySelector('.lblTitle');
-			this.liFeatures = this.control.querySelector('.liFeatures');
+			this.ulFeatures = this.control.querySelector('.ulFeatures');
 			this.lblDescription = this.control.querySelector('.lblDescription');
 			this.pnlProperties = this.control.querySelector('.pnlProperties');
 			this.lblProperties = this.control.querySelector('.lblProperties');
@@ -1319,8 +1319,10 @@ PiLot.View.Nav = (function () {
 			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];
 			this.lblCategoryName.innerText = PiLot.Utils.Language.getText(categoryName);
 			this.lblTitle.innerText = this.poi.getTitle();
-			this.liFeatures.clear();
-			// todo: show features
+			this.ulFeatures.clear();
+			PiLot.Service.Nav.PoiService.getInstance().loadFeaturesAsync().then(function (pAllFeatures) {
+				this.showFeatures(pAllFeatures);
+			}.bind(this));
 			let description = this.poi.getDescription();
 			description = this.replaceLinks(description);
 			description = description.replace('\n', '<br/>');
@@ -1328,6 +1330,18 @@ PiLot.View.Nav = (function () {
 			// todo: show properties
 			this.showDate(this.poi.getValidFrom(), this.pnlValidFrom, this.lblValidFrom);
 			this.showDate(this.poi.getValidTo(), this.pnlValidTo, this.lblValidTo);
+		},
+
+		showFeatures: function (pAllFeatures) {
+			const currentLanguage = PiLot.Utils.Language.getLanguage();
+			const allFeatures = pAllFeatures;
+			if (this.poi.getFeatureIds().length > 0) {
+				this.poi.getFeatureIds().forEach(function (aFeatureId) {
+					const li = document.createElement('li');
+					li.innerHTML = allFeatures.get(aFeatureId).getLabel(currentLanguage);
+					this.ulFeatures.appendChild(li);
+				}.bind(this));
+			}			
 		},
 
 		replaceLinks: function (pText) {
@@ -1490,6 +1504,7 @@ PiLot.View.Nav = (function () {
 				this.tbTitle.value = this.poi.getTitle();
 				this.ddlCategory.value = this.poi.getCategory().getId();
 				this.tbDescription.value = this.poi.getDescription();
+				this.poiFeaturesSelector.setSelectedFeatureIds(this.poi.getFeatureIds());
 				latLng = this.poi.getLatLng();
 				this.calValidFrom.date(this.poi.getValidFrom());
 				this.calValidTo.date(this.poi.getValidTo());
@@ -1497,6 +1512,7 @@ PiLot.View.Nav = (function () {
 				this.tbTitle.value = "";
 				this.ddlCategory.value = "";
 				this.tbDescription.value = "";
+				this.poiFeaturesSelector.setSelectedFeatureIds([]);
 				latLng = pLatLng;
 				this.calValidFrom.date(null);
 				this.calValidTo.date(null);
@@ -1523,6 +1539,7 @@ PiLot.View.Nav = (function () {
 				this.poi.setTitle(this.tbTitle.value);
 				this.poi.setCategory(category);
 				this.poi.setDescription(this.tbDescription.value);
+				this.poi.setFeatureIds(this.poiFeaturesSelector.getSelectedFeatureIds());
 				this.poi.setLatLng(lat, lon);
 				this.poi.setValidFrom(this.calValidFrom.date());
 				this.poi.setValidTo(this.calValidTo.date());
@@ -1533,8 +1550,7 @@ PiLot.View.Nav = (function () {
 				this.hide();
 			} else {
 				alert(PiLot.Utils.Language.getText('mandatoryPoiFields'));
-			}
-			
+			}			
 		},
 
 		/** Shows the control */
@@ -1675,9 +1691,21 @@ PiLot.View.Nav = (function () {
 			}.bind(this));
 		},
 
-		setSelectedFeatureIds: function () { },
+		setSelectedFeatureIds: function (pFeatureIds) {
+			this.checkboxMap.forEach(function (pObjCheckbox, pFeature) {
+				pObjCheckbox.checkbox.checked = pFeatureIds.includes(pFeature.getId())
+			});
+		},
 
-		getSelectedFeatureIds: function () { }
+		getSelectedFeatureIds: function () {
+			const result = [];
+			this.checkboxMap.forEach(function (pObjCheckbox, pFeature) {
+				if (pObjCheckbox.checkbox.checked) {
+					result.push(pFeature.getId());
+				}
+			});
+			return result;
+		}
 	};
 
 	/// The control to be used on the start page, showing telemetry and

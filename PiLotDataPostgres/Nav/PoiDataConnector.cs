@@ -72,13 +72,12 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <returns>The pois ID</returns>
 		public Int64 SavePoi(Poi pPoi) {
 			Logger.Log("PoiDataConnector.SavePoi", LogLevels.DEBUG);
-			Int64? result = null;
+			Int64 result;
 			String command;
 			if(pPoi.ID == null) {
 				command = "SELECT * FROM insert_poi(@p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
 			} else {
 				command = "SELECT * FROM update_poi(@p_id, @p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
-				result = pPoi.ID;
 			}
 			List<(String, Object)> pars = new List<(String, Object)>();
 			if (pPoi.ID != null) {
@@ -93,8 +92,8 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_valid_from", this.NullableUnixToDateTime(pPoi.ValidFrom)));
 			pars.Add(("@p_valid_to", this.NullableUnixToDateTime(pPoi.ValidTo)));
 			result = this.dbHelper.ExecuteCommand<Int64>(command, pars);
-			this.SavePoiFeatures(result.Value, pPoi.FeatureIDs);
-			return result.Value;
+			this.SavePoiFeatures(result, pPoi.FeatureIDs);
+			return result;
 		}
 
 		/// <summary>
@@ -107,16 +106,17 @@ namespace PiLot.Data.Postgres.Nav {
 		private void SavePoiFeatures(Int64 pPoiID, Int32[] pFeatureIDs) {
 			Logger.Log("PoiDataConnector.SavePoiFeatures", LogLevels.DEBUG);
 			String cmdDelete = "DELETE FROM poi_features__pois WHERE poi_id = @poi_id;";
-			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@poi_id", pPoiID));
-			this.dbHelper.ExecuteCommand<Object>(cmdDelete, pars);
+			List<(String, Object)> parsDelete = new List<(String, Object)>();
+			parsDelete.Add(("@poi_id", pPoiID));
+			this.dbHelper.ExecuteCommand<Object>(cmdDelete, parsDelete);
 			if (pFeatureIDs != null) {
-				String cmdInsert = "INSERT INTO poi_features__pois VALUES (@feature_id, @poi_id)";
-				(String, Object) parFeatureId = ("@feature_id", null);
-				pars.Add(parFeatureId);
+				String cmdInsert = "INSERT INTO poi_features__pois (feature_id, poi_id) VALUES (@feature_id, @poi_id)";
+				List<(String, Object)> parsInsert;
 				foreach (Int32 aFeatureId in pFeatureIDs) {
-					parFeatureId.Item2 = aFeatureId;
-					this.dbHelper.ExecuteCommand<Object>(cmdInsert, pars);
+					parsInsert = new List<(String, Object)>();
+					parsInsert.Add(("@feature_id", aFeatureId));
+					parsInsert.Add(("@poi_id", pPoiID));
+					this.dbHelper.ExecuteCommand<Object>(cmdInsert, parsInsert);
 				}
 			}
 		}

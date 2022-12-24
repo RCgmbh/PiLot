@@ -214,7 +214,7 @@ PiLot.Templates.Nav = {
 					</div>
 					<span class="lblTitle marginBottomSmall block semiBold"></span>
 					<div class="labelValues30-70 flexColumn marginBottomSmall">
-						<div hidden><span class="label" data-text="features"></span><li class="liFeatures value"></li></div>
+						<div><span class="label" data-text="features"></span><ul class="ulFeatures value"></ul></div>
 						<div><span class="label" data-text="description"></span><span class="lblDescription value"></span></div>
 						<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
 						<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
@@ -265,7 +265,7 @@ PiLot.Templates.Nav = {
 	poiFeaturesSelector: `
 		<div>
 			<input type="text" class="tbSearch input6 marginBottomSmall" data-title="search" /><a href="#" class="lnkClear" style="margin-left:-1.5em;"><i class="icon-cross"></i></a>
-			<div class="plhFeatureCheckboxes flexRowWrap" style="max-height:20vh; overflow:auto;"></div>
+			<div class="plhFeatureCheckboxes flexColumnWrap paddingBottomSmall" style="max-height:20vh; overflow:auto;"></div>
 		</div>`,
 
 	poi_object: '<i class="icon-location"></i>',
