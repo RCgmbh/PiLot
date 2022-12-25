@@ -67,6 +67,42 @@ namespace PiLot.Backup.API.Helpers {
 		}
 
 		/// <summary>
+		/// Backs up pois
+		/// </summary>
+		/// <param name="pData">The array of records to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
+		public static void BackupPois(List<Poi> pData, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new PoiDataConnector(backupDirectory.FullName).SaveAllPois(pData);
+			Logger.Log($"Recieved {pData.Count} POIs to backup", LogLevels.DEBUG);
+		}
+
+		/// <summary>
+		/// Backs up poi categories
+		/// </summary>
+		/// <param name="pData">The array of records to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
+		public static void BackupPoiCategories(List<PoiCategory> pData, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new PoiDataConnector(backupDirectory.FullName).SaveAllCategories(pData);
+			Logger.Log($"Recieved {pData.Count} poi categories to backup", LogLevels.DEBUG);
+		}
+
+		/// <summary>
+		/// Backs up poi features
+		/// </summary>
+		/// <param name="pData">The array of records to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
+		public static void BackupPoiFeatures(List<PoiFeature> pData, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupPath(pClientName, pBackupTime, true, true);
+			new PoiDataConnector(backupDirectory.FullName).SaveAllFeatures(pData);
+			Logger.Log($"Recieved {pData.Count} poi features to backup", LogLevels.DEBUG);
+		}
+
+		/// <summary>
 		/// This renames the temp backup folder to its definitive name, and then removes any
 		/// previous backups that aren't needed anymore
 		/// </summary>

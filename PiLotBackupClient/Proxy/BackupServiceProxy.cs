@@ -81,6 +81,28 @@ namespace PiLot.Backup.Client.Proxies {
 		}
 
 		/// <summary>
+		/// Sends all poi related data to the server to be backed up
+		/// </summary>
+		/// <param name="pAllPois">The list of all pois</param>
+		/// <param name="pAllCategories">The list of all poi catgories</param>
+		/// <param name="pAllFeatures">The list of all poi features</param>
+		/// <param name="pBackupTime">The time of the current backup</param>
+		/// <returns>True, if the call was successful, else false</returns>
+		public async Task<Boolean> BackupPoiDataAsync(List<Poi> pAllPois, List<PoiCategory> pAllCategories, List<PoiFeature> pAllFeatures, DateTime pBackupTime) {
+			Int32 backupTime = DateTimeHelper.ToUnixTime(pBackupTime);
+			String url = $"{this.apiUrl}/Pois?backupTime={backupTime}";
+			String jsonString = JsonSerializer.Serialize(pAllPois);
+			Boolean success = await this.httpClient.PutAsync(jsonString, url);
+			url = $"{this.apiUrl}/PoiCategories?backupTime={backupTime}";
+			jsonString = JsonSerializer.Serialize(pAllCategories);
+			success &= await this.httpClient.PutAsync(jsonString, url);
+			url = $"{this.apiUrl}/PoiFeatures?backupTime={backupTime}";
+			jsonString = JsonSerializer.Serialize(pAllFeatures);
+			success &= await this.httpClient.PutAsync(jsonString, url);
+			return success;
+		}
+
+		/// <summary>
 		/// Sends the commit command to the backup api, which persist the data
 		/// on the server
 		/// </summary>

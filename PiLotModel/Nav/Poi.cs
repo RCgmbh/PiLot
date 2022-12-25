@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace PiLot.Model.Nav {
 
 	/// <summary>
-	/// Represents a poi category
+	/// Represents a poi
 	/// </summary>
 	public class Poi {
 

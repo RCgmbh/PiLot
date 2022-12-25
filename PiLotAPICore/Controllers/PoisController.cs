@@ -52,6 +52,17 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Gets all pois
+		/// </summary>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/all")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<Poi> Get() {
+			Logger.Log("PoisController.Get", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadPois();
+		}
+
+		/// <summary>
 		/// Saves a Poi.
 		/// </summary>
 		/// <param name="poi">The POI to save</param>

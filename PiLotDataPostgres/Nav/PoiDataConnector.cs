@@ -23,6 +23,17 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Reads all pois and returns them with all fields populated. This might become quite heavy depending
+		/// on the number of pois in the system.
+		/// </summary>
+		/// <returns>List of Pois</returns>
+		public List<Poi> ReadPois() {
+			Logger.Log("PoiDataConnector.ReadPois", LogLevels.DEBUG);
+			String query = "SELECT * FROM all_pois;";
+			return this.dbHelper.ReadData<Poi>(query, new Func<NpgsqlDataReader, Poi>(this.ReadPoi));
+		}
+
+		/// <summary>
 		/// Finds pois based on coordinates, categories and features. All results are within the provided
 		/// rectangle, belong one of the provided categories and have all of the required features.
 		/// The result is a list of Object-arrays, directly as it is returned by the postgresql function.
@@ -60,6 +71,22 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@poi_id", pPoiId));
 			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
 			if(resultList.Count == 1){
+				result = resultList[0];
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Reads the latest change date of either pois, categories or features. Used as a very basic approach
+		/// for an all-or-nothing backup of poi-related data.
+		/// </summary>
+		/// <returns>The date of the latest change or null</returns>
+		public DateTime? ReadLatestChange() {
+			DateTime? result = null;
+			Logger.Log($"PoiDataConnector.ReadLatestChange", LogLevels.DEBUG);
+			String query = "SELECT * FROM poi_latest_change;";
+			List<DateTime?> resultList = this.dbHelper.ReadData<DateTime?>(query, new Func<NpgsqlDataReader, DateTime?>(this.dbHelper.ReadDateTime));
+			if (resultList.Count == 1) {
 				result = resultList[0];
 			}
 			return result;
@@ -143,6 +170,51 @@ namespace PiLot.Data.Postgres.Nav {
 			if(pUnixTime != null) {
 				result = DateTimeHelper.FromUnixTime(pUnixTime.Value);
 			}
+			return result;
+		}
+
+		/// <summary>
+		/// Converts a DateTime that could be null into an Int representing
+		/// seconds since epoc.
+		/// </summary>
+		/// <param name="pDateTime">The date or null</param>
+		/// <returns>Seconds since epoc or null</returns>
+		private Int32? NullableDateTimeToUnix(Object pDateTime) {
+			Int32? result = null;
+			if((pDateTime != null) && (pDateTime != DBNull.Value) && (pDateTime is DateTime?)) {
+				result = DateTimeHelper.ToUnixTime((DateTime)pDateTime);
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Helper to create a Poi out of a db record
+		/// </summary>
+		private Poi ReadPoi(NpgsqlDataReader pReader) {
+			Int32[] featureIds = new Int32[0];
+			if (!pReader.IsDBNull("feature_ids")) {
+				featureIds = pReader.GetFieldValue<Int32[]>("feature_ids");
+			}
+			String description = null;
+			if (!pReader.IsDBNull("description")) {
+				description = pReader.GetString("description");
+			}
+			Object properties = null;
+			if (!pReader.IsDBNull("properties")) {
+				properties = pReader.GetValue("properties");
+			}
+			Poi result = new Poi() {
+				ID = pReader.GetInt64("id"),
+				Title = pReader.GetString("title"),
+				Description = description,
+				CategoryID = pReader.GetInt32("category_id"),
+				FeatureIDs = featureIds,
+				Properties = properties,
+				Latitude = pReader.GetDouble("latitude"),
+				Longitude = pReader.GetDouble("longitude"),
+				ValidFrom = this.NullableDateTimeToUnix(pReader.GetValue("valid_from")),
+				ValidTo = this.NullableDateTimeToUnix(pReader.GetValue("valid_to"))
+			};
 			return result;
 		}
 

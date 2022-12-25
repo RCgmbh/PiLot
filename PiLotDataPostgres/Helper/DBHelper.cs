@@ -89,5 +89,17 @@ namespace PiLot.Data.Postgres.Helper {
 			pReader.GetValues(result);
 			return result;
 		}
+
+		/// <summary>
+		/// Helper to read a date from a db record, using just the first field
+		/// </summary>
+		/// <returns>DateTime corresponding to the first field, or null</returns>
+		public DateTime? ReadDateTime(NpgsqlDataReader pReader) {
+			DateTime? result = null;
+			if (!pReader.IsDBNull(0)) {
+				result = pReader.GetDateTime(0);
+			}
+			return result;
+		}
 	}
 }

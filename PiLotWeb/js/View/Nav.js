@@ -1289,6 +1289,7 @@ PiLot.View.Nav = (function () {
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
+			this.control.querySelector('.overlay').addEventListener('click', this.hide.bind(this))
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
 			this.lblTitle = this.control.querySelector('.lblTitle');
@@ -1427,7 +1428,7 @@ PiLot.View.Nav = (function () {
 		drawAsync: async function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm);
 			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.btnCancel_click.bind(this));
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.btnCancel_click.bind(this), this.btnSave_click.bind(this));
 			this.lblTitleAddPoi = this.control.querySelector('.lblTitleAddPoi');
 			this.lblTitleEditPoi = this.control.querySelector('.lblTitleEditPoi');
 			this.tbTitle = this.control.querySelector('.tbTitle');
