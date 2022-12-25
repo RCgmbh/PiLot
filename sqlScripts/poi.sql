@@ -1,10 +1,36 @@
-/*-----------TABLE poi_categories-------------------------*/
+/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  This will create the db structure for POIs
+  ALL EXISTING POI DATA WILL BE LOST!
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+
+/* DROP EXISTING ELEMENTS */
+
+DROP FUNCTION IF EXISTS insert_poi;
+DROP FUNCTION IF EXISTS update_poi;
+DROP FUNCTION IF EXISTS delete_poi;
+DROP FUNCTION IF EXISTS find_pois;
+DROP FUNCTION IF EXISTS read_poi;
+DROP FUNCTION IF EXISTS insert_poi_category;
+DROP FUNCTION IF EXISTS insert_poi_feature;
+DROP VIEW IF EXISTS all_pois;
+DROP VIEW IF EXISTS poi_latest_change;
+DROP TABLE IF EXISTS poi_features__pois;
+DROP TABLE IF EXISTS pois;
 DROP TABLE IF EXISTS poi_categories;
+DROP TABLE IF EXISTS poi_features;
+
+
+/*-----------TABLE poi_categories-------------------------*/
 
 CREATE TABLE poi_categories(
 	id serial PRIMARY KEY,
 	parent_id integer REFERENCES poi_categories,
-	name text NOT NULL
+	name text NOT NULL,
+	date_created timestamp NOT NULL,
+	date_changed timestamp NOT NULL
+
 );
 
 GRANT SELECT ON poi_categories TO pilotweb;
@@ -14,8 +40,6 @@ GRANT DELETE ON poi_categories TO pilotweb;
 
 /*-----------FUNCTION insert_poi_category-----------------*/
 
-DROP FUNCTION IF EXISTS insert_poi_category;
-
 CREATE OR REPLACE FUNCTION public.insert_poi_category(
 	p_parent_id integer,
 	p_name text
@@ -24,25 +48,23 @@ CREATE OR REPLACE FUNCTION public.insert_poi_category(
     LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO poi_categories(
-		parent_id, name
+		parent_id, name, date_created, date_changed
 	) VALUES (
-		p_parent_id, p_name
+		p_parent_id, p_name, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
 
-
-
 /*---------- TABLE poi_features --------------------------*/
-
-DROP TABLE IF EXISTS poi_features;
 
 CREATE TABLE poi_features(
 	id serial PRIMARY KEY,
 	name text NOT NULL,
-	labels jsonb
+	labels jsonb,
+	date_created timestamp NOT NULL,
+	date_changed timestamp NOT NULL
 );
 
 GRANT SELECT ON poi_features TO pilotweb;
@@ -50,10 +72,7 @@ GRANT INSERT ON poi_features TO pilotweb;
 GRANT UPDATE ON poi_features TO pilotweb;
 GRANT DELETE ON poi_features TO pilotweb;
 
-
 /*-----------FUNCTION insert_poi_feature -----------------*/
-
-DROP FUNCTION IF EXISTS insert_poi_feature;
 
 CREATE OR REPLACE FUNCTION public.insert_poi_feature(
 	p_name text,
@@ -63,24 +82,16 @@ CREATE OR REPLACE FUNCTION public.insert_poi_feature(
     LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO poi_features(
-		name, labels
+		name, labels, date_created, date_changed
 	) VALUES (
-		p_name, p_labels
+		p_name, p_labels, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_feature to pilotweb;
 
-/*select insert_poi_feature('drinkingWater', '{"de": "Trinkwasser", "en": "Drinking Water"}');
-select insert_poi_feature('wasteWater', '{"de": "Schmutzwasser", "en": "Waste water"}');
-select insert_poi_feature('guestPlaces', '{"de": "Gästeplätze", "en": "Guest places"}');
-select insert_poi_feature('toilet', '{"de": "Toilette", "en": "Toilet"}');
-select insert_poi_feature('shower', '{"de": "Dusche", "en": "Shower"}');*/
-
 /*---------- TABLE pois ----------------------------------*/
-
-DROP TABLE IF EXISTS pois;
 
 CREATE TABLE pois(
 	id bigserial PRIMARY KEY,
@@ -92,7 +103,7 @@ CREATE TABLE pois(
 	valid_from timestamp,
 	valid_to timestamp,
 	date_created timestamp NOT NULL,
-	date_changed timestamp NOT NULL,
+	date_changed timestamp NOT NULL
 );
 
 CREATE INDEX pois_coordinats_index
@@ -104,10 +115,7 @@ GRANT INSERT ON pois TO pilotweb;
 GRANT UPDATE ON pois TO pilotweb;
 GRANT DELETE ON pois TO pilotweb;
 
-
 /*---------- TABLE poi_features_pois -----------------------*/
-
-DROP TABLE IF EXISTS poi_features__pois;
 
 CREATE TABLE poi_features__pois(
 	feature_id integer references poi_features NOT NULL,
@@ -120,8 +128,6 @@ GRANT UPDATE ON poi_features__pois TO pilotweb;
 GRANT DELETE ON poi_features__pois TO pilotweb;
 
 /*------------VIEW all_pois -------------------------------*/
-
-DROP VIEW IF EXISTS all_pois;
 
 CREATE VIEW all_pois AS 
 	SELECT 
@@ -142,7 +148,6 @@ CREATE VIEW all_pois AS
 GRANT SELECT ON all_pois TO pilotweb;
 
 /*----------- FUNCTION insert_poi -------------------------*/
-DROP FUNCTION IF EXISTS insert_poi;
 
 CREATE FUNCTION insert_poi(
 	p_title text,
@@ -173,7 +178,6 @@ GRANT EXECUTE ON FUNCTION insert_poi TO pilotweb;
 GRANT USAGE, SELECT ON SEQUENCE pois_id_seq TO pilotweb;
 
 /*----------- FUNCTION update_poi -------------------------*/
-DROP FUNCTION IF EXISTS update_poi;
 
 CREATE FUNCTION update_poi(
 	p_id bigint,
@@ -208,8 +212,6 @@ GRANT EXECUTE ON FUNCTION update_poi TO pilotweb;
 
 /*----------- FUNCTION delete_poi -------------------------*/
 
-DROP FUNCTION IF EXISTS delete_poi;
-
 CREATE FUNCTION delete_poi(
 	p_id bigint
 )
@@ -225,8 +227,6 @@ LANGUAGE SQL;
 GRANT EXECUTE ON FUNCTION delete_poi TO pilotweb;
 
 /*----------- FUNCTION find_pois -------------------------*/
-
-DROP FUNCTION IF EXISTS find_pois;
 
 CREATE FUNCTION find_pois(
 	min_lat double precision,
@@ -275,8 +275,6 @@ GRANT EXECUTE ON FUNCTION find_pois TO pilotweb;
 
 /*----------- FUNCTION read_poi -------------------------------------*/
 
-DROP FUNCTION IF EXISTS read_poi;
-
 CREATE FUNCTION read_poi(
 	poi_id bigint
 ) RETURNS TABLE (
@@ -310,20 +308,16 @@ LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION read_poi TO pilotweb;
 
-/*----------- Not used as long as raspi postgis does not support ST_AsGeoJson -------------------------*/
+/* view poi_latest_changes */
 
-/*CREATE OR REPLACE FUNCTION find_pois_geojson(
-	min_lat double precision,
-	min_lng double precision,
-	max_lat double precision,
-	max_lng double precision
-	
-) RETURNS json
-AS $$
-	SELECT json_build_object(
-    	'type', 'FeatureCollection',
-    	'features', json_agg(ST_AsGeoJSON(pois.*)::json)
-    )
-FROM find_pois (min_lng, min_lat, max_lng, max_lat) as pois;
-$$
-LANGUAGE SQL;*/
+CREATE VIEW poi_latest_change AS (
+	SELECT MAX(date_changed) date_changed FROM (
+		SELECT MAX(date_changed) date_changed from pois
+		UNION ALL
+		SELECT MAX(date_changed) date_changed from poi_categories
+		UNION ALL
+		SELECT MAX(date_changed) date_changed from poi_features
+	) AS latestChanges
+ORDER BY date_changed DESC);
+
+GRANT SELECT ON poi_latest_change TO pilotweb;
