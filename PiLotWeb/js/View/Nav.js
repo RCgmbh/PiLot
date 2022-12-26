@@ -1413,6 +1413,18 @@ PiLot.View.Nav = (function () {
 			await this.drawAsync();
 		},
 
+		lnkClearValidFrom_click: function (e) {
+			e.preventDefault();
+			this.calValidFrom.date(null);
+			this.calValidFrom.showDate();
+		},
+
+		lnkClearValidTo_click: function (e) {
+			e.preventDefault();
+			this.calValidTo.date(null);
+			this.calValidTo.showDate();
+		},
+
 		btnSave_click: async function (e) {
 			!!e && e.preventDefault();
 			if (await this.saveDataAsync()) {
@@ -1440,6 +1452,8 @@ PiLot.View.Nav = (function () {
 			this.cbAllowDrag = this.control.querySelector('.cbAllowDrag');
 			const locale = PiLot.Utils.Language.getLocale();
 			this.calValidFrom = new RC.Controls.Calendar(this.control.querySelector('.calValidFrom'), this.control.querySelector('.tbValidFrom'), null, null, null, locale);
+			this.control.querySelector('.lnkClearValidFrom').addEventListener('click', this.lnkClearValidFrom_click.bind(this));
+			this.control.querySelector('.lnkClearValidTo').addEventListener('click', this.lnkClearValidTo_click.bind(this));
 			this.calValidTo = new RC.Controls.Calendar(this.control.querySelector('.calValidTo'), this.control.querySelector('.tbValidTo'), null, null, null, locale);
 			this.control.querySelector('.btnSave').addEventListener('click', this.btnSave_click.bind(this));
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));

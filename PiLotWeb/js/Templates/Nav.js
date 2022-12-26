@@ -235,8 +235,8 @@ PiLot.Templates.Nav = {
 			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
 				<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
 				<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
-				<div class="calValidTo" style="top:2em;" hidden></div>
-				<div class="calValidFrom" style="top:2em;" hidden></div>
+				<div class="calValidTo hCenter" style="top:2em;" hidden></div>
+				<div class="calValidFrom hCenter" style="top:2em;" hidden></div>
 				<div class="poiForm marginBottom">
 					<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
 					<select class="ddlCategory marginBottomSmall"></select>
@@ -250,8 +250,16 @@ PiLot.Templates.Nav = {
 						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
 					</div>
 					<div class="flexRowWrap">
-						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validFrom">:</span><input type="text" class="tbValidFrom input4" /></div>
-						<div class="marginBottomSmall flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="validTo">:</span><input type="text" class="tbValidTo input4" /></div>
+						<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
+							<span class="inlineBlock col4" data-text="validFrom">:</span>
+							<input type="text" class="tbValidFrom input4" />
+							<a href="#" class="lnkClearValidFrom"><i class="icon-cross"></i></a>
+						</div>
+						<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
+							<span class="inlineBlock col4" data-text="validTo">:</span>
+							<input type="text" class="tbValidTo input4" />
+							<a href="#" class="lnkClearValidTo"><i class="icon-cross"></i></a>
+						</div>
 					</div>
 					<label class="lblAllowDrag marginRight marginBottomSmall block"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
 				</div>
