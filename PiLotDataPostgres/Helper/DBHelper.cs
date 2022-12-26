@@ -25,33 +25,32 @@ namespace PiLot.Data.Postgres.Helper {
 		public List<T> ReadData<T>(String pQuery, Func<NpgsqlDataReader, T> pReadDataDelegate, List<(String, Object)> pParams = null) {
 			NpgsqlConnection connection = null;
 			List<T> result = new List<T>();
-			try {
-				String connectionString = ConfigurationManager.AppSettings["connectionString"];
+			String connectionString = ConfigurationManager.AppSettings["connectionString"];
 			if (!String.IsNullOrEmpty(connectionString)) {
 				try {
 
-				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand(pQuery, connection);
-				if (pParams != null) {
-					foreach (var aParam in pParams) {
-						cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+					Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
+					connection = new NpgsqlConnection(connectionString);
+					NpgsqlCommand cmd = new NpgsqlCommand(pQuery, connection);
+					if (pParams != null) {
+						foreach (var aParam in pParams) {
+							cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+						}
+					}
+					connection.Open();
+					NpgsqlDataReader reader = cmd.ExecuteReader();
+					while (reader.Read()) {
+						result.Add((T)pReadDataDelegate(reader));
+					}
+					reader.Close();
+				} catch (Exception ex) {
+					Logger.Log(ex, "PoiDataConnector.ReadData");
+					throw;
+				} finally {
+					if ((connection != null) && (connection.State == ConnectionState.Open)) {
+						connection.Close();
 					}
 				}
-				connection.Open();
-				NpgsqlDataReader reader = cmd.ExecuteReader();
-				while (reader.Read()) {
-					result.Add((T)pReadDataDelegate(reader));
-				}
-				reader.Close();
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.ReadData");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
-				}
-			}
 			} else {
 				Logger.Log("No DB connection configured", LogLevels.WARNING);
 			}
