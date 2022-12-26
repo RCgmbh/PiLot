@@ -4,7 +4,8 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
-//using PiLot.Data.Postgres.Nav;
+using PiLot.Data.Postgres.Nav;
+using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
@@ -16,13 +17,15 @@ namespace PiLot.API.Controllers {
 	public class PoisController : ControllerBase {
 
 		/// <summary>
-		/// Gets all poins within a certain area, with a specific category
+		/// Gets all pois within a certain area, with a specific category
 		/// and a set of features
 		/// </summary>
-		/// <param name="dataSource">the name of the data source.</param>
-		/// <param name="startTimeUnix">Seconds from epoc UTC</param>
-		/// <param name="endTimeUnix">Seconds from epoc UTC</param>
-		/// <param name="aggregateSeconds">The data will be aggregated into chunks summarizing n seconds</param>
+		/// <param name="minLat">Minimal latitude, degrees WGS84</param>
+		/// <param name="minLon">Minimal longitude, degrees WGS84</param>
+		/// <param name="maxLat">Maximal latitude, degrees WGS84</param>
+		/// <param name="maxLon">Maximal lontitude, degrees WGS84</param>
+		/// <param name="categories">Array of category ids</param>
+		/// <param name="features">Array of feature ids</param>
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
@@ -45,8 +48,53 @@ namespace PiLot.API.Controllers {
 				Logger.Log(ex, "PoisController.Get");
 				throw;
 			}
-			//return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
-			return null;
+			return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
+		}
+
+		/// <summary>
+		/// Gets all pois
+		/// </summary>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/all")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<Poi> Get() {
+			Logger.Log("PoisController.Get", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadPois();
+		}
+
+		/// <summary>
+		/// Saves a Poi.
+		/// </summary>
+		/// <param name="poi">The POI to save</param>
+		/// <returns>The ID of the poi</returns>
+		[HttpPut]
+		[Route(Program.APIROOT + "[controller]")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public Int64 Put(Poi poi) {
+			return new PoiDataConnector().SavePoi(poi);
+		}
+
+		/// <summary>
+		/// Gets a poi by its id or null, if there is no such poi
+		/// </summary>
+		/// <param name="id">The id of the poi</param>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/{id}")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public Object[] Get(Int64 id) {
+			Logger.Log("PoisController.Get", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadPoi(id);
+		}
+
+		/// <summary>
+		/// Deletes a poi by its id, if it exists
+		/// </summary>
+		[HttpDelete]
+		[Route(Program.APIROOT + "[controller]/{id}")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public void Delete(Int64 id) {
+			Logger.Log("PoisController.Delete", LogLevels.DEBUG);
+			new PoiDataConnector().DeletePoi(id);
 		}
 
 		/// <summary>

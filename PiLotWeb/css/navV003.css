@@ -31,6 +31,22 @@
 .navWaypointMarker { color:black;border:3px solid black; border-radius:18px; background-color: rgba(73, 146, 255, 0.8); text-align:center; }
 .navWaypointMarker > i { font-size:1.5em; line-height:1.5em;}
 .mapWaypointPopup {	min-width: 15em; }
+.leaflet-popup-content .customContent { display:flex; flex-direction:column; gap:0.25em; }
+
+.poiMarker { color:black;border:2px solid black; border-radius:25%; border-bottom-right-radius:0; background-color: rgba(255, 191, 73, 0.8); text-align:center; }
+body.night .poiMarker { background-color: rgba(255, 191, 73, 0.5); }
+.leaflet-container .poiMarker > img { width:100%; height:100%; }
+.dialogPanel.poiDetails { width:100vw; max-width:42em; max-height:100vh; overflow:auto; }
+.poiIcon { width:1.5em; height:1.5em; border:1px solid black; border-radius:25%; display:flex; justify-content:center; align-items:center; }
+.poiIcon>img { width:100%; height:100%; }
+
+.labelValues30-70> * { display:flex; flex-direction: row; flex-wrap:wrap; margin-bottom: 0.5em; }
+.labelValues30-70> * >.label { flex-grow:1; flex-basis: 30%; min-width: 10em; }
+.labelValues30-70> * >.value { flex-grow:2; flex-basis: 70%; min-width: 10em; } 
+
+.poiForm { display:flex; flex-direction: column; }
+
+.dialogPanel.mapLayerSettings { width:100vw; max-width:36em; max-height:100vh; overflow:auto; }
 
 .navOutdatedDataWarning { z-index:1100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
 body.night .navOutdatedDataWarning { color: #ccc; background-color: rgba(0, 0, 0, 0.8); }
@@ -65,6 +81,10 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 .sideMenu.expanded>.option .label{ width:9.5em; }
 .navCurrentPosition{display:inline-block; border:3px solid black; height:1em;width:1em; border-radius:0.5em;background-color:#eee; }
 .option.active > .navCurrentPosition {background-color:#FFBF49; }
+
+.mapLayersIcon { right:0px; display:flex; justify-content:center; align-items:center; width: 3em; height:2.5em; padding:0;}
+a.mapLayersIcon, a.mapLayersIcon:visited  {color:#eee; }
+a.mapLayersIcon:hover { color:#FFBF49; }
 
 /*.mapSliderContainer {position: relative; display:flex; width:calc(100% - 1em); left:0.5em; bottom: 3.75em; z-index: 650; margin-bottom:-2em; }*/
 .mapSliderContainer {position: relative; display:flex; width:100%; bottom: 3.75em; margin-bottom:-2em; padding:0em 0.5em; z-index: 1050; }

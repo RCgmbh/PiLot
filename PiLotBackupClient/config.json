@@ -29,6 +29,11 @@
 					"dataType": "SensorData",
 					"dataSource": "pressure",
 					"lastSuccess": null
+				},
+				{
+					"dataType": "POIs",
+					"dataSource": "pois",
+					"lastSuccess": null
 				}
 			]
 		}

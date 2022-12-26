@@ -1,3 +1,5 @@
 ﻿.leaflet-popup-content-wrapper{border-radius:0.5em;}
 .leaflet-container { font: 1em 'Open Sans', 'Segoe UI', Arial; }
 .leaflet-left .leaflet-control-scale {margin-bottom:0.125em; margin-left:3em;}
+.leaflet-marker-draggable { cursor:move; }
+.leaflet-top .leaflet-control-zoom { margin-top: 4.5em; }

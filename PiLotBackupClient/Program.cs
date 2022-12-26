@@ -140,6 +140,9 @@ namespace PiLot.Backup.Client {
 				case DataTypes.SensorData:
 					backupHelper = new SensorDataBackupHelper(pProxy);
 					break;
+				case DataTypes.POIs:
+					backupHelper = new PoisBackupHelper(pProxy);
+					break;
 			}
 			if (backupHelper != null) {
 				DateTime backupDate = DateTime.UtcNow;
