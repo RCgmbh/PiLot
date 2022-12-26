@@ -33,7 +33,6 @@ PiLot.View.Diary = (function () {
 		this.lblDistanceKm = null;						// the label for distance in km
 		this.lblDistanceNm = null;						// the label for distance in nm
 		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
-		//this.plhPhotoGallery = null;					// the placeholder where we will add the photo gallery
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery for the daily photos
 		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
 		this.lnkTop = null;								// link to go back to the page top

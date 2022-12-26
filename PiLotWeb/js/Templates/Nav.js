@@ -200,5 +200,109 @@ PiLot.Templates.Nav = {
 				<span class="lblLonPrefix prefix"></span> <span class="lblLonDegrees value">---</span><span>°</span> <span class="lblLonMinutes value">--.---</span><span>'</span>
 			</div>
 		</div>
-	`
+	`,
+
+	poiDetails: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="poiDetails dialogPanel hCenter hCenter">
+				<div class="paddingAllSmall">
+					<div class="marginBottomSmall flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
+						<div class="plhCategoryIcon poiIcon marginRight" style="flex-grow:0;"></div>
+						<span class="lblCategoryName italic" style="flex-grow:1;"></span>
+						<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
+					</div>
+					<span class="lblTitle marginBottomSmall block semiBold"></span>
+					<div class="labelValues30-70 flexColumn marginBottomSmall">
+						<div><span class="label" data-text="features"></span><ul class="ulFeatures value"></ul></div>
+						<div><span class="label" data-text="description"></span><span class="lblDescription value"></span></div>
+						<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
+						<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
+						<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
+					</div>
+				</div>
+				<div class="flexRowWrap bgLight" style="justify-content:space-between;">
+					<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
+					<a href="#" class="lnkMove marginAllSmall"><i class="icon-unlocked2 marginRightSmall"></i><span data-text="move"></span></a>
+					<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
+				</div>
+			</div>
+		</div>`,
+
+	poiForm: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
+				<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
+				<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
+				<div class="calValidTo hCenter" style="top:2em;" hidden></div>
+				<div class="calValidFrom hCenter" style="top:2em;" hidden></div>
+				<div class="poiForm marginBottom">
+					<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
+					<select class="ddlCategory marginBottomSmall"></select>
+					<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
+					<div class="flexColumn marginBottomSmall">
+						<span data-text="features"></span>
+						<div class="plhFeatures borderLight paddingAllSmall"></div>
+					</div>
+					<div class="flexRowWrap">
+						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
+						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
+					</div>
+					<div class="flexRowWrap">
+						<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
+							<span class="inlineBlock col4" data-text="validFrom">:</span>
+							<input type="text" class="tbValidFrom input4" />
+							<a href="#" class="lnkClearValidFrom"><i class="icon-cross"></i></a>
+						</div>
+						<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
+							<span class="inlineBlock col4" data-text="validTo">:</span>
+							<input type="text" class="tbValidTo input4" />
+							<a href="#" class="lnkClearValidTo"><i class="icon-cross"></i></a>
+						</div>
+					</div>
+					<label class="lblAllowDrag marginRight marginBottomSmall block"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
+				</div>
+				<div class="buttons reverse marginBottomSmall">
+					<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				</div>
+			</div>
+		</div>`,
+
+	poiFeaturesSelector: `
+		<div>
+			<input type="text" class="tbSearch input6 marginBottomSmall" data-title="search" /><a href="#" class="lnkClear" style="margin-left:-1.5em;"><i class="icon-cross"></i></a>
+			<div class="plhFeatureCheckboxes flexColumnWrap paddingBottomSmall" style="max-height:20vh; overflow:auto;"></div>
+		</div>`,
+
+	poi_object: '<i class="icon-location"></i>',
+
+	poi_health: '<i class="icon-health"></i>',
+
+	poi_lock: '<img src="img/icons/lock.svg" />',
+
+	poi_marina: `<img src="img/icons/marina.svg" />`,
+
+	poi_gazstation: '<img src="img/icons/gazstation.svg" />',
+
+	poi_mooring: '<img src="img/icons/mooring.svg" />',
+
+	poi_anchorage: '<i class="icon-anchor"></i>',
+
+	poi_toilet: '<i class="icon-man-woman"></i>',
+
+	poi_restaurant: '<i class="icon-spoon-knife"></i>',
+
+	poi_shop: '<i class="icon-cart"></i>',
+
+	poi_obstacle: '<i class="icon-warning2"></i>',
+
+	poi_information: '<i class="icon-info2"></i>',
+
+	poi_event: '<i class="icon-pin"></i>',
+
+	poi_measuringstation: '<i class="icon-meter2"</i>',
+
+	poi_sight: '<i class="icon-eye"</i>'
 };

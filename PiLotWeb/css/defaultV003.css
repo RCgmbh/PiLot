@@ -16,6 +16,8 @@ h3 { font-size: 1.1em; }
 }
 input[type=text]::-ms-clear {display: none;}
 *[hidden] {display: none !important;}
+ul {margin: 0; padding: 0;}
+li {margin-left: 1em;}
 
 /* NIGHT MODE incl. TRANSITION */
 body.night, body.night .inlineTextbox {background-color:black;color:#ccc;}
@@ -113,7 +115,7 @@ body.night .dialogPanel { background-color: black; }
 
 .overlay { position:fixed;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0, 0, 0, 0.75); z-index:3500; }
 
-.sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
+.sideMenu{ width:3.5em; height:auto; min-height:3em; margin:0.25em 0.125em; padding:0.25em; padding-bottom: 0em; padding-top:0.5em; position:absolute; border-radius:0.25em; background-color:rgba(102,102,102,0.85); z-index:1110; box-shadow: 8px 10px 15px -6px rgba(0, 0, 0, 0.6);}
 .sideMenu,
 .sideMenu a.expandCollapse, .sideMenu a.expandCollapse:hover, .sideMenu a.expandCollapse:visited, 
 .sideMenu a.option, .sideMenu a.option:hover, .sideMenu a.option:visited,
@@ -121,6 +123,7 @@ body.night .dialogPanel { background-color: black; }
 .sideMenu>.expandCollapse{text-align:center;width:3em;}
 .sideMenu>.expandCollapse>i{font-size:1.5em;}
 .sideMenu>.option{ width:3em; min-height:3em; border:1px solid black; padding-top:0.75em; margin-bottom:0.25em;border-radius:0.25em;width:auto;display:block;text-align:center;}
+.sideMenu>.option.noBorder { border:none; }
 .sideMenu.expanded>.option{ text-align:left; padding-left:0.5em; }
 .sideMenu>.option .label{margin-right:1em; display:none;}
 .sideMenu.expanded>.option .label{display:inline-block; }
@@ -177,10 +180,12 @@ textarea.big{height:20em;}
 /* GENERAL CLASSES */
 .hidden, .block.hidden, .inlineBlock.hidden, .flex.hidden, a.hidden, span.hidden, div.hidden{display:none;}
 .invisible { visibility: hidden; }
+.overflowHidden { overflow: hidden; }
 .fullHeight{height:100%; }
 .fullWidth { width: 100%; }
 .semiBold { font-weight:600; }
 .bold { font-weight:700; }
+.italic { font-style:italic; }
 .biggerText { font-size: 1.5em; line-height:1.25em; }
 .warning{color:#FF4949;}
 .bigDisplayText{font-size:2em; line-height:1.25em;}
@@ -214,6 +219,7 @@ textarea.big{height:20em;}
 .paddingTopSmall { padding-top: 0.5em; }
 .paddingBottom { padding-bottom: 1em; }
 .paddingBottomBig { padding-bottom: 2em; }
+.paddingBottomSmall { padding-bottom: 0.5em; }
 .paddingLeft { padding-left: 1em; }
 .paddingRight { padding-right: 1em; }
 /* well that might be a bit crazy, but we save some pixels on very small screens... */
@@ -240,6 +246,7 @@ textarea.big{height:20em;}
 .paddingTopSmall { padding-top: min(0.5em, 2vh); }
 .paddingBottom { padding-bottom: min(1em, 4vh); }
 .paddingBottomBig { padding-bottom: min(2em, 8vh); }
+.paddingBottomSmall { padding-bottom: min(0.5em, 2vh); }
 .paddingLeft { padding-left: min(1em, 4vw); }
 .paddingRight { padding-right: min(1em, 4vw); }
 .absolute{position:absolute}
@@ -252,6 +259,10 @@ textarea.big{height:20em;}
 .block{display:block;}
 .flex{display:flex;}
 .flexRowWrap { display:flex; flex-direction:row; flex-wrap: wrap; }
+.flexColumn { display:flex; flex-direction:column; }
+.flexColumnWrap { display:flex; flex-direction:column; flex-wrap:wrap; }
+.grow { flex-grow:1; }
+.noGrow { flex-grow:0; }
 .left { text-align: left; }
 .middle { vertical-align: middle; }
 .center { text-align: center; }
@@ -263,6 +274,7 @@ textarea.big{height:20em;}
 .bgLight { background-color: #eee; }
 .bgLightBlue { background-color: #B2D3FF; }
 .borderLight { border: 1px solid #ccc;}
+.borderBottom { border-style: none; border-bottom-style: solid; }
 .borderLightBlue { border-color: #B2D3FF; }
 .borderDark { border:1px solid #999; }
 .bw { filter: grayscale(80%); }
@@ -519,7 +531,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
  /* show day night buttons as buttons, not just icons */
 @media (min-height:600px) and (min-width:600px){
 	#dayNightButtons a { border:1px solid #333; border-radius:0.25em; margin: 0.25em 0em; color:unset; color: #333; background-color: #eee; }
-	.sideMenu{ width:4em; margin:0.75em 0.25em; padding:0.5em; padding-bottom:0.25em; }
+	.sideMenu{ margin:0.75em 0.25em; }
 }
 
 @media (max-width: 968px) { /* full width for dataContainerHalfNarrow*/

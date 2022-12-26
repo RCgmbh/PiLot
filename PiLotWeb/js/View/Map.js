@@ -50,6 +50,8 @@ PiLot.View.Map = (function () {
 	var Seamap = function (pContainer, pOptions) {
 		this.mapContainer = pContainer;
 		this.settingsContainer = null;
+		this.icoMapLayers = null;
+		this.mapLayersSettings = null;	// PiLot.View.Map.MapLayersSettings
 		this.hasSettings = false;		// we need this to show the settings menu when unhiding (showing) the map
 		this.contextPopup = null;
 		this.leafletMap = null;
@@ -85,15 +87,29 @@ PiLot.View.Map = (function () {
 
 		initialize: function () {
 			this.addSettingsContainer();
+			this.addMapLayersIcon();
+		},
+
+		icoMapLayers_click: function (e) {
+			e.preventDefault();
+			this.mapLayersSettings.showAsync();
 		},
 
 		/// adds the sliding settings menu and attaches
 		/// the expand/collapse script
 		addSettingsContainer: function () {
-			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer)
+			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer);
 			this.mapContainer.insertAdjacentElement('beforebegin', this.settingsContainer);
 			this.settingsContainer.querySelector('a.expandCollapse').addEventListener('click', this.toggleSettingsContainer.bind(this));
 			RC.Utils.showHide(this.settingsContainer, false);
+		},
+
+		/** Adds the icon which will open the poi/layers menu */
+		addMapLayersIcon: function () {
+			this.icoMapLayers = RC.Utils.stringToNode(PiLot.Templates.Map.mapLayersIcon);
+			this.mapContainer.insertAdjacentElement('afterbegin', this.icoMapLayers);
+			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
+			this.mapLayersSettings = new MapLayersSettings();
 		},
 
 		/// switches between expanded and collapsed state of the settings container
@@ -107,6 +123,7 @@ PiLot.View.Map = (function () {
 			if (this.hasSettings) {
 				RC.Utils.showHide(this.settingsContainer, true);
 			}
+
 			if (!this.isMapLoaded) {
 				PiLot.log("PiLot.Nav.Map.DrawMap", 3);
 				this.leafletMap = new L.Map(this.mapContainer, { zoomControl: false });
@@ -130,6 +147,7 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
+				new MapPois(this, this.mapLayersSettings);
 				this.isMapLoaded = true;
 			}
 			return this;
@@ -279,6 +297,16 @@ PiLot.View.Map = (function () {
 			return this.mapContainer;
 		},
 
+		/** @returns {PiLot.View.Map.MapContextPopup} */
+		getContextPopup: function () {
+			return this.contextPopup;
+		},
+
+		/** allows to manually close the context popup */
+		closeContextPopup: function () {
+			this.contextPopup.close();
+		},
+
 		/// gets the maximal zoom supported by the map
 		getMaxZoom: function () {
 			return this.maxZoom;
@@ -355,8 +383,413 @@ PiLot.View.Map = (function () {
 		}
 	};
 
+	/**
+	 * This control allows selecting the poi categories to show. It is also the one to ask, if
+	 * you want to know what are the currently selected categories, even if the control is not
+	 * being displayed, which might feel a bit weird.
+	 * */
+	var MapLayersSettings = function () {
+		this.showPois = false;				// Boolean, if false, no pois at all will be shown
+		this.categoryIds = null;			// number[] holding the ids of the categories to show
+		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
+		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, selectedChildren: number};
+		this.featureIds = null;				// number[] holding the ids of the features to filter by
+		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
+		this.control = null;				// HTMLElement - the outermost element
+		this.cbShowPois = null;				// HTMLInputElement
+		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
+		this.observers = null;				// Used for the RC observer pattern
+		this.initialize();
+	};
+
+	MapLayersSettings.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['applySettings']);
+			this.ensureFeaturesAsync();
+		},
+
+		/**
+		 * registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent - 'applySettings'
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		/**
+		 * Handles changes of the category checkboxes
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
+		 */
+		cbCategory_change: function (pCategory, e) {
+			this.setCategorySelected(pCategory, e.target.checked);
+			this.updateRelatedCheckboxes(pCategory, e.target.checked, true, true);
+		},
+
+		btnApply_click: function (e) {
+			e.preventDefault();
+			this.apply();
+		},
+
+		btnCancel_click: function (e) {
+			e.preventDefault();
+			this.hide();
+		},
+
+		/** @returns {Object} {showPois: boolean, categoryIds: number[]} */
+		getSettingsAsync: async function () {
+			await this.loadSettingsAsync();
+			return this.createSettingsObject();
+		},
+
+		/** Draws the form. Async (and therefore not called in initialize()) because it triggers loading the categories. */
+		drawAsync: async function () {
+			await this.loadSettingsAsync();
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
+			this.cbShowPois = this.control.querySelector('.cbShowPois');
+			this.cbShowPois.checked = this.showPois;
+			await Promise.all([this.drawCategoriesAsync(), this.drawFeaturesAsync()]);
+			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
+			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
+		},
+
+		/** 
+		 * Loads the categories and shows them with checkbox and label, including quite a complicated indentation meccano.
+		 * Also makes sure that the selectedChildren values are initialized correctly.
+		 * */
+		drawCategoriesAsync: async function () {
+			await this.ensureCategoriesAsync();
+			this.categoryCheckboxes = new Map();
+			const sortedList = new PiLot.View.Nav.CategoriesList(this.allCategories).getSortedList();
+			const plhCategories = this.control.querySelector('.plhCategories');
+			plhCategories.clear();
+			for (let i = 0; i < sortedList.length; i++) {
+				const category = sortedList[i].category;
+				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.poiCategoryCheckbox);
+				const divIndent = cbControl.querySelector('.divIndent');
+				const level = category.getLevel();
+				if (level === 0) {
+					divIndent.hidden = true;
+				} else if (level > 1) {
+					for (let i = 2; i <= level; i++) {
+						divIndent.parentNode.insertBefore(divIndent.cloneNode(), divIndent);
+					}
+				}
+				const cbCategory = cbControl.querySelector('.cbCategory');
+				this.categoryCheckboxes.set(category, { checkbox: cbCategory, selectedChildren: 0 });
+				const isSelected = this.categoryIds.includes(category.getId());
+				cbCategory.checked = isSelected;
+				if (isSelected && category.getParent()) {
+					this.categoryCheckboxes.get(category.getParent()).selectedChildren++;
+				}
+				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, category));
+				cbControl.querySelector('.lblCategory').innerText = sortedList[i].title;
+				plhCategories.appendChild(cbControl);
+				this.updateRelatedCheckboxes(category, isSelected, true, false);
+			}
+		},
+
+		drawFeaturesAsync: async function () {
+			const plhFeatures = this.control.querySelector('.plhFeatures');
+			this.featuresSelector = new PiLot.View.Nav.PoiFeaturesSelector();
+			await this.featuresSelector.addControlAsync(plhFeatures);
+			this.featuresSelector.setSelectedFeatureIds(this.featureIds);
+		},
+
+		/** 
+		 *  Loads the settings from the browser. Async as it need the list of all categories,
+		 *  just becaus it tries to be nice and defaults to "all"
+		 * */
+		loadSettingsAsync: async function () {
+			await Promise.all([this.ensureCategoriesAsync(), this.ensureFeaturesAsync()]);
+			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
+			this.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
+			this.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
+			this.featureIds = (settings && settings.featureIds) || [];
+		},
+
+		/** Saves the settings to the browser */
+		saveSettings: function () {
+			PiLot.Utils.Common.saveUserSetting('mapLayers', this.createSettingsObject());
+		},
+
+		/** Creates a simple object that is used not only to save, but also to communicate the current settings. */
+		createSettingsObject: function () {
+			return {
+				showPois: this.showPois,
+				categoryIds: this.categoryIds,
+				featureIds: this.featureIds
+			};
+		},
+
+		/** Makes sure the map of all categories has been loaded. */
+		ensureCategoriesAsync: async function () {
+			this.allCategories = this.allCategories || await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+		},
+
+		/** Makes sure the map of all features has been loaded. */
+		ensureFeaturesAsync: async function () {
+			this.allFeatures = this.allFeatures || await PiLot.Service.Nav.PoiService.getInstance().getFeaturesAsync();
+		},
+
+		/**
+		 * Set a category selected or unselected, by adding/removing its id from the list
+		 * of category IDs, as necessary. Also makes sure the selectedChildren values are
+		 * update correctly
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
+		 * @param {boolean} pSelected
+		 */
+		setCategorySelected: function (pCategory, pSelected) {
+			let hasChanged = false;
+			if (pSelected) {
+				if (!this.categoryIds.includes(pCategory.getId())) {
+					this.categoryIds.push(pCategory.getId());
+					hasChanged = true;
+				}
+			} else {
+				if (this.categoryIds.includes(pCategory.getId())) {
+					this.categoryIds.remove(this.categoryIds.indexOf(pCategory.getId()));
+					hasChanged = true;
+				}
+			}
+			if (hasChanged) {
+				const parent = pCategory.getParent();
+				if (parent) {
+					this.categoryCheckboxes.get(parent).selectedChildren += (pSelected ? 1 : -1);
+				}
+			}
+			return hasChanged;
+		},
+
+		/**
+		 * Aww, I don't know, this seems a bit complicated. Basically we just want to set the
+		 * parent checkbox to checked, if all children are checked, unchecked if no child is
+		 * checked and indeterminate else. And we want to check/uncheck all children, if the
+		 * parent is checked/unchecked. Just like a simple checkbox-tree should behave.
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory - the category that has been changed
+		 * @param {boolean} pIsSelected - the new state of the catgory
+		 * @param {boolean} pUpdateParent - if true, we update the parent in order to reflect the changes
+		 * @param {boolean} pUpdateChildren - if true, we update all children to refelect the changes
+		 */
+		updateRelatedCheckboxes: function (pCategory, pIsSelected, pUpdateParent, pUpdateChildren) {
+			if (pCategory !== null) {
+				if (pUpdateParent) {
+					const parent = pCategory.getParent();
+					if (parent) {
+						const parentCheckboxObject = this.categoryCheckboxes.get(parent);
+						const allChildrenChecked = (parent.getChildren().length === parentCheckboxObject.selectedChildren);
+						const anyChildChecked = parentCheckboxObject.selectedChildren > 0;
+						parentCheckboxObject.checkbox.indeterminate = (anyChildChecked && !allChildrenChecked);
+						if (this.setCategorySelected(parent, anyChildChecked)) {
+							parentCheckboxObject.checkbox.checked = anyChildChecked;
+							this.updateRelatedCheckboxes(parent, anyChildChecked, true, false);
+						}
+					}
+				}
+				if (pUpdateChildren) {
+					pCategory.getChildren().forEach(function (aChild) {
+						const childCheckboxObject = this.categoryCheckboxes.get(aChild);
+						childCheckboxObject.checkbox.indeterminate = false;
+						if (this.setCategorySelected(aChild, pIsSelected)) {
+							childCheckboxObject.checkbox.checked = pIsSelected;
+							this.updateRelatedCheckboxes(aChild, pIsSelected, false, true);
+						}						
+					}.bind(this));
+				}
+			}
+		},
+
+		/** Applies the current selection and notifies observers */
+		apply: function () {
+			this.showPois = this.cbShowPois.checked;
+			this.featureIds = this.featuresSelector.getSelectedFeatureIds();
+			this.saveSettings();
+			RC.Utils.notifyObservers(this, this.observers, 'applySettings', this);
+			this.hide();
+		},
+
+		/** Shows the control. Async, because on first show, the form is drawn, which requires loading the categories */
+		showAsync: async function () {
+			if (!this.control) {
+				await this.drawAsync();
+			}
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+		},
+
+		/** Hides the entire control */
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
+			this.control.hidden = true;
+		}
+	};
+
+	/**
+	 * The class responsible for showing points of interest on the map
+	 * @param {PiLot.View.Map.Seamap} pSeamap
+	 * @param {PiLot.View.Map.MapLayersSettings} pSettingsControl
+	 */
+	var MapPois = function (pSeamap, pSettingsControl) {
+		this.seamap = pSeamap;
+		this.settingsControl = pSettingsControl;
+		this.pois = null;							// map with key=poi.id and value={poi, marker}
+		this.categoriesMap = null;					// map with key=category.id and value = category
+		this.poiDetailControl = null;				// PiLot.View.Nav.PoiDetails
+		this.poiFormControl = null;					// PiLot.View.Nav.PoiForm
+		this.initializeAsync();
+	};
+
+	MapPois.prototype = {
+
+		initializeAsync: async function () {
+			this.pois = new Map();
+			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
+			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
+			this.settingsControl.on('applySettings', this.settings_applySettings.bind(this));
+			this.addContextPopupLink();
+			await this.loadPoisAsync();
+		},
+
+		leafletMap_moveend: function () {
+			this.loadPoisAsync();
+		},
+
+		leafletMap_zoomend: function () {
+			this.loadPoisAsync();
+		},
+
+		settings_applySettings: function (pSender) {
+			this.clearPois();
+			this.loadPoisAsync();
+		},
+
+		poiMarker_click: async function(pPoi){
+			await pPoi.ensureDetailsAsync();
+			if (this.poiDetailControl === null) {
+				this.poiDetailControl = new PiLot.View.Nav.PoiDetails(this.getPoiForm(), this);
+			}
+			this.poiDetailControl.showPoi(pPoi);
+		},
+
+		poiMarker_moveEnd: async function (pPoi, pMoveEvent) {
+			const latLng = pMoveEvent.target.getLatLng();
+			pPoi.setLatLng(latLng.lat, latLng.lng);
+			pPoi.saveAsync();
+		},
+
+		lnkAddPoi_click: async function (pMapEvent, pClickEvent) {
+			this.getPoiForm().showEmpty(pMapEvent.latlng);
+			this.seamap.closeContextPopup();
+		},
+
+		/** Returns the form to show poi details. Creates it, if necessary */
+		getPoiForm: function(){
+			this.poiFormControl = this.poiFormControl || new PiLot.View.Nav.PoiForm(this);
+			return this.poiFormControl;
+		},
+
+		/**
+		 * Loads the pois based on the current settings and shows them on the map
+		 * */
+		loadPoisAsync: async function () {
+			const bounds = this.seamap.getLeafletMap().getBounds();
+			const minPoint = bounds.getSouthWest();
+			const maxPoint = bounds.getNorthEast();
+			const poiService = PiLot.Service.Nav.PoiService.getInstance();
+			const settings = await this.settingsControl.getSettingsAsync();
+			if (settings.showPois) {
+				const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, settings.categoryIds, settings.featureIds);
+				pois.forEach(function (p) { this.showPoi(p, false, false) }.bind(this));
+			}			
+		},
+
+		/**
+		 * Creates a leaflet marker for the poi, if it hasn't been created before, and adds the marker
+		 * to the poi map.
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 * @param {boolean} pResetExisting - Set to true, if position and icon should be reset
+		 * @param {boolean} pSetDraggable - Set to true, if the marker should be draggable
+		 */
+		showPoi: function (pPoi, pResetExisting, pSetDraggable) {
+			let marker = null;
+			if (pResetExisting) {
+				this.removePoi(pPoi);
+			}
+			if (!this.pois.has(pPoi.getId())) {
+				const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
+				const icon = L.divIcon({
+					className: 'poiMarker', iconSize: [null, null], html: iconHtml
+				});
+				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
+				marker.addTo(this.seamap.getLeafletMap());
+				marker.on('click', this.poiMarker_click.bind(this, pPoi));
+				if (pSetDraggable) {
+					marker.on('moveend', this.poiMarker_moveEnd.bind(this, pPoi));
+				}
+				this.pois.set(pPoi.getId(), { poi: pPoi, marker: marker });
+			} else {
+				marker = this.pois.get(pPoi.getId()).marker;
+				marker.options.draggable = pSetDraggable;
+			}
+			this.setMarkerSize(marker);
+		},
+
+		/**
+		 * Removes a poi marker from the map
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		removePoi: function (pPoi) {
+			if(this.pois.has(pPoi.getId())) {
+				this.pois.get(pPoi.getId()).marker.remove();
+				this.pois.delete(pPoi.getId());
+			}
+		},
+
+		/** Remove all pois from the map */
+		clearPois: function () {
+			this.pois.forEach(function (v, k) {
+				v.marker.remove();
+			});
+			this.pois = new Map();
+		},
+
+		/**
+		 * This implements a specific logic to size the markers a bit bigger on higher zoom levels.
+		 * The styles are assigned directly in order to override what was set by leaflet. This might
+		 * probably be done a bit more elegant one day.
+		 * @param {L.marker} pMarker - the leaflet marker element
+		 */
+		setMarkerSize: function (pMarker) {
+			const markerElement = pMarker.getElement();
+			const iconSize = Math.min(Math.max(this.seamap.getCurrentZoom() * 5 - 40, 12), 36);
+			markerElement.style.height = `${iconSize}px`;
+			markerElement.style.width = `${iconSize}px`;
+			markerElement.style.marginTop = `${iconSize * -1}px`;
+			markerElement.style.marginLeft = `${iconSize * -1}px`;
+			markerElement.style.fontSize = `${iconSize / 24}em`;
+		},
+
+		/**
+		 * Opens the edit form for a certain poi
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		editPoi: function (pPoi) {
+			this.poiFormControl.showPoi(pPoi, this);
+		},
+
+		/** Adds the "add POI" link to the context popup */
+		addContextPopupLink: function () {
+			if (PiLot.Permissions.canWrite()) {
+				const link = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddPoiLink);
+				this.seamap.getContextPopup().addLink(link, this.lnkAddPoi_click.bind(this));
+			}			
+		},
+	};
+
 	/// Class MapTrack represents the presentation of a track
-	/// on the map. Constructor expects a Map and a Track plus start/end time
+	/// on the map.
 	var MapTrack = function (pMap, pBoatTime, pGpsObserver, pOptions) {
 		this.map = pMap;
 		this.boatTime = pBoatTime;
@@ -982,7 +1415,7 @@ PiLot.View.Map = (function () {
 			if (locked) {
 				this.map.contextPopup.removeLink(this.lnkAddWaypoint);
 			} else {
-				this.map.contextPopup.addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
+				this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
 			}
 		},
 
@@ -1095,7 +1528,7 @@ PiLot.View.Map = (function () {
 		addContextPopupLink: function () {
 			if (!this.lockRoute) {
 				this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
-				this.map.contextPopup.addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
+				this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
 			}
 		},
 
@@ -1158,7 +1591,6 @@ PiLot.View.Map = (function () {
 		this.lnkDelete = null;
 		// leg and leg popup
 		this.incomingLeg = null;
-		this.legPopup = null;
 		this.outgoingLeg = null;
 		// other controls / view objects
 		this.mapRoute = pMapRoute;
@@ -1226,7 +1658,8 @@ PiLot.View.Map = (function () {
 			if (!this.mapRoute.getIsLocked()) {
 				const legPopupContent = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLegPopup);
 				legPopupContent.querySelector('.lnkInsertWaypoint').addEventListener('click', this.lnkInsertWaypoint_click.bind(this, e));
-				this.legPopup = this.incomingLeg.bindPopup(legPopupContent, { autoPan: false }).addTo(this.mapRoute.getLeafletMap()).openPopup();
+				const legPopup = L.popup();
+				legPopup.setLatLng(e.latlng).setContent(legPopupContent).openOn(this.mapRoute.getLeafletMap());
 			}
 		},
 
@@ -1243,7 +1676,7 @@ PiLot.View.Map = (function () {
 		/// is the leflet event, the second is the jquery event.
 		lnkInsertWaypoint_click: function (mapEvent, linkEvent) {
 			linkEvent.preventDefault();
-			this.legPopup.closePopup();
+			this.mapRoute.getLeafletMap().closePopup();
 			this.waypoint.insertBefore(mapEvent.latlng);
 		},
 
@@ -1279,7 +1712,7 @@ PiLot.View.Map = (function () {
 		/// is falsy, only the marker icon will be updated
 		drawMarker: function (pResetPosition) {
 			if (this.waypoint.hasPosition()) {
-				var iconHtml;
+				let iconHtml;
 				if (this.waypointLiveData && this.waypointLiveData.isNextWaypoint) {
 					iconHtml = '<i class="icon-location2"></i>';
 				} else if ((this.waypointLiveData !== null) && this.waypointLiveData.isPastWaypoint) {
@@ -1289,10 +1722,10 @@ PiLot.View.Map = (function () {
 				} else {
 					iconHtml = '<i class="icon-location"></i>';
 				}
-				var icon = L.divIcon({
+				const icon = L.divIcon({
 					className: 'navWaypointMarker', iconSize: [36, 36], html: iconHtml
 				});
-				var latLon = this.waypoint.getLatLon();
+				const latLon = this.waypoint.getLatLon();
 				if (this.marker === null) {
 					this.marker = L.marker(latLon, { icon: icon, draggable: true, autoPan: true });
 					this.marker.on('dragstart', this.marker_dragstart.bind(this));
@@ -1394,23 +1827,23 @@ PiLot.View.Map = (function () {
 		/// and, if available, live data
 		updateMarkerPopup: function () {
 			if (this.markerPopup !== null) {
-				var eta = null;
-				var bearing = null;
-				var distance = null;
+				let eta = null;
+				let bearing = null;
+				let distance = null;
 				if (this.waypointLiveData !== null) {
 					eta = this.waypointLiveData.eta;
 					bearing = this.waypointLiveData.bearing;
 					distance = this.waypointLiveData.miles;
 				}
-				var latLonText = PiLot.Utils.Nav.latLonToString(this.waypoint.getLatLon());
-				var etaText = (eta !== null) ? eta.toFormat('HH:mm') : '--:--';
-				var distanceText = (distance !== null) ? distance.toFixed(1) : '--';
-				var bearingText = (bearing !== null) ? RC.Utils.toFixedLength(bearing, 3, 0) : '---';
-				RC.Utils.setText(this.lblName, this.waypoint.getName());
-				RC.Utils.setText(this.lblLatLng, latLonText);
-				RC.Utils.setText(this.lblEta, etaText);
-				RC.Utils.setText(this.lblDist, distanceText);
-				RC.Utils.setText(this.lblBearing, bearingText);
+				const latLonText = PiLot.Utils.Nav.latLonToString(this.waypoint.getLatLon());
+				const etaText = (eta !== null) ? eta.toFormat('HH:mm') : '--:--';
+				const distanceText = (distance !== null) ? distance.toFixed(1) : '--';
+				const bearingText = (bearing !== null) ? RC.Utils.toFixedLength(bearing, 3, 0) : '---';
+				this.lblName.innerText = this.waypoint.getName();
+				this.lblLatLng.innerText = latLonText;
+				this.lblEta.innerText = etaText;
+				this.lblDist.innerText = distanceText;
+				this.lblBearing.innerText = bearingText;
 				RC.Utils.showHide(this.lnkDelete, !this.mapRoute.lockRoute);
 			}
 		},

@@ -12,6 +12,43 @@ PiLot.Templates.Map = {
 			</a>
 		</div>`,
 
+	mapLayersIcon: `<a href="" class="sideMenu mapLayersIcon"><i class="icon-stack4 biggerText"></i></a>`,
+
+	mapLayersSettings: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="mapLayerSettings dialogPanel hCenter hCenter paddingAllSmall">
+				<div class="marginBottom flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
+					<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>
+					<span class="semiBold" data-text="mapLayerSettings"></span>
+				</div>
+				<div class="marginBottom labelValues30-70">
+					<label class="borderBottom borderLight paddingBottomSmall">
+						<span data-text="showPois" class="semiBold label"></span>
+						<span class="value"><input type="checkbox" class="cbShowPois" /></span>
+					</label>
+					<div class="borderBottom borderLight paddingBottomSmall">
+						<span class="label" data-text="categories"></span>
+						<div class="plhCategories value flexColumn"></div>
+					</div>
+					<div class="paddingBottomSmall">
+						<span class="label" data-text="features"></span>
+						<div class="plhFeatures value flexColumn"></div>
+					</div>
+				</div>
+				<div class="buttons reverse marginBottomSmall">
+					<a href="#" class="btnApply linkButton semiBold" data-text="ok"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				</div>
+			</div>
+		</div>`,
+
+	poiCategoryCheckbox: `
+		<div class="flex">
+			<span class="divIndent col1 inlineBlock"></span>
+			<label class="marginRight inlineBlock flex"><input type="checkbox" class="cbCategory" /><span class="lblCategory"></span></label>
+		</div>`,
+
 	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,
 
 	mapWaypointPopup: `
@@ -65,6 +102,8 @@ PiLot.Templates.Map = {
 
 	mapAddWaypointLink: '<a href="#" data-text="addWaypoint"></a>',
 
+	mapAddPoiLink: '<a href="#" data-text="addPoi"></a>',
+
 	mapShowTrack:`
 		<div class="option">
 			<a class="block fullWidth" href="#">
@@ -93,6 +132,19 @@ PiLot.Templates.Map = {
 		<div class="mapSliderContainer" hidden>
 			<input type="range" class="slider" min="0" max="1000" value="0" />
 			<div class="time"></div>
+		</div>`,
+
+	poiDetails: `
+		<div class="fullHeight fullWidth absolute vCenter" hidden>
+			<div class="overlay"></div>
+			<div class="poiDetails dialogPanel hCenter paddingAllSmall hCenter">
+				<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
+				<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
+				<div class="marginBottomSmall titleContainer">
+					<input type="text" class="tbTime" placeholder="hh:mm"
+					/><input type="text" class="tbTitle" data-title="title" />
+				</div>
+			</div>
 		</div>`,
 
 	startPageMap: `

@@ -26,6 +26,15 @@ RC.Date.DateHelper = {
 		return luxon.DateTime.fromMillis(pMillis, { zone: 'UTC' });
 	},
 
+	/** Converts an ISO String (like 2022-12-02T13:24:56) to an utc based luxon DateTime */
+	isoToLuxon: function (pISOString) {
+		let result = null;
+		if (typeof (pISOString) === 'string') {
+			result = DateTime.fromISO(pISOString, { zone: 'utc' });
+		} 
+		return result;
+	},
+
 	/// converts a luxon DateTime to unix (seconds from epoch). Be
 	/// aware that the milliseconds will always be counted from
 	/// the utc representation of pDate

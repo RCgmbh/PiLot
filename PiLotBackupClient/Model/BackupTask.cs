@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace PiLot.Backup.Client.Model {
 
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum DataTypes {GPS = 0, SensorData = 1, Logbook = 2, Routes = 3}
+	public enum DataTypes {GPS = 0, SensorData = 1, Logbook = 2, Routes = 3, POIs = 4}
 
 	/// <summary>
 	/// represents a task which should be performed against a backup target

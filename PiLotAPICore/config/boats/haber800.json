@@ -9,7 +9,8 @@
 				{ "name": "nicht gesetzt", "stateId": 1 },
 				{ "name": "gesetzt", "stateId": 2 },
 				{ "name": "Reff 1", "stateId": 3 },
-				{ "name": "Reff 2", "stateId": 4 }
+				{ "name": "Reff 2", "stateId": 4 },
+				{ "name": "Mast gelegt", "stateId": 5 }
 			]			
 		},
 		{
@@ -18,7 +19,8 @@
 			"states": [
 				{ "name": "nicht gesetzt", "stateId": 1 },
 				{ "name": "gesetzt", "stateId": 2 },
-				{ "name": "gerefft", "stateId": 3 }
+				{ "name": "gerefft", "stateId": 3 },
+				{ "name": "Mast gelegt", "stateId": 4 }
 			]
 		},
 		{
@@ -27,7 +29,8 @@
 			"states": [
 				{ "name": "nicht gesetzt", "stateId": 1 },
 				{ "name": "gesetzt", "stateId": 2 },
-				{ "name": "gerefft", "stateId": 3 }
+				{ "name": "gerefft", "stateId": 3 },
+				{ "name": "Mast gelegt", "stateId": 4 }
 			]
 		},
 		{
@@ -101,6 +104,17 @@
 				{"featureId": 5, "stateId": 1},
 				{"featureId": 6, "stateId": 1}
 			]	
+		},
+		{
+			"name":"Mast gelegt",
+			"featureStates":[
+				{"featureId": 1, "stateId": 5},
+				{"featureId": 2, "stateId": 4},
+				{"featureId": 3, "stateId": 4},
+				{"featureId": 4, "stateId": 1},
+				{"featureId": 5, "stateId": 1},
+				{"featureId": 6, "stateId": 1}
+			]	
 		}
 	],
 
@@ -110,26 +124,29 @@
 		{
 			"featureId": 1,
 			"guis": [
-				{ "stateId": 1, "svgObjectId": "mainSailNone" },
-				{ "stateId": 2, "svgObjectId": "mainSailFull" },
-				{ "stateId": 3, "svgObjectId": "mainSailReef1" },
-				{ "stateId": 4, "svgObjectId": "mainSailReef2" }
+				{ "stateId": 1, "svgObjectId": "mainSailNone;foreStay;cutterStay;mast" },
+				{ "stateId": 2, "svgObjectId": "mainSailFull;foreStay;cutterStay;mast" },
+				{ "stateId": 3, "svgObjectId": "mainSailReef1;foreStay;cutterStay;mast" },
+				{ "stateId": 4, "svgObjectId": "mainSailReef2;foreStay;cutterStay;mast" },
+				{ "stateId": 5, "svgObjectId": "mainSailDown;foreStayDown;cutterStayDown;mastDown;mastStand;mastFoot" }
 			]
 		},
 		{
 			"featureId": 2,
 			"guis": [
-				{ "stateId": 1, "svgObjectId": "genuaNone" },
-				{ "stateId": 2, "svgObjectId": "genuaFull" },
-				{ "stateId": 3, "svgObjectId": "genuaReef1" }
+				{ "stateId": 1, "svgObjectId": "genuaNone;cutterStay" },
+				{ "stateId": 2, "svgObjectId": "genuaFull;cutterStay" },
+				{ "stateId": 3, "svgObjectId": "genuaReef1;cutterStay" },
+				{ "stateId": 4, "svgObjectId": "genuaDown;cutterStayDown" }
 			]
 		},
 		{
 			"featureId": 3,
 			"guis": [
-				{ "stateId": 1, "svgObjectId": "jibNone" },
-				{ "stateId": 2, "svgObjectId": "jibFull" },
-				{ "stateId": 3, "svgObjectId": "jibReef1" }
+				{ "stateId": 1, "svgObjectId": "jibNone;foreStay" },
+				{ "stateId": 2, "svgObjectId": "jibFull;foreStay" },
+				{ "stateId": 3, "svgObjectId": "jibReef1;foreStay" },
+				{ "stateId": 4, "svgObjectId": "foreStayDown" }
 			]
 		},
 		{

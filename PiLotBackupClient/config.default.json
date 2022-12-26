@@ -19,6 +19,11 @@
 					"dataType": "Routes",
 					"dataSource": "routes",
 					"lastSuccess": null
+				},
+				{
+					"dataType": "POIs",
+					"dataSource": "pois",
+					"lastSuccess": null
 				}
 			]
 		}

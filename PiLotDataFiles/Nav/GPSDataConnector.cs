@@ -263,8 +263,9 @@ namespace PiLot.Data.Files {
 			if (dataDir.Exists) {
 				foreach (var aFile in dataDir.EnumerateFiles()) {
 					if (aFile.LastWriteTimeUtc > pChangedAfter) {
-						Date date = Date.ParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture);
-						result.Add(date, this.ReadRecordsFromFile(aFile));
+						if (Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
+							result.Add(date, this.ReadRecordsFromFile(aFile));
+						}
 					}
 				}
 			} else {

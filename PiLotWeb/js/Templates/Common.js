@@ -101,5 +101,7 @@ PiLot.Templates.Common = {
 				<button class="btnLogout linkButton input8 center marginTop hidden" data-text="logout"></button>
 			</div>
 		</div>
-	`
+	`,
+
+	checkbox: '<label class="marginRight inlineBlock"><input type="checkbox" class="cbCheckbox" /><span class="lblLabel"></span></label>'
 };

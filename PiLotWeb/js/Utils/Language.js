@@ -97,7 +97,7 @@ PiLot.Utils.Language = {
 					pControl.innerText = text;
 					break;
 				case 'title':
-					if (pControl instanceof HTMLInputElement) {
+					if ((pControl instanceof HTMLInputElement) || (pControl instanceof HTMLTextAreaElement)) {
 						pControl.placeholder = text || pControl.placeholder;
 					}
 					else if (pControl instanceof HTMLImageElement) {
