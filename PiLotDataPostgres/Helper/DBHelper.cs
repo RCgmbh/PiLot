@@ -62,27 +62,26 @@ namespace PiLot.Data.Postgres.Helper {
 			T result = default(T);
 			String connectionString = ConfigurationManager.AppSettings["connectionString"];
 			if (!String.IsNullOrEmpty(connectionString)) {
-			try {
-			
-				connection = new NpgsqlConnection(connectionString);
-				NpgsqlCommand cmd = new NpgsqlCommand(pCommand, connection);
-				if (pParams != null) {
-					foreach (var aParam in pParams) {
-						cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+				try {
+					connection = new NpgsqlConnection(connectionString);
+					NpgsqlCommand cmd = new NpgsqlCommand(pCommand, connection);
+					if (pParams != null) {
+						foreach (var aParam in pParams) {
+							cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+						}
 					}
-				}
-				connection.Open();
-				Object cmdResult = cmd.ExecuteScalar();
-				if (cmdResult != DBNull.Value) {
-					result = (T)cmdResult;
-				}
-			} catch (Exception ex) {
-				Logger.Log(ex, "PoiDataConnector.SavePoi");
-				throw;
-			} finally {
-				if ((connection != null) && (connection.State == ConnectionState.Open)) {
-					connection.Close();
-				}
+					connection.Open();
+					Object cmdResult = cmd.ExecuteScalar();
+					if (cmdResult != DBNull.Value) {
+						result = (T)cmdResult;
+					}
+				} catch (Exception ex) {
+					Logger.Log(ex, "PoiDataConnector.SavePoi");
+					throw;
+				} finally {
+					if ((connection != null) && (connection.State == ConnectionState.Open)) {
+						connection.Close();
+					}
 				}
 			} else {
 				Logger.Log("No DB connection configured", LogLevels.WARNING);
