@@ -11,6 +11,12 @@ chown pi:root /var/log/pilot
 mkdir -p /opt/pilotapi			#PiLot binaries
 mkdir -p /etc/pilot				#PiLot config directory
 
+# set up DB
+# su postgres
+# psql -d pilot -f /home/pi/repos/PiLot/sqlScripts/poi.sql
+# psql -d pilot -f /home/pi/repos/PiLot/sqlScripts/poiData.sql
+# exit
+
 # set up API
 cp -r resources/pilotapi/* /opt/pilotapi/
 mv /opt/pilotapi/data/* /var/opt/pilot/

@@ -1326,7 +1326,7 @@ PiLot.View.Nav = (function () {
 			}.bind(this));
 			let description = this.poi.getDescription();
 			description = this.replaceLinks(description);
-			description = description.replace('\n', '<br/>');
+			description = description.replaceAll('\n', '<br/>');
 			this.lblDescription.innerHTML = description;
 			// todo: show properties
 			this.showDate(this.poi.getValidFrom(), this.pnlValidFrom, this.lblValidFrom);

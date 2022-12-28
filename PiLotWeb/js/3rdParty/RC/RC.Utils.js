@@ -453,3 +453,12 @@ Node.prototype.isSameOrDescendantOf = function (pOther) {
 	}
 	return result;
 }
+
+/** replaceAll polyfill for old browsers */
+String.prototype.replaceAll = String.prototype.replaceAll || function (pattern, replacement) {
+	let result = this;
+	while (result.indexOf(pattern) >= 0) {
+		result = result.replace(pattern, replacement);
+	}
+	return result;
+}

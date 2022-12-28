@@ -270,7 +270,8 @@ textarea.big{height:20em;}
 .vCenter { display: flex; flex-direction:column; justify-content:center; }
 .right { text-align: right; }
 .floatRight{float:right;}
-.preLine {white-space: pre-Line;}
+.preLine {white-space: pre-line;}
+.preWrap {white-space: pre-wrap;}
 .bgLight { background-color: #eee; }
 .bgLightBlue { background-color: #B2D3FF; }
 .borderLight { border: 1px solid #ccc;}
