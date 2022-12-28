@@ -99,22 +99,15 @@ PiLot.Model.Tools = (function () {
 		},
 
 		/// gets the image as array buffer, converts it into a byte array, and calls putFile
-		/// with the byte array
-		getImage: function (pUrl, pX, pY, pZ) {
+		/// with the byte array. Could probably be simplified.
+		getImage: async function (pUrl, pX, pY, pZ) {
 			if ((pZ >= this.tileSource.getMinZoom()) && (pZ <= this.tileSource.getMaxZoom())) {
-				var request = new XMLHttpRequest();
-				request.open("GET", pUrl, true);
-				request.responseType = "arraybuffer";
-				request.onload = function (oEvent) {
-					var arrayBuffer = request.response;
-					var byteArray = new Uint8Array(arrayBuffer);
-					this.updateStats(byteArray.length, 0, 0, 0);
-					this.putFile(byteArray, pX, pY, pZ);
-				}.bind(this);
-				request.onerror = function (pEvent) {
-					PiLot.log('error getting tile: ' + pEvent, 0);
-				}
-				request.send();
+				const options = { method: "GET", cache: "force-cache" };
+				const response = await fetch(pUrl, options);
+				const arrayBuffer = await response.arrayBuffer();
+				const byteArray = new Uint8Array(arrayBuffer);
+				this.updateStats(byteArray.length, 0, 0, 0);
+				this.putFile(byteArray, pX, pY, pZ);
 			} else {
 				this.updateStats(0, 0, 0, 1);
 			}
