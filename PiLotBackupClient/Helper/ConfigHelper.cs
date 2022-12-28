@@ -56,7 +56,8 @@ namespace PiLot.Backup.Client.Helper {
 		public void SaveConfig() {
 			String json = null;
 			try {
-				json = JsonSerializer.Serialize(this.config);
+				JsonSerializerOptions options = new JsonSerializerOptions() { WriteIndented = true };
+				json = JsonSerializer.Serialize(this.config, options);
 			} catch (Exception ex) {
 				Out.WriteError("Error when trying to serialize Object: {0}", ex.Message);
 			}
