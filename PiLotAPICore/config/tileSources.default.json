@@ -9,7 +9,7 @@
 	},
 	{
 		"name": "openseamap",
-		"onlineUrl": "http://t1.openseamap.org/seamark/{z}/{x}/{y}.png",
+		"onlineUrl": "https://t1.openseamap.org/seamark/{z}/{x}/{y}.png",
 		"localPath": "/var/www/html/tiles/openseamap/{0}/{1}/{2}.png",
 		"localUrl": "/tiles/openseamap/{z}/{x}/{y}.png",
 		"minZoom": 1,
