@@ -67,20 +67,21 @@ namespace PiLot.API.Helpers {
 
 		/// <summary>
 		/// This takes a GPS record, and applies the UTC time of the record to the
-		/// system, if a threshol is set in app.config, and the record's UTC differ
+		/// system, if a threshold is set in app.config, and the record's UTC differs
 		/// from the system time more than applyGpsTimeThreshold seconds.
 		/// </summary>
 		/// <param name="pRecord">The current GPS record</param>
 		public void HandleGPSRecord(GpsRecord pRecord) {
 			if((this.threshold != null) && (pRecord != null)) {
 				if(Math.Abs(pRecord.UTC - DateTimeHelper.ToJSTime(DateTime.UtcNow)) > this.threshold) {
+					DateTime prevousTime = DateTime.UtcNow;
+					new SystemHelper().SetDate(pRecord.UTC);
 					Logger.Log(
-						"Setting System time based on GPS data. Old system time UTC: {0:o}, new system time: {1:o}",
-						DateTime.UtcNow,
+						"Set System time based on GPS data. Old system time UTC: {0:o}, new system time: {1:o}",
+						prevousTime,
 						DateTimeHelper.FromJSTime(pRecord.UTC),
 						LogLevels.INFO
 					);
-					new SystemHelper().SetDate(pRecord.UTC);
 				}
 			}
 		}
