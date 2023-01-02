@@ -5,8 +5,6 @@
 #
 # See 91-update-prerequisites.sh
 
-set -e
-
 if [ `whoami` != root ]; then
     echo Please run this script using sudo
     exit
@@ -24,8 +22,22 @@ mv /opt/pilotapi/config /opt/pilotapi/config_bak
 mv /opt/pilotapi/PiLot.API.dll.config /opt/pilotapi/PiLot.API.dll.config.bak
 dotnet build PiLotAPICore -o /opt/pilotapi -c release -r linux-arm --no-self-contained
 rm -r /opt/pilotapi/config
+# remove links from /etc/pilot
+rm -f /etc/pilot/pilotapi.config
+rm -f /etc/pilot/authorization.json
+rm -f /etc/pilot/users.json
+rm -f /etc/pilot/publishingTargets.json
+rm -f /etc/pilot/sensors.json
+rm -f /etc/pilot/tileSources.json
 mv /opt/pilotapi/config_bak /opt/pilotapi/config
 mv -f /opt/pilotapi/PiLot.API.dll.config.bak /opt/pilotapi/PiLot.API.dll.config
+# restore links in /etc/pilot
+ln /opt/pilotapi/PiLot.API.dll.config /etc/pilot/pilotapi.config
+ln /opt/pilotapi/config/authorization.json /etc/pilot/authorization.json
+ln /opt/pilotapi/config/users.json /etc/pilot/users.json
+ln /opt/pilotapi/config/publishingTargets.json /etc/pilot/publishingTargets.json
+ln /opt/pilotapi/config/sensors.json /etc/pilot/sensors.json
+ln /opt/pilotapi/config/tileSources.json /etc/pilot/tileSources.json
 rm -r /opt/pilotapi/App_Data
 echo "API installed"
 systemctl start pilotApi
