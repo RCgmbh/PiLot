@@ -1351,7 +1351,7 @@ PiLot.View.Nav = (function () {
 				// www. without http:// or https://
 				var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
 				// Email addresses
-				var emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.[a-zA-Z]{2,6})+/gim;
+				var emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.*[a-zA-Z.])+/gim;
 				return pText
 					.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
 					.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
