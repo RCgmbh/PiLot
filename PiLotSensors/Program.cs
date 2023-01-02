@@ -69,9 +69,13 @@ namespace PiLot.Sensors {
 			String fileContent = File.ReadAllText(sensorsConfigFile);
 			List<DeviceInfo> deviceInfos = JsonSerializer.Deserialize<List<DeviceInfo>>(fileContent);
 			foreach(DeviceInfo aDeviceInfo in deviceInfos) {
-				IDevice device = Program.CreateDevice(aDeviceInfo, localAPI, loginHelper);
-				if(device != null) {
-					devices.Add(device);
+				try {
+					IDevice device = Program.CreateDevice(aDeviceInfo, localAPI, loginHelper);
+					if (device != null) {
+						devices.Add(device);
+					}
+				} catch(Exception ex) {
+					Logger.Log($"PiLot.Sensors.Program.LoadDevices: Exception {ex.Message}", LogLevels.ERROR);
 				}
 			}
 		}
@@ -132,7 +136,11 @@ namespace PiLot.Sensors {
 		/// </summary>
 		private static void TimerEvent() {
 			foreach(IDevice aDevice in devices) {
-				aDevice.TimerTask();
+				try {
+					aDevice.TimerTask();
+				} catch(Exception ex) {
+					Logger.Log($"PiLot.Sensors: Exception: {ex.Message}", LogLevels.ERROR);
+				}
 			}			
 		}
 	}
