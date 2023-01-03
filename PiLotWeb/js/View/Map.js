@@ -654,6 +654,7 @@ PiLot.View.Map = (function () {
 
 		leafletMap_moveend: function () {
 			this.loadPoisAsync();
+			this.resizeMarkers(this.pois);
 		},
 
 		leafletMap_zoomend: function () {
@@ -691,17 +692,40 @@ PiLot.View.Map = (function () {
 		},
 
 		/**
-		 * Loads the pois based on the current settings and shows them on the map
+		 * Shows a Poi on the map by drawing a marker and setting the proper size
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 * @param {boolean} pResetExisting - Set to true, if position and icon should be reset
+		 * @param {boolean} pSetDraggable - Set to true, if the marker should be draggable
+		 */
+		showPoi: function (pPoi, pResetExisting, pSetDraggable) {
+			const obj = this.drawMarker(pPoi, pResetExisting, pSetDraggable);
+			this.resizeMarkers([obj]);
+		},
+
+		/**
+		 * Loads the pois based on the current settings and shows them on the map. We add some buffer
+		 * around the actual map bounds, so that pois outside of the actual viewport are loaded as well.
 		 * */
 		loadPoisAsync: async function () {
 			const bounds = this.seamap.getLeafletMap().getBounds();
 			const minPoint = bounds.getSouthWest();
 			const maxPoint = bounds.getNorthEast();
+			const deltaLat = maxPoint.lat - minPoint.lat;
+			const deltaLng = maxPoint.lng - minPoint.lng;
+			const minLat = Math.max(minPoint.lat - deltaLat, -90);
+			const minLng = Math.max(minPoint.lng - deltaLng, -180);
+			const maxLat = Math.min(maxPoint.lat + deltaLat, 90);
+			const maxLng = Math.min(maxPoint.lng + deltaLng, 180);
 			const poiService = PiLot.Service.Nav.PoiService.getInstance();
 			const settings = await this.settingsControl.getSettingsAsync();
 			if (settings.showPois) {
-				const pois = await poiService.findPoisAsync(minPoint.lat, minPoint.lng, maxPoint.lat, maxPoint.lng, settings.categoryIds, settings.featureIds);
-				pois.forEach(function (p) { this.showPoi(p, false, false) }.bind(this));
+				const pois = await poiService.findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
+				const newPois = [];
+				pois.forEach(function (p) {
+					const objPoi = this.drawMarker(p, false, false);
+					newPois.push(objPoi);
+				}.bind(this));
+				this.resizeMarkers(newPois);
 			}			
 		},
 
@@ -711,9 +735,10 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi
 		 * @param {boolean} pResetExisting - Set to true, if position and icon should be reset
 		 * @param {boolean} pSetDraggable - Set to true, if the marker should be draggable
+		 * @returns {Object} an object with {poi, marker}
 		 */
-		showPoi: function (pPoi, pResetExisting, pSetDraggable) {
-			let marker = null;
+		drawMarker: function (pPoi, pResetExisting, pSetDraggable) {
+			let result;
 			if (pResetExisting) {
 				this.removePoi(pPoi);
 			}
@@ -722,18 +747,18 @@ PiLot.View.Map = (function () {
 				const icon = L.divIcon({
 					className: 'poiMarker', iconSize: [null, null], html: iconHtml
 				});
-				marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
+				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
 				if (pSetDraggable) {
 					marker.on('moveend', this.poiMarker_moveEnd.bind(this, pPoi));
 				}
-				this.pois.set(pPoi.getId(), { poi: pPoi, marker: marker });
+				result = { poi: pPoi, marker: marker };
+				this.pois.set(pPoi.getId(), result);
 			} else {
-				marker = this.pois.get(pPoi.getId()).marker;
-				marker.options.draggable = pSetDraggable;
+				result = this.pois.get(pPoi.getId());
 			}
-			this.setMarkerSize(marker);
+			return result;
 		},
 
 		/**
@@ -759,16 +784,21 @@ PiLot.View.Map = (function () {
 		 * This implements a specific logic to size the markers a bit bigger on higher zoom levels.
 		 * The styles are assigned directly in order to override what was set by leaflet. This might
 		 * probably be done a bit more elegant one day.
-		 * @param {L.marker} pMarker - the leaflet marker element
+		 * @param {Iterable} pPois - an iterable with {poi, marker} objects
 		 */
-		setMarkerSize: function (pMarker) {
-			const markerElement = pMarker.getElement();
+		resizeMarkers: function (pPois) {
 			const iconSize = Math.min(Math.max(this.seamap.getCurrentZoom() * 5 - 40, 12), 36);
-			markerElement.style.height = `${iconSize}px`;
-			markerElement.style.width = `${iconSize}px`;
-			markerElement.style.marginTop = `${iconSize * -1}px`;
-			markerElement.style.marginLeft = `${iconSize * -1}px`;
-			markerElement.style.fontSize = `${iconSize / 24}em`;
+			const lengthWidth = `${iconSize}px`;
+			const margin = `${iconSize * -1}px`;
+			const fontSize = `${iconSize / 24}em`;
+			pPois.forEach(function (p) {
+				const markerElement = p.marker.getElement();
+				markerElement.style.height = lengthWidth;
+				markerElement.style.width = lengthWidth;
+				markerElement.style.marginTop = margin;
+				markerElement.style.marginLeft = margin;
+				markerElement.style.fontSize = fontSize;
+			}.bind(this));
 		},
 
 		/**
