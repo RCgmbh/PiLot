@@ -1604,12 +1604,13 @@ PiLot.Model.Nav = (function () {
 		return result;
 	};
 
-	/// reads all tile sources from the server
+	/** @returns {Map} with key = tileSource.name, value = tileSource */
 	var readAllTileSourcesAsync = async function () {
-		const result = new Array();
+		const result = new Map();
 		const response = await PiLot.Utils.Common.getFromServerAsync('/TileSources');
 		response.forEach(function (pItem) {
-			result.push(TileSource.fromData(pItem));
+			let tileSource = TileSource.fromData(pItem);
+			result.set(tileSource.getName(), tileSource);
 		});
 		return result;
 	};

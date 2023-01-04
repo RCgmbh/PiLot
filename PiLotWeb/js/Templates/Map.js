@@ -17,12 +17,16 @@ PiLot.Templates.Map = {
 	mapLayersSettings: `
 		<div class="fullHeight fullWidth absolute vCenter" hidden>
 			<div class="overlay"></div>
-			<div class="mapLayerSettings dialogPanel hCenter hCenter paddingAllSmall">
-				<div class="marginBottom flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
+			<div class="mapLayerSettings dialogPanel flexColumn hCenter hCenter ">
+				<div class="paddingAllSmall flexRowWrap bgLight" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
 					<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>
 					<span class="semiBold" data-text="mapLayerSettings"></span>
 				</div>
-				<div class="marginBottom labelValues30-70">
+				<div class="paddingAllSmall labelValues30-70" style="overflow:auto;">
+					<label class="borderBottom borderLight paddingBottomSmall">
+						<span data-text="tileSets" class="semiBold label"></span>
+						<span class="value plhTileSources flexColumn"></span>
+					</label>
 					<label class="borderBottom borderLight paddingBottomSmall">
 						<span data-text="showPois" class="semiBold label"></span>
 						<span class="value"><input type="checkbox" class="cbShowPois" /></span>
@@ -31,12 +35,12 @@ PiLot.Templates.Map = {
 						<span class="label" data-text="categories"></span>
 						<div class="plhCategories value flexColumn"></div>
 					</div>
-					<div class="paddingBottomSmall">
+					<div>
 						<span class="label" data-text="features"></span>
-						<div class="plhFeatures value flexColumn"></div>
+						<div class="plhFeatures value"></div>
 					</div>
 				</div>
-				<div class="buttons reverse marginBottomSmall">
+				<div class="buttons reverse paddingAllSmall bgLight">
 					<a href="#" class="btnApply linkButton semiBold" data-text="ok"></a>
 					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>

@@ -46,7 +46,7 @@ body.night .poiMarker { background-color: rgba(255, 191, 73, 0.5); }
 
 .poiForm { display:flex; flex-direction: column; }
 
-.dialogPanel.mapLayerSettings { width:100vw; max-width:36em; max-height:100vh; overflow:auto; }
+.dialogPanel.mapLayerSettings { width:100vw; max-width:36em; max-height:100vh; }
 
 .navOutdatedDataWarning { z-index:1100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
 body.night .navOutdatedDataWarning { color: #ccc; background-color: rgba(0, 0, 0, 0.8); }

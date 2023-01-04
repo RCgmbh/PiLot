@@ -447,7 +447,7 @@ PiLot.View.Tools = (function () {
 	/// a form which allows downloading map tiles by browsing the map.
 	var TilesDownloadForm = function () {
 
-		this.tileSources = null;
+		this.tileSources = null;			// Map with key = tileSource.name, value = tileSource
 		this.tilesDownloadHelpers = null;	// map with key = tileSource, value = PiLot.Model.Tools.TilesDownloadHelper
 		this.tileSourcesControls = null;	// map with key = tileSource, value = object of {cbShowLayer: Checkbox, cbDownloadTiles: Checkbox, loading: Boolean, tileLayer: Leaflet.tileLayer}
 		this.pageContent = null;
@@ -472,13 +472,12 @@ PiLot.View.Tools = (function () {
 			this.tilesDownloadHelpers = new Map();
 			this.tileSourcesControls = new Map();
 			this.tileSources = await PiLot.Model.Nav.readAllTileSourcesAsync();
-			for (var i = 0; i < this.tileSources.length; i++) {
-				let downloadHelper = new PiLot.Model.Tools.TilesDownloadHelper(this.tileSources[i]);
+			this.tileSources.forEach(function (pTileSource) {
+				let downloadHelper = new PiLot.Model.Tools.TilesDownloadHelper(pTileSource);
 				downloadHelper.on('updateStats', this.tileSource_updateStats.bind(this));
-				this.tilesDownloadHelpers.set(this.tileSources[i], downloadHelper);
-			}
+				this.tilesDownloadHelpers.set(pTileSource, downloadHelper);
+			}.bind(this));
 			this.drawForm();
-
 		},
 
 		/// handles updates of the stats of any tileSource
@@ -487,12 +486,12 @@ PiLot.View.Tools = (function () {
 			let completedRequestsCount = 0;
 			let completedRequestBytes = 0;
 			let downloadHelper;
-			for (var i = 0; i < this.tileSources.length; i++) {
-				downloadHelper = this.tilesDownloadHelpers.get(this.tileSources[i]);
+			this.tileSources.forEach(function (pTileSource) {
+				downloadHelper = this.tilesDownloadHelpers.get(pTileSource);
 				pendingRequestsCount += downloadHelper.getPendingRequestsCount();
 				completedRequestsCount += downloadHelper.getCompletedRequestsCount();
 				completedRequestBytes += downloadHelper.getCompletedRequestsBytes();
-			}
+			}.bind(this));
 			RC.Utils.setText(this.lblPendingCount, pendingRequestsCount);
 			RC.Utils.setText(this.lblDownloadCount, completedRequestsCount);
 			RC.Utils.setText(this.lblDownloadKB, (completedRequestBytes / 1024).toLocaleString('de-ch', { maximumFractionDigits: 0 }));
@@ -551,13 +550,13 @@ PiLot.View.Tools = (function () {
 			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			const divTileSources = this.pageContent.querySelector('.divTileSources');
 			const divTileSourceTemplate = divTileSources.querySelector('.divTileSourceTemplate');
-			for (let i = 0; i < this.tileSources.length; i++) {
+			for (const [tileSourceName, tileSource] of this.tileSources) {
 				let rowTileSource = divTileSourceTemplate.cloneNode(true);
 				divTileSources.appendChild(rowTileSource);
-				rowTileSource.querySelector('.lblName').innerHTML = this.tileSources[i].getName();
+				rowTileSource.querySelector('.lblName').innerHTML = tileSourceName;
 				let cbShowLayer = rowTileSource.querySelector('.cbShow');
-				cbShowLayer.onchange = this.cbShowLayer_change.bind(this, this.tileSources[i]);
-				this.tileSourcesControls.set(this.tileSources[i], {
+				cbShowLayer.onchange = this.cbShowLayer_change.bind(this, tileSource);
+				this.tileSourcesControls.set(tileSource, {
 					cbShowLayer: cbShowLayer,
 					cbDownloadTiles: rowTileSource.querySelector('.cbDownload'),
 					loading: false,
@@ -585,10 +584,10 @@ PiLot.View.Tools = (function () {
 			this.showZoom();
 			this.map.getLeafletMap().on('zoomend', this.map_zoomend.bind(this));
 			var tileSourcesControl;
-			for (var i = 0; i < this.tileSources.length; i++) {
-				tileSourcesControl = this.tileSourcesControls.get(this.tileSources[i]);
+			for(const [tileSourceName, tileSource] of this.tileSources) {
+				tileSourcesControl = this.tileSourcesControls.get(tileSource);
 				if (tileSourcesControl.cbShowLayer.checked) {
-					this.addTileLayer(this.tileSources[i], tileSourcesControl);
+					this.addTileLayer(tileSource, tileSourcesControl);
 				}
 			}
 		},
@@ -619,9 +618,10 @@ PiLot.View.Tools = (function () {
 
 		showLoadingState: function () {
 			var loading = false;
-			for (var i = 0; i < this.tileSources.length; i++) {
+			for(const [tileSourceName, tileSource] of this.tileSources) {
 				if (
-					(this.tilesDownloadHelpers.get(this.tileSources[i]).getPendingRequestsCount() > 0) || this.tileSourcesControls.get(this.tileSources[i]).loading
+					   (this.tilesDownloadHelpers.get(tileSource).getPendingRequestsCount() > 0)
+					|| this.tileSourcesControls.get(tileSource).loading
 				) {
 					loading = true;
 					break;

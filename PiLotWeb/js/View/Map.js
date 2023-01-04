@@ -59,6 +59,7 @@ PiLot.View.Map = (function () {
 		this.allowSetView = true;
 		this.persistMapState = true;
 		this.showLayers = true;			// if false, no layers will be added but need to be added manually using addTileLayer(pUrl);
+		this.mapLayers = null;			// map with key = tileSoureName, value = L.tileLayer
 		this.defaultLat = 54.38;
 		this.defaultLng = 18.62;
 		this.defaultZoom = 9;
@@ -95,6 +96,10 @@ PiLot.View.Map = (function () {
 			this.mapLayersSettings.showAsync();
 		},
 
+		mapLayerSettings_applySettings: function () {
+			this.showHideMapLayersAsync();
+		},
+
 		/// adds the sliding settings menu and attaches
 		/// the expand/collapse script
 		addSettingsContainer: function () {
@@ -110,6 +115,7 @@ PiLot.View.Map = (function () {
 			this.mapContainer.insertAdjacentElement('afterbegin', this.icoMapLayers);
 			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
 			this.mapLayersSettings = new MapLayersSettings();
+			this.mapLayersSettings.on('applySettings', this.mapLayerSettings_applySettings.bind(this));
 		},
 
 		/// switches between expanded and collapsed state of the settings container
@@ -123,21 +129,14 @@ PiLot.View.Map = (function () {
 			if (this.hasSettings) {
 				RC.Utils.showHide(this.settingsContainer, true);
 			}
-
 			if (!this.isMapLoaded) {
 				PiLot.log("PiLot.Nav.Map.DrawMap", 3);
 				this.leafletMap = new L.Map(this.mapContainer, { zoomControl: false });
 				new L.control.zoom({ position: 'topright' }).addTo(this.leafletMap);
 				this.addScale();
+				this.mapLayers = new Map();
 				if (this.showLayers) {
-					let tileSources = await PiLot.Model.Nav.readAllTileSourcesAsync();
-					for (const tileSource of tileSources) {
-						let localUrl = tileSource.getLocalUrl();
-						if ((localUrl.indexOf('https://') !== 0) && (localUrl.indexOf('http://') !== 0)) {
-							localUrl = PiLot.Utils.Common.toLocalUrl(localUrl);
-						}
-						this.addTileLayer(localUrl);
-					}
+					await this.showHideMapLayersAsync();
 				}
 				var isMapStateSet = false;
 				if (this.persistMapState) {
@@ -151,6 +150,27 @@ PiLot.View.Map = (function () {
 				this.isMapLoaded = true;
 			}
 			return this;
+		},
+
+		/** This makes sure all map layers are added to or removed from the map according to the current settings */
+		showHideMapLayersAsync: async function () {
+			const tileSources = await this.mapLayersSettings.getAllTileSourcesAsync();
+			const settings = await this.mapLayersSettings.getSettingsAsync();
+			for (const [tileSourceName, tileSource] of tileSources) {
+				if (settings.tileSourceNames.includes(tileSourceName)) {
+					if (!this.mapLayers.has(tileSourceName)) {
+						let localUrl = tileSource.getLocalUrl();
+						if ((localUrl.indexOf('https://') !== 0) && (localUrl.indexOf('http://') !== 0)) {
+							localUrl = PiLot.Utils.Common.toLocalUrl(localUrl);
+						}
+						this.addTileLayer(localUrl, tileSourceName);
+					}
+				} else {
+					if (this.mapLayers.has(tileSourceName)) {
+						this.removeTileLayer(tileSourceName);
+					}
+				}
+			}
 		},
 
 		hide: function(){
@@ -171,7 +191,7 @@ PiLot.View.Map = (function () {
 
 		/// adds a tile layer to the map, expecting the tileUrl (the /{z}/{x}/{y}.jpg thing),
 		/// and returns the layer
-		addTileLayer: function (pTileUrl) {
+		addTileLayer: function (pTileUrl, pTileSourceName) {
 			var layer = L.tileLayer.fallback(
 			//var layer = L.tileLayer(
 				pTileUrl,
@@ -183,7 +203,13 @@ PiLot.View.Map = (function () {
 				}
 			);
 			this.leafletMap.addLayer(layer);
+			this.mapLayers.set(pTileSourceName, layer);
 			return layer;
+		},
+
+		removeTileLayer: function (pTileSourceName) {
+			this.leafletMap.removeLayer(this.mapLayers.get(pTileSourceName));
+			this.mapLayers.delete(pTileSourceName);
 		},
 
 		/// adds the nauticScale to the map
@@ -389,6 +415,9 @@ PiLot.View.Map = (function () {
 	 * being displayed, which might feel a bit weird.
 	 * */
 	var MapLayersSettings = function () {
+		this.tileSourceNames = null;		// String[] with the selected tile sources' names
+		this.allTileSources = null;			// Map, as it comes from the service (key: name, value: tileSource)
+		this.tileSourceCheckboxes = null;	// Map with key = tileSource, value = checkbox
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
 		this.categoryIds = null;			// number[] holding the ids of the categories to show
 		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
@@ -418,6 +447,15 @@ PiLot.View.Map = (function () {
 		},
 
 		/**
+		 * Handles changes of the tile source checkboxes
+		 * @param {PiLot.Model.Nav.TileSource} pTileSource
+		 * @param {Event} e
+		 */
+		cbTileSource_change: function (pTileSource, e) {
+			this.setTileSourceSelected(pTileSource, e.target.checked);
+		},
+
+		/**
 		 * Handles changes of the category checkboxes
 		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
 		 */
@@ -442,6 +480,12 @@ PiLot.View.Map = (function () {
 			return this.createSettingsObject();
 		},
 
+		/** We abuse this class to get access to the map of all tile sources, which will usually be preloaded */
+		getAllTileSourcesAsync: async function () {
+			await this.ensureTileSourcesAsync();
+			return this.allTileSources;
+		},
+
 		/** Draws the form. Async (and therefore not called in initialize()) because it triggers loading the categories. */
 		drawAsync: async function () {
 			await this.loadSettingsAsync();
@@ -450,9 +494,26 @@ PiLot.View.Map = (function () {
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.showPois;
-			await Promise.all([this.drawCategoriesAsync(), this.drawFeaturesAsync()]);
+			await Promise.all([this.drawTileSourcesAsync(), this.drawCategoriesAsync(), this.drawFeaturesAsync()]);
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
+		},
+
+		/** Creates a checkbox list for all tile sources */
+		drawTileSourcesAsync: async function () {
+			await this.ensureTileSourcesAsync();
+			this.tileSourceCheckboxes = new Map();
+			const plhTileSources = this.control.querySelector('.plhTileSources');
+			plhTileSources.clear();
+			for (const [tileSourceName, tileSource] of this.allTileSources) {
+				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
+				const cbTileSource = cbControl.querySelector('.cbCheckbox');
+				cbTileSource.checked = this.tileSourceNames.includes(tileSourceName);
+				cbTileSource.addEventListener('change', this.cbTileSource_change.bind(this, tileSource));
+				cbControl.querySelector('.lblLabel').innerText = tileSourceName;
+				plhTileSources.appendChild(cbControl);				
+				this.tileSourceCheckboxes.set(tileSource, cbTileSource);				
+			}
 		},
 
 		/** 
@@ -503,8 +564,9 @@ PiLot.View.Map = (function () {
 		 *  just becaus it tries to be nice and defaults to "all"
 		 * */
 		loadSettingsAsync: async function () {
-			await Promise.all([this.ensureCategoriesAsync(), this.ensureFeaturesAsync()]);
+			await Promise.all([this.ensureTileSourcesAsync(), this.ensureCategoriesAsync(), this.ensureFeaturesAsync()]);
 			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
+			this.tileSourceNames = (settings && settings.tileSourceNames) || Array.from(this.allTileSources.keys());
 			this.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
 			this.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
 			this.featureIds = (settings && settings.featureIds) || [];
@@ -518,10 +580,16 @@ PiLot.View.Map = (function () {
 		/** Creates a simple object that is used not only to save, but also to communicate the current settings. */
 		createSettingsObject: function () {
 			return {
+				tileSourceNames: this.tileSourceNames,
 				showPois: this.showPois,
 				categoryIds: this.categoryIds,
 				featureIds: this.featureIds
 			};
+		},
+
+		/** Makes sure the map of all tile sources has been loaded. */
+		ensureTileSourcesAsync: async function () {
+			this.allTileSources = this.allTileSources || await PiLot.Model.Nav.readAllTileSourcesAsync();
 		},
 
 		/** Makes sure the map of all categories has been loaded. */
@@ -532,6 +600,25 @@ PiLot.View.Map = (function () {
 		/** Makes sure the map of all features has been loaded. */
 		ensureFeaturesAsync: async function () {
 			this.allFeatures = this.allFeatures || await PiLot.Service.Nav.PoiService.getInstance().getFeaturesAsync();
+		},
+
+		/**
+		 * Sets a tile source selected or unselected, by adding or removing it from the
+		 * list of tileSources
+		 * @param {PiLot.Model.Nav.TileSource} pTileSource
+		 * @param {Boolean} pSelected
+		 */
+		setTileSourceSelected: function (pTileSource, pSelected) {
+			const tileSourceName = pTileSource.getName();
+			if (pSelected) {
+				if (!this.tileSourceNames.includes(tileSourceName)) {
+					this.tileSourceNames.push(tileSourceName);
+				}
+			} else {
+				if (this.tileSourceNames.includes(tileSourceName)) {
+					this.tileSourceNames.remove(this.tileSourceNames.indexOf(tileSourceName));
+				}
+			}
 		},
 
 		/**
