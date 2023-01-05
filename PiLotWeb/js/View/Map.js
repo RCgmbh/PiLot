@@ -159,11 +159,7 @@ PiLot.View.Map = (function () {
 			for (const [tileSourceName, tileSource] of tileSources) {
 				if (settings.tileSourceNames.includes(tileSourceName)) {
 					if (!this.mapLayers.has(tileSourceName)) {
-						let localUrl = tileSource.getLocalUrl();
-						if ((localUrl.indexOf('https://') !== 0) && (localUrl.indexOf('http://') !== 0)) {
-							localUrl = PiLot.Utils.Common.toLocalUrl(localUrl);
-						}
-						this.addTileLayer(localUrl, tileSourceName);
+						this.addTileLayer(tileSource);
 					}
 				} else {
 					if (this.mapLayers.has(tileSourceName)) {
@@ -189,27 +185,41 @@ PiLot.View.Map = (function () {
 			this.isMapLoaded = false;
 		},
 
-		/// adds a tile layer to the map, expecting the tileUrl (the /{z}/{x}/{y}.jpg thing),
-		/// and returns the layer
-		addTileLayer: function (pTileUrl, pTileSourceName) {
+		/**
+		 * Adds a tile layer to the map and returns the layer
+		 * @param {PiLot.Model.Nav.TileSource} pTileSource
+		 * @param {Boolean} pUseOnlineUrl - If true, the tiles will be loaded from the online url
+		 * @returns {L.TileLayer}
+		 * */
+		addTileLayer: function (pTileSource, pUseOnlineUrl = false) {
+			let url = pUseOnlineUrl ? pTileSource.getOnlineUrl() : pTileSource.getLocalUrl();
+			if ((url.indexOf('https://') !== 0) && (url.indexOf('http://') !== 0)) {
+				url = PiLot.Utils.Common.toLocalUrl(url);
+			}
 			var layer = L.tileLayer.fallback(
 			//var layer = L.tileLayer(
-				pTileUrl,
+				url,
 				{
-					minZoom: this.minZoom,
-					maxZoom: this.maxZoom,
-					maxNativeZoom: this.maxNativeZoom,
+					minZoom: pTileSource.getMinZoom(),
+					maxZoom: pTileSource.getMaxZoom(),
+					maxNativeZoom: pTileSource.getMaxZoom(),
 					attribution: this.attribution
 				}
 			);
 			this.leafletMap.addLayer(layer);
-			this.mapLayers.set(pTileSourceName, layer);
+			this.mapLayers.set(pTileSource.getName(), layer);
 			return layer;
 		},
 
+		/**
+		 * Removes a tile layer, if it has been added before
+		 * @param {String} pTileSourceName
+		 */
 		removeTileLayer: function (pTileSourceName) {
-			this.leafletMap.removeLayer(this.mapLayers.get(pTileSourceName));
-			this.mapLayers.delete(pTileSourceName);
+			if (this.mapLayers.has(pTileSourceName) && this.leafletMap.hasLayer(this.mapLayers.get(pTileSourceName))) {
+				this.leafletMap.removeLayer(this.mapLayers.get(pTileSourceName));
+				this.mapLayers.delete(pTileSourceName);
+			}			
 		},
 
 		/// adds the nauticScale to the map
@@ -241,8 +251,8 @@ PiLot.View.Map = (function () {
 		/// not be visible when centering the map to 09N 370E. Therefore we try
 		/// to avoid centering the map outside of these bounds.
 		sanitizePosition: function () {
-			var center = this.leafletMap.getCenter()
-			var lng = this.leafletMap.getCenter().lng;
+			const center = this.leafletMap.getCenter()
+			const lng = this.leafletMap.getCenter().lng;
 			if (Math.abs(lng) > 180) {
 				this.setView(center.wrap(), null);
 			}
@@ -257,10 +267,10 @@ PiLot.View.Map = (function () {
 		/// loads the map status from the user settings and applies them to the map. 
 		/// returns true, if zoom and center have been set.
 		applyMapState: function () {
-			var result = false;
+			let result = false;
 			PiLot.log('ApplyMapStatus', 3);
-			var center = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.mapCenter');
-			var zoom = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.mapZoom');
+			const center = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.mapCenter');
+			const zoom = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.mapZoom');
 			if(center && zoom){
 				this.setView(center, zoom);
 				result = true;
@@ -271,7 +281,7 @@ PiLot.View.Map = (function () {
 		/// applies a default zoom and center for the map. This is needed, as
 		/// the map does not work without a center being set
 		applyDefaultMapState: function () {
-			var center = L.latLng(this.defaultLat, this.defaultLng);
+			const center = L.latLng(this.defaultLat, this.defaultLng);
 			this.leafletMap.setView(center, this.defaultZoom);
 		},
 

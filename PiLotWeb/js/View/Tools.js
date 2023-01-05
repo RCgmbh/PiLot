@@ -449,7 +449,7 @@ PiLot.View.Tools = (function () {
 
 		this.tileSources = null;			// Map with key = tileSource.name, value = tileSource
 		this.tilesDownloadHelpers = null;	// map with key = tileSource, value = PiLot.Model.Tools.TilesDownloadHelper
-		this.tileSourcesControls = null;	// map with key = tileSource, value = object of {cbShowLayer: Checkbox, cbDownloadTiles: Checkbox, loading: Boolean, tileLayer: Leaflet.tileLayer}
+		this.tileSourcesControls = null;	// map with key = tileSource, value = object of {cbShowLayer: Checkbox, cbDownloadTiles: Checkbox, loading: Boolean}
 		this.pageContent = null;
 		this.ddlIncludeLower = null;		// options to include lower zoom levels
 		this.ddlIncludeHigher = null;		// options to include higher zoom levels
@@ -502,9 +502,9 @@ PiLot.View.Tools = (function () {
 		cbShowLayer_change: function (pTileSource) {
 			tileSourcesControl = this.tileSourcesControls.get(pTileSource);
 			if (tileSourcesControl.cbShowLayer.checked) {
-				this.addTileLayer(pTileSource, tileSourcesControl);
+				this.addTileLayer(pTileSource);
 			} else {
-				this.removeTileLayer(tileSourcesControl);
+				this.removeTileLayer(pTileSource);
 			}
 		},
 
@@ -587,28 +587,23 @@ PiLot.View.Tools = (function () {
 			for(const [tileSourceName, tileSource] of this.tileSources) {
 				tileSourcesControl = this.tileSourcesControls.get(tileSource);
 				if (tileSourcesControl.cbShowLayer.checked) {
-					this.addTileLayer(tileSource, tileSourcesControl);
+					this.addTileLayer(tileSource);
 				}
 			}
 		},
 
-		/// adds a tile layer to the map, binds all events, and stores the tileLayer
-		/// in tileSourcesControls.tileLayer
-		addTileLayer: function (pTileSource, pTileSourcesControl) {
-			if (pTileSourcesControl.tileLayer !== null) {
-				this.removeTileLayer(pTileSourcesControl);
-			}
-			pTileSourcesControl.tileLayer = this.map.addTileLayer(pTileSource.onlineUrl)
+		/// adds a tile layer to the map and binds all events
+		addTileLayer: function (pTileSource) {
+			this.removeTileLayer(pTileSource);
+			this.map.addTileLayer(pTileSource, true)
 				.on('tileload', this.map_tileLoad.bind(this, pTileSource))
 				.on('loading', this.mapLayer_loading.bind(this, pTileSource))
 				.on('load', this.mapLayer_load.bind(this, pTileSource));
 		},
 
 		/// removes a tileLayer from the map
-		removeTileLayer: function (pTileSourcesControl) {
-			if (pTileSourcesControl.tileLayer !== null) {
-				pTileSourcesControl.tileLayer.remove();
-			}
+		removeTileLayer: function (pTileSource) {
+			this.map.removeTileLayer(pTileSource.getName());
 		},
 
 		/// shows the map's current zoom level in lblZoom
