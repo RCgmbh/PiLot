@@ -12,13 +12,18 @@ PiLot.Templates.Tools = {
 					<span class="label" data-text="gpsData"></span>
 				</div>
 			</a>
-			<a href="Tiles.aspx" class="lnkTiles tile big">
+			<a href="" class="lnkTiles tile big">
 				<div>
 					<span class="symbol"><i class="icon-download2"></i></span>
 					<span class="label" data-text="localTiles"></span>
 				</div>
 			</a>
-
+			<a href="" class="lnkPois tile big">
+				<div>
+					<span class="symbol"><i class="icon-location"></i></span>
+					<span class="label" data-text="pois"></span>
+				</div>
+			</a>
 		</div>
 	`,
 
@@ -150,5 +155,29 @@ PiLot.Templates.Tools = {
 				<div class="divMap navMap borderDark" style="height:80vh;"></div>
 			</div>
 		</div>
-	`
+	`,
+
+	poisManagementPage: `
+		<div class="contentPadding">
+			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="pois"></span></h1>
+			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
+				<h2 data-text="import" class="marginBottomSmall"></h2>
+				<span class="semiBold">poiCategories</span>
+				<textarea rows="10" class="tbImportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
+				<span class="semiBold">poiFeatures</span>
+				<textarea rows="10" class="tbImportFeatures fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
+				<span class="semiBold">pois</span>
+				<textarea rows="40" class="tbImportPois fullWidth smallerText marginBottomSmall" style="font-family:'Lucida Console', Courier; height: 40vh;"></textarea>
+				<div class="flexColumn marginBottomSmall">
+					<label class="semiBold" data-text="handleExistingPois"></label>
+					<label><input type="radio" value="add" name="rblReplaceOptions" checked /><span data-text="add"></span></label>
+					<label><input type="radio" value="skip" name="rblReplaceOptions" /><span data-text="skip"></span></label>
+					<label><input type="radio" value="replace" name="rblReplaceOptions" /><span data-text="replace"></span></label>
+				</div>
+				<button class="btnImport input7" type="button" data-text="import"></button>
+			</div>
+			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
+				<div class="plhOutput preWrap"></div> 
+			</div>
+		</div>`
 };

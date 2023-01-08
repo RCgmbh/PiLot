@@ -20,6 +20,8 @@ PiLot.View.Tools = (function () {
 			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.system.tools.data));
 			const lnkTiles = pageContent.querySelector('.lnkTiles');
 			PiLot.Utils.Common.bindOrHideEditLink(lnkTiles, null, loader.createPageLink(loader.pages.system.tools.tiles));
+			const lnkPois = pageContent.querySelector('.lnkPois');
+			PiLot.Utils.Common.bindOrHideEditLink(lnkPois, null, loader.createPageLink(loader.pages.system.tools.pois));
 		}
 	};
 
@@ -542,7 +544,7 @@ PiLot.View.Tools = (function () {
 			this.showZoom();
 		},
 
-		/// draws the form based on the template, using HTMLElements, not jQuery 
+		/// draws the form based on the template
 		drawForm: function () {
 			const loader = PiLot.Utils.Loader;
 			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.tilesDownloadForm);
@@ -584,7 +586,7 @@ PiLot.View.Tools = (function () {
 			this.showZoom();
 			this.map.getLeafletMap().on('zoomend', this.map_zoomend.bind(this));
 			var tileSourcesControl;
-			for(const [tileSourceName, tileSource] of this.tileSources) {
+			for (const [tileSourceName, tileSource] of this.tileSources) {
 				tileSourcesControl = this.tileSourcesControls.get(tileSource);
 				if (tileSourcesControl.cbShowLayer.checked) {
 					this.addTileLayer(tileSource);
@@ -613,9 +615,9 @@ PiLot.View.Tools = (function () {
 
 		showLoadingState: function () {
 			var loading = false;
-			for(const [tileSourceName, tileSource] of this.tileSources) {
+			for (const [tileSourceName, tileSource] of this.tileSources) {
 				if (
-					   (this.tilesDownloadHelpers.get(tileSource).getPendingRequestsCount() > 0)
+					(this.tilesDownloadHelpers.get(tileSource).getPendingRequestsCount() > 0)
 					|| this.tileSourcesControls.get(tileSource).loading
 				) {
 					loading = true;
@@ -624,14 +626,274 @@ PiLot.View.Tools = (function () {
 			}
 			RC.Utils.toggleClass(this.lblLoading, 'hidden', !loading);
 		}
-	}
+	};
+
+	var PoisManagementPage = function () {
+		this.poiService = null;				// PiLot.Service.Nav.PoiService
+		this.sourcePoiCategories = null;	// map with key = id, value = category
+		this.localPoiCategories = null;		// map with key = name(!), value = category
+		this.sourcePoiFeatures = null;		// map with key = id, value = feature
+		this.localPoiFeatures = null;		// map with key = name(!), value = feature
+		this.tbImportCategories = null;		// HTMLTextAreaElement
+		this.tbImportFeatures = null;		// HTMLTextAreaElement
+		this.tbImportPois = null;			// HTMLTextAreaElement
+		this.rblReplaceOptions = null;		// NodeList
+		this.plhOutput = null;				// HTMLDivElement
+
+		this.initialize();
+	};
+
+	PoisManagementPage.prototype = {
+
+		initialize: function () {
+			this.poiService = PiLot.Service.Nav.PoiService.getInstance();
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
+			this.draw();
+		},
+
+		btnImport_click: function () {
+			this.importAsync();
+		},
+
+		draw: function () {
+			const loader = PiLot.Utils.Loader;
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisManagementPage);
+			loader.getContentArea().appendChild(pageContent);
+			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
+			this.tbImportCategories = pageContent.querySelector('.tbImportCategories');
+			this.tbImportFeatures = pageContent.querySelector('.tbImportFeatures');
+			this.tbImportPois = pageContent.querySelector('.tbImportPois');
+			this.rblReplaceOptions = document.getElementsByName('rblReplaceOptions')
+			pageContent.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
+			this.plhOutput = pageContent.querySelector('.plhOutput');
+		},
+
+		getReplaceOption: function () {
+			let result = null;
+			for (const anOption of this.rblReplaceOptions) {
+				if (anOption.checked) {
+					result = anOption.value;
+					break;
+				}
+			}
+			return result;
+		},
+
+		importAsync: async function () {
+			this.clearOutput();
+			this.writeOutput('Starting import');
+			let success = await this.loadCategoriesAsync();
+			success &&= await this.loadFeaturesAsync();
+			success &&= await this.importPoisAsync();
+			this.writeOutput(`Import ${success ? 'succeeded' : 'failed'}`);
+		},
+
+		loadCategoriesAsync: async function () {
+			let result;
+			this.writeOutput('Reading categories');
+			try {
+				result = true;
+				const rawCategories = JSON.parse(this.tbImportCategories.value);
+				if (!Array.isArray(rawCategories)) {
+					this.writeOutput('ERROR: categories: input is not an array.');
+				} else {
+					this.sourcePoiCategories = new Map();
+					for (const obj of rawCategories) {
+						const poiCategory = PiLot.Model.Nav.PoiCategory.fromData(obj);
+						if (poiCategory) {
+							this.sourcePoiCategories.set(poiCategory.getId(), poiCategory);
+						}
+					}
+					this.localPoiCategories = new Map();
+					const categoriesFromDb = await this.poiService.getCategoriesAsync();
+					for (const [categoryId, category] of categoriesFromDb) {
+						this.localPoiCategories.set(category.getName(), category);
+					}
+					for (const [categoryId, category] of this.sourcePoiCategories) {
+						if (!this.localPoiCategories.has(category.getName())){
+							this.writeOutput(`Did not find a matching local category with name: ${category.getName()}`);
+							result = false;
+						}
+					}
+				}				
+			} catch (ex) {
+				console.error(ex);
+				this.writeOutput(`ERROR processing categories: ${ex}`);
+				result = false;
+			}
+			this.writeOutput(`Categories check ${result ? 'succeeded' : 'failed'}`);
+			this.writeOutput('--------------------------------');
+			return result;
+		},
+
+		loadFeaturesAsync: async function () {
+			let result;
+			this.writeOutput('Reading features');
+			try {
+				result = true;
+				const rawFeatures = JSON.parse(this.tbImportFeatures.value);
+				if (!Array.isArray(rawFeatures)) {
+					this.writeOutput('ERROR: features: input is not an array.');
+				} else {
+					this.sourcePoiFeatures = new Map();
+					for (const obj of rawFeatures) {
+						const poiFeatures = PiLot.Model.Nav.PoiFeature.fromData(obj);
+						if (poiFeatures) {
+							this.sourcePoiFeatures.set(poiFeatures.getId(), poiFeatures);
+						}
+					}
+					this.localPoiFeatures = new Map();
+					const featuresFromDb = await this.poiService.getFeaturesAsync();
+					for (const [featureId, feature] of featuresFromDb) {
+						this.localPoiFeatures.set(feature.getName(), feature);
+					}
+					for (const [featureId, feature] of this.sourcePoiFeatures) {
+						if (!this.localPoiFeatures.has(feature.getName())) {
+							this.writeOutput(`Did not find a matching local feature with name: ${feature.getName()}`);
+							result = false;
+						}
+					}
+				}
+			} catch (ex) {
+				console.error(ex);
+				this.writeOutput(`ERROR processing features: ${ex}`);
+				result = false;
+			}
+			this.writeOutput(`Features check ${result ? 'succeeded' : 'failed'}`);
+			this.writeOutput('--------------------------------');
+			return result;
+		},
+
+		importPoisAsync: async function () {
+			let result;
+			this.writeOutput('Reading pois');
+			const replaceOption = this.getReplaceOption();
+			this.writeOutput(`Replace option: ${replaceOption}`);
+			try {
+				let successCount = 0;
+				const pois = JSON.parse(this.tbImportPois.value);
+				if (Array.isArray(pois)) {
+					for (const poi of pois) {
+						if (await this.importPoi(poi, replaceOption)) {
+							successCount++;
+						}
+					}
+					this.writeOutput(`${successCount} pois imported.`);
+				} else {
+					this.writeOutput('ERROR: pois: input is not an array.');
+				}
+				result = true;
+			} catch (ex) {
+				console.error(ex);
+				this.writeOutput(`ERROR: ${ex}`);
+				result = false;
+			}
+			this.writeOutput('--------------------------------');
+			return result;
+		},
+
+		importPoi: async function (pObj, pReplaceOption) {
+			let result = true;
+			const poi = this.createPoi(pObj);
+			if (poi) {
+				let existingPois;
+				switch (pReplaceOption) {
+					case 'add':
+						poi.saveAsync();
+						break;
+					case 'skip':
+						existingPois = await this.getExistingPoisAsync(poi);
+						if (existingPois.length === 0) {
+							poi.saveAsync();
+						} else {
+							this.writeOutput(`Skipping poi ${this.poiToString(poi)}. Conflicts with ${this.poiToString(existingPois[0])}.`);
+							result = false;
+						}
+						break;
+					case 'replace':
+						existingPois = await this.getExistingPoisAsync(poi);
+						for (const existingPoi of existingPois) {
+							this.writeOutput(`Delete existing poi ${this.poiToString(existingPoi)} as it conflicts with imported poi ${this.poiToString(poi)}`);
+							await existingPoi.deleteAsync();
+						}
+						poi.saveAsync();
+						break;
+				}
+				if (result) {
+					this.writeOutput(`Saving poi ${this.poiToString(poi)}.`);
+				}
+			} else {
+				this.writeOutput(`Poi object could not be parsed. Required attributes are missing.`);
+				result = false;
+			}
+			return result;
+		},
+
+		poiToString: function (pPoi) {
+			return pPoi.getId() + ':' + pPoi.getTitle();
+		},
+
+		createPoi: function (pObj) {
+			let result = null;
+			if (
+				pObj
+				&& pObj.categoryId
+				&& RC.Utils.isNumeric(pObj.latitude)
+				&& RC.Utils.isNumeric(pObj.longitude)
+			) {
+				const category = this.localPoiCategories.get(this.sourcePoiCategories.get(pObj.categoryId).getName());
+				const featureIds = [];
+				if (pObj.featureIds && Array.isArray(pObj.featureIds)) {
+					for (const featureId of pObj.featureIds) {
+						if ((featureId !== 0) && this.sourcePoiFeatures.has(featureId)) {
+							featureIds.push(this.localPoiFeatures.get(this.sourcePoiFeatures.get(featureId).getName()).getId());
+						}
+					}
+				}
+				result = new PiLot.Model.Nav.Poi(
+					null,
+					pObj.title || '',
+					category,
+					featureIds,
+					pObj.latitude,
+					pObj.longitude,
+					RC.Date.DateHelper.unixToLuxon(pObj.validFrom),
+					RC.Date.DateHelper.unixToLuxon(pObj.validTo)
+				);
+				result.setDescription(pObj.description || '');
+			}
+			return result;
+		},
+
+		getExistingPoisAsync: async function (pPoi) {
+			const latLng = pPoi.getLatLng();
+			const pois = await this.poiService.findPoisAsync(
+				latLng.lat - 0.0001,
+				latLng.lng - 0.0001,
+				latLng.lat + 0.0001,
+				latLng.lng + 0.0001,
+				[pPoi.getCategory().getId()],
+				[]
+			);
+			return pois;
+		},
+
+		clearOutput: function () {
+			this.plhOutput.clear();
+		},
+
+		writeOutput: function (pMessage) {
+			this.plhOutput.innerText = `${this.plhOutput.innerText}\n${pMessage}`;
+		}
+	};
 
 	/// return the classes
 	return {
 		ToolsOverviewPage: ToolsOverviewPage,
 		GpsExportForm: GpsExportForm,
 		SpeedDiagram: SpeedDiagram,
-		TilesDownloadForm: TilesDownloadForm
+		TilesDownloadForm: TilesDownloadForm,
+		PoisManagementPage: PoisManagementPage
 	};
 
 })();

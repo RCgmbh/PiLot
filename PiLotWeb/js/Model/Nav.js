@@ -496,6 +496,19 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
+	 * Creates a new PoiCategory based on a data object. Does NOT establish
+	 * parent-child relationships! Returns null, if required attributes are missing.
+	 * @param {Object} pData - object with id, name
+	 */
+	PoiCategory.fromData = function (pData) {
+		let result = null;
+		if (pData.id && pData.name) {
+			result = new PoiCategory(pData.id, pData.name);
+		}
+		return result;
+	};
+
+	/**
 	 * A category for a poi. Has an id, a name and maybe a parent
 	 * @param {number} pId
 	 * @param {string} pName
@@ -528,6 +541,18 @@ PiLot.Model.Nav = (function () {
 		}
 	};
 
+	/**
+	 * Creates a new PoiFeature based on a data object. Returns null,
+	 * if required attributes are missing.
+	 * @param {Object} pData - object with id, name, labels
+	 */
+	PoiFeature.fromData = function (pData) {
+		let result = null;
+		if (pData.id && pData.name) {
+			result = new PoiFeature(pData.id, pData.name, pData.labels || {});
+		}
+		return result;
+	};
 
 	/// Class Waypoint, representing one waypoint being part of a track.
 	/// The constructor expects the route, a geodesy LatLon object as pLatLong,

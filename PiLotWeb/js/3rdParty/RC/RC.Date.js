@@ -16,9 +16,13 @@ RC.Date.DateHelper = {
 		return luxon.DateTime.utc().toMillis();
 	},
 
-	/// gets a luxon object based on seconds from epoch
+	/** gets a luxon object based on seconds from epoch, or null, if pUnix is falsy */
 	unixToLuxon: function (pUnix) {
-		return RC.Date.DateHelper.millisToLuxon(pUnix * 1000);
+		let result = null;
+		if (pUnix) {
+			result = RC.Date.DateHelper.millisToLuxon(pUnix * 1000);
+		}
+		return result;
 	},
 
 	/// gets a luxon object based on milliseconds from epoc

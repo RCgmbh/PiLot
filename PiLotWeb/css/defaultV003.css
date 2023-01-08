@@ -7,7 +7,7 @@ p, th, td, input, button, select, textarea, li, span { font-size:1em;}
 h1{ font-family: 'Lato', sans-serif; font-weight:700; line-height:1.1;}
 h2, h3, h4 { font-family: 'Open Sans', 'Segoe UI', Arial; font-weight: 600; }
 h1 { font-size:1.75em; padding: 0em 0em 0.75em 0em; margin:0.25em 0em 0em 0em; }
-h2 { font-size: 1.5em; padding: 0em; margin: 0.25em 0em 0em 0em; }
+h2 { font-size: 1.25em; padding: 0em; margin: 0.25em 0em 0em 0em; }
 h3 { font-size: 1.1em; }
 *, *:before, *:after {
   -webkit-box-sizing: border-box; 
@@ -187,6 +187,7 @@ textarea.big{height:20em;}
 .bold { font-weight:700; }
 .italic { font-style:italic; }
 .biggerText { font-size: 1.5em; line-height:1.25em; }
+.smallerText { font-size: 0.75em; line-height:0.8em; }
 .warning{color:#FF4949;}
 .bigDisplayText{font-size:2em; line-height:1.25em;}
 .biggerDisplayText{font-size:3em; line-height:1.25em; }

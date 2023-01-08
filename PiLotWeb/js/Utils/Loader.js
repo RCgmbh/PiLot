@@ -51,6 +51,7 @@ PiLot.Utils.Loader = (function () {
 				overview: 'tools',
 				data: 'data',
 				tiles: 'tiles',
+				pois: 'pois'
 			},
 			admin: {
 				overview: 'admin',
@@ -254,6 +255,10 @@ PiLot.Utils.Loader = (function () {
 				case pages.system.tools.tiles:
 					dependencies = [defaultScripts, navScripts, toolsScripts];
 					startAction = function () { new PiLot.View.Tools.TilesDownloadForm(); };
+					break;
+				case pages.system.tools.pois:
+					dependencies = [defaultScripts, navScripts, toolsScripts];
+					startAction = function () { new PiLot.View.Tools.PoisManagementPage(); };
 					break;
 				case pages.system.settings.overview:
 					dependencies = [defaultScripts, settingsScripts];
