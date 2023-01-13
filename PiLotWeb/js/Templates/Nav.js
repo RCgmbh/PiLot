@@ -272,7 +272,12 @@ PiLot.Templates.Nav = {
 
 	poiFeaturesSelector: `
 		<div>
-			<input type="text" class="tbSearch input6 marginBottomSmall" data-title="search" /><a href="#" class="lnkClear" style="margin-left:-1.5em;"><i class="icon-cross"></i></a>
+			<span class="marginRight">
+				<input type="text" class="tbSearch input6 marginBottomSmall" data-title="search" /><a href="#" class="lnkClear" style="margin-left:-1.5em;"><i class="icon-cross"></i></a>
+			</span>
+			<span class="noWrap inlineBlock marginBottomSmall" style="min-width:10em;">
+				<a href="#" class="lnkShowAll" data-text="showAll"></a><a href="#" class="lnkShowSelected" data-text="showSelected" hidden></a>
+			</span>
 			<div class="plhFeatureCheckboxes flexColumn paddingBottomSmall"></div>
 		</div>`,
 

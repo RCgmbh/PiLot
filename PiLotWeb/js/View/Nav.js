@@ -1635,10 +1635,18 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
+	/**
+	 * The list of features, each with a checkbox. Plus a search textbox which allows
+	 * to search for specific items, and a show all / show selected option. To be used
+	 * wherever there is a need to select poi features.
+	 * */
 	var PoiFeaturesSelector = function () {
 		this.control = null;
+		this.showAll = false;
 		this.checkboxMap = null;			// Map with key: feature, value: {checkboxControl, checkbox}
 		this.currentLanguage = null;
+		this.lnkShowAll = null;
+		this.lnkShowSelected = null;
 		this.tbSearch = null;
 		this.initialize();
 	};
@@ -1654,6 +1662,16 @@ PiLot.View.Nav = (function () {
 			this.filterFeatures(e.target.value);
 		},
 
+		lnkShowAll_click: function (e) {
+			e.preventDefault();
+			this.toggleShowAll(true);
+		},
+
+		lnkShowSelected_click: function (e) {
+			e.preventDefault();
+			this.toggleShowAll(false);
+		},
+
 		lnkClear_click: function (e) {
 			e.preventDefault();
 			this.tbSearch.value = '';
@@ -1666,6 +1684,10 @@ PiLot.View.Nav = (function () {
 			this.tbSearch = this.control.querySelector('.tbSearch');
 			this.tbSearch.addEventListener('keyup', this.tbSearch_keyUp.bind(this));
 			this.control.querySelector('.lnkClear').addEventListener('click', this.lnkClear_click.bind(this));
+			this.lnkShowAll = this.control.querySelector('.lnkShowAll');
+			this.lnkShowAll.addEventListener('click', this.lnkShowAll_click.bind(this));
+			this.lnkShowSelected = this.control.querySelector('.lnkShowSelected');
+			this.lnkShowSelected.addEventListener('click', this.lnkShowSelected_click.bind(this));
 			const plhFeatureCheckboxes = this.control.querySelector('.plhFeatureCheckboxes');
 			const sortedFeatures = await this.getSortedFeaturesAsync();
 			sortedFeatures.forEach(function (pFeature) {
@@ -1687,6 +1709,24 @@ PiLot.View.Nav = (function () {
 			return this.drawAsync(pContainer);
 		},
 
+		/**
+		 * Toggles between showing all features, or only those that are selected or
+		 * matching the search criteria
+		 * @param {Boolean} pShowAll
+		 */
+		toggleShowAll: function (pShowAll) {
+			this.tbSearch.value = '';
+			this.showAll = pShowAll;
+			this.lnkShowAll.hidden = pShowAll;
+			this.lnkShowSelected.hidden = !pShowAll;
+			this.filterFeatures(this.tbSearch.value);
+		},
+
+		/** 
+		 *  Creates an array with objects {label, feature}, using the label in the
+		 *  current language and ordered by that label.
+		 *  @returns {Array} - Array of objects { label, feature }
+		 * */
 		getSortedFeaturesAsync: async function () {
 			const result = [];
 			const allFeatures = await PiLot.Service.Nav.PoiService.getInstance().getFeaturesAsync();
@@ -1698,19 +1738,41 @@ PiLot.View.Nav = (function () {
 			return result;
 		},
 
+		/**
+		 * Decides for each checkbox and label whether it should be visisble, based
+		 * on the search key and the current setting for "show all". Checked checkboxes
+		 * are always visible.
+		 * @param {String} pKey - the search key
+		 */
 		filterFeatures: function (pKey) {
 			const key = pKey.toLowerCase();
 			this.checkboxMap.forEach(function (pCheckboxObj, pFeature) {
-				pCheckboxObj.checkboxControl.hidden = key !== '' && !pFeature.getLabel(this.currentLanguage).toLowerCase().includes(key);
+				pCheckboxObj.checkboxControl.hidden = (
+					(
+						!pFeature.getLabel(this.currentLanguage).toLowerCase().includes(key)
+						|| ((key === '') && !this.showAll)
+					) 
+					&& !pCheckboxObj.checkbox.checked
+				);
 			}.bind(this));
 		},
 
+		/**
+		 * Sets the selected features, based on id. This should only be called 
+		 * after the control has been drawn.
+		 * @param {Array} pFeatureIds - Array of numbers
+		 */
 		setSelectedFeatureIds: function (pFeatureIds) {
 			this.checkboxMap.forEach(function (pObjCheckbox, pFeature) {
 				pObjCheckbox.checkbox.checked = pFeatureIds.includes(pFeature.getId())
 			});
+			this.filterFeatures('');
 		},
 
+		/** 
+		 * Gets the ids of the features for which the checkboxes are checked.
+		 * @returns {Array} - Array of numbers
+		 * */
 		getSelectedFeatureIds: function () {
 			const result = [];
 			this.checkboxMap.forEach(function (pObjCheckbox, pFeature) {
