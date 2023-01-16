@@ -1678,6 +1678,11 @@ PiLot.View.Nav = (function () {
 			this.filterFeatures('');
 		},
 
+		cbFeature_change: function (pCheckboxObj, pFeature) {
+			const key = this.tbSearch.value.toLowerCase();
+			this.decideCheckboxVisible(pCheckboxObj, pFeature, key);
+		},
+
 		drawAsync: async function (pContainer) {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiFeaturesSelector);
 			pContainer.appendChild(this.control);
@@ -1694,9 +1699,11 @@ PiLot.View.Nav = (function () {
 				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
 				const cbCheckbox = cbControl.querySelector('.cbCheckbox');
 				const lblLabel = cbControl.querySelector('.lblLabel');
-				this.checkboxMap.set(pFeature.feature, { checkboxControl: cbControl, checkbox: cbCheckbox });
+				const cbObj = { checkboxControl: cbControl, checkbox: cbCheckbox };
+				this.checkboxMap.set(pFeature.feature, cbObj);
 				lblLabel.innerText = pFeature.label;
 				plhFeatureCheckboxes.appendChild(cbControl);
+				cbCheckbox.addEventListener('change', this.cbFeature_change.bind(this, cbObj, pFeature.feature));
 			}.bind(this));
 		},
 
@@ -1747,14 +1754,24 @@ PiLot.View.Nav = (function () {
 		filterFeatures: function (pKey) {
 			const key = pKey.toLowerCase();
 			this.checkboxMap.forEach(function (pCheckboxObj, pFeature) {
-				pCheckboxObj.checkboxControl.hidden = (
-					(
-						!pFeature.getLabel(this.currentLanguage).toLowerCase().includes(key)
-						|| ((key === '') && !this.showAll)
-					) 
-					&& !pCheckboxObj.checkbox.checked
-				);
+				this.decideCheckboxVisible(pCheckboxObj, pFeature, key);
 			}.bind(this));
+		},
+
+		/**
+		 * Decides for a single feature checkbox wheather it should be visible or not
+		 * @param {Object} pCheckboxObj - Object with {cbControl, cbCheckbox}
+		 * @param {PiLot.Model.Nav.PoiFeature} pFeature
+		 * @param {String} pKey - The search key. Saves a handful of toLower operations...
+		 */
+		decideCheckboxVisible: function (pCheckboxObj, pFeature, pKey) {
+			pCheckboxObj.checkboxControl.hidden = (
+				(
+					!pFeature.getLabel(this.currentLanguage).toLowerCase().includes(pKey)
+					|| ((pKey === '') && !this.showAll)
+				)
+				&& !pCheckboxObj.checkbox.checked
+			);
 		},
 
 		/**
