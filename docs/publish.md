@@ -57,7 +57,7 @@ Having changed the users.json file, you also need to restart the pilot api on pi
 sudo systemctl restart pilotApi
 ```
 
-That's already it. Now open the pilot web application on pilot1, go to the logbook page (with the quill icon), add some diary text, create some logbook entries and make sure the gps logger is running. Then change to the diary page (the one with the book icon), make sure you're logged in as admin (click on the smiley on top right) and you should see the "Publish" button at the bottom of the diary page. Klicking it will show the publishing page, where you can select "PiLot2" as target, then select which data you want to publish and hit the "Publish" button. When done, the data for that day will be available on PiLot2 as well.
+That's already it. Now open the pilot web application on pilot1, go to the diary page (with the book icon), select "Edit mode" at the bottom, add some diary text, create some logbook entries and make sure the gps logger is running. Then click the "Publish" link at the bottom of the page (depending on your users configuration, you will have to change the user. You need admin rights for this). Klicking it will show the publishing page, where you can select "PiLot2" as target, then select which data you want to publish and hit the "Publish" button. When done, the data for that day will be available on PiLot2 as well.
 
 Now, well... that's basically it. You have a full-featured PiLot, so it's time to go on the water and see how it works! For any ideas, questions or other feedback, just crate an issue. Good luck and have fun with your PiLot. And don't forget, always have official, up-to date charts with you along with the PiLot.
 
