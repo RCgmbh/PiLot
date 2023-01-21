@@ -30,11 +30,15 @@ RC.Date.DateHelper = {
 		return luxon.DateTime.fromMillis(pMillis, { zone: 'UTC' });
 	},
 
-	/** Converts an ISO String (like 2022-12-02T13:24:56) to an utc based luxon DateTime */
-	isoToLuxon: function (pISOString) {
+	/**
+	 * Converts an ISO String to an utc based luxon DateTime
+	 * @param {String} pIsoString - ISO Date String e.g. 2022-12-02T13:24:56
+	 * @param {String} pLocale - The locale to use for the date, e.g. "de-ch"
+	 * */
+	isoToLuxon: function (pISOString, pLocale) {
 		let result = null;
 		if (typeof (pISOString) === 'string') {
-			result = DateTime.fromISO(pISOString, { zone: 'utc' });
+			result = DateTime.fromISO(pISOString, { zone: 'utc', locale: pLocale });
 		} 
 		return result;
 	},

@@ -1237,7 +1237,9 @@ PiLot.View.Nav = (function () {
 		this.plhCategoryIcon = null;	// HTMLElement where the icon is inserted
 		this.lblCategoryName = null;	// HTMLSpanElement showing the category name
 		this.lblTitle = null;			// HTMLSpanElement showing the poi title
+		this.pnlFeatures = null;		// HTMLDivElement for label and values of features
 		this.ulFeatures = null;			// HTMLUListElement listing all features of this poi
+		this.pnlDescription = null;		// HTMLDivElement for label and values of description
 		this.lblDescription = null;		// HTMLSpanElement showing the description text
 		this.pnlProperties = null;		// HTMLDivElement for label and value of properties
 		this.lblProperties = null;		// HTMLSpanElement containing the properties
@@ -1293,7 +1295,9 @@ PiLot.View.Nav = (function () {
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
 			this.lblTitle = this.control.querySelector('.lblTitle');
+			this.pnlFeatures = this.control.querySelector('.pnlFeatures');
 			this.ulFeatures = this.control.querySelector('.ulFeatures');
+			this.pnlDescription = this.control.querySelector('.pnlDescription');
 			this.lblDescription = this.control.querySelector('.lblDescription');
 			this.pnlProperties = this.control.querySelector('.pnlProperties');
 			this.lblProperties = this.control.querySelector('.lblProperties');
@@ -1320,28 +1324,37 @@ PiLot.View.Nav = (function () {
 			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];
 			this.lblCategoryName.innerText = PiLot.Utils.Language.getText(categoryName);
 			this.lblTitle.innerText = this.poi.getTitle();
-			this.ulFeatures.clear();
-			PiLot.Service.Nav.PoiService.getInstance().loadFeaturesAsync().then(function (pAllFeatures) {
-				this.showFeatures(pAllFeatures);
-			}.bind(this));
-			let description = this.poi.getDescription();
-			description = this.replaceLinks(description);
-			this.lblDescription.innerHTML = description;
+			this.showFeaturesAsync();
+			this.showDescription();
 			// todo: show properties
 			this.showDate(this.poi.getValidFrom(), this.pnlValidFrom, this.lblValidFrom);
 			this.showDate(this.poi.getValidTo(), this.pnlValidTo, this.lblValidTo);
 		},
 
-		showFeatures: function (pAllFeatures) {
-			const currentLanguage = PiLot.Utils.Language.getLanguage();
-			const allFeatures = pAllFeatures;
-			if (this.poi.getFeatureIds().length > 0) {
-				this.poi.getFeatureIds().forEach(function (aFeatureId) {
+		/** Shows the poi features in the current language, or hides the row if there are no features */
+		showFeaturesAsync: async function () {
+			this.ulFeatures.clear();
+			const poiFeatureIds = this.poi.getFeatureIds();
+			if (poiFeatureIds.length > 0) {
+				this.pnlFeatures.hidden = false;
+				const currentLanguage = PiLot.Utils.Language.getLanguage();
+				const allFeatures = await PiLot.Service.Nav.PoiService.getInstance().loadFeaturesAsync();
+				poiFeatureIds.forEach(function (aFeatureId) {
 					const li = document.createElement('li');
 					li.innerHTML = allFeatures.get(aFeatureId).getLabel(currentLanguage);
 					this.ulFeatures.appendChild(li);
 				}.bind(this));
-			}			
+			} else {
+				this.pnlFeatures.hidden = true;
+			}
+		},
+
+		/** Shows the description, replacing links. Hides the row, if there is no description */
+		showDescription: function () {
+			let description = this.poi.getDescription();
+			description = this.replaceLinks(description);
+			this.lblDescription.innerHTML = description;
+			this.pnlDescription.hidden = description.length === 0;
 		},
 
 		replaceLinks: function (pText) {
@@ -1449,7 +1462,7 @@ PiLot.View.Nav = (function () {
 			this.editLongitude = new CoordinateForm(this.control.querySelector('.plhLongitude'), false);
 			this.lblAllowDrag = this.control.querySelector('.lblAllowDrag');
 			this.cbAllowDrag = this.control.querySelector('.cbAllowDrag');
-			const locale = PiLot.Utils.Language.getLocale();
+			const locale = PiLot.Utils.Language.getLanguage();
 			this.calValidFrom = new RC.Controls.Calendar(this.control.querySelector('.calValidFrom'), this.control.querySelector('.tbValidFrom'), null, null, null, locale);
 			this.control.querySelector('.lnkClearValidFrom').addEventListener('click', this.lnkClearValidFrom_click.bind(this));
 			this.control.querySelector('.lnkClearValidTo').addEventListener('click', this.lnkClearValidTo_click.bind(this));

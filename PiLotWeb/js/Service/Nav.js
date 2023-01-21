@@ -82,6 +82,7 @@ PiLot.Service.Nav = (function () {
 		 */
 		poiFromArray: function (pData) {
 			let result = null;
+			const locale = PiLot.Utils.Language.getLanguage();
 			if (Array.isArray(pData)) {
 				result = new PiLot.Model.Nav.Poi(
 					pData[0],
@@ -90,8 +91,8 @@ PiLot.Service.Nav = (function () {
 					pData[3],
 					pData[4],
 					pData[5],
-					RC.Date.DateHelper.isoToLuxon(pData[6]),
-					RC.Date.DateHelper.isoToLuxon(pData[7])
+					RC.Date.DateHelper.isoToLuxon(pData[6], locale),
+					RC.Date.DateHelper.isoToLuxon(pData[7], locale)
 				);
 			} else {
 				PiLot.log('Did not get an array for Poi.fromArray.', 0);
