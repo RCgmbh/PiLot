@@ -46,11 +46,6 @@ PiLot.Utils.Language = {
 		return PiLot.Texts[pKey] || null;
 	},
 
-	/** Returns the locale to be used in date formatting, e.g. de-ch */
-	getLocale: function () {
-		return PiLot.Texts.locale;
-	},
-
 	/** Sets the lang attribute of the html element to the current language */
 	applyHTMLLanguage: function () {
 		document.documentElement.setAttribute('lang', this.getLanguage());

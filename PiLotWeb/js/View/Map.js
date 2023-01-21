@@ -1081,7 +1081,7 @@ PiLot.View.Map = (function () {
 			this.selTrackMode.addEventListener('change', this.selTrackMode_change.bind(this));
 			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
 			this.tbStartDate = optionsControl.querySelector('.tbStartDate');
-			const locale = PiLot.Utils.Language.getLocale();
+			const locale = PiLot.Utils.Language.getLanguage();
 			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), this.tbStartDate, null, this.calDate_change.bind(this), null, locale);
 			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
 			this.calStartDate.showDate();

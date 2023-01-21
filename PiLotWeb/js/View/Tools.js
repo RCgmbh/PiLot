@@ -68,7 +68,7 @@ PiLot.View.Tools = (function () {
 			loader.getContentArea().appendChild(this.pageContent);
 			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			let tbStartDate = this.pageContent.querySelector('.tbStartDate');
-			const locale = PiLot.Utils.Language.getLocale();
+			const locale = PiLot.Utils.Language.getLanguage();
 			this.calStartDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalStartDate'), tbStartDate, null, null, null, locale);
 			this.tbStartTime = this.pageContent.querySelector('.tbStartTime');
 			this.pageContent.querySelector('.lnkStartTimeFromMap').addEventListener('click', this.lnkTimeFromMap_click.bind(this, this.calStartDate, this.tbStartTime));

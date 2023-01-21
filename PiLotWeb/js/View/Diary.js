@@ -102,7 +102,7 @@ PiLot.View.Diary = (function () {
 			const divCalendar = diaryPage.querySelector('.logbookCalendar');
 			const calendarLink = diaryPage.querySelector('.lblCalendarLink');
 			const calendarDate = diaryPage.querySelector('.lblCalendarDate');
-			const locale = PiLot.Utils.Language.getLocale();
+			const locale = PiLot.Utils.Language.getLanguage();
 			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes(), locale);
 			new PiLot.View.Diary.DiaryCalendar(this.calendar, this.diaryInfoCache);
 			this.lnkPreviousDay = diaryPage.querySelector('.lnkPreviousDay');
@@ -246,7 +246,7 @@ PiLot.View.Diary = (function () {
 
 		/** shows the currently selected date in friendly form */
 		showFriendlyDate: function () {
-			const locale = PiLot.Utils.Language.getLocale();
+			const locale = PiLot.Utils.Language.getLanguage();
 			this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale(locale).toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 		},
 
@@ -286,7 +286,7 @@ PiLot.View.Diary = (function () {
 		/** sets the current date, re-loads the data and saves the currently selected day to the user settings */
 		setDate: function (pDate) {
 			this.date = pDate;
-			this.calendar.date(this.date.toLuxon().setLocale(PiLot.Utils.Language.getLocale()));
+			this.calendar.date(this.date.toLuxon().setLocale(PiLot.Utils.Language.getLanguage()));
 			this.calendar.showDate();
 			this.bindPreviousNextButtons();
 			this.bindLnkEditTrack();
