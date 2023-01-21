@@ -1375,7 +1375,7 @@ PiLot.View.Nav = (function () {
 		showDate: function (pDate, pPanel, pLabel) {
 			if (pDate !== null) {
 				pPanel.hidden = false;
-				pLabel.innerText = pDate.toLocaleString(DateTime.DATETIME_SHORT);
+				pLabel.innerText = pDate.toLocaleString(DateTime.DATE_SHORT);
 			} else {
 				pPanel.hidden = true;
 			}
