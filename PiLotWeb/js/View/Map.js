@@ -152,28 +152,27 @@ PiLot.View.Map = (function () {
 			return this;
 		},
 
-		/** This makes sure all map layers are added to or removed from the map according to the current settings */
+		/** Removes all map layers and adds the selected ones, making sure the layers are added in the right order */
 		showHideMapLayersAsync: async function () {
 			const tileSources = await this.mapLayersSettings.getAllTileSourcesAsync();
 			const settings = await this.mapLayersSettings.getSettingsAsync();
+			Array.from(this.mapLayers.keys()).forEach(function (aKey) {
+				this.removeTileLayer(aKey);
+			}.bind(this));
 			for (const [tileSourceName, tileSource] of tileSources) {
 				if (settings.tileSourceNames.includes(tileSourceName)) {
-					if (!this.mapLayers.has(tileSourceName)) {
-						this.addTileLayer(tileSource);
-					}
-				} else {
-					if (this.mapLayers.has(tileSourceName)) {
-						this.removeTileLayer(tileSourceName);
-					}
+					this.addTileLayer(tileSource);
 				}
 			}
 		},
 
+		/** Hides the map */
 		hide: function(){
 			RC.Utils.showHide(this.mapContainer, false);
 			this.hideSettingsContainer();
 		},
 
+		/** Hides the settings container */
 		hideSettingsContainer: function () {
 			RC.Utils.showHide(this.settingsContainer, false);
 		},
