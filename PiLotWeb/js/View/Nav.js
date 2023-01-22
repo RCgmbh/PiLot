@@ -1716,6 +1716,7 @@ PiLot.View.Nav = (function () {
 				this.checkboxMap.set(pFeature.feature, cbObj);
 				lblLabel.innerText = pFeature.label;
 				plhFeatureCheckboxes.appendChild(cbControl);
+				this.decideCheckboxVisible(cbObj, pFeature.feature, '');
 				cbCheckbox.addEventListener('change', this.cbFeature_change.bind(this, cbObj, pFeature.feature));
 			}.bind(this));
 		},
