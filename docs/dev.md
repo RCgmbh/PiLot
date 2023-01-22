@@ -2,7 +2,7 @@
 ## Getting started for Developers
 This document gives an overview of what is needed to build, test and debug the PiLot applications. The first few chapters give a rough overview. Below you will find a step-by-step guide.
 ### Development environment
-You need to be able to compile and debug dotnet core projects in order to build the rest api and the different tools. You can either use [Visual Studio Code](https://code.visualstudio.com/) (multi platform), [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) on Windows, or just the [dotnet SDK](https://dotnet.microsoft.com/en-us/download). For the web application, F12 should usually do.
+You need to be able to compile and debug dotnet core projects in order to build the rest api and the different tools. You can either use [Visual Studio Code](https://code.visualstudio.com/) (multi platform), [Visual Studio Community](https://visualstudio.microsoft.com/vs/community/) on Windows, or just the [dotnet SDK](https://dotnet.microsoft.com/en-us/download). For debugging the web application, F12 should usually do.
 
 ### Get the code
 Clone the entire PiLot solution from github. Either use git, or the built-in functions in Visual Studio.
@@ -86,7 +86,17 @@ We need to enter the data- and log paths into a bunch of config files (always re
 
 Copy **PiLotAPICore/app.example.config** to **PiLotAPICore/app.config**, and set `value="/home/[username]/Documents/piLotDev/data"` where `key="dataDir"` and `value="/home/[username]/Documents/piLotDev/data"` where `key=logfilePath`, or whatever directories you just created before.
 
-Copy **PiLotSensors/app.example.config** to **PiLotSensors/app.config**, and update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/piLotDev/data/sensors/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/pilotapi/v1`.
+Copy **PiLotSensors/app.example.config** to **PiLotSensors/app.config**, and update the logfilePath in the same way. Furthermore, update the value for sensorsConfigFile. The value here is `/home/[username]/Documents/repos/PiLotAPICore/config/sensors.json`. Before we work with the SensorsLogger, we will have to update the content of the sensors.json file, but we will do that later. And we need to update the `localAPI` value, which would usually be `http://localhost/pilotapi/v1`.
+
+Also copy these config files (there are .default.json files in the repo, and when you create .json files from them, without the .default, those will be excluded from git, so that you can change your local files without having to push them back):
+```
+cd ~/Documents/repos/PiLotAPICore/config
+cp authorization.default.json authorization.json
+cp users.default.json users.json
+cp sensors.default.json sensors.json
+cp tileSources.default.json tileSources.json
+cp publishingTargets.default.json publishingTargets.json
+```
 
 Tadaa... it's finally time for a first test. In VS Code, hit F5 so that the API gets started. In a browser, enter http://localhost/PiLotWeb. In the best of all cases, this will launch the PiLot web app. In the normal case, hit F12 and spend some time fixing all the issues - things you did wrong, things that I have forgotten or mixed up in the above description.
 
@@ -102,12 +112,6 @@ cd ..
 sudo chmod -R [username]:www-data tiles
 sudo chmod -R 771 tiles
 ``` 
-
-Now there's another config file to update, where we define our tile sources:
-```
-sudo nano ~/Documents/piLotDev/data/tiles/tileSources.json
-```
-In the first block, where name="osm", set localPath to `/var/www/html/tiles/openstreetmap/{0}/{1}/{2}.png`, and in the second block, for openseamap, set localPath to `/var/www/html/tiles/openseamap/{0}/{1}/{2}.png`. As the tileSources are cached in the application, we need to refresh the cache (or just restart the API in VS code). Open http://localhost/pilotapi/v1/TileSources/ReloadConfig. A blank page means everything is fine.
 
 To download tiles, we open the tools page in the Web App (the tools icon in the lowermost menu section), and then click on the "Local Tiles" item. This brings up the tiles download tool. First navigate to the area you want to download. Then check the "Download" checkboxes for both sources (osm and openseamap). As soon as the map loads new tiles (when zooming or panning the map), these tiles will be saved in our local tiles directories. Additionally, you can choose to automatically save lower and higher zoom-levels. When selecting all lower zoom levels, and 2 higher zoom levels, things will take quite a while, but you will soon have a rather ok map available offline. To test whether the tiles have successfully downloaded, klick the "map" icon in the second section of the navigation. You should now see a proper offline map.
 
