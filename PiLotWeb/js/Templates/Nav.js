@@ -307,7 +307,9 @@ PiLot.Templates.Nav = {
 
 	poi_event: '<i class="icon-pin"></i>',
 
-	poi_measuringstation: '<i class="icon-meter2"</i>',
+	poi_measuringstation: '<i class="icon-meter2"></i>',
 
-	poi_sight: '<i class="icon-eye"</i>'
+	poi_sight: '<i class="icon-eye"></i>',
+
+	poi_nicePlace: '<i class="icon-sun"></i>'
 };

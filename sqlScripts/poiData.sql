@@ -29,6 +29,7 @@ INSERT INTO poi_categories (parent_id, name, date_created, date_changed) SELECT 
 INSERT INTO poi_categories (parent_id, name, date_created, date_changed) SELECT id, 'obstacle', NOW(), NOW() FROM poi_categories WHERE name='object';
 INSERT INTO poi_categories (parent_id, name, date_created, date_changed) SELECT id, 'measuringstation', NOW(), NOW() FROM poi_categories WHERE name='object';
 INSERT INTO poi_categories (parent_id, name, date_created, date_changed) SELECT id, 'sight', NOW(), NOW() FROM poi_categories WHERE name='object';
+INSERT INTO poi_categories (parent_id, name, date_created, date_changed) SELECT id, 'nicePlace', NOW(), NOW() FROM poi_categories WHERE name='object';
 
 
 /* INSERT FEATURES */

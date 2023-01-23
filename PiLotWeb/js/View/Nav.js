@@ -1689,6 +1689,7 @@ PiLot.View.Nav = (function () {
 			e.preventDefault();
 			this.tbSearch.value = '';
 			this.filterFeatures('');
+			this.tbSearch.focus();
 		},
 
 		cbFeature_change: function (pCheckboxObj, pFeature) {
