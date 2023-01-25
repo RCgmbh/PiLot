@@ -157,6 +157,48 @@ PiLot.Templates.Map = {
 			<div>
 				<span class="symbol"><i class="icon-map3"></i></span>
 			</div>
-		</a>` 
+		</a>`,
+
+	PolylineMeasure: {
+		tempLine: {								// Styling settings for the temporary dashed line
+			color: 'rgba(142, 105, 41, 0.8)' ,	// Dashed line color
+			weight: 2							// Dashed line weight
+		},
+		fixedLine: {                    // Styling for the solid line
+			color: '#214372',           // Solid line color
+			weight: 2                   // Solid line weight
+		},
+		arrow: {                        // Styling of the midway arrow 
+			color: '#214372',           // Color of the arrow
+		},
+		startCircle: {                  // Style settings for circle marker indicating the starting point of the polyline
+			color: '#000',              // Color of the border of the circle
+			weight: 1,                  // Weight of the circle
+			fillColor: '#4992FF',          // Fill color of the circle
+			fillOpacity: 0.8,           // Fill opacity of the circle
+			radius: 5                   // Radius of the circle
+		},
+		intermedCircle: {               // Style settings for all circle markers between startCircle and endCircle
+			color: '#000',              // Color of the border of the circle
+			weight: 1,                  // Weight of the circle
+			fillColor: '#4992FF',          // Fill color of the circle
+			fillOpacity: 0.8,             // Fill opacity of the circle
+			radius: 5                   // Radius of the circle
+		},
+		currentCircle: {                // Style settings for circle marker indicating the latest point of the polyline during drawing a line
+			color: '#000',              // Color of the border of the circle
+			weight: 1,                  // Weight of the circle
+			fillColor: '#FFBF49',          // Fill color of the circle
+			fillOpacity: 0.8,             // Fill opacity of the circle
+			radius: 5                   // Radius of the circle
+		},
+		endCircle: {                    // Style settings for circle marker indicating the last point of the polyline
+			color: '#000',              // Color of the border of the circle
+			weight: 1,                  // Weight of the circle
+			fillColor: '#4992FF',          // Fill color of the circle
+			fillOpacity: 0.8,             // Fill opacity of the circle
+			radius: 5                   // Radius of the circle
+		},
+	},
 
 };

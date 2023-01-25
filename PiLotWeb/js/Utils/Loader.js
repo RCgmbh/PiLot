@@ -94,6 +94,7 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/3rdParty/leaflet/leaflet.js', priority: 1 },
 		{ url: 'js/3rdParty/leaflet/leaflet.nauticscale.js', priority: 10 },
 		{ url: 'js/3rdParty/leaflet/fallback.js', priority: 10 },
+		{ url: 'js/3rdParty/leaflet/Leaflet.PolylineMeasure.js', priority: 5 },
 		{ url: 'js/Service/Nav.js', priority: 10 },
 		{ url: 'js/Model/Nav.js', priority: 10 },
 		{ url: 'js/View/Nav.js', priority: 10 },

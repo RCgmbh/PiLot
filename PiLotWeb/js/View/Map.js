@@ -134,6 +134,7 @@ PiLot.View.Map = (function () {
 				this.leafletMap = new L.Map(this.mapContainer, { zoomControl: false });
 				new L.control.zoom({ position: 'topright' }).addTo(this.leafletMap);
 				this.addScale();
+				this.addMeasureTool();
 				this.mapLayers = new Map();
 				if (this.showLayers) {
 					await this.showHideMapLayersAsync();
@@ -229,6 +230,26 @@ PiLot.View.Map = (function () {
 				nautic: true,
 				maxWidth: 250
 			}));
+		},
+
+		/** Adds the polyline measure tool */
+		addMeasureTool: function () {
+			const options = {
+				position: 'topright',
+				unit: 'nauticalmiles',
+				tooltipTextFinish: `${PiLot.Utils.Language.getText('clickToFinishLine')}<br/>`  ,//'Click to <b>finish line</b><br>',
+				tooltipTextDelete: PiLot.Utils.Language.getText('shiftClickToDeletePoint'), // 'Press SHIFT-key and click to <b>delete point</b>',
+				tooltipTextMove: `${PiLot.Utils.Language.getText('clickAndDragToMovePoint')}<br/>`, //'Click and drag to <b>move point</b><br>',
+				tooltipTextResume: `<br/>${PiLot.Utils.Language.getText('ctrlClickToResume')}`, // '<br>Press CTRL-key and click to <b>resume line</b>',
+				tooltipTextAdd: PiLot.Utils.Language.getText('ctrlClickToAddPoint'), // 'Press CTRL-key and click to <b>add point</b>',
+				measureControlTitleOn: PiLot.Utils.Language.getText('turnOnPolylineMeasure'), // 'Turn on PolylineMeasure',   // Title for the Measure Control going to be switched on
+				measureControlTitleOff: PiLot.Utils.Language.getText('turnOffPolylineMeasure'), //'Turn off PolylineMeasure', // Title for the Measure Control going to be switched off
+			};
+			const guiOptions = PiLot.Templates.Map.PolylineMeasure;
+			for (let aField in guiOptions) {
+				options[aField] = guiOptions[aField];
+			}
+			L.control.polylineMeasure(options).addTo(this.leafletMap);
 		},
 
 		/// binds some default event handlers to the map
