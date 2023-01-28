@@ -281,35 +281,7 @@ PiLot.Templates.Nav = {
 			<div class="plhFeatureCheckboxes flexColumn paddingBottomSmall"></div>
 		</div>`,
 
-	poi_object: '<i class="icon-location"></i>',
+	poiCategoryIconCss: '<i class="{{icon}}"></i>',
 
-	poi_health: '<i class="icon-health"></i>',
-
-	poi_lock: '<img src="img/icons/lock.svg" />',
-
-	poi_marina: `<img src="img/icons/marina.svg" />`,
-
-	poi_gazstation: '<img src="img/icons/gazstation.svg" />',
-
-	poi_mooring: '<img src="img/icons/mooring.svg" />',
-
-	poi_anchorage: '<i class="icon-anchor"></i>',
-
-	poi_toilet: '<i class="icon-man-woman"></i>',
-
-	poi_restaurant: '<i class="icon-spoon-knife"></i>',
-
-	poi_shop: '<i class="icon-cart"></i>',
-
-	poi_obstacle: '<i class="icon-warning2"></i>',
-
-	poi_information: '<i class="icon-info2"></i>',
-
-	poi_event: '<i class="icon-pin"></i>',
-
-	poi_measuringstation: '<i class="icon-meter2"></i>',
-
-	poi_sight: '<i class="icon-eye"></i>',
-
-	poi_nicePlace: '<i class="icon-sun"></i>'
+	poiCategoryIconSvg: '<img src="img/icons/{{icon}}" />'
 };

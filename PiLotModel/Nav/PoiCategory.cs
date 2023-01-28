@@ -16,5 +16,12 @@ namespace PiLot.Model.Nav {
 		
 		[JsonPropertyName("name")]
 		public String Name { get; set; }
+		
+		[JsonPropertyName("labels")]
+		public Object Labels { get; set; }
+		
+		[JsonPropertyName("icon")]
+		public String Icon { get; set; }
+
 	}
 }

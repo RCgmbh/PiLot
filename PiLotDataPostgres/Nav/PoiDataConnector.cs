@@ -234,7 +234,9 @@ namespace PiLot.Data.Postgres.Nav {
 		private PoiCategory ReadPoiCategory(NpgsqlDataReader pReader) {
 			PoiCategory result = new PoiCategory() {
 				ID = pReader.GetInt32("id"),
-				Name = pReader.GetString("name")
+				Name = pReader.GetString("name"),
+				Labels = pReader.GetValue("labels"),
+				Icon = pReader.GetString("icon")
 			};
 			if (!pReader.IsDBNull("parent_id")) {
 				result.ParentId = pReader.GetInt32("parent_id");

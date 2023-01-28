@@ -1320,9 +1320,9 @@ PiLot.View.Nav = (function () {
 		showPoi: function (pPoi) {
 			this.poi = pPoi;
 			this.show();
-			const categoryName = this.poi.getCategory().getName();
-			this.plhCategoryIcon.innerHTML = PiLot.Templates.Nav[`poi_${categoryName}`];
-			this.lblCategoryName.innerText = PiLot.Utils.Language.getText(categoryName);
+			const category = this.poi.getCategory();
+			this.plhCategoryIcon.innerHTML = PiLot.View.Nav.getPoiCategoryIcon(category.getName()); //PiLot.Templates.Nav[`poi_${categoryName}`];
+			this.lblCategoryName.innerText = category.getLabel(PiLot.Utils.Language.getLanguage()); //PiLot.Utils.Language.getText(categoryName);
 			this.lblTitle.innerText = this.poi.getTitle();
 			this.showFeaturesAsync();
 			this.showDescription();
@@ -1392,6 +1392,25 @@ PiLot.View.Nav = (function () {
 			document.body.classList.toggle('overflowHidden', false);
 			this.control.hidden = true;
 		}
+	};
+
+	/**
+	 * Creates the poi category icon based on the icon information stored with the poi.
+	 * Starting with "css:", an i element with the given class is returned, 
+	 * starting with "img:", an image with its source in /img/icons and the given filename is returned,
+	 * else the raw value is returned
+	 * @param {String} pRawIcon - css:icon, svg:icon; see method description
+	 */
+	var getPoiCategoryIcon = function (pRawIcon) {
+		let result;
+		if (pRawIcon.startsWith('css:')) {
+			result = PiLot.Templates.Nav.poiCategoryIconCss.replace("{{icon}}", pRawIcon.substring(4));
+		}
+		else if (pRawIcon.startsWith('svg:')) {
+			result = PiLot.Templates.Nav.poiCategoryIconSvg.replace("{{icon}}", pRawIcon.substring(4));
+		}
+		else result = pRawIcon;
+		return result;
 	};
 
 	/**
@@ -2050,6 +2069,7 @@ PiLot.View.Nav = (function () {
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,
 		PoiDetails: PoiDetails,
+		getPoiCategoryIcon: getPoiCategoryIcon,
 		PoiForm: PoiForm,
 		PoiFeaturesSelector: PoiFeaturesSelector,
 		CategoriesList: CategoriesList,

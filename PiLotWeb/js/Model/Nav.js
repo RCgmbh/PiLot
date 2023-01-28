@@ -440,12 +440,16 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * A category for a poi. Has an id, a name and maybe a parent
-	 * @param {number} pId
-	 * @param {string} pName
+	 * @param {Number} pId
+	 * @param {String} pName
+	 * @param {Object} pLabels - labels in different languages as object
+	 * @param {String} pIcon - the icon, either with css:(class) or svg:(name of svg file in /img/icons)
 	 */
-	var PoiCategory = function (pId, pName) {
+	var PoiCategory = function (pId, pName, pLabels, pIcon) {
 		this.id = pId;
 		this.name = pName;
+		this.labels = pLabels;
+		this.icon = pIcon;
 		this.parent = null;
 		this.children = null;
 		this.initialize();
@@ -482,6 +486,15 @@ PiLot.Model.Nav = (function () {
 			this.name = pName;
 		},
 
+		getLabel: function (pLanguage) {
+			return this.labels[pLanguage] || this.name;
+		},
+
+		/** @retuns{String} the raw icon, either css:(class name) or svg:(svg file name) */
+		getIcon: function () {
+			return this.icon;
+		},
+
 		getLevel: function () {
 			return (this.parent ? this.parent.getLevel() + 1 : 0);
 		},
@@ -503,15 +516,16 @@ PiLot.Model.Nav = (function () {
 	PoiCategory.fromData = function (pData) {
 		let result = null;
 		if (pData.id && pData.name) {
-			result = new PoiCategory(pData.id, pData.name);
+			result = new PoiCategory(pData.id, pData.name, pData.labels || {}, pData.icon);
 		}
 		return result;
 	};
 
 	/**
-	 * A category for a poi. Has an id, a name and maybe a parent
-	 * @param {number} pId
-	 * @param {string} pName
+	 * A feature for a poi. 
+	 * @param {Number} pId
+	 * @param {String} pName
+	 * @param {Object} pLabels - labels in different languages as object
 	 */
 	var PoiFeature = function (pId, pName, pLabels) {
 		this.id = pId;

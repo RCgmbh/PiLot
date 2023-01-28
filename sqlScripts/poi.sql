@@ -13,6 +13,7 @@ DROP FUNCTION IF EXISTS delete_poi;
 DROP FUNCTION IF EXISTS find_pois;
 DROP FUNCTION IF EXISTS read_poi;
 DROP FUNCTION IF EXISTS insert_poi_category;
+DROP FUNCTION IF EXISTS update_poi_category;
 DROP FUNCTION IF EXISTS insert_poi_feature;
 DROP VIEW IF EXISTS all_pois;
 DROP VIEW IF EXISTS poi_latest_change;
@@ -28,6 +29,8 @@ CREATE TABLE poi_categories(
 	id serial PRIMARY KEY,
 	parent_id integer REFERENCES poi_categories,
 	name text NOT NULL,
+	labels jsonb,
+	icon text,
 	date_created timestamp NOT NULL,
 	date_changed timestamp NOT NULL
 
@@ -42,20 +45,47 @@ GRANT DELETE ON poi_categories TO pilotweb;
 
 CREATE OR REPLACE FUNCTION public.insert_poi_category(
 	p_parent_id integer,
-	p_name text
+	p_name text,
+	p_labels jsonb,
+	p_icon text
 )
     RETURNS integer
     LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO poi_categories(
-		parent_id, name, date_created, date_changed
+		parent_id, name, labels, icon, date_created, date_changed
 	) VALUES (
-		p_parent_id, p_name, NOW(), NOW()
+		p_parent_id, p_name, p_labels, p_icon, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
+
+/*-----------FUNCTION insert_poi_category-----------------*/
+
+CREATE OR REPLACE FUNCTION public.update_poi_category(
+	p_id integer
+	p_parent_id integer,
+	p_name text,
+	p_labels jsonb,
+	p_icon text
+)
+    RETURNS void
+    LANGUAGE 'sql'
+AS $BODY$
+	UPDATE poi_categories
+	SET
+		parent_id = p_parent_id,
+		name = p_name,
+		labels = p_labels,
+		icon = p_icon,
+		date_changed = NOW()
+	WHERE 
+		id = p_id;
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION update_poi_category to pilotweb;
 
 /*---------- TABLE poi_features --------------------------*/
 

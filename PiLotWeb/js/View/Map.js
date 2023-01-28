@@ -504,7 +504,7 @@ PiLot.View.Map = (function () {
 			this.hide();
 		},
 
-		/** @returns {Object} {showPois: boolean, categoryIds: number[]} */
+		/** @returns {Object} {tileSourceNames: String[], showPois: Boolean, categoryIds: Number[], featureIds: Number[]} */
 		getSettingsAsync: async function () {
 			await this.loadSettingsAsync();
 			return this.createSettingsObject();
@@ -752,7 +752,7 @@ PiLot.View.Map = (function () {
 		this.seamap = pSeamap;
 		this.settingsControl = pSettingsControl;
 		this.pois = null;							// map with key=poi.id and value={poi, marker}
-		this.categoriesMap = null;					// map with key=category.id and value = category
+		this.categoryIcons = null;					// map with key=category.id and value=icon html
 		this.poiDetailControl = null;				// PiLot.View.Nav.PoiDetails
 		this.poiFormControl = null;					// PiLot.View.Nav.PoiForm
 		this.initializeAsync();
@@ -833,10 +833,10 @@ PiLot.View.Map = (function () {
 			const minLng = Math.max(minPoint.lng - deltaLng, -180);
 			const maxLat = Math.min(maxPoint.lat + deltaLat, 90);
 			const maxLng = Math.min(maxPoint.lng + deltaLng, 180);
-			const poiService = PiLot.Service.Nav.PoiService.getInstance();
 			const settings = await this.settingsControl.getSettingsAsync();
 			if (settings.showPois) {
-				const pois = await poiService.findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
+				await this.ensureCategoryIconsAsync();
+				const pois = await PiLot.Service.Nav.PoiService.getInstance().findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
 				const newPois = [];
 				pois.forEach(function (p) {
 					const objPoi = this.drawMarker(p, false, false);
@@ -844,6 +844,17 @@ PiLot.View.Map = (function () {
 				}.bind(this));
 				this.resizeMarkers(newPois);
 			}			
+		},
+
+		/** Fills a map with the category icon html for each category */
+		ensureCategoryIconsAsync: async function () {
+			if (!this.categoryIcons) {
+				const poiCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+				this.categoryIcons = new Map();
+				for (const [categoryId, category] of poiCategories) {
+					this.categoryIcons.set(categoryId, PiLot.View.Nav.getPoiCategoryIcon(category.getIcon()));
+				}
+			}
 		},
 
 		/**
@@ -860,7 +871,8 @@ PiLot.View.Map = (function () {
 				this.removePoi(pPoi);
 			}
 			if (!this.pois.has(pPoi.getId())) {
-				const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
+				//const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
+				const iconHtml = this.categoryIcons.get(pPoi.getCategory().getId());
 				const icon = L.divIcon({
 					className: 'poiMarker', iconSize: [null, null], html: iconHtml
 				});
