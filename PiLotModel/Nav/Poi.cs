@@ -44,5 +44,17 @@ namespace PiLot.Model.Nav {
 		[JsonPropertyName("validTo")]
 		public Int32? ValidTo { get; set; }
 
+		/// <summary>
+		/// The name of the source, for POIs with external sources, e.g. OSM
+		/// </summary>
+		[JsonPropertyName("source")]
+		public String Source { get; set; }
+
+		/// <summary>
+		/// The Pois' id in the source system
+		/// </summary>
+		[JsonPropertyName("sourceId")]
+		public String SourceID { get; set; }
+
 	}
 }

@@ -317,8 +317,10 @@ PiLot.Model.Nav = (function () {
 	 * @param {Number} pLon - Longitude in degrees WGS84
 	 * @param {DateTime} pValidFrom - Valid from in UTC, Luxon object
 	 * @param {DateTime} pValidTo - Valid to in UTC, Luxon object
+	 * @param {String} pSource - the name of the source for external pois
+	 * @param {String} pSourceId - the poi's id in the source system
 	 */
-	var Poi = function (pId = null, pTitle = null, pCategory = null, pFeatureIds = null, pLat = null, pLon = null, pValidFrom = null, pValidTo = null) {
+	var Poi = function (pId = null, pTitle = null, pCategory = null, pFeatureIds = null, pLat = null, pLon = null, pValidFrom = null, pValidTo = null, pSource = null, pSourceId = null) {
 		this.id = pId;
 		this.title = pTitle;
 		this.category = pCategory;
@@ -327,6 +329,8 @@ PiLot.Model.Nav = (function () {
 		this.setLatLng(pLat, pLon);
 		this.validFrom = pValidFrom;
 		this.validTo = pValidTo;
+		this.source = pSource;
+		this.sourceId = pSourceId;
 		this.detailsLoaded = false;
 		this.description = null;
 		this.properties = null;
@@ -397,13 +401,25 @@ PiLot.Model.Nav = (function () {
 		getValidFrom: function () { return this.validFrom; },
 
 		/** @param {DateTime} pValidFrom */
-		setValidFrom: function (pValidFrom) { this.validFrom = pValidFrom },
+		setValidFrom: function (pValidFrom) { this.validFrom = pValidFrom; },
 
 		/** @returns {DateTime} */
 		getValidTo: function () { return this.validTo; },
 
 		/** @param {DateTime} pValidTo*/
-		setValidTo: function (pValidTo) { this.validTo = pValidTo },
+		setValidTo: function (pValidTo) { this.validTo = pValidTo; },
+
+		/** @returns {String} */
+		getSource: function () { return this.source; },
+
+		/** @param {String} pSource */
+		setSource: function (pSource) { this.source = pSource; },
+
+		/** @returns {String} */
+		getSourceId: function () { return this.sourceId; },
+
+		/** @param {String} pSourceId */
+		setSourceId: function (pSourceId) { this.sourceId = pSourceId; },
 
 		/** Makes sure the (description, properties) have been loaded from the server */
 		ensureDetailsAsync: async function () {
@@ -426,6 +442,8 @@ PiLot.Model.Nav = (function () {
 				longitude: this.latLng.lng,
 				validFrom: this.validFrom ? RC.Date.DateHelper.luxonToUnix(this.validFrom) : null,
 				validTo: this.validTo ? RC.Date.DateHelper.luxonToUnix(this.validTo) : null,
+				source: this.source,
+				sourceId: this.sourceId
 			};
 			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoi(obj);
 			this.id = result.data;

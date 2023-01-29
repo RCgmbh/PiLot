@@ -1321,7 +1321,7 @@ PiLot.View.Nav = (function () {
 			this.poi = pPoi;
 			this.show();
 			const category = this.poi.getCategory();
-			this.plhCategoryIcon.innerHTML = PiLot.View.Nav.getPoiCategoryIcon(category.getName()); //PiLot.Templates.Nav[`poi_${categoryName}`];
+			this.plhCategoryIcon.innerHTML = PiLot.View.Nav.getPoiCategoryIcon(category.getIcon()); //PiLot.Templates.Nav[`poi_${categoryName}`];
 			this.lblCategoryName.innerText = category.getLabel(PiLot.Utils.Language.getLanguage()); //PiLot.Utils.Language.getText(categoryName);
 			this.lblTitle.innerText = this.poi.getTitle();
 			this.showFeaturesAsync();

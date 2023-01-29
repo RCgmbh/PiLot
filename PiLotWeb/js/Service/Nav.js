@@ -92,7 +92,9 @@ PiLot.Service.Nav = (function () {
 					pData[4],
 					pData[5],
 					RC.Date.DateHelper.isoToLuxon(pData[6], locale),
-					RC.Date.DateHelper.isoToLuxon(pData[7], locale)
+					RC.Date.DateHelper.isoToLuxon(pData[7], locale),
+					pData[8],
+					pData[9]
 				);
 			} else {
 				PiLot.log('Did not get an array for Poi.fromArray.', 0);

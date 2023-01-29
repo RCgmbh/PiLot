@@ -12,9 +12,9 @@ fi
 
 cd /home/pi/repos/PiLot
 git pull
-echo "Copy website data"
+echo "Copy website files"
 rsync -vr PiLotWeb/* /var/www/html/pilot/ --exclude 'js/Config*.js'
-echo "Copy website data done."
+echo "Copy website files done."
 echo "Build and install latest API Version"
 systemctl stop gpsLogger
 systemctl stop pilotApi

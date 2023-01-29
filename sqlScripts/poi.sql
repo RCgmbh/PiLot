@@ -12,6 +12,7 @@ DROP FUNCTION IF EXISTS update_poi;
 DROP FUNCTION IF EXISTS delete_poi;
 DROP FUNCTION IF EXISTS find_pois;
 DROP FUNCTION IF EXISTS read_poi;
+DROP FUNCTION IF EXISTS read_external_poi;
 DROP FUNCTION IF EXISTS insert_poi_category;
 DROP FUNCTION IF EXISTS update_poi_category;
 DROP FUNCTION IF EXISTS insert_poi_feature;
@@ -65,15 +66,14 @@ GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
 /*-----------FUNCTION insert_poi_category-----------------*/
 
 CREATE OR REPLACE FUNCTION public.update_poi_category(
-	p_id integer
+	p_id integer,
 	p_parent_id integer,
 	p_name text,
 	p_labels jsonb,
 	p_icon text
 )
-    RETURNS void
-    LANGUAGE 'sql'
-AS $BODY$
+    RETURNS void AS 
+'
 	UPDATE poi_categories
 	SET
 		parent_id = p_parent_id,
@@ -83,7 +83,8 @@ AS $BODY$
 		date_changed = NOW()
 	WHERE 
 		id = p_id;
-$BODY$;
+'
+LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION update_poi_category to pilotweb;
 
@@ -132,13 +133,19 @@ CREATE TABLE pois(
 	coordinates geography(POINT, 4326) NOT NULL,
 	valid_from timestamp,
 	valid_to timestamp,
+	source text,
+	source_id text,
 	date_created timestamp NOT NULL,
 	date_changed timestamp NOT NULL
 );
 
-CREATE INDEX pois_coordinats_index
+CREATE INDEX pois_coordinates_index
   ON pois
   USING GIST (coordinates);
+
+CREATE INDEX pois_source_index
+  ON pois
+  USING btree (source ASC NULLS LAST, source_id ASC NULLS LAST);
 
 GRANT SELECT ON pois TO pilotweb;
 GRANT INSERT ON pois TO pilotweb;
@@ -171,7 +178,9 @@ CREATE VIEW all_pois AS
 		ST_Y(coordinates::geometry) AS latitude,
 		ST_X(coordinates::geometry) AS longitude,
 		valid_from,
-		valid_to
+		valid_to,
+		source,
+		source_id
 	FROM pois LEFT JOIN poi_features__pois f ON pois.id = f.poi_id
 	GROUP BY pois.id;
 
@@ -187,18 +196,24 @@ CREATE FUNCTION insert_poi(
 	p_latitude double precision,
 	p_longitude double precision,
 	p_valid_from timestamp,
-	p_valid_to timestamp
+	p_valid_to timestamp,
+	p_source text,
+	p_source_id text
 )
 RETURNS bigint AS 
 '
 	INSERT INTO pois(
 		title, description, category_id, properties,
 		coordinates,
-		valid_from, valid_to, date_created, date_changed
+		valid_from, valid_to,
+		source, source_id,
+		date_created, date_changed
 	) VALUES (
 		p_title, p_description, p_category_id, p_properties,
 		ST_MakePoint(p_longitude, p_latitude),
-		p_valid_from, p_valid_to, NOW(), NOW()
+		p_valid_from, p_valid_to,
+		p_source, p_source_id,
+		NOW(), NOW()
 	)
 	RETURNING ID;
 '
@@ -218,12 +233,13 @@ CREATE FUNCTION update_poi(
 	p_latitude double precision,
 	p_longitude double precision,
 	p_valid_from timestamp,
-	p_valid_to timestamp
+	p_valid_to timestamp,
+	p_source text,
+	p_source_id text
 )
 RETURNS bigint AS 
 '
-	UPDATE pois
-	SET
+	UPDATE pois SET
 		title = p_title,
 		description = p_description,
 		category_id = p_category_id,
@@ -231,6 +247,8 @@ RETURNS bigint AS
 		coordinates = ST_MakePoint(p_longitude, p_latitude),
 		valid_from = p_valid_from,
 		valid_to = p_valid_to,
+		source = p_source,
+		source_id = p_source_id,
 		date_changed = NOW()
 	WHERE
 		id = p_id
@@ -273,7 +291,9 @@ CREATE FUNCTION find_pois(
 	latitude double precision,
 	longitude double precision,
 	valid_from timestamp,
-	valid_to timestamp
+	valid_to timestamp,
+	source text,
+	source_id text
 ) AS $$
 	SELECT 
 		id,
@@ -283,7 +303,9 @@ CREATE FUNCTION find_pois(
 		latitude,
 		longitude,
 		valid_from,
-		valid_to
+		valid_to,
+		source,
+		source_id
 	FROM all_pois
 	WHERE
 		ST_Intersects (
@@ -317,7 +339,9 @@ CREATE FUNCTION read_poi(
 	latitude double precision,
 	longitude double precision,
 	valid_from timestamp,
-	valid_to timestamp
+	valid_to timestamp,
+	source text,
+	source_id text
 ) AS $$
 	SELECT 
 		id,
@@ -329,7 +353,9 @@ CREATE FUNCTION read_poi(
 		latitude,
 		longitude,
 		valid_from,
-		valid_to
+		valid_to,
+		source,
+		source_id
 	FROM all_pois
 	WHERE
 		id = poi_id
@@ -337,6 +363,45 @@ $$
 LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION read_poi TO pilotweb;
+
+/*----------- FUNCTION read_external_poi -------------------------------------*/
+
+CREATE FUNCTION read_external_poi(
+	p_source text, p_source_id text
+) RETURNS TABLE (
+	id bigint,
+	title text,
+	description text,
+	category_id integer,
+	feature_ids integer[],
+	properties jsonb,
+	latitude double precision,
+	longitude double precision,
+	valid_from timestamp,
+	valid_to timestamp,
+	source text,
+	source_id text
+) AS $$
+	SELECT 
+		id,
+		title,
+		description,
+		category_id,
+		feature_ids,
+		properties,
+		latitude,
+		longitude,
+		valid_from,
+		valid_to,
+		source,
+		source_id
+	FROM all_pois
+	WHERE
+		source = p_source AND source_id = p_source_id;
+$$
+LANGUAGE SQL;
+
+GRANT EXECUTE ON FUNCTION read_external_poi TO pilotweb;
 
 /* view poi_latest_changes */
 
@@ -351,3 +416,4 @@ CREATE VIEW poi_latest_change AS (
 ORDER BY date_changed DESC);
 
 GRANT SELECT ON poi_latest_change TO pilotweb;
+

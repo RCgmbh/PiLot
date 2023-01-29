@@ -102,9 +102,9 @@ namespace PiLot.Data.Postgres.Nav {
 			Int64 result;
 			String command;
 			if(pPoi.ID == null) {
-				command = "SELECT * FROM insert_poi(@p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
+				command = "SELECT * FROM insert_poi(@p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to, @p_source, @p_source_id);";
 			} else {
-				command = "SELECT * FROM update_poi(@p_id, @p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to);";
+				command = "SELECT * FROM update_poi(@p_id, @p_title, @p_description, @p_category_id, @p_properties, @p_latitude, @p_longitude, @p_valid_from, @p_valid_to, @p_source, @p_source_id);";
 			}
 			List<(String, Object)> pars = new List<(String, Object)>();
 			if (pPoi.ID != null) {
@@ -118,6 +118,8 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_longitude", pPoi.Longitude));
 			pars.Add(("@p_valid_from", this.NullableUnixToDateTime(pPoi.ValidFrom)));
 			pars.Add(("@p_valid_to", this.NullableUnixToDateTime(pPoi.ValidTo)));
+			pars.Add(("@p_source", pPoi.Source));
+			pars.Add(("@p_source_id", pPoi.SourceID));
 			result = this.dbHelper.ExecuteCommand<Int64>(command, pars);
 			this.SavePoiFeatures(result, pPoi.FeatureIDs);
 			return result;
@@ -213,7 +215,9 @@ namespace PiLot.Data.Postgres.Nav {
 				Latitude = pReader.GetDouble("latitude"),
 				Longitude = pReader.GetDouble("longitude"),
 				ValidFrom = this.NullableDateTimeToUnix(pReader.GetValue("valid_from")),
-				ValidTo = this.NullableDateTimeToUnix(pReader.GetValue("valid_to"))
+				ValidTo = this.NullableDateTimeToUnix(pReader.GetValue("valid_to")),
+				Source = pReader.GetString("source"),
+				SourceID = pReader.GetString("source_id")
 			};
 			return result;
 		}
