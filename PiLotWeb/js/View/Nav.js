@@ -1649,8 +1649,9 @@ PiLot.View.Nav = (function () {
 		 */
 		addChildCategoriesRec: function (pCategories) {
 			const categoriesWithTitle = [];
+			const language = PiLot.Utils.Language.getLanguage();
 			pCategories.forEach(function (c) {
-				const title = PiLot.Utils.Language.getText(c.getName()) || c.getName();
+				const title = c.getLabel(language);
 				categoriesWithTitle.push({ title: title, category: c });
 			});
 			categoriesWithTitle.sort((a, b) => a.title.localeCompare(b.title));
