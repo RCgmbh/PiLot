@@ -179,7 +179,7 @@ PiLot.Service.Nav = (function () {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);
 			}
 			return result;
-		},
+		}
     };
 
     /** Singleton accessor returning the current instance of the PoiService object */
@@ -188,11 +188,51 @@ PiLot.Service.Nav = (function () {
             poiServiceInstance = new PoiService();
         }
         return poiServiceInstance;
-    };
+	};
+
+	/** Loads pois from OSM using overpass turbo */
+	var OsmPoiLoader = function () { };
+	
+	OsmPoiLoader.marinaQuery = '[out:json][timeout:25];(node["leisure" = "marina"]{box}; way["leisure"="marina"]{box};relation["leisure"="marina"]{box};);out body;>;out skel qt;';
+	OsmPoiLoader.lockQuery = '[out:json][timeout:25]; (node["obstacle"="lock"]{box};way["obstacle"="lock"]{box};relation["obstacle"="lock"]{box};);out body;>;out skel qt;';
+	OsmPoiLoader.apiUrl = 'https://lz4.overpass-api.de/api/interpreter?data=';
+
+	OsmPoiLoader.prototype = {
+
+		loadDataAsync: async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pTypes) {
+			let result = [];
+			const box = `(${pMinLat}, ${pMinLon}, ${pMaxLat}, ${pMaxLon})`;
+			console.log(box);
+			if (pTypes.includes("marina")) {
+				result = await this.queryOverpassAsync(OsmPoiLoader.marinaQuery, box);
+			}
+			if (pTypes.includes("dock")) {
+				const docks = await this.queryOverpassAsync(OsmPoiLoader.lockQuery, box)
+				result = result.concat(docks);
+			}
+			return result;
+		},
+
+		queryOverpassAsync: async function (pQuery, pBox) {
+			const url = OsmPoiLoader.apiUrl + encodeURIComponent(pQuery.replaceAll('{box}', pBox));
+			const response = await fetch(url);
+			const json = await response.json();
+			return this.parseMarinas(json);
+		},
+
+		parseMarinas: function (pOverpassResult) {
+			console.log(pOverpassResult);
+			return [];
+		},
+
+		parseLocks: function (pOverpassResult) { }
+			
+	};
 
     /// Returning the class and static method definitions
 	return {
-		PoiService: PoiService
+		PoiService: PoiService,
+		OsmPoiLoader: OsmPoiLoader
 	}
 
 })();

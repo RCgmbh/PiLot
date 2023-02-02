@@ -160,24 +160,48 @@ PiLot.Templates.Tools = {
 	poisManagementPage: `
 		<div class="contentPadding">
 			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="pois"></span></h1>
-			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
-				<h2 data-text="import" class="marginBottomSmall"></h2>
-				<span class="semiBold">poiCategories</span>
-				<textarea rows="10" class="tbImportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
-				<span class="semiBold">poiFeatures</span>
-				<textarea rows="10" class="tbImportFeatures fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
-				<span class="semiBold">pois</span>
-				<textarea rows="40" class="tbImportPois fullWidth smallerText marginBottomSmall" style="font-family:'Lucida Console', Courier; height: 40vh;"></textarea>
-				<div class="flexColumn marginBottomSmall">
-					<label class="semiBold" data-text="handleExistingPois"></label>
-					<label><input type="radio" value="add" name="rblReplaceOptions" checked /><span data-text="add"></span></label>
-					<label><input type="radio" value="skip" name="rblReplaceOptions" /><span data-text="skip"></span></label>
-					<label><input type="radio" value="replace" name="rblReplaceOptions" /><span data-text="replace"></span></label>
+		</div>`,
+
+	poisOsmImportForm: `
+		<div>
+			<h2 data-text="importOsm" class="marginBottomSmall"></h2>
+			<div class="flexRowWrap marginBottom paddingTop">
+				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+					<div class="marginBottom">
+						<label class="marginRightBig"><input type="checkbox" class="cbImportMarinas marginRight" /><span data-text="marinas"></span></label>
+						<label class="marginRightBig"><input type="checkbox" class="cbImportLocks marginRight" /><span data-text="locks"></span></label>
+						<button class="btnLoad input7" type="button" data-text="loadData"></button>
+					</div>
+					<div class="pnlMap navMap" style="height: 70vh;"></div>
 				</div>
-				<button class="btnImport input7" type="button" data-text="import"></button>
+				<div class="plhOsmDetails paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;"></div>
 			</div>
-			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
-				<div class="plhOutput preWrap"></div> 
+		</div>
+	`,
+
+	poisJsonImportForm: `
+		<div>
+			<h2 data-text="importJson" class="marginBottomSmall"></h2>
+			<div class="flexRowWrap marginBottom paddingTop">
+				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+					<span class="semiBold">poiCategories</span>
+					<textarea rows="10" class="tbImportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
+					<span class="semiBold">poiFeatures</span>
+					<textarea rows="10" class="tbImportFeatures fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
+					<span class="semiBold">pois</span>
+					<textarea rows="40" class="tbImportPois fullWidth smallerText marginBottomSmall" style="font-family:'Lucida Console', Courier; height: 40vh;"></textarea>
+					<div class="flexColumn marginBottomSmall">
+						<label class="semiBold" data-text="handleExistingPois"></label>
+						<label><input type="radio" value="add" name="rblReplaceOptions" checked /><span data-text="add"></span></label>
+						<label><input type="radio" value="skip" name="rblReplaceOptions" /><span data-text="skip"></span></label>
+						<label><input type="radio" value="replace" name="rblReplaceOptions" /><span data-text="replace"></span></label>
+					</div>
+					<button class="btnImport input7" type="button" data-text="import"></button>
+				</div>
+				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+					<div class="plhOutput preWrap"></div>
+				</div>
 			</div>
-		</div>`
+		</div>
+	`
 };

@@ -628,7 +628,87 @@ PiLot.View.Tools = (function () {
 		}
 	};
 
+	/** A page with different poi management functions */
 	var PoisManagementPage = function () {
+		this.initialize();
+	};
+
+	PoisManagementPage.prototype = {
+
+		initialize: function () {
+			this.draw();
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
+		},
+
+		draw: function () {
+			const loader = PiLot.Utils.Loader;
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisManagementPage);
+			loader.getContentArea().appendChild(pageContent);
+			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
+			new PoisOsmImportControl(pageContent);
+			new PoisJsonImportForm(pageContent);
+		}
+	};
+
+	/**
+	 * A control which allows to search for osm pois and import them into the pilot database
+	 * @param {HTMLElement} pContainer - where the control will be inserted
+	 */
+	var PoisOsmImportControl = function (pContainer) {
+		this.container = pContainer;
+		this.poiLoader = null;
+		this.seamap = null;
+		this.cbImportMarinas = null;
+		this.cbImportLocks = null;
+		this.plhOsmDetails = null;
+		this.initialize();
+
+	};
+
+	PoisOsmImportControl.prototype = {
+
+		initialize: function () {
+			this.poiLoader = new PiLot.Service.Nav.OsmPoiLoader();
+			this.draw();
+		},
+
+		btnLoad_click: function () {
+			this.loadOsmDataAsync();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisOsmImportForm);
+			this.container.appendChild(control);
+			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
+			this.cbImportLocks = control.querySelector('.cbImportLocks');
+			control.querySelector('.btnLoad').addEventListener('click', this.btnLoad_click.bind(this));
+			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'));
+			this.seamap.showAsync();
+			this.plhOsmDetails = control.querySelector('.plhOsmDetails');
+		},
+
+		loadOsmDataAsync: async function () {
+			const types = [];
+			if (this.cbImportMarinas.checked) {
+				types.push('marina');
+			}
+			if (this.cbImportLocks.checked) {
+				types.push('lock');
+			}
+			const mapBounds = this.seamap.getLeafletMap().getBounds();
+			const osmPois = await this.poiLoader.loadDataAsync(mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
+		}
+
+	};
+
+	/**
+	 * A control which allows to paste some json for categories, features and pois,
+	 * and imports the pois into the database. The json should have the same form
+	 * as it is created by the backup api.
+	 * @param {HTMLElement} pContainer - where the control will be inserted
+	 */
+	var PoisJsonImportForm = function (pContainer) {
+		this.container = pContainer;
 		this.poiService = null;				// PiLot.Service.Nav.PoiService
 		this.sourcePoiCategories = null;	// map with key = id, value = category
 		this.localPoiCategories = null;		// map with key = name(!), value = category
@@ -643,11 +723,10 @@ PiLot.View.Tools = (function () {
 		this.initialize();
 	};
 
-	PoisManagementPage.prototype = {
+	PoisJsonImportForm.prototype = {
 
 		initialize: function () {
 			this.poiService = PiLot.Service.Nav.PoiService.getInstance();
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
 			this.draw();
 		},
 
@@ -656,18 +735,17 @@ PiLot.View.Tools = (function () {
 		},
 
 		draw: function () {
-			const loader = PiLot.Utils.Loader;
-			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisManagementPage);
-			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
-			this.tbImportCategories = pageContent.querySelector('.tbImportCategories');
-			this.tbImportFeatures = pageContent.querySelector('.tbImportFeatures');
-			this.tbImportPois = pageContent.querySelector('.tbImportPois');
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisJsonImportForm);
+			this.container.appendChild(control);
+			this.tbImportCategories = control.querySelector('.tbImportCategories');
+			this.tbImportFeatures = control.querySelector('.tbImportFeatures');
+			this.tbImportPois = control.querySelector('.tbImportPois');
 			this.rblReplaceOptions = document.getElementsByName('rblReplaceOptions')
-			pageContent.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
-			this.plhOutput = pageContent.querySelector('.plhOutput');
+			control.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
+			this.plhOutput = control.querySelector('.plhOutput');
 		},
 
+		/** Gets the selected radiobutton in the radiobutton-list of replace options */
 		getReplaceOption: function () {
 			let result = null;
 			for (const anOption of this.rblReplaceOptions) {
@@ -679,6 +757,7 @@ PiLot.View.Tools = (function () {
 			return result;
 		},
 
+		/** Does the import based on the data in the textareas */
 		importAsync: async function () {
 			this.clearOutput();
 			this.writeOutput('Starting import');
@@ -688,6 +767,14 @@ PiLot.View.Tools = (function () {
 			this.writeOutput(`Import ${success ? 'succeeded' : 'failed'}`);
 		},
 
+		/** 
+		 * Reads the categories json, and loads the local categories. Makes sure that for each
+		 * category in the json, there is a local category with the same name. This nees to be
+		 * done, because we don't import categories, but local categories could have different 
+		 * ids (but the same names) as the categories for the imported pois. Fills the maps
+		 * sourcePoiCategories and localPoiCategories with k=name, v=feature.
+		 * @returns {Boolean} - true, if categories could be parsed an match the existing categories
+		 * */
 		loadCategoriesAsync: async function () {
 			let result;
 			this.writeOutput('Reading categories');
@@ -710,12 +797,12 @@ PiLot.View.Tools = (function () {
 						this.localPoiCategories.set(category.getName(), category);
 					}
 					for (const [categoryId, category] of this.sourcePoiCategories) {
-						if (!this.localPoiCategories.has(category.getName())){
+						if (!this.localPoiCategories.has(category.getName())) {
 							this.writeOutput(`Did not find a matching local category with name: ${category.getName()}`);
 							result = false;
 						}
 					}
-				}				
+				}
 			} catch (ex) {
 				console.error(ex);
 				this.writeOutput(`ERROR processing categories: ${ex}`);
@@ -726,6 +813,14 @@ PiLot.View.Tools = (function () {
 			return result;
 		},
 
+		/** 
+		 * Reads the features json, and loads the local features. Makes sure that for each 
+		 * features in the json, there is a local feature with the same name. This nees to 
+		 * be done, because we don't import features, but local features could have different 
+		 * ids (but the same names) as the features for the imported pois. Fills the maps 
+		 * sourcePoiFeatures and localPoiFeatures with k=name, v=feature.
+		 * @returns {Boolean} - true, if the features could be parsed an match the existing features
+		 * */
 		loadFeaturesAsync: async function () {
 			let result;
 			this.writeOutput('Reading features');
@@ -764,6 +859,7 @@ PiLot.View.Tools = (function () {
 			return result;
 		},
 
+		/** Parses the pois json and triggers the import for each element in the array */
 		importPoisAsync: async function () {
 			let result;
 			this.writeOutput('Reading pois');
@@ -792,6 +888,12 @@ PiLot.View.Tools = (function () {
 			return result;
 		},
 
+		/**
+		 * Imports a poi, based on a raw object. Depending on the replacement option, existing
+		 * pois will be replaced or ignored, or the new poi will just be added.
+		 * @param {Object} pObj - raw poi data object
+		 * @param {String} pReplaceOption - add, skip or replace
+		 */
 		importPoi: async function (pObj, pReplaceOption) {
 			let result = true;
 			const poi = this.createPoi(pObj);
@@ -829,10 +931,18 @@ PiLot.View.Tools = (function () {
 			return result;
 		},
 
+		/**
+		 * Returns a string with id and title for the output window
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
 		poiToString: function (pPoi) {
 			return pPoi.getId() + ':' + pPoi.getTitle();
 		},
 
+		/**
+		 * Creates a poi from a raw data object having the same fields as the poi object.
+		 * @param {Object} pObj - the data object
+		 */
 		createPoi: function (pObj) {
 			let result = null;
 			if (
@@ -865,6 +975,10 @@ PiLot.View.Tools = (function () {
 			return result;
 		},
 
+		/**
+		 * Returns any existing poi close to pPoi (about +/- 10 meters)
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
 		getExistingPoisAsync: async function (pPoi) {
 			const latLng = pPoi.getLatLng();
 			const pois = await this.poiService.findPoisAsync(
@@ -878,13 +992,19 @@ PiLot.View.Tools = (function () {
 			return pois;
 		},
 
+		/** Clears the output panel */
 		clearOutput: function () {
 			this.plhOutput.clear();
 		},
 
+		/**
+		 * Writes pMessage on a new line in the output panel
+		 * @param {String} pMessage
+		 */
 		writeOutput: function (pMessage) {
 			this.plhOutput.innerText = `${this.plhOutput.innerText}\n${pMessage}`;
 		}
+
 	};
 
 	/// return the classes
