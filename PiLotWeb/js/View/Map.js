@@ -861,8 +861,8 @@ PiLot.View.Map = (function () {
 		 * Creates a leaflet marker for the poi, if it hasn't been created before, and adds the marker
 		 * to the poi map.
 		 * @param {PiLot.Model.Nav.Poi} pPoi
-		 * @param {boolean} pResetExisting - Set to true, if position and icon should be reset
-		 * @param {boolean} pSetDraggable - Set to true, if the marker should be draggable
+		 * @param {Boolean} pResetExisting - Set to true, if position and icon should be reset
+		 * @param {Boolean} pSetDraggable - Set to true, if the marker should be draggable
 		 * @returns {Object} an object with {poi, marker}
 		 */
 		drawMarker: function (pPoi, pResetExisting, pSetDraggable) {
@@ -871,7 +871,6 @@ PiLot.View.Map = (function () {
 				this.removePoi(pPoi);
 			}
 			if (!this.pois.has(pPoi.getId())) {
-				//const iconHtml = PiLot.Templates.Nav[`poi_${pPoi.getCategory().getName()}`];
 				const iconHtml = this.categoryIcons.get(pPoi.getCategory().getId());
 				const icon = L.divIcon({
 					className: 'poiMarker', iconSize: [null, null], html: iconHtml

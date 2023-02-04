@@ -672,8 +672,10 @@ PiLot.View.Tools = (function () {
 			this.draw();
 		},
 
-		btnLoad_click: function () {
-			this.loadOsmDataAsync();
+		btnLoad_click: async function (e) {
+			e.target.hidden = true;
+			await this.loadOsmDataAsync();
+			e.target.hidden = false;
 		},
 
 		draw: function () {
@@ -695,10 +697,46 @@ PiLot.View.Tools = (function () {
 			if (this.cbImportLocks.checked) {
 				types.push('lock');
 			}
+			this.plhOsmDetails.clear();
 			const mapBounds = this.seamap.getLeafletMap().getBounds();
 			const osmPois = await this.poiLoader.loadDataAsync(mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
+			console.log(osmPois);
+			for (aPoi of osmPois) {
+				const poiDetails = new OsmPoiDetails(aPoi, this.plhOsmDetails);
+			}
 		}
+	};
 
+	/**
+	 * Control to show details for an osm poi
+	 * @param {PiLot.Model.Nav.OsmPoi} pOsmPoi
+	 * @param {HTMLElement} pContainer
+	 */
+	var OsmPoiDetails = function (pOsmPoi, pContainer) {
+		this.osmPoi = pOsmPoi;
+		this.container = pContainer;
+		this.initialize();
+	};
+
+	OsmPoiDetails.prototype = {
+		initialize: function () {
+			this.draw();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiDetails);
+			this.container.appendChild(control);
+			control.querySelector('.lblTitle').innerText = this.osmPoi.getTitle();
+			const plhTags = control.querySelector('.plhTags');
+			const tags = this.osmPoi.getTags();
+			for (let aTag in tags) {
+				const tagControl = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiTag);
+				tagControl.querySelector('.lblKey').innerText = aTag;
+				tagControl.querySelector('.lblValue').innerText = tags[aTag];
+				plhTags.appendChild(tagControl);
+			}
+
+		},
 	};
 
 	/**

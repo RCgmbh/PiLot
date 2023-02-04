@@ -193,39 +193,133 @@ PiLot.Service.Nav = (function () {
 	/** Loads pois from OSM using overpass turbo */
 	var OsmPoiLoader = function () { };
 	
-	OsmPoiLoader.marinaQuery = '[out:json][timeout:25];(node["leisure" = "marina"]{box}; way["leisure"="marina"]{box};relation["leisure"="marina"]{box};);out body;>;out skel qt;';
-	OsmPoiLoader.lockQuery = '[out:json][timeout:25]; (node["obstacle"="lock"]{box};way["obstacle"="lock"]{box};relation["obstacle"="lock"]{box};);out body;>;out skel qt;';
+	OsmPoiLoader.genericQuery = `
+		[out:json][timeout:25][bbox:{box}];
+		(
+			{tagFilters}
+		);
+		out body;
+		>;
+		out skel qt;`;
+
+	OsmPoiLoader.tagFilter = 'nwr["{tagName}" = "{tagValue}"];';
+
+	OsmPoiLoader.marinaTags = [['leisure', 'marina'], ['mooring', 'yes']];
+	OsmPoiLoader.lockTags = [['lock', 'yes'], ['waterway', 'lock_gate']];
+	OsmPoiLoader.otherInterestingTags = [['waterway', 'sanitary_dump_station']];
+
 	OsmPoiLoader.apiUrl = 'https://lz4.overpass-api.de/api/interpreter?data=';
 
 	OsmPoiLoader.prototype = {
 
 		loadDataAsync: async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pTypes) {
 			let result = [];
-			const box = `(${pMinLat}, ${pMinLon}, ${pMaxLat}, ${pMaxLon})`;
+			const box = `${pMinLat},${pMinLon},${pMaxLat},${pMaxLon}`;
 			console.log(box);
 			if (pTypes.includes("marina")) {
-				result = await this.queryOverpassAsync(OsmPoiLoader.marinaQuery, box);
+				result = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.marinaTags), box);
 			}
-			if (pTypes.includes("dock")) {
-				const docks = await this.queryOverpassAsync(OsmPoiLoader.lockQuery, box)
-				result = result.concat(docks);
+			if (pTypes.includes("lock")) {
+				const locks = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.lockTags), box);
+				result = result.concat(locks);
 			}
 			return result;
 		},
 
+		buildQuery: function (pTags) {
+			let tagFilters = '';
+			for (aTag of pTags) {
+				tagFilters += OsmPoiLoader.tagFilter.replace('{tagName}', aTag[0]).replace('{tagValue}', aTag[1]);
+			}
+			return OsmPoiLoader.genericQuery.replace('{tagFilters}', tagFilters);
+		},
+
 		queryOverpassAsync: async function (pQuery, pBox) {
-			const url = OsmPoiLoader.apiUrl + encodeURIComponent(pQuery.replaceAll('{box}', pBox));
+			const url = OsmPoiLoader.apiUrl + encodeURIComponent(pQuery.replaceAll('{box}', pBox)).trim();
 			const response = await fetch(url);
 			const json = await response.json();
-			return this.parseMarinas(json);
+			return this.parseResult(json);
 		},
 
-		parseMarinas: function (pOverpassResult) {
-			console.log(pOverpassResult);
-			return [];
+		/**
+		 * This takes the overpass result and createas an array of pois. Pois must have tags, and can be 
+		 * either single nodes or ways. Pois that are part of another poi are only added as childPois of
+		 * the parent element.
+		 * @param {Object} pOverpassResult - the raw object returned by overpass
+		 * @returns{PiLot.Model.Nav.OsmPoi[]}
+		 */
+		parseResult: function (pOverpassResult) {
+			const nodesMap = new Map();
+			if (pOverpassResult.elements) {
+				// fill the nodes map. For nodes with tags, create an Osm Poi.
+				let isPoi;
+				for (anElement of pOverpassResult.elements) {
+					if ('id' in anElement) {
+						isPoi = ('tags' in anElement);
+						if (nodesMap.has(anElement.id)) {
+							const element = nodesMap.get(anElement.id).element;
+							element.tags = element.tags || anElement.tags;
+							element.isPoi = element.isPoi || isPoi;
+						} else {
+							nodesMap.set(anElement.id, { element: anElement, isPoi: isPoi });
+						}						
+					}
+				}
+				// add related nodes to the pois. Mark nodes that are part of pois as not being pois themselves.
+				let childNode;
+				for (const [nodeId, obj] of nodesMap) {
+					if (obj.isPoi) {
+						const osmPoi = this.elementToPoi(obj.element);
+						if ('nodes' in obj.element) {
+							for (const aNodeId of obj.element.nodes) {
+								if (nodesMap.has(aNodeId)) {
+									childNode = nodesMap.get(aNodeId);
+									childNode.isPoi = false;
+									osmPoi.addNode(childNode.element);
+								} else {
+									PiLot.log(`OSM node not found: ${aNodeId}`, 0);
+								}
+							}
+						}
+						obj.osmPoi = osmPoi;
+					}
+				}
+				// now some special treatments for lock gates mapped as ways: we remove them, if they have common nodes with existing locks
+				for (const [nodeId, obj] of nodesMap) {
+					if (obj.osmPoi && obj.osmPoi.getIsLockGate() && obj.element.nodes) {
+						let correspondingLockExists = false;
+						for(const [nodeId, node] of nodesMap) {
+							if (node.osmPoi && node.osmPoi.getIsLock() && node.osmPoi.hasAnyNodeId(obj.element.nodes)) {
+								correspondingLockExists = true;
+								break;
+							}
+						};
+						if (correspondingLockExists) {
+							obj.isPoi = false;
+						}
+					}
+				}
+			}
+			// fill the result array with all OsmPois for elements marked (or not unmarked) as pois
+			const result = [];
+			for (const [nodeId, obj] of nodesMap) {
+				if (obj.isPoi) {
+					result.push(obj.osmPoi);
+				}
+			}
+			return result;
 		},
 
-		parseLocks: function (pOverpassResult) { }
+		elementToPoi: function (pElement) {
+			const result = new PiLot.Model.Nav.OsmPoi(pElement.id, pElement.type);
+			if (pElement.lat && pElement.lon) {
+				result.setLatLng(pElement.lat, pElement.lon);
+			}
+			if (pElement.tags) {
+				result.setTags(pElement.tags);
+			}
+			return result;
+		}
 			
 	};
 

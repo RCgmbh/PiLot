@@ -586,6 +586,115 @@ PiLot.Model.Nav = (function () {
 		return result;
 	};
 
+	/**
+	 * Represents a poi that has been read from osm/overpass. It is used
+	 * temporarily to create or update an existing Poi with its data.
+	 * @param {Number} pId - the id from osm
+	 */
+	var OsmPoi = function (pId, pType) {
+		this.id = pId;
+		this.type = pType;
+		this.osmTags = null;		// an object representing the osm tags
+		this.nodes = null;			// a map with nodeId, node used to calculat the position of the poi for complex pois
+		this.latLng = null;			// directly assigned coordinates for node-pois 
+		this.initialize();
+	};
+
+	OsmPoi.prototype = {
+
+		initialize: function () {
+			this.nodes = new Map();
+		},
+
+		/** @returns {Number} the osm id */
+		getId: function () {
+			return this.id;
+		},
+
+		/** @returns {String} the type, e.g. node, way */
+		getType: function () {
+			return this.type;
+		},
+
+		/**
+		 * Adds a raw osm node. If the node has coordinates, it will be added to the nodes
+		 * map, used to calculate the poi position.
+		 * @param {Object} pNode - the raw node element from overpass
+		 */
+		addNode: function (pNode) {
+			if ('id' in pNode) {
+				if (('lat' in pNode) && ('lon' in pNode)) {
+					this.nodes.set(pNode.id, pNode);
+				}
+			}			
+		},
+
+		/**
+		 * Sets the osm tags
+		 * @param {Object} pTags
+		 */
+		setTags: function (pTags) {
+			this.osmTags = pTags;
+		},
+
+		/** @returns {Object} - the osm tags or an empty object */
+		getTags: function () {
+			return this.osmTags || {};
+		},
+
+		/**
+		 * sets the Poi coordinates based on latitude and longitude 
+		 * @param{Number} pLat - Latitude
+		 * @param{Number} pLng - Longitude
+		 * */
+		setLatLng: function (pLat, pLng) {
+			if ((pLat !== null) && (pLng !== null)) {
+				if (this.latLng === null) {
+					this.latLng = new L.LatLng(pLat, pLng);
+				} else {
+					this.latLng.lat = pLat;
+					this.latLng.lng = pLng;
+				}
+			}
+		},
+
+		/** @returns {L.LatLng} - either the explicitly set position, or the calculated center of all nodes, or null  */
+		getLatLng: function () {
+			let result = null;
+			if (this.latLng) {
+				result = this.latLng;
+			} else if (this.nodes.size > 0){
+				const latLngs = [];
+				for (const [nodeId, node] of this.nodes) {
+					latLngs.push(new L.LatLng(node.lat, node.lon));
+				}
+				result = L.LineUtil.polylineCenter(latLngs, L.CRS.EPSG4326);
+			}
+			return result;
+		},
+
+		/** @returns {String} the name tag or type and id */
+		getTitle: function () {
+			return this.osmTags.lock_name || this.osmTags.name || `${this.type} ${this.id}`;
+		},
+
+		/** @returns {Boolean} whether this is a lock */
+		getIsLock: function () {
+			return this.osmTags && this.osmTags['lock'] === 'yes';
+		},
+
+		/** @returns {Boolean} whether this is a lock gate */
+		getIsLockGate: function () {
+			return this.osmTags && this.osmTags['waterway'] === 'lock_gate';
+		},
+
+		hasAnyNodeId: function (pNodeIds) {
+			const nodes = this.nodes;
+			const result = pNodeIds.some(e => nodes.has(e));
+			return result;
+		}
+	};
+
 	/// Class Waypoint, representing one waypoint being part of a track.
 	/// The constructor expects the route, a geodesy LatLon object as pLatLong,
 	/// and a string as title
@@ -1678,6 +1787,7 @@ PiLot.Model.Nav = (function () {
 		Poi: Poi,
 		PoiCategory: PoiCategory,
 		PoiFeature: PoiFeature,
+		OsmPoi: OsmPoi,
 		Waypoint: Waypoint,
 		Track: Track,
 		GPSRecord: GPSRecord,
