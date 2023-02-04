@@ -379,63 +379,98 @@ RC.Utils = {
 };
 
 // Array Remove - By John Resig (MIT Licensed)
-Array.prototype.remove = function (from, to) {
-	const rest = this.slice((to || from) + 1 || this.length);
-	this.length = from < 0 ? this.length + from : from;
-	return this.push.apply(this, rest);
-};
+if (!Array.prototype.remove) {
+	Object.defineProperty(Array.prototype, "remove", {
+		value: function (from, to) {
+			const rest = this.slice((to || from) + 1 || this.length);
+			this.length = from < 0 ? this.length + from : from;
+			return this.push.apply(this, rest);
+		},
+		enumerable: false
+	});
+}
 
 // swaps two items in an array, without performing any checks
-Array.prototype.swap = Array.prototype.swap || function (pIndex1, pIndex2) {
-	const item = this[pIndex1];
-	this[pIndex1] = this[pIndex2];
-	this[pIndex2] = item;
-};
+if (!Array.prototype.swap) {
+	Object.defineProperty(Array.prototype, "swap", {
+		value: function (pIndex1, pIndex2) {
+			const item = this[pIndex1];
+			this[pIndex1] = this[pIndex2];
+			this[pIndex2] = item;
+		},
+		enumerable: false
+	});
+}
 
 // Returns the last item of an array or null, if the array is empty
-Array.prototype.last = Array.prototype.last || function () {
-	return this.length > 0 ? this[this.length - 1] : null;
-};
+if (!Array.prototype.last) {
+	Object.defineProperty(Array.prototype, "last", {
+		value: function () {
+			return this.length > 0 ? this[this.length - 1] : null;
+		},
+		enumerable: false
+	});
+} 
 
 // returns a new array which only contains each value once
-Array.prototype.distinct = Array.prototype.distinct || function () {
-	let result = new Array();
-	this.forEach(function (arrayItem) {
-		if (!result.some(function (resultItem) { return resultItem === arrayItem })) {
-			result.push(arrayItem);
-		}
+if (!Array.prototype.distinct) {
+	Object.defineProperty(Array.prototype, "distinct", {
+		value: function () {
+			let result = new Array();
+			this.forEach(function (arrayItem) {
+				if (!result.some(function (resultItem) { return resultItem === arrayItem })) {
+					result.push(arrayItem);
+				}
+			});
+			return result;
+		},
+		enumerable: false
 	});
-	return result;
 }
 
 // allows to query a Map for an existing value
-Map.prototype.hasValue = Map.prototype.hasValue || function (pValue) {
-	let result = false;
-	const iterator = this.values();
-	let next = iterator.next();
-	while (!next.done) {
-		if (next.value === pValue) {
-			result = true;
-			break;
-		} else {
-			next = iterator.next();
-		}
-	}
-	return result;
-}
+if (!Map.prototype.hasValue) {
+	Object.defineProperty(Map.prototype, "hasValue", {
+		value: function (pValue) {
+			let result = false;
+			const iterator = this.values();
+			let next = iterator.next();
+			while (!next.done) {
+				if (next.value === pValue) {
+					result = true;
+					break;
+				} else {
+					next = iterator.next();
+				}
+			}
+			return result;
+		},
+		enumerable: false
+	});
+} 
 
 // clears all child nodes from a Node
-Node.prototype.clear = Node.prototype.clear || function () {
-	while (this.hasChildNodes()) {
-		this.removeChild(this.lastChild);
-	}
+if (!Node.prototype.clear) {
+	Object.defineProperty(Node.prototype, "clear", {
+		value: function () {
+			while (this.hasChildNodes()) {
+				this.removeChild(this.lastChild);
+			}
+		},
+		enumerable: false
+	});
 }
 
 /** Appends an array of nodes to a parent node */
-Node.prototype.appendChildren = Node.prototype.appendChildren || function (pChildren) {
-	for (let i = 0; i < pChildren.length; i++) {
-		this.appendChild(pChildren[i]);
-	}
+if (!Node.prototype.appendChildren) {
+	Object.defineProperty(Node.prototype, "appendChildren", {
+		value: function (pChildren) {
+			for (let i = 0; i < pChildren.length; i++) {
+				this.appendChild(pChildren[i]);
+			}
+		},
+		enumerable: false
+	});
 }
 
 /**
@@ -444,21 +479,35 @@ Node.prototype.appendChildren = Node.prototype.appendChildren || function (pChil
  * or within this element, using something like event.target.isSameOrDescendantOf(myButton)
  * @param {any} pOther
  */
-Node.prototype.isSameOrDescendantOf = function (pOther) {
-	let node = this;
-	let result = false;
-	while ((node !== null) && !result) {
-		result = node === pOther;
-		node = node.parentNode;
-	}
-	return result;
+if (!Node.prototype.isSameOrDescendantOf) {
+	Object.defineProperty(Node.prototype, "isSameOrDescendantOf", {
+		value: function (pOther) {
+			let node = this;
+			let result = false;
+			while ((node !== null) && !result) {
+				result = node === pOther;
+				node = node.parentNode;
+			}
+			return result;
+		},
+		enumerable: false
+	});
 }
 
 /** replaceAll polyfill for old browsers */
-String.prototype.replaceAll = String.prototype.replaceAll || function (pattern, replacement) {
-	let result = this;
-	while (result.indexOf(pattern) >= 0) {
-		result = result.replace(pattern, replacement);
-	}
-	return result;
+if (!String.prototype.replaceAll) {
+	Object.defineProperty(String.prototype, "replaceAll", {
+		value: function (pattern, replacement) {
+			if (replacement.indexOf(pattern) === -1) {
+				let result = this;
+				while (result.indexOf(pattern) >= 0) {
+					result = result.replace(pattern, replacement);
+				}
+				return result;
+			} else {
+				throw new Error('The replacement must not contain the pattern in String.replaceAll (polyfill)');
+			}
+		},
+		enumerable: false
+	});
 }
