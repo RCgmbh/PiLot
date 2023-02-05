@@ -165,32 +165,42 @@ PiLot.Templates.Tools = {
 	poisOsmImportForm: `
 		<div>
 			<h2 data-text="importOsm" class="marginBottomSmall"></h2>
-			<div class="marginBottom">
+			<div>
 				<label class="marginRightBig"><input type="checkbox" class="cbImportMarinas marginRight" /><span data-text="marinas"></span></label>
 				<label class="marginRightBig"><input type="checkbox" class="cbImportLocks marginRight" /><span data-text="locks"></span></label>
-				<button class="btnLoad input7" type="button" data-text="loadData"></button>
+				<label class="marginRightBig"><input type="checkbox" class="cbImportFuel marginRight" /><span data-text="fuelStations"></span></label>
+				<label class="marginRightBig"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>
+				<label class="marginRightBig"><input type="checkbox" class="cbImportToilets marginRight" /><span data-text="toilets"></span></label>
+				<button class="btnLoad input7" type="button" data-text="loadData"></button><span class="lblLoadingData" hidden data-text="loadingData"></span>
 			</div>
 			<div class="flexRowWrap marginBottom">
-				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+				<div class="marginTop paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
 					<div class="pnlMap navMap" style="height: 70vh;"></div>
 				</div>
-				<div class="plhOsmDetails marginRight paddingLeft paddingRight borderLight" style="min-width:30em; flex-basis:30em; flex-grow:1; max-height:70vh; overflow: auto;"></div>
+				<div class="plhOsmDetails marginTop marginRight borderLight" style="min-width:20em; flex-basis:20em; flex-grow:1; max-height:70vh; overflow: auto; position:relative; "></div>
 			</div>
 		</div>
 	`,
 
 	osmPoiDetails: `
-		<div class="marginBottom">
-			<span class="lblTitle semiBold"></span>
-			<div class="flexColumn plhTags"></div>
-			<button class="btnImport input7" type="button" data-text="import" />
+		<div class="osmPoiDetails">
+			<div class="paddingAllSmall">
+				<span class="lblTitle semiBold"></span>
+				<div class="flexColumn plhTags marginBottomSmall"></div>
+				<a href="#" class="lnkImport marginRight"><i class="icon-cloud-download marginRightSmall"></i><span data-text="import"></span></a>
+				<a href="#" class="lnkLink marginRight"><i class="icon-link marginRightSmall"></i><span data-text="linkPoi"></span></a>
+				<a href="#" class="lnkHide marginRight"><i class="icon-eye-blocked marginRightSmall"></i><span data-text="hide"></span></a>
+				<a href="#" class="lnkShow marginRight" hidden><i class="icon-eye marginRightSmall"></i><span data-text="show"></span></a>
+			</div>
 		</div>
 	`,
 
 	osmPoiTag: '<div><span class="lblKey italic"></span>: <span class="lblValue"></span></div>',
 
+	osmMapMarkerIcon: '<i class="icon-cloud-download"></i>',
+
 	poisJsonImportForm: `
-		<div>
+		<div class="paddingTop">
 			<h2 data-text="importJson" class="marginBottomSmall"></h2>
 			<div class="flexRowWrap marginBottom paddingTop">
 				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
@@ -208,7 +218,7 @@ PiLot.Templates.Tools = {
 					</div>
 					<button class="btnImport input7" type="button" data-text="import"></button>
 				</div>
-				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+				<div class="paddingRight" style="min-width:20em; flex-basis:20em; flex-grow:1;">
 					<div class="plhOutput preWrap"></div>
 				</div>
 			</div>

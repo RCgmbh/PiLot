@@ -204,9 +204,13 @@ PiLot.Service.Nav = (function () {
 
 	OsmPoiLoader.tagFilter = 'nwr["{tagName}" = "{tagValue}"];';
 
-	OsmPoiLoader.marinaTags = [['leisure', 'marina'], ['mooring', 'yes']];
-	OsmPoiLoader.lockTags = [['lock', 'yes'], ['waterway', 'lock_gate']];
-	OsmPoiLoader.otherInterestingTags = [['waterway', 'sanitary_dump_station']];
+	OsmPoiLoader.tags = {
+		marina: [['leisure', 'marina'], ['mooring', 'yes']],
+		lock: [['lock', 'yes'], ['waterway', 'lock_gate']],
+		fuel: [['wateway', 'fuel'], ['amenity', 'fuel']],
+		pump: [['waterway', 'sanitary_dump_station']],
+		toilet: [['amenity', 'toilets']]
+	};
 
 	OsmPoiLoader.apiUrl = 'https://lz4.overpass-api.de/api/interpreter?data=';
 
@@ -215,13 +219,9 @@ PiLot.Service.Nav = (function () {
 		loadDataAsync: async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pTypes) {
 			let result = [];
 			const box = `${pMinLat},${pMinLon},${pMaxLat},${pMaxLon}`;
-			console.log(box);
-			if (pTypes.includes("marina")) {
-				result = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.marinaTags), box);
-			}
-			if (pTypes.includes("lock")) {
-				const locks = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.lockTags), box);
-				result = result.concat(locks);
+			for (const type of pTypes) {
+				const resultSet = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.tags[type]), box);
+				result = result.concat(resultSet);
 			}
 			return result;
 		},

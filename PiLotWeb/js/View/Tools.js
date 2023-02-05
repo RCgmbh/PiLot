@@ -656,10 +656,16 @@ PiLot.View.Tools = (function () {
 	 */
 	var PoisOsmImportControl = function (pContainer) {
 		this.container = pContainer;
+		this.mapPois = null;			// PiLot.View.Tools.OsmMapPois
+		this.poiDetailControls = null;	// Map with key = osmPoiId, value = OsmPoiDetails control
 		this.poiLoader = null;
 		this.seamap = null;
 		this.cbImportMarinas = null;
 		this.cbImportLocks = null;
+		this.cbImportFuel = null;
+		this.cbImportPump = null;
+		this.cbImportToilets = null;
+		this.lblLoadingData = null;
 		this.plhOsmDetails = null;
 		this.initialize();
 
@@ -669,13 +675,33 @@ PiLot.View.Tools = (function () {
 
 		initialize: function () {
 			this.poiLoader = new PiLot.Service.Nav.OsmPoiLoader();
+			this.poiDetailControls = new Map();
 			this.draw();
 		},
 
 		btnLoad_click: async function (e) {
 			e.target.hidden = true;
+			this.lblLoadingData.hidden = false;
 			await this.loadOsmDataAsync();
+			this.lblLoadingData.hidden = true;
 			e.target.hidden = false;
+		},
+
+		mapPois_selectPoi: function (pSender, pArg) {
+			this.highlightPoiDetails(pArg, true);
+		},
+
+		poiDetails_select: function (pSender, pArg) {
+			this.highlightPoiDetails(pArg, false);
+			this.mapPois.highlightPoi(pArg);
+		},
+
+		poiDetails_hidePoi: function (pSender, pArg) {
+			this.mapPois.togglePoi(pArg, false);
+		},
+
+		poiDetails_showPoi: function (pSender, pArg) {
+			this.mapPois.togglePoi(pArg, true);
 		},
 
 		draw: function () {
@@ -683,12 +709,19 @@ PiLot.View.Tools = (function () {
 			this.container.appendChild(control);
 			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
 			this.cbImportLocks = control.querySelector('.cbImportLocks');
+			this.cbImportFuel = control.querySelector('.cbImportFuel');
+			this.cbImportPump = control.querySelector('.cbImportPump');
+			this.cbImportToilets = control.querySelector('.cbImportToilets');
+			this.lblLoadingData = control.querySelector('.lblLoadingData');
 			control.querySelector('.btnLoad').addEventListener('click', this.btnLoad_click.bind(this));
 			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'));
 			this.seamap.showAsync();
+			this.mapPois = new OsmMapPois(this.seamap);
+			this.mapPois.on('selectPoi', this.mapPois_selectPoi.bind(this));
 			this.plhOsmDetails = control.querySelector('.plhOsmDetails');
 		},
 
+		/** Loads the osm data based on the selected types */
 		loadOsmDataAsync: async function () {
 			const types = [];
 			if (this.cbImportMarinas.checked) {
@@ -697,12 +730,43 @@ PiLot.View.Tools = (function () {
 			if (this.cbImportLocks.checked) {
 				types.push('lock');
 			}
+			if (this.cbImportFuel.checked) {
+				types.push('fuel');
+			}
+			if (this.cbImportPump.checked) {
+				types.push('pump');
+			}
+			if (this.cbImportToilets.checked) {
+				types.push('toilet');
+			}
 			this.plhOsmDetails.clear();
 			const mapBounds = this.seamap.getLeafletMap().getBounds();
 			const osmPois = await this.poiLoader.loadDataAsync(mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
-			console.log(osmPois);
+			this.mapPois.showOsmPois(osmPois);
+			this.poiDetailControls = new Map();
 			for (aPoi of osmPois) {
 				const poiDetails = new OsmPoiDetails(aPoi, this.plhOsmDetails);
+				poiDetails.on('select', this.poiDetails_select.bind(this));
+				poiDetails.on('hidePoi', this.poiDetails_hidePoi.bind(this));
+				poiDetails.on('showPoi', this.poiDetails_showPoi.bind(this));
+				this.poiDetailControls.set(aPoi.getId(), poiDetails);
+			}
+		},
+
+		/**
+		 * Un-highlights all poi details controls, then highlights the one for the
+		 * given poiId, and optionally scrolls to that control.
+		 * @param {Number} pPoiId
+		 * @param {Boolean} pScrollToControl
+		 */
+		highlightPoiDetails: function (pPoiId, pScrollToControl) {
+			for (const [poiId, poiDetailControl] of this.poiDetailControls) {
+				poiDetailControl.toggleHighlight(false);
+			}
+			const detailsControl = this.poiDetailControls.get(pPoiId)
+			detailsControl.toggleHighlight(true);
+			if (pScrollToControl) {
+				this.plhOsmDetails.scrollTop = detailsControl.getOffsetTop();
 			}
 		}
 	};
@@ -715,19 +779,59 @@ PiLot.View.Tools = (function () {
 	var OsmPoiDetails = function (pOsmPoi, pContainer) {
 		this.osmPoi = pOsmPoi;
 		this.container = pContainer;
+		this.control = null;
+		this.lnkLink = null;
+		this.lnkHide = null;
+		this.lnkShow = null;
+		this.observers = null;						// Map for observable pattern
 		this.initialize();
 	};
 
 	OsmPoiDetails.prototype = {
 		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['select', 'hidePoi', 'showPoi']);
 			this.draw();
 		},
 
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "select", "hidePoi", "showPoi"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		control_click: function (pEvent) {
+			RC.Utils.notifyObservers(this, this.observers, 'select', this.osmPoi.getId());
+		},
+
+		lnkImport_click: function () { },
+
+		lnkLink_click: function () { },
+
+		lnkHide_click: function (pEvent) {
+			pEvent.preventDefault();
+			pEvent.stopPropagation();
+			RC.Utils.notifyObservers(this, this.observers, 'hidePoi', this.osmPoi.getId());
+			this.lnkHide.hidden = true;
+			this.lnkShow.hidden = false;
+		},
+
+		lnkShow_click: function (pEvent) {
+			pEvent.preventDefault();
+			pEvent.stopPropagation();
+			RC.Utils.notifyObservers(this, this.observers, 'showPoi', this.osmPoi.getId());
+			this.lnkHide.hidden = false;
+			this.lnkShow.hidden = true;
+		},
+
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiDetails);
-			this.container.appendChild(control);
-			control.querySelector('.lblTitle').innerText = this.osmPoi.getTitle();
-			const plhTags = control.querySelector('.plhTags');
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiDetails);
+			this.container.appendChild(this.control);
+			this.control.addEventListener('click', this.control_click.bind(this));
+			this.control.querySelector('.lblTitle').innerText = this.osmPoi.getTitle();
+			const plhTags = this.control.querySelector('.plhTags');
 			const tags = this.osmPoi.getTags();
 			for (let aTag in tags) {
 				const tagControl = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiTag);
@@ -735,8 +839,145 @@ PiLot.View.Tools = (function () {
 				tagControl.querySelector('.lblValue').innerText = tags[aTag];
 				plhTags.appendChild(tagControl);
 			}
-
+			this.lnkLink = this.control.querySelector('.lnkLink');
+			this.lnkLink.addEventListener('click', this.lnkLink_click.bind(this));
+			this.lnkHide = this.control.querySelector('.lnkHide');
+			this.lnkHide.addEventListener('click', this.lnkHide_click.bind(this));
+			this.lnkShow = this.control.querySelector('.lnkShow');
+			this.lnkShow.addEventListener('click', this.lnkShow_click.bind(this));
 		},
+
+		/** returns the offset top of this control */
+		getOffsetTop: function () {
+			return this.control.offsetTop;
+		},
+
+		/**
+		 * Highlights or un-higlights the control by setting css .active
+		 * @param {Boolean} pIsHighlighted
+		 */
+		toggleHighlight: function (pIsHighlighted) {
+			this.control.classList.toggle('active', pIsHighlighted);
+		}
+	};
+
+	/**
+	 * Shows markers for osm pois on the map. This is similar to the normal poi
+	 * layer (PiLot.View.Map.MapPois), but yet enough different to implement it
+	 * separately. I guess.
+	 * @param {PiLot.View.Map.Seamap} pMap
+	 */
+	var OsmMapPois = function (pMap) {
+		this.map = pMap;
+		this.pois = null;							// Map with key=poi.id and value={poi, marker}
+		this.observers = null;						// Map for observable pattern
+		this.activePoiId = null;					// the id of the currently highlighted poi
+		this.initialize();
+	};
+
+	OsmMapPois.prototype = {
+
+		initialize: function () {
+			this.pois = new Map();
+			this.observers = RC.Utils.initializeObservers(['selectPoi', 'unselectPoi']);
+			this.map.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "selectPoi", "unselectPoi"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		leafletMap_zoomend: function () {
+			this.resizeMarkers();
+		},
+
+		poiMarker_click: async function (pPoi) {
+			RC.Utils.notifyObservers(this, this.observers, 'selectPoi', pPoi.getId());
+			this.highlightPoi(pPoi.getId());
+		},
+
+		showOsmPois: function (pPois) {
+			this.clearPois();
+			for (const aPoi of pPois) {
+				this.drawMarker(aPoi);
+			}
+			this.resizeMarkers();
+		},
+
+		/**
+		 * Shows or hides a poi marker
+		 * @param {Number} pPoiId
+		 * @param {Boolean} pVisible
+		 */
+		togglePoi: function (pPoiId, pVisible) {
+			if (this.pois.has(pPoiId)) {
+				this.pois.get(pPoiId).marker.getElement().hidden = !pVisible;
+			}
+		},
+
+		/** @param {Number} pPoiId */
+		highlightPoi: function (pPoiId) {
+			if ((this.activePoiId) && this.pois.has(this.activePoiId)) {
+				this.pois.get(this.activePoiId).marker.getElement().classList.toggle('active', false);
+			}
+			if (this.pois.has(pPoiId)) {
+				this.pois.get(pPoiId).marker.getElement().classList.toggle('active', true);
+				this.activePoiId = pPoiId;
+			}
+		},
+
+		/** Remove all pois from the map */
+		clearPois: function () {
+			this.pois.forEach(function (v, k) {
+				v.marker.remove();
+			});
+			this.pois = new Map();
+			this.activePoiId = null;
+		},
+
+		/**
+		 * Creates a leaflet marker for the poi, and adds the marker to the poi map.
+		 * @param {PiLot.Model.Nav.OsmPoi} pPoi
+		 * @returns {Object} an object with {poi, marker}
+		 */
+		drawMarker: function (pPoi) {
+			let result;
+			const iconHtml = PiLot.Templates.Tools.osmMapMarkerIcon;
+			const icon = L.divIcon({
+				className: 'osmPoiMarker', iconSize: [null, null], html: iconHtml
+			});
+			const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: false });
+			marker.addTo(this.map.getLeafletMap());
+			marker.on('click', this.poiMarker_click.bind(this, pPoi));
+			result = { poi: pPoi, marker: marker };
+			this.pois.set(pPoi.getId(), result);
+			return result;
+		},
+
+		/**
+		 * This implements a specific logic to size the markers a bit bigger on higher zoom levels.
+		 * The styles are assigned directly in order to override what was set by leaflet. This might
+		 * probably be done a bit more nicely one day. Even worse, it's duplicate code of MapPois...
+		 */
+		resizeMarkers: function () {
+			const iconSize = Math.min(Math.max(this.map.getCurrentZoom() * 5 - 40, 12), 36);
+			const lengthWidth = `${iconSize}px`;
+			const margin = `${iconSize * -1}px`;
+			const fontSize = `${iconSize / 24}em`;
+			for (const [poiId, poi] of this.pois) {
+				const markerElement = poi.marker.getElement();
+				markerElement.style.height = lengthWidth;
+				markerElement.style.width = lengthWidth;
+				markerElement.style.marginTop = margin;
+				markerElement.style.fontSize = fontSize;
+			}
+		},
+
 	};
 
 	/**
