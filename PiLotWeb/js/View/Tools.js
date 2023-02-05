@@ -947,15 +947,20 @@ PiLot.View.Tools = (function () {
 		 */
 		drawMarker: function (pPoi) {
 			let result;
-			const iconHtml = PiLot.Templates.Tools.osmMapMarkerIcon;
-			const icon = L.divIcon({
-				className: 'osmPoiMarker', iconSize: [null, null], html: iconHtml
-			});
-			const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: false });
-			marker.addTo(this.map.getLeafletMap());
-			marker.on('click', this.poiMarker_click.bind(this, pPoi));
-			result = { poi: pPoi, marker: marker };
-			this.pois.set(pPoi.getId(), result);
+			const latLng = pPoi.getLatLng();
+			if (latLng) {
+				const iconHtml = PiLot.Templates.Tools.osmMapMarkerIcon;
+				const icon = L.divIcon({
+					className: 'osmPoiMarker', iconSize: [null, null], html: iconHtml
+				});
+				const marker = L.marker(latLng, { icon: icon, draggable: false });
+				marker.addTo(this.map.getLeafletMap());
+				marker.on('click', this.poiMarker_click.bind(this, pPoi));
+				result = { poi: pPoi, marker: marker };
+				this.pois.set(pPoi.getId(), result);
+			} else {
+				PiLot.log(`osm poi has no position: ${pPoi.getId()}`, 0);
+			}
 			return result;
 		},
 
