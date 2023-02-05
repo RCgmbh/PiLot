@@ -190,7 +190,11 @@ PiLot.Service.Nav = (function () {
         return poiServiceInstance;
 	};
 
-	/** Loads pois from OSM using overpass turbo */
+	/**
+	 * Loads pois from OSM using overpass turbo
+	 * @see {@link https://wiki.openstreetmap.org/wiki/Overpass_API}
+	 * @see {@link https://overpass-turbo.eu/#}
+	 * */
 	var OsmPoiLoader = function () { };
 	
 	OsmPoiLoader.genericQuery = `
@@ -208,7 +212,7 @@ PiLot.Service.Nav = (function () {
 		marina: [['leisure', 'marina'], ['mooring', 'yes']],
 		lock: [['lock', 'yes'], ['waterway', 'lock_gate']],
 		fuel: [['wateway', 'fuel'], ['amenity', 'fuel']],
-		pump: [['waterway', 'sanitary_dump_station']],
+		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes']],
 		toilet: [['amenity', 'toilets']]
 	};
 
