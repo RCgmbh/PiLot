@@ -203,9 +203,8 @@ PiLot.Templates.Nav = {
 	`,
 
 	poiDetails: `
-		<div class="fullHeight fullWidth absolute vCenter" hidden>
-			<div class="overlay"></div>
-			<div class="poiDetails dialogPanel hCenter hCenter">
+		<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="pnlDialog poiDetails dialogPanel hCenter">
 				<div class="paddingAllSmall">
 					<div class="marginBottomSmall flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
 						<div class="plhCategoryIcon poiIcon marginRight" style="flex-grow:0;"></div>
@@ -230,9 +229,8 @@ PiLot.Templates.Nav = {
 		</div>`,
 
 	poiForm: `
-		<div class="fullHeight fullWidth absolute vCenter" hidden>
-			<div class="overlay"></div>
-			<div class="poiDetails dialogPanel hCenter hCenter paddingAllSmall">
+		<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="pnlDialog poiDetails dialogPanel hCenter paddingAllSmall">
 				<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
 				<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
 				<div class="calValidTo hCenter" style="top:2em;" hidden></div>

@@ -251,6 +251,7 @@ textarea.big{height:20em;}
 .paddingLeft { padding-left: min(1em, 4vw); }
 .paddingRight { padding-right: min(1em, 4vw); }
 .absolute{position:absolute}
+.fixed {position:fixed;}
 .floatLeft{float:left;}
 .clearAll{clear:both;}
 .table{display:table;}

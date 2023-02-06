@@ -1256,6 +1256,16 @@ PiLot.View.Nav = (function () {
 			this.draw();
 		},
 
+		/** handles clicks on the dark background by closing the dialog */
+		pnlOverlay_click: function () {
+			this.hide();
+		},
+
+		/** makes sure that clicks are not bubbled to the background, which would close the window */
+		pnlDialog_click: function (pEvent) {
+			pEvent.stopPropagation();
+		},
+
 		lnkClose_click: function (e) {
 			!!e && e.preventDefault();
 			this.mapPois.showPoi(this.poi, true, false);
@@ -1290,8 +1300,9 @@ PiLot.View.Nav = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiDetails);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
+			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
+			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
-			this.control.querySelector('.overlay').addEventListener('click', this.hide.bind(this))
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
 			this.lblTitle = this.control.querySelector('.lblTitle');

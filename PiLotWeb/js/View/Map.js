@@ -476,6 +476,16 @@ PiLot.View.Map = (function () {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
+		/** handles clicks on the dark background by closing the dialog */
+		pnlOverlay_click: function () {
+			this.hide();
+		},
+
+		/** makes sure that clicks are not bubbled to the background, which would close the window */
+		pnlDialog_click: function (pEvent) {
+			pEvent.stopPropagation();
+		},
+
 		/**
 		 * Handles changes of the tile source checkboxes
 		 * @param {PiLot.Model.Nav.TileSource} pTileSource
@@ -522,6 +532,8 @@ PiLot.View.Map = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
+			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
+			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.showPois;
 			await Promise.all([this.drawTileSourcesAsync(), this.drawCategoriesAsync(), this.drawFeaturesAsync()]);

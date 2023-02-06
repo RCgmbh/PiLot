@@ -63,7 +63,7 @@ PiLot.Templates.Logbook = {
 					<div class="pnlNoEntries feedbackInfo" data-text="noLogbookEntries" hidden></div>
 					<div class="plhLogbookEntries logbookEntries"></div>
 				</div>
-				<div class="marginBottom addEntryLinks" style="flex-grow:1; flex-basis: 25vw;">
+				<div class="marginBottom paddingRight addEntryLinks" style="flex-grow:1; flex-basis: 25vw;">
 					<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 					<div style="display:flex; flex-direction:column; gap:0.5em;">
 						<div class="pnlRecentSetups" hidden>
@@ -85,8 +85,7 @@ PiLot.Templates.Logbook = {
 		<div class="newEntryImage"></div>`,
 
 	logbookEntryForm: `
-		<div class="fullHeight fullWidth absolute vCenter" hidden>
-			<div class="overlay"></div>
+		<div class="pnlOverlay vCenter overlay" hidden>
 			<div class="logbookEntry dialogPanel hCenter paddingAllSmall hCenter">
 				<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
 				<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
