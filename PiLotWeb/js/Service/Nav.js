@@ -247,8 +247,7 @@ PiLot.Service.Nav = (function () {
 
 		/**
 		 * This takes the overpass result and createas an array of pois. Pois must have tags, and can be 
-		 * either single nodes or ways. Pois that are part of another poi are only added as childPois of
-		 * the parent element.
+		 * either single nodes, ways or relations. 
 		 * @param {Object} pOverpassResult - the raw object returned by overpass
 		 * @returns{PiLot.Model.Nav.OsmPoi[]}
 		 */
@@ -269,42 +268,17 @@ PiLot.Service.Nav = (function () {
 						}						
 					}
 				}
-				// add related nodes to the pois. Mark nodes that are part of pois as not being pois themselves.
-				let childNode;
+				// add related nodes to the pois. 
 				for (const [nodeId, obj] of nodesMap) {
 					if (obj.isPoi) {
 						const osmPoi = this.elementToPoi(obj.element);
-						if ('nodes' in obj.element) {
-							for (const aNodeId of obj.element.nodes) {
-								if (nodesMap.has(aNodeId)) {
-									childNode = nodesMap.get(aNodeId);
-									childNode.isPoi = false;
-									osmPoi.addNode(childNode.element);
-								} else {
-									PiLot.log(`OSM node not found: ${aNodeId}`, 0);
-								}
-							}
-						}
+						this.addChildNodes(obj.element, osmPoi, nodesMap);
+						this.addMemberNodes(obj.element, osmPoi, nodesMap);
 						obj.osmPoi = osmPoi;
 					}
 				}
-				// now some special treatments for lock gates mapped as ways: we remove them, if they have common nodes with existing locks
-				for (const [nodeId, obj] of nodesMap) {
-					if (obj.osmPoi && obj.osmPoi.getIsLockGate() && obj.element.nodes) {
-						let correspondingLockExists = false;
-						for(const [nodeId, node] of nodesMap) {
-							if (node.osmPoi && node.osmPoi.getIsLock() && node.osmPoi.hasAnyNodeId(obj.element.nodes)) {
-								correspondingLockExists = true;
-								break;
-							}
-						};
-						if (correspondingLockExists) {
-							obj.isPoi = false;
-						}
-					}
-				}
 			}
-			// fill the result array with all OsmPois for elements marked (or not unmarked) as pois
+			// fill the result array with all OsmPois for elements marked as pois
 			const result = [];
 			for (const [nodeId, obj] of nodesMap) {
 				if (obj.isPoi) {
@@ -314,6 +288,51 @@ PiLot.Service.Nav = (function () {
 			return result;
 		},
 
+		/**
+		 * For each "node" element within an element, this searches the node in the map 
+		 * of all elements, and adds them to poi, so that the poi has the coordinates
+		 * of all nodes.
+		 * @param {Object} pElement - the raw element representing the osm poi
+		 * @param {PiLot.Model.Nav.OsmMoi} pPoi - the poi to which the nodes are added
+		 * @param {Map} pNodesMap - the map with all elements (key = node id, value = {element, isPoi, osmPoi})
+		 */
+		addChildNodes: function (pElement, pPoi, pNodesMap) {
+			if ('nodes' in pElement) {
+				for (const aNodeId of pElement.nodes) {
+					if (pNodesMap.has(aNodeId)) {
+						childNode = pNodesMap.get(aNodeId);
+						pPoi.addNode(childNode.element);
+					} else {
+						PiLot.log(`OSM node not found: ${aNodeId}`, 0);
+					}
+				}
+			}
+		},
+
+		/**
+		 * For each "member" element within an element, this searches the member in the map
+		 * of all elements, and adds its nodes to poi, so that the poi has the coordinates
+		 * of all nodes. It will probably add child members recursively, if this exists in osm.
+		 * @param {Object} pElement - the raw element representing the osm poi
+		 * @param {PiLot.Model.Nav.OsmMoi} pPoi - the poi to which the nodes are added
+		 * @param {Map} pNodesMap - the map with all elements (key = node id, value = {element, isPoi})
+		 */
+		addMemberNodes: function (pElement, pPoi, pNodesMap) {
+			if ('members' in pElement) {
+				for (const member of pElement.members) {
+					if (member.ref && pNodesMap.has(member.ref)) {
+						refNode = pNodesMap.get(member.ref);
+						this.addChildNodes(refNode.element, pPoi, pNodesMap);
+						this.addMemberNodes(refNode.element, pPoi, pNodesMap);
+					}
+				}
+			}
+		},
+
+		/**
+		 * Creates a poi from a raw element as it is returned by overpass
+		 * @param {Object} pElement - the raw overpass element
+		 */
 		elementToPoi: function (pElement) {
 			const result = new PiLot.Model.Nav.OsmPoi(pElement.id, pElement.type);
 			if (pElement.lat && pElement.lon) {
