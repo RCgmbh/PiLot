@@ -1046,8 +1046,8 @@ PiLot.View.Tools = (function () {
 			this.clearOutput();
 			this.writeOutput('Starting import');
 			let success = await this.loadCategoriesAsync();
-			success &&= await this.loadFeaturesAsync();
-			success &&= await this.importPoisAsync();
+			success = success && await this.loadFeaturesAsync();
+			success = success && await this.importPoisAsync();
 			this.writeOutput(`Import ${success ? 'succeeded' : 'failed'}`);
 		},
 
