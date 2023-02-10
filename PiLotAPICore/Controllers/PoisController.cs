@@ -87,6 +87,20 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Gets an external poi by its source id and the 
+		/// source name. Returns null, if there is no such poi
+		/// </summary>
+		/// <param name="id">The source id of the poi</param>
+		/// <param name="source">The source name</param>
+		[HttpGet]
+		[Route(Program.APIROOT + "[controller]/{source}/{id}")]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public Object[] Get(String id, String source) {
+			Logger.Log("PoisController.Get (external)", LogLevels.DEBUG);
+			return new PoiDataConnector().ReadExternalPoi(source, id);
+		}
+
+		/// <summary>
 		/// Deletes a poi by its id, if it exists
 		/// </summary>
 		[HttpDelete]

@@ -109,6 +109,9 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 	background-color:white;
 	box-shadow: 0.5em 0.5em 1.5em -0.5em rgba(100, 100, 100, 0.7);
 	z-index:3500;
+	max-height: 95vh;
+	margin-bottom: 5vh;
+	overflow: auto;
 }
 .dialogPanel.round { border-radius:0.25em; }
 body.night .dialogPanel { background-color: black; }

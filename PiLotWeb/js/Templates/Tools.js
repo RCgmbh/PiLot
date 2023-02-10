@@ -189,15 +189,23 @@ PiLot.Templates.Tools = {
 			<div class="paddingAllSmall">
 				<span class="lblTitle semiBold"></span>
 				<div class="flexColumn plhTags marginBottomSmall"></div>
-				<a href="#" class="lnkImport marginRight"><i class="icon-cloud-download marginRightSmall"></i><span data-text="import"></span></a>
-				<a href="#" class="lnkLink marginRight"><i class="icon-link marginRightSmall"></i><span data-text="linkPoi"></span></a>
 				<a href="#" class="lnkHide marginRight"><i class="icon-eye-blocked marginRightSmall"></i><span data-text="hide"></span></a>
 				<a href="#" class="lnkShow marginRight" hidden><i class="icon-eye marginRightSmall"></i><span data-text="show"></span></a>
+				<a href="#" class="lnkImport marginRight"><i class="icon-cloud-download marginRightSmall"></i><span data-text="import"></span></a>
+				<a href="#" class="lnkLink marginRight" hidden><i class="icon-link marginRightSmall"></i><span data-text="linkPoi"></span></a>
+				<a href="#" class="lnkUnlink marginRight" hidden><i class="icon-cancel2 marginRightSmall"></i><span data-text="unlinkPoi"></span></a>
+			</div>
+			<div class="pnlLinkCandidates paddingAllSmall" hidden>
+				<div class="pnlNoLinkCandidates feedbackWarning" hidden data-text="noPoiLinkCandidates"></div>
+				<div class="plhLinkCandidates">
+				</div>
 			</div>
 		</div>
 	`,
 
 	osmPoiTag: '<div><span class="lblKey italic"></span>: <span class="lblValue"></span></div>',
+
+	osmLinkCandidate: '<a href="#" class="block"><span class="lblCategory"></span>:&nbsp;<span class="lblTitle"></span></a>',
 
 	osmMapMarkerIcon: '<i class="icon-cloud-download"></i>',
 

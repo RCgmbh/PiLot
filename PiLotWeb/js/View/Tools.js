@@ -761,7 +761,9 @@ PiLot.View.Tools = (function () {
 		 */
 		highlightPoiDetails: function (pPoiId, pScrollToControl) {
 			for (const [poiId, poiDetailControl] of this.poiDetailControls) {
-				poiDetailControl.toggleHighlight(false);
+				if (poiDetailControl.getPoiId() !== pPoiId) {
+					poiDetailControl.toggleHighlight(false);
+				}
 			}
 			const detailsControl = this.poiDetailControls.get(pPoiId)
 			detailsControl.toggleHighlight(true);
@@ -781,8 +783,12 @@ PiLot.View.Tools = (function () {
 		this.container = pContainer;
 		this.control = null;
 		this.lnkLink = null;
+		this.lnkUnlink = null;
 		this.lnkHide = null;
 		this.lnkShow = null;
+		this.pnlLinkCandidates = null;
+		this.plhLinkCandidates = null;
+		this.pnlNoLinkCandidates = null;
 		this.observers = null;						// Map for observable pattern
 		this.initialize();
 	};
@@ -808,7 +814,11 @@ PiLot.View.Tools = (function () {
 
 		lnkImport_click: function () { },
 
-		lnkLink_click: function () { },
+		lnkLink_click: function () {
+			this.showLinkCandidates();
+		},
+
+		lnkUnlink_click: function () { },
 
 		lnkHide_click: function (pEvent) {
 			pEvent.preventDefault();
@@ -841,10 +851,58 @@ PiLot.View.Tools = (function () {
 			}
 			this.lnkLink = this.control.querySelector('.lnkLink');
 			this.lnkLink.addEventListener('click', this.lnkLink_click.bind(this));
+			this.lnkUnlink = this.control.querySelector('.lnkUnlink');
+			this.lnkUnlink.addEventListener('click', this.lnkUnlink_click.bind(this));
 			this.lnkHide = this.control.querySelector('.lnkHide');
 			this.lnkHide.addEventListener('click', this.lnkHide_click.bind(this));
 			this.lnkShow = this.control.querySelector('.lnkShow');
 			this.lnkShow.addEventListener('click', this.lnkShow_click.bind(this));
+			this.pnlLinkCandidates = this.control.querySelector('.pnlLinkCandidates');
+			this.plhLinkCandidates = this.control.querySelector('.plhLinkCandidates');
+			this.pnlNoLinkCandidates = this.control.querySelector('.pnlNoLinkCandidates');
+		},
+
+		getPoiId: function () {
+			return this.osmPoi.getId();
+		},
+
+		/** Shows the link depending on whether the osm poi is linked to a pilot poi */
+		showActionsAsync: async function () {
+			const linkedPoi = await this.osmPoi.getLinkedPoiAsync();
+			this.lnkLink.hidden = !!linkedPoi;
+			this.lnkUnlink.hidden = !linkedPoi;
+		},
+
+		showLinkCandidates: function () {
+			this.pnlLinkCandidates.hidden = false;
+			this.plhLinkCandidates.clear();
+			const recentPois = PiLot.Service.Nav.PoiService.getInstance().getRecentPois();
+			if (recentPois.length > 0) {
+				this.pnlNoLinkCandidates.hidden = true;
+				const poisDistance = [];
+				const latLng = this.osmPoi.getLatLng();
+				for (const poi of recentPois) {
+					poisDistance.push({ distance: latLng.distanceTo(poi.getLatLng()), poi: poi });
+				}
+				poisDistance.sort(function (a, b) { return a.distance - b.distance });
+				const language = PiLot.Utils.Language.getLanguage();
+				for (let i = 0; i < poisDistance.length && i < 5; i++) {
+					this.showLinkCandidate(poisDistance[i].poi, language);
+				}
+			} else {
+				this.pnlNoLinkCandidates.hidden = false;
+			}
+		},
+
+		showLinkCandidate: function (pPoi, pLanguage) {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmLinkCandidate);
+			control.querySelector('.lblCategory').innerText = pPoi.getCategory().getLabel(pLanguage);
+			control.querySelector('.lblTitle').innerText = pPoi.getTitle();
+			this.plhLinkCandidates.appendChild(control);
+		},
+
+		hideLinkCandidates: function () {
+			this.pnlLinkCandidates.hidden = true;
 		},
 
 		/** returns the offset top of this control */
@@ -858,6 +916,11 @@ PiLot.View.Tools = (function () {
 		 */
 		toggleHighlight: function (pIsHighlighted) {
 			this.control.classList.toggle('active', pIsHighlighted);
+			if (pIsHighlighted) {
+				this.showActionsAsync();
+			} else {
+				this.hideLinkCandidates();
+			}
 		}
 	};
 
@@ -988,7 +1051,8 @@ PiLot.View.Tools = (function () {
 	/**
 	 * A control which allows to paste some json for categories, features and pois,
 	 * and imports the pois into the database. The json should have the same form
-	 * as it is created by the backup api.
+	 * as it is created by the backup api. The categories and features must match
+	 * those in the system, only the pois will be imported, not categories and features.
 	 * @param {HTMLElement} pContainer - where the control will be inserted
 	 */
 	var PoisJsonImportForm = function (pContainer) {

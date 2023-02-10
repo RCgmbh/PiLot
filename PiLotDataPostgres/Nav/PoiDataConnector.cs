@@ -77,6 +77,26 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Reads an external poi with a certain source id and source namefrom the database and returns it
+		/// as an array of all fields, exactly as they are returned by the db. If no record is found, returns null.
+		/// </summary>
+		/// <param name="pSource">The name of the source</param>
+		/// <param name="pSourceId">The id of the poi in the external source</param>
+		public Object[] ReadExternalPoi(String pSource, String pSourceId) {
+			Object[] result = null;
+			Logger.Log($"PoiDataConnector.ReadExternalPoi({pSource}, {pSourceId})", LogLevels.DEBUG);
+			String query = "SELECT * FROM read_external_poi(@p_source, @p_source_id);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_source", pSource));
+			pars.Add(("@p_source_id", pSourceId));
+			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
+			if (resultList.Count == 1) {
+				result = resultList[0];
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// Reads the latest change date of either pois, categories or features. Used as a very basic approach
 		/// for an all-or-nothing backup of poi-related data.
 		/// </summary>

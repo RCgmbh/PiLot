@@ -9,12 +9,17 @@ PiLot.Service.Nav = (function () {
     var PoiService = function(){
 		this.categories = null;			// Map with key = id, value = category
 		this.features = null;			// Map with key = id, value = feature
+		this.poisCache = null;			// Array of recently loaded pois
+		this.externalPoisCache = null;	// Map with key = source, value = Map with key = sourceId, value = poi
         this.initialize();
     };
 
     PoiService.prototype = {
         
-        initialize: function(){},
+		initialize: function () {
+			this.externalPoisCache = new Map();
+			this.poisCache = [];
+		},
 
 		/**
 		* Finds Pois for a certain area, categories and features from the server
@@ -32,11 +37,13 @@ PiLot.Service.Nav = (function () {
 					const poi = this.poiFromArray(json[i]);
 					if (poi) {
 						result.push(poi);
+						this.ensureExternalPoiCached(poi);
 					}
 				}
 			} else {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);
 			}
+			this.poisCache = result;
 			return result;
 		},
 
@@ -47,24 +54,59 @@ PiLot.Service.Nav = (function () {
 		 */
 		loadPoiDetailsAsync: async function (pPoi) {
 			const url = `/Pois/${pPoi.getId()}`;
-			const json = await PiLot.Utils.Common.getFromServerAsync(url);
-			if (json && Array.isArray(json)) {
-				pPoi.setDescription(json[2]);
-				let properties = json[5];
+			await this.loadPoiAsync(url, pPoi);
+		},
+
+		/**
+		 * Loads an external poi based on the source and its id. First tries to load
+		 * it from the external poi cache, and if it's not there, tries to load it
+		 * from the backend.
+		 * @param {String} pSource - the name of the source
+		 * @param {String} pSourceId - the poi's id in the source
+		 */
+		loadExternalPoiAsync: async function (pSource, pSourceId) {
+			const sourceMap = this.externalPoisCache.get(pSource);
+			if (sourceMap) {
+				result = sourceMap.get(pSourceId);
+			}
+			if (!result) {
+				const url = `/Pois/${pSource}/${pSourceId}`;
+				result = await this.loadPoiAsync(url, null);
+				if (result) {
+					this.ensureExternalPoiCached(result);
+				}
+			}
+			return result;
+		},
+
+		/**
+		 * Loads a poi using a specific url. If a poi is passed as parameter, only description
+		 * and properties will be added, if no poi is passed, a new poi will be created based
+		 * on the result from the query.
+		 * @param {String} pUrl - the url for the query, which will return a poi as array
+		 * @param {PiLot.Model.Nav.Poi} pPoi - an existing poi or null
+		 */
+		loadPoiAsync: async function (pUrl, pPoi) {
+			const json = await PiLot.Utils.Common.getFromServerAsync(pUrl);
+			let poi = pPoi || this.poiFromArray(json);
+			if (poi && json && Array.isArray(json)) {
+				poi.setDescription(json[10]);
+				let properties = json[11];
 				if (typeof (properties) === 'string') {
 					properties = JSON.parse(properties);
 				} else {
 					properties = null;
 				}
-				pPoi.setProperties(properties);
+				poi.setProperties(properties);
 			}
+			return poi;
 		},
 
 		/**
 		 * Saves a poi to the server and returns its id
 		 * @param {PiLot.Model.Nav.Poi} pPoi
 		 */
-		savePoi: async function (pPoi) {
+		savePoiAsync: async function (pPoi) {
 			return await PiLot.Utils.Common.putToServerAsync('/Pois', pPoi);
 		},
 
@@ -72,32 +114,35 @@ PiLot.Service.Nav = (function () {
 		 * Deletes a poi 
 		 * @param {PiLot.Model.Nav.Poi} pPoi
 		 */
-		deletePoi: async function (pPoi) {
+		deletePoiAsync: async function (pPoi) {
 			return await PiLot.Utils.Common.deleteFromServerAsync(`/Pois/${pPoi.getId()}`);
 		},
 
 		/**
-		 * Creates a Poi from an array, as it is delivered from the server.
+		 * Creates a Poi from an array, as it is delivered from the server. Returns null,
+		 * if pData is null.
 		 * @param {Object[]} pData
 		 */
 		poiFromArray: function (pData) {
 			let result = null;
-			const locale = PiLot.Utils.Language.getLanguage();
-			if (Array.isArray(pData)) {
-				result = new PiLot.Model.Nav.Poi(
-					pData[0],
-					pData[1],
-					this.categories.get(pData[2]),
-					pData[3],
-					pData[4],
-					pData[5],
-					RC.Date.DateHelper.isoToLuxon(pData[6], locale),
-					RC.Date.DateHelper.isoToLuxon(pData[7], locale),
-					pData[8],
-					pData[9]
-				);
-			} else {
-				PiLot.log('Did not get an array for Poi.fromArray.', 0);
+			if (pData) {
+				const locale = PiLot.Utils.Language.getLanguage();
+				if (Array.isArray(pData)) {
+					result = new PiLot.Model.Nav.Poi(
+						pData[0],
+						pData[1],
+						this.categories.get(pData[2]),
+						pData[3],
+						pData[4],
+						pData[5],
+						RC.Date.DateHelper.isoToLuxon(pData[6], locale),
+						RC.Date.DateHelper.isoToLuxon(pData[7], locale),
+						pData[8],
+						pData[9]
+					);
+				} else {
+					PiLot.log('Did not get an array for Poi.fromArray.', 0);
+				}
 			}
 			return result;
 		},
@@ -179,6 +224,30 @@ PiLot.Service.Nav = (function () {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);
 			}
 			return result;
+		},
+
+		/** Returns the list of the most recently loaded pois */
+		getRecentPois: function () {
+			return this.poisCache;
+		},
+
+		/**
+		 * Makes sure a poi is added to the external pois cache, if it has a source and sourceId
+		 * @param {PiLot.Model.Nav.Poi} pPoi
+		 */
+		ensureExternalPoiCached: function (pPoi) {
+			const source = pPoi.getSource();
+			const sourceId = pPoi.getSourceId();
+			if (source && sourceId) {
+				let sourceMap;
+				if (!this.externalPoisCache.has(source)) {
+					sourceMap = new Map();
+					this.externalPoisCache.set(source, sourceMap);
+				} else {
+					sourceMap = this.externalPoisCache.get(source);
+				}
+				sourceMap.set(sourceId, pPoi);
+			}
 		}
     };
 

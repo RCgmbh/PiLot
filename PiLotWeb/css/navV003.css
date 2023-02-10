@@ -37,7 +37,7 @@
 .poiMarker { border-bottom-right-radius:0; background-color: rgba(255, 191, 73, 0.8); }
 body.night .poiMarker { background-color: rgba(255, 191, 73, 0.5); }
 .leaflet-container .poiMarker > img { width:100%; height:100%; }
-.dialogPanel.poiDetails { width:100vw; max-width:42em; max-height:100vh; overflow:auto; }
+.dialogPanel.poiDetails { width:100vw; max-width:42em; }
 .poiIcon { width:1.5em; height:1.5em; border:1px solid black; border-radius:25%; display:flex; justify-content:center; align-items:center; }
 .poiIcon>img { width:100%; height:100%; }
 .osmPoiMarker { border-bottom-left-radius:0; background-color: rgba(195, 51, 58, 0.8);  }
@@ -55,7 +55,7 @@ body.night .osmPoiMarker.active { background-color: rgba(73, 146, 255, 0.5); }
 
 .poiForm { display:flex; flex-direction: column; }
 
-.dialogPanel.mapLayerSettings { width:100vw; max-width:36em; max-height:100vh; }
+.dialogPanel.mapLayerSettings { width:100vw; max-width:36em; }
 
 .navOutdatedDataWarning { z-index:1100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
 body.night .navOutdatedDataWarning { color: #ccc; background-color: rgba(0, 0, 0, 0.8); }

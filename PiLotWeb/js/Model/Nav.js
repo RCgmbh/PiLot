@@ -445,13 +445,13 @@ PiLot.Model.Nav = (function () {
 				source: this.source,
 				sourceId: this.sourceId
 			};
-			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoi(obj);
+			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiAsync(obj);
 			this.id = result.data;
 		},
 
 		/** Deletes the Poi */
 		deleteAsync: async function () {
-			await PiLot.Service.Nav.PoiService.getInstance().deletePoi(this);
+			await PiLot.Service.Nav.PoiService.getInstance().deletePoiAsync(this);
 		}
 
 	};
@@ -594,9 +594,11 @@ PiLot.Model.Nav = (function () {
 	var OsmPoi = function (pId, pType) {
 		this.id = pId;
 		this.type = pType;
-		this.osmTags = null;		// an object representing the osm tags
-		this.nodes = null;			// a map with nodeId, node used to calculat the position of the poi for complex pois
-		this.latLng = null;			// directly assigned coordinates for node-pois 
+		this.osmTags = null;			// an object representing the osm tags
+		this.nodes = null;				// a map with nodeId, node used to calculat the position of the poi for complex pois
+		this.latLng = null;				// directly assigned coordinates for node-pois 
+		this.linkedPoi = null;			// the PiLot Poi this is linked to. 
+		this.linkedPoiLoaded = false;	// Indicates whether the linked poi has been tried to be loaded
 		this.initialize();
 	};
 
@@ -681,11 +683,15 @@ PiLot.Model.Nav = (function () {
 			return this.osmTags.lock_name || this.osmTags.name || `${this.type} ${this.id}`;
 		},
 
-		hasAnyNodeId: function (pNodeIds) {
-			const nodes = this.nodes;
-			const result = pNodeIds.some(e => nodes.has(e));
-			return result;
-		}
+		/** @returns {PiLot.Model.Nav.Poi} if there is on, the PiLot poi linked to this osm poi */
+		getLinkedPoiAsync: async function () {
+			if (!this.linkedPoiLoaded) {
+				const poiService = PiLot.Service.Nav.PoiService.getInstance();
+				this.linkedPoi = await poiService.loadExternalPoiAsync('osm', this.id);
+				this.linkedPoiLoaded = true;
+			}
+			return this.linkedPoi;
+		}		
 	};
 
 	/// Class Waypoint, representing one waypoint being part of a track.

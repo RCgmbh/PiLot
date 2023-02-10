@@ -332,30 +332,30 @@ CREATE FUNCTION read_poi(
 ) RETURNS TABLE (
 	id bigint,
 	title text,
-	description text,
 	category_id integer,
 	feature_ids integer[],
-	properties jsonb,
 	latitude double precision,
 	longitude double precision,
 	valid_from timestamp,
 	valid_to timestamp,
 	source text,
-	source_id text
+	source_id text,
+	description text,
+	properties jsonb
 ) AS $$
 	SELECT 
 		id,
 		title,
-		description,
 		category_id,
 		feature_ids,
-		properties,
 		latitude,
 		longitude,
 		valid_from,
 		valid_to,
 		source,
-		source_id
+		source_id,
+		description,
+		properties
 	FROM all_pois
 	WHERE
 		id = poi_id
@@ -371,30 +371,30 @@ CREATE FUNCTION read_external_poi(
 ) RETURNS TABLE (
 	id bigint,
 	title text,
-	description text,
 	category_id integer,
 	feature_ids integer[],
-	properties jsonb,
 	latitude double precision,
 	longitude double precision,
 	valid_from timestamp,
 	valid_to timestamp,
 	source text,
-	source_id text
+	source_id text,
+	description text,
+	properties jsonb
 ) AS $$
 	SELECT 
 		id,
 		title,
-		description,
 		category_id,
 		feature_ids,
-		properties,
 		latitude,
 		longitude,
 		valid_from,
 		valid_to,
 		source,
-		source_id
+		source_id,
+		description,
+		properties
 	FROM all_pois
 	WHERE
 		source = p_source AND source_id = p_source_id;
