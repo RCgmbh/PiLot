@@ -39,7 +39,7 @@ PiLot.Templates.Map = {
 						<div class="plhFeatures value"></div>
 					</div>
 				</div>
-				<div class="buttons reverse paddingAllSmall bgLight">
+				<div class="buttons reverse paddingAllSmall paddingBottomBig bgLight">
 					<a href="#" class="btnApply linkButton semiBold" data-text="ok"></a>
 					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>

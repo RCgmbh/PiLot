@@ -60,6 +60,7 @@ PiLot.View.Map = (function () {
 		this.persistMapState = true;
 		this.showLayers = true;			// if false, no layers will be added but need to be added manually using addTileLayer(pUrl);
 		this.mapLayers = null;			// map with key = tileSoureName, value = L.tileLayer
+		this.mapPois = null;			// PiLot.View.Map.MapPois
 		this.defaultLat = 54.38;
 		this.defaultLng = 18.62;
 		this.defaultZoom = 9;
@@ -147,7 +148,7 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
-				new MapPois(this, this.mapLayersSettings);
+				this.mapPois = new MapPois(this, this.mapLayersSettings);
 				this.isMapLoaded = true;
 			}
 			return this;
@@ -356,6 +357,11 @@ PiLot.View.Map = (function () {
 		/** @returns {PiLot.View.Map.MapContextPopup} */
 		getContextPopup: function () {
 			return this.contextPopup;
+		},
+
+		/** @returns {PiLot.View.Map.MapPois} */
+		getMapPois: function () {
+			return this.mapPois;
 		},
 
 		/** allows to manually close the context popup */

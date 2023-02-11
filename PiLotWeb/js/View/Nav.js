@@ -1426,12 +1426,13 @@ PiLot.View.Nav = (function () {
 
 	/**
 	 * Represents the form that is used to enter or edit a point of interest 
-	 * @param {PiLot.View.Map.MapPois} pMapPois - optional, to ensure markers are added/updated
+	 * @param {PiLot.View.Map.MapPois} pMapPois - to ensure markers are added/updated, can be null
+	 * @param {HTMLElement} pContainer - the container that will contain the form. Null will show it as modal dialog.
 	 * */
-	var PoiForm = function (pMapPois) {
-		this.poi = null;				// PiLot.Model.Nav.Poi
+	var PoiForm = function (pMapPois, pContainer) {
+		this.poi = null;				
 		this.mapPois = pMapPois;
-
+		this.container = pContainer;
 		this.control = null;			
 		this.lblTitleAddPoi = null;
 		this.lblTitleEditPoi = null;
@@ -1442,17 +1443,29 @@ PiLot.View.Nav = (function () {
 		this.editLatitude = null;
 		this.editLongitude = null;
 		this.lblAllowDrag = null;
-		this.cbAllowDrag = null;
 		this.calValidFrom = null;
 		this.calValidTo = null;
-
+		this.pnlSource = null;
+		this.tbSource = null;
+		this.tbSourceId = null;
+		this.observers = null;					// Map for observable pattern
 		this.initializeAsync();
 	};
 
 	PoiForm.prototype = {
 
 		initializeAsync: async function () {
+			this.observers = RC.Utils.initializeObservers(['save', 'cancel']);
 			await this.drawAsync();
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "save", "cancel"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		lnkClearValidFrom_click: function (e) {
@@ -1469,20 +1482,27 @@ PiLot.View.Nav = (function () {
 
 		btnSave_click: async function (e) {
 			!!e && e.preventDefault();
-			if (await this.saveDataAsync()) {
-				this.hide();
-			}
+			await this.saveDataAsync();
+			RC.Utils.notifyObservers(this, this.observers, 'save', this.poi);
+			this.hide();
 		},
 
 		btnCancel_click: function (e) {
 			!!e && e.preventDefault();
+			RC.Utils.notifyObservers(this, this.observers, 'cancel', this.poi);
 			this.hide();
 		},
 
 		drawAsync: async function () {
-			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.btnCancel_click.bind(this), this.btnSave_click.bind(this));
+			if (!this.container) {
+				this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.editPoiDialog);
+				this.control.querySelector('.pnlDialog').appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm));
+				document.body.insertAdjacentElement('afterbegin', this.control);
+				PiLot.Utils.Common.bindKeyHandlers(this.control, this.btnCancel_click.bind(this), this.btnSave_click.bind(this));
+			} else {
+				this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm);
+				this.container.appendChild(this.control);
+			}
 			this.lblTitleAddPoi = this.control.querySelector('.lblTitleAddPoi');
 			this.lblTitleEditPoi = this.control.querySelector('.lblTitleEditPoi');
 			this.tbTitle = this.control.querySelector('.tbTitle');
@@ -1491,12 +1511,14 @@ PiLot.View.Nav = (function () {
 			this.editLatitude = new CoordinateForm(this.control.querySelector('.plhLatitude'), true);
 			this.editLongitude = new CoordinateForm(this.control.querySelector('.plhLongitude'), false);
 			this.lblAllowDrag = this.control.querySelector('.lblAllowDrag');
-			this.cbAllowDrag = this.control.querySelector('.cbAllowDrag');
 			const locale = PiLot.Utils.Language.getLanguage();
 			this.calValidFrom = new RC.Controls.Calendar(this.control.querySelector('.calValidFrom'), this.control.querySelector('.tbValidFrom'), null, null, null, locale);
 			this.control.querySelector('.lnkClearValidFrom').addEventListener('click', this.lnkClearValidFrom_click.bind(this));
 			this.control.querySelector('.lnkClearValidTo').addEventListener('click', this.lnkClearValidTo_click.bind(this));
 			this.calValidTo = new RC.Controls.Calendar(this.control.querySelector('.calValidTo'), this.control.querySelector('.tbValidTo'), null, null, null, locale);
+			this.pnlSource = this.control.querySelector('.pnlSource');
+			this.tbSource = this.control.querySelector('.tbSource');
+			this.tbSourceId = this.control.querySelector('.tbSourceId');
 			this.control.querySelector('.btnSave').addEventListener('click', this.btnSave_click.bind(this));
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			await Promise.all([this.populateCategoriesAsync(), this.addFeaturesSelectorAsync()]);
@@ -1531,11 +1553,13 @@ PiLot.View.Nav = (function () {
 		/**
 		 * Shows the form for entering a new poi
 		 * @param {LatLng} pLatLng - optionally pass a position
+		 * @param {String} pSource - optionally pass a source for external pois
+		 * @param {String} pSourceId - optionally pass a source id for external pois
 		 */
-		showEmpty: function (pLatLng = null) {
+		showEmpty: function (pLatLng = null, pSource = null, pSourceId = null) {
 			this.poi = null;
 			this.show();
-			this.populateFields(pLatLng);
+			this.populateFields(pLatLng, pSource, pSourceId);
 		},
 
 		/**
@@ -1552,8 +1576,10 @@ PiLot.View.Nav = (function () {
 		 * Populates the form fields with the current poi, or empties them, if there
 		 * is no poi. For creating new pois, a position can be passed.
 		 * @param {LatLng} pLatLng - optionally pass a position to pre-set
+		 * @param {String} pSource - optionally pass a source for external pois
+		 * @param {String} pSourceId - optionally pass a source id for external pois
 		 */
-		populateFields: function (pLatLng = null) {
+		populateFields: function (pLatLng = null, pSource = null, pSourceId = null) {
 			this.lblTitleAddPoi.hidden = this.poi !== null;
 			this.lblTitleEditPoi.hidden = this.poi === null;
 			let latLng;
@@ -1565,6 +1591,8 @@ PiLot.View.Nav = (function () {
 				latLng = this.poi.getLatLng();
 				this.calValidFrom.date(this.poi.getValidFrom());
 				this.calValidTo.date(this.poi.getValidTo());
+				this.tbSource.value = this.poi.getSource();
+				this.tbSourceId.value = this.poi.getSourceId();
 			} else {
 				this.tbTitle.value = "";
 				this.ddlCategory.value = "";
@@ -1573,12 +1601,14 @@ PiLot.View.Nav = (function () {
 				latLng = pLatLng;
 				this.calValidFrom.date(null);
 				this.calValidTo.date(null);
+				this.tbSource.value = pSource;
+				this.tbSourceId.value = pSourceId;
 			}
 			this.editLatitude.setCoordinate(latLng ? latLng.lat : null).showCoordinate();
 			this.editLongitude.setCoordinate(latLng ? latLng.lng : null).showCoordinate();
-			this.cbAllowDrag.checked = false;
 			this.calValidFrom.showDate(this.calValidFrom.date());
 			this.calValidTo.showDate(this.calValidTo.date());
+			this.pnlSource.hidden = !this.tbSource.value;
 			this.tbTitle.focus();
 		},
 
@@ -1600,11 +1630,12 @@ PiLot.View.Nav = (function () {
 				this.poi.setLatLng(lat, lon);
 				this.poi.setValidFrom(this.calValidFrom.date());
 				this.poi.setValidTo(this.calValidTo.date());
+				this.poi.setSource(this.tbSource.value);
+				this.poi.setSourceId(this.tbSourceId.value);
 				await this.poi.saveAsync();
 				if (this.mapPois) {
-					this.mapPois.showPoi(this.poi, true, this.cbAllowDrag.checked);
+					this.mapPois.showPoi(this.poi, true, false);
 				}
-				this.hide();
 			} else {
 				alert(PiLot.Utils.Language.getText('mandatoryPoiFields'));
 			}			
@@ -1618,8 +1649,10 @@ PiLot.View.Nav = (function () {
 
 		/** Hides the entire control */
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			if (!this.container) {
+				document.body.classList.toggle('overflowHidden', false);
+				this.control.hidden = true;
+			}
 		}
 	};
 

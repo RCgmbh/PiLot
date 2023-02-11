@@ -228,43 +228,48 @@ PiLot.Templates.Nav = {
 			</div>
 		</div>`,
 
+	editPoiDialog: `
+		<div class="pnlOverlay vCenter overlay" hidden><div class="pnlDialog poiDetails dialogPanel hCenter"></div></div>
+	`,
+
 	poiForm: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog poiDetails dialogPanel hCenter paddingAllSmall">
-				<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
-				<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
-				<div class="calValidTo hCenter" style="top:2em;" hidden></div>
-				<div class="calValidFrom hCenter" style="top:2em;" hidden></div>
-				<div class="poiForm marginBottom">
-					<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
-					<select class="ddlCategory marginBottomSmall"></select>
-					<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
-					<div class="flexColumn marginBottomSmall">
-						<span data-text="features"></span>
-						<div class="plhFeatures borderLight paddingAllSmall"></div>
-					</div>
-					<div class="flexRowWrap">
-						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
-						<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
-					</div>
-					<div class="flexRowWrap">
-						<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
-							<span class="inlineBlock col4" data-text="validFrom">:</span>
-							<input type="text" class="tbValidFrom input4" />
-							<a href="#" class="lnkClearValidFrom"><i class="icon-cross"></i></a>
-						</div>
-						<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
-							<span class="inlineBlock col4" data-text="validTo">:</span>
-							<input type="text" class="tbValidTo input4" />
-							<a href="#" class="lnkClearValidTo"><i class="icon-cross"></i></a>
-						</div>
-					</div>
-					<label class="lblAllowDrag marginRight marginBottomSmall block"><input type="checkbox" class="cbAllowDrag" /><span data-text="allowDrag"></span></label>
+		<div class="paddingAllSmall">
+			<span class="lblTitleAddPoi block marginBottomSmall semiBold" data-text="addPoi"></span>
+			<span class="lblTitleEditPoi block marginBottomSmall semiBold" data-text="editPoi"></span>
+			<div class="calValidTo hCenter" style="top:2em;" hidden></div>
+			<div class="calValidFrom hCenter" style="top:2em;" hidden></div>
+			<div class="poiForm marginBottom">
+				<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
+				<select class="ddlCategory marginBottomSmall"></select>
+				<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
+				<div class="flexColumn marginBottomSmall">
+					<span data-text="features"></span>
+					<div class="plhFeatures borderLight paddingAllSmall"></div>
 				</div>
-				<div class="buttons reverse marginBottomSmall">
-					<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
-					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				<div class="flexRowWrap">
+					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
+					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
 				</div>
+				<div class="flexRowWrap">
+					<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
+						<span class="inlineBlock col6" data-text="validFrom">:</span>
+						<input type="text" class="tbValidFrom input4" />
+						<a href="#" class="lnkClearValidFrom"><i class="icon-cross"></i></a>
+					</div>
+					<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
+						<span class="inlineBlock col6" data-text="validTo">:</span>
+						<input type="text" class="tbValidTo input4" />
+						<a href="#" class="lnkClearValidTo"><i class="icon-cross"></i></a>
+					</div>
+				</div>
+				<div class="pnlSource flexRowWrap" hidden>
+					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="source"></span><input type="text" class="tbSource input4" /></div>
+					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="sourceId"></span><input type="text" class="tbSourceId input4" /></div>
+				</div>
+			</div>
+			<div class="buttons reverse paddingBottomBig">
+				<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
+				<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 			</div>
 		</div>`,
 
@@ -276,7 +281,7 @@ PiLot.Templates.Nav = {
 			<span class="noWrap inlineBlock marginBottomSmall" style="min-width:10em;">
 				<a href="#" class="lnkShowAll" data-text="showAll"></a><a href="#" class="lnkShowSelected" data-text="showSelected" hidden></a>
 			</span>
-			<div class="plhFeatureCheckboxes flexColumn paddingBottomSmall"></div>
+			<div class="plhFeatureCheckboxes flexColumn paddingBottomSmall" style="align-items:flex-start;"></div>
 		</div>`,
 
 	poiCategoryIconCss: '<i class="{{icon}}"></i>',

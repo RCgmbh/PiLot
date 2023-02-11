@@ -656,10 +656,12 @@ PiLot.View.Tools = (function () {
 	 */
 	var PoisOsmImportControl = function (pContainer) {
 		this.container = pContainer;
-		this.mapPois = null;			// PiLot.View.Tools.OsmMapPois
+		this.osmMapPois = null;			// PiLot.View.Tools.OsmMapPois
+
 		this.poiDetailControls = null;	// Map with key = osmPoiId, value = OsmPoiDetails control
 		this.poiLoader = null;
 		this.seamap = null;
+		this.editDialog = null;			// PiLot.View.Tools.OsmPoiEditDialog
 		this.cbImportMarinas = null;
 		this.cbImportLocks = null;
 		this.cbImportFuel = null;
@@ -676,7 +678,7 @@ PiLot.View.Tools = (function () {
 		initialize: function () {
 			this.poiLoader = new PiLot.Service.Nav.OsmPoiLoader();
 			this.poiDetailControls = new Map();
-			this.draw();
+			this.drawAsync();
 		},
 
 		btnLoad_click: async function (e) {
@@ -687,24 +689,24 @@ PiLot.View.Tools = (function () {
 			e.target.hidden = false;
 		},
 
-		mapPois_selectPoi: function (pSender, pArg) {
+		osmMapPois_selectPoi: function (pSender, pArg) {
 			this.highlightPoiDetails(pArg, true);
 		},
 
 		poiDetails_select: function (pSender, pArg) {
 			this.highlightPoiDetails(pArg, false);
-			this.mapPois.highlightPoi(pArg);
+			this.osmMapPois.highlightPoi(pArg);
 		},
 
 		poiDetails_hidePoi: function (pSender, pArg) {
-			this.mapPois.togglePoi(pArg, false);
+			this.osmMapPois.togglePoi(pArg, false);
 		},
 
 		poiDetails_showPoi: function (pSender, pArg) {
-			this.mapPois.togglePoi(pArg, true);
+			this.osmMapPois.togglePoi(pArg, true);
 		},
 
-		draw: function () {
+		drawAsync: async function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisOsmImportForm);
 			this.container.appendChild(control);
 			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
@@ -713,11 +715,14 @@ PiLot.View.Tools = (function () {
 			this.cbImportPump = control.querySelector('.cbImportPump');
 			this.cbImportToilets = control.querySelector('.cbImportToilets');
 			this.lblLoadingData = control.querySelector('.lblLoadingData');
-			control.querySelector('.btnLoad').addEventListener('click', this.btnLoad_click.bind(this));
 			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'));
-			this.seamap.showAsync();
-			this.mapPois = new OsmMapPois(this.seamap);
-			this.mapPois.on('selectPoi', this.mapPois_selectPoi.bind(this));
+			await this.seamap.showAsync()
+			this.editDialog = new OsmPoiEditDialog(this.seamap.getMapPois());
+			const btnLoad = control.querySelector('.btnLoad');
+			btnLoad.hidden = false;
+			btnLoad.addEventListener('click', this.btnLoad_click.bind(this));
+			this.osmMapPois = new OsmMapPois(this.seamap);
+			this.osmMapPois.on('selectPoi', this.osmMapPois_selectPoi.bind(this));
 			this.plhOsmDetails = control.querySelector('.plhOsmDetails');
 		},
 
@@ -742,10 +747,10 @@ PiLot.View.Tools = (function () {
 			this.plhOsmDetails.clear();
 			const mapBounds = this.seamap.getLeafletMap().getBounds();
 			const osmPois = await this.poiLoader.loadDataAsync(mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
-			this.mapPois.showOsmPois(osmPois);
+			this.osmMapPois.showOsmPois(osmPois);
 			this.poiDetailControls = new Map();
 			for (aPoi of osmPois) {
-				const poiDetails = new OsmPoiDetails(aPoi, this.plhOsmDetails);
+				const poiDetails = new OsmPoiDetails(aPoi, this.plhOsmDetails, this.editDialog);
 				poiDetails.on('select', this.poiDetails_select.bind(this));
 				poiDetails.on('hidePoi', this.poiDetails_hidePoi.bind(this));
 				poiDetails.on('showPoi', this.poiDetails_showPoi.bind(this));
@@ -777,15 +782,23 @@ PiLot.View.Tools = (function () {
 	 * Control to show details for an osm poi
 	 * @param {PiLot.Model.Nav.OsmPoi} pOsmPoi
 	 * @param {HTMLElement} pContainer
+	 * @param {PiLot.View.Tools.OsmPoiEditDialog} pEditDialog - edit dialog for the edit/import action
+	 * @param {Boolean} pHideActions - optionally set true to hide the "actions" section
 	 */
-	var OsmPoiDetails = function (pOsmPoi, pContainer) {
+	var OsmPoiDetails = function (pOsmPoi, pContainer, pEditDialog, pHideActions = false) {
 		this.osmPoi = pOsmPoi;
 		this.container = pContainer;
+		this.editDialog = pEditDialog;
+		this.hideActions = pHideActions;
 		this.control = null;
-		this.lnkLink = null;
-		this.lnkUnlink = null;
+		this.lblTitle = null;
+		this.plhTags = null;
 		this.lnkHide = null;
 		this.lnkShow = null;
+		this.lnkImport = null;
+		this.lnkEdit = null;
+		this.lnkLink = null;
+		this.lnkUnlink = null;
 		this.pnlLinkCandidates = null;
 		this.plhLinkCandidates = null;
 		this.pnlNoLinkCandidates = null;
@@ -794,9 +807,13 @@ PiLot.View.Tools = (function () {
 	};
 
 	OsmPoiDetails.prototype = {
+
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['select', 'hidePoi', 'showPoi']);
 			this.draw();
+			if (this.osmPoi) {
+				this.showPoi();
+			}
 		},
 
 		/**
@@ -812,13 +829,27 @@ PiLot.View.Tools = (function () {
 			RC.Utils.notifyObservers(this, this.observers, 'select', this.osmPoi.getId());
 		},
 
-		lnkImport_click: function () { },
+		lnkEdit_click: function () {
+			this.showEditDialogAsync();
+		},
+
+		lnkImport_click: function () {
+			this.showEditDialogAsync();
+		},
 
 		lnkLink_click: function () {
 			this.showLinkCandidates();
 		},
 
-		lnkUnlink_click: function () { },
+		lnkLinkCanditate_click: function (pPoi, pEvent) {
+			pEvent.preventDefault();
+			this.linkPoiAsync(pPoi);
+		},
+
+		lnkUnlink_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.unlinkPoiAsync();
+		},
 
 		lnkHide_click: function (pEvent) {
 			pEvent.preventDefault();
@@ -840,26 +871,41 @@ PiLot.View.Tools = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiDetails);
 			this.container.appendChild(this.control);
 			this.control.addEventListener('click', this.control_click.bind(this));
-			this.control.querySelector('.lblTitle').innerText = this.osmPoi.getTitle();
-			const plhTags = this.control.querySelector('.plhTags');
-			const tags = this.osmPoi.getTags();
-			for (let aTag in tags) {
-				const tagControl = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiTag);
-				tagControl.querySelector('.lblKey').innerText = aTag;
-				tagControl.querySelector('.lblValue').innerText = tags[aTag];
-				plhTags.appendChild(tagControl);
-			}
-			this.lnkLink = this.control.querySelector('.lnkLink');
-			this.lnkLink.addEventListener('click', this.lnkLink_click.bind(this));
-			this.lnkUnlink = this.control.querySelector('.lnkUnlink');
-			this.lnkUnlink.addEventListener('click', this.lnkUnlink_click.bind(this));
+			this.lblTitle = this.control.querySelector('.lblTitle');
+			this.plhTags = this.control.querySelector('.plhTags');
+			this.container.querySelector('.pnlActions').hidden = this.hideActions;
 			this.lnkHide = this.control.querySelector('.lnkHide');
 			this.lnkHide.addEventListener('click', this.lnkHide_click.bind(this));
 			this.lnkShow = this.control.querySelector('.lnkShow');
 			this.lnkShow.addEventListener('click', this.lnkShow_click.bind(this));
+			this.lnkImport = this.control.querySelector('.lnkImport');
+			this.lnkImport.addEventListener('click', this.lnkImport_click.bind(this));
+			this.lnkEdit = this.control.querySelector('.lnkEdit');
+			this.lnkEdit.addEventListener('click', this.lnkEdit_click.bind(this));
+			this.lnkLink = this.control.querySelector('.lnkLink');
+			this.lnkLink.addEventListener('click', this.lnkLink_click.bind(this));
+			this.lnkUnlink = this.control.querySelector('.lnkUnlink');
+			this.lnkUnlink.addEventListener('click', this.lnkUnlink_click.bind(this));
 			this.pnlLinkCandidates = this.control.querySelector('.pnlLinkCandidates');
 			this.plhLinkCandidates = this.control.querySelector('.plhLinkCandidates');
 			this.pnlNoLinkCandidates = this.control.querySelector('.pnlNoLinkCandidates');
+		},
+
+		showPoi: function (pOsmPoi) {
+			this.osmPoi = pOsmPoi || this.osmPoi;
+			this.lblTitle.innerText = this.osmPoi.getTitle()
+			const tags = this.osmPoi.getTags();
+			this.plhTags.clear();
+			for (let aTag in tags) {
+				const tagControl = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiTag);
+				tagControl.querySelector('.lblKey').innerText = aTag;
+				tagControl.querySelector('.lblValue').innerText = tags[aTag];
+				this.plhTags.appendChild(tagControl);
+			}
+		},
+
+		getPoi: function () {
+			return this.osmPoi;
 		},
 
 		getPoiId: function () {
@@ -869,8 +915,45 @@ PiLot.View.Tools = (function () {
 		/** Shows the link depending on whether the osm poi is linked to a pilot poi */
 		showActionsAsync: async function () {
 			const linkedPoi = await this.osmPoi.getLinkedPoiAsync();
-			this.lnkLink.hidden = !!linkedPoi;
-			this.lnkUnlink.hidden = !linkedPoi;
+			const isLinked = !!linkedPoi;
+			this.lnkImport.hidden = isLinked;
+			this.lnkEdit.hidden = !isLinked;
+			this.lnkLink.hidden = isLinked;
+			this.lnkUnlink.hidden = !isLinked;
+		},
+
+		showEditDialogAsync: async function () {
+			const poi = await this.osmPoi.getLinkedPoiAsync();
+			this.editDialog.showPois(poi, this.osmPoi);
+		},
+
+		linkPoiAsync: async function (pPoi) {
+			if (pPoi && !pPoi.getSourceId()) {
+				await pPoi.ensureDetailsAsync();
+				pPoi.setSource('osm');
+				pPoi.setSourceId(this.osmPoi.getId().toString());
+				await pPoi.saveAsync();
+				this.osmPoi.resetLinkedPoi();
+				this.showActionsAsync();
+				this.hideLinkCandidates();
+			} else {
+				PiLot.log(`Could not link with poi ${pPoi}`, 0);
+			}
+		},
+
+		unlinkPoiAsync: async function () {
+			const poi = await this.osmPoi.getLinkedPoiAsync();
+			if (poi) {
+				await poi.ensureDetailsAsync();
+				poi.setSource('');
+				poi.setSourceId('');
+				await poi.saveAsync();
+				this.osmPoi.resetLinkedPoi();
+				this.showActionsAsync();
+				this.hideLinkCandidates();
+			} else {
+				PiLot.log(`Could not unlink poi ${poi}`, 0);
+			}
 		},
 
 		showLinkCandidates: function () {
@@ -898,6 +981,7 @@ PiLot.View.Tools = (function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmLinkCandidate);
 			control.querySelector('.lblCategory').innerText = pPoi.getCategory().getLabel(pLanguage);
 			control.querySelector('.lblTitle').innerText = pPoi.getTitle();
+			control.addEventListener('click', this.lnkLinkCanditate_click.bind(this, pPoi));
 			this.plhLinkCandidates.appendChild(control);
 		},
 
@@ -1046,6 +1130,64 @@ PiLot.View.Tools = (function () {
 			}
 		},
 
+	};
+
+	/**
+	 * The dialog that shows the local poi (or the empty form) and the osm data side by side
+	 * @param {PiLot.View.Map.MapPois} pMapPois - Connecting this to a map will update the marker position if lat/long changed in the form
+	 */
+	var OsmPoiEditDialog = function (pMapPois) {
+		this.mapPois = pMapPois;
+		this.control = null;
+		this.poiForm = null;
+		this.osmPoiDetails = null;
+		this.initialize();
+	};
+
+	OsmPoiEditDialog.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		poiForm_save: function (pPoi) {
+			this.osmPoiDetails.getPoi().resetLinkedPoi();
+			this.hide();
+		},
+
+		poiForm_cancel: function () {
+			this.hide();
+		},
+
+		draw: function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiEditDialog);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			this.poiForm = new PiLot.View.Nav.PoiForm(this.mapPois, this.control.querySelector('.pnlPoiForm'));
+			this.poiForm.on('save', this.poiForm_save.bind(this));
+			this.poiForm.on('cancel', this.poiForm_cancel.bind(this));
+			this.osmPoiDetails = new OsmPoiDetails(null, this.control.querySelector('.pnlOsmPoiForm'), null, true);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.poiForm.saveDataAsync.bind(this));
+		},
+
+		showPois: function (pPoi, pOsmPoi) {
+			if (pPoi) {
+				this.poiForm.showPoi(pPoi);
+			} else {
+				this.poiForm.showEmpty(pOsmPoi.getLatLng(), 'osm', pOsmPoi.getId());
+			}
+			this.osmPoiDetails.showPoi(pOsmPoi);
+			this.show();
+		},
+
+		show: function () {
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+		},
+
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
+			this.control.hidden = true;
+		}
 	};
 
 	/**

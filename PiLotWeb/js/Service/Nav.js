@@ -91,13 +91,7 @@ PiLot.Service.Nav = (function () {
 			let poi = pPoi || this.poiFromArray(json);
 			if (poi && json && Array.isArray(json)) {
 				poi.setDescription(json[10]);
-				let properties = json[11];
-				if (typeof (properties) === 'string') {
-					properties = JSON.parse(properties);
-				} else {
-					properties = null;
-				}
-				poi.setProperties(properties);
+				poi.setProperties(json[11]);
 			}
 			return poi;
 		},
@@ -146,6 +140,7 @@ PiLot.Service.Nav = (function () {
 			}
 			return result;
 		},
+
 
 		/** 
 		 * Gets the cached map of all categories

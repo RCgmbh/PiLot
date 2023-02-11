@@ -419,7 +419,7 @@ PiLot.Model.Nav = (function () {
 		getSourceId: function () { return this.sourceId; },
 
 		/** @param {String} pSourceId */
-		setSourceId: function (pSourceId) { this.sourceId = pSourceId; },
+		setSourceId: function (pSourceId) { this.sourceId = pSourceId.toString(); },
 
 		/** Makes sure the (description, properties) have been loaded from the server */
 		ensureDetailsAsync: async function () {
@@ -691,7 +691,12 @@ PiLot.Model.Nav = (function () {
 				this.linkedPoiLoaded = true;
 			}
 			return this.linkedPoi;
-		}		
+		},
+
+		resetLinkedPoi: function () {
+			this.linkedPoi = null;
+			this.linkedPoiLoaded = false;
+		}
 	};
 
 	/// Class Waypoint, representing one waypoint being part of a track.

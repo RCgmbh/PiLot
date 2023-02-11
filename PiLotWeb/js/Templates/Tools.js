@@ -173,13 +173,13 @@ PiLot.Templates.Tools = {
 					<label class="marginRight noWrap"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>
 					<label class="marginRight noWrap"><input type="checkbox" class="cbImportToilets marginRight" /><span data-text="toilets"></span></label>
 				</div>
-				<button class="btnLoad input7 marginBottomSmall" type="button" data-text="loadData"></button><span class="lblLoadingData" hidden data-text="loadingData"></span>
+				<button class="btnLoad input7 marginBottomSmall" type="button" data-text="loadData" hidden></button><span class="lblLoadingData" hidden data-text="loadingData"></span>
 			</div>
 			<div class="flexRowWrap marginBottom">
-				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+				<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
 					<div class="pnlMap navMap" style="height: 70vh;"></div>
 				</div>
-				<div class="plhOsmDetails marginRight borderLight" style="min-width:20em; flex-basis:20em; flex-grow:1; max-height:70vh; overflow: auto; position:relative; "></div>
+				<div class="plhOsmDetails marginRight borderLight" style="min-width:16em; flex-basis:20em; flex-grow:1; max-height:70vh; overflow: auto; position:relative; "></div>
 			</div>
 		</div>
 	`,
@@ -189,11 +189,14 @@ PiLot.Templates.Tools = {
 			<div class="paddingAllSmall">
 				<span class="lblTitle semiBold"></span>
 				<div class="flexColumn plhTags marginBottomSmall"></div>
-				<a href="#" class="lnkHide marginRight"><i class="icon-eye-blocked marginRightSmall"></i><span data-text="hide"></span></a>
-				<a href="#" class="lnkShow marginRight" hidden><i class="icon-eye marginRightSmall"></i><span data-text="show"></span></a>
-				<a href="#" class="lnkImport marginRight"><i class="icon-cloud-download marginRightSmall"></i><span data-text="import"></span></a>
-				<a href="#" class="lnkLink marginRight" hidden><i class="icon-link marginRightSmall"></i><span data-text="linkPoi"></span></a>
-				<a href="#" class="lnkUnlink marginRight" hidden><i class="icon-cancel2 marginRightSmall"></i><span data-text="unlinkPoi"></span></a>
+				<div class="pnlActions">
+					<a href="#" class="lnkHide marginRight"><i class="icon-eye-blocked marginRightSmall"></i><span data-text="hide"></span></a>
+					<a href="#" class="lnkShow marginRight" hidden><i class="icon-eye marginRightSmall"></i><span data-text="show"></span></a>
+					<a href="#" class="lnkImport marginRight" hidden><i class="icon-cloud-download marginRightSmall"></i><span data-text="import"></span></a>
+					<a href="#" class="lnkEdit marginRight" hidden><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
+					<a href="#" class="lnkLink marginRight" hidden><i class="icon-link marginRightSmall"></i><span data-text="linkPoi"></span></a>
+					<a href="#" class="lnkUnlink marginRight" hidden><i class="icon-cancel2 marginRightSmall"></i><span data-text="unlinkPoi"></span></a>
+				</div>
 			</div>
 			<div class="pnlLinkCandidates paddingAllSmall" hidden>
 				<div class="pnlNoLinkCandidates feedbackWarning" hidden data-text="noPoiLinkCandidates"></div>
@@ -209,11 +212,20 @@ PiLot.Templates.Tools = {
 
 	osmMapMarkerIcon: '<i class="icon-cloud-download"></i>',
 
+	osmPoiEditDialog: `
+		<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap" style="flex-wrap:wrap-reverse;">
+				<div class="pnlPoiForm"></div>
+				<div class="pnlOsmPoiForm"></div>
+			</div>
+		</div>
+	`,
+
 	poisJsonImportForm: `
 		<div class="paddingTop">
 			<h2 data-text="importJson" class="marginBottomSmall"></h2>
 			<div class="flexRowWrap marginBottom paddingTop">
-				<div class="paddingRight" style="min-width:30em; flex-basis:30em; flex-grow:1;">
+				<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
 					<span class="semiBold">poiCategories</span>
 					<textarea rows="10" class="tbImportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
 					<span class="semiBold">poiFeatures</span>
@@ -228,7 +240,7 @@ PiLot.Templates.Tools = {
 					</div>
 					<button class="btnImport input7" type="button" data-text="import"></button>
 				</div>
-				<div class="paddingRight" style="min-width:20em; flex-basis:20em; flex-grow:1;">
+				<div class="paddingRight" style="min-width:16em; flex-basis:20em; flex-grow:1;">
 					<div class="plhOutput preWrap"></div>
 				</div>
 			</div>
