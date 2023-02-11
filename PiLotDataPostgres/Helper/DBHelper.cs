@@ -96,6 +96,11 @@ namespace PiLot.Data.Postgres.Helper {
 		public Object[] ReadObject(NpgsqlDataReader pReader) {
 			Object[] result = new Object[pReader.FieldCount];
 			pReader.GetValues(result);
+			for(Int32 i = 0; i < result.Length; i++) { 
+				if(result[i] == DBNull.Value) {
+					result[i] = null;
+				}
+			}
 			return result;
 		}
 
@@ -107,6 +112,16 @@ namespace PiLot.Data.Postgres.Helper {
 			DateTime? result = null;
 			if (!pReader.IsDBNull(0)) {
 				result = pReader.GetDateTime(0);
+			}
+			return result;
+		}
+
+		public Object GetParameterValue(Object pValue) {
+			Object result;
+			if(pValue != null) {
+				result = pValue;
+			} else {
+				result = DBNull.Value;
 			}
 			return result;
 		}
