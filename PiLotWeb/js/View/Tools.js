@@ -749,12 +749,12 @@ PiLot.View.Tools = (function () {
 			const osmPois = await this.poiLoader.loadDataAsync(mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
 			this.osmMapPois.showOsmPois(osmPois);
 			this.poiDetailControls = new Map();
-			for (aPoi of osmPois) {
-				const poiDetails = new OsmPoiDetails(aPoi, this.plhOsmDetails, this.editDialog);
+			for (const[poiId, poi] of osmPois) {
+				const poiDetails = new OsmPoiDetails(poi, this.plhOsmDetails, this.editDialog);
 				poiDetails.on('select', this.poiDetails_select.bind(this));
 				poiDetails.on('hidePoi', this.poiDetails_hidePoi.bind(this));
 				poiDetails.on('showPoi', this.poiDetails_showPoi.bind(this));
-				this.poiDetailControls.set(aPoi.getId(), poiDetails);
+				this.poiDetailControls.set(poiId, poiDetails);
 			}
 		},
 
@@ -1050,8 +1050,8 @@ PiLot.View.Tools = (function () {
 
 		showOsmPois: function (pPois) {
 			this.clearPois();
-			for (const aPoi of pPois) {
-				this.drawMarker(aPoi);
+			for (const[poiId, poi] of pPois) {
+				this.drawMarker(poi);
 			}
 			this.resizeMarkers();
 		},

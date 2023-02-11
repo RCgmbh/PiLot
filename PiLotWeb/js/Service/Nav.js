@@ -275,7 +275,7 @@ PiLot.Service.Nav = (function () {
 
 	OsmPoiLoader.tags = {
 		marina: [['leisure', 'marina'], ['mooring', 'yes']],
-		lock: [['lock', 'yes'], ['waterway', 'lock_gate']],
+		lock: [['lock', 'yes'], ['waterway', 'lock_gate'], ['waterway', 'boat_lift']],
 		fuel: [['wateway', 'fuel'], ['amenity', 'fuel']],
 		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes']],
 		toilet: [['amenity', 'toilets']]
@@ -286,11 +286,15 @@ PiLot.Service.Nav = (function () {
 	OsmPoiLoader.prototype = {
 
 		loadDataAsync: async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pTypes) {
-			let result = [];
+			let result = new Map();
 			const box = `${pMinLat},${pMinLon},${pMaxLat},${pMaxLon}`;
 			for (const type of pTypes) {
 				const resultSet = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.tags[type]), box);
-				result = result.concat(resultSet);
+				for (osmPoi of resultSet) {
+					if (!result.has(osmPoi.getId())) {
+						result.set(osmPoi.getId(), osmPoi);
+					}
+				}
 			}
 			return result;
 		},
