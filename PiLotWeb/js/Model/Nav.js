@@ -644,6 +644,15 @@ PiLot.Model.Nav = (function () {
 			return this.osmTags || {};
 		},
 
+		/** @returns {String} - the tags with key: value, one line per tag */
+		getTagsString: function () {
+			let result = "";
+			for (const aTag in this.osmTags) {
+				result = result.concat(`${aTag}: ${this.osmTags[aTag]}\n`);
+			}
+			return result;
+		},
+
 		/**
 		 * sets the Poi coordinates based on latitude and longitude 
 		 * @param{Number} pLat - Latitude

@@ -899,7 +899,7 @@ PiLot.View.Tools = (function () {
 			for (let aTag in tags) {
 				const tagControl = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiTag);
 				tagControl.querySelector('.lblKey').innerText = aTag;
-				tagControl.querySelector('.lblValue').innerText = tags[aTag];
+				tagControl.querySelector('.lblValue').innerHTML = PiLot.Utils.Common.createLinks(tags[aTag]);
 				this.plhTags.appendChild(tagControl);
 			}
 		},
@@ -1173,7 +1173,7 @@ PiLot.View.Tools = (function () {
 			if (pPoi) {
 				this.poiForm.showPoi(pPoi);
 			} else {
-				this.poiForm.showEmpty(pOsmPoi.getLatLng(), 'osm', pOsmPoi.getId());
+				this.poiForm.showEmpty(pOsmPoi.getLatLng(), 'osm', pOsmPoi.getId(), pOsmPoi.getTitle(), pOsmPoi.getTagsString());
 			}
 			this.osmPoiDetails.showPoi(pOsmPoi);
 			this.show();

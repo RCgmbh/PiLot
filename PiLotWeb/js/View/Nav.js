@@ -1363,24 +1363,9 @@ PiLot.View.Nav = (function () {
 		/** Shows the description, replacing links. Hides the row, if there is no description */
 		showDescription: function () {
 			let description = this.poi.getDescription();
-			description = this.replaceLinks(description);
+			description = PiLot.Utils.Common.createLinks(description);
 			this.lblDescription.innerHTML = description;
 			this.pnlDescription.hidden = description.length === 0;
-		},
-
-		replaceLinks: function (pText) {
-			if (pText) {
-				// http://, https://, ftp://
-				const urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
-				// www. without http:// or https://
-				var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
-				// Email addresses
-				var emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.*[a-zA-Z.])+/gim;
-				return pText
-					.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
-					.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
-					.replace(emailAddressPattern, '<a href="mailto:$&">$&</a>');
-			} else return pText;
 		},
 
 		showDate: function (pDate, pPanel, pLabel) {
@@ -1555,11 +1540,13 @@ PiLot.View.Nav = (function () {
 		 * @param {LatLng} pLatLng - optionally pass a position
 		 * @param {String} pSource - optionally pass a source for external pois
 		 * @param {String} pSourceId - optionally pass a source id for external pois
+		 * @param {String} pTitle - optionally pass a title
+		 * @param {String} pDescription - optionally pass a description
 		 */
-		showEmpty: function (pLatLng = null, pSource = null, pSourceId = null) {
+		showEmpty: function (pLatLng = null, pSource = null, pSourceId = null, pTitle = null, pDescription = null) {
 			this.poi = null;
 			this.show();
-			this.populateFields(pLatLng, pSource, pSourceId);
+			this.populateFields(pLatLng, pSource, pSourceId, pTitle, pDescription);
 		},
 
 		/**
@@ -1578,8 +1565,10 @@ PiLot.View.Nav = (function () {
 		 * @param {LatLng} pLatLng - optionally pass a position to pre-set
 		 * @param {String} pSource - optionally pass a source for external pois
 		 * @param {String} pSourceId - optionally pass a source id for external pois
+		 * @param {String} pTitle - optionally pass a title
+		 * @param {String} pDescription - optionally pass a description
 		 */
-		populateFields: function (pLatLng = null, pSource = null, pSourceId = null) {
+		populateFields: function (pLatLng = null, pSource = null, pSourceId = null, pTitle = null, pDescription = null) {
 			this.lblTitleAddPoi.hidden = this.poi !== null;
 			this.lblTitleEditPoi.hidden = this.poi === null;
 			let latLng;
@@ -1594,9 +1583,9 @@ PiLot.View.Nav = (function () {
 				this.tbSource.value = this.poi.getSource();
 				this.tbSourceId.value = this.poi.getSourceId();
 			} else {
-				this.tbTitle.value = "";
+				this.tbTitle.value = pTitle || "";
 				this.ddlCategory.value = "";
-				this.tbDescription.value = "";
+				this.tbDescription.value = pDescription || "";
 				this.poiFeaturesSelector.setSelectedFeatureIds([]);
 				latLng = pLatLng;
 				this.calValidFrom.date(null);

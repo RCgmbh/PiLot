@@ -241,30 +241,34 @@ PiLot.Templates.Nav = {
 			<div class="poiForm marginBottom">
 				<input type="text" class="tbTitle marginBottomSmall" data-title="title" />
 				<select class="ddlCategory marginBottomSmall"></select>
-				<textarea class="tbDescription marginBottomSmall" rows="5" data-title="description"></textarea>
+				<textarea class="tbDescription marginBottomSmall" rows="7" data-title="description"></textarea>
 				<div class="flexColumn marginBottomSmall">
 					<span data-text="features"></span>
 					<div class="plhFeatures borderLight paddingAllSmall"></div>
 				</div>
 				<div class="flexRowWrap">
-					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
-					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
+					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="latitude"></span><div class="plhLatitude flex"></div></div>
+					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col4" data-text="longitude"></span><div class="plhLongitude flex"></div></div>
 				</div>
 				<div class="flexRowWrap">
 					<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
-						<span class="inlineBlock col6" data-text="validFrom">:</span>
+						<span class="inlineBlock col4" data-text="validFrom">:</span>
 						<input type="text" class="tbValidFrom input4" />
 						<a href="#" class="lnkClearValidFrom"><i class="icon-cross"></i></a>
 					</div>
 					<div class="marginBottomSmall flex" style="flex: 1 0 50%;">
-						<span class="inlineBlock col6" data-text="validTo">:</span>
+						<span class="inlineBlock col4" data-text="validTo">:</span>
 						<input type="text" class="tbValidTo input4" />
 						<a href="#" class="lnkClearValidTo"><i class="icon-cross"></i></a>
 					</div>
 				</div>
 				<div class="pnlSource flexRowWrap" hidden>
-					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="source"></span><input type="text" class="tbSource input4" /></div>
-					<div class="flex" style="flex: 1 0 50%;"><span class="inlineBlock col6" data-text="sourceId"></span><input type="text" class="tbSourceId input4" /></div>
+					<div class="flex marginBottomSmall" style="flex: 1 0 50%;">
+						<span class="inlineBlock col4" data-text="source"></span><input type="text" class="tbSource input4" />
+					</div>
+					<div class="flex marginBottomSmall" style="flex: 1 0 50%;">
+						<span class="inlineBlock col4" data-text="sourceId"></span><input type="text" class="tbSourceId input4" />
+					</div>
 				</div>
 			</div>
 			<div class="buttons reverse paddingBottomBig">

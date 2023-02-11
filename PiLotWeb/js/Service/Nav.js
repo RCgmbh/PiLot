@@ -65,6 +65,7 @@ PiLot.Service.Nav = (function () {
 		 * @param {String} pSourceId - the poi's id in the source
 		 */
 		loadExternalPoiAsync: async function (pSource, pSourceId) {
+			let result = null;
 			const sourceMap = this.externalPoisCache.get(pSource);
 			if (sourceMap) {
 				result = sourceMap.get(pSourceId);
