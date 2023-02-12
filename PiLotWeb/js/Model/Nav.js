@@ -326,6 +326,7 @@ PiLot.Model.Nav = (function () {
 		this.category = pCategory;
 		this.setFeatureIds( pFeatureIds);
 		this.latLng = null;
+		this.latLon = null;
 		this.setLatLng(pLat, pLon);
 		this.validFrom = pValidFrom;
 		this.validTo = pValidTo;
@@ -344,13 +345,18 @@ PiLot.Model.Nav = (function () {
 
 		setId: function (pId) { this.id = pId; },
 
-		/// gets the Poi position as Leaflet LatLng object
+		/** @return {L.LatLng} - the Poi position as Leaflet LatLng object */
 		getLatLng: function () {
 			return this.latLng;
 		},
 
-		/// sets the Poi coordinates based on latitude and longitude
+		/**
+		 * Sets the Poi coordinates based on latitude and longitude
+		 * @param {Number} pLat - Latitude in degrees
+		 * @param {Number} pLng - Longitude in degrees
+		 * */
 		setLatLng: function (pLat, pLng) {
+			this.latLon = null;
 			if ((pLat !== null) && (pLng !== null)) {
 				if (this.latLng === null) {
 					this.latLng = new L.LatLng(pLat, pLng);
@@ -359,6 +365,14 @@ PiLot.Model.Nav = (function () {
 					this.latLng.lng = pLng;
 				}
 			}
+		},
+
+		/** @returns {LatLon} a geodesy LatLon object or null */
+		getLatLon: function () {
+			if ((this.latLon === null) && (this.latLng !== null)) {
+				this.latLon = new LatLon(this.latLng.lat, this.latLng.lng, LatLon.datum.WGS84);
+			}
+			return this.latLon;
 		},
 
 		/** @returns {string} */
@@ -1189,7 +1203,7 @@ PiLot.Model.Nav = (function () {
 			return [this.latitude, this.longitude];
 		},
 
-		/** @returns {Object} a geodesy LatLon object */
+		/** @returns {LatLon} a geodesy LatLon object */
 		getLatLon: function () {
 			if (this.latLon === null) {
 				this.latLon = new LatLon(this.latitude, this.longitude, LatLon.datum.WGS84);
@@ -1467,6 +1481,8 @@ PiLot.Model.Nav = (function () {
 		}
 	}
 
+	var gpsObserverInstance = null;
+
 	/** 
 	 *  the GPSObserver observes the gps and notifies anyone who is interested
 	 *  as soon as a new gps position is available
@@ -1524,7 +1540,11 @@ PiLot.Model.Nav = (function () {
 			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
 		},
 
-		/// registers an observer which will be called when pEvent happens
+		/**
+		 * Registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent - 'recieveGpsData', 'outdatedGpsData'
+		 * @param {Function} pCallback - Callback function(sender: GPSObserver, args: GPSRecord[])
+		 * */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
@@ -1597,12 +1617,6 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/// handles ws errors. If we didn't get any valid data for a while, we will 
-		/// fire the outdated data event.
-		fetchDataError: function () {
-			this.checkOutdatedData();
-		},
-
 		/// this checks wether the oldest valid data is older than maxDataAgeSeconds. If so,
 		/// if fires the outdatedGpsData event, passing along the latest data timestamp.
 		/// returns true, if the data is outdated.
@@ -1620,7 +1634,7 @@ PiLot.Model.Nav = (function () {
 
 		/// returns the latest position record (an GpsRecord),
 		/// if it's not older than pMaxSeconds or pMaxAgeSeconds is null. 
-		getLatestPosition: function (pMaxAgeSeconds) {
+		getLatestPosition: function (pMaxAgeSeconds = null) {
 			var result = null;
 			if (this.latestPositions.length > 0) {
 				const utcNowMs = this.boatTime.utcNowUnix() * 1000;
@@ -1707,8 +1721,11 @@ PiLot.Model.Nav = (function () {
 			return this.currentCOG;
 		},
 
-		/// calculates the VMG towards a target. pTarget must bei LatLon
-		/// returns null, if we have no current position data to calculate
+		/**
+		 * Calculates the VMC towards a target. 
+		 * @param {LatLon} pTarget - Target as geodesy LatLon
+		 * @returns {Number} vmc in knots or null, if we have no current position data
+		*/ 
 		getVMG: function(pTarget) {
 			let result = null;
 			const twoPositions = this.getTwoPositions();
@@ -1723,12 +1740,19 @@ PiLot.Model.Nav = (function () {
 		}
 	};
 
+	/** Singleton accessor returning the current instance of the GPSObserver object with a default settings */
+	GPSObserver.getInstance = function () {
+		if (gpsObserverInstance === null) {
+			gpsObserverInstance = new GPSObserver();
+		}
+		return gpsObserverInstance;
+	};
+
 	/**
 	 * TileSource class, containing data about a tile source, having
 	 * a local url, but also a remote url, from where the original 
 	 * tiles are downloaded
 	 * */
-
 	var TileSource = function (pName, pOnlineUrl, pLocalUrl, pMinZoom, pMaxZoom) {
 		this.name = pName;					/// the unique name of the tileSource
 		this.onlineUrl = pOnlineUrl;		/// the online url where to grab the tiles from

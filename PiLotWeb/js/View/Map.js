@@ -14,7 +14,7 @@ PiLot.View.Map = (function () {
 	MapPage.prototype = {
 
 		initializeAsync: async function () {
-			let gpsObserver = new PiLot.Model.Nav.GPSObserver({ intervalMs: 1000 });
+			const gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 			let pageContent = this.draw();
 			let map = new PiLot.View.Map.Seamap(pageContent, { persistMapState: true });
 			await map.showAsync();

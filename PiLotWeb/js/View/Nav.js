@@ -1232,11 +1232,20 @@ PiLot.View.Nav = (function () {
 	var PoiDetails = function(pPoiForm, pMapPois = null){
 		this.poiForm = pPoiForm;
 		this.mapPois = pMapPois;
+		this.boatTime = null;			// PiLot.Model.Common.BoatTime to calculate ETA
 		this.poi = null;				// PiLot.Model.Nav.Poi
 		this.control = null;			// HTMLElement representing the entire control
 		this.plhCategoryIcon = null;	// HTMLElement where the icon is inserted
 		this.lblCategoryName = null;	// HTMLSpanElement showing the category name
 		this.lblTitle = null;			// HTMLSpanElement showing the poi title
+		this.pnlLiveData = null;		// HTMLDivElement for current live data (eta etc.)
+		this.lblEta = null;				// HTMLSpanElement for the ETA time
+		this.lblEtaDuration = null;		// HTMLSpanElement for the duration to arrival
+		this.lblDistance = null;		// HTMLSpanElement for the distance to the poi
+		this.lblBearing = null;			// HTMLSpanElement for the bearing of the poi
+		this.pnlNoLiveData = null;		// HTMLSpanElement for missing live data
+		this.lnkShowLiveData = null;	// HTMLAnchorElement for showing the live data
+		this.lnkHideLiveData = null;	// HTMLAnchorElement for hiding the live data
 		this.pnlFeatures = null;		// HTMLDivElement for label and values of features
 		this.ulFeatures = null;			// HTMLUListElement listing all features of this poi
 		this.pnlDescription = null;		// HTMLDivElement for label and values of description
@@ -1254,6 +1263,24 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
+			PiLot.Model.Common.getCurrentBoatTimeAsync().then(function (pBoatTime) {
+				this.boatTime = pBoatTime;
+				gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+				gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+				gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			}.bind(this));			
+		},
+
+		/** handles new data from the gps observer */
+		gpsObserver_recieveGpsData: function (pSender, pRecords) {
+			if (!this.control.hidden && !this.lnkHideLiveData.hidden) {
+				this.showGpsData(pSender);
+			}
+		},
+
+		/** handles messages form the gps observer that there is no data */
+		gpsObserver_outdatedGpsData: function (pSender, pTimeStamp) {
+			this.hideGpsData(pSender);
 		},
 
 		/** handles clicks on the dark background by closing the dialog */
@@ -1264,6 +1291,16 @@ PiLot.View.Nav = (function () {
 		/** makes sure that clicks are not bubbled to the background, which would close the window */
 		pnlDialog_click: function (pEvent) {
 			pEvent.stopPropagation();
+		},
+
+		lnkShowLiveData_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.showHideLiveData(true);
+		},
+
+		lnkHideLiveData_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.showHideLiveData(false);
 		},
 
 		lnkClose_click: function (e) {
@@ -1306,6 +1343,16 @@ PiLot.View.Nav = (function () {
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
 			this.lblTitle = this.control.querySelector('.lblTitle');
+			this.pnlLiveData = this.control.querySelector('.pnlLiveData');
+			this.lblEta = this.control.querySelector('.lblEta');
+			this.lblEtaDuration = this.control.querySelector('.lblEtaDuration');
+			this.lblDistance = this.control.querySelector('.lblDistance');
+			this.lblBearing = this.control.querySelector('.lblBearing');
+			this.pnlNoLiveData = this.control.querySelector('.pnlNoLiveData');
+			this.lnkShowLiveData = this.control.querySelector('.lnkShowLiveData');
+			this.lnkShowLiveData.addEventListener('click', this.lnkShowLiveData_click.bind(this));
+			this.lnkHideLiveData = this.control.querySelector('.lnkHideLiveData');
+			this.lnkHideLiveData.addEventListener('click', this.lnkHideLiveData_click.bind(this));
 			this.pnlFeatures = this.control.querySelector('.pnlFeatures');
 			this.ulFeatures = this.control.querySelector('.ulFeatures');
 			this.pnlDescription = this.control.querySelector('.pnlDescription');
@@ -1368,6 +1415,52 @@ PiLot.View.Nav = (function () {
 			this.pnlDescription.hidden = description.length === 0;
 		},
 
+		showHideLiveData: function (pDoShow) {
+			if (!pDoShow) {
+				this.pnlLiveData.hidden = true;
+			}
+			this.pnlNoLiveData.hidden = !pDoShow;
+			this.lnkHideLiveData.hidden = !pDoShow;
+			this.lnkShowLiveData.hidden = pDoShow;
+		},
+
+		showGpsData: function (pGpsObserver) {
+			const gpsLatLon = pGpsObserver.getLatestPosition().getLatLon();
+			const poiLatLon = this.poi.getLatLon();
+			const vmg = pGpsObserver.getVMG(poiLatLon);
+			const distance = poiLatLon.distanceTo(gpsLatLon);
+			const distanceNm = PiLot.Utils.Common.metersToNauticalMiles(distance);
+			const now = this.boatTime.now().setLocale(PiLot.Utils.Language.getLanguage());
+			if (vmg > 0) {
+				const deltaT = distanceNm / vmg;
+				const eta = now.plus({ hours: deltaT });
+				const fullHours = Math.floor(deltaT);
+				const minutes = Math.floor((deltaT - fullHours) * 60);
+				const minutesString = minutes < 10 ? `0${minutes}` : minutes.toString();
+				this.lblEtaDuration.innerHTML = `${fullHours}:${minutesString}&thinsp;h`;
+				this.lblEta.innerText = eta.toLocaleString(DateTime.TIME_SIMPLE);
+			} else {
+				this.lblEta.innerText = '--:--';
+				this.lblEtaDuration.innerText = '--:--';
+			}
+			const bearing = gpsLatLon.initialBearingTo(poiLatLon);
+			this.lblDistance.innerText = ((distanceNm * 100) / 100).toFixed(2);
+			this.lblBearing.innerText = Math.round(bearing);
+			this.pnlNoLiveData.hidden = true;
+			this.pnlLiveData.hidden = false;
+		},
+
+		hideGpsData: function () {
+			this.pnlLiveData.hidden = true;
+			this.pnlNoLiveData.hidden = false;
+		},
+
+		/**
+		 * Shows a date or hides the entire panel, if there is no date
+		 * @param {Luxon.DateTime} pDate
+		 * @param {HTMLElement} pPanel
+		 * @param {HTMLElement} pLabel
+		 */
 		showDate: function (pDate, pPanel, pLabel) {
 			if (pDate !== null) {
 				pPanel.hidden = false;
@@ -1386,6 +1479,7 @@ PiLot.View.Nav = (function () {
 		/** Hides the entire control */
 		hide: function () {
 			document.body.classList.toggle('overflowHidden', false);
+			this.hideGpsData();
 			this.control.hidden = true;
 		}
 	};

@@ -218,6 +218,21 @@ PiLot.Templates.Nav = {
 						<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
 						<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
 						<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
+						<div>
+							<div class="label">
+								<span class="label" data-text="eta"></span>
+
+							</div>
+							<div class="value">
+								<span class="pnlLiveData marginRightSmall" hidden>
+									<span class="lblEta"></span>
+									(<span class="lblEtaDuration"></span>, <span class="lblDistance"></span>&thinsp;<span data-text="nm"></span>, <span class="lblBearing"></span>°)
+								</span>
+								<span class="pnlNoLiveData marginRightSmall">---</span>
+								<a href="#" class="lnkHideLiveData marginRight"><i class="icon-eye-blocked"></i></a>
+								<a href="#" class="lnkShowLiveData marginRight" hidden><i class="icon-eye"></i></a>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div class="flexRowWrap bgLight" style="justify-content:space-between;">
