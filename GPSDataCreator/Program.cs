@@ -129,7 +129,7 @@ namespace PiLot.GPSDataCreator {
 								speed = Math.Max(0, speed - 0.5);
 								break;
 						}
-						Console.WriteLine(String.Format($"COG: {course:000}°, SOG: {speed}"));
+						Console.WriteLine(String.Format($"COG: {course:000}°, SOG (m/s): {speed} "));
 					}
 				}
 				
