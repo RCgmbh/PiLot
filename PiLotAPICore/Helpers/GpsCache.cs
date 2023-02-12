@@ -79,7 +79,7 @@ namespace PiLot.API.Helpers {
 		/// </summary>
 		/// <param name="pMinDateUTCMS">Only records with a larger UTC timestamp than this will be returned. MS UTC</param>
 		public List<GpsRecord> GetLatestRecords(Int64 pMinDateUTCMS) {
-			List<GpsRecord> result = this.records.FindAll(r => r.UTC > pMinDateUTCMS);
+			List<GpsRecord> result = this.records.FindAll(r => ((r != null) && (r.UTC > pMinDateUTCMS)));
 			result.Sort();
 			Logger.Log($"GpsCache.GetLatestRecords: Having {this.records.Count} items in cache, returning {result.Count} items.", LogLevels.DEBUG);
 			return result;
