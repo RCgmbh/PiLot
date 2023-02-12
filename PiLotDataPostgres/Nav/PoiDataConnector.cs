@@ -254,10 +254,12 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Helper to create a PoiCategory out of a db record
 		/// </summary>
 		private PoiCategory ReadPoiCategory(NpgsqlDataReader pReader) {
+			String labelsString = pReader.GetString("labels");
+			Object labelsObj = System.Text.Json.JsonSerializer.Deserialize<Object>(labelsString);
 			PoiCategory result = new PoiCategory() {
 				ID = pReader.GetInt32("id"),
 				Name = pReader.GetString("name"),
-				Labels = pReader.GetValue("labels"),
+				Labels = labelsObj,
 				Icon = pReader.GetString("icon")
 			};
 			if (!pReader.IsDBNull("parent_id")) {
@@ -280,10 +282,12 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Helper to create a PoiFeature from a db record
 		/// </summary>
 		private PoiFeature ReadPoiFeature(NpgsqlDataReader pReader) {
+			String labelsString = pReader.GetString("labels");
+			Object labelsObj = System.Text.Json.JsonSerializer.Deserialize<Object>(labelsString);
 			PoiFeature result = new PoiFeature() {
 				ID = pReader.GetInt32("id"),
 				Name = pReader.GetString("name"),
-				Labels = pReader.GetValue("labels")
+				Labels = labelsObj
 			};
 			return result;
 		}
