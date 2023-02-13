@@ -59,7 +59,7 @@ body.night .osmPoiMarker.active { background-color: rgba(73, 146, 255, 0.5); }
 
 .dialogPanel.mapLayerSettings { width:100vw; max-width:36em; }
 
-.navOutdatedDataWarning { z-index:1100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
+.navOutdatedDataWarning { z-index:11100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
 body.night .navOutdatedDataWarning { color: #ccc; background-color: rgba(0, 0, 0, 0.8); }
 
 .navLiveRoute { padding: 0em 0em 0em 2em; font-size:2em; max-width:60em; }
@@ -97,8 +97,7 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 a.mapLayersIcon, a.mapLayersIcon:visited  {color:#eee; }
 a.mapLayersIcon:hover { color:#FFBF49; }
 
-/*.mapSliderContainer {position: relative; display:flex; width:calc(100% - 1em); left:0.5em; bottom: 3.75em; z-index: 650; margin-bottom:-2em; }*/
-.mapSliderContainer {position: relative; display:flex; width:100%; bottom: 3.75em; margin-bottom:-2em; padding:0em 0.5em; z-index: 1050; }
+.mapSliderContainer {position: relative; display:flex; width:100%; bottom: 3.75em; margin-bottom:-2em; padding:0em 0.5em; z-index: 11050; }
 @media (max-height:400px){ .mapSliderContainer { padding-left: 4em; bottom:2.5em; } }
 .mapSliderContainer .slider { width:3em; flex-grow:1; height: 0.75em; margin-top: 0.5em; background: rgba(125, 125, 125, 0.5);  outline: none;  -webkit-appearance: none; }
 .mapSliderContainer .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 1.25em; height: 2em; border-radius:3px; background: #666; cursor: pointer; }

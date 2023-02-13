@@ -893,7 +893,7 @@ PiLot.View.Map = (function () {
 				const icon = L.divIcon({
 					className: 'poiMarker', iconSize: [null, null], html: iconHtml
 				});
-				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true });
+				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true, zIndexOffset: 1000 });
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
 				if (pSetDraggable) {
