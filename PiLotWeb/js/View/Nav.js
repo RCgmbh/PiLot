@@ -1561,9 +1561,10 @@ PiLot.View.Nav = (function () {
 
 		btnSave_click: async function (e) {
 			!!e && e.preventDefault();
-			await this.saveDataAsync();
-			RC.Utils.notifyObservers(this, this.observers, 'save', this.poi);
-			this.hide();
+			if (await this.saveDataAsync()) {
+				RC.Utils.notifyObservers(this, this.observers, 'save', this.poi);
+				this.hide();
+			}
 		},
 
 		btnCancel_click: function (e) {
@@ -1697,6 +1698,7 @@ PiLot.View.Nav = (function () {
 
 		/** Reads the data from the form, assigns the fields to the existing or a new poi, and saves it. */
 		saveDataAsync: async function () {
+			let result = false;
 			const allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
 			let category = null;
 			if (RC.Utils.isNumeric(this.ddlCategory.value)){
@@ -1719,9 +1721,11 @@ PiLot.View.Nav = (function () {
 				if (this.mapPois) {
 					this.mapPois.showPoi(this.poi, true, false);
 				}
+				result = true;
 			} else {
 				alert(PiLot.Utils.Language.getText('mandatoryPoiFields'));
-			}			
+			}
+			return result;
 		},
 
 		/** Shows the control */
