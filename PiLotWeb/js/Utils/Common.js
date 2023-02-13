@@ -375,11 +375,11 @@ PiLot.Utils.Common = {
 	createLinks: function (pText) {
 		if (pText) {
 			// http://, https://, ftp://
-			const urlPattern = /\b(?:https?|ftp):\/\/[a-z0-9-+&@#\/%?=~_|!:,.;]*[a-z0-9-+&@#\/%=~_|]/gim;
+			const urlPattern = /\b((?:https?|ftp):\/\/[\S]+\.[\S]+(\b|$))/gim;
 			// www. without http:// or https://
-			var pseudoUrlPattern = /(^|[^\/])(www\.[\S]+(\b|$))/gim;
+			var pseudoUrlPattern = /\b^(www\.[\S]+\.[\S]+(\b|$))/gim;
 			// Email addresses
-			var emailAddressPattern = /[\w.]+@[a-zA-Z_-]+?(?:\.*[a-zA-Z.])+/gim;
+			var emailAddressPattern = /\b[\w.-]+@[\S]+\.[\S]+(\b|$)/gim;
 			return pText
 				.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
 				.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
