@@ -1139,6 +1139,7 @@ PiLot.View.Tools = (function () {
 	var OsmPoiEditDialog = function (pMapPois) {
 		this.mapPois = pMapPois;
 		this.control = null;
+		this.pnlDialog = null;
 		this.poiForm = null;
 		this.osmPoiDetails = null;
 		this.initialize();
@@ -1165,6 +1166,7 @@ PiLot.View.Tools = (function () {
 			this.poiForm = new PiLot.View.Nav.PoiForm(this.mapPois, this.control.querySelector('.pnlPoiForm'));
 			this.poiForm.on('save', this.poiForm_save.bind(this));
 			this.poiForm.on('cancel', this.poiForm_cancel.bind(this));
+			this.pnlDialog = this.control.querySelector('.pnlDialog');
 			this.osmPoiDetails = new OsmPoiDetails(null, this.control.querySelector('.pnlOsmPoiForm'), null, true);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.poiForm.saveDataAsync.bind(this));
 		},
@@ -1182,6 +1184,7 @@ PiLot.View.Tools = (function () {
 		show: function () {
 			document.body.classList.toggle('overflowHidden', true);
 			this.control.hidden = false;
+			this.pnlDialog.scrollTop = 0;
 		},
 
 		hide: function () {

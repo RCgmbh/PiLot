@@ -1235,6 +1235,7 @@ PiLot.View.Nav = (function () {
 		this.boatTime = null;			// PiLot.Model.Common.BoatTime to calculate ETA
 		this.poi = null;				// PiLot.Model.Nav.Poi
 		this.control = null;			// HTMLElement representing the entire control
+		this.pnlDialog = null;			// HTMLElement representing the actual dialog
 		this.plhCategoryIcon = null;	// HTMLElement where the icon is inserted
 		this.lblCategoryName = null;	// HTMLSpanElement showing the category name
 		this.lblTitle = null;			// HTMLSpanElement showing the poi title
@@ -1338,7 +1339,8 @@ PiLot.View.Nav = (function () {
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
 			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
-			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
+			this.pnlDialog = this.control.querySelector('.pnlDialog');
+			this.pnlDialog.addEventListener('click', this.pnlDialog_click.bind(this));
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
@@ -1474,6 +1476,7 @@ PiLot.View.Nav = (function () {
 		show: function () {
 			document.body.classList.toggle('overflowHidden', true);
 			this.control.hidden = false;
+			this.pnlDialog.scrollTop = 0;
 		},
 
 		/** Hides the entire control */
@@ -1512,7 +1515,7 @@ PiLot.View.Nav = (function () {
 		this.poi = null;				
 		this.mapPois = pMapPois;
 		this.container = pContainer;
-		this.control = null;			
+		this.control = null;
 		this.lblTitleAddPoi = null;
 		this.lblTitleEditPoi = null;
 		this.tbTitle = null;
