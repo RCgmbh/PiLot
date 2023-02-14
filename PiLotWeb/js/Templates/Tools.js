@@ -214,7 +214,7 @@ PiLot.Templates.Tools = {
 
 	osmPoiEditDialog: `
 		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap" style="flex-wrap:wrap-reverse;">
+			<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap">
 				<div class="pnlPoiForm"></div>
 				<div class="pnlOsmPoiForm"></div>
 			</div>
