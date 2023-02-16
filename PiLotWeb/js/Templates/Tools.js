@@ -158,7 +158,7 @@ PiLot.Templates.Tools = {
 	`,
 
 	poisManagementPage: `
-		<div class="contentPadding">
+		<div class="contentPadding marginBottom">
 			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="pois"></span></h1>
 		</div>`,
 
@@ -244,6 +244,22 @@ PiLot.Templates.Tools = {
 					<div class="plhOutput preWrap"></div>
 				</div>
 			</div>
+		</div>
+	`,
+
+	poiCategoriesForm: `
+		<div class="paddingTop">
+			<h2 data-text="categories" class="marginBottomSmall"></h2>
+			<div class="plhCategories"></div>
+		</div>
+	`,
+
+	poiCategoryForm: `
+		<div class="flexRowWrap gap marginBottomSmall">
+			<input type="text" class="tbName input6" />
+			<input type="text" class="tbLabel input6" />
+			<select class="ddlParent input6" />
+			<a href="#" class="lnkDelete"><i class="icon-trashcan"></i></a>
 		</div>
 	`
 };

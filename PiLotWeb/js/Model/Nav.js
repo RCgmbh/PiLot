@@ -501,6 +501,10 @@ PiLot.Model.Nav = (function () {
 			return this.parent;
 		},
 
+		getParentId: function () {
+			return (this.parent === null) ? null : this.parent.getId();
+		},
+
 		setParent: function (pParent) {
 			if(!this.parent && pParent){
 				this.parent = pParent;
@@ -537,6 +541,20 @@ PiLot.Model.Nav = (function () {
 
 		getChildren: function () {
 			return this.children;
+		},
+
+		isDescendantOf: function (pCategory) {
+			let result = false;
+			let parent = this.parent;
+			while (parent) {
+				if (parent.getId() === pCategory.getId()) {
+					result = true;
+					break;
+				} else {
+					parent = parent.getParent();
+				}
+			}
+			return result;
 		}
 	};
 

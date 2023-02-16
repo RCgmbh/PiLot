@@ -1610,22 +1610,7 @@ PiLot.View.Nav = (function () {
 
 		/** Populates the category dropdown with a hierarchic, ordered list of categories */
 		populateCategoriesAsync: async function () {
-			const poiService = PiLot.Service.Nav.PoiService.getInstance();
-			const allCategories = await poiService.getCategoriesAsync();
-			const sortedList = new CategoriesList(allCategories).getSortedList();
-			const ddlCategories = [];
-			let ddlTitle;
-			let category;
-			for (let i = 0; i < sortedList.length; i++) {
-				category = sortedList[i].category;
-				ddlTitle = "";
-				for (let j = 0; j < category.getLevel(); j++) {
-					ddlTitle += "- "
-				}
-				ddlTitle += sortedList[i].title;
-				ddlCategories.push([category.getId(), ddlTitle]);
-			}
-			RC.Utils.fillDropdown(this.ddlCategory, ddlCategories, null);
+			await new CategoriesDropDown(this.ddlCategory).populateDropdownAsync();
 		},
 
 		addFeaturesSelectorAsync: async function () {
@@ -1751,9 +1736,11 @@ PiLot.View.Nav = (function () {
 	 * hierarchy of categories should be visible. The list is sorted by 
 	 * translated title, and the children are always shown directly after the parent.
 	 * @param {Map} pCategoriesMap - Map with key = id, value = category
+	 * @param {Boolean} pSortByName - Set true, if the list should be sorted by name instad of label.
 	 */
-	var CategoriesList = function (pCategoriesMap) {
+	var CategoriesList = function (pCategoriesMap, pSortByName = false) {
 		this.categoriesMap = pCategoriesMap;
+		this.sortByName = pSortByName;
 		this.categoriesList = null;
 		this.initialize();
 	};
@@ -1785,7 +1772,7 @@ PiLot.View.Nav = (function () {
 			const categoriesWithTitle = [];
 			const language = PiLot.Utils.Language.getLanguage();
 			pCategories.forEach(function (c) {
-				const title = c.getLabel(language);
+				const title = this.sortByName ? c.getName() : c.getLabel(language);
 				categoriesWithTitle.push({ title: title, category: c });
 			});
 			categoriesWithTitle.sort((a, b) => a.title.localeCompare(b.title));
@@ -1801,6 +1788,47 @@ PiLot.View.Nav = (function () {
 			return this.categoriesList;
 		}
 	};
+
+	/**
+	 * Helper for Categories dropdowns. Allows to fill a dropdown with categories, showing
+	 * the hierarchiy by indenting the elements. You will have to call populateDropDownAsync
+	 * in order to fill the dropdown
+	 * @param {HTMLSelectElement} pDropDown - the dropdown to fill
+	 * @param {PiLot.Model.Nav.PoiCategory} pIgnoreBranch - if set, the category and all its descendants will be ignored (useful for the "parent" ddl)
+	 */
+	var CategoriesDropDown = function (pDropDown, pIgnoreBranch = null) {
+		this.dropDown = pDropDown;
+		this.ignoreBranch = pIgnoreBranch;
+	};
+
+	CategoriesDropDown.prototype = {
+
+		/** populates the dropdown with the categories */
+		populateDropdownAsync: async function () {
+			const poiService = PiLot.Service.Nav.PoiService.getInstance();
+			const allCategories = await poiService.getCategoriesAsync();
+			const sortedList = new CategoriesList(allCategories).getSortedList();
+			const ddlCategories = [];
+			let ddlTitle;
+			let category;
+			for (let i = 0; i < sortedList.length; i++) {
+				category = sortedList[i].category;
+				if (
+					!this.ignoreBranch
+					|| (category.getId() !== this.ignoreBranch.getId() && !category.isDescendantOf(this.ignoreBranch))
+				) {
+					ddlTitle = "";
+					for (let j = 0; j < category.getLevel(); j++) {
+						ddlTitle += "- "
+					}
+					ddlTitle += sortedList[i].title;
+					ddlCategories.push([category.getId(), ddlTitle]);
+				}
+			}
+			RC.Utils.fillDropdown(this.dropDown, ddlCategories, "");
+		}
+
+	}
 
 	/**
 	 * The list of features, each with a checkbox. Plus a search textbox which allows
@@ -2208,6 +2236,7 @@ PiLot.View.Nav = (function () {
 		PoiForm: PoiForm,
 		PoiFeaturesSelector: PoiFeaturesSelector,
 		CategoriesList: CategoriesList,
+		CategoriesDropDown: CategoriesDropDown,
 		StartPageNav: StartPageNav
 	};
 

@@ -266,6 +266,7 @@ textarea.big{height:20em;}
 .flexRowWrap { display:flex; flex-direction:row; flex-wrap: wrap; }
 .flexColumn { display:flex; flex-direction:column; }
 .flexColumnWrap { display:flex; flex-direction:column; flex-wrap:wrap; }
+.gap { gap:1em; }
 .grow { flex-grow:1; }
 .noGrow { flex-grow:0; }
 .left { text-align: left; }

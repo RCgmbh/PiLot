@@ -647,6 +647,7 @@ PiLot.View.Tools = (function () {
 			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			new PoisOsmImportControl(pageContent);
 			new PoisJsonImportForm(pageContent);
+			new PoiCategoriesForm(pageContent);
 		}
 	};
 
@@ -1496,6 +1497,123 @@ PiLot.View.Tools = (function () {
 		 */
 		writeOutput: function (pMessage) {
 			this.plhOutput.innerText = `${this.plhOutput.innerText}\n${pMessage}`;
+		}
+
+	};
+
+	var PoiCategoriesForm = function (pContainer) {
+		this.container = pContainer;
+		this.poiService = null;				// PiLot.Service.Nav.PoiService
+		this.plhCategories = null;
+		this.categoryForms = null;			// a list of all category forms, just to make sure we can remove the observers when re-populating the list.
+		this.initialize();
+	};
+
+	PoiCategoriesForm.prototype = {
+
+		initialize: function () {
+			this.poiService = PiLot.Service.Nav.PoiService.getInstance();
+			this.draw();
+		},
+
+		categoryForm_change: function () { },
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiCategoriesForm);
+			this.container.appendChild(control);
+			this.plhCategories = control.querySelector('.plhCategories');
+			this.populateCategoriesAsync();
+		},
+
+		populateCategoriesAsync: async function () {
+			const categoriesMap = await this.poiService.getCategoriesAsync();
+			const categoriesList = new PiLot.View.Nav.CategoriesList(categoriesMap, true).getSortedList();
+			this.categoryForms = [];
+			for (const objCategory of categoriesList) {
+				const categoryForm = new PoiCategoryForm(objCategory.category, this.plhCategories);
+				this.categoryForms.push(categoryForm);
+			}
+		},
+
+		clearCatgoriesList: function () {
+			if (this.categoryForms) {
+				this.categoryForms.forEach((f) => f.off('change'));
+			}
+		}
+	};
+
+	var PoiCategoryForm = function (pCategory, pContainer) {
+		this.category = pCategory;
+		this.container = pContainer;
+		this.tbName = null;
+		this.labels = null;
+		this.ddlParent = null;
+		this.observers = null;
+		this.initialize();
+	};
+
+	PoiCategoryForm.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['changeParent']);
+			this.labels = new Map();
+			this.drawAsync();
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "changeParent"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		/**
+		 * Removes all Observers for pEvent
+		 * @param {String} pEvent - 'changeParent'
+		 */
+		off: function (pEvent) {
+			RC.Utils.removeObservers(this.observers, pEvent);
+		},
+
+		tb_change: async function () {
+			await this.category.saveAsync();
+		},
+
+		ddlParent_change: async function () {
+			await this.category.saveAsync();
+			RC.Utils.notifyObservers(this, this.observers, 'changeParent', null);
+		},
+
+		drawAsync: async function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiCategoryForm);
+			this.container.appendChild(control);
+			this.tbName = control.querySelector('.tbName');
+			this.tbName.value = this.category.getName();
+			this.tbName.addEventListener('change', this.tb_change.bind(this));
+			const tbLabelTemplate = control.querySelector('.tbLabel');
+			const languages = PiLot.Utils.Language.getLanguages();
+			for (let i = 0; i < languages.length; i++) {
+				let tbLabel;
+				if (i == 0) {
+					tbLabel = tbLabelTemplate;
+				} else {
+					tbLabel = tbLabelTemplate.cloneNode(true);
+					tbLabelTemplate.insertAdjacentElement('afterend', tbLabel);
+				}
+				this.labels.set(languages[i], tbLabel);
+				tbLabel.value = this.category.getLabel(languages[i]);
+				tbLabel.addEventListener('change', this.tb_change.bind(this));
+			}
+			this.ddlParent = control.querySelector('.ddlParent');
+			await this.fillCategoriesAsync();
+			this.ddlParent.value = this.category.getParentId();
+			this.ddlParent.addEventListener('change', this.ddlParent_change.bind(this));
+		},
+
+		fillCategoriesAsync: async function (pDropDown) {
+			await new PiLot.View.Nav.CategoriesDropDown(this.ddlParent, this.category).populateDropdownAsync();
 		}
 
 	};
