@@ -67,7 +67,14 @@ namespace PiLot.Data.Postgres.Helper {
 					NpgsqlCommand cmd = new NpgsqlCommand(pCommand, connection);
 					if (pParams != null) {
 						foreach (var aParam in pParams) {
-							cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+							if(aParam.Item2 == null) {
+								cmd.Parameters.AddWithValue(aParam.Item1, DBNull.Value);
+							} else if (aParam.Item2.GetType() == typeof(System.Text.Json.JsonElement)) {
+								String serialized = System.Text.Json.JsonSerializer.Serialize<Object>(aParam.Item2);
+								cmd.Parameters.AddWithValue(aParam.Item1, NpgsqlTypes.NpgsqlDbType.Jsonb, serialized);
+							} else {
+								cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+							}
 						}
 					}
 					connection.Open();

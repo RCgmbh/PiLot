@@ -1496,7 +1496,10 @@ PiLot.View.Nav = (function () {
 	 */
 	var getPoiCategoryIcon = function (pRawIcon) {
 		let result;
-		if (pRawIcon.startsWith('css:')) {
+		if (!pRawIcon) {
+			result = '';
+		}
+		else if (pRawIcon.startsWith('css:')) {
 			result = PiLot.Templates.Nav.poiCategoryIconCss.replace("{{icon}}", pRawIcon.substring(4));
 		}
 		else if (pRawIcon.startsWith('svg:')) {
@@ -1774,7 +1777,7 @@ PiLot.View.Nav = (function () {
 			pCategories.forEach(function (c) {
 				const title = this.sortByName ? c.getName() : c.getLabel(language);
 				categoriesWithTitle.push({ title: title, category: c });
-			});
+			}.bind(this));
 			categoriesWithTitle.sort((a, b) => a.title.localeCompare(b.title));
 			for (let i = 0; i < categoriesWithTitle.length; i++) {
 				category = categoriesWithTitle[i].category;

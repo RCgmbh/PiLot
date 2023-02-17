@@ -1548,6 +1548,7 @@ PiLot.View.Tools = (function () {
 		this.tbName = null;
 		this.labels = null;
 		this.ddlParent = null;
+		this.tbIcon = null;
 		this.observers = null;
 		this.initialize();
 	};
@@ -1578,11 +1579,11 @@ PiLot.View.Tools = (function () {
 		},
 
 		tb_change: async function () {
-			await this.category.saveAsync();
+			this.saveDataAsync();
 		},
 
 		ddlParent_change: async function () {
-			await this.category.saveAsync();
+			await this.saveDataAsync();
 			RC.Utils.notifyObservers(this, this.observers, 'changeParent', null);
 		},
 
@@ -1610,6 +1611,27 @@ PiLot.View.Tools = (function () {
 			await this.fillCategoriesAsync();
 			this.ddlParent.value = this.category.getParentId();
 			this.ddlParent.addEventListener('change', this.ddlParent_change.bind(this));
+			this.tbIcon = control.querySelector('.tbIcon');
+			this.tbIcon.value = this.category.getIcon();
+			this.tbIcon.addEventListener('change', this.tb_change.bind(this));
+		},
+
+		saveDataAsync: async function () {
+			this.category.setName(this.tbName.value);
+			const labels = {};
+			for (const [language, tbLabel] of this.labels) {
+				labels[language] = tbLabel.value;
+			}
+			this.category.setLabels(labels);
+			let parentCategory = null;
+			const parentId = this.ddlParent.value;
+			if (parentId) {
+				const allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+				parentCategory = allCategories.get(Number(parentId));
+			}
+			this.category.setParent(parentCategory);
+			this.category.setIcon(this.tbIcon.value),
+			await this.category.saveAsync();
 		},
 
 		fillCategoriesAsync: async function (pDropDown) {

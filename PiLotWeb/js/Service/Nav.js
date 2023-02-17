@@ -179,6 +179,14 @@ PiLot.Service.Nav = (function () {
 			return result;
 		},
 
+		/**
+		 * Saves a poi category to the server and returns its id
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
+		 */
+		savePoiCategoryAsync: async function (pCategory) {
+			return await PiLot.Utils.Common.putToServerAsync('/PoiCategories', pCategory);
+		},
+
 		/** 
 		 * Gets the cached map of all features
 		 * @returns {Map} key: id, value: feature

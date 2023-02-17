@@ -72,7 +72,7 @@ CREATE OR REPLACE FUNCTION public.update_poi_category(
 	p_labels jsonb,
 	p_icon text
 )
-    RETURNS void AS 
+    RETURNS integer AS 
 '
 	UPDATE poi_categories
 	SET
@@ -82,7 +82,8 @@ CREATE OR REPLACE FUNCTION public.update_poi_category(
 		icon = p_icon,
 		date_changed = NOW()
 	WHERE 
-		id = p_id;
+		id = p_id
+	RETURNING p_id;
 '
 LANGUAGE SQL;
 

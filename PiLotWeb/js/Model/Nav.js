@@ -506,11 +506,14 @@ PiLot.Model.Nav = (function () {
 		},
 
 		setParent: function (pParent) {
-			if(!this.parent && pParent){
-				this.parent = pParent;
-				this.parent.addChild(this);
-			} else {
-				PiLot.log('The category already has a parent. The parent can not change', 0);
+			if (this.parent !== pParent) {
+				if (this.parent) {
+					this.parent.removeChild(this);
+				}
+				if (pParent) {
+					this.parent = pParent;
+					this.parent.addChild(this);
+				}
 			}
 		},
 
@@ -526,9 +529,17 @@ PiLot.Model.Nav = (function () {
 			return this.labels[pLanguage] || this.name;
 		},
 
+		setLabels: function (pLabels) {
+			this.labels = pLabels;
+		},
+
 		/** @retuns{String} the raw icon, either css:(class name) or svg:(svg file name) */
 		getIcon: function () {
 			return this.icon;
+		},
+
+		setIcon: function (pIcon) {
+			this.icon = pIcon;
 		},
 
 		getLevel: function () {
@@ -537,6 +548,13 @@ PiLot.Model.Nav = (function () {
 
 		addChild: function(pChild){
 			this.children.push(pChild);
+		},
+
+		removeChild: function (pChild) {
+			const index = this.children.indexOf(pChild);
+			if (index > -1) {
+				this.children.remove(index);
+			}
 		},
 
 		getChildren: function () {
@@ -555,7 +573,20 @@ PiLot.Model.Nav = (function () {
 				}
 			}
 			return result;
-		}
+		},
+
+		/** Saves the Category back to the server */
+		saveAsync: async function () {
+			const obj = {
+				id: this.id,
+				parentId: this.getParentId(),
+				name: this.name,
+				labels: this.labels,
+				icon: this.icon
+			};
+			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiCategoryAsync(obj);
+			this.id = result.data;
+		},
 	};
 
 	/**

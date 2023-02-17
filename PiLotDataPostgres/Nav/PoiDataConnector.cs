@@ -251,20 +251,46 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Saves a new or existing Poi Category on the server
+		/// </summary>
+		/// <param name="pCategory">The category to save, not null</param>
+		/// <returns>The ID of the category</returns>
+		public Int32 SavePoiCategory(PoiCategory pCategory) {
+			Logger.Log("PoiDataConnector.SavePoiCategory", LogLevels.DEBUG);
+			Int32 result;
+			String command;
+			List<(String, Object)> pars = new List<(String, Object)>();
+			if (pCategory.ID == null) {
+				command = "SELECT * FROM insert_poi_category(@p_parent_id, @p_name, @p_labels, @p_icon);";
+			} else {
+				command = "SELECT * FROM update_poi_category(@p_id, @p_parent_id, @p_name, @p_labels, @p_icon);";
+				pars.Add(("@p_id", pCategory.ID));
+			}
+			pars.Add(("@p_parent_id", pCategory.ParentId));
+			pars.Add(("@p_name", pCategory.Name));
+			pars.Add(("@p_labels", pCategory.Labels));
+			pars.Add(("@p_icon", pCategory.Icon));
+			result = this.dbHelper.ExecuteCommand<Int32>(command, pars);
+			return result;
+		}
+
+		/// <summary>
 		/// Helper to create a PoiCategory out of a db record
 		/// </summary>
 		private PoiCategory ReadPoiCategory(NpgsqlDataReader pReader) {
-			String labelsString = pReader.GetString("labels");
-			Object labelsObj = System.Text.Json.JsonSerializer.Deserialize<Object>(labelsString);
 			PoiCategory result = new PoiCategory() {
 				ID = pReader.GetInt32("id"),
-				Name = pReader.GetString("name"),
-				Labels = labelsObj,
-				Icon = pReader.GetString("icon")
+				Name = pReader.GetString("name")
 			};
+			if (!pReader.IsDBNull("icon")) {
+				result.Icon = pReader.GetString("icon");
+			}
 			if (!pReader.IsDBNull("parent_id")) {
 				result.ParentId = pReader.GetInt32("parent_id");
 			}
+			String labelsString = pReader.GetString("labels");
+			Object labelsObj = System.Text.Json.JsonSerializer.Deserialize<Object>(labelsString);
+			result.Labels = labelsObj;
 			return result;
 		}
 

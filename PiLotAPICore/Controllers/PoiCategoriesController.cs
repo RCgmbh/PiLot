@@ -25,5 +25,17 @@ namespace PiLot.API.Controllers {
 			Logger.Log("PoisController.GetPoiCategories", LogLevels.DEBUG);
 			return new PoiDataConnector().ReadPoiCategories();
 		}
+
+		/// <summary>
+		/// Saves a poiCategory on the server
+		/// </summary>
+		/// <returns>The ID of the category</returns>
+		[HttpPut]
+		[Route(Program.APIROOT + "[controller]")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public Int32 PutCategory(PoiCategory pCategory) {
+			Logger.Log("PoisController.PutCategory", LogLevels.DEBUG);
+			return new PoiDataConnector().SavePoiCategory(pCategory);
+		}
 	}
 }
