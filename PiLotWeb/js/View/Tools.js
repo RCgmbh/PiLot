@@ -1516,7 +1516,12 @@ PiLot.View.Tools = (function () {
 			this.draw();
 		},
 
-		categoryForm_change: function () { },
+		categoryForm_changeParent: async function () {
+			const scrollTop = window.scrollY;
+			this.clearCatgoriesList();
+			await this.populateCategoriesAsync();
+			window.scrollTo(0, scrollTop);
+		},
 
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiCategoriesForm);
@@ -1526,19 +1531,21 @@ PiLot.View.Tools = (function () {
 		},
 
 		populateCategoriesAsync: async function () {
-			const categoriesMap = await this.poiService.getCategoriesAsync();
+			const categoriesMap = await this.poiService.getCategoriesAsync(true);
 			const categoriesList = new PiLot.View.Nav.CategoriesList(categoriesMap, true).getSortedList();
 			this.categoryForms = [];
 			for (const objCategory of categoriesList) {
 				const categoryForm = new PoiCategoryForm(objCategory.category, this.plhCategories);
+				categoryForm.on('changeParent', this.categoryForm_changeParent.bind(this));
 				this.categoryForms.push(categoryForm);
 			}
 		},
 
 		clearCatgoriesList: function () {
 			if (this.categoryForms) {
-				this.categoryForms.forEach((f) => f.off('change'));
+				this.categoryForms.forEach((f) => f.off('changeParent'));
 			}
+			this.plhCategories.clear();
 		}
 	};
 

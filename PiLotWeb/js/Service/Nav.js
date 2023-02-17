@@ -147,14 +147,14 @@ PiLot.Service.Nav = (function () {
 		 * Gets the cached map of all categories
 		 * @returns {Map} key: id, value: category
 		 * */
-		getCategoriesAsync: async function () {
-			await this.ensureCategoriesLoadedAsync();
+		getCategoriesAsync: async function (pForceReload = false) {
+			await this.ensureCategoriesLoadedAsync(pForceReload);
             return this.categories;
 		},
 
 		/** Makes sure this.categories is populated with the categories from the server */
-		ensureCategoriesLoadedAsync: async function () {
-			if (this.categories === null) {
+		ensureCategoriesLoadedAsync: async function (pForceReload = false) {
+			if ((this.categories === null) || pForceReload) {
 				this.categories = await this.loadCategoriesAsync();
 			}
 		},
