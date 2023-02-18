@@ -749,6 +749,67 @@ PiLot.View.Common = (function () {
 		}
 	};
 
+	var ExpandCollapse = function (pHeader, pContent) {
+		this.header = pHeader;
+		this.content = pContent;
+		this.lnkExpand = null;
+		this.lnkCollapse = null;
+		this.observers = null;
+		this.initialize();
+	};
+
+	ExpandCollapse.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.draw();
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		lnkExpand_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapse(true);
+		},
+
+		lnkCollapse_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapse(false);
+		},
+
+		header_click: function (pEvent) {
+			this.expandCollapse(this.content.hidden);
+		},
+
+		draw: function () {
+			this.header.addEventListener('click', this.header_click.bind(this));
+			this.header.classList.toggle('pointer', true);
+			this.lnkExpand = PiLot.Utils.Common.createNode(PiLot.Templates.Common.expandIcon);
+			this.header.insertAdjacentElement('afterbegin', this.lnkExpand);
+			this.lnkExpand.hidden = !this.content.hidden;
+			this.lnkExpand.addEventListener('click', this.lnkExpand_click.bind(this));
+			this.lnkCollapse = PiLot.Utils.Common.createNode(PiLot.Templates.Common.collapseIcon);
+			this.header.insertAdjacentElement('afterbegin', this.lnkCollapse);
+			this.lnkCollapse.hidden = this.content.hidden;
+			this.lnkCollapse.addEventListener('click', this.lnkCollapse_click.bind(this));
+		},
+
+		expandCollapse: function (pExpand) {
+			this.content.hidden = !pExpand;
+			this.lnkExpand.hidden = pExpand;
+			this.lnkCollapse.hidden = !pExpand;
+			RC.Utils.notifyObservers(this, this.observers, pExpand ? 'expand' : 'collapse', null);
+		},
+
+	};
+
 	return {
 		Clock: Clock,
 		StartPage: StartPage,
@@ -758,7 +819,8 @@ PiLot.View.Common = (function () {
 		TouchButtons: TouchButtons,
 		LoginForm: LoginForm,
 		getLoginForm: getLoginForm,
-		UserIcon: UserIcon
+		UserIcon: UserIcon,
+		ExpandCollapse: ExpandCollapse
 	};
 
 })();

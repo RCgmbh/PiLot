@@ -275,6 +275,21 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Deletes a Poi Category, it it isn't used by any poi. 
+		/// </summary>
+		/// <param name="pCategoryId">The id of the category to delete</param>
+		/// <returns>1, if the category has been deleted, 0 if it couldn't be deleted</returns>
+		public Int32 DeletePoiCategory(Int32 pCategoryId) {
+			Logger.Log("PoiDataConnector.DeletePoiCategory", LogLevels.DEBUG);
+			Int32 result;
+			String command = "SELECT * FROM delete_poi_category(@p_id);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_id", pCategoryId));
+			result = this.dbHelper.ExecuteCommand<Int32>(command, pars);
+			return result;
+		}
+
+		/// <summary>
 		/// Helper to create a PoiCategory out of a db record
 		/// </summary>
 		private PoiCategory ReadPoiCategory(NpgsqlDataReader pReader) {

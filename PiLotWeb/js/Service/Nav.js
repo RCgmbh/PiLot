@@ -184,7 +184,22 @@ PiLot.Service.Nav = (function () {
 		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
 		 */
 		savePoiCategoryAsync: async function (pCategory) {
-			return await PiLot.Utils.Common.putToServerAsync('/PoiCategories', pCategory);
+			const isNew = !pCategory.id;
+			const result = await PiLot.Utils.Common.putToServerAsync('/PoiCategories', pCategory);
+			if (isNew) {
+				this.ensureCategoriesLoadedAsync(true);
+			}
+			return result;
+		},
+
+		/**
+		 * Deletes a poi category
+		 * @param {PiLot.Model.Nav.PoiCategory} pPoiCategory
+		 * @returns true, if the category was deleted
+		 */
+		deletePoiCategoryAsync: async function (pPoiCategory) {
+			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/PoiCategories/${pPoiCategory.getId()}`);
+			return !!result;
 		},
 
 		/** 

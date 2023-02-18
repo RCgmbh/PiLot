@@ -682,6 +682,10 @@ PiLot.View.Tools = (function () {
 			this.drawAsync();
 		},
 
+		expandCollapse_expand: function () {
+			this.seamap.getLeafletMap().invalidateSize();
+		},
+
 		btnLoad_click: async function (e) {
 			e.target.hidden = true;
 			this.lblLoadingData.hidden = false;
@@ -710,6 +714,9 @@ PiLot.View.Tools = (function () {
 		drawAsync: async function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisOsmImportForm);
 			this.container.appendChild(control);
+			const lblTitle = control.querySelector('.lblTitle');
+			const pnlForm = control.querySelector('.pnlForm');
+			new PiLot.View.Common.ExpandCollapse(lblTitle, pnlForm).on('expand', this.expandCollapse_expand.bind(this));
 			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
 			this.cbImportLocks = control.querySelector('.cbImportLocks');
 			this.cbImportFuel = control.querySelector('.cbImportFuel');
@@ -1231,6 +1238,7 @@ PiLot.View.Tools = (function () {
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisJsonImportForm);
 			this.container.appendChild(control);
+			new PiLot.View.Common.ExpandCollapse(control.querySelector('h2'), control.querySelector('.pnlForm'));
 			this.tbImportCategories = control.querySelector('.tbImportCategories');
 			this.tbImportFeatures = control.querySelector('.tbImportFeatures');
 			this.tbImportPois = control.querySelector('.tbImportPois');
@@ -1501,6 +1509,10 @@ PiLot.View.Tools = (function () {
 
 	};
 
+	/**
+	 * A simple gui to manage the poi categories
+	 * @param {HTMLDivElement} pContainer - The container where this will be added
+	 */
 	var PoiCategoriesForm = function (pContainer) {
 		this.container = pContainer;
 		this.poiService = null;				// PiLot.Service.Nav.PoiService
@@ -1516,17 +1528,25 @@ PiLot.View.Tools = (function () {
 			this.draw();
 		},
 
-		categoryForm_changeParent: async function () {
-			const scrollTop = window.scrollY;
-			this.clearCatgoriesList();
-			await this.populateCategoriesAsync();
-			window.scrollTo(0, scrollTop);
+		categoryForm_changeParent: function () {
+			this.refreshCategoriesListAsync();
+		},
+
+		categoryForm_delete: function () {
+			this.refreshCategoriesListAsync();
+		},
+
+		lnkAddCategory_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.addCategoryForm(null);
 		},
 
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiCategoriesForm);
 			this.container.appendChild(control);
+			new PiLot.View.Common.ExpandCollapse(control.querySelector('h2'), control.querySelector('.pnlForm'));
 			this.plhCategories = control.querySelector('.plhCategories');
+			control.querySelector('.lnkAddCategory').addEventListener('click', this.lnkAddCategory_click.bind(this));
 			this.populateCategoriesAsync();
 		},
 
@@ -1535,20 +1555,40 @@ PiLot.View.Tools = (function () {
 			const categoriesList = new PiLot.View.Nav.CategoriesList(categoriesMap, true).getSortedList();
 			this.categoryForms = [];
 			for (const objCategory of categoriesList) {
-				const categoryForm = new PoiCategoryForm(objCategory.category, this.plhCategories);
-				categoryForm.on('changeParent', this.categoryForm_changeParent.bind(this));
-				this.categoryForms.push(categoryForm);
+				this.addCategoryForm(objCategory.category);
 			}
+		},
+
+		addCategoryForm: function (pCategory) {
+			const categoryForm = new PoiCategoryForm(pCategory, this.plhCategories);
+			categoryForm.on('changeParent', this.categoryForm_changeParent.bind(this));
+			categoryForm.on('delete', this.categoryForm_delete.bind(this));
+			this.categoryForms.push(categoryForm);
 		},
 
 		clearCatgoriesList: function () {
 			if (this.categoryForms) {
-				this.categoryForms.forEach((f) => f.off('changeParent'));
+				this.categoryForms.forEach(function (category) {
+					category.off('changeParent');
+					category.off('delete');
+				});
 			}
 			this.plhCategories.clear();
+		},
+
+		refreshCategoriesListAsync: async function () {
+			const scrollTop = window.scrollY;
+			this.clearCatgoriesList();
+			await this.populateCategoriesAsync();
+			window.scrollTo(0, scrollTop);
 		}
 	};
 
+	/**
+	 * Simple form which allows to add, edit and delete a poi category
+	 * @param {PiLot.Model.Nav.PoiCategory} pCategory - the category to edit, or null to create a new one
+	 * @param {HTMLDivElement} pContainer - The container where this will be added
+	 */
 	var PoiCategoryForm = function (pCategory, pContainer) {
 		this.category = pCategory;
 		this.container = pContainer;
@@ -1563,14 +1603,14 @@ PiLot.View.Tools = (function () {
 	PoiCategoryForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['changeParent']);
+			this.observers = RC.Utils.initializeObservers(['changeParent', 'delete']);
 			this.labels = new Map();
 			this.drawAsync();
 		},
 
 		/**
 		 * Registers an observer which will be called when pEvent happens.
-		 * @param {String} pEvent - "changeParent"
+		 * @param {String} pEvent - "changeParent", "delete"
 		 * @param {Function} pCallback
 		 * */
 		on: function (pEvent, pCallback) {
@@ -1579,7 +1619,7 @@ PiLot.View.Tools = (function () {
 
 		/**
 		 * Removes all Observers for pEvent
-		 * @param {String} pEvent - 'changeParent'
+		 * @param {String} pEvent - 'changeParent', 'delete'
 		 */
 		off: function (pEvent) {
 			RC.Utils.removeObservers(this.observers, pEvent);
@@ -1587,6 +1627,18 @@ PiLot.View.Tools = (function () {
 
 		tb_change: async function () {
 			this.saveDataAsync();
+		},
+
+		lnkDelete_click: async function (pEvent) {
+			pEvent.preventDefault();
+			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePoiCategory'))) {
+				const result = await this.deleteCategoryAsync();
+				if (result) {
+					RC.Utils.notifyObservers(this, this.observers, 'delete', null);
+				} else {
+					window.alert(PiLot.Utils.Language.getText('couldNotDeletePoiCategory'));
+				}
+			}
 		},
 
 		ddlParent_change: async function () {
@@ -1598,7 +1650,6 @@ PiLot.View.Tools = (function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiCategoryForm);
 			this.container.appendChild(control);
 			this.tbName = control.querySelector('.tbName');
-			this.tbName.value = this.category.getName();
 			this.tbName.addEventListener('change', this.tb_change.bind(this));
 			const tbLabelTemplate = control.querySelector('.tbLabel');
 			const languages = PiLot.Utils.Language.getLanguages();
@@ -1611,34 +1662,55 @@ PiLot.View.Tools = (function () {
 					tbLabelTemplate.insertAdjacentElement('afterend', tbLabel);
 				}
 				this.labels.set(languages[i], tbLabel);
-				tbLabel.value = this.category.getLabel(languages[i]);
 				tbLabel.addEventListener('change', this.tb_change.bind(this));
 			}
 			this.ddlParent = control.querySelector('.ddlParent');
 			await this.fillCategoriesAsync();
-			this.ddlParent.value = this.category.getParentId();
 			this.ddlParent.addEventListener('change', this.ddlParent_change.bind(this));
 			this.tbIcon = control.querySelector('.tbIcon');
-			this.tbIcon.value = this.category.getIcon();
 			this.tbIcon.addEventListener('change', this.tb_change.bind(this));
+			control.querySelector('.lnkDelete').addEventListener('click', this.lnkDelete_click.bind(this));
+			this.showData();
+		},
+
+		showData: function () {
+			if (this.category) {
+				this.tbName.value = this.category.getName();
+				for (const [language, label] of this.labels) {
+					label.value = this.category.getLabel(language);
+				}
+				this.ddlParent.value = this.category.getParentId();
+				this.tbIcon.value = this.category.getIcon();
+			}
 		},
 
 		saveDataAsync: async function () {
-			this.category.setName(this.tbName.value);
-			const labels = {};
-			for (const [language, tbLabel] of this.labels) {
-				labels[language] = tbLabel.value;
+			if (this.tbName.value) {
+				this.category = this.category || new PiLot.Model.Nav.PoiCategory(null, '', {}, '');
+				this.category.setName(this.tbName.value);
+				const labels = {};
+				for (const [language, tbLabel] of this.labels) {
+					labels[language] = tbLabel.value;
+				}
+				this.category.setLabels(labels);
+				let parentCategory = null;
+				const parentId = this.ddlParent.value;
+				if (parentId) {
+					const allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
+					parentCategory = allCategories.get(Number(parentId));
+				} 
+				this.category.setParent(parentCategory);
+				this.category.setIcon(this.tbIcon.value);
+				await this.category.saveAsync();
 			}
-			this.category.setLabels(labels);
-			let parentCategory = null;
-			const parentId = this.ddlParent.value;
-			if (parentId) {
-				const allCategories = await PiLot.Service.Nav.PoiService.getInstance().getCategoriesAsync();
-				parentCategory = allCategories.get(Number(parentId));
-			}
-			this.category.setParent(parentCategory);
-			this.category.setIcon(this.tbIcon.value),
-			await this.category.saveAsync();
+		},
+
+		deleteCategoryAsync: async function () {
+			if (this.category) {
+				return await this.category.deleteAsync();
+			} else {
+				return true;
+			}			
 		},
 
 		fillCategoriesAsync: async function (pDropDown) {

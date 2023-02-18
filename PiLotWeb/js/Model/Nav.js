@@ -510,8 +510,8 @@ PiLot.Model.Nav = (function () {
 				if (this.parent) {
 					this.parent.removeChild(this);
 				}
+				this.parent = pParent;
 				if (pParent) {
-					this.parent = pParent;
 					this.parent.addChild(this);
 				}
 			}
@@ -587,6 +587,11 @@ PiLot.Model.Nav = (function () {
 			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiCategoryAsync(obj);
 			this.id = result.data;
 		},
+
+		/** Tries to delete the category from the server */
+		deleteAsync: async function () {
+			return await PiLot.Service.Nav.PoiService.getInstance().deletePoiCategoryAsync(this);
+		}
 	};
 
 	/**

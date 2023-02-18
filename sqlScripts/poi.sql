@@ -15,6 +15,7 @@ DROP FUNCTION IF EXISTS read_poi;
 DROP FUNCTION IF EXISTS read_external_poi;
 DROP FUNCTION IF EXISTS insert_poi_category;
 DROP FUNCTION IF EXISTS update_poi_category;
+DROP FUNCTION IF EXISTS delete_poi_category;
 DROP FUNCTION IF EXISTS insert_poi_feature;
 DROP VIEW IF EXISTS all_pois;
 DROP VIEW IF EXISTS poi_latest_change;
@@ -22,7 +23,6 @@ DROP TABLE IF EXISTS poi_features__pois;
 DROP TABLE IF EXISTS pois;
 DROP TABLE IF EXISTS poi_categories;
 DROP TABLE IF EXISTS poi_features;
-
 
 /*-----------TABLE poi_categories-------------------------*/
 
@@ -62,6 +62,7 @@ AS $BODY$
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_poi_category to pilotweb;
+GRANT USAGE, SELECT ON SEQUENCE poi_categories_id_seq TO pilotweb;
 
 /*-----------FUNCTION insert_poi_category-----------------*/
 
@@ -88,6 +89,33 @@ CREATE OR REPLACE FUNCTION public.update_poi_category(
 LANGUAGE SQL;
 
 GRANT EXECUTE ON FUNCTION update_poi_category to pilotweb;
+
+/*-----------FUNCTION delete_poi_category-----------------*/
+
+-- Deletes a category, if it isn't in use.
+-- Returns 0, if the category could not be deleted, 
+-- Returns 1, if the category was deleted (or didn't exist)
+CREATE OR REPLACE FUNCTION public.delete_poi_category(
+	p_id integer
+)
+RETURNS integer AS 
+'
+DECLARE result integer;
+BEGIN
+    IF EXISTS (SELECT FROM pois WHERE category_id = p_id) OR EXISTS (SELECT FROM poi_categories where parent_id = p_id) THEN
+		result = 0;
+	ELSE 
+		BEGIN
+			DELETE FROM poi_categories WHERE id = p_id;
+			result = 1;
+		END;
+	END IF;
+	RETURN result;
+END;
+'
+LANGUAGE plpgsql
+
+GRANT EXECUTE ON FUNCTION delete_poi_category TO pilotweb;
 
 /*---------- TABLE poi_features --------------------------*/
 

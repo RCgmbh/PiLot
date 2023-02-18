@@ -103,5 +103,9 @@ PiLot.Templates.Common = {
 		</div>
 	`,
 
-	checkbox: '<label class="marginRight inlineBlock"><input type="checkbox" class="cbCheckbox" /><span class="lblLabel"></span></label>'
+	checkbox: '<label class="marginRight inlineBlock"><input type="checkbox" class="cbCheckbox" /><span class="lblLabel"></span></label>',
+
+	expandIcon: '<a href="#" class="lnkExpand marginRightSmall"><i class="icon-circle-right"></i></a>',
+
+	collapseIcon: '<a href="#" class="lnkCollapse marginRightSmall" hidden><i class="icon-circle-down"></i></a>'
 };

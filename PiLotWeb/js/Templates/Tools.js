@@ -164,23 +164,25 @@ PiLot.Templates.Tools = {
 
 	poisOsmImportForm: `
 		<div>
-			<h2 data-text="importOsm" class="marginBottomSmall"></h2>
-			<div class="flexRowWrap marginRight">
-				<div class="marginBottom">
-					<label class="marginRight noWrap"><input type="checkbox" class="cbImportMarinas marginRight" /><span data-text="marinas"></span></label>
-					<label class="marginRight noWrap"><input type="checkbox" class="cbImportLocks marginRight" /><span data-text="locks"></span></label>
-					<label class="marginRight noWrap"><input type="checkbox" class="cbImportFuel marginRight" /><span data-text="fuelStations"></span></label>
-					<label class="marginRight noWrap"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>
-					<label class="marginRight noWrap"><input type="checkbox" class="cbImportToilets marginRight" /><span data-text="toilets"></span></label>
+			<h2 class="lblTitle"><span data-text="importOsm"></span></h2>
+			<div class="pnlForm" hidden>
+				<div class="flexRowWrap marginRight marginTopSmall">
+					<div class="marginBottom">
+						<label class="marginRight noWrap"><input type="checkbox" class="cbImportMarinas marginRight" /><span data-text="marinas"></span></label>
+						<label class="marginRight noWrap"><input type="checkbox" class="cbImportLocks marginRight" /><span data-text="locks"></span></label>
+						<label class="marginRight noWrap"><input type="checkbox" class="cbImportFuel marginRight" /><span data-text="fuelStations"></span></label>
+						<label class="marginRight noWrap"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>
+						<label class="marginRight noWrap"><input type="checkbox" class="cbImportToilets marginRight" /><span data-text="toilets"></span></label>
+					</div>
+					<button class="btnLoad input7 marginBottomSmall" type="button" data-text="loadData" hidden></button><span class="lblLoadingData" hidden data-text="loadingData"></span>
 				</div>
-				<button class="btnLoad input7 marginBottomSmall" type="button" data-text="loadData" hidden></button><span class="lblLoadingData" hidden data-text="loadingData"></span>
-			</div>
-			<div class="flexRowWrap marginBottom">
-				<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
-					<div class="pnlMap navMap" style="height: 70vh;"></div>
+				<div class="flexRowWrap marginBottom">
+					<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
+						<div class="pnlMap navMap" style="height: 70vh;"></div>
+					</div>
+					<div class="plhOsmDetails marginRight borderLight" style="min-width:16em; flex-basis:20em; flex-grow:1; max-height:70vh; overflow: auto; position:relative; "></div>
 				</div>
-				<div class="plhOsmDetails marginRight borderLight" style="min-width:16em; flex-basis:20em; flex-grow:1; max-height:70vh; overflow: auto; position:relative; "></div>
-			</div>
+			</hidden>
 		</div>
 	`,
 
@@ -223,8 +225,8 @@ PiLot.Templates.Tools = {
 
 	poisJsonImportForm: `
 		<div class="paddingTop">
-			<h2 data-text="importJson" class="marginBottomSmall"></h2>
-			<div class="flexRowWrap marginBottom paddingTop">
+			<h2><span data-text="importJson" class="marginBottomSmall"></span></h2>
+			<div class="pnlForm flexRowWrap marginBottom paddingTopSmall" hidden>
 				<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
 					<span class="semiBold">poiCategories</span>
 					<textarea rows="10" class="tbImportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
@@ -249,8 +251,11 @@ PiLot.Templates.Tools = {
 
 	poiCategoriesForm: `
 		<div class="paddingTop">
-			<h2 data-text="categories" class="marginBottomSmall"></h2>
-			<div class="plhCategories"></div>
+			<h2><span data-text="categories" class="marginBottomSmall"></span></h2>
+			<div class="pnlForm paddingTopSmall" hidden>
+				<div class="plhCategories"></div>
+				<a href="#" class="lnkAddCategory"><i class="icon-plus marginRightSmall"></i><span data-text="addCategory"></span></a>
+			</div>
 		</div>
 	`,
 

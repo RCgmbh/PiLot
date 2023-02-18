@@ -33,9 +33,27 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public Int32 PutCategory(PoiCategory pCategory) {
+		public Int32 PutCategory(PoiCategory category) {
 			Logger.Log("PoisController.PutCategory", LogLevels.DEBUG);
-			return new PoiDataConnector().SavePoiCategory(pCategory);
+			return new PoiDataConnector().SavePoiCategory(category);
+		}
+
+		/// <summary>
+		/// Deletes a poiCategory on the server. A category can only be deleted if there
+		/// are no pois assigned to this category, and it is not referenced as parent
+		/// category of any other category.
+		/// </summary>
+		[HttpDelete]
+		[Route(Program.APIROOT + "[controller]/{categoryId}")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public ActionResult DeleteCategory(Int32 categoryId) {
+			Logger.Log("PoisController.DeleteCategory", LogLevels.DEBUG);
+			Int32 result = new PoiDataConnector().DeletePoiCategory(categoryId);
+			if(result == 1) {
+				return this.Ok();
+			} else {
+				return this.BadRequest("The poi category is in use");
+			}
 		}
 	}
 }
