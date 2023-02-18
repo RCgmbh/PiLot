@@ -113,7 +113,7 @@ BEGIN
 	RETURN result;
 END;
 '
-LANGUAGE plpgsql
+LANGUAGE plpgsql;
 
 GRANT EXECUTE ON FUNCTION delete_poi_category TO pilotweb;
 
