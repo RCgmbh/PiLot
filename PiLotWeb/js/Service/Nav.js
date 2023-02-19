@@ -194,11 +194,11 @@ PiLot.Service.Nav = (function () {
 
 		/**
 		 * Deletes a poi category
-		 * @param {PiLot.Model.Nav.PoiCategory} pPoiCategory
+		 * @param {PiLot.Model.Nav.PoiCategory} pCategory
 		 * @returns true, if the category was deleted
 		 */
-		deletePoiCategoryAsync: async function (pPoiCategory) {
-			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/PoiCategories/${pPoiCategory.getId()}`);
+		deletePoiCategoryAsync: async function (pCategory) {
+			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/PoiCategories/${pCategory.getId()}`);
 			return !!result;
 		},
 
@@ -206,14 +206,14 @@ PiLot.Service.Nav = (function () {
 		 * Gets the cached map of all features
 		 * @returns {Map} key: id, value: feature
 		 * */
-		getFeaturesAsync: async function () {
-			await this.ensureFeaturesLoadedAsync();
+		getFeaturesAsync: async function (pForceReload = false) {
+			await this.ensureFeaturesLoadedAsync(pForceReload);
 			return this.features;
 		},
 
 		/** Makes sure this.features is populated with the features from the server */
-		ensureFeaturesLoadedAsync: async function () {
-			if (this.features === null) {
+		ensureFeaturesLoadedAsync: async function (pForceReload = false) {
+			if ((this.features === null) || pForceReload) {
 				this.features = await this.loadFeaturesAsync();
 			}
 		},
@@ -231,6 +231,29 @@ PiLot.Service.Nav = (function () {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);
 			}
 			return result;
+		},
+
+		/**
+		 * Saves a poi feature to the server and returns its id
+		 * @param {PiLot.Model.Nav.PoiFeature} pFeature
+		 */
+		savePoiFeatureAsync: async function (pFeature) {
+			const isNew = !pFeature.id;
+			const result = await PiLot.Utils.Common.putToServerAsync('/PoiFeatures', pFeature);
+			if (isNew) {
+				this.ensureFeaturesLoadedAsync(true);
+			}
+			return result;
+		},
+
+		/**
+		 * Deletes a poi feature
+		 * @param {PiLot.Model.Nav.PoiFeature} pFeature
+		 * @returns true, if the feature was deleted
+		 */
+		deletePoiFeatureAsync: async function (pFeature) {
+			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/PoiFeatures/${pFeature.getId()}`);
+			return !!result;
 		},
 
 		/** Returns the list of the most recently loaded pois */

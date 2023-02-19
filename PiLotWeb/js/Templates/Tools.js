@@ -267,5 +267,23 @@ PiLot.Templates.Tools = {
 			<input type="text" class="tbIcon input6" />
 			<a href="#" class="lnkDelete"><i class="icon-trashcan"></i></a>
 		</div>
+	`,
+
+	poiFeaturesForm: `
+		<div class="paddingTop">
+			<h2><span data-text="features" class="marginBottomSmall"></span></h2>
+			<div class="pnlForm paddingTopSmall" hidden>
+				<div class="plhFeatures"></div>
+				<a href="#" class="lnkAddFeature"><i class="icon-plus marginRightSmall"></i><span data-text="addFeature"></span></a>
+			</div>
+		</div>
+	`,
+
+	poiFeatureForm: `
+		<div class="flexRowWrap gapSmall marginBottomSmall">
+			<input type="text" class="tbName input6" />
+			<input type="text" class="tbLabel input6" />
+			<a href="#" class="lnkDelete"><i class="icon-trashcan"></i></a>
+		</div>
 	`
 };

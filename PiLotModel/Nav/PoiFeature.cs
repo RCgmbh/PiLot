@@ -9,7 +9,7 @@ namespace PiLot.Model.Nav {
 	public class PoiFeature {
 
 		[JsonPropertyName("id")]
-		public Int32 ID { get; set; }
+		public Int32? ID { get; set; }
 		
 		[JsonPropertyName("name")]
 		public String Name { get; set; }

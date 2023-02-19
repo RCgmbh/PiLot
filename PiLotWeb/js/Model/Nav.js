@@ -638,6 +638,26 @@ PiLot.Model.Nav = (function () {
 
 		getLabel: function (pLanguage) {
 			return this.labels[pLanguage] || this.name;
+		},
+
+		setLabels: function (pLabels) {
+			this.labels = pLabels;
+		},
+
+		/** Saves the Feature back to the server */
+		saveAsync: async function () {
+			const obj = {
+				id: this.id,
+				name: this.name,
+				labels: this.labels
+			};
+			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiFeatureAsync(obj);
+			this.id = result.data;
+		},
+
+		/** Tries to delete the feature from the server */
+		deleteAsync: async function () {
+			return await PiLot.Service.Nav.PoiService.getInstance().deletePoiFeatureAsync(this);
 		}
 	};
 

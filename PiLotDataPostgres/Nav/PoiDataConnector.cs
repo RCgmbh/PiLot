@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
-using System.Linq;
 using Npgsql;
+
 using PiLot.Data.Postgres.Helper;
 using PiLot.Model.Nav;
 using PiLot.Utils.DateAndTime;
@@ -317,6 +316,43 @@ namespace PiLot.Data.Postgres.Nav {
 			Logger.Log("PoiDataConnector.ReadPoiFeatures", LogLevels.DEBUG);
 			String query = "SELECT * FROM poi_features";
 			return this.dbHelper.ReadData<PoiFeature>(query,  new Func<NpgsqlDataReader, PoiFeature>(this.ReadPoiFeature));
+		}
+
+		/// <summary>
+		/// Saves a new or existing Poi Feature on the server
+		/// </summary>
+		/// <param name="pFeature">The feature to save, not null</param>
+		/// <returns>The ID of the feature</returns>
+		public Int32 SavePoiFeature(PoiFeature pFeature) {
+			Logger.Log("PoiDataConnector.SavePoiFeature", LogLevels.DEBUG);
+			Int32 result;
+			String command;
+			List<(String, Object)> pars = new List<(String, Object)>();
+			if (pFeature.ID == null) {
+				command = "SELECT * FROM insert_poi_feature(@p_name, @p_labels);";
+			} else {
+				command = "SELECT * FROM update_poi_feature(@p_id, @p_name, @p_labels);";
+				pars.Add(("@p_id", pFeature.ID));
+			}
+			pars.Add(("@p_name", pFeature.Name));
+			pars.Add(("@p_labels", pFeature.Labels));
+			result = this.dbHelper.ExecuteCommand<Int32>(command, pars);
+			return result;
+		}
+
+		/// <summary>
+		/// Deletes a Poi Feature, it it isn't used by any poi. 
+		/// </summary>
+		/// <param name="pFeatureId">The id of the feature to delete</param>
+		/// <returns>1, if the feature has been deleted, 0 if it couldn't be deleted</returns>
+		public Int32 DeletePoiFeature(Int32 pFeatureId) {
+			Logger.Log("PoiDataConnector.DeletePoiFeature", LogLevels.DEBUG);
+			Int32 result;
+			String command = "SELECT * FROM delete_poi_feature(@p_id);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_id", pFeatureId));
+			result = this.dbHelper.ExecuteCommand<Int32>(command, pars);
+			return result;
 		}
 
 		/// <summary>

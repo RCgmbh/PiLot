@@ -15,8 +15,6 @@ namespace PiLot.API.Controllers {
 	[ApiController]
 	public class PoiFeaturesController : ControllerBase {
 
-		
-
 		/// <summary>
 		/// Gets the list of all poi features, having id and title
 		/// </summary>
@@ -26,6 +24,35 @@ namespace PiLot.API.Controllers {
 		public List<PoiFeature> GetFeatures() {
 			Logger.Log("PoisController.GetPoiFeatures", LogLevels.DEBUG);
 			return new PoiDataConnector().ReadPoiFeatures();
+		}
+
+		/// <summary>
+		/// Saves a poiFeature on the server
+		/// </summary>
+		/// <returns>The ID of the feature</returns>
+		[HttpPut]
+		[Route(Program.APIROOT + "[controller]")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public Int32 PutFeature(PoiFeature feature) {
+			Logger.Log("PoisController.PutFeature", LogLevels.DEBUG);
+			return new PoiDataConnector().SavePoiFeature(feature);
+		}
+
+		/// <summary>
+		/// Deletes a poiFeature from the server. A feature can only be deleted if there
+		/// are no pois using it.
+		/// </summary>
+		[HttpDelete]
+		[Route(Program.APIROOT + "[controller]/{featureId}")]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public ActionResult DeleteFeature(Int32 featureId) {
+			Logger.Log("PoisController.DeleteFeature", LogLevels.DEBUG);
+			Int32 result = new PoiDataConnector().DeletePoiFeature(featureId);
+			if (result == 1) {
+				return this.Ok();
+			} else {
+				return this.BadRequest("The poi feature is in use");
+			}
 		}
 	}
 }

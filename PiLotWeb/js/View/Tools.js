@@ -648,6 +648,7 @@ PiLot.View.Tools = (function () {
 			new PoisOsmImportControl(pageContent);
 			new PoisJsonImportForm(pageContent);
 			new PoiCategoriesForm(pageContent);
+			new PoiFeaturesForm(pageContent);
 		}
 	};
 
@@ -1566,7 +1567,7 @@ PiLot.View.Tools = (function () {
 			this.categoryForms.push(categoryForm);
 		},
 
-		clearCatgoriesList: function () {
+		clearCategoriesList: function () {
 			if (this.categoryForms) {
 				this.categoryForms.forEach(function (category) {
 					category.off('changeParent');
@@ -1578,7 +1579,7 @@ PiLot.View.Tools = (function () {
 
 		refreshCategoriesListAsync: async function () {
 			const scrollTop = window.scrollY;
-			this.clearCatgoriesList();
+			this.clearCategoriesList();
 			await this.populateCategoriesAsync();
 			window.scrollTo(0, scrollTop);
 		}
@@ -1717,6 +1718,182 @@ PiLot.View.Tools = (function () {
 			await new PiLot.View.Nav.CategoriesDropDown(this.ddlParent, this.category).populateDropdownAsync();
 		}
 
+	};
+
+	/**
+	 * A simple gui to manage the poi features
+	 * @param {HTMLDivElement} pContainer - The container where this will be added
+	 */
+	var PoiFeaturesForm = function (pContainer) {
+		this.container = pContainer;
+		this.poiService = null;				// PiLot.Service.Nav.PoiService
+		this.plhFeatures = null;
+		this.featureForms = null;			// a list of all feature forms, just to make sure we can remove the observers when re-populating the list.
+		this.initialize();
+	};
+
+	PoiFeaturesForm.prototype = {
+
+		initialize: function () {
+			this.poiService = PiLot.Service.Nav.PoiService.getInstance();
+			this.draw();
+		},
+
+		featureForm_delete: function () {
+			this.refreshFeaturesListAsync();
+		},
+
+		lnkAddFeature_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.addFeatureForm(null);
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiFeaturesForm);
+			this.container.appendChild(control);
+			new PiLot.View.Common.ExpandCollapse(control.querySelector('h2'), control.querySelector('.pnlForm'));
+			this.plhFeatures = control.querySelector('.plhFeatures');
+			control.querySelector('.lnkAddFeature').addEventListener('click', this.lnkAddFeature_click.bind(this));
+			this.populateFeaturesAsync();
+		},
+
+		populateFeaturesAsync: async function () {
+			const featuresMap = await this.poiService.getFeaturesAsync(true);
+			this.featureForms = [];
+			for (const [featureId, feature] of featuresMap) {
+				this.addFeatureForm(feature);
+			}
+		},
+
+		addFeatureForm: function (pFeature) {
+			const featureForm = new PoiFeatureForm(pFeature, this.plhFeatures);
+			featureForm.on('delete', this.featureForm_delete.bind(this));
+			this.featureForms.push(featureForm);
+		},
+
+		clearFeaturesList: function () {
+			if (this.featureForms) {
+				this.featureForms.forEach(function (feature) {
+					feature.off('delete');
+				});
+			}
+			this.plhFeatures.clear();
+		},
+
+		refreshFeaturesListAsync: async function () {
+			const scrollTop = window.scrollY;
+			this.clearFeaturesList();
+			await this.populateFeaturesAsync();
+			window.scrollTo(0, scrollTop);
+		}
+	};
+
+	/**
+	 * Simple form which allows to add, edit and delete a poi feature
+	 * @param {PiLot.Model.Nav.PoiFeature} pFeature - the feature to edit, or null to create a new one
+	 * @param {HTMLDivElement} pContainer - The container where this will be added
+	 */
+	var PoiFeatureForm = function (pFeature, pContainer) {
+		this.feature = pFeature;
+		this.container = pContainer;
+		this.tbName = null;
+		this.labels = null;
+		this.observers = null;
+		this.initialize();
+	};
+
+	PoiFeatureForm.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['delete']);
+			this.labels = new Map();
+			this.drawAsync();
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "delete"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		/**
+		 * Removes all Observers for pEvent
+		 * @param {String} pEvent - 'delete'
+		 */
+		off: function (pEvent) {
+			RC.Utils.removeObservers(this.observers, pEvent);
+		},
+
+		tb_change: async function () {
+			this.saveDataAsync();
+		},
+
+		lnkDelete_click: async function (pEvent) {
+			pEvent.preventDefault();
+			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePoiFeature'))) {
+				const result = await this.deleteFeatureAsync();
+				if (result) {
+					RC.Utils.notifyObservers(this, this.observers, 'delete', null);
+				} else {
+					window.alert(PiLot.Utils.Language.getText('couldNotDeletePoiFeature'));
+				}
+			}
+		},
+
+		drawAsync: async function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poiFeatureForm);
+			this.container.appendChild(control);
+			this.tbName = control.querySelector('.tbName');
+			this.tbName.addEventListener('change', this.tb_change.bind(this));
+			const tbLabelTemplate = control.querySelector('.tbLabel');
+			const languages = PiLot.Utils.Language.getLanguages();
+			for (let i = 0; i < languages.length; i++) {
+				let tbLabel;
+				if (i == 0) {
+					tbLabel = tbLabelTemplate;
+				} else {
+					tbLabel = tbLabelTemplate.cloneNode(true);
+					tbLabelTemplate.insertAdjacentElement('afterend', tbLabel);
+				}
+				this.labels.set(languages[i], tbLabel);
+				tbLabel.addEventListener('change', this.tb_change.bind(this));
+			}
+			control.querySelector('.lnkDelete').addEventListener('click', this.lnkDelete_click.bind(this));
+			this.showData();
+		},
+
+		showData: function () {
+			if (this.feature) {
+				this.tbName.value = this.feature.getName();
+				for (const [language, label] of this.labels) {
+					label.value = this.feature.getLabel(language);
+				}
+			}
+		},
+
+		saveDataAsync: async function () {
+			if (this.tbName.value) {
+				this.feature = this.feature || new PiLot.Model.Nav.PoiFeature(null, '', {}, '');
+				this.feature.setName(this.tbName.value);
+				const labels = {};
+				for (const [language, tbLabel] of this.labels) {
+					labels[language] = tbLabel.value;
+				}
+				this.feature.setLabels(labels);
+				await this.feature.saveAsync();
+			}
+		},
+
+		deleteFeatureAsync: async function () {
+			if (this.feature) {
+				return await this.feature.deleteAsync();
+			} else {
+				return true;
+			}
+		}
 	};
 
 	/// return the classes
