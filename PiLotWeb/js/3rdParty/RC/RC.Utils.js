@@ -71,25 +71,25 @@ RC.Utils = {
 	addDomObject: function (pTag, pParent, pCssClass) {
 		var obj = document.createElement(pTag);
 		let result;
-		if (pParent instanceof jQuery) {
+		/*if (pParent instanceof jQuery) {
 			result = $(obj).appendTo(pParent);
 			if (pCssClass) {
 				result.addClass(pCssClass);
 			}
-		} else {
+		} else {*/
 			result = obj;
 			pParent.appendChild(result);
 			if (pCssClass) {
 				result.classList.add(pCssClass);
 			}
-		}		
+		//}		
 		return result;
 	},
 
 	/// fills a dropdown-list (select) with valued provided as array of arrays [[value, text],...].
 	/// optionally, a empty value is added, which can be provided as pEmptyValue, being a string
 	/// which will be used for both, value and text, or an array with two items [value, text].
-	fillJQueryDropdown: function(pDropdown, pValues, pEmptyValue) {
+	/*fillJQueryDropdown: function(pDropdown, pValues, pEmptyValue) {
 		if ((typeof pEmptyValue !== 'undefined') && (pEmptyValue !== null)) {
 			var value, text;
 			if (Array.isArray(pEmptyValue) && (pEmptyValue.length === 2)) {
@@ -104,15 +104,15 @@ RC.Utils = {
 		pValues.forEach(function (anItem) {
 			RC.Utils.addDomObject('option', pDropdown).val(anItem[0]).text(anItem[1]);
 		});
-	},
+	},*/
 
 	/// fills a dropdown-list (select) with values provided as array of arrays [[value, text],...].
 	/// optionally, an empty value is added, which can be provided as pEmptyValue, being a string
 	/// which will be used for both, value and text, or an array with two items [value, text].
 	fillDropdown: function (pDropdown, pValues, pEmptyValue) {
-		if (pDropdown instanceof jQuery) {
+		/*if (pDropdown instanceof jQuery) {
 			RC.Utils.fillJQueryDropdown(pDropdown, pValues, pEmptyValue);
-		} else {
+		} else {*/
 			if ((typeof pEmptyValue !== 'undefined') && (pEmptyValue !== null)) {
 				let value, text;
 				if (Array.isArray(pEmptyValue) && (pEmptyValue.length === 2)) {
@@ -127,7 +127,7 @@ RC.Utils = {
 			pValues.forEach(function (anItem) {
 				RC.Utils.addOption(pDropdown, anItem[0], anItem[1]);
 			});
-		}		
+		//}		
 	},
 
 	/**
@@ -163,9 +163,9 @@ RC.Utils = {
 		if (pTextbox instanceof HTMLElement) {
 			fieldValue = pTextbox.value;
 		}
-		else if (pTextbox instanceof jQuery) {
+		/*else if (pTextbox instanceof jQuery) {
 			fieldValue = pTextbox.val();
-		}
+		}*/
 		if (RC.Utils.isNumeric(fieldValue)) {
 			result = Number(fieldValue);
 		}
@@ -269,7 +269,10 @@ RC.Utils = {
 
 	/// binds some handlers to controls based on them styles
 	handleActiveStyles: function () {
-		$('.selectOnFocus').each(function () { RC.Utils.selectOnFocus($(this)) });
+		for (element of document.querySelectorAll('.selectOnFocus')) {
+			RC.Utils.selectOnFocus(element);
+		}
+		//$('.selectOnFocus').each(function () { RC.Utils.selectOnFocus($(this)) });
 	},
 
 	/** makes sure that the text within a control is selected as soon
@@ -278,7 +281,7 @@ RC.Utils = {
 	 */
 	selectOnFocus: function () {
 		for (let i = 0; i < arguments.length; i++) {
-			(arguments[i] instanceof jQuery ? arguments[i].get(0) : arguments[i]).addEventListener('focus', function () { this.select(); });
+			(arguments[i] /*instanceof jQuery ? arguments[i].get(0) : arguments[i]*/).addEventListener('focus', function () { this.select(); });
 		}		
 	},
 
@@ -287,13 +290,13 @@ RC.Utils = {
 	/// should be prefered over jQuery.text as it does not create new node
 	/// and thus fill up memory. Returns the control for easy chaining.
 	setText: function (pControl, pText) {
-		if (pControl instanceof HTMLElement) {
+		//if (pControl instanceof HTMLElement) {
 			if ('value' in pControl) {
 				pControl.value = pText;
 			} else {
 				pControl.innerText = pText;
 			}
-		}
+		/*}
 		else if (pControl instanceof jQuery) {
 			var controls = pControl.get();
 			controls.forEach(function (item) {
@@ -301,7 +304,7 @@ RC.Utils = {
 			});
 		} else {
 			console.log(pControl + ' is neither HTMLElement nor jQuery');
-		}
+		}*/
 		return pControl;
 	},
 

@@ -58,7 +58,7 @@ PiLot.Utils.Nav = {
 	/// 2: the minutes part as 3 digit string
 	toCoordinateArray: function (pValue, pIsLatitude) {
 		var result = null;
-		if ((pValue !== null) && $.isNumeric(pValue)) {
+		if ((pValue !== null) && RC.Utils.isNumeric(pValue)) {
 			var prefix = pIsLatitude ? this.getLatPrefix(pValue) : this.getLonPrefix(pValue);
 			var abs = Math.abs(pValue);
 			result = [

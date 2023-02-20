@@ -505,7 +505,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:
 #mainMenu { display: none; min-width: 4em; width: 4em;  }
 #mainMenu > div { height: 4em; display:flex; justify-content: center;}
 #mainMenu > div > a { padding: 0.5em 0.25em; flex-grow:1; max-width: 2em; }
-#mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index:12000; }
+#mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index:12000; border-bottom: 0.25em solid black; }
 #content { flex-grow: 1; display: flex; }
 
 /* show main menu, just narrow. Show both day and night buttons */

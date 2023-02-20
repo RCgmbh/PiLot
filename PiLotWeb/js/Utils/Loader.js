@@ -71,9 +71,9 @@ PiLot.Utils.Loader = (function () {
 
 
 	const defaultScripts = [
-		{ url: 'js/3rdParty/jQuery/jquery-3.3.1.min.js', priority: 1 },
+		/*{ url: 'js/3rdParty/jQuery/jquery-3.3.1.min.js', priority: 1 },
 		{ url: 'js/3rdParty/jQuery/jquery-ui.min.js', priority: 5 },
-		{ url: 'js/3rdParty/jQuery/jquery.ui.touch-punch.min.js', priority: 5 },
+		{ url: 'js/3rdParty/jQuery/jquery.ui.touch-punch.min.js', priority: 5 },*/
 		{ url: 'js/3rdParty/luxon/polyfill.js', priority: 1 },
 		{ url: 'js/3rdParty/luxon/luxon.js', priority: 1 },
 		{ url: 'js/3rdParty/divers/moment.min.js', priority: 1 },
@@ -112,6 +112,7 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	const flotScripts = [
+		{ url: 'js/3rdParty/jQuery/jquery-3.3.1.min.js', priority: 1 },
 		{ url: 'js/3rdParty/flot/jquery.canvaswrapper.js', priority: 6 },
 		{ url: 'js/3rdParty/flot/jquery.flot.js', priority: 7 },
 		{ url: 'js/3rdParty/flot/jquery.flot.uiConstants.js', priority: 8 },

@@ -28,7 +28,7 @@
 .navMyBoatIcon, .navHistoricBoatIcon { display: block; border: 3px solid black; border-radius: 10px; background-color: #FFBF49; }
 .navMyBoatIcon { background-color: #FFBF49; }
 .navHistoricBoatIcon { background-color: rgba(255, 191, 73, 0.6); }
-.navWaypointMarker { color:black;border:3px solid black; border-radius:18px; background-color: rgba(73, 146, 255, 0.8); text-align:center; }
+.navWaypointMarker { color:black;border:2px solid black; border-radius:18px; background-color: rgba(73, 146, 255, 0.8); text-align:center; }
 .navWaypointMarker > i { font-size:1.5em; line-height:1.5em;}
 .mapWaypointPopup {	min-width: 15em; }
 .leaflet-popup-content .customContent { display:flex; flex-direction:column; gap:0.25em; }

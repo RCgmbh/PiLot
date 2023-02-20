@@ -262,9 +262,9 @@ PiLot.Templates.Tools = {
 	poiCategoryForm: `
 		<div class="flexRowWrap gapSmall marginBottomSmall">
 			<input type="text" class="tbName input6" />
-			<input type="text" class="tbLabel input6" />
 			<select class="ddlParent input6" />
 			<input type="text" class="tbIcon input6" />
+			<input type="text" class="tbLabel input6" />
 			<a href="#" class="lnkDelete"><i class="icon-trashcan"></i></a>
 		</div>
 	`,
