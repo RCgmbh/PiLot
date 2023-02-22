@@ -6,13 +6,15 @@ PiLot.Templates.Boat = {
 	boatImageLink:
 		'<object type="image/svg+xml" style="height:100%; max-height:100%; max-width:100%; position:absolute;"></object>',
 
-	boatSetupForm: 
-		`<div class="boatSetupForm dialogPanel" hidden>
-			<span class="block semiBold marginBottom" data-text="boatSetup"></span>
-			<div class="plhFeatures"></div>
-			<div class="buttons reverse marginTop">
-				<a href="#" class="btnBoatSetupOk linkButton bold" data-text="ok"></a>
-				<a href="#" class="btnBoatSetupCancel linkButton" data-text="cancel"></a>
+	boatSetupForm:
+		`<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="boatSetupForm dialogPanel hCenter paddingAllSmall">
+				<span class="block semiBold marginBottom" data-text="boatSetup"></span>
+				<div class="plhFeatures"></div>
+				<div class="buttons reverse marginTop marginBottom">
+					<a href="#" class="btnBoatSetupOk linkButton bold" data-text="ok"></a>
+					<a href="#" class="btnBoatSetupCancel linkButton" data-text="cancel"></a>
+				</div>
 			</div>
 		</div>`,
 

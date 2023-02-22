@@ -107,12 +107,12 @@ body.night div.feedbackInfo, body.night span.feedbackInfo{border-color:#3265AD; 
 	position: absolute;
 	border: 1px solid #666;
 	background-color:white;
-	box-shadow: 0.5em 0.5em 1.5em -0.5em rgba(100, 100, 100, 0.7);
 	z-index:13500;
 	max-height: 100vh;
 	overflow: auto;
 }
 .dialogPanel.round { border-radius:0.25em; }
+.dialogPanel.shadow { box-shadow: 0.5em 0.5em 1.5em -0.5em rgba(100, 100, 100, 0.7);}
 body.night .dialogPanel { background-color: black; }
 
 .overlay { position:fixed;width:100vw;height:100vh;top:0;left:0;background-color:rgba(0, 0, 0, 0.75); z-index:13500; }

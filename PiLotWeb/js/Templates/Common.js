@@ -90,7 +90,7 @@ PiLot.Templates.Common = {
 	`,
 
 	userMenu: `
-		<div class="pnlUserInfo dialogPanel hidden">
+		<div class="pnlUserInfo dialogPanel shadow hidden">
 			<div class="semiBold"><span data-text="user"></span>: <span class="lblUsername"></span><span class="lblAnonymous">-</span></div>
 			<div><span class="col1 marginRight"><i class="icon-checkmark icoReadAccess green"></i><i class="icon-cross icoNoReadAccess red"></i></span><span data-text="readAccess"></span></div>
 			<div><span class="col1 marginRight"><i class="icon-checkmark icoWriteAccess green"></i><i class="icon-cross icoNoWriteAccess red"></i></span><span data-text="writeAccess"></span></div>

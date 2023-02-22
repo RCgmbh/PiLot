@@ -72,7 +72,7 @@
 body.night .logbookBox{border-color:#999}
 body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 
-.boatSetupForm { background-color: #eee; border: 1px solid #ccc; border-radius:3px; width: calc(100vw - 2em); max-width: 21.5em; min-height: 10em; margin: 0em; padding: 0.125em 0.25em; }
+.boatSetupForm { max-width: 21.5em; }
 
 .tbDiary { padding: 0.25em 0.5em; }
 .diaryPhotos { width:100%; display:flex; gap:2em; flex-direction:row; flex-wrap:wrap; justify-content:center; padding:0.125em 0.125em 1em 0.125em; }

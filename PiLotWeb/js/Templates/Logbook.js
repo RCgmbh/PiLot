@@ -86,7 +86,7 @@ PiLot.Templates.Logbook = {
 
 	logbookEntryForm: `
 		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="logbookEntry dialogPanel hCenter paddingAllSmall hCenter">
+			<div class="logbookEntry dialogPanel hCenter paddingAllSmall">
 				<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
 				<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
 				<div class="marginBottomSmall titleContainer">
@@ -136,7 +136,7 @@ PiLot.Templates.Logbook = {
 					</div>	
 				</div>
 				<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" data-title="remarks"></textarea>
-				<div class="buttons reverse">
+				<div class="buttons reverse marginBottom">
 					<a href="#" class="btnSave linkButton bold" data-text="save"></a>
 					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>

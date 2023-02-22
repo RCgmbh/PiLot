@@ -225,7 +225,6 @@ PiLot.View.Boat = (function () {
 			this.onClick = function () {
 				pBoatSetupForm.show();
 			};
-			//this.showBoatSetup(pBoatSetupForm.getBoatSetup());
 			pBoatSetupForm.on('apply', this.boatSetupForm_apply.bind(this));
 		},
 
@@ -265,7 +264,7 @@ PiLot.View.Boat = (function () {
 	var BoatSetupForm = function (pBoatConfig, pContainer) {
 		this.boatConfig = pBoatConfig;							// the boat config, containing all features and states
 		this.boatSetup = null;								 	// the current boat setup, a PiLot.Model.Boat.BoatSetup
-		this.container = pContainer;							// the container containing this, HTMLElement
+		//this.container = pContainer;							// the container containing this, HTMLElement
 		this.control = null;
 		this.plhFeatures = null;								// the placeholder where we will add the selectors
 		this.selectors = null;									// a map with key = featureId, value = dropdown control
@@ -310,7 +309,8 @@ PiLot.View.Boat = (function () {
 		/** Draws the form */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
-			this.container.append(this.control);
+			//this.container.append(this.control);
+			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.cancel.bind(this), this.apply.bind(this));
 			this.plhFeatures = this.control.querySelector('.plhFeatures');
 			const btnOk = this.control.querySelector('.btnBoatSetupOk');
