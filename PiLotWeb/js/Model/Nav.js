@@ -497,6 +497,10 @@ PiLot.Model.Nav = (function () {
 			return this.id;
 		},
 
+		setId: function (pId) {
+			this.id = pId;	
+		},
+
 		getParent: function () {
 			return this.parent;
 		},
@@ -601,8 +605,12 @@ PiLot.Model.Nav = (function () {
 	 */
 	PoiCategory.fromData = function (pData) {
 		let result = null;
+		let labels = pData.labels;
+		if (typeof labels === "string") {
+			labels = JSON.parse(labels);
+		}
 		if (pData.id && pData.name) {
-			result = new PoiCategory(pData.id, pData.name, pData.labels || {}, pData.icon);
+			result = new PoiCategory(pData.id, pData.name, labels || {}, pData.icon);
 		}
 		return result;
 	};
@@ -626,6 +634,10 @@ PiLot.Model.Nav = (function () {
 
 		getId: function () {
 			return this.id;
+		},
+
+		setId: function (pId) {
+			this.id = pId;
 		},
 
 		getName: function () {
@@ -663,13 +675,18 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * Creates a new PoiFeature based on a data object. Returns null,
-	 * if required attributes are missing.
+	 * if required attributes are missing. Labels can be an object or
+	 * a serialized object.
 	 * @param {Object} pData - object with id, name, labels
 	 */
 	PoiFeature.fromData = function (pData) {
 		let result = null;
+		let labels = pData.labels;
+		if (typeof labels === "string") { 
+			labels = JSON.parse(labels);
+		}
 		if (pData.id && pData.name) {
-			result = new PoiFeature(pData.id, pData.name, pData.labels || {});
+			result = new PoiFeature(pData.id, pData.name, labels || {});
 		}
 		return result;
 	};

@@ -776,13 +776,13 @@ PiLot.View.Common = (function () {
 
 		lnkExpand_click: function (pEvent) {
 			pEvent.preventDefault();
-			p.stopPropagation();
+			pEvent.stopPropagation();
 			this.expandCollapse(true);
 		},
 
 		lnkCollapse_click: function (pEvent) {
 			pEvent.preventDefault();
-			p.stopPropagation();
+			pEvent.stopPropagation();
 			this.expandCollapse(false);
 		},
 

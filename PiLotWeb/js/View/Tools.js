@@ -1272,11 +1272,10 @@ PiLot.View.Tools = (function () {
 
 		/** 
 		 * Reads the categories json, and loads the local categories. Makes sure that for each
-		 * category in the json, there is a local category with the same name. This nees to be
-		 * done, because we don't import categories, but local categories could have different 
-		 * ids (but the same names) as the categories for the imported pois. Fills the maps
-		 * sourcePoiCategories and localPoiCategories with k=name, v=feature.
-		 * @returns {Boolean} - true, if categories could be parsed an match the existing categories
+		 * category in the json, there is a local category with the same name. Missing categories
+		 * will be imported (but without creating the parent-child relationships). Fills the maps 
+		 * sourcePoiCategories and localPoiCategories with k=name, v=category.
+		 * @returns {Boolean} - true, if categories could be parsed an missing categories imported.
 		 * */
 		loadCategoriesAsync: async function () {
 			let result;
@@ -1301,8 +1300,11 @@ PiLot.View.Tools = (function () {
 					}
 					for (const [categoryId, category] of this.sourcePoiCategories) {
 						if (!this.localPoiCategories.has(category.getName())) {
-							this.writeOutput(`Did not find a matching local category with name: ${category.getName()}`);
-							result = false;
+							this.writeOutput(`Category is missing: ${category.getName()}`);
+							category.setId(null);
+							await category.saveAsync();
+							this.localPoiCategories.set(category.getName(), category);
+							this.writeOutput(`Category imported: ${category.getName()}`);
 						}
 					}
 				}
@@ -1317,12 +1319,10 @@ PiLot.View.Tools = (function () {
 		},
 
 		/** 
-		 * Reads the features json, and loads the local features. Makes sure that for each 
-		 * features in the json, there is a local feature with the same name. This nees to 
-		 * be done, because we don't import features, but local features could have different 
-		 * ids (but the same names) as the features for the imported pois. Fills the maps 
-		 * sourcePoiFeatures and localPoiFeatures with k=name, v=feature.
-		 * @returns {Boolean} - true, if the features could be parsed an match the existing features
+		 * Reads the features json, and loads the local features. Makes sure that for each features 
+		 * in the json, there is a local feature with the same name. Missing features will be
+		 * imported. Fills the maps  sourcePoiFeatures and localPoiFeatures with k=name, v=feature.
+		 * @returns {Boolean} - true, if the features could be parsed an missing features imported
 		 * */
 		loadFeaturesAsync: async function () {
 			let result;
@@ -1347,8 +1347,11 @@ PiLot.View.Tools = (function () {
 					}
 					for (const [featureId, feature] of this.sourcePoiFeatures) {
 						if (!this.localPoiFeatures.has(feature.getName())) {
-							this.writeOutput(`Did not find a matching local feature with name: ${feature.getName()}`);
-							result = false;
+							this.writeOutput(`Feature is missing: ${feature.getName()}`);
+							feature.setId(null);
+							await feature.saveAsync();
+							this.localPoiFeatures.set(feature.getName(), feature);
+							this.writeOutput(`Feature imported: ${feature.getName()}`);
 						}
 					}
 				}
