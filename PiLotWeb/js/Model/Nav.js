@@ -561,6 +561,10 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
+		hasChildren: function () {
+			return this.children.length > 0;
+		},
+
 		getChildren: function () {
 			return this.children;
 		},

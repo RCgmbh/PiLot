@@ -49,7 +49,9 @@ PiLot.Templates.Map = {
 	poiCategoryCheckbox: `
 		<div class="flex">
 			<span class="divIndent col1 inlineBlock"></span>
-			<label class="marginRight inlineBlock flex"><input type="checkbox" class="cbCategory" /><span class="lblCategory"></span></label>
+			<label class="marginRightSmall inlineBlock flex"><input type="checkbox" class="cbCategory" /><span class="lblCategory"></span></label>
+			<a href="#" class="lnkExpand" hidden><i class="icon-expand_more biggerText"></i></a>
+			<a href="#" class="lnkCollapse" hidden><i class="icon-expand_less biggerText"></i></a>
 		</div>`,
 
 	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,

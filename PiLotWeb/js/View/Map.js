@@ -457,7 +457,7 @@ PiLot.View.Map = (function () {
 		this.showPois = false;				// Boolean, if false, no pois at all will be shown
 		this.categoryIds = null;			// number[] holding the ids of the categories to show
 		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
-		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, selectedChildren: number};
+		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, control: HTMLElement, selectedChildren: number};
 		this.featureIds = null;				// number[] holding the ids of the features to filter by
 		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
@@ -508,6 +508,24 @@ PiLot.View.Map = (function () {
 		cbCategory_change: function (pCategory, e) {
 			this.setCategorySelected(pCategory, e.target.checked);
 			this.updateRelatedCheckboxes(pCategory, e.target.checked, true, true);
+		},
+
+		lnkExpand_click: function (pCategory, pControl, pEvent) {
+			pEvent.preventDefault();
+			for (const [category, objCheckbox] of this.categoryCheckboxes) {
+				objCheckbox.control.hidden = objCheckbox.control.hidden && category.getParent() !== pCategory;
+			}
+			pControl.querySelector('.lnkCollapse').hidden = false;
+			pControl.querySelector('.lnkExpand').hidden = true;
+		},
+
+		lnkCollapse_click: function (pCategory, pControl, pEvent) {
+			pEvent.preventDefault();
+			for (const [category, objCheckbox] of this.categoryCheckboxes) {
+				objCheckbox.control.hidden = objCheckbox.control.hidden || category.getParent() === pCategory;
+			}
+			pControl.querySelector('.lnkCollapse').hidden = true;
+			pControl.querySelector('.lnkExpand').hidden = false;
 		},
 
 		btnApply_click: function (e) {
@@ -577,6 +595,7 @@ PiLot.View.Map = (function () {
 			for (let i = 0; i < sortedList.length; i++) {
 				const category = sortedList[i].category;
 				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.poiCategoryCheckbox);
+				cbControl.hidden = category.getLevel() > 0;
 				const divIndent = cbControl.querySelector('.divIndent');
 				const level = category.getLevel();
 				if (level === 0) {
@@ -587,7 +606,7 @@ PiLot.View.Map = (function () {
 					}
 				}
 				const cbCategory = cbControl.querySelector('.cbCategory');
-				this.categoryCheckboxes.set(category, { checkbox: cbCategory, selectedChildren: 0 });
+				this.categoryCheckboxes.set(category, { checkbox: cbCategory, control: cbControl, selectedChildren: 0 });
 				const isSelected = this.categoryIds.includes(category.getId());
 				cbCategory.checked = isSelected;
 				if (isSelected && category.getParent()) {
@@ -595,6 +614,13 @@ PiLot.View.Map = (function () {
 				}
 				cbCategory.addEventListener('change', this.cbCategory_change.bind(this, category));
 				cbControl.querySelector('.lblCategory').innerText = sortedList[i].title;
+				if (category.hasChildren()) {
+					const lnkExpand = cbControl.querySelector('.lnkExpand');
+					lnkExpand.hidden = false;
+					lnkExpand.addEventListener('click', this.lnkExpand_click.bind(this, category, cbControl));
+					const lnkCollapse = cbControl.querySelector('.lnkCollapse');
+					lnkCollapse.addEventListener('click', this.lnkCollapse_click.bind(this, category, cbControl));
+				} 
 				plhCategories.appendChild(cbControl);
 				this.updateRelatedCheckboxes(category, isSelected, true, false);
 			}
