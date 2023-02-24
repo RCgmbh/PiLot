@@ -64,9 +64,42 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-call_merge:before { content: "\ebf3"; }
+.icon-call_missed:before { content: "\ebf4"; }
+.icon-call_split:before { content: "\ebf5"; }
+.icon-import_export:before { content: "\ebf6"; }
+.icon-call_missed_outgoing:before { content: "\ebf7"; }
+.icon-navigate_before:before { content: "\ebf8"; }
+.icon-navigate_next:before { content: "\ebf9"; }
+.icon-directions_bike:before { content: "\ec10"; }
+.icon-directions_bus:before { content: "\ec11"; }
+.icon-directions_car:before { content: "\ebfc"; }
+.icon-directions_ferry:before { content: "\ebfd"; }
+.icon-directions_subway:before { content: "\ebfe"; }
+.icon-expand_less:before { content: "\ec12"; }
+.icon-expand_more:before { content: "\ec13"; }
+.icon-arrow_left:before { content: "\ebff"; }
+.icon-arrow_right:before { content: "\ec00"; }
+.icon-compress:before { content: "\ec14"; }
+.icon-expand2:before { content: "\ec15"; }
+.icon-bathtub:before { content: "\ec01"; }
+.icon-electrical_services:before { content: "\ec02"; }
 .icon-wifi-low:before { content: "\ebf0"; }
 .icon-wifi-mid:before { content: "\ebf1"; }
 .icon-wifi-full:before { content: "\ebf2"; }
+.icon-flag2:before { content: "\ec03"; }
+.icon-flag3:before { content: "\ec04"; }
+.icon-clipboard-edit:before { content: "\ec05"; }
+.icon-document-download:before { content: "\ec06"; }
+.icon-document-upload:before { content: "\ec07"; }
+.icon-trophy1:before { content: "\ec08"; }
+.icon-trophy2:before { content: "\ec09"; }
+.icon-checkered-flag:before { content: "\ec0a"; }
+.icon-checkered-flag1:before { content: "\ec0b"; }
+.icon-compass5:before { content: "\ec0c"; }
+.icon-compass6:before { content: "\ec0d"; }
+.icon-wind-turbine:before { content: "\ec0e"; }
+.icon-wind-turbine1:before { content: "\ec0f"; }
 .icon-picture1:before { content: "\e00f"; }
 .icon-pictures1:before { content: "\e010"; }
 .icon-camera1:before { content: "\e012"; }
