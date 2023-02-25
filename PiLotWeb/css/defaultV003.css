@@ -190,7 +190,7 @@ textarea.big{height:20em;}
 .bold { font-weight:700; }
 .italic { font-style:italic; }
 .biggerText { font-size: 1.5em; line-height:1.25em; }
-.smallerText { font-size: 0.75em; line-height:0.8em; }
+.smallerText { font-size: 0.75em; line-height:1em; }
 .warning{color:#FF4949;}
 .bigDisplayText{font-size:2em; line-height:1.25em;}
 .biggerDisplayText{font-size:3em; line-height:1.25em; }

@@ -1,6 +1,6 @@
 ﻿.meteoChartContainer { width:100%; display: flex; flex-wrap: wrap; flex-direction: row; justify-content: center; }
 .meteoChartContainer > div { min-width:30em; max-width: 50em; padding:0 1em; flex-basis:0; flex-grow: 1; }
-.startPageMeteo > div { min-width:unset; width:100%; flex-basis:unset;}
+
 .divMinMax .divData, .divPressure .divData {
 	width: 100%; margin-top: 1em;
 	display: flex; flex-direction: row; flex-wrap:wrap;
@@ -14,8 +14,8 @@
 .divPressure .lblPressureTrend { font-size: 2em; }
 .divPressure .divPressureTrendIcons > span {font-size:2em; }
 
-.startPageMeteo { padding-left: 0.5em; }
 .startPageMeteo .divChart, .startPageMeteo .chartWait, .startPageMeteo .chartError { height: 12.5em; min-width: 15em; }
+.startPageMeteo > div { min-width:unset; width:100%; flex-basis:unset; padding: 0 0.25em;}
 
 .divChartContainer { display:grid; grid-template-rows:auto 3.25em 2em; grid-template-columns: 2.5em auto; }
 .divPressure .divChartContainer { grid-template-columns: 3.5em auto; }
