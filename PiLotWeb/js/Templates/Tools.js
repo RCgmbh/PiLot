@@ -228,11 +228,11 @@ PiLot.Templates.Tools = {
 			<h2><span data-text="importJson" class="marginBottomSmall"></span></h2>
 			<div class="pnlForm flexRowWrap marginBottom paddingTopSmall" hidden>
 				<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
-					<span class="semiBold">poiCategories</span>
+					<span class="semiBold" data-text="categories"></span>
 					<textarea rows="10" class="tbImportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
-					<span class="semiBold">poiFeatures</span>
+					<span class="semiBold" data-text="features"></span>
 					<textarea rows="10" class="tbImportFeatures fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
-					<span class="semiBold">pois</span>
+					<span class="semiBold" data-text="pois"></span>
 					<textarea rows="40" class="tbImportPois fullWidth smallerText marginBottomSmall" style="font-family:'Lucida Console', Courier; height: 40vh;"></textarea>
 					<div class="flexColumn marginBottomSmall">
 						<label class="semiBold" data-text="handleExistingPois"></label>
@@ -245,6 +245,21 @@ PiLot.Templates.Tools = {
 				<div class="paddingRight" style="min-width:16em; flex-basis:20em; flex-grow:1;">
 					<div class="plhOutput preWrap"></div>
 				</div>
+			</div>
+		</div>
+	`,
+
+	poisJsonExportForm: `
+		<div class="paddingTop ">
+			<h2><span data-text="export" class="marginBottomSmall"></span></h2>
+			<div class="pnlForm flexColumn marginBottom paddingTopSmall paddingRight" style="max-width:48em;" hidden>
+				<button class="btnExport input7 marginTop marginBottom" type="button" data-text="export"></button>
+				<span class="semiBold" data-text="categories"></span>
+				<textarea rows="10" class="tbExportCategories fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
+				<span class="semiBold" data-text="features"></span>
+				<textarea rows="10" class="tbExportFeatures fullWidth smallerText marginBottom" style="font-family:'Lucida Console', Courier; height: 10vh;"></textarea>
+				<span class="semiBold" data-text="pois"></span>
+				<textarea rows="40" class="tbExportPois fullWidth smallerText marginBottomSmall" style="font-family:'Lucida Console', Courier; height: 40vh;"></textarea>
 			</div>
 		</div>
 	`,

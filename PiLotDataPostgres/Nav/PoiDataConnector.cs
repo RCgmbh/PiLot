@@ -44,7 +44,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pMaxLon">Maximal lontitude, degrees WGS84</param>
 		/// <param name="pCategories">Array of category ids</param>
 		/// <param name="pFeatures">Array of feature ids</param>
-		/// <returns>List of Obect[] with id, title, category_id, feature_ids, lat, lon, valid from, valid to</returns>
+		/// <returns>List of Obect[] with id, title, category_id, feature_ids, lat, lon, valid from, valid to, source, sourceId</returns>
 		public List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures) {
 			Logger.Log("PoiDataConnector.FindPois", LogLevels.DEBUG);
 			String query = "SELECT * FROM find_pois(@min_lat, @min_lng, @max_lat, @max_lng, @categories, @features);";
@@ -210,31 +210,23 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Helper to create a Poi out of a db record
 		/// </summary>
 		private Poi ReadPoi(NpgsqlDataReader pReader) {
-			Int32[] featureIds = new Int32[0];
-			if (!pReader.IsDBNull("feature_ids")) {
-				featureIds = pReader.GetFieldValue<Int32[]>("feature_ids");
-			}
-			String description = null;
-			if (!pReader.IsDBNull("description")) {
-				description = pReader.GetString("description");
-			}
-			Object properties = null;
-			if (!pReader.IsDBNull("properties")) {
-				properties = pReader.GetValue("properties");
+			Int32[] featureIds = this.dbHelper.ReadNullableField<Int32[]>(pReader, "feature_ids");
+			if((featureIds == null) || ((featureIds.Length == 1) && featureIds[0] == 0)) {
+				featureIds = new Int32[0];
 			}
 			Poi result = new Poi() {
 				ID = pReader.GetInt64("id"),
 				Title = pReader.GetString("title"),
-				Description = description,
+				Description = this.dbHelper.ReadNullableField<String>(pReader, "description"),
 				CategoryID = pReader.GetInt32("category_id"),
 				FeatureIDs = featureIds,
-				Properties = properties,
+				Properties = this.dbHelper.ReadNullableField<Object>(pReader, "properties"),
 				Latitude = pReader.GetDouble("latitude"),
 				Longitude = pReader.GetDouble("longitude"),
 				ValidFrom = this.NullableDateTimeToUnix(pReader.GetValue("valid_from")),
 				ValidTo = this.NullableDateTimeToUnix(pReader.GetValue("valid_to")),
-				Source = pReader.GetString("source"),
-				SourceID = pReader.GetString("source_id")
+				Source = this.dbHelper.ReadNullableField<String>(pReader, "source"),
+				SourceID = this.dbHelper.ReadNullableField<String>(pReader, "source_id")
 			};
 			return result;
 		}

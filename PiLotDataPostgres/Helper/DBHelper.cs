@@ -111,6 +111,14 @@ namespace PiLot.Data.Postgres.Helper {
 			return result;
 		}
 
+		public T ReadNullableField<T>(NpgsqlDataReader pReader, String pFieldName) {
+			T result = default(T);
+			if (!pReader.IsDBNull(pFieldName)) {
+				result = pReader.GetFieldValue<T>(pFieldName);
+			}
+			return result;
+		}
+
 		/// <summary>
 		/// Helper to read a date from a db record, using just the first field
 		/// </summary>

@@ -647,6 +647,7 @@ PiLot.View.Tools = (function () {
 			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			new PoisOsmImportControl(pageContent);
 			new PoisJsonImportForm(pageContent);
+			new PoisJsonExportForm(pageContent);
 			new PoiCategoriesForm(pageContent);
 			new PoiFeaturesForm(pageContent);
 		}
@@ -1509,6 +1510,65 @@ PiLot.View.Tools = (function () {
 		 */
 		writeOutput: function (pMessage) {
 			this.plhOutput.innerText = `${this.plhOutput.innerText}\n${pMessage}`;
+		}
+
+	};
+
+	/**
+	 * A control which creates a json export for pois, categories and features.
+	 * The output can be used to import pois into another system.
+	 * @param {HTMLElement} pContainer - where the control will be inserted
+	 */
+	var PoisJsonExportForm = function (pContainer) {
+		this.container = pContainer;
+		this.poiService = null;				// PiLot.Service.Nav.PoiService
+		this.tbExportCategories = null;		// HTMLTextAreaElement
+		this.tbExportFeatures = null;		// HTMLTextAreaElement
+		this.tbExportPois = null;			// HTMLTextAreaElement
+
+		this.initialize();
+	};
+
+	PoisJsonExportForm.prototype = {
+
+		initialize: function () {
+			this.poiService = PiLot.Service.Nav.PoiService.getInstance();
+			this.draw();
+		},
+
+		btnExport_click: function () {
+			this.exportDataAsync();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisJsonExportForm);
+			this.container.appendChild(control);
+			new PiLot.View.Common.ExpandCollapse(control.querySelector('h2'), control.querySelector('.pnlForm'));
+			this.tbExportCategories = control.querySelector('.tbExportCategories');
+			this.tbExportFeatures = control.querySelector('.tbExportFeatures');
+			this.tbExportPois = control.querySelector('.tbExportPois');
+			control.querySelector('.btnExport').addEventListener('click', this.btnExport_click.bind(this));
+		},
+
+		exportDataAsync: async function () {
+			const allCategories = await this.poiService.getCategoriesAsync(true);
+			this.exportMap(allCategories, this.tbExportCategories);
+			const allFeatuers = await this.poiService.getFeaturesAsync(true);
+			this.exportMap(allFeatuers, this.tbExportFeatures);
+			const allPois = await this.poiService.loadRawPoisAsync();
+			this.exportArray(allPois, this.tbExportPois);
+		},
+
+		exportMap: function (pMap, pTextarea) {
+			const objectArray = [];
+			for (const element of pMap.values()) {
+				objectArray.push(element.toObject());
+			}
+			this.exportArray(objectArray, pTextarea);
+		},
+
+		exportArray: function (pArray, pTextarea) {
+			pTextarea.value = JSON.stringify(pArray, null, 2);
 		}
 
 	};

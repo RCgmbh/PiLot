@@ -585,15 +585,19 @@ PiLot.Model.Nav = (function () {
 
 		/** Saves the Category back to the server */
 		saveAsync: async function () {
-			const obj = {
+			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiCategoryAsync(this.toObject());
+			this.id = result.data;
+		},
+
+		/** @returns an easily serializable object with no references to other objects */
+		toObject: function () {
+			return {
 				id: this.id,
 				parentId: this.getParentId(),
 				name: this.name,
 				labels: this.labels,
 				icon: this.icon
 			};
-			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiCategoryAsync(obj);
-			this.id = result.data;
 		},
 
 		/** Tries to delete the category from the server */
@@ -662,13 +666,17 @@ PiLot.Model.Nav = (function () {
 
 		/** Saves the Feature back to the server */
 		saveAsync: async function () {
-			const obj = {
+			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiFeatureAsync(this.toObject());
+			this.id = result.data;
+		},
+
+		/** @returns an easily serializable object with no references to other objects */
+		toObject: function () {
+			return {
 				id: this.id,
 				name: this.name,
 				labels: this.labels
 			};
-			const result = await PiLot.Service.Nav.PoiService.getInstance().savePoiFeatureAsync(obj);
-			this.id = result.data;
 		},
 
 		/** Tries to delete the feature from the server */

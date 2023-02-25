@@ -29,8 +29,8 @@ PiLot.Service.Nav = (function () {
 			const result = [];
 			const categories = pCategories.join(',');
 			const features = pFeatures.join(',');
-			await this.ensureCategoriesLoadedAsync();
 			const url = `/Pois?minLat=${pMinLat}&minLon=${pMinLon}&maxLat=${pMaxLat}&maxLon=${pMaxLon}&categories=${categories}&features=${features}`;
+			await this.ensureCategoriesLoadedAsync();
 			const json = await PiLot.Utils.Common.getFromServerAsync(url);
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
@@ -45,6 +45,14 @@ PiLot.Service.Nav = (function () {
 			}
 			this.poisCache = result;
 			return result;
+		},
+
+		/**
+		 * Loads all pois, but only as raw objects! This is used for the export feature only!
+		 * @returns {Object[]} an array of raw objects, not Pois
+		 * */
+		loadRawPoisAsync: async function () {
+			return await PiLot.Utils.Common.getFromServerAsync('/Pois/all');
 		},
 
 		/**
@@ -135,13 +143,16 @@ PiLot.Service.Nav = (function () {
 						pData[8],
 						pData[9]
 					);
+					if (pData.length > 10) {
+						result.setDescription(pData[10]);
+						result.setProperties(pData[11]);
+					}
 				} else {
 					PiLot.log('Did not get an array for Poi.fromArray.', 0);
 				}
 			}
 			return result;
 		},
-
 
 		/** 
 		 * Gets the cached map of all categories
