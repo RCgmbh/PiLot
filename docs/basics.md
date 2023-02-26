@@ -5,7 +5,7 @@ In this step you install the operating system, and do some basic configuration.
 ### Prepare the SD card
 Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Be aware that writing the image to your SD card will overwrite all data, so make sure there is nothing precious there.
 
-Once finished writing, keep the card connected to your computer. If you don't see the card in your file explorer or if it appears empty, unplug it and plug it in again, it will usually be displayed as a drive called "boot". Create those two files directly in the root directory:
+Once finished writing, keep the card connected to your computer. If you don't see the card in your file explorer or if it appears empty, unplug it and plug it in again, it will usually be displayed as a drive called "bootfs". Create those two files directly in the root directory:
 1. Create an empty text file called just "SSH" (no extension, no content). This will allow you to connect to your PiLot by ssh.
 2. If you have a second Wi-Fi adapter on your raspi (the first one is the built-in), you should allow the PiLot to connect to your Wi-Fi. Create a text file called "wpa_supplicant.conf", and using a text editor, insert this content (you can skip this, if you use a cable to connect the raspi to your network):
 ```
