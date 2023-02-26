@@ -3,36 +3,17 @@
 In this step you install the operating system, and do some basic configuration.
 
 ### Prepare the SD card
-Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Be aware that writing the image to your SD card will overwrite all data, so make sure there is nothing precious there.
+Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Before writing the image, click the "cog" icon in the lower right. Enter a reasonable name for your PiLot (we will user "pilot" in this tutorial), and enable ssh with password authentication. Keep the username "pi", and enter a password for the user. Also configure the wireless LAN you will use to access your PiLot, if you don't connect it to the ethernet using a cable. Finally, set the timezone to Etc/UTC. 
 
-Once finished writing, keep the card connected to your computer. If you don't see the card in your file explorer or if it appears empty, unplug it and plug it in again, it will usually be displayed as a drive called "bootfs". Create those two files directly in the root directory:
-1. Create an empty text file called just "SSH" (no extension, no content). This will allow you to connect to your PiLot by ssh.
-2. If you have a second Wi-Fi adapter on your raspi (the first one is the built-in), you should allow the PiLot to connect to your Wi-Fi. Create a text file called "wpa_supplicant.conf", and using a text editor, insert this content (you can skip this, if you use a cable to connect the raspi to your network):
-```
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-update_config=1
-country=CH
+Be aware that writing the image to your SD card will overwrite all data, so make sure there is nothing precious there.
 
-network={
-       ssid="network_name"
-       scan_ssid=1
-       psk="password"
-}
-```
-For the country, set your country's 2 letter ISO code. Replace network_name by the name of your Wi-Fi, and password by your Wi-Fi password, then save the file. Now you can safely remove the SD card and insert it into your Raspberry Pi. If you want to access your PiLot over ethernet, connect it to your local netork. Now power it on.
+Once finished writing, remove the SD card and insert it into your Raspberry Pi. If you want to access your PiLot over ethernet, connect it to your local netork. Now power it on.
 
 ### Connect to your Raspberry Pi
-After a minute or so, connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@raspberrypi`. You might have to confirm by typing "yes", then enter the password "raspberry". You should now see `pi@raspberrypi:~ $`. Feel good, as you just brought life to your tiny computer. Now the first thing is to change the default password of the user "pi" to something that Google doesn't know. Type `passwd` and follow the instructions.
+After a minute or so, connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@pilot` (replace "pilot" by the hostname you defined before). You might have to confirm by typing "yes", then enter the password you set before. You should now see `pi@pilot:~ $`. Feel good, as you just brought life to your tiny computer. 
 
 ### Update your System
 In order to bring your system up to date, run `sudo apt update` which will look for the latest versions of the installed software packages, then run `sudo apt upgrade -y` which will actually install the latest versions. This might take a while, so go get a coffee, as there is some more work waiting.
-
-### Change the Hostname and Timezone
-To make things between you and your raspi a bit more personal, run `sudo raspi-config`, and in **1 System Options** > **S4 Hostname** enter a new hostname, if you don't want your PiLot to be just another "raspberrypi". If you plan to have multiple PiLots, give them all different hostnames.
-
-I would also suggest you set the timezone to UTC. The PiLot will offer to set the correct timezone ad hoc, which is useful if you cross timezones frequently. To avoid confusion, the timezone of the device should be UTC. You can select it under **5 Localization Options** > **L2 Timezone**.
-
-When asked to reboot, select "yes", so that your changes can take effect. After a minute, try to reconnect, still using the user "pi", but with the new hostname, e.g. ssh pi@pilot. And of course enter the newly set password.
 
 ### Download the Install Scripts
 For the next steps, there are a few scripts available to make things easier. So please dowload the archive with all scripts and the actual pilot application before you continue, using these two commands, the first to download and the second to extract the installation package.
