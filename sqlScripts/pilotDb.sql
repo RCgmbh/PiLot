@@ -7,7 +7,6 @@ CREATE DATABASE pilot
     CONNECTION LIMIT = -1
     IS_TEMPLATE = False;
 
-/* todo: change db! */
+\c pilot
 CREATE EXTENSION postgis;
-
 CREATE USER pilotweb WITH PASSWORD 'sailor';

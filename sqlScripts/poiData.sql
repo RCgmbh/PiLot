@@ -13,23 +13,26 @@ DELETE FROM poi_features;
 DELETE FROM poi_categories;
 
 /* INSERT CATEGORIES */
+SELECT insert_poi_category (null, 'hint', '{"de": "Hinweis", "en": "Hint"}', 'css:icon-info2');
+SELECT insert_poi_category (null, 'stay', '{"de": "Aufenthalt", "en": "Stay"}', 'css:icon-moon');
+SELECT insert_poi_category (null, 'obstacle', '{"de": "Hindernis", "en": "Obstacle"}', 'css:icon-warning2');
+SELECT insert_poi_category (null, 'supply', '{"de": "Versorgung", "en": "Supply"}', 'css:icon-shipping');
+SELECT insert_poi_category (null, 'measuringstation', '{"de": "Messstation", "en": "Measuring station"}', 'css:icon-meter2');
+SELECT insert_poi_category (null, 'pleasure', '{"de": "Freude", "en": "Pleasure"}', 'css:icon-heart');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'sight', '{"de": "Sehenswürdigkeit", "en": "Sight"}', 'css:icon-eye');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'toilet', '{"de": "Toilette", "en": "Toilet"}', 'css:icon-man-woman');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'marina', '{"de": "Marina", "en": "Marina"}', 'svg:marina.svg');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'mooring', '{"de": "Anlegestelle", "en": "Mooring"}', 'svg:mooring.svg');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'nicePlace', '{"de": "Schönes Plätzchen", "en": "Nice Place"}', 'css:icon-sun');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'bridge', '{"de": "Brücke", "en": "Bridge"}', 'svg:bridge.svg');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='supply'), 'gazstation', '{"de": "Tankstelle", "en": "Gaz station"}', 'svg:gazstation.svg');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='supply'), 'health', '{"de": "Gesundheit", "en": "Health"}', 'css:icon-health');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'impediment', '{"de": "Einschränkung", "en": "Impediment"}', 'css:icon-power');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'lock', '{"de": "Schleuse", "en": "Lock"}', 'svg:lock.svg');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='supply'), 'restaurant', '{"de": "Restaurant", "en": "Restaurant"}', 'css:icon-spoon-knife');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='shop'), 'shop', '{"de": "Geschäft", "en": "Shop"}', 'css:icon-cart');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'anchorage', '{"de": "Ankerstelle", "en": "Anchorage"}', 'css:icon-anchor');
 
-SELECT insert_poi_category(null, 'event', '{"de": "Ereignis", "en": "Event"}', 'css:icon-pin');
-SELECT insert_poi_category(null, 'object', '{"de": "Objekt", "en": "Object"}', 'css:icon-location');
-SELECT insert_poi_category(null, 'information', '{"de": "Information", "en": "Information"}', 'css:icon-info2');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'health', '{"de": "Gesundheit", "en": "Health"}', 'css:icon-health');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'lock', '{"de": "Schleuse", "en": "Lock"}', 'svg:lock.svg');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'marina', '{"de": "Marina", "en": "Marina"}', 'svg:marina.svg');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'gazstation', '{"de": "Tankstelle", "en": "Gaz station"}', 'svg:gazstation.svg');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'mooring', '{"de": "Anlegestelle", "en": "Mooring"}', 'svg:mooring.svg');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'anchorage', '{"de": "Ankerstelle", "en": "Anchorage"}', 'css:icon-anchor');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'toilet', '{"de": "Toilette", "en": "Toilet"}', 'css:icon-man-woman');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'restaurant', '{"de": "Restaurant", "en": "Restaurant"}', 'css:icon-spoon-knife');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'shop', '{"de": "Geschäft", "en": "Shop"}', 'css:icon-cart');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'obstacle', '{"de": "Hindernis", "en": "Obstacle"}', 'css:icon-warning2');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'measuringstation', '{"de": "Messstation", "en": "Measuring station"}', 'css:icon-meter2');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'sight', '{"de": "Sehenswürdigkeit", "en": "Sight"}', 'css:icon-eye');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='object'), 'nicePlace', '{"de": "Schönes Plätzchen", "en": "Nice place"}', 'css:icon-sun');
 
 
 /* INSERT FEATURES */

@@ -76,7 +76,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 	ProjectSection(SolutionItems) = preProject
 		installScripts\00-install-samba.sh = installScripts\00-install-samba.sh
 		installScripts\01-install-ap.sh = installScripts\01-install-ap.sh
-		installScripts\02-install-netcore.sh = installScripts\02-install-netcore.sh
+		installScripts\02-install-platform.sh = installScripts\02-install-platform.sh
 		installScripts\03-install-pilotweb.sh = installScripts\03-install-pilotweb.sh
 		installScripts\04-install-gps-1.sh = installScripts\04-install-gps-1.sh
 		installScripts\05-install-gps-2.sh = installScripts\05-install-gps-2.sh
@@ -119,6 +119,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDemoDataSender", "PiLotDemoDataSender\PiLotDemoDataSender.csproj", "{74031253-0084-4FD8-BBF4-15E5E26FF65C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sqlScripts", "sqlScripts", "{54DC7590-ECE2-4214-8EF5-741B548B9E9C}"
+	ProjectSection(SolutionItems) = preProject
+		sqlScripts\pilotDb.sql = sqlScripts\pilotDb.sql
+		sqlScripts\poi.sql = sqlScripts\poi.sql
+		sqlScripts\poiData.sql = sqlScripts\poiData.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{F2617496-F4C9-4007-9CBB-F57DFECD823E}"
 	ProjectSection(SolutionItems) = preProject
 		sqlScripts\pilotDb.sql = sqlScripts\pilotDb.sql
 		sqlScripts\poi.sql = sqlScripts\poi.sql
@@ -205,6 +212,7 @@ Global
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{1125EB22-4B62-4888-BD40-64C09E1A0F88} = {746AFF13-8152-4EE2-99D7-C5B8D0ED0207}
+		{F2617496-F4C9-4007-9CBB-F57DFECD823E} = {1125EB22-4B62-4888-BD40-64C09E1A0F88}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DFF59E6D-1CB2-45D7-9337-DF815740F907}

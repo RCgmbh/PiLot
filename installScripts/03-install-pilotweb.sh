@@ -12,10 +12,11 @@ mkdir -p /opt/pilotapi			#PiLot binaries
 mkdir -p /etc/pilot				#PiLot config directory
 
 # set up DB
-# su postgres
-# psql -d pilot -f /home/pi/repos/PiLot/sqlScripts/poi.sql
-# psql -d pilot -f /home/pi/repos/PiLot/sqlScripts/poiData.sql
-# exit
+su postgres
+psql -d pilot -f /home/pi/pilotinstall/resources/sql/pilotDb.sql
+psql -d pilot -f /home/pi/pilotinstall/resources/sql/poi.sql
+psql -d pilot -f /home/pi/pilotinstall/resources/sql/poiData.sql
+exit
 
 # set up API
 cp -r resources/pilotapi/* /opt/pilotapi/
