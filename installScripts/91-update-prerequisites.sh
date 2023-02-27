@@ -12,7 +12,7 @@ if [ `whoami` != root ]; then
     exit
 fi
 
-mkdir /home/pi/pilot/repos
+mkdir -p /home/pi/pilot/repos
 cd /home/pi/pilot/repos
 apt update
 apt -y upgrade

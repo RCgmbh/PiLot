@@ -367,16 +367,14 @@ PiLot.View.Admin = (function () {
 
 	/** The page showing the list of available wireless networks and allowing to connect to them */
 	var WiFiPage = function () {
-
 		this.wifiHelper = null;
-
+		this.ddlInterface = null;
 		this.icoWait = null;
 		this.lnkRefresh = null;
 		this.plhNetworks = null;
 		this.pnlNetworkKey = null;
 		this.pnlOutput = null;
 		this.initializeAsync();
-
 	};
 
 	WiFiPage.prototype = {
@@ -386,11 +384,15 @@ PiLot.View.Admin = (function () {
 			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			await this.drawAsync();
-			this.loadNetworksAsync();
+			this.loadInterfacesAsync();
 		},
 
 		authHelper_login: function () {
 			this.loadNetworksAsync();
+		},
+
+		ddlInterface_change: function () {
+			this.selectInterfaceAsync(this.ddlInterface.value);
 		},
 
 		lnkRefresh_click: function(){
@@ -449,6 +451,8 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiPage));
+			this.ddlInterface = contentArea.querySelector('.ddlInterface');
+			this.ddlInterface.addEventListener('change', this.ddlInterface_change.bind(this));
 			this.lnkRefresh = contentArea.querySelector('.lnkRefresh');
 			this.lnkRefresh.addEventListener('click', this.lnkRefresh_click.bind(this));
 			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
@@ -459,6 +463,21 @@ PiLot.View.Admin = (function () {
 			this.pnlNetworkKey.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			this.pnlOutput = contentArea.querySelector('.pnlOutput');
 			contentArea.querySelector('.lnkStatus').addEventListener('click', this.lnkStatus_click.bind(this));
+		},
+
+		loadInterfacesAsync: async function () {
+			const interfaces = await this.wifiHelper.getInterfacesAsync();
+			for (const interface of interfaces) {
+				RC.Utils.addOption(this.ddlInterface, interface, interface);
+			}
+			if (interfaces.length > 0) {
+				await this.selectInterfaceAsync(interfaces[0]);
+			}
+		},
+
+		selectInterfaceAsync: async function (pInterface) {
+			await this.wifiHelper.selectInterfaceAsync(pInterface);
+			await this.loadNetworksAsync();
 		},
 
 		loadNetworksAsync: async function () {

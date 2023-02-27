@@ -44,11 +44,28 @@ PiLot.Model.Admin = (function () {
 	WiFiHelper.prototype = {
 
 		/**
+		 * Gets the list of known available interfaces
+		 * @return {String[]}
+		 * */
+		getInterfacesAsync: async function () {
+			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces');
+			//return ['p2p-dev-wlxOnbo', 'wlxOnboardWiFi'];
+		},
+
+		/**
+		 * Selects the interface to use
+		 * @param {String} pName - the name of the interface
+		 */
+		selectInterfaceAsync: async function (pName) {
+			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${pName}/select`);
+		},
+
+		/**
 		 * Gets the list of known or available wireless networks 
 		 * @return {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
 		getWiFiInfosAsync:  async function () {
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi');
+			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/networks');
 			/*return JSON.parse(`
 				[
 					{"ssid":"nda-85236","isKnown":true,"isAvailable":true,"number":0,"isConnected":true,"signalStrength":-47},
@@ -70,7 +87,7 @@ PiLot.Model.Admin = (function () {
 		 */
 		addWiFiAsync: async function (pName, pKey) {
 			const pars = { ssid: pName, passphrase: pKey };
-			return await PiLot.Utils.Common.postToServerAsync('/WiFi', pars);
+			return await PiLot.Utils.Common.postToServerAsync('/WiFi/networks', pars);
 		},
 
 		/**
@@ -78,7 +95,7 @@ PiLot.Model.Admin = (function () {
 		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
 		 */
 		selectWiFiAsync: async function (pNumber) {
-			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/${pNumber}/select`);
+			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/networks/${pNumber}/select`);
 		},
 
 		/**
@@ -86,7 +103,7 @@ PiLot.Model.Admin = (function () {
 		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
 		 */
 		forgetWiFiAsync: async function (pNumber) {
-			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/${pNumber}`);
+			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/networks/${pNumber}`);
 		},
 		
 		/**

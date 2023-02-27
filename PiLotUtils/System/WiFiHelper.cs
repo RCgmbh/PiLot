@@ -8,7 +8,8 @@ namespace PiLot.Utils.OS {
 
 	/// <summary>
 	/// Helper for interacting with wpa_cli, allowing to list and connect to 
-	/// wireless networks.
+	/// wireless networks. This is very much coupled with the actual output
+	/// of wpa_cli, so it will probably need some fine tuning every now and then.
 	/// </summary>
 	public class WiFiHelper {
 
@@ -18,10 +19,36 @@ namespace PiLot.Utils.OS {
             this.systemHelper = new SystemHelper();
         }
 
-        /// <summary>
-        /// Return the list of all networks, those available and those
-        /// known but currently not available
-        /// </summary>
+		/// <summary>
+		/// Returns the list of available interfaces
+		/// </summary>
+		/// <returns>List of Strings, can be empty</returns>
+		public List<String> GetInterfaces() {
+			List<String> result = new List<String>();
+			String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli interface");
+			String[] lines = cmdResult.Split("\n".ToCharArray());
+			if(lines.Length > 2) {
+				for(Int32 i = 2; i < lines.Length; i++) {
+					result.Add(lines[i]);
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Selects the interface to use
+		/// </summary>
+		/// <param name="pInterfaceName">The name of the interface, e.g. wlxOnboardWiFi</param>
+		/// <returns>The result of the command</returns>
+		public String SelectInterface(String pInterfaceName) {
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli interface {pInterfaceName}");
+			return cmdResult;
+		}
+
+		/// <summary>
+		/// Return the list of all networks, those available and those
+		/// known but currently not available
+		/// </summary>
 		public async Task<List<WiFiInfo>> GetNetworksAsync(){
 			List<WiFiInfo> result = this.ReadKnownNetworks();
             result = await this.SearchNetworksAsync(5, result);

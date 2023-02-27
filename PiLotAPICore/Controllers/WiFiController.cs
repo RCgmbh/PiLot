@@ -16,9 +16,19 @@ namespace PiLot.API.Controllers {
 	public class WiFiController : ControllerBase {
 
 		/// <summary>
+		/// Gets a list of the available interfaces.
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/interfaces")]
+		[HttpGet]
+		[ServiceFilter(typeof(SystemAuthorizationFilter))]
+		public List<String> GetInterfaces() {
+			return new WiFiHelper().GetInterfaces();
+		}
+
+		/// <summary>
 		/// Gets a list of all known and of all currently available networks.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]")]
+		[Route(Program.APIROOT + "[controller]/networks")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public async Task<List<WiFiInfo>> GetNetworks() {
@@ -36,10 +46,19 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Selects an interface to use
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/interfaces/{name}/select")]
+		[HttpPut]
+		public String SelectInterface(String name) {
+			return new WiFiHelper().SelectInterface(name);
+		}
+
+		/// <summary>
 		/// Connects to the network with number. The number is taken
 		/// from the result of GetNetworks().
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/{number}/select")]
+		[Route(Program.APIROOT + "[controller]/networks/{number}/select")]
 		[HttpPut]
 		public String SelectNetwork(Int32 number){
 			return new WiFiHelper().SelectNetwork(number);
@@ -48,7 +67,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Adds a new network defined by ssid and passphrase.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]")]
+		[Route(Program.APIROOT + "[controller]/networks")]
 		[HttpPost]
 		public String AddNetwork(AddNetworkData pData){
 			return new WiFiHelper().AddNetwork(pData.SSID, pData.Passphrase);
@@ -57,7 +76,7 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Deletes a specific network.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/{number}")]
+		[Route(Program.APIROOT + "[controller]/networks/{number}")]
 		[HttpDelete]
 		public String DeleteNetwork(Int32 number){
 			return new WiFiHelper().RemoveNetwork(number);
@@ -65,19 +84,19 @@ namespace PiLot.API.Controllers {
 
 		/// Get methods, mainly for testing or manual url based usage
 		
-		[Route(Program.APIROOT + "[controller]/{number}/select")]
+		[Route(Program.APIROOT + "[controller]/networks/{number}/select")]
 		[HttpGet]
 		public String GetSelectNetwork(Int32 number){
 			return new WiFiHelper().SelectNetwork(number);
 		}
 
-		[Route(Program.APIROOT + "[controller]/add")]
+		[Route(Program.APIROOT + "[controller]/networks/add")]
 		[HttpGet]
 		public String GetAddNetwork(String ssid, String passphrase){
 			return new WiFiHelper().AddNetwork(ssid, passphrase);
 		}
 
-		[Route(Program.APIROOT + "[controller]/{number}/delete")]
+		[Route(Program.APIROOT + "[controller]/networks/{number}/delete")]
 		[HttpGet]
 		public String GetDeleteNetwork(Int32 number){
 			return new WiFiHelper().RemoveNetwork(number);
