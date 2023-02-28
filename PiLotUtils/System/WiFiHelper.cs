@@ -49,9 +49,14 @@ namespace PiLot.Utils.OS {
         /// </summary>
         public String AddNetwork(String pInterface, String pSSID, String pPassphrase){
             List<String> cmdResults = new List<String>();
-            Int32 networkNumber;
             String[] addResult = this.GetLines(this.systemHelper.CallCommand("sudo", $"wpa_cli add_network -i {pInterface}"));
-            if( (addResult.Length > 1) && Int32.TryParse(addResult[1] , out networkNumber)){
+			Int32 networkNumber = -1;
+			for(Int32 i = 0; i < addResult.Length; i++) {
+				if(Int32.TryParse(addResult[i], out networkNumber)){
+					break;
+				}
+			}
+			if (networkNumber > -1){
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\" -i {pInterface}"));
                 String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\" -i {pInterface}"));
