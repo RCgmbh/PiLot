@@ -51,8 +51,8 @@ namespace PiLot.Utils.OS {
             List<String> cmdResults = new List<String>();
             String[] addResult = this.GetLines(this.systemHelper.CallCommand("sudo", $"wpa_cli add_network -i {pInterface}"));
 			Int32 networkNumber = -1;
-			for(Int32 i = 0; i < addResult.Length; i++) {
-				if(Int32.TryParse(addResult[i], out networkNumber)){
+			foreach(String aResult in addResult) {
+				if(Int32.TryParse(aResult, out networkNumber)){
 					break;
 				}
 			}
