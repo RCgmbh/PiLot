@@ -59,14 +59,6 @@ PiLot.Model.Admin = (function () {
 		},
 
 		/**
-		 * Selects the interface to use
-		 * @param {String} pName - the name of the interface
-		 */
-		/*selectInterfaceAsync: async function (pName) {
-			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${pName}/select`);
-		},*/
-
-		/**
 		 * Gets the list of known or available wireless networks 
 		 * @return {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
@@ -93,7 +85,7 @@ PiLot.Model.Admin = (function () {
 		 */
 		addWiFiAsync: async function (pName, pKey) {
 			const pars = { ssid: pName, passphrase: pKey };
-			return await PiLot.Utils.Common.postToServerAsync('/WiFi/interfaces/${this.interface}/networks', pars);
+			return await PiLot.Utils.Common.postToServerAsync(`/WiFi/interfaces/${this.interface}/networks`, pars);
 		},
 
 		/**
@@ -116,15 +108,11 @@ PiLot.Model.Admin = (function () {
 		 * Gets some status information
 		 * */
 		getWiFiStatus: async function(){
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces/${this.interface}/status');
+			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/status`);
 		}
 
 	};
-
 	
-
-
-
 	return {
 		LogFilesLoader: LogFilesLoader,
 		setServerTime: setServerTime,

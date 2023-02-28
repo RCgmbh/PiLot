@@ -26,24 +26,12 @@ namespace PiLot.Utils.OS {
 		public List<String> GetInterfaces() {
 			List<String> result = new List<String>();
 			String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli interface");
-			String[] lines = cmdResult.Split("\n".ToCharArray());
+			String[] lines = this.GetLines(cmdResult);
 			for(Int32 i = 2; i < lines.Length; i++) {
-				if (!String.IsNullOrEmpty(lines[i])) {
-					result.Add(lines[i]);
-				}
+				result.Add(lines[i]);
 			}
 			return result;
 		}
-
-		/// <summary>
-		/// Selects the interface to use
-		/// </summary>
-		/// <param name="pInterfaceName">The name of the interface, e.g. wlxOnboardWiFi</param>
-		/// <returns>The result of the command</returns>
-		/*public String SelectInterface(String pInterfaceName) {
-			String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli interface {pInterfaceName}");
-			return cmdResult;
-		}*/
 
 		/// <summary>
 		/// Return the list of all networks, those available and those
@@ -62,7 +50,7 @@ namespace PiLot.Utils.OS {
         public String AddNetwork(String pInterface, String pSSID, String pPassphrase){
             List<String> cmdResults = new List<String>();
             Int32 networkNumber;
-            String[] addResult = this.systemHelper.CallCommand("sudo", $"wpa_cli add_network -i {pInterface}").Split("\n".ToCharArray());
+            String[] addResult = this.GetLines(this.systemHelper.CallCommand("sudo", $"wpa_cli add_network -i {pInterface}"));
             if( (addResult.Length > 1) && Int32.TryParse(addResult[1] , out networkNumber)){
                 cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\" -i {pInterface}"));
                 String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
@@ -71,7 +59,7 @@ namespace PiLot.Utils.OS {
 				cmdResults.Add($"Select network: {this.SelectNetwork(pInterface, networkNumber)};");
 				cmdResults.Add($"Save config: {this.SaveConfig(pInterface)};");
             } else{
-                cmdResults.Add($"Unexpected result for Add netowrk: {addResult}");
+                cmdResults.Add($"Unexpected result for Add network: {String.Join(" ", addResult)}");
             }
             return String.Join("\n", cmdResults);
         }
@@ -113,7 +101,7 @@ namespace PiLot.Utils.OS {
         private List<WiFiInfo> ReadKnownNetworks(String pInterface){
             List<WiFiInfo> result = new List<WiFiInfo>();
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli list_networks -i {pInterface}");
-            String[] lines = cmdResult.Split("\n".ToCharArray());
+            String[] lines = this.GetLines(cmdResult);
             String[] segments;
             Int32 networkNumber;
             foreach(String aLine in lines){
@@ -137,7 +125,7 @@ namespace PiLot.Utils.OS {
             this.systemHelper.CallCommand("sudo", $"wpa_cli scan -i {pInterface}");
             await Task.Delay(pWaitSeconds * 1000);
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli scan_result -i {pInterface}");
-            String[] lines = cmdResult.Split("\n".ToCharArray());
+            String[] lines = this.GetLines(cmdResult);
             String[] segments;
             Int32 signalStrength;
             String ssid;
@@ -175,11 +163,20 @@ namespace PiLot.Utils.OS {
         private String GetHexPassphrase(String pSSID, String pPassphrase){
             String result = null;
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_passphrase {pSSID} {pPassphrase}");
-            String[] lines = cmdResult.Split("\n".ToCharArray());
+            String[] lines = this.GetLines(cmdResult);
             if((lines.Length > 4) && (lines[3].IndexOf("=") > 0)){
                 result = lines[3].Substring(lines[3].IndexOf("=") + 1).Trim();
             }
             return result;
         }
+
+		/// <summary>
+		/// Converts a String into an array of strings, separated by newline. Removes empty lines.
+		/// </summary>
+		private String[] GetLines(String pString) {
+			String[] result = pString.Split("\n".ToCharArray());
+			result = result.Where(s => !String.IsNullOrEmpty(s)).ToArray();
+			return result;
+		}
 	}
 }
