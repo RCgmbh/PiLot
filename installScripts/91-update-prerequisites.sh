@@ -12,8 +12,8 @@ if [ `whoami` != root ]; then
     exit
 fi
 
-mkdir -p /home/pi/pilot/repos
-cd /home/pi/pilot/repos
+mkdir -p /home/pi/repos
+cd /home/pi/repos
 apt update
 apt -y upgrade
 apt -y install git
