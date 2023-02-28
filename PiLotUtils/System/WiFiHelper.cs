@@ -27,8 +27,8 @@ namespace PiLot.Utils.OS {
 			List<String> result = new List<String>();
 			String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli interface");
 			String[] lines = cmdResult.Split("\n".ToCharArray());
-			if(lines.Length > 2) {
-				for(Int32 i = 2; i < lines.Length; i++) {
+			for(Int32 i = 2; i < lines.Length; i++) {
+				if (!String.IsNullOrEmpty(lines[i])) {
 					result.Add(lines[i]);
 				}
 			}

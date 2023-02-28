@@ -54,8 +54,8 @@ PiLot.Model.Admin = (function () {
 		 * @return {String[]}
 		 * */
 		getInterfacesAsync: async function () {
-			//return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces');
-			return ['p2p-dev-wlxOnbo', 'wlxOnboardWiFi1', 'wlxOnboardWiFi2'];
+			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces');
+			//return ['p2p-dev-wlxOnbo', 'wlxOnboardWiFi1', 'wlxOnboardWiFi2'];
 		},
 
 		/**
@@ -71,8 +71,8 @@ PiLot.Model.Admin = (function () {
 		 * @return {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
 		getWiFiInfosAsync: async function () {
-			/*return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/networks`);*/
-			return JSON.parse(`
+			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/networks`);
+			/*return JSON.parse(`
 				[
 					{"ssid":"nda-85236","isKnown":true,"isAvailable":true,"number":0,"isConnected":true,"signalStrength":-47},
 					{"ssid":"QL-5746","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-33},
@@ -83,7 +83,7 @@ PiLot.Model.Admin = (function () {
 					{"ssid":"QL-52383","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-83},
 					{"ssid":"pilot2","isKnown":false,"isAvailable":false,"number":null,"isConnected":false,"signalStrength":null}
 				]
-			`);
+			`);*/
 		},
 
 		/**
