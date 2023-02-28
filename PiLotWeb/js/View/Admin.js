@@ -392,7 +392,11 @@ PiLot.View.Admin = (function () {
 		},
 
 		ddlInterface_change: function () {
-			this.selectInterfaceAsync(this.ddlInterface.value);
+			const value = this.ddlInterface.value;
+			if (value) {
+				PiLot.Utils.Common.saveUserSetting('PiLot.View.Admin.SelectedInterface', this.ddlInterface.value);
+				this.selectInterfaceAsync(this.ddlInterface.value);
+			}
 		},
 
 		lnkRefresh_click: function(){
@@ -467,17 +471,32 @@ PiLot.View.Admin = (function () {
 
 		loadInterfacesAsync: async function () {
 			const interfaces = await this.wifiHelper.getInterfacesAsync();
+			const selectableInterfaces = [];
 			for (const interface of interfaces) {
-				RC.Utils.addOption(this.ddlInterface, interface, interface);
+				interface.startsWith('p2p') || selectableInterfaces.push(interface);
 			}
-			if (interfaces.length > 0) {
-				await this.selectInterfaceAsync(interfaces[0]);
+			if (selectableInterfaces.length == 1) {
+				await this.selectInterfaceAsync(selectableInterfaces[0]);
+			} else if (selectableInterfaces.length > 1) {
+				const ddlValues = [];
+				for (const interface of selectableInterfaces) {
+					ddlValues.push([interface, interface]);
+				}
+				RC.Utils.fillDropdown(this.ddlInterface, ddlValues, ['', PiLot.Utils.Language.getText('selectInterface')]);
+				this.ddlInterface.hidden = false;
+				const savedInterface = PiLot.Utils.Common.loadUserSetting('PiLot.View.Admin.SelectedInterface');
+				if (savedInterface && selectableInterfaces.includes(savedInterface)) {
+					this.ddlInterface.value = savedInterface;
+					await this.selectInterfaceAsync(savedInterface);
+				}
 			}
 		},
 
 		selectInterfaceAsync: async function (pInterface) {
-			await this.wifiHelper.selectInterfaceAsync(pInterface);
+			this.ddlInterface.disabled = true;
+			await this.wifiHelper.setInterface(pInterface);
 			await this.loadNetworksAsync();
+			this.ddlInterface.disabled = false;
 		},
 
 		loadNetworksAsync: async function () {

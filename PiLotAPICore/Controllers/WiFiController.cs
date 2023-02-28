@@ -28,78 +28,78 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets a list of all known and of all currently available networks.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/networks")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
-		public async Task<List<WiFiInfo>> GetNetworks() {
-			return await new WiFiHelper().GetNetworksAsync();
+		public async Task<List<WiFiInfo>> GetNetworks(String iface) {
+			return await new WiFiHelper().GetNetworksAsync(iface);
 		}
 
 		/// <summary>
 		/// Gets the current wpa_cli status
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/status")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/status")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
-		public String GetStatus() {
-			return new WiFiHelper().GetStatus();
+		public String GetStatus(String iface) {
+			return new WiFiHelper().GetStatus(iface);
 		}
 
 		/// <summary>
 		/// Selects an interface to use
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/interfaces/{name}/select")]
+		/*[Route(Program.APIROOT + "[controller]/interfaces/{iface}/select")]
 		[HttpPut]
-		public String SelectInterface(String name) {
-			return new WiFiHelper().SelectInterface(name);
-		}
+		public String SelectInterface(String iface) {
+			return new WiFiHelper().SelectInterface(iface);
+		}*/
 
 		/// <summary>
 		/// Connects to the network with number. The number is taken
 		/// from the result of GetNetworks().
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/networks/{number}/select")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/select")]
 		[HttpPut]
-		public String SelectNetwork(Int32 number){
-			return new WiFiHelper().SelectNetwork(number);
+		public String SelectNetwork(String iface, Int32 number){
+			return new WiFiHelper().SelectNetwork(iface, number);
 		}
 
 		/// <summary>
 		/// Adds a new network defined by ssid and passphrase.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/networks")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks")]
 		[HttpPost]
-		public String AddNetwork(AddNetworkData pData){
-			return new WiFiHelper().AddNetwork(pData.SSID, pData.Passphrase);
+		public String AddNetwork(String iface, AddNetworkData data){
+			return new WiFiHelper().AddNetwork(iface, data.SSID, data.Passphrase);
 		}
 
 		/// <summary>
 		/// Deletes a specific network.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/networks/{number}")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}")]
 		[HttpDelete]
-		public String DeleteNetwork(Int32 number){
-			return new WiFiHelper().RemoveNetwork(number);
+		public String DeleteNetwork(String iface, Int32 number){
+			return new WiFiHelper().RemoveNetwork(iface, number);
 		}
 
 		/// Get methods, mainly for testing or manual url based usage
 		
-		[Route(Program.APIROOT + "[controller]/networks/{number}/select")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/select")]
 		[HttpGet]
-		public String GetSelectNetwork(Int32 number){
-			return new WiFiHelper().SelectNetwork(number);
+		public String GetSelectNetwork(String iface, Int32 number){
+			return new WiFiHelper().SelectNetwork(iface, number);
 		}
 
-		[Route(Program.APIROOT + "[controller]/networks/add")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/add")]
 		[HttpGet]
-		public String GetAddNetwork(String ssid, String passphrase){
-			return new WiFiHelper().AddNetwork(ssid, passphrase);
+		public String GetAddNetwork(String iface, String ssid, String passphrase){
+			return new WiFiHelper().AddNetwork(iface, ssid, passphrase);
 		}
 
-		[Route(Program.APIROOT + "[controller]/networks/{number}/delete")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/delete")]
 		[HttpGet]
-		public String GetDeleteNetwork(Int32 number){
-			return new WiFiHelper().RemoveNetwork(number);
+		public String GetDeleteNetwork(String iface, Int32 number) {
+			return new WiFiHelper().RemoveNetwork(iface, number);
 		}
 
 		/// <summary>

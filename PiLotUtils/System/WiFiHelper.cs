@@ -40,18 +40,18 @@ namespace PiLot.Utils.OS {
 		/// </summary>
 		/// <param name="pInterfaceName">The name of the interface, e.g. wlxOnboardWiFi</param>
 		/// <returns>The result of the command</returns>
-		public String SelectInterface(String pInterfaceName) {
+		/*public String SelectInterface(String pInterfaceName) {
 			String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli interface {pInterfaceName}");
 			return cmdResult;
-		}
+		}*/
 
 		/// <summary>
 		/// Return the list of all networks, those available and those
 		/// known but currently not available
 		/// </summary>
-		public async Task<List<WiFiInfo>> GetNetworksAsync(){
-			List<WiFiInfo> result = this.ReadKnownNetworks();
-            result = await this.SearchNetworksAsync(5, result);
+		public async Task<List<WiFiInfo>> GetNetworksAsync(String pInterface){
+			List<WiFiInfo> result = this.ReadKnownNetworks(pInterface);
+            result = await this.SearchNetworksAsync(pInterface, 5, result);
             return result;
         }
 
@@ -59,17 +59,17 @@ namespace PiLot.Utils.OS {
         /// Adds a new network with SSID and passphrase and selects it. Returns the results of the
         /// involved commands.
         /// </summary>
-        public String AddNetwork(String pSSID, String pPassphrase){
+        public String AddNetwork(String pInterface, String pSSID, String pPassphrase){
             List<String> cmdResults = new List<String>();
             Int32 networkNumber;
-            String[] addResult = this.systemHelper.CallCommand("sudo", "wpa_cli add_network").Split("\n".ToCharArray());
+            String[] addResult = this.systemHelper.CallCommand("sudo", $"wpa_cli add_network -i {pInterface}").Split("\n".ToCharArray());
             if( (addResult.Length > 1) && Int32.TryParse(addResult[1] , out networkNumber)){
-                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\""));
+                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\" -i {pInterface}"));
                 String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
-                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\""));
-				cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli enable_network {networkNumber}"));
-				cmdResults.Add($"Select network: {this.SelectNetwork(networkNumber)};");
-				cmdResults.Add($"Save config: {this.SaveConfig()};");
+                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\" -i {pInterface}"));
+				cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli enable_network {networkNumber} -i {pInterface}"));
+				cmdResults.Add($"Select network: {this.SelectNetwork(pInterface, networkNumber)};");
+				cmdResults.Add($"Save config: {this.SaveConfig(pInterface)};");
             } else{
                 cmdResults.Add($"Unexpected result for Add netowrk: {addResult}");
             }
@@ -79,40 +79,40 @@ namespace PiLot.Utils.OS {
         /// <summary>
         /// Selects the network identified by pNumber
         /// </summary>
-        public String SelectNetwork(Int32 pNumber){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli select_network {pNumber}");
+        public String SelectNetwork(String pInterface, Int32 pNumber){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli select_network {pNumber} -i {pInterface}");
             return cmdResult;
         }
 
         /// <summary>
         /// Removes the network identified by pNumber
         /// </summary>
-        public String RemoveNetwork(Int32 pNumber){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli remove_network {pNumber}");
+        public String RemoveNetwork(String pInterface, Int32 pNumber){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli remove_network {pNumber} -i {pInterface}");
             return cmdResult;
         }
 
         /// <summary>
         /// Gets the current WiFi status
         /// </summary>
-        public String GetStatus(){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli status");
+        public String GetStatus(String pInterface){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli status -i {pInterface}");
             return cmdResult;
         }
 
         /// <summary>
         /// Saves the wpa configuration
         /// </summary>
-        private String SaveConfig(){
-            return this.systemHelper.CallCommand("sudo", "wpa_cli save_config");
+        private String SaveConfig(String pInterface){
+            return this.systemHelper.CallCommand("sudo", $"wpa_cli save_config -i {pInterface}");
         }
 
         /// <summary>
         /// populates a list of known networks
         /// </summary>
-        private List<WiFiInfo> ReadKnownNetworks(){
+        private List<WiFiInfo> ReadKnownNetworks(String pInterface){
             List<WiFiInfo> result = new List<WiFiInfo>();
-            String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli list_networks");
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli list_networks -i {pInterface}");
             String[] lines = cmdResult.Split("\n".ToCharArray());
             String[] segments;
             Int32 networkNumber;
@@ -132,11 +132,11 @@ namespace PiLot.Utils.OS {
         /// <param name="pWaitSeconds">The time to wait between scan and list results</param>
         /// <param name="pKnownNetworks">The list of known networks, not null</param>
         /// </summary>
-        private async Task<List<WiFiInfo>> SearchNetworksAsync(Int32 pWaitSeconds, List<WiFiInfo> pKnownNetworks){
+        private async Task<List<WiFiInfo>> SearchNetworksAsync(String pInterface, Int32 pWaitSeconds, List<WiFiInfo> pKnownNetworks){
             List<WiFiInfo> result = pKnownNetworks;
-            this.systemHelper.CallCommand("sudo", "wpa_cli scan");
+            this.systemHelper.CallCommand("sudo", $"wpa_cli scan -i {pInterface}");
             await Task.Delay(pWaitSeconds * 1000);
-            String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli scan_result");
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli scan_result -i {pInterface}");
             String[] lines = cmdResult.Split("\n".ToCharArray());
             String[] segments;
             Int32 signalStrength;

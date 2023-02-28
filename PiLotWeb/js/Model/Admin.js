@@ -39,34 +39,40 @@ PiLot.Model.Admin = (function () {
 	}
 
 	/** This helps with interacting with the WiFi controller */
-	var WiFiHelper = function () { };
+	var WiFiHelper = function () {
+		this.interface = null;
+	};
 
 	WiFiHelper.prototype = {
+
+		setInterface: function (pInterface) {
+			this.interface = pInterface;
+		},
 
 		/**
 		 * Gets the list of known available interfaces
 		 * @return {String[]}
 		 * */
 		getInterfacesAsync: async function () {
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces');
-			//return ['p2p-dev-wlxOnbo', 'wlxOnboardWiFi'];
+			//return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces');
+			return ['p2p-dev-wlxOnbo', 'wlxOnboardWiFi1', 'wlxOnboardWiFi2'];
 		},
 
 		/**
 		 * Selects the interface to use
 		 * @param {String} pName - the name of the interface
 		 */
-		selectInterfaceAsync: async function (pName) {
+		/*selectInterfaceAsync: async function (pName) {
 			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${pName}/select`);
-		},
+		},*/
 
 		/**
 		 * Gets the list of known or available wireless networks 
 		 * @return {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
-		getWiFiInfosAsync:  async function () {
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/networks');
-			/*return JSON.parse(`
+		getWiFiInfosAsync: async function () {
+			/*return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/networks`);*/
+			return JSON.parse(`
 				[
 					{"ssid":"nda-85236","isKnown":true,"isAvailable":true,"number":0,"isConnected":true,"signalStrength":-47},
 					{"ssid":"QL-5746","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-33},
@@ -77,7 +83,7 @@ PiLot.Model.Admin = (function () {
 					{"ssid":"QL-52383","isKnown":false,"isAvailable":true,"number":null,"isConnected":false,"signalStrength":-83},
 					{"ssid":"pilot2","isKnown":false,"isAvailable":false,"number":null,"isConnected":false,"signalStrength":null}
 				]
-			`);*/
+			`);
 		},
 
 		/**
@@ -87,7 +93,7 @@ PiLot.Model.Admin = (function () {
 		 */
 		addWiFiAsync: async function (pName, pKey) {
 			const pars = { ssid: pName, passphrase: pKey };
-			return await PiLot.Utils.Common.postToServerAsync('/WiFi/networks', pars);
+			return await PiLot.Utils.Common.postToServerAsync('/WiFi/interfaces/${this.interface}/networks', pars);
 		},
 
 		/**
@@ -95,7 +101,7 @@ PiLot.Model.Admin = (function () {
 		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
 		 */
 		selectWiFiAsync: async function (pNumber) {
-			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/networks/${pNumber}/select`);
+			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pNumber}/select`);
 		},
 
 		/**
@@ -103,14 +109,14 @@ PiLot.Model.Admin = (function () {
 		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
 		 */
 		forgetWiFiAsync: async function (pNumber) {
-			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/networks/${pNumber}`);
+			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pNumber}`);
 		},
 		
 		/**
 		 * Gets some status information
 		 * */
 		getWiFiStatus: async function(){
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/status');
+			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces/${this.interface}/status');
 		}
 
 	};
