@@ -42,12 +42,9 @@ PiLot.View.Tools = (function () {
 		this.map = null;
 		this.mapTrack = null;
 		this.divResult = null;
-		this.lnkExport = null;
-		this.divExport = null;
 		this.tbResultText = null;
 		this.divResultTable = null;
 		this.tblPositions = null;
-		this.divDelete = null;
 		this.pnlSpeedDiagram = null;
 		this.initializeAsync();
 	};
@@ -83,9 +80,7 @@ PiLot.View.Tools = (function () {
 			await this.map.showAsync();
 			this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.boatTime, null, { ignoreSettings: true, showTrack: true, autoShowTrack: false })
 			this.divResult = this.pageContent.querySelector('.divResult');
-			this.lnkExport = this.pageContent.querySelector('.lnkExport');
-			this.lnkExport.addEventListener('click', this.lnkExport_click.bind(this));
-			this.divExport = this.pageContent.querySelector('.divExport');
+			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkExport'), this.pageContent.querySelector('.divExport'));
 			let rblExportFormat = this.pageContent.querySelectorAll('.rbExportFormat');
 			rblExportFormat.forEach(function (pRadiobutton) {
 				pRadiobutton.addEventListener('change', this.rbExportFormat_Change.bind(this));
@@ -97,17 +92,17 @@ PiLot.View.Tools = (function () {
 			this.divResultTable = this.pageContent.querySelector('.divResultTable');
 			this.tblPositions = this.pageContent.querySelector('.tblPositions');
 			const lnkDelete = this.pageContent.querySelector('.lnkDelete');
-			this.divDelete = this.pageContent.querySelector('.divDelete');
+			const divDelete = this.pageContent.querySelector('.divDelete');
 			if (PiLot.Permissions.canWrite()) {
-				lnkDelete.addEventListener('click', this.lnkDelete_click.bind(this));
+				new PiLot.View.Common.ExpandCollapse(lnkDelete, divDelete);
 				this.pageContent.querySelector('.btnDeleteCurrent').addEventListener('click', this.btnDeleteCurrent_click.bind(this));
 				this.pageContent.querySelector('.btnDeleteAll').addEventListener('click', this.btnDeleteAll_click.bind(this));
 			} else {
-				lnkDelete.remove();
-				this.divDelete.remove();
+				lnkDelete.hidden = true;
 			}			
-			this.pageContent.querySelector('.lnkSpeedDiagram').addEventListener('click', this.lnkSpeedDiagram_click.bind(this));
 			this.pnlSpeedDiagram = document.querySelector('.pnlSpeedDiagram');
+			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkSpeedDiagram'), this.pnlSpeedDiagram).on('expand', this.showSpeedChartData.bind(this));
+			
 			RC.Utils.selectOnFocus(this.tbStartTime, this.tbEndTime);
 		},
 
@@ -133,19 +128,6 @@ PiLot.View.Tools = (function () {
 
 		btnLoadData_click: function () {
 			this.loadTrack();
-		},
-
-		lnkExport_click: function () {
-			RC.Utils.showHide(this.divExport);
-		},
-
-		lnkDelete_click: function () {
-			RC.Utils.showHide(this.divDelete);
-		},
-
-		lnkSpeedDiagram_click: function () {
-			RC.Utils.showHide(this.pnlSpeedDiagram);
-			this.showSpeedChartData();
 		},
 
 		btnCopy_Click: function () {

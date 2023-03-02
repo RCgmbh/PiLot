@@ -46,7 +46,7 @@ PiLot.Templates.Tools = {
 			</div>
 			<div class="divResult dataContainerFull marginBottom paddingRight hidden">
 				<h3><a class="lnkExport" data-text="export"></a></h3>
-				<div class="divExport hidden">
+				<div class="divExport" hidden>
 					<div>
 						<label><input type="radio" name="exportFormat" value="CSV" class="rbExportFormat" />CSV</label>
 						<label><input type="radio" name="exportFormat" value="GPX" class="rbExportFormat" />GPX</label>
@@ -72,12 +72,12 @@ PiLot.Templates.Tools = {
 					</div>
 				</div>
 				<h3><a class="lnkDelete" data-text="delete"></a></h3>
-				<div class="divDelete hidden">
+				<div class="divDelete" hidden>
 					<button type="button" class="btnDeleteCurrent marginRight" data-text="currentPosition"></button>
 					<button type="button" class="btnDeleteAll marginRight" data-text="entirePeriod"></button>
 				</div>
 				<h3><a class="lnkSpeedDiagram" data-text="speedDiagram"></a></h3>
-				<div class="pnlSpeedDiagram hidden"></div>
+				<div class="pnlSpeedDiagram" hidden></div>
 			</div>
 		</div>
 	`,
