@@ -77,7 +77,7 @@ PiLot.Model.Boat = (function () {
 		/// returns either the first of the predefined boat setups, or
 		/// an empty setup
 		getDefaultSetup: function () {
-			var result;
+			let result;
 			if (this.boatSetups.length > 0) {
 				result = this.boatSetups[0].clone();
 			} else {

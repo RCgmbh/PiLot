@@ -257,14 +257,14 @@ PiLot.View.Boat = (function () {
 		}
 	};
 
-	/// a form allowing to change the boat settings, listing all features
-	/// with dropdowns for the featureStates
-	/// @param pBoatConfig: the boat config, for which the features will be shown
-	/// @param pContainer: a HTMLElement object to which the form will be appended
-	var BoatSetupForm = function (pBoatConfig, pContainer) {
+	/**
+	 * a form allowing to change the boat settings, listing all features
+	 * with dropdowns for the featureStates
+	 * @param {PiLot.Model.Boat.BoatConfig} pBoatConfig - the boat config, for which the features will be shown
+	 */
+	var BoatSetupForm = function (pBoatConfig) {
 		this.boatConfig = pBoatConfig;							// the boat config, containing all features and states
 		this.boatSetup = null;								 	// the current boat setup, a PiLot.Model.Boat.BoatSetup
-		//this.container = pContainer;							// the container containing this, HTMLElement
 		this.control = null;
 		this.plhFeatures = null;								// the placeholder where we will add the selectors
 		this.selectors = null;									// a map with key = featureId, value = dropdown control
@@ -309,7 +309,6 @@ PiLot.View.Boat = (function () {
 		/** Draws the form */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
-			//this.container.append(this.control);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.cancel.bind(this), this.apply.bind(this));
 			this.plhFeatures = this.control.querySelector('.plhFeatures');
@@ -366,10 +365,10 @@ PiLot.View.Boat = (function () {
 			}
 			this.selectors.clear();
 			this.boatConfig.getFeatures().forEach(function (pFeature, pFeatureId) {
-				var featureSelect = RC.Utils.stringToNode(PiLot.Templates.Boat.boatFeatureSelect);
+				const featureSelect = RC.Utils.stringToNode(PiLot.Templates.Boat.boatFeatureSelect);
 				this.plhFeatures.append(featureSelect);
 				RC.Utils.setText(featureSelect.querySelector('.lblFeatureName'), pFeature.getName());
-				var selFeatureStates = featureSelect.querySelector('.selFeatureStates');
+				const selFeatureStates = featureSelect.querySelector('.selFeatureStates');
 				pFeature.getStates().forEach(function (aState) {
 					selFeatureStates.append(new Option(aState.getName(), aState.getStateId()));
 				});
@@ -414,17 +413,10 @@ PiLot.View.Boat = (function () {
 
 	};
 
-	/** Page containing a slider which allows to select a boat config */
+	/** Page containing all available boat images allowing to select the current boat */
 	var BoatPage = function () {
 
-		this.configs = null;		/// an array of objects {name, displayName, boatImageUrl}
-		this.currentIndex = 0;		/// the currently selected config
-		this.sliding = false;		/// blocks further clicks when the animation is running
-		this.container = null;		/// the top-level container of this control
-		this.plhConfigName = null;	/// the placeholder where we show the name of the config
-		this.imageFrame = null;		/// the frame containing the image(s)
-		this.oldImage = null;		/// the currently shown image
-		this.newImage = null;		/// the image sliding in
+		this.plhBoatImages = null;
 		this.initialize();
 	};
 
@@ -432,25 +424,13 @@ PiLot.View.Boat = (function () {
 
 		initialize: function () {
 			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.settings.overview);
-			this.loadData().then(() => this.draw());
+			this.draw();
 		},
 
-		/// loads some data from the server. After that, we will have
-		/// this.configs and this.currentIndex properly set. Cals
-		/// pOnDone without any parameter when done
-		loadData: async function () {
-			await Promise.all([
-				PiLot.Model.Boat.loadConfigInfosAsync(),
-				PiLot.Model.Boat.loadCurrentConfigNameAsync()
-			]).then(results => {
-				this.configs = results[0];
-				this.currentIndex = this.configs.findIndex(function (configInfo) { return configInfo.name === results[1] }) || this.currentIndex;
-			});
-		},
-
-		/// saves the currently selected setup to the server
-		saveCurrentSetup: function () {
-			PiLot.Model.Boat.saveCurrentConfigNameAsync(this.configs[this.currentIndex].name);
+		boatImage_click: function (pBoatConfig, pControl) {
+			PiLot.Model.Boat.saveCurrentConfigNameAsync(pBoatConfig.name);
+			this.resetActiveStyle();
+			pControl.classList.toggle('active', true);
 		},
 
 		draw: function () {
@@ -458,65 +438,29 @@ PiLot.View.Boat = (function () {
 			const loader = PiLot.Utils.Loader;
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
-			this.plhConfigName = pageContent.querySelector('.plhConfigName');
-			this.showConfigName();
-			this.imageFrame = pageContent.querySelector('.imageFrame');
-			this.oldImage = this.imageFrame.querySelector('img');
-			this.oldImage.setAttribute('src', this.getCurrentImageUrl());
-			pageContent.querySelector('.btnLeft').addEventListener('click', this.btnLeft_click.bind(this));
-			pageContent.querySelector('.btnRight').addEventListener('click', this.btnRight_click.bind(this));
+			this.plhBoatImages = pageContent.querySelector('.plhBoatImages');
+			this.loadBoatImagesAsync();
 		},
 
-		// TODO: preload the left and right image after sliding, not just load ad hoc here. And
-		// get rids of them $!
-		slide: function (pDirection) {
-			if (!this.sliding) {
-				this.sliding = true;
-				this.currentIndex = (this.currentIndex - Math.sign(pDirection) + this.configs.length) % this.configs.length;
-				this.saveCurrentSetup();
-				$(this.plhConfigName).fadeOut(250, function () {
-					this.showConfigName();
-					$(this.plhConfigName).fadeIn(250);
-				}.bind(this));
-				var slideFunction = pDirection < 0 ? this.addRight.bind(this) : this.addLeft.bind(this);
-				slideFunction(function () {
-					this.oldImage.parentNode.removeChild(this.oldImage);
-					this.oldImage = this.newImage;
-					this.sliding = false;
-				}.bind(this));
+		loadBoatImagesAsync: async function () {
+			const config = await Promise.all([
+				PiLot.Model.Boat.loadConfigInfosAsync(),
+				PiLot.Model.Boat.loadCurrentConfigNameAsync()
+			]);
+			for (const boatConfig of config[0]) {
+				const imageControl = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatImage);
+				imageControl.querySelector('img').src = boatConfig.boatImageUrl;
+				imageControl.querySelector('.lblConfigName').innerText = boatConfig.displayName;
+				imageControl.classList.toggle('active', boatConfig.name === config[1]);
+				imageControl.addEventListener('click', this.boatImage_click.bind(this, boatConfig, imageControl));
+				this.plhBoatImages.appendChild(imageControl);
 			}
 		},
 
-		addRight: function (pOnDone) {
-			this.newImage = RC.Utils.stringToNode(PiLot.Templates.Boat.configSliderImageRight);
-			this.imageFrame.append(this.newImage);
-			this.newImage.setAttribute('src', this.getCurrentImageUrl());
-			$(this.oldImage).animate({ marginLeft: "-100%" }, 500, 'swing', pOnDone);
-		},
-
-		addLeft: function (pOnDone) {
-			this.newImage = RC.Utils.stringToNode(PiLot.Templates.Boat.configSliderImageLeft);
-			this.imageFrame.prepend(this.newImage);
-			this.newImage.setAttribute('src', this.getCurrentImageUrl());
-			$(this.newImage).animate({ marginLeft: "0%" }, 500, 'swing', pOnDone);
-		},
-
-		/// shows the name of the current config in the respective placeholder
-		showConfigName() {
-			this.plhConfigName.innerText = this.configs[this.currentIndex].displayName;
-		},
-
-		/// returns the url of the image for the config of the currently selected config
-		getCurrentImageUrl: function () {
-			return this.configs[this.currentIndex].boatImageUrl;
-		},
-
-		btnLeft_click: function () {
-			this.slide(-1);
-		},
-
-		btnRight_click: function () {
-			this.slide(1);
+		resetActiveStyle: function () {
+			for (const control of this.plhBoatImages.querySelectorAll('div')) {
+				control.classList.toggle('active', false);
+			}
 		}
 	};
 

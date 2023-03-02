@@ -25,27 +25,22 @@ PiLot.Templates.Boat = {
 		</div>`,
 
 	boatPage:
-		`<div class="contentPadding">
-			<div class="dataContainerFull marginBottom">
-				<h1><a href="#" class="lnkSettings" data-text="settings">Einstellungen</a> : <span data-text="boat"></span></h1>
-				<div class="boatConfigSlider">	
-					<div class="configNameFrame">
-						<span class="plhConfigName semiBold"></span>
-					</div>
-					<div class="imageFrame">
-						<img  /> 
-					</div>
-					<div class="buttons">
-						<a href="#" class="btnLeft block linkButton"><i class="icon-arrow-left"></i></a>
-						<a href="#" class="btnRight block linkButton"><i class="icon-arrow-right"></i></a>
-					</div>
-				</div>
+		`<div>
+			<div class="contentPadding marginRight">
+				<h1><a href="#" class="lnkSettings" data-text="settings"></a> : <span data-text="boat"></span></h1>
 			</div>
+			<div class="plhBoatImages boatImages flexRowWrap" style="justify-content:center;"><div>
 		</div>`,
 
-	configSliderImageLeft: '<img style="height:100%;margin-left:-100%;" />',
+	boatImage:
+		`<div class="boatImage marginAll">
+			<img class="imgBoat" style="width:100%;" />
+			<span class="lblConfigName center"></span>
+		</div>`,
 
-	configSliderImageRight: '<img style="height:100%;" />',
+	/*configSliderImageLeft: '<img style="height:100%;margin-left:-100%;" />',
+
+	configSliderImageRight: '<img style="height:100%;" />',*/
 
 	startPageBoatImage: `
 		<div class="border startPageBoat">

@@ -412,10 +412,9 @@ th.right, td.right { text-align:right !important;}
 .moonTodayBar{width:0px; height:10em; border-width:1em; margin-left:-1em; border-style:solid; z-index:1; display:block; position:relative;}
 
 /* Boat Config */
-.boatConfigSlider { width:360px; }
-.boatConfigSlider > .configNameFrame{height: 1.5em; text-align: center; font-size: 1.5em;}
-.boatConfigSlider > .imageFrame { height: 400px; width: 360px; border: 3px solid black; overflow: hidden; display: flex; margin-bottom: 1em;}
-.boatConfigSlider > .imageFrame > img { height: 100%; }
+.boatImage {display:flex; flex-direction:column; width:20%; min-width:8em; max-width: 20em; cursor:pointer; padding:9px; border: 1px solid rgba(118, 142, 150, 0.7)}
+.boatImage.active { padding: 8px; border: 2px solid #214372; }
+.boatImage.active>span{ font-weight: 600; } 
 
 /* start page control for boat setup */
 .startPageBoat { flex-grow: 1; display: flex; flex-direction: row; flex-wrap: wrap; }
