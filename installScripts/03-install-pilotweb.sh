@@ -54,7 +54,6 @@ cp resources/library/* /var/www/html/library/
 ln /var/www/html/pilot/js/Config.js /etc/pilot/webappConfig.js
 
 # update nginx config
-apt install -y nginx
 cp /etc/nginx/sites-enabled/default backup/
 cp resources/nginx.conf /etc/nginx/sites-enabled/default
 mkdir /etc/nginx/locations
