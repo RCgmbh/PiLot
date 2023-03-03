@@ -10,7 +10,7 @@ Be aware that writing the image to your SD card will overwrite all data, so make
 Once finished writing, remove the SD card and insert it into your Raspberry Pi. If you want to access your PiLot over ethernet, connect it to your local netork. Now power it on.
 
 ### Connect to your Raspberry Pi
-After a minute or so, connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@pilot` (replace "pilot" by the hostname you defined before). You might have to confirm by typing "yes", then enter the password you set before. You should now see `pi@pilot:~ $`. Feel good, as you just brought life to your tiny computer. 
+After a minute or so, connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@pilot.local` (replace "pilot" by the hostname you defined before). You might have to confirm by typing "yes", then enter the password you set before. You should now see `pi@pilot:~ $`. Feel good, as you just brought life to your tiny computer. 
 
 ### Update your System
 In order to bring your system up to date, run `sudo apt update` which will look for the latest versions of the installed software packages, then run `sudo apt upgrade -y` which will actually install the latest versions. This might take a while, so go get a coffee, as there is some more work waiting.
@@ -29,7 +29,7 @@ Samba gives you a convenient access to files on your PiLot from within Windows E
 ```
 sudo sh 00-install-samba.sh
 ```
-Follow the instructions on the screen, and when asked for "New SMB password", enter the samba-password you want for your user "pi", which can be just the same password as you set before. Once the installation is done, open a windows explorer on your Windows machine, and in the address bar, enter **\\\\raspberrypi**, or if you changed the hostname, the new hostname instead of raspberrypi. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
+Follow the instructions on the screen, and when asked for "New SMB password", enter the samba-password you want for your user "pi", which can be just the same password as you set before. Once the installation is done, open a windows explorer on your Windows machine, and in the address bar, enter **\\\\pilot**, or whatever hostname you defined. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
 
 \> [Next, set up an access point...](ap.md)
 
