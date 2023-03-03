@@ -18,7 +18,7 @@ dotnet --list-runtimes
 ```
 This will give you a list of the installed runtimes, and should list Microsoft.AspNetCore.App and Microsoft.NETCore.App.
 
-Next, install nginx and the actual PiLot application components, again by just calling a script:
+Next, install the actual PiLot application components and set up the database, again by just calling a script:
 ```
 sudo sh 03-install-pilotweb.sh
 ```
