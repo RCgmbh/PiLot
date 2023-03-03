@@ -66,10 +66,10 @@ PiLot.Templates.Nav = {
 					<a href="#" class="lnkAddWaypoint inlineBlock marginBottom"><i class="icon-plus marginRight"></i><span data-text="addWaypoint"></span></a>
 				<div>
 				<div class="block marginBottom">
-					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRight iconActiveRoute"></i><span data-text="activateRoute"></span></a> |
-					<a href="#" class="lnkReverseRoute marginLeft marginRight"><i class="icon-arrow-left2 marginRight"></i><span data-text="reverseRoute"></span></a> |
-					<a href="#" class="lnkCopyRoute marginLeft marginRight"><i class="icon-copy marginRight"></i><span data-text="copy"></span></a> |
-					<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRight"></i><span data-text="deleteRoute"></span></a>
+					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRightSmall iconActiveRoute"></i><span data-text="activateRoute"></span></a> |
+					<a href="#" class="lnkReverseRoute marginLeft marginRight"><i class="icon-arrow-left2 marginRightSmall"></i><span data-text="reverseRoute"></span></a> |
+					<a href="#" class="lnkCopyRoute marginLeft marginRight"><i class="icon-copy marginRightSmall"></i><span data-text="copy"></span></a> |
+					<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRightSmall"></i><span data-text="deleteRoute"></span></a>
 				</div>
 			</div>
 		</div>`,
