@@ -14,8 +14,7 @@ ln -s /opt/dotnet/dotnet /usr/bin
 #postgres
  apt install postgresql -y
  apt install postgis -y
- su postgres
-
+ 
  #nginx
  apt install -y nginx
 

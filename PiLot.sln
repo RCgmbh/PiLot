@@ -120,9 +120,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDemoDataSender", "PiLo
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{F2617496-F4C9-4007-9CBB-F57DFECD823E}"
 	ProjectSection(SolutionItems) = preProject
-		sqlScripts\pilotDb.sql = sqlScripts\pilotDb.sql
-		sqlScripts\poi.sql = sqlScripts\poi.sql
-		sqlScripts\poiData.sql = sqlScripts\poiData.sql
+		pilotinstall\resources\sql\pilotDb.sql = pilotinstall\resources\sql\pilotDb.sql
+		pilotinstall\resources\sql\poi.sql = pilotinstall\resources\sql\poi.sql
+		pilotinstall\resources\sql\poiData.sql = pilotinstall\resources\sql\poiData.sql
 	EndProjectSection
 EndProject
 Global
