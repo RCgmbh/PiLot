@@ -1062,7 +1062,7 @@ PiLot.View.Nav = (function () {
 			this.parentContainer.appendChild(this.container);
 			this.lblRouteName = this.container.querySelector('.lblRouteName');
 			if (this.routeObserver !== null) {
-				RC.Utils.setText(this.lblRouteName, this.routeObserver.getRoute().getName());
+				this.lblRouteName.innerText = this.routeObserver.getRoute().getName();
 			}
 			this.showHideRouteName();
 			const divWaypoints = this.container.querySelector('.divWaypoints');
@@ -1182,8 +1182,8 @@ PiLot.View.Nav = (function () {
 				if (this.liveRoute.getShowCoordinates()) {
 					const latLon = this.waypoint.getLatLon();
 					if (latLon !== null) {
-						RC.Utils.setText(this.lblLat, PiLot.Utils.Nav.toCoordinateString(latLon.lat, true, true));
-						RC.Utils.setText(this.lblLon, PiLot.Utils.Nav.toCoordinateString(latLon.lon, false, true));
+						this.lblLat.innerText = PiLot.Utils.Nav.toCoordinateString(latLon.lat, true, true);
+						this.lblLon.innerText = PiLot.Utils.Nav.toCoordinateString(latLon.lon, false, true);
 					}
 					this.pnlLatLon.hidden = false;
 				} else {
@@ -1194,9 +1194,9 @@ PiLot.View.Nav = (function () {
 			if (pUpdateLiveData) {
 				liveData = this.routeObserver.getLiveData(this.waypoint);
 				if (liveData !== null) {
-					RC.Utils.setText(this.lblETA, (liveData.eta !== null) ? liveData.eta.toFormat('HH:mm') : '--:--');
-					RC.Utils.setText(this.lblDist, (liveData.miles !== null) ? liveData.miles.toFixed(1) : '--');
-					RC.Utils.setText(this.lblBearing, (liveData.bearing !== null) ? RC.Utils.toFixedLength(liveData.bearing, 3, 0) : '---');
+					this.lblETA.innerText = ((liveData.eta !== null) ? liveData.eta.toFormat('HH:mm') : '--:--');
+					this.lblDist.innerText = ((liveData.miles !== null) ? liveData.miles.toFixed(1) : '--');
+					this.lblBearing.innerText = ((liveData.bearing !== null) ? RC.Utils.toFixedLength(liveData.bearing, 3, 0) : '---');
 					this.divWaypoint.classList.toggle('active', liveData.isNextWaypoint);
 					this.divWaypoint.classList.toggle('past', liveData.isPastWaypoint);
 					this.iconPastWP.hidden = (!liveData.isPastWaypoint);

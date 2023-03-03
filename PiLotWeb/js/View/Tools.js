@@ -606,7 +606,7 @@ PiLot.View.Tools = (function () {
 					break;
 				}
 			}
-			RC.Utils.toggleClass(this.lblLoading, 'hidden', !loading);
+			this.lblLoading.classList.toggle('hidden', !loading);
 		}
 	};
 

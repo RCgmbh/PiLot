@@ -124,19 +124,19 @@ PiLot.View.Admin = (function () {
 
 		showClientTime: function () {
 			const nowLocal = DateTime.local();
-			RC.Utils.setText(this.lblClientTime, nowLocal.toFormat(this.formatString));
-			RC.Utils.setText(this.lblClientTimezoneOffset, nowLocal.toFormat('ZZZ'));
+			this.lblClientTime.innerText = nowLocal.toFormat(this.formatString);
+			this.lblClientTimezoneOffset.innerText = nowLocal.toFormat('ZZZ');
 		},
 
 		showServerTime: function () {
-			RC.Utils.setText(this.lblServerTime, this.boatTime.utcNow().toFormat(this.formatString));
+			this.lblServerTime.innerText = this.boatTime.utcNow().toFormat(this.formatString);
 		},
 
 		showBoatTime: function () {
 			const boatTimeNow = this.boatTime.now();
-			RC.Utils.setText(this.lblClientErrorOffset, this.boatTime.getClientErrorOffsetSeconds().toFixed(1));
-			RC.Utils.setText(this.lblBoatTime, boatTimeNow.toFormat(this.formatString));
-			RC.Utils.setText(this.lblBoatTimeOffset, boatTimeNow.toFormat('ZZZ'));
+			this.lblClientErrorOffset.innerText = this.boatTime.getClientErrorOffsetSeconds().toFixed(1);
+			this.lblBoatTime.innerText = boatTimeNow.toFormat(this.formatString);
+			this.lblBoatTimeOffset.innerText = boatTimeNow.toFormat('ZZZ');
 		}
 	};
 

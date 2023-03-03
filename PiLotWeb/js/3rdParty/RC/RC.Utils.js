@@ -66,32 +66,33 @@ RC.Utils = {
 		window.history.pushState({}, '', url);
 	},
 
-	/// creates a dom object using the given tag, assigns css classes and adds it as last
-	/// child to pParent. Works with both jQuery objects and HTMLElements
+	/**
+	 * creates a dom object using the given tag, assigns css classes and adds it as last
+	 * child to pParent. 
+	 * @param {String} pTag - the tag, such as "div"
+	 * @param {Node} pParent - To node to which the element will be added
+	 * @param {String} pCssClass - optionally add a css class to the element
+	 * */
 	addDomObject: function (pTag, pParent, pCssClass) {
-		var obj = document.createElement(pTag);
-		let result;
-		/*if (pParent instanceof jQuery) {
-			result = $(obj).appendTo(pParent);
-			if (pCssClass) {
-				result.addClass(pCssClass);
-			}
-		} else {*/
-			result = obj;
-			pParent.appendChild(result);
-			if (pCssClass) {
-				result.classList.add(pCssClass);
-			}
-		//}		
+		const result = document.createElement(pTag);
+		pParent.appendChild(result);
+		if (pCssClass) {
+			result.classList.add(pCssClass);
+		}
 		return result;
 	},
 
-	/// fills a dropdown-list (select) with valued provided as array of arrays [[value, text],...].
-	/// optionally, a empty value is added, which can be provided as pEmptyValue, being a string
-	/// which will be used for both, value and text, or an array with two items [value, text].
-	/*fillJQueryDropdown: function(pDropdown, pValues, pEmptyValue) {
+	/**
+	 * fills a dropdown-list (select) with values provided as array of arrays [[value, text],...].
+	 * optionally, an empty value is added, which can be provided as pEmptyValue, being a string
+	 * which will be used for both, value and text, or an array with two items [value, text].
+	 * @param {HTMLSelectElement} pDropdown
+	 * @param {[[]]} pValues - array of arrays with [value, text]
+	 * @param {String | []} pEmptyValue - aString or an array with [value, text] to add before the values
+	 * */
+	fillDropdown: function (pDropdown, pValues, pEmptyValue) {
 		if ((typeof pEmptyValue !== 'undefined') && (pEmptyValue !== null)) {
-			var value, text;
+			let value, text;
 			if (Array.isArray(pEmptyValue) && (pEmptyValue.length === 2)) {
 				value = pEmptyValue[0];
 				text = pEmptyValue[1]
@@ -99,35 +100,11 @@ RC.Utils = {
 				value = pEmptyValue;
 				text = pEmptyValue;
 			}
-			RC.Utils.addDomObject('option', pDropdown).val(value).text(text);
+			RC.Utils.addOption(pDropdown, value, text);
 		}
 		pValues.forEach(function (anItem) {
-			RC.Utils.addDomObject('option', pDropdown).val(anItem[0]).text(anItem[1]);
+			RC.Utils.addOption(pDropdown, anItem[0], anItem[1]);
 		});
-	},*/
-
-	/// fills a dropdown-list (select) with values provided as array of arrays [[value, text],...].
-	/// optionally, an empty value is added, which can be provided as pEmptyValue, being a string
-	/// which will be used for both, value and text, or an array with two items [value, text].
-	fillDropdown: function (pDropdown, pValues, pEmptyValue) {
-		/*if (pDropdown instanceof jQuery) {
-			RC.Utils.fillJQueryDropdown(pDropdown, pValues, pEmptyValue);
-		} else {*/
-			if ((typeof pEmptyValue !== 'undefined') && (pEmptyValue !== null)) {
-				let value, text;
-				if (Array.isArray(pEmptyValue) && (pEmptyValue.length === 2)) {
-					value = pEmptyValue[0];
-					text = pEmptyValue[1]
-				} else {
-					value = pEmptyValue;
-					text = pEmptyValue;
-				}
-				RC.Utils.addOption(pDropdown, value, text);
-			}
-			pValues.forEach(function (anItem) {
-				RC.Utils.addOption(pDropdown, anItem[0], anItem[1]);
-			});
-		//}		
 	},
 
 	/**
@@ -155,35 +132,33 @@ RC.Utils = {
 		return result;
 	},
 
-	/// reads the value from a textbox and returns it as a number, if it 
-	/// is a valid number. Otherwise returns null.
+	/**
+	 * Reads the value from a textbox and returns it as a number, if it 
+	 * is a valid number. Otherwise returns null.
+	 * @param {HTMLInputElement} pTextbox - The input element (anything with a "value")
+	 * */
 	getNumericValue: function (pTextbox) {
 		let result = null;
-		let fieldValue = null;
-		if (pTextbox instanceof HTMLElement) {
-			fieldValue = pTextbox.value;
-		}
-		/*else if (pTextbox instanceof jQuery) {
-			fieldValue = pTextbox.val();
-		}*/
+		let fieldValue = pTextbox.value;
 		if (RC.Utils.isNumeric(fieldValue)) {
 			result = Number(fieldValue);
 		}
 		return result;
 	},
 
-	/// shows a numeric value within a field or control. 
-	/// params:
-	/// pControl: a jQuery control or a HTMLElement
-	/// pValue: the value to display
-	/// pDefault: the value to display if pValue is not a number
-	/// [pFixed]: if set, the number of decimals to show
-	/// [pHideIfEmpty]: Hides the control if it equals ''
-	/// [pShowLeadingPlus]: adds a "+" if the value is positive
+	/**
+	 * Shows a numeric value within a field or control. 
+	 * @param {HTMLElement} pControl - the field where the value should be shown
+	 * @param {Number} pValue - the value to display
+	 * @param {Number} pDefault - the value to display if pValue is not a number
+	 * @param {Number} pFixed - optionally a fixed number of decimal places
+	 * @param {Boolean} pHideIfEmpty - if true, hides the control if no value is passed
+	 * @param {Boolean} pShowLeadingPlus - optionally adds a "+" if the value is positive
+	* */
 	showNumericValue: function (pControl, pValue, pDefault, pFixed, pHideIfEmpty, pShowLeadingPlus = false) {
-		var text = pDefault;
+		let text = pDefault;
 		if (RC.Utils.isNumeric(pValue)) {
-			var number = Number(pValue);
+			const number = Number(pValue);
 			if ((pFixed !== null) && (typeof pFixed !== 'undefined')) {
 				text = number.toFixed(pFixed);
 			} else {
@@ -200,7 +175,8 @@ RC.Utils = {
 		}
 	},
 
-	/** returns a Map with each item of pEvents as key and
+	/** 
+	 *  Returns a Map with each item of pEvents as key and
 	 *  an empty array (to be filled with the observers)
 	 *  as value. 
 	 *  @param {String | Array} pEvents: The name of the events to create
@@ -218,7 +194,7 @@ RC.Utils = {
 	},
 
 	/**
-	 * calls all observers that registered for pEvent. Passes the sender
+	 * Calls all observers that registered for pEvent. Passes the sender
 	 * and pArg as parameters. Does nothing, if pObservers is falsy.
 	 * @param {Object} pSender: the object in which the event happened
 	 * @param {Map} pObservers: Map with event names and arrays of callback functions
@@ -238,13 +214,15 @@ RC.Utils = {
 		}
 	},
 
-	/// adds an observer for an event
-	/// param pObservers: the Map with the observers
-	/// param pEvent: the event name to be observed
-	/// param pCallback: the callback to call when pEvent happens
+	/**
+	 * Adds an observer for an event
+	 * @param {Map} pObservers: the Map with the observers
+	 * @param {String} pEvent: the event name to be observed
+	 * @param {Function} pCallback: the callback to call when pEvent happens
+	 * */
 	addObserver: function (pObservers, pEvent, pCallback) {
 		if (pObservers.has(pEvent)) {
-			var eventObservers = pObservers.get(pEvent);
+			const eventObservers = pObservers.get(pEvent);
 			if (!eventObservers.includes(pCallback)) {
 				eventObservers.push(pCallback);
 				PiLot.log(`observer added: ${pEvent}`, 3);
@@ -272,7 +250,6 @@ RC.Utils = {
 		for (element of document.querySelectorAll('.selectOnFocus')) {
 			RC.Utils.selectOnFocus(element);
 		}
-		//$('.selectOnFocus').each(function () { RC.Utils.selectOnFocus($(this)) });
 	},
 
 	/** makes sure that the text within a control is selected as soon
@@ -281,39 +258,23 @@ RC.Utils = {
 	 */
 	selectOnFocus: function () {
 		for (let i = 0; i < arguments.length; i++) {
-			(arguments[i] /*instanceof jQuery ? arguments[i].get(0) : arguments[i]*/).addEventListener('focus', function () { this.select(); });
+			arguments[i].addEventListener('focus', function () { this.select(); });
 		}		
 	},
 
-	/// sets the text of an element by using innerText. pControl can be
-	/// either a jQuery control or an HTMLElement or a jquery object. This
-	/// should be prefered over jQuery.text as it does not create new node
-	/// and thus fill up memory. Returns the control for easy chaining.
+	/**
+	 * Sets the text of an element by using value (if available) or innerText. Returns
+	 * the control for easy chaining.
+	 * @param {HTMLElement} pControl
+	 * @param {String} pText
+	 * */ 
 	setText: function (pControl, pText) {
-		//if (pControl instanceof HTMLElement) {
-			if ('value' in pControl) {
-				pControl.value = pText;
-			} else {
-				pControl.innerText = pText;
-			}
-		/*}
-		else if (pControl instanceof jQuery) {
-			var controls = pControl.get();
-			controls.forEach(function (item) {
-				RC.Utils.setText(item, pText);
-			});
+		if ('value' in pControl) {
+			pControl.value = pText;
 		} else {
-			console.log(pControl + ' is neither HTMLElement nor jQuery');
-		}*/
+			pControl.innerText = pText;
+		}
 		return pControl;
-	},
-
-	/// makes sure a class is added or removed from an element. 
-	/// OBSOLETE, use classList.toggle instead
-	toggleClass: function (pControl, pClassName, pAdd) {
-		if (pControl && pControl instanceof HTMLElement) {
-			pControl.classList.toggle(pClassName, pAdd);
-		} 
 	},
 
 	/**
@@ -324,11 +285,13 @@ RC.Utils = {
 	 */
 	showHide: function (pControl, pVisible) {
 		let hidden = (typeof pVisible !== 'undefined') ? !pVisible : undefined;
-		RC.Utils.toggleClass(pControl, 'hidden', hidden);
+		pControl.classList.toggle('hidden', hidden);
 	},
 
-	/// this takes a string and returns a node, allowing
-	/// to quickly create a html Element from template string
+	/**
+	 * this takes a string and returns a node, allowing
+	 * to quickly create a html Element from template string
+	 * */
 	stringToNode: function(pString) {
 		var result = null;
 		var nodes = this.stringToNodes(pString);

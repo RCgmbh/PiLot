@@ -6,7 +6,7 @@ PiLot.Templates.Media = {
 	gamesOverviewPage: `
 		<div class="contentPadding">
 			<h1>Games</h1>
-			<a href="games/snake/index.html" class="tile big">
+			<a href="games/snake/index.html" class="tile big" hidden>
 				<div>
 					<img src="img/iconSnake.svg" />
 					<span class="label">Snake</span>

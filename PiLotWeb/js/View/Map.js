@@ -2139,9 +2139,9 @@ PiLot.View.Map = (function () {
 		/// sets the map mode, if it changed, by showing/hiding controls
 		setMapMode: function (pMode) {
 			if (pMode !== this.mode) {
-				RC.Utils.toggleClass(this.tile, 'hidden', pMode !== 1);
-				RC.Utils.toggleClass(this.divMap, 'noControls', pMode === 2);
-				RC.Utils.toggleClass(this.divMap, 'hidden', pMode < 2);
+				this.tile.classList.toggle('hidden', pMode !== 1);
+				this.divMap.classList.toggle('noControls', pMode === 2);
+				this.divMap.classList.toggle('hidden', pMode < 2);
 				if (pMode > 1) {
 					this.ensureMap();
 					if (pMode < 3) {

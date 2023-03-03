@@ -55,7 +55,7 @@ PiLot.View.Common = (function () {
 		/// shows the current time
 		showTime: function () {
 			if (this.lblTime) {
-				RC.Utils.setText(this.lblTime, this.boatTime.now().toLocaleString(DateTime.TIME_24_WITH_SECONDS));
+				this.lblTime.innerText = this.boatTime.now().toLocaleString(DateTime.TIME_24_WITH_SECONDS);
 			}
 		},
 
@@ -521,7 +521,7 @@ PiLot.View.Common = (function () {
 		},
 
 		btnExpandCollapse_click: function () {
-			this.optionsPanel.toggleClass('expanded');
+			this.optionsPanel.classList.toggle('expanded');
 		},
 
 		loadSettings: function () {

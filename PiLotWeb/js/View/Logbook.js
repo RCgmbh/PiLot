@@ -387,7 +387,7 @@ PiLot.View.Logbook = (function () {
 			if (time !== null) {
 				text = time.toFormat('HH:mm');
 			}
-			RC.Utils.setText(this.lblTime, text);
+			this.lblTime.innerText = text;
 		},
 
 		/** deletes a logbook entry and notifies the observers */

@@ -367,7 +367,7 @@ PiLot.View.Boat = (function () {
 			this.boatConfig.getFeatures().forEach(function (pFeature, pFeatureId) {
 				const featureSelect = RC.Utils.stringToNode(PiLot.Templates.Boat.boatFeatureSelect);
 				this.plhFeatures.append(featureSelect);
-				RC.Utils.setText(featureSelect.querySelector('.lblFeatureName'), pFeature.getName());
+				featureSelect.querySelector('.lblFeatureName').innerText = pFeature.getName();
 				const selFeatureStates = featureSelect.querySelector('.selFeatureStates');
 				pFeature.getStates().forEach(function (aState) {
 					selFeatureStates.append(new Option(aState.getName(), aState.getStateId()));
