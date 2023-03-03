@@ -1,16 +1,16 @@
 # PiLot - getting started
 ## Install the PiLot web application
 
-The core of the PiLot is a web application, which provides all data and functionality. The web application is made of different elements. One is the static website, containing the html and javascript files. The other part ist the REST API, which is called by the javascript within the website, and grants reading and writing access to the data. A webserver (nginx, say "engine-X") is used to make all this glory available. Sounds complicated, but actually isn't, as most of the work already has been done for you, and the entire installation in this chapter is automated with scripts.
+The core of the PiLot is a web application, which provides all data and functionality. The web application is made of different elements. One is the static website, containing the html and javascript files. The other part ist the REST API, which is called by the javascript within the website, and grants reading and writing access to the data, which is saved partly in files and partly in a postgreSQL database. A webserver (nginx, say "engine-X") is used to make all this glory available. Sounds complicated, but actually isn't, as most of the work already has been done for you, and the entire installation in this chapter is automated with scripts.
 
 All scripts are in the pilotinstall directory, and some of them only work when called from within this directory, so please make sure you are at the right place:
 
 ```
 cd ~/pilotinstall
 ```
-We first install the .net core runtime. Just enter 
+We first install the .net core runtime, postgreSQL and nginx. Just enter 
 ```
-sudo sh 02-install-netcore.sh
+sudo sh 02-install-platform.sh
 ```
 To check whether the installation was successful, enter 
 ```
