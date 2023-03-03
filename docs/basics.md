@@ -29,7 +29,7 @@ Samba gives you a convenient access to files on your PiLot from within Windows E
 ```
 sudo sh 00-install-samba.sh
 ```
-Follow the instructions on the screen, and when asked for "New SMB password", enter the samba-password you want for your user "pi", which can be just the same password as you set before. Once the installation is done, open a windows explorer on your Windows machine, and in the address bar, enter **\\\\raspberrypi**, or if you changed the hostname, the new hostname instead of raspberrypi. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
+Follow the instructions on the screen, and when asked for "New SMB password", enter the samba-password you want for your user "pi", which can be just the same password as you set before. Once the installation is done, open a windows explorer on your Windows machine, and in the address bar, enter **\\\\pilot**, or whatever hostname you defined. Log in with your pi user, and you should now see a share called "Home", which is mapped to the user "pi" his home directory.
 
 \> [Next, set up an access point...](ap.md)
 
