@@ -4,17 +4,16 @@ if [ `whoami` != root ]; then
     exit
 fi
 
+# set up DB
+chown pi:postgres /home/pi/pilotinstall/sql/setup-db.sh
+su -c /home/pi/pilotinstall/sql/setup-db.sh postgres
+
 # prepare directories
 mkdir -p /var/opt/pilot			#PiLot data directory
 mkdir -p /var/log/pilot			#PiLot log directory
 chown pi:root /var/log/pilot
 mkdir -p /opt/pilotapi			#PiLot binaries
 mkdir -p /etc/pilot				#PiLot config directory
-
-# set up DB
-psql -d postgres -f /home/pi/pilotinstall/resources/sql/pilotDb.sql
-psql -d pilot -f /home/pi/pilotinstall/resources/sql/poi.sql
-psql -d pilot -f /home/pi/pilotinstall/resources/sql/poiData.sql
 
 # set up API
 cp -r resources/pilotapi/* /opt/pilotapi/
