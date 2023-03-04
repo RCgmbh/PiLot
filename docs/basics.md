@@ -4,6 +4,7 @@ In this step you install the operating system, and do some basic configuration.
 
 ### Prepare the SD card
 Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Before writing the image, click the "options" icon in the lower right:
+
 ![image](https://user-images.githubusercontent.com/96988699/222913634-336a7d58-a88d-4929-9da8-e2f2a545eb5a.png)
 
 
