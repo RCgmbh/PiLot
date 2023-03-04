@@ -17,7 +17,7 @@ Be aware that writing the image to your SD card will overwrite all data, so make
 Once finished writing, remove the SD card and insert it into your Raspberry Pi. If you want to access your PiLot over ethernet, connect it to your local netork. Now power it on.
 
 ### Connect to your Raspberry Pi
-After a minute or so, connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@pilot.local` (replace "pilot" by the hostname you defined before). You might have to confirm by typing "yes", then enter the password you set before. You should now see `pi@pilot:~ $`. Feel good, as you just brought life to your tiny computer. 
+After a minute or so (the first boot can take a while), connect to your PiLot via SSH: Open a command window / terminal window, and enter `ssh pi@pilot.local` (replace "pilot" by the hostname you defined before). You might have to confirm by typing "yes", then enter the password you set before. You should now see `pi@pilot:~ $`. Feel good, as you just brought life to your tiny computer. 
 
 ### Update your System
 In order to bring your system up to date, run `sudo apt update` which will look for the latest versions of the installed software packages, then run `sudo apt upgrade -y` which will actually install the latest versions. This might take a while, so go get a coffee, as there is some more work waiting.
