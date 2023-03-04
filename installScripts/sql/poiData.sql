@@ -1,4 +1,4 @@
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Ôªø/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   This will create the db structure for POIs
   ALL EXISTING POI DATA WILL BE LOST!
@@ -19,27 +19,26 @@ SELECT insert_poi_category (null, 'obstacle', '{"de": "Hindernis", "en": "Obstac
 SELECT insert_poi_category (null, 'supply', '{"de": "Versorgung", "en": "Supply"}', 'css:icon-shipping');
 SELECT insert_poi_category (null, 'measuringstation', '{"de": "Messstation", "en": "Measuring station"}', 'css:icon-meter2');
 SELECT insert_poi_category (null, 'pleasure', '{"de": "Freude", "en": "Pleasure"}', 'css:icon-heart');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'sight', '{"de": "Sehensw¸rdigkeit", "en": "Sight"}', 'css:icon-eye');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'sight', '{"de": "Sehensw√ºrdigkeit", "en": "Sight"}', 'css:icon-eye');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'toilet', '{"de": "Toilette", "en": "Toilet"}', 'css:icon-man-woman');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'marina', '{"de": "Marina", "en": "Marina"}', 'svg:marina.svg');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'mooring', '{"de": "Anlegestelle", "en": "Mooring"}', 'svg:mooring.svg');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'nicePlace', '{"de": "Schˆnes Pl‰tzchen", "en": "Nice Place"}', 'css:icon-sun');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'bridge', '{"de": "Br¸cke", "en": "Bridge"}', 'svg:bridge.svg');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='stay'), 'anchorage', '{"de": "Ankerstelle", "en": "Anchorage"}', 'css:icon-anchor');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'nicePlace', '{"de": "Sch√∂nes Pl√§tzchen", "en": "Nice Place"}', 'css:icon-sun');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'bridge', '{"de": "Br√ºcke", "en": "Bridge"}', 'svg:bridge.svg');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='supply'), 'gazstation', '{"de": "Tankstelle", "en": "Gaz station"}', 'svg:gazstation.svg');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='supply'), 'health', '{"de": "Gesundheit", "en": "Health"}', 'css:icon-health');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'impediment', '{"de": "Einschr‰nkung", "en": "Impediment"}', 'css:icon-power');
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'impediment', '{"de": "Einschr√§nkung", "en": "Impediment"}', 'css:icon-power');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='obstacle'), 'lock', '{"de": "Schleuse", "en": "Lock"}', 'svg:lock.svg');
 SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='supply'), 'restaurant', '{"de": "Restaurant", "en": "Restaurant"}', 'css:icon-spoon-knife');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='shop'), 'shop', '{"de": "Gesch‰ft", "en": "Shop"}', 'css:icon-cart');
-SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='pleasure'), 'anchorage', '{"de": "Ankerstelle", "en": "Anchorage"}', 'css:icon-anchor');
-
+SELECT insert_poi_category ((SELECT id FROM poi_categories WHERE name='shop'), 'shop', '{"de": "Gesch√§ft", "en": "Shop"}', 'css:icon-cart');
 
 
 /* INSERT FEATURES */
 
 SELECT insert_poi_feature('drinkingWater', '{"de": "Trinkwasser", "en": "Drinking Water"}');
 SELECT insert_poi_feature('wasteWater', '{"de": "Schmutzwasser", "en": "Waste water"}');
-SELECT insert_poi_feature('guestPlaces', '{"de": "G‰stepl‰tze", "en": "Guest places"}');
+SELECT insert_poi_feature('guestPlaces', '{"de": "G√§stepl√§tze", "en": "Guest places"}');
 SELECT insert_poi_feature('toilet', '{"de": "Toilette", "en": "Toilet"}');
 SELECT insert_poi_feature('shower', '{"de": "Dusche", "en": "Shower"}');
 SELECT insert_poi_feature('laundry', '{"de": "Waschmaschine", "en": "Laundry"}');
