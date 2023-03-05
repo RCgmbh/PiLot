@@ -284,8 +284,10 @@ RC.Utils = {
 	 * @param {Boolean} pVisible - true: show the element, false: hide it, undefined: toggle
 	 */
 	showHide: function (pControl, pVisible) {
-		let hidden = (typeof pVisible !== 'undefined') ? !pVisible : undefined;
-		pControl.classList.toggle('hidden', hidden);
+		if (pControl) {
+			let hidden = (typeof pVisible !== 'undefined') ? !pVisible : undefined;
+			pControl.classList.toggle('hidden', hidden);
+		}
 	},
 
 	/**
