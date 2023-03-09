@@ -214,7 +214,7 @@ PiLot.Templates.Nav = {
 					<span class="lblTitle marginBottomSmall block semiBold"></span>
 					<div class="labelValues30-70 flexColumn marginBottomSmall">
 						<div class="pnlFeatures"><span class="label" data-text="features"></span><ul class="ulFeatures value"></ul></div>
-						<div class="pnlDescription"><span class="label" data-text="description"></span><span class="lblDescription value preWrap" style="word-break: break-word;overflow-wrap:break-word;"></span></div>
+						<div class="pnlDescription"><span class="label" data-text="description"></span><span class="lblDescription value preWrap breakWord"></span></div>
 						<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
 						<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
 						<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>

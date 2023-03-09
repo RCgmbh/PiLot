@@ -171,6 +171,7 @@ PiLot.Templates.Tools = {
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportMarinas marginRight" /><span data-text="marinas"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportLocks marginRight" /><span data-text="locks"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportFuel marginRight" /><span data-text="fuelStations"></span></label>
+						<label class="marginRight noWrap"><input type="checkbox" class="cbImportShops marginRight" /><span data-text="shops"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportToilets marginRight" /><span data-text="toilets"></span></label>
 					</div>
@@ -208,7 +209,7 @@ PiLot.Templates.Tools = {
 		</div>
 	`,
 
-	osmPoiTag: '<div><span class="lblKey italic"></span>: <span class="lblValue"></span></div>',
+	osmPoiTag: '<div><span class="lblKey italic"></span>: <span class="lblValue breakWord"></span></div>',
 
 	osmLinkCandidate: '<a href="#" class="block"><span class="lblCategory"></span>:&nbsp;<span class="lblTitle"></span></a>',
 

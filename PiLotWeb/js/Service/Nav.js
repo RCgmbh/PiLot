@@ -323,7 +323,8 @@ PiLot.Service.Nav = (function () {
 		lock: [['lock', 'yes'], ['waterway', 'lock_gate'], ['waterway', 'boat_lift']],
 		fuel: [['wateway', 'fuel'], ['amenity', 'fuel']],
 		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes']],
-		toilet: [['amenity', 'toilets']]
+		toilet: [['amenity', 'toilets']],
+		shop: [['shop', 'convenience'], ['shop', 'supermarket'], ['shop', 'yes']]
 	};
 
 	OsmPoiLoader.apiUrl = 'https://lz4.overpass-api.de/api/interpreter?data=';

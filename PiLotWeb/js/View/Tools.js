@@ -652,6 +652,7 @@ PiLot.View.Tools = (function () {
 		this.cbImportFuel = null;
 		this.cbImportPump = null;
 		this.cbImportToilets = null;
+		this.cbImportShops = null;
 		this.lblLoadingData = null;
 		this.plhOsmDetails = null;
 		this.initialize();
@@ -706,6 +707,7 @@ PiLot.View.Tools = (function () {
 			this.cbImportFuel = control.querySelector('.cbImportFuel');
 			this.cbImportPump = control.querySelector('.cbImportPump');
 			this.cbImportToilets = control.querySelector('.cbImportToilets');
+			this.cbImportShops = control.querySelector('.cbImportShops');
 			this.lblLoadingData = control.querySelector('.lblLoadingData');
 			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'));
 			await this.seamap.showAsync()
@@ -735,6 +737,9 @@ PiLot.View.Tools = (function () {
 			}
 			if (this.cbImportToilets.checked) {
 				types.push('toilet');
+			}
+			if (this.cbImportShops.checked) {
+				types.push('shop');
 			}
 			this.plhOsmDetails.clear();
 			const mapBounds = this.seamap.getLeafletMap().getBounds();

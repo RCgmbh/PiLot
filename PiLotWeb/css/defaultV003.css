@@ -280,6 +280,7 @@ textarea.big{height:20em;}
 .preLine {white-space: pre-line;}
 .preWrap {white-space: pre-wrap;}
 .noWrap {white-space: nowrap;}
+.breakWord {word-break: break-word;overflow-wrap:break-word;}
 .bgLight { background-color: #eee; }
 .bgLightBlue { background-color: #B2D3FF; }
 .borderLight { border: 1px solid #ccc;}
