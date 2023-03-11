@@ -115,7 +115,7 @@ RC.Date.DateHelper = {
 				date = date.toLuxon();
 			}
 			if (date instanceof DateTime) {
-				result.date = DateTime.fromObject({ year: date.year, month: date.month, day: date.day, hour: hours, minute: minutes, zone: date.zone });
+				result.date = DateTime.fromObject({ year: date.year, month: date.month, day: date.day, hour: hours, minute: minutes });
 			}
 		}
 		return result;
@@ -128,8 +128,6 @@ RC.Date.DateHelper = {
 	 */
 	localNow: function (pUtcOffsetMinutes) {
 		const utc = luxon.DateTime.utc();
-		const plusSign = pUtcOffsetMinutes >= 0 ? '+' : '';
-		const timeZoneName = 'UTC' + plusSign + pUtcOffsetMinutes / 60;
 		let result = luxon.DateTime.fromObject({
 			year: utc.year,
 			month: utc.month,
@@ -137,8 +135,7 @@ RC.Date.DateHelper = {
 			hour: utc.hour,
 			minute: utc.minute,
 			second: utc.second,
-			millisecond: utc.millisecond,
-			zone: timeZoneName
+			millisecond: utc.millisecond
 		});
 		result = result.plus({ minutes: pUtcOffsetMinutes });
 		return result;

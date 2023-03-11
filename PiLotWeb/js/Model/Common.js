@@ -68,8 +68,8 @@ PiLot.Model.Common = (function () {
 				hour: utc.hour,
 				minute: utc.minute,
 				second: utc.second,
-				millisecond: utc.millisecond,
-				zone: this.getTimezoneName(),
+				millisecond: utc.millisecond
+			}, {
 				locale: navigator.language || 'de-CH'
 			});
 			result = result.plus({ minutes: this.utcOffset });
