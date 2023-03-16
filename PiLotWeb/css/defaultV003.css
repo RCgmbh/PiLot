@@ -266,6 +266,7 @@ textarea.big{height:20em;}
 .flexRowWrap { display:flex; flex-direction:row; flex-wrap: wrap; }
 .flexColumn { display:flex; flex-direction:column; }
 .flexColumnWrap { display:flex; flex-direction:column; flex-wrap:wrap; }
+.reverse { flex-wrap:wrap-reverse; }
 .gap { gap:1em; }
 .gapSmall { gap: 0.125em 0.25em;}
 .grow { flex-grow:1; }

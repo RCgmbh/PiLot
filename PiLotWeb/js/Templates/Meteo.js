@@ -3,11 +3,20 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Meteo = {
 
-	meteoPage: `
+	sensorsPage: `
 		<div class="contentPadding">
-			<div class="plhChartContainer meteoChartContainer marginBottom"></div>
-			<div class="plhMeteoblue dataContainerFull paddingAll marginBottom hidden"></div>
-			<div class="plhMoon dataContainerFull paddingAll marginBottom"></div>
+			<h1 data-text="measurements"></h1>
+			<div class="pnlNoSensors feedbackWarning marginRight" data-text="noSensors" hidden></div>
+			<div class="pnlData marginRight">
+				<div class="flexRowWrap reverse">
+					<div class="flexRowWrap reverse marginRight marginBottom">
+						<label class="marginRight"><input type="radio" name="rblTimeMode" value="historic" /><span data-text="measurementsHistoric"></span></label>
+						<label class="marginRight"><input type="radio" name="rblTimeMode" value="current" checked /><span data-text="measurementsCurrent"></span></label>
+					</div>
+					<select class="ddlDateRange input8 marginBottom"></select>
+				</div>
+				<div class="plhChartsContainer meteoChartContainer marginBottom"></div>
+			</div>
 		</div>
 	`,
 
@@ -23,9 +32,9 @@ PiLot.Templates.Meteo = {
 				<div class="divMaxValue"><i class="icon-arrow-up2"></i><span class="lblMaxValue">---</span> &#176;C</div>
 			</div>
 			<div class="divChartContainer">
-				<div class="divChart chartContainer hidden"></div>
+				<div class="divChart chartContainer" hidden></div>
 				<div class="divChartLoading chartWait" ><span data-text="loadingData"></span></div>
-				<div class="divChartError chartError hidden" ><span data-text="error"></span></div>
+				<div class="divChartError chartError" hidden><span data-text="error"></span></div>
 				<div class="divLabel"><i class="icon-thermometer"></i><span class="lblName"></span></div>
 			</div>
 		</div>
@@ -39,9 +48,9 @@ PiLot.Templates.Meteo = {
 				<div class="divMaxValue"><i class="icon-arrow-up2"></i><span class="lblMaxValue">---</span> &#37;</div>
 			</div>
 			<div class="divChartContainer">
-				<div class="divChart chartContainer hidden"></div>
+				<div class="divChart chartContainer" hidden></div>
 				<div class="divChartLoading chartWait"><span data-key="loadingData"></span></div>
-				<div class="divChartError chartError hidden" ><span data-key="error"></span></div>
+				<div class="divChartError chartError" hidden><span data-key="error"></span></div>
 				<div class="divLabel"><i class="icon-droplet"></i> <span class="lblName"></span></div>
 			</div>
 		</div>
@@ -62,30 +71,13 @@ PiLot.Templates.Meteo = {
 				<div class="divPressureTrend"><span class="lblPressureTrend">--</span> <span data-text="hPaPH"></span></div>				
 			</div>
 			<div class="divChartContainer">
-				<div class="divChart chartContainer hidden"></div>
+				<div class="divChart chartContainer" hidden></div>
 				<div class="divChartLoading chartWait"><span data-text="loadingData"></span></div>
-				<div class="divChartError chartError hidden"><span data-text="error"></span></div>
+				<div class="divChartError chartError" hidden><span data-text="error"></span></div>
 				<div class="divLabel"><i class="icon-barometer"></i> <span class="lblName"></span></div>
 			</div>
 		</div>
 	`,
-
-	moonInfo: `
-		<div class="dataContainerFull marginBottom marginRightBig">
-			<div class="borderBox bgLight fullWidth">
-				<div class="moonContainer block hCenter center">
-					<img src="img/moonNew.svg" class="imgMoonNew moonImage active" />
-					<img src="img/moonWaxingCrescent.svg" class="imgMoonWaxingCrescent moonImage" />
-					<img src="img/moonFirstQuarter.svg" class="imgMoonFirstQuarter moonImage" />
-					<img src="img/moonWaxingGibbous.svg" class="imgMoonWaxingGibbous moonImage" />
-					<img src="img/moonFull.svg" class="imgMoonFull moonImage" />
-					<img src="img/moonWaningGibbous.svg" class="imgMoonWaningGibbous moonImage" />
-					<img src="img/moonThirdQuarter.svg" class="imgMoonThirdQuarter moonImage" />
-					<img src="img/moonWaningCrescent.svg" class="imgMoonWaningCrescent moonImage" />
-					<div class=" divTodayBar moonTodayBar borderLightBlue"></div>
-				</div>
-			</div>
-		</div>`,
 
 	meteoblueFrame: `
 		<div>

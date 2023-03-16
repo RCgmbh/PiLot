@@ -410,7 +410,7 @@ PiLot.View.Tools = (function () {
 
 		/** Creates the chart and shows the data, which must have been processed before */
 		drawChart: function () {
-			this.chart = new PiLot.Utils.Chart.DataChart({ chart: this.pnlChart }, null, null, null, `HH:mm`);
+			this.chart = new PiLot.Utils.Chart.DataChart({ chart: this.pnlChart });
 			this.setChartData();
 		},
 
@@ -1231,7 +1231,7 @@ PiLot.View.Tools = (function () {
 			this.tbImportCategories = control.querySelector('.tbImportCategories');
 			this.tbImportFeatures = control.querySelector('.tbImportFeatures');
 			this.tbImportPois = control.querySelector('.tbImportPois');
-			this.rblReplaceOptions = document.getElementsByName('rblReplaceOptions')
+			this.rblReplaceOptions = document.getElementsByName('rblReplaceOptions');
 			control.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
 			this.plhOutput = control.querySelector('.plhOutput');
 		},

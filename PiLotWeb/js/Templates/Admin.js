@@ -68,8 +68,8 @@ PiLot.Templates.Admin = {
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkSettings" data-text="administration"></a> : <span data-text="cpuTemperature"></span></h1>
 			<div class="dataContainerHalf">
-				<div class="chartContainer hidden"></div>
-				<div class="chartError hidden" data-text="errorLoading"></div>
+				<div class="chartContainer" hidden></div>
+				<div class="chartError" data-text="errorLoading" hidden></div>
 				<div class="chartWait" data-text="pleaseWait"></div>
 			</div>
 		</div>

@@ -29,7 +29,7 @@ PiLot.Utils.Loader = (function () {
 			routeDetails: 'route'
 		},
 		meteo: {
-			overview: 'meteo'
+			sensors: 'sensors'
 		},
 		logbook: {
 			logbook: 'logbook',
@@ -102,6 +102,7 @@ PiLot.Utils.Loader = (function () {
 
 	const meteoScripts = [
 		{ url: 'js/3rdParty/divers/suncalc.js', priority: 1 },
+		{ url: 'js/Service/Meteo.js', priority: 10 },
 		{ url: 'js/Model/Meteo.js', priority: 10 },
 		{ url: 'js/Templates/Meteo.js', priority: 10 },
 		{ url: 'js/View/Meteo.js', priority: 10 }
@@ -218,9 +219,9 @@ PiLot.Utils.Loader = (function () {
 					dependencies = [defaultScripts, navScripts];
 					startAction = function () { new PiLot.View.Nav.RouteDetail(); };
 					break;
-				case pages.meteo.overview:
+				case pages.meteo.sensors:
 					dependencies = [defaultScripts, meteoScripts, flotScripts, navScripts];
-					startAction = function () { new PiLot.View.Meteo.MeteoPage(); };
+					startAction = function () { new PiLot.View.Meteo.SensorsPage(); };
 					break;
 				case pages.logbook.logbook:
 					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts];

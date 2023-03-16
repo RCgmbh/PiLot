@@ -3,7 +3,12 @@ PiLot.View = PiLot.View || {};
 
 PiLot.View.Meteo = (function () {
 
-	var MeteoPage = function () {
+	var SensorsPage = function () {
+		this.pnlNoSensors = null;
+		this.pnlData = null;
+		this.ddlDateRange = null;		// Dropdown
+		this.rblTimeMode = null;		// NodeList (radio buttons)
+		this.plhChartsContainer = null;
 		this.controls = null;			// an array with the info controls
 		this.dataLoader = null;			// the loader used to load data
 		this.dataLoadInterval = null;	// one single interval to refresh all charts
@@ -11,62 +16,129 @@ PiLot.View.Meteo = (function () {
 		this.initialize();
 	};
 
-	MeteoPage.prototype = {
+
+	SensorsPage.dateRanges = [
+		{ duration: { days: 1   }, aggregateSecondsTemperature: 600,   aggregateSecondsPressure: 3600,  yRangeTemperature: 20, yRangePressure: 2000 },
+		{ duration: { days: 2   }, aggregateSecondsTemperature: 600,   aggregateSecondsPressure: 3600,  yRangeTemperature: 20, yRangePressure: 2000 },
+		{ duration: { weeks: 1  }, aggregateSecondsTemperature: 1800,  aggregateSecondsPressure: 3600,  yRangeTemperature: 30, yRangePressure: 7000 },
+		{ duration: { months: 1 }, aggregateSecondsTemperature: 3600,  aggregateSecondsPressure: 3600,  yRangeTemperature: 30, yRangePressure: 7000 },
+		{ duration: { months: 3 }, aggregateSecondsTemperature: 21600, aggregateSecondsPressure: 21600, yRangeTemperature: 40, yRangePressure: 7000 },
+		{ duration: { years: 1 },  aggregateSecondsTemperature: 86400, aggregateSecondsPressure: 86400, yRangeTemperature: 50, yRangePressure: 7000 }
+	];
+
+	/** The index of the dateRanges array to chose by default */
+	SensorsPage.defaultRange = 1;
+
+	SensorsPage.updateIntervalSeconds = 60;
+
+	SensorsPage.prototype = {
 
 		initialize: async function () {
-			this.dataLoader = new PiLot.Model.Meteo.DataLoader();
-			let result = await Promise.all([
-				PiLot.Model.Common.getCurrentBoatTimeAsync(),
-				this.dataLoader.loadMeteoDataSourcesAsync()
-			]);
+			this.dataLoader = new PiLot.Service.Meteo.DataLoader();
 			this.controls = new Array();
-			this.draw(result[0], result[1]);
+			this.draw();
+			await this.loadSensorsAsync();
 			this.startDataLoadAsync();
 		},
 
-		/// creates the page from the template and adds the controls, who will 
-		/// draw themselves.
-		draw: function (pBoatTime, pSensors) {
-			const pageContent = RC.Utils.stringToNodes(PiLot.Templates.Meteo.meteoPage);
+		rblTimeMode_change: function(pTarget) {
+			console.log(pTarget);
+		},
+
+		ddlDateRange_change: function () {
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Meteo.selectedSensorRange', this.ddlDateRange.selectedIndex);
+			this.loadAllDataAsync();
+		},
+
+		draw: function () {
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Meteo.sensorsPage);
 			let contentArea = PiLot.Utils.Loader.getContentArea();
-			contentArea.appendChildren(pageContent);
-			const chartContainer = contentArea.querySelector('.plhChartContainer');
-			let control;
-			pSensors.forEach(function (sensor) {
-				switch (sensor.sensorType) {
-					case 'temperature':
-						control = new PiLot.View.Meteo.TemperatureInfo(chartContainer, pBoatTime, sensor);
-						break;
-					case 'humidity':
-						control = new PiLot.View.Meteo.HumidityInfo(chartContainer, pBoatTime, sensor);
-						break;
-					case 'pressure':
-						control = new PiLot.View.Meteo.PressureInfo(chartContainer, pBoatTime, sensor);
-						break;
-				}
-				this.controls.push(control);
-			}.bind(this));
-			this.moonInfo = new PiLot.View.Meteo.MoonInfo(contentArea.querySelector('.plhMoon'), pBoatTime);
-			if (pSensors.length < 1) {
-				const plhMeteoblue = contentArea.querySelector('.plhMeteoblue');
-				RC.Utils.showHide(plhMeteoblue, true);
-				new MeteoblueFrame(plhMeteoblue);
+			contentArea.appendChild(pageContent);
+			this.pnlData = contentArea.querySelector('.pnlData');
+			this.pnlNoSensors = contentArea.querySelector('.pnlNoSensors');
+			this.rblTimeMode = document.getElementsByName('rblTimeMode');
+			for (const rbTimeMode of this.rblTimeMode) {
+				rbTimeMode.addEventListener('change', this.rblTimeMode_change.bind(this, rbTimeMode));
+			}
+			this.ddlDateRange = contentArea.querySelector('.ddlDateRange');
+			this.populateDateRanges();
+			this.ddlDateRange.addEventListener('change', this.ddlDateRange_change.bind(this));
+			this.plhChartsContainer = contentArea.querySelector('.plhChartsContainer');
+		},
+
+		/** Fills the dropdown with date ranges and sets the selected range from the user settings or the default index. */
+		populateDateRanges: function () {
+			const locale = PiLot.Utils.Language.getLanguage();
+			const durations = [];
+			for (const range of SensorsPage.dateRanges) {
+				const duration = luxon.Duration.fromObject(range.duration, { locale: locale });
+				const seconds = duration.toMillis() / 1000;
+				durations.push([seconds, duration.toHuman()]);
+			}
+			RC.Utils.fillDropdown(this.ddlDateRange, durations);
+			this.ddlDateRange.selectedIndex = PiLot.Utils.Common.loadUserSetting('PiLot.View.Meteo.selectedSensorRange');
+			if (this.ddlDateRange.selectedIndex < 0) {
+				this.ddlDateRange.selectedIndex = SensorsPage.defaultRange;
 			}
 		},
 
-		/// initially loads the data and then starts the interval which will
-		/// keep loading current data
+		/**
+		 * Loads the sensors from the config, and adds the appropriate controls based on the sensor type.
+		 * Populates this.controls with all them created controls.
+		 * */
+		loadSensorsAsync: async function () {
+			let obj = await Promise.all([
+				PiLot.Model.Common.getCurrentBoatTimeAsync(),
+				this.dataLoader.loadMeteoDataSourcesAsync()
+			]);
+			const boatTime = obj[0];
+			const sensors = obj[1];
+			if (sensors.length > 0) {
+				let control;
+				for (const sensor of sensors) {
+					switch (sensor.sensorType) {
+						case 'temperature':
+							control = new PiLot.View.Meteo.TemperatureInfo(this.plhChartsContainer, boatTime, sensor);
+							break;
+						case 'humidity':
+							control = new PiLot.View.Meteo.HumidityInfo(this.plhChartsContainer, boatTime, sensor);
+							break;
+						case 'pressure':
+							control = new PiLot.View.Meteo.PressureInfo(this.plhChartsContainer, boatTime, sensor);
+							break;
+					}
+					this.controls.push(control);
+				};
+			} else {
+				this.pnlData.hidden = true;
+				this.pnlNoSensors.hidden = false;
+			}
+		},
+
+		/**
+		 * Initially loads the data and then starts the interval which will keep loading current data
+		 * */
 		startDataLoadAsync: async function () {
 			await this.loadAllDataAsync();
 			this.ensureDataLoadInterval();
 		},
 
-		/// this starts the interval fetching data. We don't start this immediately but
-		/// only after getting the first data, in order to not flood the server
-		/// with requests when he is just waking up
+		/** Stops the interval which automatically refreshes the data */
+		stopDataLoad: function () {
+			if (this.dataLoadInterval) {
+				window.clearInterval(this.dataLoadInterval);
+				this.dataLoadInterval = null;
+			}
+		},
+
+		/**
+		 * This starts the interval fetching data. We don't start this immediately but
+		 * only after getting the first data, in order to not flood the server
+		 *  with requests when he is just waking up
+		 * */
 		ensureDataLoadInterval: function () {
 			if (this.dataLoadInterval === null) {
-				this.dataLoadInterval = window.setInterval(this.loadAllDataAsync.bind(this), StartPageMeteo.updateIntervalSeconds * 1000);
+				this.dataLoadInterval = window.setInterval(this.loadAllDataAsync.bind(this), SensorsPage.updateIntervalSeconds * 1000);
 			}
 		},
 
@@ -76,14 +148,21 @@ PiLot.View.Meteo = (function () {
 			await Promise.all(promises);
 		},
 
+		/**
+		 * Loads the data in one control
+		 * @param {Object} pControl - the PiLot.View.Meteo.XYInfo control
+		 */
 		loadDataAsync: async function (pControl) {
-			await pControl.loadDataAsync();
+			let timeSpanSeconds = Number(this.ddlDateRange.value);
+			let startTime = null;
+			let rangeInfo = SensorsPage.dateRanges[this.ddlDateRange.selectedIndex];
+			await pControl.loadDataAsync(timeSpanSeconds, startTime, rangeInfo);
 		}
 	};
 
 	/**
 	 * The StartPageMeteo displays a control for each sensor that has the "meteo" plus the "startPage"
-	 * tag. It uses a specific priorityzation algorythm to sort the controls, base don type before the
+	 * tag. It uses a specific prioritization algorythm to sort the controls, base don type before the
 	 * sort order defined with the sensors. Depending on the space available, more or less data is shown.
 	 * @param {HTMLElement} pContainer - the container to which we append the control
 	 * @param {PiLot.View.Common.StartPage} pStartPage - A reference to the startPage
@@ -99,15 +178,13 @@ PiLot.View.Meteo = (function () {
 		this.initialize();
 	};
 
-	StartPageMeteo.updateIntervalSeconds = 60;
-
 	StartPageMeteo.prototype = {
 
 		initialize: async function () {
 			this.startPage.on('changingLayout', this.startPage_changingLayout.bind(this));
 			this.startPage.on('changedLayout', this.startPage_changedLayout.bind(this));
 			this.startPage.on('resize', this.startPage_resize.bind(this));
-			this.dataLoader = new PiLot.Model.Meteo.DataLoader();
+			this.dataLoader = new PiLot.Service.Meteo.DataLoader();
 			this.infoControls = new Array();
 			let sensors = await this.dataLoader.loadMeteoDataSourcesAsync();
 			sensors = sensors.filter(s => s.tags.includes('startPage'));
@@ -171,7 +248,7 @@ PiLot.View.Meteo = (function () {
 		/// with requests when he is just waking up
 		ensureDataLoadInterval: function () {
 			if (this.dataLoadInterval === null) {
-				this.dataLoadInterval = window.setInterval(this.loadAllDataAsync.bind(this), StartPageMeteo.updateIntervalSeconds * 1000);
+				this.dataLoadInterval = window.setInterval(this.loadAllDataAsync.bind(this), SensorsPage.updateIntervalSeconds * 1000);
 			}
 		},
 
@@ -274,7 +351,6 @@ PiLot.View.Meteo = (function () {
 	 * @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}
 	 * @param {String} pTitle - the title to display within the chart
 	 * */
-
 	var TemperatureInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null) {
 		let chartSettings = { fillColor: 'rgba(96, 96, 209, 0.6)', yStep: 5, yRange: 20 };
 		this.minMaxInfo = new MinMaxInfo(pParentContainer, pBoatTime, pSensorInfo, PiLot.Templates.Meteo.temperatureInfo, chartSettings, pViewMode);
@@ -282,23 +358,26 @@ PiLot.View.Meteo = (function () {
 
 	TemperatureInfo.prototype = {
 
-		/// shows/updates the data in the control
-		showData: function (pData) {
-			this.minMaxInfo.showData(pData);
-		},
-
-		/// sets which controls should be shown
-		/// @param pViewMode: object with {currentValue, minValue, maxValue, chart} or an array with 4 Booleans
+		/**
+		 * Sets which controls should be shown
+		 * @param {Object} pViewMode - object with {primaryInfo, secondaryInfo, chart} or an array with 3 Booleans
+		 * */
 		setViewMode: function (pViewMode) {
 			this.minMaxInfo.setViewMode(pViewMode);
 		},
 
-		/* 
-		 * loads and shows the data
-		 * */
-		loadDataAsync: async function () {
-			return await this.minMaxInfo.loadDataAsync();
-		},
+		/**
+		 * Loads and shows the data
+		 * @param {Number} pTimeSpanSeconds - The total timespan to cover, in seconds
+		 * @param {Number} pStartTime - Optionally pass a start time in seconds UTC. If empty, the most recent data will be loaded
+		 * @param {Object} pRangeInfo - Optionally pass an element with {aggregateSecondsTemperature, yRangeTemperature}
+		 */
+		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pRangeInfo) {
+			let aggregateSeconds = pRangeInfo ? pRangeInfo.aggregateSecondsTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].aggregateSecondsTemperature;
+			let yRange = pRangeInfo ? pRangeInfo.yRangeTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].yRangeTemperature;
+			const data = await this.minMaxInfo.loadDataAsync(pTimeSpanSeconds, pStartTime, aggregateSeconds);
+			this.minMaxInfo.showData(data, yRange);
+		}
 	}
 
 	/**
@@ -309,31 +388,32 @@ PiLot.View.Meteo = (function () {
 	 * @param {Object} pSensorInfo - object with {sensorType, id, name, displayName, tags, sortOrder}
 	 * @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}
 	 * */
-
 	var HumidityInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null) {
-		let chartSettings = { fillColor: 'rgba(96, 148, 209, 0.6)', yStep: 5, yRange: 50 };
+		let chartSettings = { fillColor: 'rgba(96, 148, 209, 0.6)', yStep: 5, yRange: 80 };
 		this.minMaxInfo = new MinMaxInfo(pParentContainer, pBoatTime, pSensorInfo, PiLot.Templates.Meteo.humidityInfo, chartSettings, pViewMode);
 	};
 
 	HumidityInfo.prototype = {
 
-		/// shows/updates the data in the control
-		showData: function (pData) {
-			this.minMaxInfo.showData(pData);
-		},
-
-		/// sets which controls should be shown
-		/// @param pViewMode: object with {primaryInfo, secondaryInfo, chart} or an array with 3 Booleans
+		/**
+		 * Sets which controls should be shown
+		 * @param {Object} pViewMode - object with {primaryInfo, secondaryInfo, chart} or an array with 3 Booleans
+		 * */
 		setViewMode: function (pViewMode) {
 			this.minMaxInfo.setViewMode(pViewMode);
 		},
 
-		/* 
-		 * loads and shows the data
+		/** 
+		 * Loads and shows the data
+		 * @param {Number} pTimeSpanSeconds - The total timespan to cover, in seconds
+		 * @param {Number} pStartTime - Optionally pass a start time in seconds UTC. If empty, the most recent data will be loaded
+		 * @param {Object} pRangeInfo - Optionally pass an element with {aggregateSecondsTemperature, yRangeTemperature}
 		 * */
-		loadDataAsync: async function () {
-			return await this.minMaxInfo.loadDataAsync();
-		},
+		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pRangeInfo) {
+			let aggregateSeconds = pRangeInfo ? pRangeInfo.aggregateSecondsTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].aggregateSecondsTemperature;
+			const data = await this.minMaxInfo.loadDataAsync(pTimeSpanSeconds, pStartTime, aggregateSeconds);
+			this.minMaxInfo.showData(data, null);
+		}
 	}
 
 	/**
@@ -346,12 +426,12 @@ PiLot.View.Meteo = (function () {
 	 * @param {Object} pChartSettings - Object with {fillColor, yRange, yStep}
 	 * @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}
 	 * */
-
 	var MinMaxInfo = function (pParentContainer, pBoatTime, pSensorInfo, pTemplate, pChartSettings, pViewMode = null) {
 		this.parentContainer = pParentContainer;
 		this.boatTime = pBoatTime;
 		this.sensorInfo = pSensorInfo;
 		this.viewMode = pViewMode;
+		this.timeSpanSeconds = null;
 		this.template = pTemplate;
 		this.chartSettings = pChartSettings;
 		this.divCurrentValue = null;
@@ -371,11 +451,13 @@ PiLot.View.Meteo = (function () {
 
 		initialize: function () {
 			this.viewMode = this.viewMode || { primaryInfo: true, secondaryInfo: true, chart: true };
+			const defaultRange = SensorsPage.dateRanges[SensorsPage.defaultRange];
+			this.timeSpanSeconds = luxon.Duration.fromObject(defaultRange.duration).toMillis() / 1000;
 			this.draw();
 			this.applyViewMode();
 		},
 
-		/// draws the control based on the item, as a child of this.parentContainer
+		/** Draws the control based on the this.template, as a child of this.parentContainer */
 		draw: function () {
 			var control = PiLot.Utils.Common.createNode(this.template);
 			this.parentContainer.appendChild(control);
@@ -390,30 +472,47 @@ PiLot.View.Meteo = (function () {
 			const divChartLoading = this.chartContainer.querySelector('.divChartLoading');
 			const divChartError = this.chartContainer.querySelector('.divChartError');
 			var controls = { error: divChartError, loading: divChartLoading, chart: divChart };
-			this.chart = new PiLot.Utils.Chart.DataChart(controls, this.chartSettings.yRange, this.chartSettings.yStep, null, "HH'h'", this.chartSettings.fillColor);
+			this.chart = new PiLot.Utils.Chart.DataChart(controls, this.chartSettings.yRange, this.chartSettings.yStep, null, this.chartSettings.fillColor);
 			const lblDataName = this.chartContainer.querySelector('.lblName');
 			if (lblDataName) {
 				lblDataName.innerText = this.sensorInfo.displayName;
 			}
 		},
 
-		/* 
-		 * loads and shows the data
-		 * */
-		loadDataAsync: async function () {
-			let data = await PiLot.Utils.Chart.loadRecentData(this.sensorInfo.name, 60 * 60 * 24 * 2, 600);
-			this.showData(data);
+		/**
+		 * Loads and shows the data
+		 * @param {Number} pTimeSpanSeconds - The total timespan to cover, in seconds
+		 * @param {Number} pStartTime - Optionally pass a start time in seconds UTC. If empty, the most recent data will be loaded
+		 * @param {Object} pRangeInfo - Optionally pass an element with {aggregateSecondsTemperature, yRangeTemperature}
+		 */
+		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pAggregateSeconds) {
+			this.timeSpanSeconds = pTimeSpanSeconds || this.timeSpanSeconds;
+			let data;
+			let aggregateSeconds = pAggregateSeconds || 600;
+			if (pStartTime) {
+				data = await PiLot.Utils.Chart.loadHistoricDataAsync(this.sensorInfo.name, pStartTime, pStartTime + this.timeSpanSeconds, aggregateSeconds);
+			} else {
+				data = await PiLot.Utils.Chart.loadRecentDataAsync(this.sensorInfo.name, this.timeSpanSeconds, aggregateSeconds);
+			}
+			return data;
 		},
 
-		/// shows/updates the data in the control
-		showData: function (pData) {
+		/**
+		 * Shows/updates the data in the control
+		 * @param {Object} pData - The data as it has been loaded by the Chart 
+		 * @param {Number} pYRange - Optionally pass a total range for the values axis
+		 */
+		showData: function (pData, pYRange) {
 			this.showValues(pData);
 			if (this.viewMode.chart) {
-				this.chart.showChart(pData);
+				this.chart.showChart(pData, pYRange);
 			}
 		},
 
-		/// shows the numeric values (current, min, max temperature)
+		/**
+		 * Shows the numeric values (current, min, max value)
+		 * @param {Object} pData
+		 * */
 		showValues: function (pData) {
 			var utcNow = this.boatTime.utcNowUnix();
 			if (this.viewMode.primaryInfo) {
@@ -429,8 +528,10 @@ PiLot.View.Meteo = (function () {
 			}
 		},
 
-		/// sets which controls should be shown
-		/// @param pViewMode: object with {primaryInfo, secondaryInfo, chart} or an array with 3 Booleans
+		/**
+		 * Sets which controls should be shown
+		 * @param {Object} pViewMode: Object with {primaryInfo, secondaryInfo, chart} or an array with 3 Booleans
+		 * */
 		setViewMode: function (pViewMode) {
 			if (Array.isArray(pViewMode) && pViewMode.length == 3) {
 				this.viewMode = {
@@ -451,7 +552,8 @@ PiLot.View.Meteo = (function () {
 			changed = this.toggleVisible(this.divMaxValue, this.viewMode.secondaryInfo) || changed;
 			changed = this.toggleVisible(this.chartContainer, this.viewMode.chart) || changed;
 			if (changed && (this.viewMode.primaryInfo || this.viewMode.secondaryInfo || this.viewMode.chart)) {
-				this.loadDataAsync();
+				this.loadDataAsync().then(d => this.showData(d));
+
 			}
 		},
 
@@ -480,6 +582,8 @@ PiLot.View.Meteo = (function () {
 		this.boatTime = pBoatTime;
 		this.sensorInfo = pSensorInfo;
 		this.viewMode = pViewMode;
+		this.timeSpanSeconds = null;
+		this.yRange = null;
 		this.currentPressureContainer = null;
 		this.iconContainer = null;
 		this.trendContainer = null;
@@ -496,14 +600,16 @@ PiLot.View.Meteo = (function () {
 		this.initialize();
 	};
 
-	PressureInfo.chartRange = 2000;
 	PressureInfo.chartStep = 500;
-	PressureInfo.maxAge = 60 * 30;	// the max age of data to show in seconds, 30 Minutes
+	PressureInfo.maxAge = 1800;		// the max age of data to show in seconds, 30 Minutes
 
 	PressureInfo.prototype = {
 
 		initialize: function () {
 			this.viewMode = this.viewMode || { primaryInfo: true, secondaryInfo: true, chart: true };
+			const defaultRange = SensorsPage.dateRanges[SensorsPage.defaultRange];
+			this.yRange = defaultRange.yRangePressure;
+			this.timeSpanSeconds = luxon.Duration.fromObject(defaultRange.duration).toMillis() / 1000;
 			this.draw();
 			this.applyViewMode();
 		},
@@ -527,25 +633,35 @@ PiLot.View.Meteo = (function () {
 			const divChartLoading = this.chartContainer.querySelector('.divChartLoading');
 			const divChartError = this.chartContainer.querySelector('.divChartError');
 			var controls = { error: divChartError, loading: divChartLoading, chart: divChart };
-			this.chart = new PiLot.Utils.Chart.DataChart(controls, PressureInfo.chartRange, PressureInfo.chartStep, this.PaToHPa, "HH'h'", 'rgba(96, 209, 209, 0.6)');
+			this.chart = new PiLot.Utils.Chart.DataChart(controls, this.yRange, PressureInfo.chartStep, this.PaToHPa, 'rgba(96, 209, 209, 0.6)');
 			const lblDataName = this.chartContainer.querySelector('.lblName');
 			if (lblDataName) {
 				lblDataName.innerText = this.sensorInfo.displayName;
 			}
 		},
 
-		/* 
+		/** 
 		 * loads and shows the data
+		 * @param {Number} pTimeSpanSeconds - The total timespan to load in seconds
+		 * @param {Number} pStartTime - optionally pass a start time in utc seconds
 		 * */
-		loadDataAsync: async function () {
-			let data = await PiLot.Utils.Chart.loadRecentData(this.sensorInfo.name, 60 * 60 * 24 * 2, 3600);
-			this.showData(data);
+		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pRangeInfo) {
+			this.timeSpanSeconds = pTimeSpanSeconds || this.timeSpanSeconds;
+			let aggregateSeconds = pRangeInfo ? pRangeInfo.aggregateSecondsPressure : SensorsPage.dateRanges[1].aggregateSecondsPressure;
+			let data;
+			if (pStartTime) {
+				data = await PiLot.Utils.Chart.loadHistoricDataAsync(this.sensorInfo.name, pStartTime, pStartTime + this.timeSpanSeconds, aggregateSeconds);
+			} else {
+				data = await PiLot.Utils.Chart.loadRecentDataAsync(this.sensorInfo.name, this.timeSpanSeconds, aggregateSeconds);
+			}
+			this.showData(data, pRangeInfo);
 		},
 
-		showData: function (pData) {
+		showData: function (pData, pRangeInfo) {
 			this.showValues(pData);
 			if (this.viewMode.chart) {
-				this.chart.showChart(pData);
+				let yRange = pRangeInfo ? pRangeInfo.yRangePressure : null;
+				this.chart.showChart(pData, yRange);
 			}
 		},
 
@@ -612,72 +728,14 @@ PiLot.View.Meteo = (function () {
 			return result;
 		},
 
-		/// converts from PA to HPA
+		/** converts from PA to HPA */
 		PaToHPa: function (pValue) {
-			return pValue !== null ? pValue / 100 : null;
-		},
-	};
-
-	var MoonInfo = function (pContainer, pBoatTime) {
-
-		this.container = pContainer;
-		this.boatTime = pBoatTime;
-		this.control = null;
-		this.imgMoonNew = null;
-		this.imgMoonWaxingCrescent = null;
-		this.imgMoonFirstQuarter = null;
-		this.imgMoonWaxingGibbous = null;
-		this.imgMoonFull = null;
-		this.imgMoonWaningGibbous = null;
-		this.imgMoonThirdQuarter = null;
-		this.imgMoonWaningCrescent = null;
-		this.divTodayBar = null;
-		this.initialize();
-
-	};
-
-	MoonInfo.prototype = {
-
-		initialize: function () {
-			this.draw();
-			this.showMoonState();
-		},
-
-		draw: function () {
-			this.control = RC.Utils.stringToNode(PiLot.Templates.Meteo.moonInfo);
-			this.container.appendChild(this.control);
-			this.imgMoonNew = this.control.querySelector('.imgMoonNew');
-			this.imgMoonWaxingCrescent = this.control.querySelector('.imgMoonWaxingCrescent');
-			this.imgMoonFirstQuarter = this.control.querySelector('.imgMoonFirstQuarter');
-			this.imgMoonWaxingGibbous = this.control.querySelector('.imgMoonWaxingGibbous');
-			this.imgMoonFull = this.control.querySelector('.imgMoonFull');
-			this.imgMoonWaningGibbous = this.control.querySelector('.imgMoonWaningGibbous');
-			this.imgMoonThirdQuarter = this.control.querySelector('.imgMoonThirdQuarter');
-			this.imgMoonWaningCrescent = this.control.querySelector('.imgMoonWaningCrescent');
-			this.divTodayBar = this.control.querySelector('.divTodayBar');
-		},
-
-		// shows the correct image and positions the bar for the current moon illumination
-		showMoonState: function () { 
-			var utcNow = this.boatTime.utcNow();							// utc now as luxon object
-			const moonPhase = PiLot.Model.Meteo.getMoonPhase(utcNow);
-			var activeImage;
-			switch (moonPhase.type) {
-				case 0: activeImage = this.imgMoonNew; break;
-				case 1: activeImage = this.imgMoonWaxingCrescent; break;
-				case 2: activeImage = this.imgMoonFirstQuarter; break;
-				case 3: activeImage = this.imgMoonWaxingGibbous; break;
-				case 4: activeImage = this.imgMoonFull; break;
-				case 5: activeImage = this.imgMoonWaningGibbous; break;
-				case 6: activeImage = this.imgMoonThirdQuarter; break;
-				case 7: activeImage = this.imgMoonWaningCrescent; break;
+			let result = null;
+			if (pValue !== null) {
+				result = pValue / 100;
 			}
-			this.control.querySelectorAll('img').forEach(i => {
-				i.classList.toggle('active', i === activeImage);
-			});
-			var left = (((1 / 16) + moonPhase.phase) * 100) % 100; // 1/16 is the center of the new moon picture, which is phase 0.00
-			this.divTodayBar.style.left = `${Math.round(left)}%`;
-		}
+			return result;
+		},
 	};
 
 	/** shows the meteoblue weather widget within an iframe */
@@ -719,12 +777,11 @@ PiLot.View.Meteo = (function () {
 	};
 
 	return {
-		MeteoPage: MeteoPage,
+		SensorsPage: SensorsPage,
 		StartPageMeteo: StartPageMeteo,
 		TemperatureInfo: TemperatureInfo,
 		HumidityInfo: HumidityInfo,
 		PressureInfo: PressureInfo,
-		MoonInfo: MoonInfo,
 		MeteoblueFrame: MeteoblueFrame
 	};
 

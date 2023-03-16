@@ -166,11 +166,11 @@ PiLot.View.Admin = (function () {
 				loading: contentArea.querySelector('.chartWait'),
 				chart: contentArea.querySelector('.chartContainer')
 			};
-			this.chart = new PiLot.Utils.Chart.DataChart(controls, 60, 20, null, 'HH:mm');
+			this.chart = new PiLot.Utils.Chart.DataChart(controls, 60, 20, null, null);
 		},
 
 		showCPUTemperature: function () {
-			PiLot.Utils.Chart.loadRecentData('cpuTemperature', 7200, 120).then(pData => this.chart.showChart(pData));
+			PiLot.Utils.Chart.loadRecentDataAsync('cpuTemperature', 7200, 120).then(pData => this.chart.showChart(pData));
 		},
 
 		startCPUTempTimer: function () {

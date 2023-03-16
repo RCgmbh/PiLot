@@ -318,7 +318,7 @@ PiLot.View.Common = (function () {
 			}, {
 				section: pages.meteo,
 				links: [
-					{ page: pages.meteo.overview, html: '<i class="icon-thermometer"></i>' }
+					{ page: pages.meteo.sensors, html: '<i class="icon-thermometer"></i>' }
 				]
 			}, {
 				section: pages.media,

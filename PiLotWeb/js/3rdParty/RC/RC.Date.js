@@ -16,18 +16,30 @@ RC.Date.DateHelper = {
 		return luxon.DateTime.utc().toMillis();
 	},
 
-	/** gets a luxon object based on seconds from epoch, or null, if pUnix is falsy */
-	unixToLuxon: function (pUnix) {
+	/** 
+	 * Gets a luxon object based on seconds from epoch, or null, if pUnix is falsy 
+	 * @param {Number} pUnix - seconds from epoc
+	 * @param {String} pLocale - optionally pass a locale string for the luxon object
+	 * */
+	unixToLuxon: function (pUnix, pLocale = null) {
 		let result = null;
 		if (pUnix) {
-			result = RC.Date.DateHelper.millisToLuxon(pUnix * 1000);
+			result = RC.Date.DateHelper.millisToLuxon(pUnix * 1000, pLocale);
 		}
 		return result;
 	},
 
-	/// gets a luxon object based on milliseconds from epoc
-	millisToLuxon: function (pMillis) {
-		return luxon.DateTime.fromMillis(pMillis, { zone: 'UTC' });
+	/**
+	 * Gets a luxon object based on milliseconds from epoc
+	 * @param {Number} pMillis - milliseconds from epoc
+	 * @param {String} pLocale - optionally pass a locale string for the luxon object
+	 * */
+	millisToLuxon: function (pMillis, pLocale = null) {
+		let options = { zone: 'UTC' };
+		if (pLocale) {
+			options.locale = pLocale;
+		}
+		return luxon.DateTime.fromMillis(pMillis, options);
 	},
 
 	/**
