@@ -265,7 +265,7 @@ PiLot.View.Meteo = (function () {
 		/// hides all controls. This is needed, as otherwise the bounding rectangle
 		/// is too big, which will result in an wrong calculation of what to show.
 		hideAll: function () {
-			this.infoControls.forEach(c => (('setViewMode' in c) && c.setViewMode([false, false, false, false])));
+			this.infoControls.forEach(c => (('setViewMode' in c) && c.setViewMode([false, false, false])));
 		},
 
 		/// checks for each control if it should be visible under the given circumstances, 
@@ -533,7 +533,7 @@ PiLot.View.Meteo = (function () {
 		 * @param {Object} pViewMode: Object with {primaryInfo, secondaryInfo, chart} or an array with 3 Booleans
 		 * */
 		setViewMode: function (pViewMode) {
-			if (Array.isArray(pViewMode) && pViewMode.length == 3) {
+			if (Array.isArray(pViewMode) && pViewMode.length >= 3) {
 				this.viewMode = {
 					primaryInfo: pViewMode[0],
 					secondaryInfo: pViewMode[1],
@@ -545,24 +545,24 @@ PiLot.View.Meteo = (function () {
 			this.applyViewMode();
 		},
 
-		/// applies the current viewMode by showing / hiding them controls
+		/** Applies the current viewMode by showing / hiding them controls */
 		applyViewMode: function () {
-			var changed = this.toggleVisible(this.divCurrentValue, this.viewMode.primaryInfo);
+			let changed = this.toggleVisible(this.divCurrentValue, this.viewMode.primaryInfo);
 			changed = this.toggleVisible(this.divMinValue, this.viewMode.secondaryInfo) || changed;
 			changed = this.toggleVisible(this.divMaxValue, this.viewMode.secondaryInfo) || changed;
 			changed = this.toggleVisible(this.chartContainer, this.viewMode.chart) || changed;
 			if (changed && (this.viewMode.primaryInfo || this.viewMode.secondaryInfo || this.viewMode.chart)) {
 				this.loadDataAsync().then(d => this.showData(d));
-
 			}
 		},
 
-		/// makes sure pControl is visible or not, and returns 
-		/// whether the visibility changed
+		/**
+		 * Makes sure pControl is visible or not, and returns whether the visibility changed
+		 * */
 		toggleVisible: function (pControl, pVisible) {
-			var result = false;
-			if (pControl.classList.contains('hidden') !== !pVisible) {
-				pControl.classList.toggle('hidden', !pVisible);
+			let result = false;
+			if (pControl.hidden !== !pVisible) {
+				pControl.hidden = !pVisible;
 				result = true;
 			}
 			return result;
@@ -574,10 +574,10 @@ PiLot.View.Meteo = (function () {
 	* historic air pressure
 	* @param {HTMLElement} pParentContainer - The container within which this will be appended as child
 	* @param {PiLot.Model.Common.BoatTime} pBoatTime - The current BoatTime object, used to localize time in the chart
+    * @param {Object} pSensorInfo - object with {sensorType, id, name, displayName, tags, sortOrder}
 	* @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}, corresponding to trend, current value, chart
-	* @param {String} pTitle - the title to display within the chart
 	* */
-	var PressureInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null, ) {
+	var PressureInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null) {
 		this.parentContainer = pParentContainer;
 		this.boatTime = pBoatTime;
 		this.sensorInfo = pSensorInfo;
@@ -639,11 +639,11 @@ PiLot.View.Meteo = (function () {
 				lblDataName.innerText = this.sensorInfo.displayName;
 			}
 		},
-
-		/** 
-		 * loads and shows the data
-		 * @param {Number} pTimeSpanSeconds - The total timespan to load in seconds
-		 * @param {Number} pStartTime - optionally pass a start time in utc seconds
+		/**
+		 * Loads and shows the data
+		 * @param { Number } pTimeSpanSeconds - The total timespan to cover, in seconds
+		 * @param { Number } pStartTime - Optionally pass a start time in seconds UTC. If empty, the most recent data will be loaded
+		 * @param { Object } pRangeInfo - Optionally pass an element with { aggregateSecondsPressure, yRangePresure }
 		 * */
 		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pRangeInfo) {
 			this.timeSpanSeconds = pTimeSpanSeconds || this.timeSpanSeconds;
@@ -657,6 +657,11 @@ PiLot.View.Meteo = (function () {
 			this.showData(data, pRangeInfo);
 		},
 
+		/**
+		 * Shows/updates the data in the control
+		 * @param {Object} pData - The data as it has been loaded by the Chart
+		 * @param {Object} pRangeInfo - Optionally pass an element with { yRangePresure }
+		 */
 		showData: function (pData, pRangeInfo) {
 			this.showValues(pData);
 			if (this.viewMode.chart) {
@@ -665,6 +670,10 @@ PiLot.View.Meteo = (function () {
 			}
 		},
 
+		/**
+		 * Shows the numeric values and the chart, depending on the viewMode
+		 * @param {Object} pData - The data as it has been loaded by the Chart
+		 */
 		showValues: function (pData) {
 			const utcNow = this.boatTime.utcNowUnix();
 			if ((pData.lastValueTimestamp !== null) && (utcNow - pData.lastValueTimestamp < PressureInfo.maxAge)) {
@@ -689,11 +698,12 @@ PiLot.View.Meteo = (function () {
 			}
 		},
 
-		/// sets which controls should be shown
-		/// @param pViewMode: object with {primaryInfo, secondaryInfo, chart}
-		///						or an array with 3 Booleans
+		/**
+		 * Sets which controls should be shown
+		 * @param {Object} pViewMode - object with {primaryInfo, secondaryInfo, chart} (Booleans) or an array with 3 Booleans
+		 * */
 		setViewMode: function (pViewMode) {
-			if (Array.isArray(pViewMode) && pViewMode.length == 3) {
+			if (Array.isArray(pViewMode) && pViewMode.length >= 3) {
 				this.viewMode = {
 					primaryInfo: pViewMode[0],
 					secondaryInfo: pViewMode[1],
@@ -705,10 +715,12 @@ PiLot.View.Meteo = (function () {
 			this.applyViewMode();
 		},
 
-		/// applies the current viewMode by showing / hiding them controls. If anything changes,
-		/// this will get the lates data so that content is updated immediately
+		/**
+		 * Applies the current viewMode by showing / hiding them controls. If anything changes,
+		 * this will get the lates data so that content is updated immediately
+		 * */
 		applyViewMode: function () {
-			var changed = this.toggleVisible(this.currentPressureContainer, this.viewMode.secondaryInfo);
+			let changed = this.toggleVisible(this.currentPressureContainer, this.viewMode.secondaryInfo);
 			changed = this.toggleVisible(this.trendContainer, this.viewMode.primaryInfo) || changed;
 			changed = this.toggleVisible(this.iconContainer, this.viewMode.primaryInfo) || changed;
 			changed = this.toggleVisible(this.chartContainer, this.viewMode.chart) || changed;
@@ -717,12 +729,13 @@ PiLot.View.Meteo = (function () {
 			}
 		},
 
-		/// makes sure pControl is visible or not, and returns 
-		/// whether the visibility changed
+		/**
+		 * Makes sure pControl is visible or not, and returns whether the visibility changed
+		 * */
 		toggleVisible: function (pControl, pVisible) {
-			var result = false;
-			if (pControl.classList.contains('hidden') !== !pVisible) {
-				pControl.classList.toggle('hidden', !pVisible);
+			let result = false;
+			if (pControl.hidden !== !pVisible) {
+				pControl.hidden = !pVisible;
 				result = true;
 			}
 			return result;
