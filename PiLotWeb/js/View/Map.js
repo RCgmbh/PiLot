@@ -917,7 +917,7 @@ PiLot.View.Map = (function () {
 			if (!this.pois.has(pPoi.getId())) {
 				const iconHtml = this.categoryIcons.get(pPoi.getCategory().getId());
 				const icon = L.divIcon({
-					className: 'poiMarker', iconSize: [null, null], html: iconHtml
+					className: `poiMarker ${pPoi.getRootCategory().getName()}`, iconSize: [null, null], html: iconHtml
 				});
 				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true, zIndexOffset: 1000 });
 				marker.addTo(this.seamap.getLeafletMap());

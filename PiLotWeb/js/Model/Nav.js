@@ -387,6 +387,11 @@ PiLot.Model.Nav = (function () {
 		/** @param {PiLot.Model.Nav.PoiCategory} pCategory */
 		setCategory: function (pCategory) { this.category = pCategory; },
 
+		/** @returns {PiLot.Model.Nav.PoiCategory} */
+		getRootCategory: function () {
+			return this.category.getRootCategory();
+		},
+
 		/** @returns {number[]} */
 		getFeatureIds: function () { return this.featureIds; },
 
@@ -581,6 +586,10 @@ PiLot.Model.Nav = (function () {
 				}
 			}
 			return result;
+		},
+
+		getRootCategory: function () {
+			return this.parent ? this.parent.getRootCategory() : this;
 		},
 
 		/** Saves the Category back to the server */
