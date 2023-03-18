@@ -536,7 +536,7 @@ PiLot.View.Logbook = (function () {
 			this.showTime(boatTime.now());
 			this.showDefaultTile(pBoatSetup);
 			this.tbNotes.value = '';
-			const meteo = await new PiLot.Model.Meteo.DataLoader().loadLogbookMeteoAsync();
+			const meteo = await new PiLot.Service.Meteo.DataLoader().loadLogbookMeteoAsync();
 			this.showMeteo(meteo);
 			let lat = null;
 			let lon = null;

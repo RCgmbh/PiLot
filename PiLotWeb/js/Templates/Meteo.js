@@ -9,7 +9,7 @@ PiLot.Templates.Meteo = {
 			<div class="pnlNoSensors feedbackWarning marginRight" data-text="noSensors" hidden></div>
 			<div class="pnlData marginRight">
 				<div class="flexRowWrap reverse">
-					<div class="flexRowWrap reverse marginRight marginBottom">
+					<div class="flexRowWrap reverse marginRight marginBottom" hidden>
 						<label class="marginRight"><input type="radio" name="rblTimeMode" value="historic" /><span data-text="measurementsHistoric"></span></label>
 						<label class="marginRight"><input type="radio" name="rblTimeMode" value="current" checked /><span data-text="measurementsCurrent"></span></label>
 					</div>
