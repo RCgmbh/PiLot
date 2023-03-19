@@ -316,13 +316,13 @@ PiLot.Service.Nav = (function () {
 		>;
 		out skel qt;`;
 
-	OsmPoiLoader.tagFilter = 'nwr["{tagName}" = "{tagValue}"];';
+	OsmPoiLoader.tagFilter = 'nwr["{tagName}" ~ "{tagValue}"];';
 
 	OsmPoiLoader.tags = {
 		marina: [['leisure', 'marina'], ['mooring', 'yes']],
 		lock: [['lock', 'yes'], ['waterway', 'lock_gate'], ['waterway', 'boat_lift']],
-		fuel: [['wateway', 'fuel'], ['amenity', 'fuel']],
-		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes']],
+		fuel: [['waterway', 'fuel'], ['amenity', 'fuel'], ['seamark:small_craft_facility:category', 'fuel']],
+		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes'], ['seamark:small_craft_facility:category', 'pump-out']],
 		toilet: [['amenity', 'toilets']],
 		shop: [['shop', 'convenience'], ['shop', 'supermarket'], ['shop', 'yes']]
 	};
