@@ -23,7 +23,7 @@ PiLot.View.Meteo = (function () {
 		{ duration: { weeks: 1  }, aggregateSecondsTemperature: 1800,  aggregateSecondsPressure: 3600,  yRangeTemperature: 30, yRangePressure: 7000 },
 		{ duration: { months: 1 }, aggregateSecondsTemperature: 3600,  aggregateSecondsPressure: 3600,  yRangeTemperature: 30, yRangePressure: 7000 },
 		{ duration: { months: 3 }, aggregateSecondsTemperature: 21600, aggregateSecondsPressure: 21600, yRangeTemperature: 40, yRangePressure: 7000 },
-		{ duration: { years: 1 },  aggregateSecondsTemperature: 86400, aggregateSecondsPressure: 86400, yRangeTemperature: 50, yRangePressure: 7000 }
+		{ duration: { years: 1  }, aggregateSecondsTemperature: 86400, aggregateSecondsPressure: 86400, yRangeTemperature: 50, yRangePressure: 7000 }
 	];
 
 	/** The index of the dateRanges array to chose by default */
@@ -47,10 +47,12 @@ PiLot.View.Meteo = (function () {
 
 		ddlDateRange_change: function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Meteo.selectedSensorRange', this.ddlDateRange.selectedIndex);
+			this.showLoading();
 			this.loadAllDataAsync();
 		},
 
 		draw: function () {
+			PiLot.Utils.Common.log(`Starting to draw meteo page`, 3);
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Meteo.sensorsPage);
 			let contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(pageContent);
@@ -68,12 +70,11 @@ PiLot.View.Meteo = (function () {
 
 		/** Fills the dropdown with date ranges and sets the selected range from the user settings or the default index. */
 		populateDateRanges: function () {
-			const locale = PiLot.Utils.Language.getLanguage();
 			const durations = [];
 			for (const range of SensorsPage.dateRanges) {
-				const duration = luxon.Duration.fromObject(range.duration, { locale: locale });
+				const duration = luxon.Duration.fromObject(range.duration);
 				const seconds = duration.toMillis() / 1000;
-				durations.push([seconds, duration.toHuman()]);
+				durations.push([seconds, PiLot.Utils.Common.durationToHuman(duration)]);
 			}
 			RC.Utils.fillDropdown(this.ddlDateRange, durations);
 			this.ddlDateRange.selectedIndex = PiLot.Utils.Common.loadUserSetting('PiLot.View.Meteo.selectedSensorRange');
@@ -157,7 +158,11 @@ PiLot.View.Meteo = (function () {
 			let startTime = null;
 			let rangeInfo = SensorsPage.dateRanges[this.ddlDateRange.selectedIndex];
 			await pControl.loadDataAsync(timeSpanSeconds, startTime, rangeInfo);
-		}
+		},
+
+		showLoading: function () {
+			this.controls.forEach(c => (c.showLoading()));
+		},
 	};
 
 	/**
@@ -377,6 +382,10 @@ PiLot.View.Meteo = (function () {
 			let yRange = pRangeInfo ? pRangeInfo.yRangeTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].yRangeTemperature;
 			const data = await this.minMaxInfo.loadDataAsync(pTimeSpanSeconds, pStartTime, aggregateSeconds);
 			this.minMaxInfo.showData(data, yRange);
+		},
+
+		showLoading: function () {
+			this.minMaxInfo.showLoading();
 		}
 	}
 
@@ -413,6 +422,10 @@ PiLot.View.Meteo = (function () {
 			let aggregateSeconds = pRangeInfo ? pRangeInfo.aggregateSecondsTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].aggregateSecondsTemperature;
 			const data = await this.minMaxInfo.loadDataAsync(pTimeSpanSeconds, pStartTime, aggregateSeconds);
 			this.minMaxInfo.showData(data, null);
+		},
+
+		showLoading: function () {
+			this.minMaxInfo.showLoading();
 		}
 	}
 
@@ -470,8 +483,7 @@ PiLot.View.Meteo = (function () {
 			this.chartContainer = control.querySelector('.divChartContainer');
 			const divChart = this.chartContainer.querySelector('.divChart');
 			const divChartLoading = this.chartContainer.querySelector('.divChartLoading');
-			const divChartError = this.chartContainer.querySelector('.divChartError');
-			var controls = { error: divChartError, loading: divChartLoading, chart: divChart };
+			var controls = { loading: divChartLoading, chart: divChart };
 			this.chart = new PiLot.Utils.Chart.DataChart(controls, this.chartSettings.yRange, this.chartSettings.yStep, null, this.chartSettings.fillColor);
 			const lblDataName = this.chartContainer.querySelector('.lblName');
 			if (lblDataName) {
@@ -507,6 +519,10 @@ PiLot.View.Meteo = (function () {
 			if (this.viewMode.chart) {
 				this.chart.showChart(pData, pYRange);
 			}
+		},
+
+		showLoading: function () {
+			this.chart.showLoading()
 		},
 
 		/**
@@ -631,8 +647,7 @@ PiLot.View.Meteo = (function () {
 			this.chartContainer = control.querySelector('.divChartContainer');
 			const divChart = this.chartContainer.querySelector('.divChart');
 			const divChartLoading = this.chartContainer.querySelector('.divChartLoading');
-			const divChartError = this.chartContainer.querySelector('.divChartError');
-			var controls = { error: divChartError, loading: divChartLoading, chart: divChart };
+			var controls = { loading: divChartLoading, chart: divChart };
 			this.chart = new PiLot.Utils.Chart.DataChart(controls, this.yRange, PressureInfo.chartStep, this.PaToHPa, 'rgba(96, 209, 209, 0.6)');
 			const lblDataName = this.chartContainer.querySelector('.lblName');
 			if (lblDataName) {
@@ -668,6 +683,10 @@ PiLot.View.Meteo = (function () {
 				let yRange = pRangeInfo ? pRangeInfo.yRangePressure : null;
 				this.chart.showChart(pData, yRange);
 			}
+		},
+
+		showLoading: function () {
+			this.chart.showLoading();
 		},
 
 		/**
