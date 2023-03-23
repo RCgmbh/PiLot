@@ -262,7 +262,7 @@ PiLot.Utils.Common = {
 				case 1:
 					const logWindow = document.querySelector('#logWindow');
 					logWindow.hidden = false;
-					logWindow.insertAdjacentHTML('beforeend', new Date().toLocaleTimeString().concat(' ', pMessage, '<br/>', logWindow.innerHTML));
+					logWindow.insertAdjacentHTML('beforeend', new Date().toLocaleTimeString().concat(' ', pMessage, '<br/>'));
 					logWindow.hidden = false;
 					break;
 				case 2:
@@ -285,6 +285,22 @@ PiLot.Utils.Common = {
 	/// converts a speed in meters per second to knots
 	mpsToKnots: function (pMps) {
 		return pMps * 3600 / 1852;
+	},
+
+	/**
+	 * This is a workaround for luxon Duration.toHuman not working on the
+	 * old ebook reader. It relies on translated texts for daysSingular,
+	 * daysPlural etc.
+	 * @param {luxon.Duration} pDuration
+	 */
+	durationToHuman: function (pDuration) {
+		const parts = [];
+		for (const value in pDuration.values) {
+			const amount = pDuration.values[value];
+			const unitKey = `${value}${amount === 1 ? 'Singular' : 'Plural'}`;
+			parts.push(`${amount} ${PiLot.Utils.Language.getText(unitKey)}`);
+		}
+		return parts.join(', ');
 	},
 
 	/**
