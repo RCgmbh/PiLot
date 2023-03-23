@@ -162,7 +162,6 @@ PiLot.View.Admin = (function () {
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.systemStatusPage));
 			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.admin.overview));
 			const controls = {
-				error: contentArea.querySelector('.chartError'),
 				loading: contentArea.querySelector('.chartWait'),
 				chart: contentArea.querySelector('.chartContainer')
 			};

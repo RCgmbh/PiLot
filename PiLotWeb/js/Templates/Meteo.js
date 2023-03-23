@@ -9,7 +9,7 @@ PiLot.Templates.Meteo = {
 			<div class="pnlNoSensors feedbackWarning marginRight" data-text="noSensors" hidden></div>
 			<div class="pnlData marginRight">
 				<div class="flexRowWrap reverse">
-					<div class="flexRowWrap reverse marginRight marginBottom" hidden>
+					<div class="flexRowWrap reverse marginRight marginBottom">
 						<label class="marginRight"><input type="radio" name="rblTimeMode" value="historic" /><span data-text="measurementsHistoric"></span></label>
 						<label class="marginRight"><input type="radio" name="rblTimeMode" value="current" checked /><span data-text="measurementsCurrent"></span></label>
 					</div>
@@ -34,7 +34,6 @@ PiLot.Templates.Meteo = {
 			<div class="divChartContainer">
 				<div class="divChart chartContainer" hidden></div>
 				<div class="divChartLoading chartWait" ><span data-text="loadingData"></span></div>
-				<div class="divChartError chartError" hidden><span data-text="error"></span></div>
 				<div class="divLabel"><i class="icon-thermometer"></i><span class="lblName"></span></div>
 			</div>
 		</div>
@@ -50,7 +49,6 @@ PiLot.Templates.Meteo = {
 			<div class="divChartContainer">
 				<div class="divChart chartContainer" hidden></div>
 				<div class="divChartLoading chartWait"><span data-key="loadingData"></span></div>
-				<div class="divChartError chartError" hidden><span data-key="error"></span></div>
 				<div class="divLabel"><i class="icon-droplet"></i> <span class="lblName"></span></div>
 			</div>
 		</div>
@@ -73,7 +71,6 @@ PiLot.Templates.Meteo = {
 			<div class="divChartContainer">
 				<div class="divChart chartContainer" hidden></div>
 				<div class="divChartLoading chartWait"><span data-text="loadingData"></span></div>
-				<div class="divChartError chartError" hidden><span data-text="error"></span></div>
 				<div class="divLabel"><i class="icon-barometer"></i> <span class="lblName"></span></div>
 			</div>
 		</div>

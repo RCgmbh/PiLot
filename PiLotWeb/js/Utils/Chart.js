@@ -5,7 +5,7 @@ PiLot.Utils.Chart = (function () {
 
 	/**
 	 * A Chart showing timestamped data as line graph
-	 * @param {Object} pControls - an object containing three divs: { error, loading, chart };
+	 * @param {Object} pControls - an object containing two divs: { loading, chart };
 	 * @param {Number} pYRange - optional, The difference between yMax and yMin. Can be passed in showChart()
 	 * @param {Number} pYStep - optional, The step to which yMax and yMin will be rounded
 	 * @param {Function} pYTickFormatter - An optional custom formatter to set the y-value text to display
@@ -36,9 +36,6 @@ PiLot.Utils.Chart = (function () {
 		showChart: function (pData, pYRange) {
 			this.yRange = pYRange || this.yRange;
 			this.boatTimeOffsets = pData.boatTimeOffsets;
-			if (this.controls.error) {
-				this.controls.error.hidden = true;;
-			}
 			if (this.controls.loading) {
 				this.controls.loading.hidden = true;
 			}
@@ -74,6 +71,14 @@ PiLot.Utils.Chart = (function () {
 				this.xTickFormat = { month: '2-digit', day: '2-digit' };
 			}
 			this.chart = $.plot(this.controls.chart, [pData.data], options)
+		},
+
+		/** Shows the loading control and hides the chart. It will be shown as soon as showChart() is called. */
+		showLoading: function () {
+			if (this.controls.loading) {
+				this.controls.chart.hidden = true;
+				this.controls.loading.hidden = false;
+			}
 		},
 
 		/**

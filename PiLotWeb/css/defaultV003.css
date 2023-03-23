@@ -71,7 +71,7 @@ body.night .rcCalendar .yearsPager { background-color:#666; }
 
 
 /* NAMED ITEMS */
-#logWindow {display:block; position:absolute;height:10em; width:100%; background-color:rgba(0, 0, 0, 0.5); display:none; font-family:'Lucida Console'; font-size:12px; overflow:auto; color: white; line-height:13px; z-index:14000;}
+#logWindow {display:block; position:absolute;height:10em; width:100%; background-color:rgba(0, 0, 0, 0.5); font-family:'Lucida Console'; font-size:12px; overflow:auto; color: white; line-height:13px; z-index:14000;}
 #mainContent{flex:1 1 auto; float:left; margin:0px; padding:0em; }
 #resolutionInfo:after { content: "default"; font-size:12px;margin:2px;color:#666666;font-family:'Lucida Console';}
 
@@ -84,11 +84,10 @@ body.night .rcCalendar .yearsPager { background-color:#666; }
 .dataContainerHalfNarrow { width: 50%; min-width: 10em; }
 .dataContainerFull { width: 100%; min-width: 16em; }
 .dataContainerQuarter, .dataContainerThird, .dataContainerHalf, .dataContainerHalfNarrow, .dataContainerFull { padding: 0em; float: left; }
-.borderBox{border:2px solid #666;}
-.chartContainer, .chartError, .chartWait{width:100%; height:25em; }
-.chartError, .chartWait{ padding-top:13em;text-align:center;}
-.chartError{border:1px solid #FF4949;}
-.chartWait{border:1px solid #666666;}
+.borderBox { border:2px solid #666; }
+.chartContainer, .chartWait{width:100%; height:25em; }
+.chartWait{ display:flex; justify-content:center; align-items:end; }
+
 
 div.feedbackGood, div.feedbackBad, div.feedbackInfo, div.feedbackWarning, div.feedbackNeutral, span.feedbackGood, span.feedbackBad, span.feedbackInfo, span.feedbackWarning{
     display:block; clear:both; padding:0.5em 0.75em; border-width: 1px 1px 1px 0.5em; border-style:solid; text-align:left; 
