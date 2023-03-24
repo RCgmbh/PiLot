@@ -13,7 +13,7 @@ PiLot.Templates.Meteo = {
 						<label class="marginRight"><input type="radio" name="rblTimeMode" value="historic" /><span data-text="measurementsHistoric"></span></label>
 						<label class="marginRight"><input type="radio" name="rblTimeMode" value="current" checked /><span data-text="measurementsCurrent"></span></label>
 					</div>
-					<select class="ddlDateRange input8 marginBottom"></select>
+					<select class="ddlDateRange input8 marginBottom"></select><span class="lblLoading marginLeft" hidden><i class="icon-hour-glass"></i></span>
 				</div>
 				<div class="plhChartsContainer meteoChartContainer marginBottom"></div>
 			</div>

@@ -7,6 +7,7 @@ PiLot.View.Meteo = (function () {
 		this.pnlNoSensors = null;
 		this.pnlData = null;
 		this.ddlDateRange = null;		// Dropdown
+		this.lblLoading = null;
 		this.rblTimeMode = null;		// NodeList (radio buttons)
 		this.plhChartsContainer = null;
 		this.controls = null;			// an array with the info controls
@@ -45,10 +46,11 @@ PiLot.View.Meteo = (function () {
 			console.log(pTarget);
 		},
 
-		ddlDateRange_change: function () {
+		ddlDateRange_change: async function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Meteo.selectedSensorRange', this.ddlDateRange.selectedIndex);
-			this.showLoading();
-			this.loadAllDataAsync();
+			this.lblLoading.hidden = false;
+			await this.loadAllDataAsync();
+			this.lblLoading.hidden = true;
 		},
 
 		draw: function () {
@@ -63,6 +65,7 @@ PiLot.View.Meteo = (function () {
 				rbTimeMode.addEventListener('change', this.rblTimeMode_change.bind(this, rbTimeMode));
 			}
 			this.ddlDateRange = contentArea.querySelector('.ddlDateRange');
+			this.lblLoading = contentArea.querySelector('.lblLoading');
 			this.populateDateRanges();
 			this.ddlDateRange.addEventListener('change', this.ddlDateRange_change.bind(this));
 			this.plhChartsContainer = contentArea.querySelector('.plhChartsContainer');
@@ -158,11 +161,7 @@ PiLot.View.Meteo = (function () {
 			let startTime = null;
 			let rangeInfo = SensorsPage.dateRanges[this.ddlDateRange.selectedIndex];
 			await pControl.loadDataAsync(timeSpanSeconds, startTime, rangeInfo);
-		},
-
-		showLoading: function () {
-			this.controls.forEach(c => (c.showLoading()));
-		},
+		}
 	};
 
 	/**
@@ -382,10 +381,6 @@ PiLot.View.Meteo = (function () {
 			let yRange = pRangeInfo ? pRangeInfo.yRangeTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].yRangeTemperature;
 			const data = await this.minMaxInfo.loadDataAsync(pTimeSpanSeconds, pStartTime, aggregateSeconds);
 			this.minMaxInfo.showData(data, yRange);
-		},
-
-		showLoading: function () {
-			this.minMaxInfo.showLoading();
 		}
 	}
 
@@ -422,10 +417,6 @@ PiLot.View.Meteo = (function () {
 			let aggregateSeconds = pRangeInfo ? pRangeInfo.aggregateSecondsTemperature : SensorsPage.dateRanges[SensorsPage.defaultRange].aggregateSecondsTemperature;
 			const data = await this.minMaxInfo.loadDataAsync(pTimeSpanSeconds, pStartTime, aggregateSeconds);
 			this.minMaxInfo.showData(data, null);
-		},
-
-		showLoading: function () {
-			this.minMaxInfo.showLoading();
 		}
 	}
 
@@ -519,10 +510,6 @@ PiLot.View.Meteo = (function () {
 			if (this.viewMode.chart) {
 				this.chart.showChart(pData, pYRange);
 			}
-		},
-
-		showLoading: function () {
-			this.chart.showLoading()
 		},
 
 		/**
@@ -654,6 +641,7 @@ PiLot.View.Meteo = (function () {
 				lblDataName.innerText = this.sensorInfo.displayName;
 			}
 		},
+
 		/**
 		 * Loads and shows the data
 		 * @param { Number } pTimeSpanSeconds - The total timespan to cover, in seconds
@@ -683,10 +671,6 @@ PiLot.View.Meteo = (function () {
 				let yRange = pRangeInfo ? pRangeInfo.yRangePressure : null;
 				this.chart.showChart(pData, yRange);
 			}
-		},
-
-		showLoading: function () {
-			this.chart.showLoading();
 		},
 
 		/**
