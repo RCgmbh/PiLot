@@ -175,7 +175,9 @@ PiLot.Templates.Tools = {
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportToilets marginRight" /><span data-text="toilets"></span></label>
 					</div>
-					<button class="btnLoad input7 marginBottomSmall" type="button" data-text="loadData" hidden></button><span class="lblLoadingData" hidden data-text="loadingData"></span>
+					<select class="ddlApi input10 marginBottomSmall marginRight"></select>
+					<button class="btnLoad input6 marginBottomSmall" type="button" data-text="loadData" hidden></button>
+					<span class="lblLoadingData marginLeft" hidden><i class="icon-hour-glass"></i></span>
 				</div>
 				<div class="flexRowWrap marginBottom">
 					<div class="paddingRight" style="min-width:16em; flex-basis:30em; flex-grow:1;">
@@ -183,7 +185,7 @@ PiLot.Templates.Tools = {
 					</div>
 					<div class="plhOsmDetails marginRight borderLight" style="min-width:16em; flex-basis:20em; flex-grow:1; max-height:70vh; overflow: auto; position:relative; "></div>
 				</div>
-			</hidden>
+			</div>
 		</div>
 	`,
 

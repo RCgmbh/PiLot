@@ -647,6 +647,7 @@ PiLot.View.Tools = (function () {
 		this.poiLoader = null;
 		this.seamap = null;
 		this.editDialog = null;			// PiLot.View.Tools.OsmPoiEditDialog
+		this.ddlApi = null;
 		this.cbImportMarinas = null;
 		this.cbImportLocks = null;
 		this.cbImportFuel = null;
@@ -672,11 +673,9 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnLoad_click: async function (e) {
-			e.target.hidden = true;
 			this.lblLoadingData.hidden = false;
 			await this.loadOsmDataAsync();
 			this.lblLoadingData.hidden = true;
-			e.target.hidden = false;
 		},
 
 		osmMapPois_selectPoi: function (pSender, pArg) {
@@ -702,6 +701,7 @@ PiLot.View.Tools = (function () {
 			const lblTitle = control.querySelector('.lblTitle');
 			const pnlForm = control.querySelector('.pnlForm');
 			new PiLot.View.Common.ExpandCollapse(lblTitle, pnlForm).on('expand', this.expandCollapse_expand.bind(this));
+			this.ddlApi = control.querySelector('.ddlApi');
 			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
 			this.cbImportLocks = control.querySelector('.cbImportLocks');
 			this.cbImportFuel = control.querySelector('.cbImportFuel');
@@ -718,6 +718,15 @@ PiLot.View.Tools = (function () {
 			this.osmMapPois = new OsmMapPois(this.seamap);
 			this.osmMapPois.on('selectPoi', this.osmMapPois_selectPoi.bind(this));
 			this.plhOsmDetails = control.querySelector('.plhOsmDetails');
+			this.fillDdlApi();
+		},
+
+		fillDdlApi: function () {
+			const apis = PiLot.Service.Nav.OsmPoiLoader.apiUrls;
+			const ddlValues = apis.map(function (a) {
+				return [a, new URL(a).hostname];
+			});
+			RC.Utils.fillDropdown(this.ddlApi, ddlValues);
 		},
 
 		/** Loads the osm data based on the selected types */
@@ -743,7 +752,8 @@ PiLot.View.Tools = (function () {
 			}
 			this.plhOsmDetails.clear();
 			const mapBounds = this.seamap.getLeafletMap().getBounds();
-			const osmPois = await this.poiLoader.loadDataAsync(mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
+			const osmPois = await this.poiLoader.loadDataAsync(this.ddlApi.value, mapBounds.getSouth(), mapBounds.getWest(), mapBounds.getNorth(), mapBounds.getEast(), types);
+			this.plhOsmDetails.clear();
 			this.osmMapPois.showOsmPois(osmPois);
 			this.poiDetailControls = new Map();
 			for (const[poiId, poi] of osmPois) {

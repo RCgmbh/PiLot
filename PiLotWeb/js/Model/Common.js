@@ -31,8 +31,8 @@ PiLot.Model.Common = (function () {
 	BoatTime.prototype = {
 
 		/** @returns {DateTime} the current boat time as luxon DateTime */
-		now: function () {
-			return this.fromMillisUTC(this.utcNowUnix() * 1000);
+		now: function (pLocale = null) {
+			return this.fromMillisUTC(this.utcNowUnix() * 1000, pLocale);
 		},
 
 		/** @returns {RC.Date.DateOnly} the current day */
@@ -59,7 +59,7 @@ PiLot.Model.Common = (function () {
 
 		/// Creates a luxon DateTime object in the BoatTime timezone based on 
 		/// a value representing millis from epoc UTC
-		fromMillisUTC: function (pMillis) {
+		fromMillisUTC: function (pMillis, pLocale) {
 			var utc = luxon.DateTime.fromMillis(pMillis, { zone: 'UTC' });
 			var result = luxon.DateTime.fromObject({
 				year: utc.year,
@@ -70,7 +70,7 @@ PiLot.Model.Common = (function () {
 				second: utc.second,
 				millisecond: utc.millisecond
 			}, {
-				locale: navigator.language || 'de-CH'
+				locale: pLocale || navigator.language || 'de-CH'
 			});
 			result = result.plus({ minutes: this.utcOffset });
 			return result;

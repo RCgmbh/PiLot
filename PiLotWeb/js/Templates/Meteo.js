@@ -15,6 +15,15 @@ PiLot.Templates.Meteo = {
 					</div>
 					<select class="ddlDateRange input8 marginBottom"></select><span class="lblLoading marginLeft" hidden><i class="icon-hour-glass"></i></span>
 				</div>
+				<div class="pnlSelectDate flexColumn" hidden>
+					<div class="marginBottomSmall">
+						<a href="#" class="lnkPrevious"><i class="icon-arrow-left2"></i></a>
+						<i class="icon-calendar2 biggerText lnkCalendar marginLeftSmall marginRightSmall pointer"></i>
+						<div class="pnlCalendar" hidden></div>
+						<a href="#" class="lnkNext"><i class="icon-arrow-right2"></i></a>
+					</div>
+					<div class="marginRight"><span class="lblFromDate"></span> - <span class="lblToDate"></span></div>
+				</div>
 				<div class="plhChartsContainer meteoChartContainer marginBottom"></div>
 			</div>
 		</div>

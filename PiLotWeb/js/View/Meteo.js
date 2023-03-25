@@ -4,16 +4,22 @@ PiLot.View = PiLot.View || {};
 PiLot.View.Meteo = (function () {
 
 	var SensorsPage = function () {
+		this.boatTime = null;
+		this.startDate = null;
+		this.endDate = null;
 		this.pnlNoSensors = null;
 		this.pnlData = null;
 		this.ddlDateRange = null;		// Dropdown
+		this.pnlSelectDate = null;
 		this.lblLoading = null;
 		this.rblTimeMode = null;		// NodeList (radio buttons)
+		this.lblFromDate = null;
+		this.lblToDate = null;
+		this.calendar = null;			// RC.Controls.Calendar
 		this.plhChartsContainer = null;
 		this.controls = null;			// an array with the info controls
 		this.dataLoader = null;			// the loader used to load data
 		this.dataLoadInterval = null;	// one single interval to refresh all charts
-		this.moonInfo = null;
 		this.initialize();
 	};
 
@@ -35,6 +41,7 @@ PiLot.View.Meteo = (function () {
 	SensorsPage.prototype = {
 
 		initialize: async function () {
+			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.dataLoader = new PiLot.Service.Meteo.DataLoader();
 			this.controls = new Array();
 			this.draw();
@@ -42,15 +49,39 @@ PiLot.View.Meteo = (function () {
 			this.startDataLoadAsync();
 		},
 
-		rblTimeMode_change: function(pTarget) {
-			console.log(pTarget);
+		rblTimeMode_change: async function (pTarget) {
+			if (pTarget.value === 'historic') {
+				this.pnlSelectDate.hidden = false;
+				this.startDate = this.calendar.date() || this.boatTime.today().addDays(1).toLuxon(PiLot.Utils.Language.getLanguage()).minus({ seconds: this.getIntervalSeconds() });
+				this.updateEndDate();
+				this.showDates();
+			} else {
+				this.pnlSelectDate.hidden = true;
+				this.startDate = null;
+				this.endDate = null;
+			}			
+			await this.loadAllDataAsync(true);
 		},
 
 		ddlDateRange_change: async function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Meteo.selectedSensorRange', this.ddlDateRange.selectedIndex);
-			this.lblLoading.hidden = false;
-			await this.loadAllDataAsync();
-			this.lblLoading.hidden = true;
+			this.updateEndDate();
+			this.showDates();
+			await this.loadAllDataAsync(true);
+		},
+
+		lnkPrevious_click: function () {
+			this.moveTimeFrameAsync(-1);
+		},
+
+		lnkNext_click: function () {
+			this.moveTimeFrameAsync(1);
+		},
+
+		calendar_change: async function (pDate) {
+			this.startDate = pDate;
+			this.showDates();
+			await this.loadAllDataAsync(true);
 		},
 
 		draw: function () {
@@ -68,6 +99,15 @@ PiLot.View.Meteo = (function () {
 			this.lblLoading = contentArea.querySelector('.lblLoading');
 			this.populateDateRanges();
 			this.ddlDateRange.addEventListener('change', this.ddlDateRange_change.bind(this));
+			this.pnlSelectDate = contentArea.querySelector('.pnlSelectDate');
+			this.lblFromDate = contentArea.querySelector('.lblFromDate');
+			this.lblToDate = contentArea.querySelector('.lblToDate');
+			contentArea.querySelector('.lnkPrevious').addEventListener('click', this.lnkPrevious_click.bind(this));
+			contentArea.querySelector('.lnkNext').addEventListener('click', this.lnkNext_click.bind(this));
+			const pnlCalendar = contentArea.querySelector('.pnlCalendar');
+			const lnkCalendar = contentArea.querySelector('.lnkCalendar');
+			const locale = PiLot.Utils.Language.getLanguage();
+			this.calendar = new RC.Controls.Calendar(pnlCalendar, null, lnkCalendar, this.calendar_change.bind(this), this.boatTime.getUtcOffsetMinutes(), locale);
 			this.plhChartsContainer = contentArea.querySelector('.plhChartsContainer');
 		},
 
@@ -147,9 +187,11 @@ PiLot.View.Meteo = (function () {
 		},
 
 		/// loads data from the server and applies it to them controls
-		loadAllDataAsync: async function () {
+		loadAllDataAsync: async function (pShowLoading = false) {
+			pShowLoading && (this.lblLoading.hidden = false);
 			let promises = this.controls.map(control => this.loadDataAsync.bind(this, control)());
 			await Promise.all(promises);
+			pShowLoading && (this.lblLoading.hidden = true);
 		},
 
 		/**
@@ -157,10 +199,36 @@ PiLot.View.Meteo = (function () {
 		 * @param {Object} pControl - the PiLot.View.Meteo.XYInfo control
 		 */
 		loadDataAsync: async function (pControl) {
-			let timeSpanSeconds = Number(this.ddlDateRange.value);
-			let startTime = null;
+			let timeSpanSeconds = this.getIntervalSeconds();
 			let rangeInfo = SensorsPage.dateRanges[this.ddlDateRange.selectedIndex];
-			await pControl.loadDataAsync(timeSpanSeconds, startTime, rangeInfo);
+			await pControl.loadDataAsync(timeSpanSeconds, this.startDate, rangeInfo);
+		},
+
+		moveTimeFrameAsync: async function (pBy) {
+			const seconds = this.getIntervalSeconds() * pBy;
+			this.startDate = this.startDate.plus({ seconds: seconds });
+			this.updateEndDate();
+			this.showDates();
+			await this.loadAllDataAsync(true);
+		},
+
+		updateEndDate: function () {
+			if (this.startDate) {
+				this.endDate = this.startDate.plus({ seconds: this.getIntervalSeconds() });
+			} else {
+				this.endDate = null;
+			}
+		},
+
+		getIntervalSeconds: function () {
+			return Number(this.ddlDateRange.value);
+		},
+
+		showDates: function () {
+			if (this.startDate) {
+				this.lblFromDate.innerText = this.startDate.toLocaleString(DateTime.DATE_SHORT);
+				this.lblToDate.innerText = this.endDate.minus({ days: 1 }).toLocaleString(DateTime.DATE_SHORT);
+			}
 		}
 	};
 
@@ -266,40 +334,41 @@ PiLot.View.Meteo = (function () {
 			await pControl.loadDataAsync();
 		},
 
-		/// hides all controls. This is needed, as otherwise the bounding rectangle
-		/// is too big, which will result in an wrong calculation of what to show.
+		/**
+		 * Hides all controls. This is needed, as otherwise the bounding rectangle
+		 * is too big, which will result in an wrong calculation of what to show.
+		 * */
 		hideAll: function () {
 			this.infoControls.forEach(c => (('setViewMode' in c) && c.setViewMode([false, false, false])));
 		},
 
-		/// checks for each control if it should be visible under the given circumstances, 
-		/// and shows/hides it accordingly.
+		/**
+		 * Near-AI heuristics magic that checks for each control if it should be visible 
+		 * under the given circumstances, and shows/hides it accordingly. Maybe one day
+		 * we will just try to show each control and see if it stretches the box, and if
+		 * so, hide it again. That might be a bit simpler.
+		 * */
 		decideControlsVisible: function () {
+			this.hideAll();
 			let height = this.container.clientHeight - 20;
 			const width = this.container.clientWidth;
-			if (width < 350) {
-				height = height / 2;
-			}
-			if (width < 240) {
-				height = height / 2;
-			}
 			let heightObj = { height: height };
 			let visibilityMap = new Map();  // a map with key: control, visibility
 			this.infoControls.forEach(function (c) {
-				let visibility = { primaryInfo: this.decideControlVisible(heightObj, 40), secondaryInfo: false, chart: false };
+				let visibility = { primaryInfo: this.decideControlVisible(heightObj, width < 185 ? width < 140 ? 130 : 92 : 72), secondaryInfo: false, chart: false };
 				visibilityMap.set(c, visibility);
 			}.bind(this));
 			this.infoControls.forEach(function (c) {
 				let visibility = visibilityMap.get(c);
-				visibility.secondaryInfo = this.decideControlVisible(heightObj, 40);
+				visibility.secondaryInfo = this.decideControlVisible(heightObj, width < 440 ? width < 185 ? 165 : 75 : 0);
 			}.bind(this));
 			this.infoControls.forEach(function (c) {
 				let visibility = visibilityMap.get(c);
-				visibility.chart = this.decideControlVisible(heightObj, 200);
+				visibility.chart = this.decideControlVisible(heightObj, 220);
 			}.bind(this));
 			this.infoControls.forEach(function (c) {
 				c.setViewMode(visibilityMap.get(c));
-			}.bind(this));
+			});
 		},
 
 		/* Used to sort sensors so that we first have pressure, then temperature, then humidity */
@@ -321,9 +390,11 @@ PiLot.View.Meteo = (function () {
 			return add + pSensor.sortOrder
 		},
 
-		/// decides whether a control using pHeightNeeded pixels shoud be available
-		/// and if so, decreases the available height
-		/// @param pHeightAvailableObj: object {height}, so that it can be passed as reference
+		/** 
+		 * Decides whether a control using pHeightNeeded pixels shoud be available
+		 * and if so, decreases the available height
+		 * @param {Object} pHeightAvailableObj - object {height}, so that it can be passed as reference
+		 * */
 		decideControlVisible: function (pHeightAvailableObj, pHeightNeeded) {
 			var result = false;
 			if (pHeightAvailableObj.height >= pHeightNeeded) {
@@ -333,8 +404,7 @@ PiLot.View.Meteo = (function () {
 			return result;
 		},
 
-		/// this sets the appropriate onclick handler to the container, either
-		/// just doing nothing, or setting this as main control
+		/** Sets the appropriate onclick handler to the container, either just doing nothing, or setting this as main control */
 		setContainerClick: function (pIsMinimized) {
 			if (pIsMinimized) {
 				this.container.onclick = function (e) {
@@ -438,6 +508,7 @@ PiLot.View.Meteo = (function () {
 		this.timeSpanSeconds = null;
 		this.template = pTemplate;
 		this.chartSettings = pChartSettings;
+		this.control = null;
 		this.divCurrentValue = null;
 		this.divMinValue = null;
 		this.divMaxTemperature = null;
@@ -463,15 +534,15 @@ PiLot.View.Meteo = (function () {
 
 		/** Draws the control based on the this.template, as a child of this.parentContainer */
 		draw: function () {
-			var control = PiLot.Utils.Common.createNode(this.template);
-			this.parentContainer.appendChild(control);
-			this.divCurrentValue = control.querySelector('.divCurrentValue');
-			this.divMinValue = control.querySelector('.divMinValue');
-			this.divMaxValue = control.querySelector('.divMaxValue');
-			this.lblCurrentValue = control.querySelector('.lblCurrentValue');
-			this.lblMinValue = control.querySelector('.lblMinValue');
-			this.lblMaxValue = control.querySelector('.lblMaxValue');
-			this.chartContainer = control.querySelector('.divChartContainer');
+			this.control = PiLot.Utils.Common.createNode(this.template);
+			this.parentContainer.appendChild(this.control);
+			this.divCurrentValue = this.control.querySelector('.divCurrentValue');
+			this.divMinValue = this.control.querySelector('.divMinValue');
+			this.divMaxValue = this.control.querySelector('.divMaxValue');
+			this.lblCurrentValue = this.control.querySelector('.lblCurrentValue');
+			this.lblMinValue = this.control.querySelector('.lblMinValue');
+			this.lblMaxValue = this.control.querySelector('.lblMaxValue');
+			this.chartContainer = this.control.querySelector('.divChartContainer');
 			const divChart = this.chartContainer.querySelector('.divChart');
 			const divChartLoading = this.chartContainer.querySelector('.divChartLoading');
 			var controls = { loading: divChartLoading, chart: divChart };
@@ -485,7 +556,7 @@ PiLot.View.Meteo = (function () {
 		/**
 		 * Loads and shows the data
 		 * @param {Number} pTimeSpanSeconds - The total timespan to cover, in seconds
-		 * @param {Number} pStartTime - Optionally pass a start time in seconds UTC. If empty, the most recent data will be loaded
+		 * @param {DateTime} pStartTime - Optionally pass a start time as luxon. If empty, the most recent data will be loaded
 		 * @param {Object} pRangeInfo - Optionally pass an element with {aggregateSecondsTemperature, yRangeTemperature}
 		 */
 		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pAggregateSeconds) {
@@ -493,7 +564,8 @@ PiLot.View.Meteo = (function () {
 			let data;
 			let aggregateSeconds = pAggregateSeconds || 600;
 			if (pStartTime) {
-				data = await PiLot.Utils.Chart.loadHistoricDataAsync(this.sensorInfo.name, pStartTime, pStartTime + this.timeSpanSeconds, aggregateSeconds);
+				let startTimeSeconds = RC.Date.DateHelper.luxonToUnix(pStartTime);
+				data = await PiLot.Utils.Chart.loadHistoricDataAsync(this.sensorInfo.name, startTimeSeconds, startTimeSeconds + this.timeSpanSeconds, aggregateSeconds);
 			} else {
 				data = await PiLot.Utils.Chart.loadRecentDataAsync(this.sensorInfo.name, this.timeSpanSeconds, aggregateSeconds);
 			}
@@ -554,8 +626,13 @@ PiLot.View.Meteo = (function () {
 			changed = this.toggleVisible(this.divMinValue, this.viewMode.secondaryInfo) || changed;
 			changed = this.toggleVisible(this.divMaxValue, this.viewMode.secondaryInfo) || changed;
 			changed = this.toggleVisible(this.chartContainer, this.viewMode.chart) || changed;
-			if (changed && (this.viewMode.primaryInfo || this.viewMode.secondaryInfo || this.viewMode.chart)) {
-				this.loadDataAsync().then(d => this.showData(d));
+			if (changed) {
+				if (this.viewMode.primaryInfo || this.viewMode.secondaryInfo || this.viewMode.chart) {
+					this.control.hidden = false;
+					this.loadDataAsync().then(d => this.showData(d));
+				} else {
+					this.control.hidden = true;
+				}
 			}
 		},
 
@@ -587,6 +664,7 @@ PiLot.View.Meteo = (function () {
 		this.viewMode = pViewMode;
 		this.timeSpanSeconds = null;
 		this.yRange = null;
+		this.control = null;
 		this.currentPressureContainer = null;
 		this.iconContainer = null;
 		this.trendContainer = null;
@@ -618,20 +696,20 @@ PiLot.View.Meteo = (function () {
 		},
 
 		draw: function () {
-			var control = PiLot.Utils.Common.createNode(PiLot.Templates.Meteo.pressureInfo);
-			this.parentContainer.appendChild(control);
-			this.currentPressureContainer = control.querySelector('.divCurrentPressure');
-			this.iconContainer = control.querySelector('.divPressureTrendIcons');
-			this.trendContainer = control.querySelector('.divPressureTrend');
-			this.lblPressure = control.querySelector('.lblPressure');
-			this.lblPressureTrend = control.querySelector('.lblPressureTrend');
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Meteo.pressureInfo);
+			this.parentContainer.appendChild(this.control);
+			this.currentPressureContainer = this.control.querySelector('.divCurrentPressure');
+			this.iconContainer = this.control.querySelector('.divPressureTrendIcons');
+			this.trendContainer = this.control.querySelector('.divPressureTrend');
+			this.lblPressure = this.control.querySelector('.lblPressure');
+			this.lblPressureTrend = this.control.querySelector('.lblPressureTrend');
 			this.lblRiseFast = this.iconContainer.querySelector('.lblRiseFast');
 			this.lblRise = this.iconContainer.querySelector('.lblRise');
 			this.lblConstant = this.iconContainer.querySelector('.lblConstant');
 			this.lblDrop = this.iconContainer.querySelector('.lblDrop');
 			this.lblDropFast = this.iconContainer.querySelector('.lblDropFast');
 			this.lblDropExtreme = this.iconContainer.querySelector('.lblDropExtreme');
-			this.chartContainer = control.querySelector('.divChartContainer');
+			this.chartContainer = this.control.querySelector('.divChartContainer');
 			const divChart = this.chartContainer.querySelector('.divChart');
 			const divChartLoading = this.chartContainer.querySelector('.divChartLoading');
 			var controls = { loading: divChartLoading, chart: divChart };
@@ -645,7 +723,7 @@ PiLot.View.Meteo = (function () {
 		/**
 		 * Loads and shows the data
 		 * @param { Number } pTimeSpanSeconds - The total timespan to cover, in seconds
-		 * @param { Number } pStartTime - Optionally pass a start time in seconds UTC. If empty, the most recent data will be loaded
+		 * @param {DateTime} pStartTime - Optionally pass a start time as luxon. If empty, the most recent data will be loaded
 		 * @param { Object } pRangeInfo - Optionally pass an element with { aggregateSecondsPressure, yRangePresure }
 		 * */
 		loadDataAsync: async function (pTimeSpanSeconds, pStartTime, pRangeInfo) {
@@ -653,7 +731,8 @@ PiLot.View.Meteo = (function () {
 			let aggregateSeconds = pRangeInfo ? pRangeInfo.aggregateSecondsPressure : SensorsPage.dateRanges[1].aggregateSecondsPressure;
 			let data;
 			if (pStartTime) {
-				data = await PiLot.Utils.Chart.loadHistoricDataAsync(this.sensorInfo.name, pStartTime, pStartTime + this.timeSpanSeconds, aggregateSeconds);
+				let startTimeSeconds = RC.Date.DateHelper.luxonToUnix(pStartTime);
+				data = await PiLot.Utils.Chart.loadHistoricDataAsync(this.sensorInfo.name, startTimeSeconds, startTimeSeconds + this.timeSpanSeconds, aggregateSeconds);
 			} else {
 				data = await PiLot.Utils.Chart.loadRecentDataAsync(this.sensorInfo.name, this.timeSpanSeconds, aggregateSeconds);
 			}
@@ -727,8 +806,13 @@ PiLot.View.Meteo = (function () {
 			changed = this.toggleVisible(this.trendContainer, this.viewMode.primaryInfo) || changed;
 			changed = this.toggleVisible(this.iconContainer, this.viewMode.primaryInfo) || changed;
 			changed = this.toggleVisible(this.chartContainer, this.viewMode.chart) || changed;
-			if (changed && (this.viewMode.primaryInfo || this.viewMode.secondaryInfo || this.viewMode.chart)) {
-				this.loadDataAsync();
+			if (changed) {
+				if (this.viewMode.primaryInfo || this.viewMode.secondaryInfo || this.viewMode.chart) {
+					this.control.hidden = false;
+					this.loadDataAsync();
+				} else {
+					this.control.hidden = true;
+				}
 			}
 		},
 

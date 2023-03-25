@@ -327,15 +327,21 @@ PiLot.Service.Nav = (function () {
 		shop: [['shop', 'convenience'], ['shop', 'supermarket'], ['shop', 'yes']]
 	};
 
-	OsmPoiLoader.apiUrl = 'https://lz4.overpass-api.de/api/interpreter?data=';
+	OsmPoiLoader.apiUrls = [
+		'https://lz4.overpass-api.de/api/interpreter',
+		'https://z.overpass-api.de/api/interpreter',
+		'https://overpass.kumi.systems/api/interpreter',
+		'https://overpass.openstreetmap.ru/api/interpreter',
+		'https://maps.mail.ru/osm/tools/overpass/api/interpreter'
+	];
 
 	OsmPoiLoader.prototype = {
 
-		loadDataAsync: async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pTypes) {
+		loadDataAsync: async function (pApiUrl, pMinLat, pMinLon, pMaxLat, pMaxLon, pTypes) {
 			let result = new Map();
 			const box = `${pMinLat},${pMinLon},${pMaxLat},${pMaxLon}`;
 			for (const type of pTypes) {
-				const resultSet = await this.queryOverpassAsync(this.buildQuery(OsmPoiLoader.tags[type]), box);
+				const resultSet = await this.queryOverpassAsync(pApiUrl, this.buildQuery(OsmPoiLoader.tags[type]), box);
 				for (osmPoi of resultSet) {
 					if (!result.has(osmPoi.getId())) {
 						result.set(osmPoi.getId(), osmPoi);
@@ -353,8 +359,9 @@ PiLot.Service.Nav = (function () {
 			return OsmPoiLoader.genericQuery.replace('{tagFilters}', tagFilters);
 		},
 
-		queryOverpassAsync: async function (pQuery, pBox) {
-			const url = OsmPoiLoader.apiUrl + encodeURIComponent(pQuery.replaceAll('{box}', pBox)).trim();
+		queryOverpassAsync: async function (pApiUrl, pQuery, pBox) {
+			const apiUrl = pApiUrl || OsmPoiLoader.apiUrls[Math.floor(Math.random() * OsmPoiLoader.apiUrls.length)];
+			const url = `${apiUrl}?data=${encodeURIComponent(pQuery.replaceAll('{box}', pBox)).trim()}`;
 			const response = await fetch(url);
 			const json = await response.json();
 			return this.parseResult(json);
