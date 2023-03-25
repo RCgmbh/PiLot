@@ -170,7 +170,7 @@ RC.Date.DateOnly.prototype = {
 	},
 
 	/// returns a new DateOnly pDays later (or before) this. Fractional parts
-	/// pf pDays are ignored. If pDays is not numeric, undefined is returned.
+	/// of pDays are ignored. If pDays is not numeric, undefined is returned.
 	addDays: function (pDays) {
 		if (RC.Utils.isNumeric(pDays)) {
 			return RC.Date.DateOnly.fromObject(this.toLuxon().plus({ days: Math.floor(Number(pDays)) }));
@@ -208,8 +208,12 @@ RC.Date.DateOnly.prototype = {
 
 	/// returns a luxon object with the given day, month, year. The object
 	/// will always be in the UTC Timezone
-	toLuxon: function () {
-		return luxon.DateTime.utc(this.year, this.month, this.day);
+	toLuxon: function (pLocale = null) {
+		let result = luxon.DateTime.utc(this.year, this.month, this.day);
+		if (pLocale) {
+			result = result.setLocale(pLocale);
+		}
+		return result;
 	},
 
 	/// returns a Date object for the given day, month, year.
