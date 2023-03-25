@@ -186,7 +186,10 @@ PiLot.View.Meteo = (function () {
 			}
 		},
 
-		/// loads data from the server and applies it to them controls
+		/** 
+		 * Loads data from the server and applies it to them controls
+		 * @param{Boolean} pShowLoading - Allows to show the hourglass while loading
+		 * */
 		loadAllDataAsync: async function (pShowLoading = false) {
 			pShowLoading && (this.lblLoading.hidden = false);
 			let promises = this.controls.map(control => this.loadDataAsync.bind(this, control)());
@@ -204,6 +207,10 @@ PiLot.View.Meteo = (function () {
 			await pControl.loadDataAsync(timeSpanSeconds, this.startDate, rangeInfo);
 		},
 
+		/**
+		 * Moves start and end date forwards or backwards, and refreshes the data
+		 * @param {Number} pBy - fractions of the current interval
+		 */
 		moveTimeFrameAsync: async function (pBy) {
 			const seconds = this.getIntervalSeconds() * pBy;
 			this.startDate = this.startDate.plus({ seconds: seconds });
@@ -212,6 +219,7 @@ PiLot.View.Meteo = (function () {
 			await this.loadAllDataAsync(true);
 		},
 
+		/** Updates the end date based on startDate and interval */
 		updateEndDate: function () {
 			if (this.startDate) {
 				this.endDate = this.startDate.plus({ seconds: this.getIntervalSeconds() });
@@ -220,10 +228,12 @@ PiLot.View.Meteo = (function () {
 			}
 		},
 
+		/** Gets the duration of the current interval in seconds */
 		getIntervalSeconds: function () {
 			return Number(this.ddlDateRange.value);
 		},
 
+		/** Shows the start date and end date */
 		showDates: function () {
 			if (this.startDate) {
 				this.lblFromDate.innerText = this.startDate.toLocaleString(DateTime.DATE_SHORT);
