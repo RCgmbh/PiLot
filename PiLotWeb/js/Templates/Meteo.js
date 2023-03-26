@@ -8,21 +8,23 @@ PiLot.Templates.Meteo = {
 			<h1 data-text="measurements"></h1>
 			<div class="pnlNoSensors feedbackWarning marginRight" data-text="noSensors" hidden></div>
 			<div class="pnlData marginRight">
-				<div class="flexRowWrap reverse">
-					<div class="flexRowWrap reverse marginRight marginBottom">
-						<label class="marginRight"><input type="radio" name="rblTimeMode" value="historic" /><span data-text="measurementsHistoric"></span></label>
-						<label class="marginRight"><input type="radio" name="rblTimeMode" value="current" checked /><span data-text="measurementsCurrent"></span></label>
+				<div>
+					<div class="flexRowWrap reverse">
+						<div class="flexRowWrap reverse marginRight marginBottom">
+							<label class="marginRight"><input type="radio" name="rblTimeMode" value="historic" /><span data-text="measurementsHistoric"></span></label>
+							<label class="marginRight"><input type="radio" name="rblTimeMode" value="current" checked /><span data-text="measurementsCurrent"></span></label>
+						</div>
+						<select class="ddlDateRange input8 marginBottom"></select><span class="lblLoading marginLeft" hidden><i class="icon-hour-glass"></i></span>
 					</div>
-					<select class="ddlDateRange input8 marginBottom"></select><span class="lblLoading marginLeft" hidden><i class="icon-hour-glass"></i></span>
-				</div>
-				<div class="pnlSelectDate flexColumn" hidden>
-					<div class="marginBottomSmall">
-						<a href="#" class="lnkPrevious"><i class="icon-arrow-left2"></i></a>
-						<i class="icon-calendar2 biggerText lnkCalendar marginLeftSmall marginRightSmall pointer"></i>
-						<div class="pnlCalendar" hidden></div>
-						<a href="#" class="lnkNext"><i class="icon-arrow-right2"></i></a>
+					<div class="pnlSelectDate flex" style="align-items:first baseline;" hidden>
+						<div class="marginBottomSmall marginRightBig">
+							<a href="#" class="lnkPrevious"><i class="icon-arrow-left2"></i></a>
+							<i class="icon-calendar2 biggerText lnkCalendar marginLeftSmall marginRightSmall pointer"></i>
+							<div class="pnlCalendar" hidden></div>
+							<a href="#" class="lnkNext"><i class="icon-arrow-right2"></i></a>
+						</div>
+						<div><span class="lblFromDate"></span> - <span class="lblToDate"></span></div>
 					</div>
-					<div class="marginRight"><span class="lblFromDate"></span> - <span class="lblToDate"></span></div>
 				</div>
 				<div class="plhChartsContainer meteoChartContainer marginBottom"></div>
 			</div>

@@ -215,6 +215,7 @@ PiLot.View.Meteo = (function () {
 		moveTimeFrameAsync: async function (pBy) {
 			const seconds = this.getIntervalSeconds() * pBy;
 			this.startDate = this.startDate.plus({ seconds: seconds });
+			this.calendar.date(this.startDate);
 			this.updateEndDate();
 			this.showDates();
 			await this.loadAllDataAsync(true);
