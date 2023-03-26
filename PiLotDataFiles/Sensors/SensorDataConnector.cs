@@ -128,15 +128,15 @@ namespace PiLot.Data.Files {
 		/// <param name="pStartTime">start time in seconds from epoc (utc or BoatTime, see pCheckBoatTime)</param>
 		/// <param name="pEndTime">end time in seconds from epoc (utc or BoatTime, see pCheckBoatTime)</param>
 		/// <param name="pAggregateSeconds">the duration of a cluster for which we aggregate data, in seconds</param>
-		/// <param name="pCheckBoatTime">if true, pStarTime and pEndTime are interpreted as BoatTime, otherwise as UTC</param>
+		/// <param name="pIsBoatTime">if true, pStarTime and pEndTime are interpreted as BoatTime, otherwise as UTC</param>
 		/// <returns></returns>
-		public AggregatedSensorData ReadSensorData(String pSensorName, Int32 pStartTime, Int32 pEndTime, Int32 pAggregateSeconds, Boolean pCheckBoatTime) {
+		public AggregatedSensorData ReadSensorData(String pSensorName, Int32 pStartTime, Int32 pEndTime, Int32 pAggregateSeconds, Boolean pIsBoatTime) {
 			Int32 minTime = pStartTime - pAggregateSeconds / 2;
 			Int32 maxTime = pEndTime + pAggregateSeconds / 2;
 			DateTime loopDateTime = DateTimeHelper.FromUnixTime(minTime);
 			DateTime endDateTime = DateTimeHelper.FromUnixTime(maxTime);
 			Func<SensorDataRecord, Int32, Int32, Boolean> boundaryCheck;
-			if (pCheckBoatTime) {
+			if (pIsBoatTime) {
 				// we need to enlarge the range of files checked, because the files are based on UTC,
 				// but we query based on BoatTime, which can differ up to +/-12 h 
 				loopDateTime = loopDateTime.AddHours(-12);
@@ -157,7 +157,7 @@ namespace PiLot.Data.Files {
 				}
 				loopDate = loopDate.AddDays(1);
 			}
-			return new AggregatedSensorData(rawData, minTime, maxTime, pAggregateSeconds);
+			return new AggregatedSensorData(rawData, minTime, maxTime, pAggregateSeconds, pIsBoatTime);
 		}
 
 		/// <summary>

@@ -45,15 +45,15 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Gets historic data from a certain source, identified by dataSource
 		/// </summary>
-		/// <param name="dataSource">the name of the data source.</param>
-		/// <param name="startTimeUnix">Seconds from epoc UTC</param>
-		/// <param name="endTimeUnix">Seconds from epoc UTC</param>
+		/// <param name="id">the name of the data source.</param>
+		/// <param name="startTimeUnix">Seconds from epoc BoatTime</param>
+		/// <param name="endTimeUnix">Seconds from epoc BoatTime</param>
 		/// <param name="aggregateSeconds">The data will be aggregated into chunks summarizing n seconds</param>
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]/{id}/historic")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public AggregatedSensorData Get(String id, [FromQuery] Int32 startTimeUnix, [FromQuery] Int32 endTimeUnix, [FromQuery] Int32 aggregateSeconds) {
-			return this.GetHistoricData(id, startTimeUnix, endTimeUnix, aggregateSeconds);
+			return this.GetHistoricData(id, startTimeUnix, endTimeUnix, aggregateSeconds, true);
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public AggregatedSensorData Get(String id, [FromQuery] Int32 durationSeconds, [FromQuery] Int32 aggregateSeconds) {
 			Int32 unixNow = DateTimeHelper.UnixNow;
-			return this.GetHistoricData(id, unixNow - durationSeconds, unixNow, aggregateSeconds);
+			return this.GetHistoricData(id, unixNow - durationSeconds, unixNow, aggregateSeconds, false);
 		}
 
 		/// <summary>
@@ -103,10 +103,10 @@ namespace PiLot.API.Controllers {
 		/// <param name="startTimeUnix">Start time in seconds since epoc UTC</param>
 		/// <param name="endTimeUnix">End time in seconds since epoc UTC</param>
 		/// <param name="aggregateSeconds">the values are aggregated into chunks of n seconds</param>
-		private AggregatedSensorData GetHistoricData(String dataSource, Int32 startTimeUnix, Int32 endTimeUnix, Int32 aggregateSeconds) {
+		private AggregatedSensorData GetHistoricData(String dataSource, Int32 startTimeUnix, Int32 endTimeUnix, Int32 aggregateSeconds, Boolean pIsBoatTime) {
 			DateTime requestStart = DateTime.UtcNow;
 			Logger.Log("Request for Data: {0}", dataSource, LogLevels.DEBUG);
-			AggregatedSensorData result = new SensorDataConnector().ReadSensorData(dataSource, startTimeUnix, endTimeUnix, aggregateSeconds, false);
+			AggregatedSensorData result = new SensorDataConnector().ReadSensorData(dataSource, startTimeUnix, endTimeUnix, aggregateSeconds, pIsBoatTime);
 			Logger.Log("Request for Data: {0} took {1}ms", dataSource, (DateTime.UtcNow - requestStart).TotalMilliseconds, LogLevels.DEBUG);
 			return result;
 		}

@@ -23,12 +23,18 @@ namespace PiLot.Model.Sensors {
 		private Int32 aggregateSeconds;
 
 		/// <summary>
-		/// the utcTimestamp of the beginning of the series. From here to endTime,
-		/// we will have 
+		/// the utcTimestamp of the beginning of the series. This can be earlier than the
+		/// first record, resulting in empty values a the beginning of the series.
 		/// </summary>
 		private Int32 startTime;
 
+		/// <summary>
+		/// The utc timestamp of the end of the series. This can be later than the latest
+		/// record, resulting in empty values at the end of the result set.
+		/// </summary>
 		private Int32 endTime;
+
+		Boolean isBoatTime = false;
 
 
 		/// <summary>
@@ -38,13 +44,16 @@ namespace PiLot.Model.Sensors {
 		/// <param name="pStartTime">The reference time for the groups, each group starts at pStartTime + n*pAggregateSeconds, in seconds utc</param>
 		/// <param name="pEndTime">The end time, being the time of the last group, as seconds from epoc utc</param>
 		/// <param name="pAggregateSeconds">The duration for which data should be aggregated into one value</param>
-		public AggregatedSensorData(List<SensorDataRecord> pRawData, Int32 pStartTime, Int32 pEndTime, Int32 pAggregateSeconds) {
+		/// <param name="pIsBoatTime">Set to true, if pStartTime and pEndTime are boatTime</param>
+		public AggregatedSensorData(List<SensorDataRecord> pRawData, Int32 pStartTime, Int32 pEndTime, Int32 pAggregateSeconds, Boolean pIsBoatTime) {
 			Assert.IsNotNull(pRawData);
 			Assert.IsTrue(pAggregateSeconds > 0, $"pAggregateSeconds must be more than 0, actual value was {pAggregateSeconds}");
 			this.rawData = pRawData;
 			this.startTime = pStartTime;
 			this.endTime = pEndTime;
 			this.aggregateSeconds = pAggregateSeconds;
+			this.isBoatTime = pIsBoatTime;
+			this.ApplyBoatTime();
 			this.ProcessData();
 		}
 
@@ -74,19 +83,21 @@ namespace PiLot.Model.Sensors {
 			this.Values = new List<Double?[]>();
 			Double resultLength = (this.endTime - this.startTime) / this.aggregateSeconds;
 			List<Double?>[] groupedValues = new List<Double?>[(Int32)Math.Ceiling(resultLength)];
-			Int32 index = 0;						// the index of the group of data where the current value fits in
-			Int32 boatTimeOffsetSeconds;			// the boatTimeOffset of the currently processed record, in seconds
+			Int32 index = 0;										// the index of the group of data where the current value fits in
+			Int32 boatTimeOffsetSeconds;							// the boatTimeOffset of the currently processed record, in seconds
 			Int32? lastBoatTimeOffsetSeconds = null;				// the last boatTimeOffset, needed to keep track of changes
 			List<Double?> aggregateValues = new List<Double?>();	// the list of values to be consolidated into one value
 			foreach (SensorDataRecord aRecord in this.rawData) {
 				if (aRecord.Value != null) {
 					index = (Int32)Math.Floor((aRecord.UTC - this.startTime) / (Double)aggregateSeconds);
-					if (groupedValues[index] == null) {
-						groupedValues[index] = new List<Double?>();
+					if (index >= 0 && index < groupedValues.Length) {
+						if (groupedValues[index] == null) {
+							groupedValues[index] = new List<Double?>();
+						}
+						groupedValues[index].Add(aRecord.Value.Value);
 					}
-					groupedValues[index].Add(aRecord.Value.Value);
 				}
-				boatTimeOffsetSeconds = aRecord.BoatTime - aRecord.UTC;
+				boatTimeOffsetSeconds = this.getBoatTimeOffset(aRecord);
 				Int32? utc = null;					
 				if((lastBoatTimeOffsetSeconds == null) || (lastBoatTimeOffsetSeconds.Value != boatTimeOffsetSeconds)) {
 					if(lastBoatTimeOffsetSeconds != null) {		// we want the first BoatTimeOffset to have utc = null so it serves as default.
@@ -99,6 +110,25 @@ namespace PiLot.Model.Sensors {
 			for(var i = 0; i < groupedValues.Length; i++) {
 				this.ProcessValues(groupedValues[i], i);
 			}
+		}
+
+		/// <summary>
+		/// If we work with boat time, this will update the start and end dates, so that
+		/// they are the utc-values for the start and end passed as boat time
+		/// </summary>
+		private void ApplyBoatTime() {
+			if(this.isBoatTime && this.rawData.Count > 0) {
+				this.startTime -= this.getBoatTimeOffset(this.rawData[0]);
+				this.endTime -= this.getBoatTimeOffset(this.rawData[this.rawData.Count - 1]);
+			}
+		}
+
+		/// <summary>
+		/// Gets the offset of the boatTime against UTC for a SensorDataRecord
+		/// </summary>
+		/// <returns>BoatTime UTC offset for pRecord in seconds</returns>
+		private Int32 getBoatTimeOffset(SensorDataRecord pRecord) {
+			return pRecord.BoatTime - pRecord.UTC;
 		}
 
 		/// <summary>
