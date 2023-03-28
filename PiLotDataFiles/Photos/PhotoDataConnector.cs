@@ -16,7 +16,7 @@ namespace PiLot.Data.Files {
 		public const String THUMBNAILFOLDER = "thumbnail1";
 		public const String PHOTOFILEFORMAT = "{0:yyyy-MM-dd}";
 
-		private static readonly List<String> imageFileExtensions = new List<String> { ".jpg", ".jpeg", ".JPG", ".JPEG" };
+		private static readonly List<String> imageFileExtensions = new List<String> { ".jpg", ".jpeg" };
 
 		#region instance variables
 
@@ -50,7 +50,7 @@ namespace PiLot.Data.Files {
 		/// <returns>True, if there are photos for pDay</returns>
 		public Boolean HasPhotos(Date pDay) {
 			DirectoryInfo photosDirectory = new DirectoryInfo(this.GetPhotosFilePath(pDay, false));
-			Boolean result = photosDirectory.Exists && (photosDirectory.GetFiles().Count(f => PhotoDataConnector.imageFileExtensions.Contains(f.Extension)) > 0);
+			Boolean result = photosDirectory.Exists && (photosDirectory.GetFiles().Count(f => PhotoDataConnector.imageFileExtensions.Contains(f.Extension.ToLower())) > 0);
 			return result;
 		}
 
@@ -111,7 +111,7 @@ namespace PiLot.Data.Files {
 						day = new Date(imageDateTime.Value);
 					}
 				}
-				if(day != null) {
+				if (day != null) {
 					String datePath = this.GetPhotosFilePath(day.Value, true);
 					ImageHelper.EnsureOrientation(ref image);
 					String imageFilePath = this.GetImageFilePath(day.Value, pImageData.Name, false);
