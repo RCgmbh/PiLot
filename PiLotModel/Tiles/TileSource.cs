@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-/// <summary>
-/// represents a source for Tiles, including information about where to get and
-/// where to story map tiles
-/// </summary>
 namespace PiLot.Model.Tiles {
 
+	/// <summary>
+	/// represents a source for Tiles, including information about where to get and
+	/// where to story map tiles
+	/// </summary>
 	public class TileSource {
 
 		public TileSource() { }

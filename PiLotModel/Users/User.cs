@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 
 namespace PiLot.Model.Users {
+
 	/// <summary>
 	/// Represents a user who can access the application
 	/// </summary>

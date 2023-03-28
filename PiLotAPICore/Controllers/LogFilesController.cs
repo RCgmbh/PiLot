@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.Utils.Logger;
-using PiLotModel.System;
+using PiLot.Model.System;
 
 namespace PiLot.API.Controllers {
 

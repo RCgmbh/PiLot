@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 
 namespace PiLot.Model.Users {
+
 	/// <summary>
 	/// This is just used to serialize and deserialize the whole auth settings into
 	/// one single json file. The file has a roles array and the

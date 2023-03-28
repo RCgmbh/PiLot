@@ -24,5 +24,4 @@ namespace PiLot.Model.Boat {
 		public Int32 StateId { get; set; }
 
 	}
-
 }

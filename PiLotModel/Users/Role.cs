@@ -2,6 +2,7 @@
 using System.Text.Json.Serialization;
 
 namespace PiLot.Model.Users {
+
 	/// <summary>
 	/// A Role gives a set of permissions to a user
 	/// </summary>

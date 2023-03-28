@@ -13,8 +13,6 @@ namespace PiLot.Data.Files {
 	/// </summary>
 	public class TileDataConnector {
 
-		public const String DATADIR = "tiles";
-
 		private Object lockObject = new Object();
 		private static TileDataConnector instance = null;
 

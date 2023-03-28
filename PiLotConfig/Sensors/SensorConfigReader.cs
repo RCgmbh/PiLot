@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text.Json;
 
 using PiLot.Model.Sensors;
-using PiLot.Utils;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Config {

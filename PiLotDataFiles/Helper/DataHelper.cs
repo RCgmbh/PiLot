@@ -79,7 +79,7 @@ namespace PiLot.Data.Files {
 					File.WriteAllText(filePath, String.Empty);
 					result = file;
 				} else {
-					Logger.Log($"DataHalper.GetDataFile: File not found at {filePath}", LogLevels.DEBUG);
+					Logger.Log($"DataHelper.GetDataFile: File not found at {filePath}", LogLevels.DEBUG);
 				}
 			} catch (Exception ex) {
 				Logger.Log(ex, "DataHelper.GetDataFile");
