@@ -28,6 +28,5 @@ namespace PiLot.API.Controllers {
 		public String PutDate(Int64 millisUtc) {
 			return new SystemHelper().SetDate(millisUtc);
 		}
-
 	}
 }

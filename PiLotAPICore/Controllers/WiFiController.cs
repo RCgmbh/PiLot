@@ -46,15 +46,6 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Selects an interface to use
-		/// </summary>
-		/*[Route(Program.APIROOT + "[controller]/interfaces/{iface}/select")]
-		[HttpPut]
-		public String SelectInterface(String iface) {
-			return new WiFiHelper().SelectInterface(iface);
-		}*/
-
-		/// <summary>
 		/// Connects to the network with number. The number is taken
 		/// from the result of GetNetworks().
 		/// </summary>

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.Data.Files;
 using PiLot.Model.Photos;
 using PiLot.Utils.Logger;
-
 using PiLot.API.ActionFilters;
 using PiLot.API.Workers;
-using System.Threading.Tasks;
 
 namespace PiLot.API.Controllers {
 

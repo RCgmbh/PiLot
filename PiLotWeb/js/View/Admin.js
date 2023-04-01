@@ -493,7 +493,7 @@ PiLot.View.Admin = (function () {
 
 		selectInterfaceAsync: async function (pInterface) {
 			this.ddlInterface.disabled = true;
-			await this.wifiHelper.setInterface(pInterface);
+			this.wifiHelper.setInterface(pInterface);
 			await this.loadNetworksAsync();
 			this.ddlInterface.disabled = false;
 		},

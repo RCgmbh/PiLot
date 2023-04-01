@@ -9,15 +9,15 @@ using PiLot.Model.Nav;
 using PiLot.Model.Photos;
 using PiLot.Model.Logbook;
 using PiLot.Utils;
-using PiLot.Utils.Logger;
 using PiLot.Utils.DateAndTime;
+using PiLot.Utils.Logger;
 
 namespace PiLot.API.Workers {
 
 	/// <summary>
 	/// This is the guy who does the actual job of publishing data from the local
 	/// PiLot to a remote target. It takes a publishJob, which contains information
-	/// about the target and the requested data, and will always be update with the
+	/// about the target and the requested data, and will always be updated with the
 	/// current status and messages.
 	/// </summary>
 	public class PublishWorker {
@@ -25,7 +25,7 @@ namespace PiLot.API.Workers {
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		/// <param name="pJob">The actual publis job</param>
+		/// <param name="pJob">The actual publishing job</param>
 		public PublishWorker(PublishJob pJob) {
 			Assert.IsNotNull(pJob, "pJob must not be null");
 			this.Job = pJob;

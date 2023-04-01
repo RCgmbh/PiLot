@@ -110,6 +110,5 @@ namespace PiLot.API.Controllers {
 			Logger.Log("Request for Data: {0} took {1}ms", dataSource, (DateTime.UtcNow - requestStart).TotalMilliseconds, LogLevels.DEBUG);
 			return result;
 		}
-
 	}
 }
