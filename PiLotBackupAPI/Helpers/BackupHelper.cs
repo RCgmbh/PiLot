@@ -8,8 +8,8 @@ using System.Linq;
 using PiLot.Data.Files;
 using PiLot.Model.Nav;
 using PiLot.Model.Logbook;
-using PiLot.Utils.Logger;
 using PiLot.Model.Sensors;
+using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API.Helpers {
 

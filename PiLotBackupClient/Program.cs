@@ -23,6 +23,10 @@ using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.Client {
 
+	/// <summary>
+	/// Console app that sends changed data to the backup api within an interval. This 
+	/// is intended to run as a service.
+	/// </summary>
 	class Program {
 
 		private const Int32 TIMERINTERVALMS = 1000 * 60 * 5;
@@ -78,7 +82,7 @@ namespace PiLot.Backup.Client {
 		private static async void TimerEventAsync() {
 			if (!Program.busy) {
 				Program.busy = true;
-				await Program.PerformBackup();
+				await Program.PerformBackupAsync();
 				Program.busy = false;
 			}			
 		}
@@ -87,7 +91,7 @@ namespace PiLot.Backup.Client {
 		/// Performs the backup for each target, if the target is reachable, and finally commits
 		/// the backup and updates the lastSuccess date if everything goes well
 		/// </summary>
-		private static async Task PerformBackup() {
+		private static async Task PerformBackupAsync() {
 			ConfigHelper configHelper = new ConfigHelper();
 			Out.WriteDebug($"Found {configHelper.BackupTargets.Count} Backup Targets");
 			Boolean success = true;

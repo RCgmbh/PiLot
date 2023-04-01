@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-using PiLot.Utils.Logger;
 using PiLot.Model.Nav;
 
 

@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using PiLot.Model.Nav;
 
-
 namespace PiLot.APIProxy {
 
 	/// <summary>

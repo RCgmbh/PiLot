@@ -138,8 +138,8 @@ PiLot.Service.Nav = (function () {
 						pData[3],
 						pData[4],
 						pData[5],
-						RC.Date.DateHelper.isoToLuxon(pData[6], locale),
-						RC.Date.DateHelper.isoToLuxon(pData[7], locale),
+						this.processDate(pData[6], locale),
+						this.processDate(pData[7], locale),
 						pData[8],
 						pData[9]
 					);
@@ -150,6 +150,22 @@ PiLot.Service.Nav = (function () {
 				} else {
 					PiLot.log('Did not get an array for Poi.fromArray.', 0);
 				}
+			}
+			return result;
+		},
+
+		/**
+		 * converts a value to a date. The value can either be an iso string
+		 * or the number of seconds since epoc. Different backends send 
+		 * different values, that's why we do this.
+		 */
+		processDate: function (pDate, pLocale) {
+			const type = typeof (pDate);
+			let result;
+			if (type === 'string') {
+				result = RC.Date.DateHelper.isoToLuxon(pDate, pLocale);
+			} else if (type === 'number') {
+				result = RC.Date.DateHelper.unixToLuxon(pDate, pLocale);
 			}
 			return result;
 		},

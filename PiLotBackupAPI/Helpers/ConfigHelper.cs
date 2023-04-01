@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 
 using PiLot.Utils.Logger;
 
@@ -40,7 +41,7 @@ namespace PiLot.Backup.API.Helpers {
 				try {
 					String fileContent = null;
 					fileContent = File.ReadAllText(configPath);
-					this.config = System.Text.Json.JsonSerializer.Deserialize<Config>(fileContent);
+					this.config = JsonSerializer.Deserialize<Config>(fileContent);
 				} catch (Exception ex) {
 					Logger.Log("Error reading config: {0}", ex.Message, LogLevels.ERROR);
 					this.config = null;

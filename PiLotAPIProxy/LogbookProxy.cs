@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 
 using PiLot.Model.Logbook;
 
-
 namespace PiLot.APIProxy {
 
 	/// <summary>

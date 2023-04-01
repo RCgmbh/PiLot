@@ -799,6 +799,7 @@ PiLot.View.Map = (function () {
 		this.categoryIcons = null;					// map with key=category.id and value=icon html
 		this.poiDetailControl = null;				// PiLot.View.Nav.PoiDetails
 		this.poiFormControl = null;					// PiLot.View.Nav.PoiForm
+		this.moving = false;						// helper to avoid loading pois twice when zooming and moving
 		this.initializeAsync();
 	};
 
@@ -806,6 +807,7 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			this.pois = new Map();
+			this.seamap.getLeafletMap().on('movestart', this.leafletMap_movestart.bind(this));
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 			this.settingsControl.on('applySettings', this.settings_applySettings.bind(this));
@@ -813,13 +815,20 @@ PiLot.View.Map = (function () {
 			await this.loadPoisAsync();
 		},
 
+		leafletMap_movestart: function () {
+			this.moving = true;
+		},
+
 		leafletMap_moveend: function () {
 			this.loadPoisAsync();
 			this.resizeMarkers(this.pois);
+			this.moving = false;
 		},
 
 		leafletMap_zoomend: function () {
-			this.loadPoisAsync();
+			if (!this.moving) {
+				this.loadPoisAsync();
+			}
 		},
 
 		settings_applySettings: function (pSender) {
