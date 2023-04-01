@@ -13,6 +13,7 @@ There is a demo page at https://pilotdemo.roethenmund.biz/, with public read acc
 - Historic track on the map
 - Course and speed over ground vector
 - Waypoints on the map, showing distance, bearing and ETA
+- POIs (points of interest): manage manually and import from OSM
 
 **Routes**
 - Define an unlimited number of routes
