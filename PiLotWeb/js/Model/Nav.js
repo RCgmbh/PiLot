@@ -535,7 +535,9 @@ PiLot.Model.Nav = (function () {
 		},
 
 		getLabel: function (pLanguage) {
-			return this.labels[pLanguage] || this.name;
+			if (this.labels && pLanguage in this.labels) {
+				return this.labels[pLanguage]
+			} else return this.name;
 		},
 
 		setLabels: function (pLabels) {
@@ -666,7 +668,10 @@ PiLot.Model.Nav = (function () {
 		},
 
 		getLabel: function (pLanguage) {
-			return this.labels[pLanguage] || this.name;
+			if (this.labels && pLanguage in this.labels) {
+				return this.labels[pLanguage]
+			} else return this.name;
+
 		},
 
 		setLabels: function (pLabels) {

@@ -192,7 +192,11 @@ PiLot.Service.Nav = (function () {
 			const json = await PiLot.Utils.Common.getFromServerAsync('/PoiCategories');
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
-					const poiCategory = new PiLot.Model.Nav.PoiCategory(json[i].id, json[i].name, json[i].labels, json[i].icon);
+					let labels = json[i].labels;
+					if (typeof labels === "string") {
+						labels = JSON.parse(labels);
+					}
+					const poiCategory = new PiLot.Model.Nav.PoiCategory(json[i].id, json[i].name, labels, json[i].icon);
 					result.set(poiCategory.getId(), poiCategory);
 				}
 				for (let i = 0; i < json.length; i++) {
@@ -251,7 +255,11 @@ PiLot.Service.Nav = (function () {
 			const json = await PiLot.Utils.Common.getFromServerAsync('/PoiFeatures');
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
-					const poiFeature = new PiLot.Model.Nav.PoiFeature(json[i].id, json[i].name, json[i].labels);
+					let labels = json[i].labels;
+					if (typeof labels === "string") {
+						labels = JSON.parse(labels);
+					}
+					const poiFeature = new PiLot.Model.Nav.PoiFeature(json[i].id, json[i].name, labels);
 					result.set(poiFeature.getId(), poiFeature);
 				}
 			} else {
