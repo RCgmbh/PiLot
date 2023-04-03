@@ -1405,12 +1405,12 @@ PiLot.View.Tools = (function () {
 				let existingPois;
 				switch (pReplaceOption) {
 					case 'add':
-						poi.saveAsync();
+						await poi.saveAsync();
 						break;
 					case 'skip':
 						existingPois = await this.getExistingPoisAsync(poi);
 						if (existingPois.length === 0) {
-							poi.saveAsync();
+							await poi.saveAsync();
 						} else {
 							this.writeOutput(`Skipping poi ${this.poiToString(poi)}. Conflicts with ${this.poiToString(existingPois[0])}.`);
 							result = false;
@@ -1422,7 +1422,7 @@ PiLot.View.Tools = (function () {
 							this.writeOutput(`Delete existing poi ${this.poiToString(existingPoi)} as it conflicts with imported poi ${this.poiToString(poi)}`);
 							await existingPoi.deleteAsync();
 						}
-						poi.saveAsync();
+						await poi.saveAsync();
 						break;
 				}
 				if (result) {
