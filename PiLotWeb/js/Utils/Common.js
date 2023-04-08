@@ -398,7 +398,7 @@ PiLot.Utils.Common = {
 			var emailAddressPattern = /\b[\w.-]+@[\S]+\.[\S]+(\b|$)/gim;
 			return pText
 				.replace(urlPattern, '<a href="$&" target="_blank">$&</a>')
-				.replace(pseudoUrlPattern, '$1<a href="http://$2" target="_blank">$2</a>')
+				.replace(pseudoUrlPattern, '<a href="http://$&" target="_blank">$&</a>')
 				.replace(emailAddressPattern, '<a href="mailto:$&">$&</a>');
 		} else return pText;
 	}
