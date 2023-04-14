@@ -115,6 +115,7 @@ namespace PiLot.Backup.API.Helpers {
 				tempDirectory.MoveTo(finalDirectory.FullName);
 				DirectoryInfo clientRoot = BackupHelper.GetClientRoot(pClientName, false);
 				BackupHelper.ClearPreviousBackups(clientRoot);
+				BackupHelper.ClearTempDirectories(clientRoot);
 			}			
 		}
 
@@ -153,6 +154,7 @@ namespace PiLot.Backup.API.Helpers {
 		private static String GetLatestBackupSet(String pClientRoot) {
 			String result = null;
 			List<DirectoryInfo> backupSets = new DirectoryInfo(pClientRoot).GetDirectories().ToList();
+			backupSets.RemoveAll(s => s.FullName.EndsWith("_temp"));
 			if (backupSets.Count > 0) {
 				String latestBackupName = backupSets.Max(b => b.Name);
 				result = backupSets.First(b => b.Name == latestBackupName).FullName;
@@ -208,6 +210,16 @@ namespace PiLot.Backup.API.Helpers {
 				}
 			}
 			foreach(DirectoryInfo aDirectory in deleteBackupSets) {
+				aDirectory.Delete(true);
+			}
+		}
+
+		/// <summary>
+		/// Deletes all temp folders in the client's backup directory
+		/// </summary>
+		private static void ClearTempDirectories(DirectoryInfo pClientRoot) {
+			foreach (DirectoryInfo aDirectory in pClientRoot.GetDirectories("*_temp")) {
+				Logger.Log($"Deleting temp directory {aDirectory.FullName}", LogLevels.DEBUG);
 				aDirectory.Delete(true);
 			}
 		}
