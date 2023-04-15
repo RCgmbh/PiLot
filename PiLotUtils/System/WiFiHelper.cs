@@ -143,8 +143,8 @@ namespace PiLot.Utils.OS {
                         wifiInfo = new WiFiInfo(ssid);
                         result.Add(wifiInfo);
                     }
-                    wifiInfo.SignalStrength = signalStrength;
-                    wifiInfo.IsAvailable = true;
+					wifiInfo.SignalStrength = Math.Min(signalStrength, -1); // we have positive signal strength sometimes, which confuses the gui...
+					wifiInfo.IsAvailable = true;
                 }
             }
             return result;
