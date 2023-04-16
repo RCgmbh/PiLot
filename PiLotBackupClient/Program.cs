@@ -94,13 +94,13 @@ namespace PiLot.Backup.Client {
 		private static async Task PerformBackupAsync() {
 			ConfigHelper configHelper = new ConfigHelper();
 			Out.WriteDebug($"Found {configHelper.BackupTargets.Count} Backup Targets");
-			Boolean success = true;
 			DateTime backupDate = DateTime.UtcNow;
 			BackupServiceProxy proxy;
 			foreach (BackupTarget aTarget in configHelper.BackupTargets) {
 				proxy = new BackupServiceProxy(aTarget.TargetUrl, aTarget.Username, aTarget.Password);
 				Out.WriteInfo($"Starting Backup for target {aTarget.TargetUrl}");
 				if (await proxy.PingAsync()) {
+					Boolean success = true;
 					foreach (BackupTask aTask in aTarget.BackupTasks) {
 						Out.WriteDebug($"Starting Backup for task {aTask.DataType}: {aTask.DataSource}");
 						success = success && await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
