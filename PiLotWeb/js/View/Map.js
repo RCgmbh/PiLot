@@ -887,8 +887,8 @@ PiLot.View.Map = (function () {
 			const maxLat = Math.min(maxPoint.lat + deltaLat, 90);
 			const maxLng = Math.min(maxPoint.lng + deltaLng, 180);
 			const settings = await this.settingsControl.getSettingsAsync();
+			await this.ensureCategoryIconsAsync();
 			if (settings.showPois) {
-				await this.ensureCategoryIconsAsync();
 				const pois = await PiLot.Service.Nav.PoiService.getInstance().findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
 				const newPois = [];
 				pois.forEach(function (p) {
