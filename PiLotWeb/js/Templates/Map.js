@@ -99,6 +99,12 @@ PiLot.Templates.Map = {
 			<span class="icon"><i class="icon-locked"></i></span>
 		</a>`,
 
+	mapAnchorWatchOption: `
+		<a href="#" class="option">
+			<span class="label" data-text="anchorWatch"></span>
+			<span class="icon"><i class="icon-anchor"></i></span>
+		</a>`,
+
 	mapPopup: `
 		<div>
 			<span class="latLon"></span><br /><br />
@@ -108,6 +114,8 @@ PiLot.Templates.Map = {
 	mapAddWaypointLink: '<a href="#" data-text="addWaypoint"></a>',
 
 	mapAddPoiLink: '<a href="#" data-text="addPoi"></a>',
+
+	mapAnchorWatchLink: '<a href="#" data-text="anchorWatch"></a>',
 
 	mapShowTrack:`
 		<div class="option">

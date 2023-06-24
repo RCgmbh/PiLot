@@ -149,6 +149,7 @@ PiLot.View.Map = (function () {
 				}
 				this.contextPopup = new MapContextPopup(this);
 				this.mapPois = new MapPois(this, this.mapLayersSettings);
+				new MapAnchorWatch(this);
 				this.isMapLoaded = true;
 			}
 			return this;
@@ -2071,6 +2072,52 @@ PiLot.View.Map = (function () {
 
 	};
 
+	/**
+	 * Allows to add/display/edit an anchor watch on the map, which will
+	 * trigger an alarm, as soon as the distance between the gps position
+	 * and the anchorage point exceeds a certain threshold.
+	 * @param {PiLot.View.Map.Seamap} pMap
+	 */
+	var MapAnchorWatch = function (pMap) {
+		this.map = pMap;
+		this.isAnchorWatchActive = false;
+		this.initialize();
+	};
+
+	MapAnchorWatch.prototype = {
+
+		initialize: function () {
+			this.isAnchorWatchActive = false; // todo: get from model
+			this.addSettingsControl();
+			this.addContextPopupLink();
+		},
+
+		lnkOptionAnchorWatch_click: function () {
+			//
+		},
+
+		lnkEnableAnchorWatch_click: function () {
+			//
+		},
+
+		/** adds the "anchor watch" control to the settings container * */
+		addSettingsControl: function () {
+			this.lnkOptionAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchOption);
+			this.lnkOptionAnchorWatch.classList.toggle('active', this.isAnchorWatchActive);
+			this.lnkOptionAnchorWatch.addEventListener('click', this.lnkOptionAnchorWatch_click.bind(this));
+			this.map.addSettingsItem(this.lnkOptionAnchorWatch);
+		},
+
+		/// adds an "add Waypoint" link to the map context popup
+		addContextPopupLink: function () {
+			if (!this.isAnchorWatchActive) {
+				const lnkEnableAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchLink);
+				this.map.getContextPopup().addLink(lnkEnableAnchorWatch, this.lnkEnableAnchorWatch_click.bind(this));
+			}
+		},
+
+	};
+
 	/// a small version of the map, which is shown on the start page. This also
 	/// observes size changes and shows itself as map or just as a tile, depending
 	/// on the space available
@@ -2190,6 +2237,7 @@ PiLot.View.Map = (function () {
 		MapTrack: MapTrack,
 		MapRoute: MapRoute,
 		MapPositionMarker: MapPositionMarker,
+		MapAnchorWatch: MapAnchorWatch,
 		StartPageMap: StartPageMap
 	};
 
