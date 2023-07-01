@@ -645,7 +645,7 @@ PiLot.View.Map = (function () {
 		 * */
 		loadSettingsAsync: async function () {
 			await Promise.all([this.ensureTileSourcesAsync(), this.ensureCategoriesAsync(), this.ensureFeaturesAsync()]);
-			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
+			const settings = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.mapLayers');
 			this.currentSettings = this.currentSettings || {};
 			this.currentSettings.tileSourceNames = (settings && settings.tileSourceNames) || Array.from(this.allTileSources.keys());
 			this.currentSettings.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
@@ -655,7 +655,7 @@ PiLot.View.Map = (function () {
 
 		/** Saves the settings to the browser */
 		saveSettings: function () {
-			PiLot.Utils.Common.saveUserSetting('mapLayers', this.currentSettings);
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.mapLayers', this.currentSettings);
 		},
 
 		/** Makes sure the map of all tile sources has been loaded. */
