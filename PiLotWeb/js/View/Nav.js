@@ -1226,6 +1226,11 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
+	/** The form used to configure the anchor watch, and to activate/deactivate it */
+	var AnchorWatchForm = function () { };
+
+	AnchorWatchForm.prototype = {};
+
 	/**
 	 * This represents the control which is used to show all details about one specific
 	 * Point of interest. It can be created once and then be reused to show different pois.

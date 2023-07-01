@@ -66,7 +66,7 @@ PiLot.Templates.Nav = {
 					<a href="#" class="lnkAddWaypoint inlineBlock marginBottom"><i class="icon-plus marginRight"></i><span data-text="addWaypoint"></span></a>
 				<div>
 				<div class="block marginBottom">
-					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRightSmall iconActiveRoute"></i><span data-text="activateRoute"></span></a> |
+					<a href="#" class="lnkActivateRoute marginRight"><i class="icon-checkmark3 marginRightSmall iconActiveRoute"></i><span data-text="activate"></span></a> |
 					<a href="#" class="lnkReverseRoute marginLeft marginRight"><i class="icon-arrow-left2 marginRightSmall"></i><span data-text="reverseRoute"></span></a> |
 					<a href="#" class="lnkCopyRoute marginLeft marginRight"><i class="icon-copy marginRightSmall"></i><span data-text="copy"></span></a> |
 					<a href="#" class="lnkDeleteRoute marginLeft"><i class="icon-trashcan marginRightSmall"></i><span data-text="deleteRoute"></span></a>
@@ -306,6 +306,26 @@ PiLot.Templates.Nav = {
 	poiCategoryIconCss: '<i class="{{icon}}"></i>',
 
 	poiCategoryIconSvg: '<img src="img/icons/{{icon}}" />',
+
+	anchorWatchForm:  `
+		<div class="pnlOverlay vCenter overlay" hidden><div class="pnlDialog anchorWatchForm dialogPanel hCenter">
+			<div class="paddingAllSmall">
+				<span class="block marginBottomSmall semiBold" data-text="anchorWatch"></span>
+				<div class="marginBottom">
+					<div class="flexRowWrap">
+						<span class="inlineBlock col4" data-text="radius">:</span>
+						<input type="text" class="tbRadius input4" />
+					</div>
+				</div>
+				<div class="buttons reverse paddingBottomBig">
+					<a href="#" class="btnActivate linkButton semiBold" data-text="activate"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+					<a href="#" class="btnDeactivate linkButton" data-text="deactivate"></a>
+					<a href="#" class="btnClose linkButton" data-text="close"></a>	
+				</div>
+			</div>
+		</div></div>
+	`,
 
 	anchorWatchMarker: '<i class="icon-anchor"></i>'
 };

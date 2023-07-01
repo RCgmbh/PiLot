@@ -2079,6 +2079,7 @@ PiLot.View.Map = (function () {
 		this.anchorWatch = null;
 		this.centerMarker = null;
 		this.circle = null;
+		this.warningMessage = null;
 		this.initialize();
 	};
 
@@ -2090,6 +2091,7 @@ PiLot.View.Map = (function () {
 			this.isAnchorWatchActive = false; // todo: get from model
 			this.addSettingsControl();
 			this.addContextPopupLink();
+			this.addWarningMessage();
 		},
 
 		/**
@@ -2162,11 +2164,11 @@ PiLot.View.Map = (function () {
 		},
 
 		anchorWatch_exceedRadius: function () {
-			console.log('EXCEEDING RADIUS!!!');
+			this.warningMessage.hidden = false;
 		},
 
 		anchorWatch_belowRadius: function () {
-			console.log('Below radius :-)');
+			this.warningMessage.hidden = true;
 		},
 
 		/** adds the "anchor watch" control to the settings container * */
@@ -2181,6 +2183,11 @@ PiLot.View.Map = (function () {
 		addContextPopupLink: function () {
 			const lnkEnableAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchLink);
 			this.seamap.getContextPopup().addLink(lnkEnableAnchorWatch, this.lnkEnableAnchorWatch_click.bind(this));
+		},
+
+		addWarningMessage: function () {
+			this.warningMessage = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchWarning);
+			this.seamap.getMapContainer().insertAdjacentElement('beforeend', this.warningMessage);
 		},
 
 		/**
@@ -2209,7 +2216,9 @@ PiLot.View.Map = (function () {
 				this.circle.setLatLng(this.anchorWatch.getCenterLatLng());
 				this.circle.setRadius(this.anchorWatch.getRadius());
 			} else {
-				this.circle = L.circle(this.anchorWatch.getCenterLatLng(), { radius: this.anchorWatch.getRadius() }).addTo(this.seamap.getLeafletMap());
+				const options = PiLot.Templates.Map.mapAnchorWatchCircle;
+				options.radius = this.anchorWatch.getRadius();
+				this.circle = L.circle(this.anchorWatch.getCenterLatLng(), options).addTo(this.seamap.getLeafletMap());
 			}
 			
 			if (this.centerMarker) {
