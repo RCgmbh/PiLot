@@ -54,7 +54,7 @@ PiLot.Templates.Map = {
 			<a href="#" class="lnkCollapse" hidden><i class="icon-expand_less biggerText"></i></a>
 		</div>`,
 
-	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute hidden" data-text="noGpsData"></div>`,
+	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning absolute" hidden data-text="noGpsData"></div>`,
 
 	mapWaypointPopup: `
 		<div class="mapWaypointPopup">

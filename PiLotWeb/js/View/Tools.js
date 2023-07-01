@@ -563,11 +563,11 @@ PiLot.View.Tools = (function () {
 
 		/// draws the map, adds the layers and attaches the handlers
 		drawMapAsync: async function () {
-			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: true, showLayers: false });
+			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: true, customLayers: true });
 			await this.map.showAsync();
 			this.showZoom();
 			this.map.getLeafletMap().on('zoomend', this.map_zoomend.bind(this));
-			var tileSourcesControl;
+			let tileSourcesControl;
 			for (const [tileSourceName, tileSource] of this.tileSources) {
 				tileSourcesControl = this.tileSourcesControls.get(tileSource);
 				if (tileSourcesControl.cbShowLayer.checked) {

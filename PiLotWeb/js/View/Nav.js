@@ -661,21 +661,23 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// click handler for the "activate route" link
-		lnkActivateRoute_click: function () {
+		lnkActivateRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.isActiveRoute = !this.isActiveRoute;
 			var activeRouteId = this.isActiveRoute ? this.route.getRouteId() : null;
 			PiLot.Model.Nav.saveActiveRouteIdAsync(activeRouteId);
 			this.lnkActivate.classList.toggle('active', this.isActiveRoute);
-			return false;
 		},
 
 		/** click handler for the "reverse route" link */
 		lnkReverseRoute_click: function () {
+			event.preventDefault();
 			this.route.reverse(this);
 		},
 
 		/** click handler for the "copy" link */
 		lnkCopyRoute_click: function () {
+			event.preventDefault();
 			this.route.setRouteId(null);
 			this.route.setName(`${this.route.getName()}-Copy`);
 			this.showRoute();
@@ -684,6 +686,7 @@ PiLot.View.Nav = (function () {
 
 		/// click handler for the "delete route" link. Deletes the route, ignoring the result
 		lnkDeleteRoute_click: function () {
+			event.preventDefault();
 			if (confirm(PiLot.Utils.Language.getText('confirmDeleteRoute'))) {
 				this.route.deleteFromServerAsync().then(r => {
 					window.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routes);

@@ -1019,9 +1019,9 @@ PiLot.Model.Nav = (function () {
 	/// for waypoints. Options: autoCalculate: set to true, if vmg
 	/// etc. should be calculated on each update, false if only on
 	/// demand
-	var RouteObserver = function(pRoute, pGPSObserver, pBoatTime, pOptions){
+	var RouteObserver = function(pRoute, pBoatTime, pOptions){
 		this.route = pRoute;
-		this.gpsObserver = pGPSObserver;
+		this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 		this.boatTime = pBoatTime;
 		this.latestPosition = null;
 		this.waypointsLiveData = new Map();
@@ -1369,7 +1369,6 @@ PiLot.Model.Nav = (function () {
 		this.initialize();
 	};
 
-	/// Track Methods
 	Track.prototype = {
 
 		initialize: function () {
@@ -1521,9 +1520,11 @@ PiLot.Model.Nav = (function () {
 		await fetch(url, { method: 'DELETE' });
 	};
 
-	/// class TrackObserver, takes a track and a GPSObserver, and makes sure
-	/// the track is continuously updated by changing/adding the latest positions
-	/// and calling crop to remove old positions
+	/** 
+	 *  class TrackObserver, takes a track and a GPSObserver, and makes sure
+	 *  the track is continuously updated by changing/adding the latest positions
+	 *  and calling crop to remove old positions
+	 *  */
 	var TrackObserver = function (pTrack, pGPSObserver) {
 		this.track = pTrack;
 		this.gpsObserver = pGPSObserver;
@@ -1627,12 +1628,13 @@ PiLot.Model.Nav = (function () {
 		this.initialize();		
 	};
 
-	/// GPSObserver methods
 	GPSObserver.prototype = {
 		
-		/// tries to get values from pOptions and uses them to override preset default values.
-		/// intervalMs: The interval in miliseconds used to poll data
-		/// calculationRange: the interval in seconds to use when calculating speed / cog
+		/**
+		 * tries to get values from pOptions and uses them to override preset default values.
+		 * intervalMs: The interval in miliseconds used to poll data
+		 * calculationRange: the interval in seconds to use when calculating speed / cog
+		 * */
 		readOptions: function (pOptions) {
 			if (pOptions) {
 				this.intervalMs = pOptions.intervalMs || this.intervalMs;
@@ -1643,7 +1645,7 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/// prepares everything and starts the data fetching process
+		/** prepares everything and starts the data fetching process */
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['recieveGpsData', 'outdatedGpsData']);
 			if (this.autoStart) {
@@ -1651,8 +1653,7 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/// calls all observers that registered for pEvent. Passes this
-		/// and pArg as parameters.
+		/** calls all observers that registered for pEvent. Passes this and pArg as parameters. */
 		notifyObservers: function (pEvent, pArg) {
 			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
 		},
@@ -1677,16 +1678,26 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/// makes sure we have an interval for fetching the data. The Interval is not
-		/// started immediately in order to avoid too many requests against a service
-		/// which might need some time to wake up
+		/** Stops the gpsObserver */
+		stop: function () {
+			if (this.interval) {
+				window.clearInterval(this.interval);
+				this.interval == null;
+			}
+		},
+
+		/**
+		 * makes sure we have an interval for fetching the data. The Interval is not
+		 * started immediately in order to avoid too many requests against a service
+		 * which might need some time to wake up
+		 * */
 		ensureInterval: function () {
 			if (this.interval === null) {
 				this.interval = window.setInterval(this.fetchDataAsync.bind(this), this.intervalMs);
 			}
 		},
 
-		// reads the position data from the API
+		/** reads the position data from the API */
 		fetchDataAsync: async function () {
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			const positions = await this.loadLatestPositionsAsync();

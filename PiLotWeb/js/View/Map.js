@@ -14,27 +14,9 @@ PiLot.View.Map = (function () {
 	MapPage.prototype = {
 
 		initializeAsync: async function () {
-			const gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 			let pageContent = this.draw();
-			let map = new PiLot.View.Map.Seamap(pageContent, { persistMapState: true });
+			let map = new PiLot.View.Map.Seamap(pageContent, { persistMapState: true, positionMarker: true, route: true, anchorWatch: true, track: true });
 			await map.showAsync();
-			let boatPosition = new PiLot.View.Map.MapPositionMarker(map, gpsObserver);
-			Promise.all([
-				PiLot.Model.Nav.loadActiveRouteAsync(),
-				PiLot.Model.Common.getCurrentBoatTimeAsync()
-			])
-				.then(pResults => {
-					if (pResults[0] !== null) {
-						var routeObserver = new PiLot.Model.Nav.RouteObserver(pResults[0], gpsObserver, pResults[1], { autoCalculate: true });
-						const mapRouteOptions = {
-							routeObserver: routeObserver,
-							showOptions: true,
-							lockRoute: PiLot.Permissions.canWrite() ? undefined : true
-						};
-						new PiLot.View.Map.MapRoute(map, pResults[0], mapRouteOptions).draw();
-					}
-					var mapTrack = new PiLot.View.Map.MapTrack(map, pResults[1], gpsObserver, { autoShowTrack: true });
-				});
 		},
 
 		/** draws the main page content based on the template, and returns the  */
@@ -46,9 +28,15 @@ PiLot.View.Map = (function () {
 
 	};
 
-	/// Wraps a leaflet map. Expects pContainer as HTMLElement
+	/**
+	 * Wraps a leaflet map. Expects pContainer as HTMLElement
+	 * @param {HTMLElement} pContainer - The element that will contain the map
+	 * @param {Object} pOptions - customLayers, persistMapState, positionMarker, anchorWatch, route, track
+	 * */
+
 	var Seamap = function (pContainer, pOptions) {
 		this.mapContainer = pContainer;
+		this.options = pOptions || {};
 		this.settingsContainer = null;
 		this.icoMapLayers = null;
 		this.mapLayersSettings = null;	// PiLot.View.Map.MapLayersSettings
@@ -57,8 +45,6 @@ PiLot.View.Map = (function () {
 		this.leafletMap = null;
 		this.isMapLoaded = false;
 		this.allowSetView = true;
-		this.persistMapState = true;
-		this.showLayers = true;			// if false, no layers will be added but need to be added manually using addTileLayer(pUrl);
 		this.mapLayers = null;			// map with key = tileSoureName, value = L.tileLayer
 		this.mapPois = null;			// PiLot.View.Map.MapPois
 		this.defaultLat = 54.38;
@@ -68,24 +54,10 @@ PiLot.View.Map = (function () {
 		this.maxZoom = 17; // default maxZoom
 		this.maxNativeZoom = 17; // default maxNativeZoom
 		this.attribution = '<a href="http://openstreetmap.com" target="_blank">OSM</a> | <a href="http://openseamap.org" target="_blank">OpenSeaMap</a>';
-		this.readOptions(pOptions);
 		this.initialize();
 	};
 
-	/// Map methods
 	Seamap.prototype = {
-
-		/// reads the options and assigns values to 
-		readOptions: function (pOptions) {
-			if (pOptions) {
-				if (typeof pOptions.persistMapState === 'boolean') {
-					this.persistMapState = pOptions.persistMapState;
-				}
-				if (typeof pOptions.showLayers === 'boolean') {
-					this.showLayers = pOptions.showLayers;
-				}
-			}
-		},
 
 		initialize: function () {
 			this.addSettingsContainer();
@@ -101,8 +73,7 @@ PiLot.View.Map = (function () {
 			this.showHideMapLayersAsync();
 		},
 
-		/// adds the sliding settings menu and attaches
-		/// the expand/collapse script
+		/** adds the sliding settings menu and attaches the expand/collapse script */
 		addSettingsContainer: function () {
 			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer);
 			this.mapContainer.insertAdjacentElement('beforebegin', this.settingsContainer);
@@ -119,7 +90,7 @@ PiLot.View.Map = (function () {
 			this.mapLayersSettings.on('applySettings', this.mapLayerSettings_applySettings.bind(this));
 		},
 
-		/// switches between expanded and collapsed state of the settings container
+		/** switches between expanded and collapsed state of the settings container */
 		toggleSettingsContainer: function () {
 			this.settingsContainer.classList.toggle('expanded');
 		},
@@ -137,22 +108,49 @@ PiLot.View.Map = (function () {
 				this.addScale();
 				this.addMeasureTool();
 				this.mapLayers = new Map();
-				if (this.showLayers) {
+				if (!this.options.customLayers) {
 					await this.showHideMapLayersAsync();
 				}
-				var isMapStateSet = false;
-				if (this.persistMapState) {
+				let isMapStateSet = false;
+				if (this.options.persistMapState) {
 					isMapStateSet = this.applyMapState();
 					this.bindHandlers();
 				} if (!isMapStateSet) {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
+				this.applyOptionsAsync();
 				this.mapPois = new MapPois(this, this.mapLayersSettings);
-				new MapAnchorWatch(this);
 				this.isMapLoaded = true;
 			}
 			return this;
+		},
+
+		/** Depending on the options passed when initializing this, we add some stuffs... */
+		applyOptionsAsync: async function () {
+			if (this.options.positionMarker) {
+				new MapPositionMarker(this);
+			}
+			if (this.options.route) {
+				const activeRoute = await PiLot.Model.Nav.loadActiveRouteAsync();
+				if (activeRoute) {
+					const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+					const routeObserver = new PiLot.Model.Nav.RouteObserver(activeRoute, boatTime, { autoCalculate: true });
+					const mapRouteOptions = {
+						routeObserver: routeObserver,
+						showOptions: true,
+						lockRoute: PiLot.Permissions.canWrite() ? undefined : true
+					};
+					new PiLot.View.Map.MapRoute(this, activeRoute, mapRouteOptions).draw();
+				}
+			}
+			if (this.options.anchorWatch) {
+				new MapAnchorWatch(this);
+			}
+			if (this.options.track) {
+				const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+				new PiLot.View.Map.MapTrack(this, boatTime, PiLot.Model.Nav.GPSObserver.getInstance(), { autoShowTrack: true });
+			}
 		},
 
 		/** Removes all map layers and adds the selected ones, making sure the layers are added in the right order */
@@ -180,7 +178,7 @@ PiLot.View.Map = (function () {
 			RC.Utils.showHide(this.settingsContainer, false);
 		},
 
-		/// removes the leaflet map and its handlers 
+		/** removes the leaflet map */
 		remove: function () {
 			this.leafletMap.remove();
 			this.leafletMap = null;
@@ -224,7 +222,7 @@ PiLot.View.Map = (function () {
 			}			
 		},
 
-		/// adds the nauticScale to the map
+		/** adds the nauticScale to the map */
 		addScale: function () {
 			this.leafletMap.addControl(new L.Control.ScaleNautic({
 				metric: false,
@@ -239,13 +237,13 @@ PiLot.View.Map = (function () {
 			const options = {
 				position: 'topright',
 				unit: 'nauticalmiles',
-				tooltipTextFinish: `${PiLot.Utils.Language.getText('clickToFinishLine')}<br/>`  ,//'Click to <b>finish line</b><br>',
-				tooltipTextDelete: PiLot.Utils.Language.getText('shiftClickToDeletePoint'), // 'Press SHIFT-key and click to <b>delete point</b>',
-				tooltipTextMove: `${PiLot.Utils.Language.getText('clickAndDragToMovePoint')}<br/>`, //'Click and drag to <b>move point</b><br>',
-				tooltipTextResume: `<br/>${PiLot.Utils.Language.getText('ctrlClickToResume')}`, // '<br>Press CTRL-key and click to <b>resume line</b>',
-				tooltipTextAdd: PiLot.Utils.Language.getText('ctrlClickToAddPoint'), // 'Press CTRL-key and click to <b>add point</b>',
-				measureControlTitleOn: PiLot.Utils.Language.getText('turnOnPolylineMeasure'), // 'Turn on PolylineMeasure',   // Title for the Measure Control going to be switched on
-				measureControlTitleOff: PiLot.Utils.Language.getText('turnOffPolylineMeasure'), //'Turn off PolylineMeasure', // Title for the Measure Control going to be switched off
+				tooltipTextFinish: `${PiLot.Utils.Language.getText('clickToFinishLine')}<br/>`  ,
+				tooltipTextDelete: PiLot.Utils.Language.getText('shiftClickToDeletePoint'), 
+				tooltipTextMove: `${PiLot.Utils.Language.getText('clickAndDragToMovePoint')}<br/>`, 
+				tooltipTextResume: `<br/>${PiLot.Utils.Language.getText('ctrlClickToResume')}`, 
+				tooltipTextAdd: PiLot.Utils.Language.getText('ctrlClickToAddPoint'), 
+				measureControlTitleOn: PiLot.Utils.Language.getText('turnOnPolylineMeasure'), 
+				measureControlTitleOff: PiLot.Utils.Language.getText('turnOffPolylineMeasure'), 
 			};
 			const guiOptions = PiLot.Templates.Map.PolylineMeasure;
 			for (let aField in guiOptions) {
@@ -254,24 +252,26 @@ PiLot.View.Map = (function () {
 			L.control.polylineMeasure(options).addTo(this.leafletMap);
 		},
 
-		/// binds some default event handlers to the map
+		/** binds some default event handlers to the map */
 		bindHandlers: function () {
-			if (this.persistMapState) {
+			if (this.options.persistMapState) {
 				this.leafletMap.on('zoomend', this.saveMapStatus.bind(this));
 				this.leafletMap.on('moveend', this.leafletMap_moveEnd.bind(this));
 			}
 		},
 
-		/// handles the end of map move. Sanitizes and saves the map position
+		/** handles the end of map move. Sanitizes and saves the map position */
 		leafletMap_moveEnd: function () {
 			this.sanitizePosition();
 			this.saveMapStatus();
 		},
 
-		/// leaflet allows to have longitudes above 180 or below -180, resulting in
-		/// the same place on earth having different coordinates, and 09N 010E will
-		/// not be visible when centering the map to 09N 370E. Therefore we try
-		/// to avoid centering the map outside of these bounds.
+		/**
+		 * leaflet allows to have longitudes above 180 or below -180, resulting in
+		 * the same place on earth having different coordinates, and 09N 010E will
+		 * not be visible when centering the map to 09N 370E. Therefore we try
+		 * to avoid centering the map outside of these bounds.
+		 * */
 		sanitizePosition: function () {
 			const center = this.leafletMap.getCenter()
 			const lng = this.leafletMap.getCenter().lng;
@@ -280,14 +280,16 @@ PiLot.View.Map = (function () {
 			}
 		},
 
-		/// saves the map zoom and center to the user storage
+		/** saves the map zoom and center to the user storage */
 		saveMapStatus: function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.mapCenter', this.leafletMap.getCenter().wrap());
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.mapZoom', this.leafletMap.getZoom());
 		},
 
-		/// loads the map status from the user settings and applies them to the map. 
-		/// returns true, if zoom and center have been set.
+		/**
+		 * loads the map status from the user settings and applies them to the map. 
+		 * returns true, if zoom and center have been set. 
+		 * */
 		applyMapState: function () {
 			let result = false;
 			PiLot.log('ApplyMapStatus', 3);
@@ -300,16 +302,20 @@ PiLot.View.Map = (function () {
 			return result;
 		},
 
-		/// applies a default zoom and center for the map. This is needed, as
-		/// the map does not work without a center being set
+		/**
+		 * applies a default zoom and center for the map. This is needed, as
+		 * the map does not work without a center being set
+		 * */
 		applyDefaultMapState: function () {
 			const center = L.latLng(this.defaultLat, this.defaultLng);
 			this.leafletMap.setView(center, this.defaultZoom);
 		},
 
-		/// sets the center and zoom of the map. both parameters can be null, which
-		/// will just re-apply the current state. As an extra goodie, it will convert
-		/// LatLon types to L.LatLng types
+		/** 
+		 *  sets the center and zoom of the map. both parameters can be null, which
+		 *  will just re-apply the current state. As an extra goodie, it will convert
+		 *  LatLon types to L.LatLng types
+		 *  */
 		setView: function (pCenter, pZoom) {
 			if (this.allowSetView) {
 				if ((pCenter !== null) && (typeof pCenter === 'LatLon')) {
@@ -319,7 +325,7 @@ PiLot.View.Map = (function () {
 			}
 		},
 
-		/// sets zoom and center of the map so that all points within pBounds are on the map
+		/** sets zoom and center of the map so that all points within pBounds are on the map **/
 		setBounds: function (pPositions) {
 			if (pPositions.length > 0) {
 				if (pPositions.length == 1) {
@@ -330,27 +336,27 @@ PiLot.View.Map = (function () {
 			}
 		},
 
-		/// locks the map, not allowing other code to change the zoom or center
+		/** locks the map, not allowing other code to change the zoom or center */
 		lock: function () {
 			this.allowSetView = false;
 		},
 
-		/// unlocks the map, allowing clients to change the zoom or center
+		/** unlocks the map, allowing clients to change the zoom or center */
 		unlock: function () {
 			this.allowSetView = true;
 		},
 		
-		/// centers the map to pCenter
+		/** centers the map to pCenter */
 		setCenter: function(pCenter){
 			this.setView(pCenter, null);
 		},
 
-		/// returns the leafletMap
+		/** returns the leafletMap */
 		getLeafletMap: function() {
 			return this.leafletMap;
 		},
 
-		/// returns the element which contains the map, as HTMLElement
+		/** @returns {HTMLElement} the element which contains the map */
 		getMapContainer: function () {
 			return this.mapContainer;
 		},
@@ -365,17 +371,17 @@ PiLot.View.Map = (function () {
 			return this.mapPois;
 		},
 
-		/** allows to manually close the context popup */
+		/** allows to close the context popup */
 		closeContextPopup: function () {
 			this.contextPopup.close();
 		},
 
-		/// gets the maximal zoom supported by the map
+		/** gets the maximal zoom supported by the map */
 		getMaxZoom: function () {
 			return this.maxZoom;
 		},
 
-		/// gets the current zoom level of the map
+		/** gets the current zoom level of the map */
 		getCurrentZoom: function () {
 			return this.leafletMap.getZoom();
 		},
@@ -452,14 +458,11 @@ PiLot.View.Map = (function () {
 	 * being displayed, which might feel a bit weird.
 	 * */
 	var MapLayersSettings = function () {
-		this.tileSourceNames = null;		// String[] with the selected tile sources' names
+		this.currentSettings = null;		// Object with tileSourceNames: [], showPois: boolean, categoryIds: [], featureIds: []
 		this.allTileSources = null;			// Map, as it comes from the service (key: name, value: tileSource)
 		this.tileSourceCheckboxes = null;	// Map with key = tileSource, value = checkbox
-		this.showPois = false;				// Boolean, if false, no pois at all will be shown
-		this.categoryIds = null;			// number[] holding the ids of the categories to show
 		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
 		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, control: HTMLElement, selectedChildren: number};
-		this.featureIds = null;				// number[] holding the ids of the features to filter by
 		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
 		this.cbShowPois = null;				// HTMLInputElement
@@ -541,8 +544,10 @@ PiLot.View.Map = (function () {
 
 		/** @returns {Object} {tileSourceNames: String[], showPois: Boolean, categoryIds: Number[], featureIds: Number[]} */
 		getSettingsAsync: async function () {
-			await this.loadSettingsAsync();
-			return this.createSettingsObject();
+			if (this.currentSettings == null) {
+				await this.loadSettingsAsync();
+			}
+			return this.currentSettings;
 		},
 
 		/** We abuse this class to get access to the map of all tile sources, which will usually be preloaded */
@@ -560,7 +565,7 @@ PiLot.View.Map = (function () {
 			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
 			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
-			this.cbShowPois.checked = this.showPois;
+			this.cbShowPois.checked = this.currentSettings.showPois;
 			await Promise.all([this.drawTileSourcesAsync(), this.drawCategoriesAsync(), this.drawFeaturesAsync()]);
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
@@ -575,7 +580,7 @@ PiLot.View.Map = (function () {
 			for (const [tileSourceName, tileSource] of this.allTileSources) {
 				const cbControl = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
 				const cbTileSource = cbControl.querySelector('.cbCheckbox');
-				cbTileSource.checked = this.tileSourceNames.includes(tileSourceName);
+				cbTileSource.checked = this.currentSettings.tileSourceNames.includes(tileSourceName);
 				cbTileSource.addEventListener('change', this.cbTileSource_change.bind(this, tileSource));
 				cbControl.querySelector('.lblLabel').innerText = tileSourceName;
 				plhTileSources.appendChild(cbControl);				
@@ -608,7 +613,7 @@ PiLot.View.Map = (function () {
 				}
 				const cbCategory = cbControl.querySelector('.cbCategory');
 				this.categoryCheckboxes.set(category, { checkbox: cbCategory, control: cbControl, selectedChildren: 0 });
-				const isSelected = this.categoryIds.includes(category.getId());
+				const isSelected = this.currentSettings.categoryIds.includes(category.getId());
 				cbCategory.checked = isSelected;
 				if (isSelected && category.getParent()) {
 					this.categoryCheckboxes.get(category.getParent()).selectedChildren++;
@@ -631,35 +636,26 @@ PiLot.View.Map = (function () {
 			const plhFeatures = this.control.querySelector('.plhFeatures');
 			this.featuresSelector = new PiLot.View.Nav.PoiFeaturesSelector();
 			await this.featuresSelector.addControlAsync(plhFeatures);
-			this.featuresSelector.setSelectedFeatureIds(this.featureIds);
+			this.featuresSelector.setSelectedFeatureIds(this.currentSettings.featureIds);
 		},
 
 		/** 
 		 *  Loads the settings from the browser. Async as it need the list of all categories,
-		 *  just becaus it tries to be nice and defaults to "all"
+		 *  just because it tries to be nice and defaults to "all"
 		 * */
 		loadSettingsAsync: async function () {
 			await Promise.all([this.ensureTileSourcesAsync(), this.ensureCategoriesAsync(), this.ensureFeaturesAsync()]);
 			const settings = PiLot.Utils.Common.loadUserSetting('mapLayers');
-			this.tileSourceNames = (settings && settings.tileSourceNames) || Array.from(this.allTileSources.keys());
-			this.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
-			this.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
-			this.featureIds = (settings && settings.featureIds) || [];
+			this.currentSettings = this.currentSettings || {};
+			this.currentSettings.tileSourceNames = (settings && settings.tileSourceNames) || Array.from(this.allTileSources.keys());
+			this.currentSettings.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
+			this.currentSettings.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
+			this.currentSettings.featureIds = (settings && settings.featureIds) || [];
 		},
 
 		/** Saves the settings to the browser */
 		saveSettings: function () {
-			PiLot.Utils.Common.saveUserSetting('mapLayers', this.createSettingsObject());
-		},
-
-		/** Creates a simple object that is used not only to save, but also to communicate the current settings. */
-		createSettingsObject: function () {
-			return {
-				tileSourceNames: this.tileSourceNames,
-				showPois: this.showPois,
-				categoryIds: this.categoryIds,
-				featureIds: this.featureIds
-			};
+			PiLot.Utils.Common.saveUserSetting('mapLayers', this.currentSettings);
 		},
 
 		/** Makes sure the map of all tile sources has been loaded. */
@@ -686,12 +682,12 @@ PiLot.View.Map = (function () {
 		setTileSourceSelected: function (pTileSource, pSelected) {
 			const tileSourceName = pTileSource.getName();
 			if (pSelected) {
-				if (!this.tileSourceNames.includes(tileSourceName)) {
-					this.tileSourceNames.push(tileSourceName);
+				if (!this.currentSettings.tileSourceNames.includes(tileSourceName)) {
+					this.currentSettings.tileSourceNames.push(tileSourceName);
 				}
 			} else {
-				if (this.tileSourceNames.includes(tileSourceName)) {
-					this.tileSourceNames.remove(this.tileSourceNames.indexOf(tileSourceName));
+				if (this.currentSettings.tileSourceNames.includes(tileSourceName)) {
+					this.currentSettings.tileSourceNames.remove(this.currentSettings.tileSourceNames.indexOf(tileSourceName));
 				}
 			}
 		},
@@ -706,13 +702,13 @@ PiLot.View.Map = (function () {
 		setCategorySelected: function (pCategory, pSelected) {
 			let hasChanged = false;
 			if (pSelected) {
-				if (!this.categoryIds.includes(pCategory.getId())) {
-					this.categoryIds.push(pCategory.getId());
+				if (!this.currentSettings.categoryIds.includes(pCategory.getId())) {
+					this.currentSettings.categoryIds.push(pCategory.getId());
 					hasChanged = true;
 				}
 			} else {
-				if (this.categoryIds.includes(pCategory.getId())) {
-					this.categoryIds.remove(this.categoryIds.indexOf(pCategory.getId()));
+				if (this.currentSettings.categoryIds.includes(pCategory.getId())) {
+					this.currentSettings.categoryIds.remove(this.currentSettings.categoryIds.indexOf(pCategory.getId()));
 					hasChanged = true;
 				}
 			}
@@ -765,8 +761,8 @@ PiLot.View.Map = (function () {
 
 		/** Applies the current selection and notifies observers */
 		apply: function () {
-			this.showPois = this.cbShowPois.checked;
-			this.featureIds = this.featuresSelector.getSelectedFeatureIds();
+			this.currentSettings.showPois = this.cbShowPois.checked;
+			this.currentSettings.featureIds = this.featuresSelector.getSelectedFeatureIds();
 			this.saveSettings();
 			RC.Utils.notifyObservers(this, this.observers, 'applySettings', this);
 			this.hide();
@@ -1386,10 +1382,10 @@ PiLot.View.Map = (function () {
 	/// Class MapPositionMarker, shows the boat's current position, direction and heading on the map.
 	/// It observes the current gps position and updates the marker, plus centers the map if the 
 	/// auto center option is enabled.
-	var MapPositionMarker = function (pMap, pGPSObserver) {
+	var MapPositionMarker = function (pMap) {
 		this.map = pMap;
 		this.outdatedGpsWarning = null;		// the control showing a warning if we have no current gps data
-		this.gpsObserver = pGPSObserver;
+		this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 		this.marker = null;
 		this.cogVector = null;
 		this.cogLength = 3600; // the length of the COG Vector in seconds
@@ -1421,12 +1417,12 @@ PiLot.View.Map = (function () {
 		/// handles recieving new gps data
 		gpsObserver_recieceGpsData: function () {
 			this.draw();
-			RC.Utils.showHide(this.outdatedGpsWarning, false);
+			this.outdatedGpsWarning.hidden = true;
 		},
 
 		/// shows a warning if we have no current gps data
 		gpsObserver_outdatedGpsData: function () {
-			RC.Utils.showHide(this.outdatedGpsWarning, true);
+			this.outdatedGpsWarning.hidden = false;
 		},
 
 		/// adds, but does not show the outdated GPS warning
@@ -2223,8 +2219,7 @@ PiLot.View.Map = (function () {
 		/// checks if we have a map, creates one if not, and shows it.
 		ensureMap: function () {
 			if (this.map === null) {
-				this.map = new PiLot.View.Map.Seamap(this.divMap, { persistMapState: true });
-				new PiLot.View.Map.MapPositionMarker(this.map, this.gpsObserver);
+				this.map = new PiLot.View.Map.Seamap(this.divMap, { persistMapState: true, positionMarker: true, anchorWatch: true });
 			}
 			this.map.showAsync();
 		}

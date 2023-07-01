@@ -91,7 +91,8 @@ PiLot.View.Common = (function () {
 	StartPage.prototype = {
 
 		initialize: function () {
-			this.gpsObserver = new PiLot.Model.Nav.GPSObserver({ autoStart: false, intervalMs: 1000 });
+			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			this.gpsObserver.stop();
 			this.observers = RC.Utils.initializeObservers(['resize', 'changingLayout', 'changedLayout']);
 			this.controls = new Array(4);
 			window.addEventListener('resize', this.window_resize.bind(this));
@@ -109,6 +110,7 @@ PiLot.View.Common = (function () {
 				this.fireChangedLayout();
 			}			
 		},
+
 		/**
 		 * We wait for the boatImages (the svgs) to be loaded before we start the 
 		 * gps observer. This is to work around an issue of Chromium Edge, who 
