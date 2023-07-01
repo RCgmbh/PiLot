@@ -92,7 +92,7 @@ PiLot.View.Common = (function () {
 
 		initialize: function () {
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			this.gpsObserver.stop();
+			//this.gpsObserver.stop();
 			this.observers = RC.Utils.initializeObservers(['resize', 'changingLayout', 'changedLayout']);
 			this.controls = new Array(4);
 			window.addEventListener('resize', this.window_resize.bind(this));
