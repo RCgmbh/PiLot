@@ -1678,14 +1678,6 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/** Stops the gpsObserver */
-		stop: function () {
-			if (this.interval) {
-				window.clearInterval(this.interval);
-				this.interval == null;
-			}
-		},
-
 		/**
 		 * makes sure we have an interval for fetching the data. The Interval is not
 		 * started immediately in order to avoid too many requests against a service

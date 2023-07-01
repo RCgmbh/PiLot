@@ -92,7 +92,6 @@ PiLot.View.Common = (function () {
 
 		initialize: function () {
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			//this.gpsObserver.stop();
 			this.observers = RC.Utils.initializeObservers(['resize', 'changingLayout', 'changedLayout']);
 			this.controls = new Array(4);
 			window.addEventListener('resize', this.window_resize.bind(this));
@@ -109,18 +108,6 @@ PiLot.View.Common = (function () {
 				this.layout = layout;
 				this.fireChangedLayout();
 			}			
-		},
-
-		/**
-		 * We wait for the boatImages (the svgs) to be loaded before we start the 
-		 * gps observer. This is to work around an issue of Chromium Edge, who 
-		 * hiccups with long-lasting requests (the svgs) while other requests are
-		 * fired. However this means if the StartPageBoatImage control loses track
-		 * of them pending images, the gpsObserver might never start. So we need
-		 * to keep an eye on this.
-		 * */
-		boatImages_loaded: function () {
-			this.gpsObserver.start();
 		},
 
 		/// calls all observers that registered for pEvent. Passes this
@@ -182,7 +169,6 @@ PiLot.View.Common = (function () {
 		/// adds the control for the boat Image
 		drawBoatImage: function () {
 			let boatImage = new PiLot.View.Boat.StartPageBoatImage(this.containers[2], this, this.boatTime, this.gpsObserver);
-			boatImage.on('imagesLoaded', this.boatImages_loaded.bind(this));
 			this.controls[2] = boatImage;
 		},
 

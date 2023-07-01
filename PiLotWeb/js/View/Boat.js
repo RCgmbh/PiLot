@@ -489,25 +489,18 @@ PiLot.View.Boat = (function () {
 		this.pendingImages = 0;					// a counter to keep track of unloaded images
 		this.updateIntervalSeconds = 10;		// update interval in seconds for the boat setup
 		this.updateInterval = null;
-		this.observers = null;
 		this.initialize();
 	};
 
 	StartPageBoatImage.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['imagesLoaded']);
 			this.loadAndDrawAsync().then(result => {
 				this.startPage.on('resize', this.startPage_resize.bind(this));
 				this.startPage.on('changedLayout', this.startPage_changedLayout.bind(this));
 				this.container.addEventListener('click', this.container_click.bind(this));
 				PiLot.log('crating a StartPageBoatImage', 3);
 			});
-		},
-
-		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		container_click: function (e) {
@@ -526,7 +519,6 @@ PiLot.View.Boat = (function () {
 		boatImage_loaded: function () {
 			this.pendingImages--;
 			if (this.pendingImages === 0) {
-				RC.Utils.notifyObservers(this, this.observers, 'imagesLoaded', null);
 				this.ensureUpdate();
 			}
 		},
@@ -626,8 +618,7 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/// starts an interval which will load the boat setup and assign
-		/// it to the boatSetupForm
+		/** Stops the interval that updats the boatImage */
 		stopUpdate: function () {
 			window.clearInterval(this.updateInterval);
 		},
