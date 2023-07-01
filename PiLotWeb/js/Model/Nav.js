@@ -1245,7 +1245,143 @@ PiLot.Model.Nav = (function () {
 		this.isNextWaypoint = null;		// true, if this is the next waypoint on the route
 		this.isPastWaypoint = null;		// true, if this waypoint has been passed already
 		this.isFinalWaypoint = null;	// true, if this is the last waypoint of the track
-	} 
+	}
+
+	/** 
+	 * Represents an achor watch that fires alarms when the threshold is exceeded
+	 * @param {Number} pLatitude - the latitude of the center
+	 * @param {Number} pLongitude - the longitude of the center
+	 * @param {Number} pRadius - the alarm distance in meters
+	 * */
+	var AnchorWatch = function (pLatitude, pLongitude, pRadius) {
+		this.radius = pRadius;
+		this.center = null;								// LatLon object representing the center
+		this.enabled = false;
+		this.exceeding = false;
+		this.setCenter(pLatitude, pLongitude, this,  true, true);
+		this.gpsObserver = null;
+		this.initialize();
+	};
+
+	AnchorWatch.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['change', 'exceedRadius', 'belowRadius']);
+			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		gpsObserver_recieveGpsData: function () {
+			if (this.enabled) {
+				this.checkDistance();
+			}
+		},
+
+		gpsObserver_outdatedGpsData: function () { },
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "change", "exceedRadius", "beloRadius"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		/** @returns {LatLon} the center as geodesy LatLon object */
+		getCenterLatLon: function () {
+			return this.center;
+		},
+
+		/** @returns {Array} an array with latitude, longitude. Useful for leaflet */
+		getCenterLatLng: function () {
+			let result = null;
+			if (this.center) {
+				result = [this.center.lat, this.center.lon];
+			}
+			return result;
+		},
+
+		/**
+		 * Sets the center, which represents the location of the anchor. Fires
+		 * the "change" event
+		 * @param {Number} pLatitude
+		 * @param {Number} pLongitude
+		 * @param {Object} pSender - will be returned in the event, to help avoid recursion
+		 * @param {Boolean} pSkipSaving - Allows to not save the changes (used for dragging)
+		 * @param {Boolean} pSilent - allows to suppress the change event
+		 */
+		setCenter: function (pLatitude, pLongitude, pSender, pSkipSaving = false, pSilent = false) {
+			if ((pLatitude !== null) && (pLongitude !== null)) {
+				if (this.center !== null) {
+					this.center.lat = pLatitude;
+					this.center.lon = pLongitude;
+				} else {
+					this.center = new LatLon(pLatitude, pLongitude, LatLon.datum.WGS84)
+				}
+			} else {
+				this.latLon = null;
+			}
+			if (!pSilent) {
+				RC.Utils.notifyObservers(pSender, this.observers, 'change', this);
+				this.checkDistance();
+			}
+			if (!pSkipSaving) {
+				console.log('save anchorWatch');
+			}
+		},
+
+		/** @returns {Number} the currently set radius in meters */
+		getRadius: function () {
+			return this.radius;
+		},
+
+		/**
+		 * Sets the radius, which is the maximum allowed distance to the
+		 * anchor position
+		 * @param {Number} pRadius - the radius in meters
+		 */
+		setRadius: function (pRadius) {
+			this.radius = pRadius;
+			RC.Utils.notifyObservers(this, this.observers, 'change', this);
+		},
+
+		/** @returns {Boolean} */
+		getEnabled: function () {
+			return this.enabled;
+		},
+
+		/** @param {Boolean} pEnabled */
+		setEnabled: function (pEnabled) {
+			this.enabled = !!pEnabled;
+		},
+
+		/**
+		 * Checks the distance of the current gps position to the center
+		 * and fires the exeedDistance event, if the distance exceeds
+		 * the radius.
+		 * */
+		checkDistance: function () {
+			const currentPosition = this.gpsObserver.getLatestPosition();
+			if (currentPosition && this.center && this.radius) {
+				const distance = this.center.distanceTo(currentPosition.getLatLon());
+				if (distance > this.radius) {
+					if (!this.exceeding) {
+						PiLot.Utils.Audio.Alarm.getInstance().start();
+						RC.Utils.notifyObservers(this, this.observers, 'exceedRadius', this);
+					}
+					this.exceeding = true;
+				} else {
+					if (this.exceeding) {
+						PiLot.Utils.Audio.Alarm.getInstance().stop();
+						RC.Utils.notifyObservers(this, this.observers, 'belowRadius', this);
+					}
+					this.exceeding = false;
+				}
+			}			
+		}
+	};
 
 	/// a data class representing a single GPS Record which consists of a 
 	/// UTC timestamp, a BoatTime timestamp (both in ms from epoc), a
@@ -1752,8 +1888,11 @@ PiLot.Model.Nav = (function () {
 			return result;
 		},
 
-		/// returns the latest position record (an GpsRecord),
-		/// if it's not older than pMaxSeconds or pMaxAgeSeconds is null. 
+		/**
+		 * Returns the latest position record, if it's not older than pMaxSeconds or pMaxAgeSeconds is null. 
+		 * @param {Number} pMaxSecondsOld
+		 * @returns {PiLot.Model.Nav.GPSRecord}
+		 * */
 		getLatestPosition: function (pMaxAgeSeconds = null) {
 			var result = null;
 			if (this.latestPositions.length > 0) {
@@ -1947,6 +2086,7 @@ PiLot.Model.Nav = (function () {
 		OsmPoi: OsmPoi,
 		Waypoint: Waypoint,
 		Track: Track,
+		AnchorWatch: AnchorWatch,
 		GPSRecord: GPSRecord,
 		TrackObserver: TrackObserver,
 		GPSObserver: GPSObserver,

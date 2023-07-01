@@ -2075,10 +2075,14 @@ PiLot.View.Map = (function () {
 	 * @param {PiLot.View.Map.Seamap} pMap
 	 */
 	var MapAnchorWatch = function (pMap) {
-		this.map = pMap;
-		this.isAnchorWatchActive = false;
+		this.seamap = pMap;
+		this.anchorWatch = null;
+		this.centerMarker = null;
+		this.circle = null;
 		this.initialize();
 	};
+
+	MapAnchorWatch.defaultRadius = 30;
 
 	MapAnchorWatch.prototype = {
 
@@ -2088,12 +2092,81 @@ PiLot.View.Map = (function () {
 			this.addContextPopupLink();
 		},
 
+		/**
+		 * Handles clicks on the Anchor Watch icon in the menu. The anchor position will
+		 * be set to the map center, the radius will be set to the default value.
+		 * */
 		lnkOptionAnchorWatch_click: function () {
-			//
+			const center = this.map.getLeafletMap().getCenter();
+			this.prepareAnchorWatch(center.lat, center.lng, MapAnchorWatch.defaultRadius);
+			this.showOnMap();
 		},
 
-		lnkEnableAnchorWatch_click: function () {
-			//
+		/**
+		 * Handles clicks on link in the context menu. The anchor watch will be set up so 
+		 * that the center is the click location, and the radius is 1.5 times the distance
+		 * of the current position to the click location
+		 * @param {any} pMapEvent
+		 */
+		lnkEnableAnchorWatch_click: function (pMapEvent) {
+			const lat = pMapEvent.latlng.lat;
+			const lon = pMapEvent.latlng.lng;
+			let radius = null;
+			const position = PiLot.Model.Nav.GPSObserver.getInstance().getLatestPosition();
+			if ((lat !== null) && (lon !== null)) {
+				if (position !== null) {
+					radius = Math.floor(position.getLatLon().distanceTo(new LatLon(lat, lon, LatLon.datum.WGS84)) * 1.5);
+				} else {
+					radius = MapAnchorWatch.defaultRadius;
+				}
+				this.prepareAnchorWatch(lat, lon, radius);
+			}
+			this.seamap.closeContextPopup();
+			this.showOnMap();
+		},
+
+		centerMarker_click: function (pEvent) {
+
+		},
+
+		/**
+		 * Handles the move drag event of the marker, updating the anchorWatch center, and 
+		 * also updating the circle position (this could also be done by anchorWatch_change,
+		 * but this way seems more efficient). Tells the anchorWatch to not save.
+		 * @param {any} pEvent
+		 */
+		centerMarker_drag: function (pEvent) {
+			this.circle.setLatLng(pEvent.latlng);
+			this.anchorWatch.setCenter(pEvent.latlng.lat, pEvent.latlng.lng, this, true);
+		},
+
+		/**
+		 * Specific handler for the draggend event, which will update the 
+		 * anchorWatch and tell it to save (or not tell it to not save)
+		 * @param {any} pEvent
+		 */
+		centerMarker_dragend: function (pEvent) {
+			const latlng = pEvent.target.getLatLng();
+			this.anchorWatch.setCenter(latlng.lat, latlng.lng, this);
+		},
+
+		/**
+		 * Change handler for the anchor watch, updates the visualization on the map, if
+		 * the changement has not been triggered by this.
+		 * @param {Object} pSender - the one who caused the change
+		 */
+		anchorWatch_change: function (pSender) {
+			if (pSender !== this) {
+				this.showOnMap();
+			}
+		},
+
+		anchorWatch_exceedRadius: function () {
+			console.log('EXCEEDING RADIUS!!!');
+		},
+
+		anchorWatch_belowRadius: function () {
+			console.log('Below radius :-)');
 		},
 
 		/** adds the "anchor watch" control to the settings container * */
@@ -2101,17 +2174,66 @@ PiLot.View.Map = (function () {
 			this.lnkOptionAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchOption);
 			this.lnkOptionAnchorWatch.classList.toggle('active', this.isAnchorWatchActive);
 			this.lnkOptionAnchorWatch.addEventListener('click', this.lnkOptionAnchorWatch_click.bind(this));
-			this.map.addSettingsItem(this.lnkOptionAnchorWatch);
+			this.seamap.addSettingsItem(this.lnkOptionAnchorWatch);
 		},
 
-		/// adds an "add Waypoint" link to the map context popup
+		/** adds the "Anchor watch" link to the map context popup */
 		addContextPopupLink: function () {
-			if (!this.isAnchorWatchActive) {
-				const lnkEnableAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchLink);
-				this.map.getContextPopup().addLink(lnkEnableAnchorWatch, this.lnkEnableAnchorWatch_click.bind(this));
+			const lnkEnableAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchLink);
+			this.seamap.getContextPopup().addLink(lnkEnableAnchorWatch, this.lnkEnableAnchorWatch_click.bind(this));
+		},
+
+		/**
+		 * Prepares the anchorWatch object, so that it can be drawn onto the map
+		 * @param {Number} pLatitude
+		 * @param {Number} pLongitude
+		 * @param {Number} pRadius - the radius in meters
+		 */
+		prepareAnchorWatch: function (pLatitude, pLongitude, pRadius) {
+			if (this.anchorWatch) {
+				this.anchorWatch.setEnabled(false);
+				this.anchorWatch.setCenter(pLatitude, pLongitude);
+				this.anchorWatch.setRadius(pRadius);
+			} else {
+				this.anchorWatch = new PiLot.Model.Nav.AnchorWatch(pLatitude, pLongitude, pRadius);
+				this.anchorWatch.on('change', this.anchorWatch_change.bind(this));
+				this.anchorWatch.on('exceedRadius', this.anchorWatch_exceedRadius.bind(this));
+				this.anchorWatch.on('belowRadius', this.anchorWatch_belowRadius.bind(this));
+			}
+			this.anchorWatch.setEnabled(true);
+		},
+
+		/** Shows the icon and the cirle on the map */
+		showOnMap: function () {
+			if (this.circle) {
+				this.circle.setLatLng(this.anchorWatch.getCenterLatLng());
+				this.circle.setRadius(this.anchorWatch.getRadius());
+			} else {
+				this.circle = L.circle(this.anchorWatch.getCenterLatLng(), { radius: this.anchorWatch.getRadius() }).addTo(this.seamap.getLeafletMap());
+			}
+			
+			if (this.centerMarker) {
+				this.centerMarker.setLatLng(this.anchorWatch.getCenterLatLng());
+			} else {
+				const iconHtml = PiLot.Templates.Nav.anchorWatchMarker;
+				const icon = L.divIcon({
+					className: 'anchorWatchMarker', iconSize: [24, 24], html: iconHtml
+				});
+				this.centerMarker = L.marker(this.anchorWatch.getCenterLatLng(), { icon: icon, draggable: true, autoPan: true, zIndexOffset: 1100 });
+				this.centerMarker.addTo(this.seamap.getLeafletMap());
+				this.centerMarker.on('click', this.centerMarker_click.bind(this));
+				this.centerMarker.on('drag', this.centerMarker_drag.bind(this));
+				this.centerMarker.on('dragend', this.centerMarker_dragend.bind(this));
 			}
 		},
 
+		/** Removes the circle and the icon from the map */
+		removeFromMap: function () {
+			this.circle.remove();
+			this.circle = null;
+			this.centerMarker.remove();
+			this.centerMarker = null;
+		}
 	};
 
 	/// a small version of the map, which is shown on the start page. This also

@@ -305,5 +305,7 @@ PiLot.Templates.Nav = {
 
 	poiCategoryIconCss: '<i class="{{icon}}"></i>',
 
-	poiCategoryIconSvg: '<img src="img/icons/{{icon}}" />'
+	poiCategoryIconSvg: '<img src="img/icons/{{icon}}" />',
+
+	anchorWatchMarker: '<i class="icon-anchor"></i>'
 };

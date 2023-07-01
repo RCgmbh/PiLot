@@ -924,7 +924,7 @@ PiLot.View.Nav = (function () {
 			this.waypoint.setLatLon(this.editLatitude.getCoordinate(), this.editLongitude.getCoordinate(), false, this);
 		},
 
-		/// hander for the move event of the waypoint
+		/// handler for the move event of the waypoint
 		waypoint_move: function (pSender, pArg) {
 			if (pSender !== this) {
 				this.showWaypoint();

@@ -79,6 +79,7 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/Config.js', priority: 1 },
 		{ url: 'js/Model/Common.js', priority: 10 },
 		{ url: 'js/Utils/Common.js', priority: 5 },
+		{ url: 'js/Utils/Audio.js', priority: 5 },
 		{ url: 'js/Templates/Common.js', priority: 10 },
 		{ url: 'js/View/Common.js', priority: 10 }
 	];
