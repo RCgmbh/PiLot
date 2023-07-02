@@ -122,6 +122,11 @@ PiLot.Templates.Map = {
 		fillOpacity: 0.2
 	},
 
+	mapAnchorWatchCircleInactive: {
+		color: '#aaaaaa',
+		fillOpacity: 0.1
+	},
+
 	mapAnchorWatchWarning: `<div class="feedbackBad anchorWatchWarning absolute" hidden data-text="anchorWatchExceedRadius"></div>`,
 
 	mapShowTrack:`

@@ -2080,6 +2080,7 @@ PiLot.View.Map = (function () {
 		this.centerMarker = null;
 		this.circle = null;
 		this.warningMessage = null;
+		this.anchorWatchForm = null;
 		this.initialize();
 	};
 
@@ -2099,9 +2100,12 @@ PiLot.View.Map = (function () {
 		 * be set to the map center, the radius will be set to the default value.
 		 * */
 		lnkOptionAnchorWatch_click: function () {
-			const center = this.map.getLeafletMap().getCenter();
-			this.prepareAnchorWatch(center.lat, center.lng, MapAnchorWatch.defaultRadius);
-			this.showOnMap();
+			if (!this.anchorWatch) {
+				const center = this.seamap.getLeafletMap().getCenter();
+				this.prepareAnchorWatch(center.lat, center.lng, MapAnchorWatch.defaultRadius);
+				this.showOnMap();
+			}			
+			this.showForm();
 		},
 
 		/**
@@ -2125,10 +2129,11 @@ PiLot.View.Map = (function () {
 			}
 			this.seamap.closeContextPopup();
 			this.showOnMap();
+			this.showForm();
 		},
 
 		centerMarker_click: function (pEvent) {
-
+			this.showForm();
 		},
 
 		/**
@@ -2171,12 +2176,37 @@ PiLot.View.Map = (function () {
 			this.warningMessage.hidden = true;
 		},
 
+		anchorWatch_enable: function () {
+			this.updateSettingsButtonActive();
+			this.removeFromMap();
+			this.showOnMap();
+		},
+
+		anchorWatch_disable: function () {
+			this.updateSettingsButtonActive();
+			this.removeFromMap();
+			this.showOnMap();
+		},
+
+		anchorWatch_remove: function () {
+			this.removeFromMap();
+			this.anchorWatch = null;
+			this.updateSettingsButtonActive();
+		},
+
 		/** adds the "anchor watch" control to the settings container * */
 		addSettingsControl: function () {
 			this.lnkOptionAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchOption);
-			this.lnkOptionAnchorWatch.classList.toggle('active', this.isAnchorWatchActive);
+			this.updateSettingsButtonActive();
 			this.lnkOptionAnchorWatch.addEventListener('click', this.lnkOptionAnchorWatch_click.bind(this));
 			this.seamap.addSettingsItem(this.lnkOptionAnchorWatch);
+		},
+
+		showForm: function () {
+			if (!this.anchorWatchForm) {
+				this.anchorWatchForm = new PiLot.View.Nav.AnchorWatchForm();
+			}
+			this.anchorWatchForm.showAnchorWatch(this.anchorWatch);
 		},
 
 		/** adds the "Anchor watch" link to the map context popup */
@@ -2188,6 +2218,10 @@ PiLot.View.Map = (function () {
 		addWarningMessage: function () {
 			this.warningMessage = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchWarning);
 			this.seamap.getMapContainer().insertAdjacentElement('beforeend', this.warningMessage);
+		},
+
+		updateSettingsButtonActive: function () {
+			this.lnkOptionAnchorWatch.classList.toggle('active', this.anchorWatch && this.anchorWatch.getEnabled());
 		},
 
 		/**
@@ -2206,8 +2240,11 @@ PiLot.View.Map = (function () {
 				this.anchorWatch.on('change', this.anchorWatch_change.bind(this));
 				this.anchorWatch.on('exceedRadius', this.anchorWatch_exceedRadius.bind(this));
 				this.anchorWatch.on('belowRadius', this.anchorWatch_belowRadius.bind(this));
+				this.anchorWatch.on('enable', this.anchorWatch_enable.bind(this));
+				this.anchorWatch.on('disable', this.anchorWatch_disable.bind(this));
+				this.anchorWatch.on('remove', this.anchorWatch_remove.bind(this));
 			}
-			this.anchorWatch.setEnabled(true);
+			//this.anchorWatch.setEnabled(true);
 		},
 
 		/** Shows the icon and the cirle on the map */
@@ -2216,11 +2253,10 @@ PiLot.View.Map = (function () {
 				this.circle.setLatLng(this.anchorWatch.getCenterLatLng());
 				this.circle.setRadius(this.anchorWatch.getRadius());
 			} else {
-				const options = PiLot.Templates.Map.mapAnchorWatchCircle;
+				const options = this.anchorWatch.getEnabled() ? PiLot.Templates.Map.mapAnchorWatchCircle : PiLot.Templates.Map.mapAnchorWatchCircleInactive;
 				options.radius = this.anchorWatch.getRadius();
 				this.circle = L.circle(this.anchorWatch.getCenterLatLng(), options).addTo(this.seamap.getLeafletMap());
-			}
-			
+			}			
 			if (this.centerMarker) {
 				this.centerMarker.setLatLng(this.anchorWatch.getCenterLatLng());
 			} else {
@@ -2238,9 +2274,9 @@ PiLot.View.Map = (function () {
 
 		/** Removes the circle and the icon from the map */
 		removeFromMap: function () {
-			this.circle.remove();
+			this.circle && this.circle.remove();
 			this.circle = null;
-			this.centerMarker.remove();
+			this.centerMarker && this.centerMarker.remove();
 			this.centerMarker = null;
 		}
 	};

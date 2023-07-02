@@ -308,23 +308,25 @@ PiLot.Templates.Nav = {
 	poiCategoryIconSvg: '<img src="img/icons/{{icon}}" />',
 
 	anchorWatchForm:  `
-		<div class="pnlOverlay vCenter overlay" hidden><div class="pnlDialog anchorWatchForm dialogPanel hCenter">
-			<div class="paddingAllSmall">
-				<span class="block marginBottomSmall semiBold" data-text="anchorWatch"></span>
-				<div class="marginBottom">
-					<div class="flexRowWrap">
-						<span class="inlineBlock col4" data-text="radius">:</span>
-						<input type="text" class="tbRadius input4" />
+		<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="pnlDialog anchorWatchForm dialogPanel hCenter">
+				<div class="paddingAllSmall">
+					<span class="block marginBottomSmall semiBold" data-text="anchorWatch"></span>
+					<div class="marginBottom">
+						<div class="flexRowWrap">
+							<span class="inlineBlock col4" data-text="radius">:</span>
+							<input type="text" class="tbRadius input4" />
+						</div>
+					</div>
+					<div class="buttons reverse">
+						<a href="#" class="btnActivate linkButton semiBold" data-text="activate"></a>
+						<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+						<a href="#" class="btnClose linkButton" data-text="close"></a>
+						<a href="#" class="btnDeactivate linkButton" data-text="deactivate"></a>
 					</div>
 				</div>
-				<div class="buttons reverse paddingBottomBig">
-					<a href="#" class="btnActivate linkButton semiBold" data-text="activate"></a>
-					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
-					<a href="#" class="btnDeactivate linkButton" data-text="deactivate"></a>
-					<a href="#" class="btnClose linkButton" data-text="close"></a>	
-				</div>
 			</div>
-		</div></div>
+		</div>
 	`,
 
 	anchorWatchMarker: '<i class="icon-anchor"></i>'

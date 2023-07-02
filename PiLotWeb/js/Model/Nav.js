@@ -1255,10 +1255,10 @@ PiLot.Model.Nav = (function () {
 	 * */
 	var AnchorWatch = function (pLatitude, pLongitude, pRadius) {
 		this.radius = pRadius;
-		this.center = null;								// LatLon object representing the center
-		this.enabled = false;
-		this.alarmIndex = 0;
-		this.setCenter(pLatitude, pLongitude, this,  true, true);
+		this.center = null;											// LatLon object representing the center
+		this.enabled = false;										// False, as long as the user hat not confirmed to enable the watch
+		this.alarmIndex = null;										// index of AnchorWatch.alarms of the current alarm
+		this.setCenter(pLatitude, pLongitude, this,  true, true);	
 		this.gpsObserver = null;
 		this.initialize();
 	};
@@ -1273,7 +1273,7 @@ PiLot.Model.Nav = (function () {
 	AnchorWatch.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['change', 'exceedRadius', 'belowRadius']);
+			this.observers = RC.Utils.initializeObservers(['change', 'exceedRadius', 'belowRadius', 'enable', 'disable', 'remove']);
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
 			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
@@ -1289,7 +1289,7 @@ PiLot.Model.Nav = (function () {
 
 		/**
 		 * Registers an observer which will be called when pEvent happens.
-		 * @param {String} pEvent - "change", "exceedRadius", "beloRadius"
+		 * @param {String} pEvent - 'change', 'exceedRadius', 'belowRadius', 'enable', 'disable', 'remove'
 		 * @param {Function} pCallback
 		 * */
 		on: function (pEvent, pCallback) {
@@ -1312,7 +1312,7 @@ PiLot.Model.Nav = (function () {
 
 		/**
 		 * Sets the center, which represents the location of the anchor. Fires
-		 * the "change" event
+		 * the "change" event, if not told to be silent.
 		 * @param {Number} pLatitude
 		 * @param {Number} pLongitude
 		 * @param {Object} pSender - will be returned in the event, to help avoid recursion
@@ -1332,7 +1332,9 @@ PiLot.Model.Nav = (function () {
 			}
 			if (!pSilent) {
 				RC.Utils.notifyObservers(pSender, this.observers, 'change', this);
-				this.checkDistance();
+				if (this.enabled) {
+					this.checkDistance();
+				} 
 			}
 			if (!pSkipSaving) {
 				console.log('save anchorWatch');
@@ -1350,45 +1352,58 @@ PiLot.Model.Nav = (function () {
 		 * @param {Number} pRadius - the radius in meters
 		 */
 		setRadius: function (pRadius) {
+			const changed = this.radius !== pRadius;
 			this.radius = pRadius;
-			RC.Utils.notifyObservers(this, this.observers, 'change', this);
+			if (changed) {
+				RC.Utils.notifyObservers(this, this.observers, 'change', this);
+			}			
 		},
 
-		/** @returns {Boolean} */
+		/** @returns {Boolean} whether the watch has been enabled */
 		getEnabled: function () {
 			return this.enabled;
 		},
 
-		/** @param {Boolean} pEnabled */
+		/** @param {Boolean} pEnabled - enables or disables the watch */
 		setEnabled: function (pEnabled) {
+			const enabled = !this.enabled && !!pEnabled;
+			const disabled = this.enabled && !pEnabled;
 			this.enabled = !!pEnabled;
+			if (enabled) {
+				RC.Utils.notifyObservers(this, this.observers, 'enable', this);
+			}
+			if (disabled) {
+				RC.Utils.notifyObservers(this, this.observers, 'disable', this);
+			}
+		},
+
+		/** Removes the anchorWatch and notifies observers */
+		remove: function () {
+			this.enabled = false;
+			RC.Utils.notifyObservers(this, this.observers, 'remove', this);
 		},
 
 		/**
 		 * Checks the distance of the current gps position to the center
 		 * and fires the exeedDistance event, if the distance exceeds
-		 * the radius.
+		 * the radius. Also starts the alarm, event though I'm not 100%
+		 * sure whether this really is the job of the Model.
 		 * */
 		checkDistance: function () {
 			const currentPosition = this.gpsObserver.getLatestPosition();
-			try {
-				if (currentPosition && this.center && this.radius) {
-					const distance = this.center.distanceTo(currentPosition.getLatLon());
-					const alarmIndex = AnchorWatch.alarms.findIndex(a => a[0] < distance / this.radius);
-					if (alarmIndex !== this.alarmIndex) {
-						PiLot.Utils.Audio.Alarm.getInstance().start(AnchorWatch.alarms[alarmIndex][1]);
-						if (distance > this.radius) {
-							RC.Utils.notifyObservers(this, this.observers, 'exceedRadius', this);
-						} else {
-							RC.Utils.notifyObservers(this, this.observers, 'belowRadius', this);
-						}
-						this.alarmIndex = alarmIndex;
+			if (currentPosition && this.center && this.radius) {
+				const distance = this.center.distanceTo(currentPosition.getLatLon());
+				const alarmIndex = AnchorWatch.alarms.findIndex(a => a[0] < distance / this.radius);
+				if (alarmIndex !== this.alarmIndex) {
+					PiLot.Utils.Audio.Alarm.getInstance().start(AnchorWatch.alarms[alarmIndex][1]);
+					if (distance > this.radius) {
+						RC.Utils.notifyObservers(this, this.observers, 'exceedRadius', this);
+					} else {
+						RC.Utils.notifyObservers(this, this.observers, 'belowRadius', this);
 					}
+					this.alarmIndex = alarmIndex;
 				}
-			} catch (ex) {
-				alert(ex);
 			}
-						
 		}
 	};
 

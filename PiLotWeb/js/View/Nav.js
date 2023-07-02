@@ -1227,9 +1227,116 @@ PiLot.View.Nav = (function () {
 	};
 
 	/** The form used to configure the anchor watch, and to activate/deactivate it */
-	var AnchorWatchForm = function () { };
+	var AnchorWatchForm = function () {
+		this.control = null;			// HTMLElement representing the entire control
+		this.pnlDialog = null;			// HTMLElement representing the actual dialog
+		this.tbRadius = null;
+		this.btnActivate = null;
+		this.btnCancel = null;
+		this.btnDeactivate = null;
+		this.btnClose = null;
+		this.anchorWatch = null;
+		this.initialize();
+	};
 
-	AnchorWatchForm.prototype = {};
+	AnchorWatchForm.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		/** handles clicks on the dark background by closing the dialog */
+		pnlOverlay_click: function () {
+			this.hide();
+		},
+
+		/** makes sure that clicks are not bubbled to the background, which would close the window */
+		pnlDialog_click: function (pEvent) {
+			pEvent.stopPropagation();
+		},
+
+		tbRadius_keyup: function (pEvent) {
+			const val = this.tbRadius.value;
+			if (RC.Utils.isNumeric) {
+				this.anchorWatch.setRadius(val);
+			}
+		},
+
+		btnActivate_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.anchorWatch.setEnabled(true);
+			this.hide();
+		},
+
+		btnCancel_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.anchorWatch.remove();
+			this.hide();
+		},
+
+		btnDeactivate_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.anchorWatch.remove();
+			this.hide();
+		},
+
+		btnClose_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.hide();
+		},
+
+		draw: function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.anchorWatchForm);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
+			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
+			this.pnlDialog = this.control.querySelector('.pnlDialog');
+			this.pnlDialog.addEventListener('click', this.pnlDialog_click.bind(this));
+			this.tbRadius = this.pnlDialog.querySelector('.tbRadius');
+			this.tbRadius.addEventListener('keyup', this.tbRadius_keyup.bind(this));
+			this.btnActivate = this.pnlDialog.querySelector('.btnActivate');
+			this.btnActivate.addEventListener('click', this.btnActivate_click.bind(this));
+			this.btnCancel = this.pnlDialog.querySelector('.btnCancel');
+			this.btnCancel.addEventListener('click', this.btnCancel_click.bind(this));
+			this.btnDeactivate = this.pnlDialog.querySelector('.btnDeactivate');
+			this.btnDeactivate.addEventListener('click', this.btnDeactivate_click.bind(this));
+			this.btnClose = this.pnlDialog.querySelector('.btnClose');
+			this.btnClose.addEventListener('click', this.btnClose_click.bind(this));
+		},
+
+		/**
+		 * Shows the dialog for a certain anchorWatch, making sure the right
+		 * data is displayed and the right buttons are visible.
+		 * @param {PiLot.Model.Nav.AnchorWatch} pAnchorWatch - the anchorWatch to display, not null
+		 */
+		showAnchorWatch: function (pAnchorWatch) {
+			if (pAnchorWatch) {
+				this.anchorWatch = pAnchorWatch;
+				this.show();
+				const enabled = this.anchorWatch.getEnabled();
+				this.tbRadius.value = this.anchorWatch.getRadius();
+				this.btnActivate.hidden = enabled;
+				this.btnCancel.hidden = enabled;
+				this.btnDeactivate.hidden = !enabled;
+				this.btnClose.hidden = !enabled;
+			} else {
+				PiLot.log('Can not show the AnchorWatchForm without an AnchorWatch', 0);
+			}
+		},
+
+		/** Shows the control */
+		show: function () {
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+			this.pnlDialog.scrollTop = 0;
+		},
+
+		/** Hides the entire control */
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
+			this.control.hidden = true;
+		}
+	};
 
 	/**
 	 * This represents the control which is used to show all details about one specific
@@ -2242,6 +2349,7 @@ PiLot.View.Nav = (function () {
 		RoutesList: RoutesList,
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,
+		AnchorWatchForm: AnchorWatchForm,
 		PoiDetails: PoiDetails,
 		getPoiCategoryIcon: getPoiCategoryIcon,
 		PoiForm: PoiForm,

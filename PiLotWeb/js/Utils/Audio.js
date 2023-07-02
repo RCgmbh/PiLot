@@ -13,13 +13,10 @@ PiLot.Utils.Audio = (function () {
 		this.audioContext = null;
 		this.oscillator = null;
 		this.timeout = null;
-		this.isStarted = false;
+		this.melody = null;
 		this.noteIndex = 0;
 		this.initialize();
 	};
-
-	Alarm.playMS = 1000;
-	Alarm.pauseMS = 500;
 
 	Alarm.panic = [[523, 125], [659, 125]];
 	Alarm.danger = [[523, 500], [0, 250], [659, 500], [0, 250]];
@@ -36,13 +33,12 @@ PiLot.Utils.Audio = (function () {
 		/** Starts the alarm */
 		start: function (pMelody) {
 			if (pMelody) {
-				this.melody = pMelody;
-				this.noteIndex = 0;
-				if (!this.isStarted) {
+				if (pMelody !== this.melody) {
+					this.melody = pMelody;
+					this.noteIndex = 0;
 					this.timeout && window.clearTimeout(this.timeout);
-					this.isStarted = true;
 					this.playNextNote();
-				}
+				} 
 			} else {
 				this.stop();
 			}
@@ -50,11 +46,12 @@ PiLot.Utils.Audio = (function () {
 
 		/** Stops the alarm */
 		stop: function () {
-			this.isStarted = false;
 			this.timeout && window.clearTimeout(this.timeout);
+			this.melody = null;
 			this.soundOff(false);
 		},
 
+		/** Plays the note for the current index, and sets a timeout to continue afterwards */
 		playNextNote: function () {
 			this.timeout && window.clearTimeout(this.timeout);
 			const note = this.melody[this.noteIndex];
@@ -63,6 +60,10 @@ PiLot.Utils.Audio = (function () {
 			this.timeout = window.setTimeout(this.playNextNote.bind(this), note[1]);			
 		},
 
+		/**
+		 * Plays the sound with a certain frequency. 0 works fine
+		 * @param {Number} pFrequency - the frequency in hertz
+		 */
 		playSound: function (pFrequency) {
 			if (!this.oscillator) {
 				this.oscillator = this.audioContext.createOscillator();
@@ -73,8 +74,7 @@ PiLot.Utils.Audio = (function () {
 			this.oscillator.frequency.setValueAtTime(pFrequency, this.audioContext.currentTime);
 		},
 
-
-		/**  Pauses/turns off the sound */
+		/** turns off the sound */
 		soundOff: function (pDoLoop) {
 			if (this.oscillator) {
 				this.oscillator.stop();
@@ -91,7 +91,7 @@ PiLot.Utils.Audio = (function () {
 			Alarm.instance = new Alarm();
 		}
 		return Alarm.instance;
-	}
+	};
 
 	return {
 		Alarm: Alarm
