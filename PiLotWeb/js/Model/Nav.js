@@ -1257,11 +1257,18 @@ PiLot.Model.Nav = (function () {
 		this.radius = pRadius;
 		this.center = null;								// LatLon object representing the center
 		this.enabled = false;
-		this.exceeding = false;
+		this.alarmIndex = 0;
 		this.setCenter(pLatitude, pLongitude, this,  true, true);
 		this.gpsObserver = null;
 		this.initialize();
 	};
+
+	AnchorWatch.alarms = [
+		[1.5, PiLot.Utils.Audio.Alarm.panic],
+		[1.2, PiLot.Utils.Audio.Alarm.danger],
+		[1, PiLot.Utils.Audio.Alarm.attention2],
+		[0, null]
+	];
 
 	AnchorWatch.prototype = {
 
@@ -1364,22 +1371,24 @@ PiLot.Model.Nav = (function () {
 		 * */
 		checkDistance: function () {
 			const currentPosition = this.gpsObserver.getLatestPosition();
-			if (currentPosition && this.center && this.radius) {
-				const distance = this.center.distanceTo(currentPosition.getLatLon());
-				if (distance > this.radius) {
-					if (!this.exceeding) {
-						PiLot.Utils.Audio.Alarm.getInstance().start();
-						RC.Utils.notifyObservers(this, this.observers, 'exceedRadius', this);
+			try {
+				if (currentPosition && this.center && this.radius) {
+					const distance = this.center.distanceTo(currentPosition.getLatLon());
+					const alarmIndex = AnchorWatch.alarms.findIndex(a => a[0] < distance / this.radius);
+					if (alarmIndex !== this.alarmIndex) {
+						PiLot.Utils.Audio.Alarm.getInstance().start(AnchorWatch.alarms[alarmIndex][1]);
+						if (distance > this.radius) {
+							RC.Utils.notifyObservers(this, this.observers, 'exceedRadius', this);
+						} else {
+							RC.Utils.notifyObservers(this, this.observers, 'belowRadius', this);
+						}
+						this.alarmIndex = alarmIndex;
 					}
-					this.exceeding = true;
-				} else {
-					if (this.exceeding) {
-						PiLot.Utils.Audio.Alarm.getInstance().stop();
-						RC.Utils.notifyObservers(this, this.observers, 'belowRadius', this);
-					}
-					this.exceeding = false;
 				}
-			}			
+			} catch (ex) {
+				alert(ex);
+			}
+						
 		}
 	};
 
