@@ -145,7 +145,6 @@ namespace PiLot.Data.Files {
 		/// Returns a list of all Routes that have been changed after a certain
 		/// date
 		/// </summary>
-		/// <returns></returns>
 		public List<Route> GetChangedData(DateTime pChangedAfter) {
 			List<Route> result = new List<Route>();
 			string dataPath = this.helper.GetDataPath(DATADIR);
@@ -194,7 +193,7 @@ namespace PiLot.Data.Files {
 		/// part does not necessarily correspond to the route the waypoint belongs to.
 		/// </summary>
 		/// <param name="pWaypoint">The waypoint for which we crate an ID</param>
-		/// <param name="pLogbookDay">The Route the Waypoint belongs to</param>
+		/// <param name="pRoute">The Route the Waypoint belongs to</param>
 		private Int32 CreateWaypointID(Waypoint pWaypoint, Route pRoute) {
 			Int32 result;
 			Assert.IsNotNull(pRoute?.RouteID);
@@ -212,7 +211,6 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// returns the absolute path to the routes directory in the filesystem. 
 		/// </summary>
-		/// <param name="pRootPath">Optionally pass a different data root than ~/data/</param>
 		private String GetRoutesPath() {
 			return this.helper.GetDataPath(DATADIR, true);
 		}
@@ -221,7 +219,7 @@ namespace PiLot.Data.Files {
 		/// returns the path for a file for a route with the RouteID pRouteID,
 		/// which is usually data/routes/routeID
 		/// </summary>
-		/// <param name="pRootPath">Optionally pass a different data root than ~/data/</param>
+		/// <param name="pRouteID">The ID of the route</param>
 		private String GetFilePath(String pRouteID) {
 			return Path.Combine(this.GetRoutesPath(), pRouteID);
 		}

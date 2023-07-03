@@ -1262,6 +1262,14 @@ PiLot.View.Nav = (function () {
 			}
 		},
 
+		lnkRadiusPlus_click: function (pEvent) {
+			this.changeRadius(5);
+		},
+
+		lnkRadiusMinus_click: function (pEvent) {
+			this.changeRadius(-5);
+		},
+
 		btnActivate_click: function (pEvent) {
 			pEvent.preventDefault();
 			this.anchorWatch.setEnabled(true);
@@ -1294,6 +1302,8 @@ PiLot.View.Nav = (function () {
 			this.pnlDialog.addEventListener('click', this.pnlDialog_click.bind(this));
 			this.tbRadius = this.pnlDialog.querySelector('.tbRadius');
 			this.tbRadius.addEventListener('keyup', this.tbRadius_keyup.bind(this));
+			this.control.querySelector('.lnkRadiusMinus').addEventListener('click', this.lnkRadiusMinus_click.bind(this));
+			this.control.querySelector('.lnkRadiusPlus').addEventListener('click', this.lnkRadiusPlus_click.bind(this));
 			this.btnActivate = this.pnlDialog.querySelector('.btnActivate');
 			this.btnActivate.addEventListener('click', this.btnActivate_click.bind(this));
 			this.btnCancel = this.pnlDialog.querySelector('.btnCancel');
@@ -1322,6 +1332,13 @@ PiLot.View.Nav = (function () {
 			} else {
 				PiLot.log('Can not show the AnchorWatchForm without an AnchorWatch', 0);
 			}
+		},
+
+		/** @param {Number} pAmount - The amount to change the radius by. */
+		changeRadius: function (pAmount) {
+			const radius = this.anchorWatch.getRadius();
+			this.anchorWatch.setRadius(Math.max(0, radius + pAmount));
+			this.tbRadius.value = this.anchorWatch.getRadius();
 		},
 
 		/** Shows the control */

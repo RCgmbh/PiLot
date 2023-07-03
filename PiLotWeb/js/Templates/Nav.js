@@ -316,6 +316,10 @@ PiLot.Templates.Nav = {
 						<div class="flexRowWrap">
 							<span class="inlineBlock col4" data-text="radius">:</span>
 							<input type="text" class="tbRadius input4" />
+							<div class="flex">
+								<a href="#" class="lnkRadiusMinus inlineBlock center input1 bold">-</a>
+								<a href="#" class="lnkRadiusPlus inlineBlock center input1 bold">+</a>
+							</div>
 						</div>
 					</div>
 					<div class="buttons reverse">

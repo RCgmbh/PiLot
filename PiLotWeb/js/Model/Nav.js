@@ -1337,7 +1337,8 @@ PiLot.Model.Nav = (function () {
 				} 
 			}
 			if (!pSkipSaving) {
-				console.log('save anchorWatch');
+				/// todo: only save if enabled
+				this.saveToServer();
 			}
 		},
 
@@ -1356,6 +1357,8 @@ PiLot.Model.Nav = (function () {
 			this.radius = pRadius;
 			if (changed) {
 				RC.Utils.notifyObservers(this, this.observers, 'change', this);
+				/// todo: only save if enabled
+				this.saveToServer();
 			}			
 		},
 
@@ -1371,6 +1374,7 @@ PiLot.Model.Nav = (function () {
 			this.enabled = !!pEnabled;
 			if (enabled) {
 				RC.Utils.notifyObservers(this, this.observers, 'enable', this);
+				this.saveToServer();
 			}
 			if (disabled) {
 				RC.Utils.notifyObservers(this, this.observers, 'disable', this);
@@ -1380,6 +1384,8 @@ PiLot.Model.Nav = (function () {
 		/** Removes the anchorWatch and notifies observers */
 		remove: function () {
 			this.enabled = false;
+			const alarm = PiLot.Utils.Audio.Alarm.getInstance();
+			alarm && alarm.stop();
 			RC.Utils.notifyObservers(this, this.observers, 'remove', this);
 		},
 
@@ -1393,7 +1399,7 @@ PiLot.Model.Nav = (function () {
 			const currentPosition = this.gpsObserver.getLatestPosition();
 			if (currentPosition && this.center && this.radius) {
 				const distance = this.center.distanceTo(currentPosition.getLatLon());
-				const alarmIndex = AnchorWatch.alarms.findIndex(a => a[0] < distance / this.radius);
+				const alarmIndex = this.radius !== 0 ? AnchorWatch.alarms.findIndex(a => a[0] < distance / this.radius) : 0;
 				if (alarmIndex !== this.alarmIndex) {
 					PiLot.Utils.Audio.Alarm.getInstance().start(AnchorWatch.alarms[alarmIndex][1]);
 					if (distance > this.radius) {
@@ -1404,6 +1410,14 @@ PiLot.Model.Nav = (function () {
 					this.alarmIndex = alarmIndex;
 				}
 			}
+		},
+
+		saveToServer: function () {
+			new PiLot.Service.Nav.AnchorWatchService().saveAnchorWatchAsync({
+				latitude: this.center.lat,
+				longitude: this.center.lon,
+				radius: this.radius
+			});
 		}
 	};
 

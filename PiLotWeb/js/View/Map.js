@@ -2185,11 +2185,13 @@ PiLot.View.Map = (function () {
 		anchorWatch_disable: function () {
 			this.updateSettingsButtonActive();
 			this.removeFromMap();
+			this.warningMessage.hidden = true;
 			this.showOnMap();
 		},
 
 		anchorWatch_remove: function () {
 			this.removeFromMap();
+			this.warningMessage.hidden = true;
 			this.anchorWatch = null;
 			this.updateSettingsButtonActive();
 		},
@@ -2202,6 +2204,7 @@ PiLot.View.Map = (function () {
 			this.seamap.addSettingsItem(this.lnkOptionAnchorWatch);
 		},
 
+		/** shows the edit form for the anchor watch */
 		showForm: function () {
 			if (!this.anchorWatchForm) {
 				this.anchorWatchForm = new PiLot.View.Nav.AnchorWatchForm();
@@ -2215,11 +2218,13 @@ PiLot.View.Map = (function () {
 			this.seamap.getContextPopup().addLink(lnkEnableAnchorWatch, this.lnkEnableAnchorWatch_click.bind(this));
 		},
 
+		/** prepares the warning message without showing it */
 		addWarningMessage: function () {
 			this.warningMessage = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchWarning);
 			this.seamap.getMapContainer().insertAdjacentElement('beforeend', this.warningMessage);
 		},
 
+		/** shows the button in the options menu active or inactive, depending on the current state */
 		updateSettingsButtonActive: function () {
 			this.lnkOptionAnchorWatch.classList.toggle('active', this.anchorWatch && this.anchorWatch.getEnabled());
 		},
@@ -2244,7 +2249,6 @@ PiLot.View.Map = (function () {
 				this.anchorWatch.on('disable', this.anchorWatch_disable.bind(this));
 				this.anchorWatch.on('remove', this.anchorWatch_remove.bind(this));
 			}
-			//this.anchorWatch.setEnabled(true);
 		},
 
 		/** Shows the icon and the cirle on the map */

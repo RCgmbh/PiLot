@@ -492,10 +492,52 @@ PiLot.Service.Nav = (function () {
 			
 	};
 
+	/** Helper class to access the anchorWatch */
+	var AnchorWatchService = function () {
+		this.initialize();
+	};
+
+	AnchorWatchService.prototype = {
+
+		initialize: function () { },
+
+		/**
+		* Loads the current anchorWatch
+		* @returns {PiLot.Model.Nav.AnchorWatch};
+		* */
+		loadAnchorWatchAsync: async function () {
+			let result = null;
+			const json = await PiLot.Utils.Common.getFromServerAsync('/AnchorWatch');
+			if (json) {
+				result = new PiLot.Model.Nav.AnchorWatch(
+					json.latitude,
+					json.longitude,
+					json.radius
+				)
+			} return result;
+		},
+
+		/**
+		 * Saves the anchorWatch to the server
+		 * @param {PiLot.Model.Nav.AnchorWatch} pAnchorWatch
+		 */
+		saveAnchorWatchAsync: async function (pAnchorWatch) {
+			return await PiLot.Utils.Common.putToServerAsync('/AnchorWatch', pAnchorWatch);
+		},
+
+		/**
+		 * Deletes the current anchorWatch from the server
+		 */
+		deleteAnchorWatchAsync: async function () {
+			return await PiLot.Utils.Common.deleteFromServerAsync('/AnchorWatch');
+		}
+	};
+
     /// Returning the class and static method definitions
 	return {
 		PoiService: PoiService,
-		OsmPoiLoader: OsmPoiLoader
+		OsmPoiLoader: OsmPoiLoader,
+		AnchorWatchService: AnchorWatchService
 	}
 
 })();

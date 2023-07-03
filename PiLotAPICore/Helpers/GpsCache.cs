@@ -26,6 +26,12 @@ namespace PiLot.API.Helpers {
 
 		#endregion
 
+		#region events
+
+		public event PositionChangedEventHandler PositionChanged;
+		
+		#endregion
+
 		#region instance variables
 
 		private List<GpsRecord> records = null;
@@ -95,6 +101,7 @@ namespace PiLot.API.Helpers {
 				pRecord.BoatTime = pRecord.UTC + utcOffset;
 				this.records.Insert(0, pRecord);
 				this.records.Sort((x, y) => y.UTC.CompareTo(x.UTC));
+				PositionChanged(pRecord);
 				Logger.Log($"GpsCache.AddRecord: Having {this.records.Count} items in cache.", LogLevels.DEBUG);
 				this.CropRecords();
 				this.PersistLatest();
@@ -143,4 +150,6 @@ namespace PiLot.API.Helpers {
 
 		#endregion
 	}
+
+	public delegate void PositionChangedEventHandler(GpsRecord pLatestPosition);
 }
