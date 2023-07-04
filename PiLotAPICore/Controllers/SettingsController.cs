@@ -75,8 +75,9 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/boatTime")]
 		[HttpPut]
 		[ServiceFilter(typeof(SettingsAuthorizationFilter))]
-		public void PutCurrentBoatTime(Int32 utcOffset) {
+		public ActionResult PutCurrentBoatTime(Int32 utcOffset) {
 			new GlobalDataConnector().SetBoatTime(utcOffset);
+			return this.NoContent();
 		}
 
 	}

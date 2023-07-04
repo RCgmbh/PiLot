@@ -512,7 +512,8 @@ PiLot.Service.Nav = (function () {
 				result = new PiLot.Model.Nav.AnchorWatch(
 					json.latitude,
 					json.longitude,
-					json.radius
+					json.radius,
+					true
 				)
 			} return result;
 		},

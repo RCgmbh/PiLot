@@ -119,7 +119,7 @@ PiLot.View.Map = (function () {
 					this.applyDefaultMapState();
 				}
 				this.contextPopup = new MapContextPopup(this);
-				this.applyOptionsAsync();
+				await this.applyOptionsAsync();
 				this.mapPois = new MapPois(this, this.mapLayersSettings);
 				this.isMapLoaded = true;
 			}
@@ -2093,6 +2093,7 @@ PiLot.View.Map = (function () {
 			this.addSettingsControl();
 			this.addContextPopupLink();
 			this.addWarningMessage();
+			this.loadAnchorWatchAsync();
 		},
 
 		/**
@@ -2122,6 +2123,7 @@ PiLot.View.Map = (function () {
 			if ((lat !== null) && (lon !== null)) {
 				if (position !== null) {
 					radius = Math.floor(position.getLatLon().distanceTo(new LatLon(lat, lon, LatLon.datum.WGS84)) * 1.5);
+					radius = Math.round(radius / 5) * 5;
 				} else {
 					radius = MapAnchorWatch.defaultRadius;
 				}
@@ -2204,14 +2206,6 @@ PiLot.View.Map = (function () {
 			this.seamap.addSettingsItem(this.lnkOptionAnchorWatch);
 		},
 
-		/** shows the edit form for the anchor watch */
-		showForm: function () {
-			if (!this.anchorWatchForm) {
-				this.anchorWatchForm = new PiLot.View.Nav.AnchorWatchForm();
-			}
-			this.anchorWatchForm.showAnchorWatch(this.anchorWatch);
-		},
-
 		/** adds the "Anchor watch" link to the map context popup */
 		addContextPopupLink: function () {
 			const lnkEnableAnchorWatch = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchLink);
@@ -2222,6 +2216,23 @@ PiLot.View.Map = (function () {
 		addWarningMessage: function () {
 			this.warningMessage = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAnchorWatchWarning);
 			this.seamap.getMapContainer().insertAdjacentElement('beforeend', this.warningMessage);
+		},
+
+		loadAnchorWatchAsync: async function () {
+			this.anchorWatch = await new PiLot.Service.Nav.AnchorWatchService().loadAnchorWatchAsync();
+			if (this.anchorWatch) {
+				this.showOnMap();
+				this.bindAnchorWatchHandlers();
+			}
+			this.updateSettingsButtonActive();
+		},
+
+		/** shows the edit form for the anchor watch */
+		showForm: function () {
+			if (!this.anchorWatchForm) {
+				this.anchorWatchForm = new PiLot.View.Nav.AnchorWatchForm();
+			}
+			this.anchorWatchForm.showAnchorWatch(this.anchorWatch);
 		},
 
 		/** shows the button in the options menu active or inactive, depending on the current state */
@@ -2242,13 +2253,17 @@ PiLot.View.Map = (function () {
 				this.anchorWatch.setRadius(pRadius);
 			} else {
 				this.anchorWatch = new PiLot.Model.Nav.AnchorWatch(pLatitude, pLongitude, pRadius);
-				this.anchorWatch.on('change', this.anchorWatch_change.bind(this));
-				this.anchorWatch.on('exceedRadius', this.anchorWatch_exceedRadius.bind(this));
-				this.anchorWatch.on('belowRadius', this.anchorWatch_belowRadius.bind(this));
-				this.anchorWatch.on('enable', this.anchorWatch_enable.bind(this));
-				this.anchorWatch.on('disable', this.anchorWatch_disable.bind(this));
-				this.anchorWatch.on('remove', this.anchorWatch_remove.bind(this));
+				this.bindAnchorWatchHandlers();
 			}
+		},
+
+		bindAnchorWatchHandlers: function () {
+			this.anchorWatch.on('change', this.anchorWatch_change.bind(this));
+			this.anchorWatch.on('exceedRadius', this.anchorWatch_exceedRadius.bind(this));
+			this.anchorWatch.on('belowRadius', this.anchorWatch_belowRadius.bind(this));
+			this.anchorWatch.on('enable', this.anchorWatch_enable.bind(this));
+			this.anchorWatch.on('disable', this.anchorWatch_disable.bind(this));
+			this.anchorWatch.on('remove', this.anchorWatch_remove.bind(this));
 		},
 
 		/** Shows the icon and the cirle on the map */

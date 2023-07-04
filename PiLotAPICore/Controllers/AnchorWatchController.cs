@@ -32,8 +32,9 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public void Put(AnchorWatch anchorWatch) {
+		public ActionResult Put(AnchorWatch anchorWatch) {
 			AnchorWatchWorker.Instance.SaveAnchorWatch(anchorWatch);
+			return this.NoContent();
 		}
 
 		/// <summary>

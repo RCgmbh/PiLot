@@ -7,7 +7,7 @@ PiLot.Utils = PiLot.Utils || {};
 PiLot.Utils.Audio = (function () {
 
 	/**
-	 * An alarm, that can start and stop.
+	 * An alarm, that can start and stop. And play different melodies
 	 * */
 	var Alarm = function () {
 		this.audioContext = null;
@@ -21,18 +21,17 @@ PiLot.Utils.Audio = (function () {
 	Alarm.panic = [[523, 125], [659, 125]];
 	Alarm.danger = [[523, 500], [0, 250], [659, 500], [0, 250]];
 	Alarm.attention = [[523, 250], [659, 250], [783, 500], [0, 2000]]; //C-E-G
-	Alarm.attention2 = [[523, 375], [622, 250], [783, 500], [0, 2000]]; //C-Eb-G
+	Alarm.attention2 = [[523, 420], [622, 200], [783, 500], [0, 2000]]; //C-Eb-G
 	Alarm.hint = [[523, 125], [0, 125], [523, 125], [0, 2500]]; 
 
 	Alarm.prototype = {
 
-		initialize: function () {
-			this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
-		},
+		initialize: function () { },
 
 		/** Starts the alarm */
 		start: function (pMelody) {
 			if (pMelody) {
+				this.audioContext = this.audioContext || new (window.AudioContext || window.webkitAudioContext)();
 				if (pMelody !== this.melody) {
 					this.melody = pMelody;
 					this.noteIndex = 0;
@@ -67,7 +66,7 @@ PiLot.Utils.Audio = (function () {
 		playSound: function (pFrequency) {
 			if (!this.oscillator) {
 				this.oscillator = this.audioContext.createOscillator();
-				this.oscillator.type = "sine";
+				this.oscillator.type = "triangle";
 				this.oscillator.connect(this.audioContext.destination);
 				this.oscillator.start();
 			}
@@ -86,6 +85,10 @@ PiLot.Utils.Audio = (function () {
 
 	Alarm.instance = null;
 
+	/** 
+	 * Returns the instance. Use this to avoid having
+	 * multiple alarms
+	 * */
 	Alarm.getInstance = function () {
 		if (!Alarm.instance) {
 			Alarm.instance = new Alarm();

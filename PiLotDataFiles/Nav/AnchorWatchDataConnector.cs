@@ -51,8 +51,7 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// saves pRoute as json to the datadirectory. if pRoute is null, then nothing happens.
-		/// For the route and for each waypoint, an ID is created if necessary
+		/// saves the anchorWatch to the datadirectory. If null is passed, nothing happens.
 		/// </summary>
 		public void SaveAnchorWatch(AnchorWatch pAnchorWatch) {
 			if (pAnchorWatch != null) {
@@ -66,7 +65,7 @@ namespace PiLot.Data.Files {
 				if (json != null) {
 					File.WriteAllText(this.GetFilePath(), json);
 				}
-			}
+			} 
 		}
 
 		/// <summary>

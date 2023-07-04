@@ -1258,7 +1258,7 @@ PiLot.View.Nav = (function () {
 		tbRadius_keyup: function (pEvent) {
 			const val = this.tbRadius.value;
 			if (RC.Utils.isNumeric) {
-				this.anchorWatch.setRadius(val);
+				this.anchorWatch.setRadius(Number(val));
 			}
 		},
 
@@ -1278,13 +1278,13 @@ PiLot.View.Nav = (function () {
 
 		btnCancel_click: function (pEvent) {
 			pEvent.preventDefault();
-			this.anchorWatch.remove();
+			this.anchorWatch.removeAsync();
 			this.hide();
 		},
 
 		btnDeactivate_click: function (pEvent) {
 			pEvent.preventDefault();
-			this.anchorWatch.remove();
+			this.anchorWatch.removeAsync();
 			this.hide();
 		},
 

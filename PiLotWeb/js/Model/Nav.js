@@ -1253,12 +1253,12 @@ PiLot.Model.Nav = (function () {
 	 * @param {Number} pLongitude - the longitude of the center
 	 * @param {Number} pRadius - the alarm distance in meters
 	 * */
-	var AnchorWatch = function (pLatitude, pLongitude, pRadius) {
+	var AnchorWatch = function (pLatitude, pLongitude, pRadius, pEnabled) {
 		this.radius = pRadius;
+		this.enabled = pEnabled;									// if not enabled, changes will not be saved
 		this.center = null;											// LatLon object representing the center
-		this.enabled = false;										// False, as long as the user hat not confirmed to enable the watch
+		this.setCenter(pLatitude, pLongitude, this, true, true);
 		this.alarmIndex = null;										// index of AnchorWatch.alarms of the current alarm
-		this.setCenter(pLatitude, pLongitude, this,  true, true);	
 		this.gpsObserver = null;
 		this.initialize();
 	};
@@ -1336,8 +1336,7 @@ PiLot.Model.Nav = (function () {
 					this.checkDistance();
 				} 
 			}
-			if (!pSkipSaving) {
-				/// todo: only save if enabled
+			if (!pSkipSaving && this.enabled) {
 				this.saveToServer();
 			}
 		},
@@ -1357,8 +1356,9 @@ PiLot.Model.Nav = (function () {
 			this.radius = pRadius;
 			if (changed) {
 				RC.Utils.notifyObservers(this, this.observers, 'change', this);
-				/// todo: only save if enabled
-				this.saveToServer();
+				if (this.enabled) {
+					this.saveToServer();
+				}
 			}			
 		},
 
@@ -1382,11 +1382,12 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/** Removes the anchorWatch and notifies observers */
-		remove: function () {
+		removeAsync: async function () {
 			this.enabled = false;
 			const alarm = PiLot.Utils.Audio.Alarm.getInstance();
 			alarm && alarm.stop();
 			RC.Utils.notifyObservers(this, this.observers, 'remove', this);
+			await new PiLot.Service.Nav.AnchorWatchService().deleteAnchorWatchAsync();
 		},
 
 		/**
