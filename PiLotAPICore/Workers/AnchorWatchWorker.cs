@@ -134,10 +134,12 @@ namespace PiLot.API.Workers {
 		/// </summary>
 		private void PlayAlarm() {
 			if (!this.alarmPlaying) {
+				this.alarmPlaying = true;
 				Buzzer buzzer = new Buzzer(24);
 				buzzer.PlayTone(523, 500);
-				this.alarmPlaying = true;
-				Thread.Sleep(1000);
+				buzzer.PlayTone(659, 500);
+				buzzer.PlayTone(783, 500);
+				Thread.Sleep(100);
 				this.alarmPlaying = false;
 			}			
 		}
