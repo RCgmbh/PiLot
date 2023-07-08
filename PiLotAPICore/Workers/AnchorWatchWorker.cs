@@ -136,11 +136,15 @@ namespace PiLot.API.Workers {
 			if (!this.alarmPlaying) {
 				this.alarmPlaying = true;
 				Buzzer buzzer = new Buzzer(24);
-				buzzer.StartPlaying(523);
+				buzzer.StartPlaying(220);
 				Thread.Sleep(500);
-				buzzer.StartPlaying(659);
+				buzzer.StartPlaying(440);
 				Thread.Sleep(500);
-				buzzer.StartPlaying(783);
+				buzzer.StartPlaying(880);
+				Thread.Sleep(500);
+				buzzer.StartPlaying(1760);
+				Thread.Sleep(500);
+				buzzer.StartPlaying(3520);
 				Thread.Sleep(500);
 				buzzer.StopPlaying();
 				Thread.Sleep(1000);
