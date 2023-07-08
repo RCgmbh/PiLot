@@ -24,10 +24,14 @@ namespace PiLot.API.Workers {
 		private Boolean observingGps = false;
 		private Boolean alarmPlaying = false;
 
+		GpioController controller = null;
+
 		/// <summary>
 		/// Private constructor. The Instance accessor should be used
 		/// </summary>
 		private AnchorWatchWorker() {
+			this.controller = new GpioController();
+			controller.OpenPin(12, PinMode.Output);
 			this.dataConnector = new AnchorWatchDataConnector();
 			this.LoadAnchorWatch();
 		}
@@ -137,20 +141,9 @@ namespace PiLot.API.Workers {
 		private void PlayAlarm() {
 			if (!this.alarmPlaying) {
 				this.alarmPlaying = true;
-				GpioController controller = new GpioController();
-				SoftwarePwmChannel pwm = new SoftwarePwmChannel(12, 400, 0.5, false, controller, false);
-				Buzzer buzzer = new Buzzer(pwm);
-				buzzer.StartPlaying(220);
-				Thread.Sleep(500);
-				buzzer.StartPlaying(440);
-				Thread.Sleep(500);
-				buzzer.StartPlaying(880);
-				Thread.Sleep(500);
-				buzzer.StartPlaying(1760);
-				Thread.Sleep(500);
-				buzzer.StartPlaying(3520);
-				Thread.Sleep(500);
-				buzzer.StopPlaying();
+				this.controller.Write(12, PinValue.High);
+				Thread.Sleep(1000);
+				this.controller.Write(12, PinValue.High);
 				Thread.Sleep(1000);
 				this.alarmPlaying = false;
 			}			
