@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading;
+using Iot.Device.Buzzer;
 
 using PiLot.API.Helpers;
 using PiLot.Data.Files;
 using PiLot.Model.Nav;
 using PiLot.Utils;
-using PiLot.Utils.Logger;
 
 namespace PiLot.API.Workers {
 
@@ -19,6 +20,7 @@ namespace PiLot.API.Workers {
 		private AnchorWatchDataConnector dataConnector = null;
 		private AnchorWatch anchorWatch = null;
 		private Boolean observingGps = false;
+		private Boolean alarmPlaying = false;
 
 		/// <summary>
 		/// Private constructor. The Instance accessor should be used
@@ -115,7 +117,29 @@ namespace PiLot.API.Workers {
 		/// </summary>
 		/// <param name="pRecord">The latest GpsRecord, not null</param>
 		private void GpsDataRecieved(GpsRecord pRecord) {
-			Assert.IsNotNull(pRecord, "Did not expect to get null as GpsRecord in GpsCache.PositionChanged.");
+			try {
+				LatLon positionLatLon = new LatLon(pRecord.Latitude.Value, pRecord.Longitude.Value);
+				LatLon anchorLatLon = new LatLon(this.anchorWatch.Latitude, this.anchorWatch.Longitude);
+				if(positionLatLon.DistanceTo(anchorLatLon) > this.anchorWatch.Radius) {
+					this.PlayAlarm();
+				}
+			} catch(Exception ex) {
+				PiLot.Utils.Logger.Logger.Log(ex, "AnchorWatchWorker.GpsDataRecieved");
+				throw;
+			}
+		}
+
+		/// <summary>
+		/// Plays a sound on the passive buzzer connected to PIN 24 (logical 24, physical 18)
+		/// </summary>
+		private void PlayAlarm() {
+			if (!this.alarmPlaying) {
+				Buzzer buzzer = new Buzzer(24);
+				buzzer.PlayTone(523, 500);
+				this.alarmPlaying = true;
+				Thread.Sleep(1000);
+				this.alarmPlaying = false;
+			}			
 		}
 	}
 }
