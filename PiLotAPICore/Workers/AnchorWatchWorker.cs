@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Device.Gpio;
-using System.Device.Pwm.Drivers;
-using Iot.Device.Buzzer;
 
 using PiLot.API.Helpers;
 using PiLot.Data.Files;
 using PiLot.Model.Nav;
-using PiLot.Utils;
 
 namespace PiLot.API.Workers {
 
@@ -30,9 +27,9 @@ namespace PiLot.API.Workers {
 		/// Private constructor. The Instance accessor should be used
 		/// </summary>
 		private AnchorWatchWorker() {
-			this.controller = new GpioController();
-			this.controller.OpenPin(12, PinMode.Output);
-			this.controller.Write(12, PinValue.Low);
+			this.controller = new GpioController(PinNumberingScheme.Logical);
+			this.controller.OpenPin(24, PinMode.Output);
+			this.controller.Write(24, PinValue.Low);
 			this.dataConnector = new AnchorWatchDataConnector();
 			this.LoadAnchorWatch();
 		}
@@ -142,9 +139,9 @@ namespace PiLot.API.Workers {
 		private void PlayAlarm() {
 			if (!this.alarmPlaying) {
 				this.alarmPlaying = true;
-				this.controller.Write(12, PinValue.High);
+				this.controller.Write(24, PinValue.High);
 				Thread.Sleep(1000);
-				this.controller.Write(12, PinValue.Low);
+				this.controller.Write(24, PinValue.Low);
 				Thread.Sleep(1000);
 				this.alarmPlaying = false;
 			}			
