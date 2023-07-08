@@ -31,7 +31,8 @@ namespace PiLot.API.Workers {
 		/// </summary>
 		private AnchorWatchWorker() {
 			this.controller = new GpioController();
-			controller.OpenPin(12, PinMode.Output);
+			this.controller.OpenPin(12, PinMode.Output);
+			this.controller.Write(12, PinValue.Low);
 			this.dataConnector = new AnchorWatchDataConnector();
 			this.LoadAnchorWatch();
 		}
@@ -143,7 +144,7 @@ namespace PiLot.API.Workers {
 				this.alarmPlaying = true;
 				this.controller.Write(12, PinValue.High);
 				Thread.Sleep(1000);
-				this.controller.Write(12, PinValue.High);
+				this.controller.Write(12, PinValue.Low);
 				Thread.Sleep(1000);
 				this.alarmPlaying = false;
 			}			
