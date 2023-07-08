@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Threading;
+using System.Device.Gpio;
+using System.Device.Pwm.Drivers;
 using Iot.Device.Buzzer;
 
 using PiLot.API.Helpers;
@@ -135,7 +137,9 @@ namespace PiLot.API.Workers {
 		private void PlayAlarm() {
 			if (!this.alarmPlaying) {
 				this.alarmPlaying = true;
-				Buzzer buzzer = new Buzzer(24);
+				GpioController controller = new GpioController();
+				SoftwarePwmChannel pwm = new SoftwarePwmChannel(12, 400, 0.5, false, controller, false);
+				Buzzer buzzer = new Buzzer(pwm);
 				buzzer.StartPlaying(220);
 				Thread.Sleep(500);
 				buzzer.StartPlaying(440);
