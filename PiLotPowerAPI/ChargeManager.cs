@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Device.Gpio;
 using System.Linq;
 using System.Threading;
-using PiLot.PowerAPI.Devices;
+using PiLot.GPIO.Devices;
 using PiLot.Utils.DateAndTime;
 
 namespace PiLot.PowerAPI {

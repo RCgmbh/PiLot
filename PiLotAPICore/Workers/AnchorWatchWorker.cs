@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Threading;
-using System.Device.Gpio;
 
 using PiLot.API.Helpers;
+using PiLot.Config;
 using PiLot.Data.Files;
+using PiLot.GPIO.Devices;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Workers {
@@ -15,21 +16,19 @@ namespace PiLot.API.Workers {
 	public class AnchorWatchWorker {
 
 		private const String APPKEY = "anchorWatchWorker";
+		private const String BUZZERKEY = "buzzer";
 
 		private AnchorWatchDataConnector dataConnector = null;
 		private AnchorWatch anchorWatch = null;
 		private Boolean observingGps = false;
 		private Boolean alarmPlaying = false;
 
-		GpioController controller = null;
+		LED buzzer = null;
 
 		/// <summary>
 		/// Private constructor. The Instance accessor should be used
 		/// </summary>
 		private AnchorWatchWorker() {
-			this.controller = new GpioController(PinNumberingScheme.Logical);
-			this.controller.OpenPin(24, PinMode.Output);
-			this.controller.Write(24, PinValue.Low);
 			this.dataConnector = new AnchorWatchDataConnector();
 			this.LoadAnchorWatch();
 		}
@@ -113,6 +112,7 @@ namespace PiLot.API.Workers {
 		private void StopObserveGps() {
 			this.observingGps = false;
 			GpsCache.Instance.PositionChanged -= this.GpsDataRecieved;
+			this.buzzer?.Dispose();
 		}
 
 		/// <summary>
@@ -126,6 +126,8 @@ namespace PiLot.API.Workers {
 				LatLon anchorLatLon = new LatLon(this.anchorWatch.Latitude, this.anchorWatch.Longitude);
 				if(positionLatLon.DistanceTo(anchorLatLon) > this.anchorWatch.Radius) {
 					this.PlayAlarm();
+				} else {
+					this.StopAlarm();
 				}
 			} catch(Exception ex) {
 				PiLot.Utils.Logger.Logger.Log(ex, "AnchorWatchWorker.GpsDataRecieved");
@@ -134,17 +136,43 @@ namespace PiLot.API.Workers {
 		}
 
 		/// <summary>
+		/// This instantiates the buzzer. If there is no config, no buzzer will be
+		/// instantiated, and this return false.
+		/// </summary>
+		/// <returns>True, if a buzzer is configured, else false</returns>
+		private Boolean EnsureBuzzer() {
+			Boolean result = true;
+			if(this.buzzer == null) {
+				Int32? buzzerPin = new GPIOConfigReader().ReadSetting(BUZZERKEY);
+				if(buzzerPin != null) {
+					this.buzzer = new LED(null, buzzerPin.Value, ConnectionTypes.Ground);
+				} else {
+					result = false;
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// Plays a sound on the passive buzzer connected to PIN 24 (logical 24, physical 18)
 		/// </summary>
 		private void PlayAlarm() {
 			if (!this.alarmPlaying) {
-				this.alarmPlaying = true;
-				this.controller.Write(24, PinValue.High);
-				Thread.Sleep(1000);
-				this.controller.Write(24, PinValue.Low);
-				Thread.Sleep(1000);
-				this.alarmPlaying = false;
+				if (this.EnsureBuzzer()) {
+					this.buzzer.Blink(500, 1000);
+					this.alarmPlaying = true;
+				}
 			}			
+		}
+
+		/// <summary>
+		/// Stops the alarm
+		/// </summary>
+		private void StopAlarm() {
+			if (this.alarmPlaying) {
+				this.alarmPlaying = false;
+				this.buzzer.TurnOff();
+			}
 		}
 	}
 }

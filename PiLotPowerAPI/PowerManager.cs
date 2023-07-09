@@ -2,7 +2,7 @@
 using System.Device.Gpio;
 using System.Threading;
 
-using PiLot.PowerAPI.Devices;
+using PiLot.GPIO.Devices;
 using PiLot.Utils.Logger;
 using PiLot.Utils.OS;
 

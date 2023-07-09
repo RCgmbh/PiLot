@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-    <PackageReference Include="System.Device.Gpio" Version="1.5.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="7.0.0" />
+    <PackageReference Include="System.Device.Gpio" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PiLotGPIO\PiLotGPIO.csproj" />
     <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
   </ItemGroup>
 

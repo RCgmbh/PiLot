@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Device.Gpio;
 
-namespace PiLot.PowerAPI.Devices {
+namespace PiLot.GPIO.Devices {
 
 	public class Button {
 

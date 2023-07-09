@@ -1,4 +1,4 @@
-﻿namespace PiLot.PowerAPI.Devices {
+﻿namespace PiLot.GPIO.Devices {
 	
 	/// <summary>
 	/// We have two connection types: Plus means the element sits between GPIO and 3.3v,

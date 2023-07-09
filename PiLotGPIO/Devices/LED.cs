@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Device.Gpio;
 using System.Threading;
 
-namespace PiLot.PowerAPI.Devices {
+namespace PiLot.GPIO.Devices {
 
 	/// <summary>
 	/// Represents a LED, which can be turned on, off and blink
@@ -26,7 +26,7 @@ namespace PiLot.PowerAPI.Devices {
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		/// <param name="pController">Pleaese pass a GpioController</param>
+		/// <param name="pController">Pleaese pass a GpioController, if you have one at hand. Otherwise a new one with logical numbering will be created</param>
 		/// <param name="pPinNumber">The Pin number the LED is connected to. Use numbering scheme from pController</param>
 		/// <param name="pConnectionType">Plus: the LED is connected to a GPIO Pin and 3.3v, Ground: GPIO and GND</param>
 		public LED(GpioController pController, Int32 pPinNumber, ConnectionTypes pConnectionType) {
@@ -37,7 +37,7 @@ namespace PiLot.PowerAPI.Devices {
 				this.valueOn = PinValue.High;
 				this.valueOff = PinValue.Low;
 			}
-			this.controller = pController;
+			this.controller = pController ?? new GpioController(PinNumberingScheme.Logical);
 			this.pinNumber = pPinNumber;
 			this.controller.OpenPin(this.pinNumber, PinMode.Output);
 		}

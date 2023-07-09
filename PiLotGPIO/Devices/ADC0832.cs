@@ -2,7 +2,7 @@
 using System.Device.Gpio;
 using System.Threading;
 
-namespace PiLot.PowerAPI.Devices {
+namespace PiLot.GPIO.Devices {
 
 	/// <summary>
 	/// This represents an ADC0832 and allows to read the values. Code is taken from 
