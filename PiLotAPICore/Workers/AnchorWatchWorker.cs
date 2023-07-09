@@ -1,11 +1,12 @@
 ﻿using System;
-using System.Threading;
+using System.Collections.Generic;
 
 using PiLot.API.Helpers;
 using PiLot.Config;
 using PiLot.Data.Files;
 using PiLot.GPIO.Devices;
 using PiLot.Model.Nav;
+using PiLot.Utils.Logger;
 
 namespace PiLot.API.Workers {
 
@@ -17,11 +18,20 @@ namespace PiLot.API.Workers {
 
 		private const String APPKEY = "anchorWatchWorker";
 		private const String BUZZERKEY = "buzzer";
+		private static readonly AlarmConfig ATTENTION = new AlarmConfig(100, 1900);
+		private static readonly AlarmConfig DANGER = new AlarmConfig(500, 1000);
+		private static readonly AlarmConfig PANIC = new AlarmConfig(200, 200);
+		private static List<Tuple<Double, AlarmConfig?>> ALARMS = new List<Tuple<double, AlarmConfig?>>() {
+			new Tuple<Double, AlarmConfig?>( 1.5, PANIC),
+			new Tuple<Double, AlarmConfig?>( 1.2, DANGER),
+			new Tuple<Double, AlarmConfig?>( 1, ATTENTION),
+			new Tuple<Double, AlarmConfig?>( 0, null)
+		};
 
 		private AnchorWatchDataConnector dataConnector = null;
 		private AnchorWatch anchorWatch = null;
 		private Boolean observingGps = false;
-		private Boolean alarmPlaying = false;
+		private Int32? alarmIndex = null;
 
 		LED buzzer = null;
 
@@ -124,10 +134,12 @@ namespace PiLot.API.Workers {
 			try {
 				LatLon positionLatLon = new LatLon(pRecord.Latitude.Value, pRecord.Longitude.Value);
 				LatLon anchorLatLon = new LatLon(this.anchorWatch.Latitude, this.anchorWatch.Longitude);
-				if(positionLatLon.DistanceTo(anchorLatLon) > this.anchorWatch.Radius) {
-					this.PlayAlarm();
-				} else {
+				Double distance = positionLatLon.DistanceTo(anchorLatLon);
+				Int32 newAlarmIndex = this.anchorWatch.Radius != 0 ? AnchorWatchWorker.ALARMS.FindIndex(a => a.Item1 < distance / this.anchorWatch.Radius) : 0;
+				if (newAlarmIndex != this.alarmIndex) {
 					this.StopAlarm();
+					this.alarmIndex = newAlarmIndex;
+					this.PlayAlarm(ALARMS[newAlarmIndex].Item2);
 				}
 			} catch(Exception ex) {
 				PiLot.Utils.Logger.Logger.Log(ex, "AnchorWatchWorker.GpsDataRecieved");
@@ -148,6 +160,7 @@ namespace PiLot.API.Workers {
 					this.buzzer = new LED(null, buzzerPin.Value, ConnectionTypes.Ground);
 				} else {
 					result = false;
+					Logger.Log("No buzzer configured, will not play alarm for anchor watch", LogLevels.INFO);
 				}
 			}
 			return result;
@@ -156,23 +169,32 @@ namespace PiLot.API.Workers {
 		/// <summary>
 		/// Plays a sound on the passive buzzer connected to PIN 24 (logical 24, physical 18)
 		/// </summary>
-		private void PlayAlarm() {
-			if (!this.alarmPlaying) {
-				if (this.EnsureBuzzer()) {
-					this.buzzer.Blink(500, 1000);
-					this.alarmPlaying = true;
-				}
-			}			
+		private void PlayAlarm(AlarmConfig? pAlarmConfig) {
+			if (this.EnsureBuzzer()) {
+				this.StopAlarm();
+				if(pAlarmConfig != null) {
+					this.buzzer.Blink(pAlarmConfig.Value.PlayMS, pAlarmConfig.Value.PauseMS);
+				}				
+			}
 		}
 
 		/// <summary>
 		/// Stops the alarm
 		/// </summary>
 		private void StopAlarm() {
-			if (this.alarmPlaying) {
-				this.alarmPlaying = false;
-				this.buzzer.TurnOff();
-			}
+			this.buzzer?.TurnOff();
 		}
+	}
+
+	public struct AlarmConfig {
+
+		public AlarmConfig(Int32 pPlayMS, Int32 pPauseMS) {
+			this.PlayMS = pPlayMS;
+			this.PauseMS = pPauseMS;
+		}
+
+		public Int32 PlayMS { get; set; }
+		public Int32 PauseMS { get; set; }
+
 	}
 }

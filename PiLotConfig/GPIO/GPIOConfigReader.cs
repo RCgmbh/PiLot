@@ -27,14 +27,15 @@ namespace PiLot.Config {
 		/// no settings file exists.
 		/// </summary>
 		public Dictionary<String, Int32> ReadGPIOSettings() {
-			Dictionary<String, Int32> result;
+			Dictionary<String, Int32> result = null;
 			FileInfo gpioFile = this.GetGPIOFile();
 			if(gpioFile.Exists){
 				String fileContent = File.ReadAllText(gpioFile.FullName);
-				result = JsonSerializer.Deserialize<Dictionary<String, Int32>>(fileContent);
-			} else {
-				result = new Dictionary<String, Int32>();
+				if (!String.IsNullOrEmpty(fileContent)) {
+					result = JsonSerializer.Deserialize<Dictionary<String, Int32>>(fileContent);
+				}				
 			}
+			result ??= new Dictionary<String, Int32>();
 			return result;
 		}
 
