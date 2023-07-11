@@ -62,11 +62,6 @@ namespace PiLot.Config {
 			FileInfo result = new FileInfo(path);
 			if(!result.Exists){
 				Logger.Log($"GPIO file not found at {path}", LogLevels.WARNING);
-				Dictionary<String, Int32> dict = new Dictionary<string, int>();
-				dict.Add("test", 99);
-				dict.Add("test2", 100);
-				string serialized = JsonSerializer.Serialize(dict);
-				File.WriteAllText(path, serialized	);
 			}
 			return result;
 		}
