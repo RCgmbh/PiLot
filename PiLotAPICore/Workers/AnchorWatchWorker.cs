@@ -89,6 +89,8 @@ namespace PiLot.API.Workers {
 			if(this.anchorWatch != null) {
 				this.dataConnector.DeleteAnchorWatch();
 				this.StopObserveGps();
+				this.StopAlarm();
+				this.buzzer?.Dispose();
 				this.anchorWatch = null;
 			}
 		}
@@ -122,7 +124,6 @@ namespace PiLot.API.Workers {
 		private void StopObserveGps() {
 			this.observingGps = false;
 			GpsCache.Instance.PositionChanged -= this.GpsDataRecieved;
-			this.buzzer?.Dispose();
 		}
 
 		/// <summary>
