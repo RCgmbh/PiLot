@@ -21,6 +21,12 @@ namespace PiLot.API.Workers {
 		private static readonly AlarmConfig ATTENTION = new AlarmConfig(100, 1900);
 		private static readonly AlarmConfig DANGER = new AlarmConfig(500, 1000);
 		private static readonly AlarmConfig PANIC = new AlarmConfig(200, 200);
+
+		/// <summary>
+		/// A list that assigns an alarm config to a number. The number ist the ratio of
+		/// actual distance to configured radius for the anchor watch (the higher, the
+		/// further away from the anchor), allowing to play different sound patterns.
+		/// </summary>
 		private static List<Tuple<Double, AlarmConfig?>> ALARMS = new List<Tuple<double, AlarmConfig?>>() {
 			new Tuple<Double, AlarmConfig?>( 1.5, PANIC),
 			new Tuple<Double, AlarmConfig?>( 1.2, DANGER),
@@ -32,6 +38,7 @@ namespace PiLot.API.Workers {
 		private AnchorWatch anchorWatch = null;
 		private Boolean observingGps = false;
 		private Int32? alarmIndex = null;
+		private Int32? buzzerPin = null;
 
 		LED buzzer = null;
 
@@ -39,6 +46,7 @@ namespace PiLot.API.Workers {
 		/// Private constructor. The Instance accessor should be used
 		/// </summary>
 		private AnchorWatchWorker() {
+			this.ReadBuzzerPin();
 			this.dataConnector = new AnchorWatchDataConnector();
 			this.LoadAnchorWatch();
 		}
@@ -106,6 +114,17 @@ namespace PiLot.API.Workers {
 		}
 
 		/// <summary>
+		/// Reads the pin that's configured for the buzzer. If we have no buzzer, writes
+		/// an Info into the log.
+		/// </summary>
+		private void ReadBuzzerPin() {
+			this.buzzerPin = new GPIOConfigReader().ReadSetting(BUZZERKEY);
+			if (buzzerPin == null) {
+				Logger.Log("No buzzer configured, will not play alarm for anchor watch", LogLevels.INFO);
+			}
+		}
+
+		/// <summary>
 		/// Makes sure the GpsCache is bein observed, so that an alarm
 		/// can be triggered on the server. Call this whenever an anchorWatch
 		/// is loaded or activated.
@@ -156,12 +175,10 @@ namespace PiLot.API.Workers {
 		private Boolean EnsureBuzzer() {
 			Boolean result = true;
 			if(this.buzzer == null) {
-				Int32? buzzerPin = new GPIOConfigReader().ReadSetting(BUZZERKEY);
-				if(buzzerPin != null) {
+				if(this.buzzerPin != null) {
 					this.buzzer = new LED(null, buzzerPin.Value, ConnectionTypes.Ground);
 				} else {
 					result = false;
-					Logger.Log("No buzzer configured, will not play alarm for anchor watch", LogLevels.INFO);
 				}
 			}
 			return result;
