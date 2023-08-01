@@ -103,7 +103,11 @@ namespace PiLot.API.Helpers {
 				Int64 utcOffset = this.globalDataConnector.GetBoatTime().UtcOffsetMinutes * 60 * 1000;
 				pRecord.BoatTime = pRecord.UTC + utcOffset;
 				this.records.Insert(0, pRecord);
-				this.records.Sort((x, y) => y.UTC.CompareTo(x.UTC));
+				try {
+					this.records.Sort((x, y) => y.UTC.CompareTo(x.UTC));
+				} catch (Exception ex){
+					Logger.Log($"GpsCache.AddRecord: Exception {ex.Message} when adding record {pRecord}.", LogLevels.ERROR);
+				}
 				this.PositionChanged?.Invoke(pRecord);
 				Logger.Log($"GpsCache.AddRecord: Having {this.records.Count} items in cache.", LogLevels.DEBUG);
 				this.CropRecords();
