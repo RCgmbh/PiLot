@@ -501,7 +501,7 @@ body { min-width: 20em; }
 body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode{display:none;}
 #dayNightButtons .btnNightMode, body.night #dayNightButtons .btnDayMode{display:flex;}
 #headerButtons a.btnUserInfo { }
-#clock{ min-width:4.2em; display:flex; flex-direction: row; align-items:center; font-size:0.75em;}
+#clock{ min-width:4.7em; display:flex; flex-direction: row; align-items:center; justify-content: space-between; font-size:0.75em;}
 #mainMenu { display: none; min-width: 4em; width: 4em;  }
 #mainMenu > div { height: 4em; display:flex; justify-content: center;}
 #mainMenu > div > a { padding: 0.5em 0.25em; flex-grow:1; max-width: 2em; }
