@@ -27,8 +27,12 @@ PiLot.Templates.Map = {
 						<span class="value plhTileSources flexColumn"></span>
 					</label>
 					<label class="borderBottom borderLight paddingBottomSmall">
-						<span data-text="showPois" class="semiBold label"></span>
-						<span class="value"><input type="checkbox" class="cbShowPois" /></span>
+						<span data-text="pois" class="semiBold label"></span>
+						<span class="value">
+							<label class="block"><input type="checkbox" class="cbShowPois" /><span data-text="show"></span></label>					
+							<span data-text="fromZoomLevel"></span>
+							<select class="ddlPoisMinZoomLevel input4"></select>
+						</span>
 					</label>
 					<div class="borderBottom borderLight paddingBottomSmall">
 						<span class="label" data-text="categories"></span>

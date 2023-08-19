@@ -458,7 +458,7 @@ PiLot.View.Map = (function () {
 	 * being displayed, which might feel a bit weird.
 	 * */
 	var MapLayersSettings = function () {
-		this.currentSettings = null;		// Object with tileSourceNames: [], showPois: boolean, categoryIds: [], featureIds: []
+		this.currentSettings = null;		// Object with tileSourceNames: [], poisMinZoomLevel: number, categoryIds: [], featureIds: []
 		this.allTileSources = null;			// Map, as it comes from the service (key: name, value: tileSource)
 		this.tileSourceCheckboxes = null;	// Map with key = tileSource, value = checkbox
 		this.allCategories = null;			// Map, as it comes from the service (key: id, value: category)
@@ -466,6 +466,7 @@ PiLot.View.Map = (function () {
 		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
 		this.cbShowPois = null;				// HTMLInputElement
+		this.ddlPoisMinZoomLevel = null;	//HTMLSelectElement
 		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
 		this.observers = null;				// Used for the RC observer pattern
 		this.initialize();
@@ -503,6 +504,10 @@ PiLot.View.Map = (function () {
 		 */
 		cbTileSource_change: function (pTileSource, e) {
 			this.setTileSourceSelected(pTileSource, e.target.checked);
+		},
+
+		cbShowPois_change: function(e){
+			this.ddlPoisMinZoomLevel.disabled = !e.target.checked;
 		},
 
 		/**
@@ -566,9 +571,29 @@ PiLot.View.Map = (function () {
 			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.currentSettings.showPois;
+			this.cbShowPois.addEventListener('change', this.cbShowPois_change.bind(this));
+			this.ddlPoisMinZoomLevel = this.control.querySelector('.ddlPoisMinZoomLevel');
+			this.ddlPoisMinZoomLevel.disabled = !this.cbShowPois.checked;
 			await Promise.all([this.drawTileSourcesAsync(), this.drawCategoriesAsync(), this.drawFeaturesAsync()]);
+			this.fillZoomLevelsAsync();
 			this.control.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
 			this.control.querySelector('.btnApply').addEventListener('click', this.btnApply_click.bind(this));
+		},
+
+		fillZoomLevelsAsync: async function(){
+			await this.ensureTileSourcesAsync();
+			let minZoom = null;
+			let maxZoom = null;
+			for (const [tileSourceName, tileSource] of this.allTileSources) {
+				minZoom = (minZoom === null) ? tileSource.getMinZoom() : Math.min(tileSource.getMinZoom(), minZoom);
+				maxZoom = (maxZoom === null) ? tileSource.getMaxZoom() : Math.max(tileSource.getMaxZoom(), maxZoom);
+			}
+			const ddlData = new Array();
+			for(let i = minZoom; i <= maxZoom; i++){
+				ddlData.push([i, i]);
+			}
+			PiLot.Utils.Common.fillDropdown(this.ddlPoisMinZoomLevel, ddlData, false);
+			this.ddlPoisMinZoomLevel.value = this.currentSettings.poisMinZoomLevel;
 		},
 
 		/** Creates a checkbox list for all tile sources */
@@ -649,6 +674,7 @@ PiLot.View.Map = (function () {
 			this.currentSettings = this.currentSettings || {};
 			this.currentSettings.tileSourceNames = (settings && settings.tileSourceNames) || Array.from(this.allTileSources.keys());
 			this.currentSettings.showPois = (settings && 'showPois' in settings) ? settings.showPois : true;
+			this.currentSettings.poisMinZoomLevel = (settings && settings.poisMinZoomLevel) || 1;
 			this.currentSettings.categoryIds = (settings && settings.categoryIds) || Array.from(this.allCategories.keys());
 			this.currentSettings.featureIds = (settings && settings.featureIds) || [];
 		},
@@ -762,6 +788,7 @@ PiLot.View.Map = (function () {
 		/** Applies the current selection and notifies observers */
 		apply: function () {
 			this.currentSettings.showPois = this.cbShowPois.checked;
+			this.currentSettings.poisMinZoomLevel = this.ddlPoisMinZoomLevel.value;
 			this.currentSettings.featureIds = this.featuresSelector.getSelectedFeatureIds();
 			this.saveSettings();
 			RC.Utils.notifyObservers(this, this.observers, 'applySettings', this);
@@ -885,7 +912,7 @@ PiLot.View.Map = (function () {
 			const maxLng = Math.min(maxPoint.lng + deltaLng, 180);
 			const settings = await this.settingsControl.getSettingsAsync();
 			await this.ensureCategoryIconsAsync();
-			if (settings.showPois) {
+			if (settings.showPois && (this.seamap.getCurrentZoom() >= settings.poisMinZoomLevel)) {
 				const pois = await PiLot.Service.Nav.PoiService.getInstance().findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
 				const newPois = [];
 				pois.forEach(function (p) {
@@ -893,7 +920,9 @@ PiLot.View.Map = (function () {
 					newPois.push(objPoi);
 				}.bind(this));
 				this.resizeMarkers(newPois);
-			}			
+			} else{
+				this.clearPois();
+			}		
 		},
 
 		/** Fills a map with the category icon html for each category */
