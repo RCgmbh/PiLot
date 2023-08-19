@@ -22,7 +22,7 @@ namespace PiLot.API.Helpers {
 
 		private const Int32 MAXLENGTH = 150;    // max number of items to store
 		private const Int64 MINDELTAT = 9500;   // minimal time between two persisted positions in ms > 9.5s
-		private const Int32 MINDISTANCE = 5;    // minimal distance between two persisted positions in meters
+		private const Int32 MINDISTANCE = 2;    // minimal distance between two persisted positions in meters
 
 		#endregion
 
