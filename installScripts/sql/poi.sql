@@ -389,18 +389,12 @@ CREATE FUNCTION find_pois(
 		source_id
 	FROM all_pois
 	WHERE
-		ST_Intersects (
-			coordinates,
-			ST_MakeEnvelope (
-				min_lng,
-				min_lat,
-				max_lng,
-				max_lat,
-				4326 -- projection epsg-code
-			)::geography(POLYGON) 
-		)
-	AND category_id = ANY (categories)
-	AND features <@ feature_ids
+		latitude >= min_lat
+		AND latitude <= max_lat
+		AND longitude >= min_lng
+		AND longitude <= max_lng
+		AND category_id = ANY (categories)
+		AND features <@ feature_ids
 $$
 LANGUAGE SQL;
 

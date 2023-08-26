@@ -901,18 +901,16 @@ PiLot.View.Map = (function () {
 		 * around the actual map bounds, so that pois outside of the actual viewport are loaded as well.
 		 * */
 		loadPoisAsync: async function () {
-			const bounds = this.seamap.getLeafletMap().getBounds();
-			const minPoint = bounds.getSouthWest();
-			const maxPoint = bounds.getNorthEast();
-			const deltaLat = maxPoint.lat - minPoint.lat;
-			const deltaLng = maxPoint.lng - minPoint.lng;
-			const minLat = Math.max(minPoint.lat - deltaLat, -90);
-			const minLng = Math.max(minPoint.lng - deltaLng, -180);
-			const maxLat = Math.min(maxPoint.lat + deltaLat, 90);
-			const maxLng = Math.min(maxPoint.lng + deltaLng, 180);
 			const settings = await this.settingsControl.getSettingsAsync();
 			await this.ensureCategoryIconsAsync();
 			if (settings.showPois && (this.seamap.getCurrentZoom() >= settings.poisMinZoomLevel)) {
+				const bounds = this.seamap.getLeafletMap().getBounds();
+				const minPoint = bounds.getSouthWest();
+				const maxPoint = bounds.getNorthEast();
+				const minLat = Math.max(minPoint.lat, -90);
+				const minLng = Math.max(minPoint.lng, -180);
+				const maxLat = Math.min(maxPoint.lat, 90);
+				const maxLng = Math.min(maxPoint.lng, 180);
 				const pois = await PiLot.Service.Nav.PoiService.getInstance().findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
 				const newPois = [];
 				pois.forEach(function (p) {

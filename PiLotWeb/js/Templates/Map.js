@@ -29,7 +29,7 @@ PiLot.Templates.Map = {
 					<label class="borderBottom borderLight paddingBottomSmall">
 						<span data-text="pois" class="semiBold label"></span>
 						<span class="value">
-							<label class="block"><input type="checkbox" class="cbShowPois" /><span data-text="show"></span></label>					
+							<label><input type="checkbox" class="cbShowPois" /><span data-text="show"></span></label>					
 							<span data-text="fromZoomLevel"></span>
 							<select class="ddlPoisMinZoomLevel input4"></select>
 						</span>
