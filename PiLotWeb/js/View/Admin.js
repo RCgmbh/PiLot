@@ -582,10 +582,20 @@ PiLot.View.Admin = (function () {
 
 		/**
 		 * handles the click on a file, by displaying the file content
-		 * @param {any} pFilename
+		 * @param {String} pFilename
 		 */
 		lnkFile_click: function (pFilename) {
 			this.showLogFile(pFilename);
+		},
+
+		/**
+		 * handles the click on the delete icon, by deleting the file after a confirmation
+		 * @param {String} pFilename
+		 */
+		lnkDelete_click: function (pFilename) {
+			if (window.confirm(PiLot.Utils.Language.getText('confirmDeleteElement'))){
+				this.deleteLogFile(pFilename);
+			}
 		},
 
 		/** handles the click on the close icon in the file content box */
@@ -648,10 +658,19 @@ PiLot.View.Admin = (function () {
 		 */
 		showLogFile: async function (pFilename) {
 			RC.Utils.showHide(this.divLogFilesList, false);
-			const content = await this.dataLoader.loadLogFile(pFilename.substring(0, pFilename.length - 4));
+			const content = await this.dataLoader.loadLogFile(pFilename);
 			this.divLogFile.querySelector('.lblFilename').innerText = pFilename;
 			this.divLogFile.querySelector('.divContent').innerText = content;
 			RC.Utils.showHide(this.divLogFile, true);
+		},
+
+		/**
+		 * Deletes a logfile
+		 * @param {String} pFilename - the filename
+		 */
+		deleteLogFile: async function (pFilename) {
+			await this.dataLoader.deleteLogFile(pFilename);
+			this.loadData();
 		},
 
 		/**
@@ -668,6 +687,8 @@ PiLot.View.Admin = (function () {
 			tdDate.innerText = RC.Date.DateHelper.unixToLuxon(pLogFile.dateChanged).toFormat('yyyy-MM-dd -- HH:mm:ss');
 			const tdBytes = row.querySelector('.tdBytes');
 			tdBytes.innerText = (pLogFile.bytes / 1024).toFixed(0);
+			const lnkDelete = row.querySelector('.lnkDelete');
+			lnkDelete.addEventListener('click', this.lnkDelete_click.bind(this, pLogFile.filename));
 			this.dataRows.push(row);
 			pTableBody.appendChild(row);
 		},

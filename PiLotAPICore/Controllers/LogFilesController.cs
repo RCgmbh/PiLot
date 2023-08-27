@@ -57,6 +57,24 @@ namespace PiLot.API.Controllers {
 				return this.NotFound();
 			}
 		}
+
+		/// <summary>
+		/// Deletes a specific logfile
+		/// </summary>
+		/// <param name="filename">the filename, without .txt (which would confuse the webserver)</param>
+		/// <returns>no content 204, or 404 if no such file exists</returns>
+		[Route(Program.APIROOT + "[controller]/{filename}")]
+		[HttpDelete]
+		[ServiceFilter(typeof(SystemAuthorizationFilter))]
+		public ActionResult Delete(String filename) {
+			String path = $"{Logger.LogFolderPath}{Path.DirectorySeparatorChar}{filename}.txt";
+			if (System.IO.File.Exists(path)) {
+				System.IO.File.Delete(path);
+				return this.NoContent();
+			} else {
+				return this.NotFound();
+			}
+		}
 	}
 
 	public struct LogFilesResponse {

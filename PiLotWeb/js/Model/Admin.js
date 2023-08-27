@@ -17,11 +17,31 @@ PiLot.Model.Admin = (function () {
 			return await response.json();
 		},
 
+		/**
+		 * Loads a logfile and returns the content of the file
+		 * @param {String} pFilename - usually something in the form of yyyy-mm-dd.txt
+		 */
 		loadLogFile: async function (pFilename) {
-			const response = await fetch(PiLot.Utils.Common.toApiUrl(`/LogFiles/${pFilename}`));
-			const json = await response.json();
-			return json.content;
+			const data = await PiLot.Utils.Common.getFromServerAsync(`/LogFiles/${this.cropFilename(pFilename)}`);
+			return data.content;
 		},
+
+		/**
+		 * Deletes a logfile
+		 * @param {String} pFilename - usually something in the form of yyyy-mm-dd.txt
+		 */
+		deleteLogFile: async function (pFilename) {
+			return await PiLot.Utils.Common.deleteFromServerAsync(`/LogFiles/${this.cropFilename(pFilename)}`);
+		},
+
+		/**
+		 * Helper to remove the .txt part from the filename, as this would confuse the webserver
+		 * @param {any} pFilename
+		 */
+		cropFilename: function (pFilename) {
+			return pFilename.substring(0, pFilename.length - 4);
+		},
+
 	};
 
 	/** Sets the current client time to the server and returns the result */

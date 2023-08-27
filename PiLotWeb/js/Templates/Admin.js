@@ -159,11 +159,13 @@ PiLot.Templates.Admin = {
 						<th data-text="filename"></th>
 						<th class="right" data-text="dateUTC"></th>
 						<th class="right" data-text="kb"></th>
+						<th class="right" data-text="delete"></th>
 					<tr>
 					<tr class="trTemplate">
 						<td class="tdFilename"><a href="#" class="lnkFile"></a></td>
 						<td class="tdDate right"></td>
 						<td class="tdBytes right"></td>
+						<td class="right"><a class="lnkDelete biggerText marginRightSmall"><i class="icon-trashcan"></i></a></td>
 					</tr>
 				</table>
 				<div class="divPaging paging marginBottom hidden"></div>
