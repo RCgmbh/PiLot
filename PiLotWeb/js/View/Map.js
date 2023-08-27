@@ -33,7 +33,6 @@ PiLot.View.Map = (function () {
 	 * @param {HTMLElement} pContainer - The element that will contain the map
 	 * @param {Object} pOptions - customLayers, persistMapState, positionMarker, anchorWatch, route, track
 	 * */
-
 	var Seamap = function (pContainer, pOptions) {
 		this.mapContainer = pContainer;
 		this.options = pOptions || {};

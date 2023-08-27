@@ -709,8 +709,8 @@ PiLot.View.Tools = (function () {
 			this.cbImportToilets = control.querySelector('.cbImportToilets');
 			this.cbImportShops = control.querySelector('.cbImportShops');
 			this.lblLoadingData = control.querySelector('.lblLoadingData');
-			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'));
-			await this.seamap.showAsync()
+			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'), { persistMapState: true });
+			await this.seamap.showAsync();
 			this.editDialog = new OsmPoiEditDialog(this.seamap.getMapPois());
 			const btnLoad = control.querySelector('.btnLoad');
 			btnLoad.hidden = false;
