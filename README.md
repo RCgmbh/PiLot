@@ -2,9 +2,6 @@
 
 The PiLot is a Raspberry Pi based system for boating. It's used with any device having a browser and wifi. It's completely autonomous and works perfectly without internet access. All data is fully controlled by the owner, as it's stored locally in simple formats and thus easily accessible.
 
-## Demo:
-There is a demo page at https://pilotdemo.roethenmund.biz/, with public read access. Once a day, a short trip is simulated and you will see the boat move around.
-
 ## Features:
 
 **Maps**
