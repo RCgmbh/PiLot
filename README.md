@@ -11,6 +11,7 @@ The PiLot is a Raspberry Pi based system for boating. It's used with any device 
 - Course and speed over ground vector
 - Waypoints on the map, showing distance, bearing and ETA
 - POIs (points of interest): manage manually and import from OSM
+- Anchor alarm
 
 **Routes**
 - Define an unlimited number of routes
