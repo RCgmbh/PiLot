@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Workers;
-using PiLot.Data.Files;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Controllers {
