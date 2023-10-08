@@ -266,7 +266,8 @@ PiLot.Model.Nav = (function () {
 	 * @param {number} pRouteId
 	 */
 	var saveActiveRouteIdAsync = async function (pRouteId) {
-		return PiLot.Utils.Common.putToServerAsync(`/Settings/activeRouteId?routeId=${pRouteId}`, null);
+		let qs = (pRouteId === null) ? '' : `routeId=${pRouteId}` 
+		return PiLot.Utils.Common.putToServerAsync(`/Settings/activeRouteId?${qs}`, null);
 	}
 
 	/**
