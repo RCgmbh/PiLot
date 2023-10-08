@@ -1021,8 +1021,8 @@ PiLot.Model.Nav = (function () {
 	/// demand
 	var RouteObserver = function(pRoute, pBoatTime, pOptions){
 		this.route = pRoute;
-		this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 		this.boatTime = pBoatTime;
+		this.gpsObserver = null;
 		this.latestPosition = null;
 		this.waypointsLiveData = new Map();
 		this.observers = null;
@@ -1047,8 +1047,9 @@ PiLot.Model.Nav = (function () {
 		/// initializes the object, fills the waypoints map with key = waypoints,
 		/// value = WaypointLiveData, and subscribes to the gps observer
 		initialize: function(){
-			var waypoints = this.route.getWaypoints()
-			for(var i = 0; i < waypoints.length; i++){
+			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			const waypoints = this.route.getWaypoints()
+			for(let i = 0; i < waypoints.length; i++){
 				this.waypointsLiveData.set(waypoints[i], new WaypointLiveData());
 			}
 			if (this.gpsObserver !== null) {
@@ -1101,7 +1102,7 @@ PiLot.Model.Nav = (function () {
 
 		/// returns the next waypoint or null, if the next waypoint is unknown
 		getNextWaypoint: function(){
-			var result = null;
+			let result = null;
 			if(this.nextWaypointIndex >= 0){
 				result = this.route.getWaypoint(this.nextWaypointIndex);
 			}
@@ -1115,7 +1116,7 @@ PiLot.Model.Nav = (function () {
 
 		/// calculates the VMG to the next Waypoint and assigns it to this.vmg
 		calculateVMG: function(){
-			var nextWaypoint = this.getNextWaypoint();
+			const nextWaypoint = this.getNextWaypoint();
 			if ((nextWaypoint != null) && nextWaypoint.hasPosition()) {
 				this.vmg = this.gpsObserver.getVMG(nextWaypoint.getLatLon());
 			} else{

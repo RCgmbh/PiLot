@@ -309,9 +309,9 @@ PiLot.View.Nav = (function () {
 				PiLot.Model.Nav.loadActiveRouteAsync()
 			]).then(results => {
 				this.boatTime = results[0];
-				this.gpsObserver = new PiLot.Model.Nav.GPSObserver(this.boatTime);
+				this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 				if (results[1] !== null) {
-					this.routeObserver = new PiLot.Model.Nav.RouteObserver(results[1], this.gpsObserver, this.boatTime, { autoCalculate: true });
+					this.routeObserver = new PiLot.Model.Nav.RouteObserver(results[1], this.boatTime, { autoCalculate: true });
 				}
 				this.draw();
 				this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
