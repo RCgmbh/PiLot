@@ -125,7 +125,7 @@ PiLot.View.Admin = (function () {
 		showClientTime: function () {
 			const nowLocal = DateTime.local();
 			this.lblClientTime.innerText = nowLocal.toFormat(this.formatString);
-			this.lblClientTimezoneOffset.innerText = nowLocal.toFormat('ZZZ');
+			this.lblClientTimezoneOffset.innerText = nowLocal.toFormat('Z');
 		},
 
 		showServerTime: function () {
@@ -136,7 +136,7 @@ PiLot.View.Admin = (function () {
 			const boatTimeNow = this.boatTime.now();
 			this.lblClientErrorOffset.innerText = this.boatTime.getClientErrorOffsetSeconds().toFixed(1);
 			this.lblBoatTime.innerText = boatTimeNow.toFormat(this.formatString);
-			this.lblBoatTimeOffset.innerText = boatTimeNow.toFormat('ZZZ');
+            this.lblBoatTimeOffset.innerText = this.boatTime.getUtcOffsetHours();
 		}
 	};
 
