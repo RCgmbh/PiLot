@@ -68,9 +68,10 @@ PiLot.Model.Common = (function () {
 				hour: utc.hour,
 				minute: utc.minute,
 				second: utc.second,
-				millisecond: utc.millisecond
+                millisecond: utc.millisecond				
 			}, {
-				locale: pLocale || navigator.language || 'de-CH'
+                locale: pLocale || navigator.language || 'de-CH',
+                zone: this.getTimezoneName()
 			});
 			result = result.plus({ minutes: this.utcOffset });
 			return result;
@@ -156,9 +157,10 @@ PiLot.Model.Common = (function () {
 	 * This also measures the entire time of the request/response, and adds
 	 * a part of it to correct the client error in order to get a best
 	 * possible quess of the client/server difference
+     * @param {Boolean} pForceReload - Set to true to force reload from the server
 	 * */
-	async function getCurrentBoatTimeAsync() {
-		if (currentBoatTime === null) {
+    async function getCurrentBoatTimeAsync(pForceReload = false) {
+        if (currentBoatTime === null || pForceReload) {
 			const requestTime = luxon.DateTime.utc();
 			const json = await PiLot.Utils.Common.getFromServerAsync('/Settings/boatTime');
 			const responseTime = luxon.DateTime.utc();

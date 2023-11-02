@@ -67,8 +67,8 @@ PiLot.View.Admin = (function () {
 
 		lnkSetServerTime_click: async function () {
 			if (confirm(PiLot.Utils.Language.getText('confirmApplyClientTime'))) {
-				await PiLot.Model.Admin.setServerTime();
-				this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+				await PiLot.Model.Admin.setServerTimeAsync();
+                this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync(true);
 				this.showTime();
 			}
 		},
@@ -125,7 +125,7 @@ PiLot.View.Admin = (function () {
 		showClientTime: function () {
 			const nowLocal = DateTime.local();
 			this.lblClientTime.innerText = nowLocal.toFormat(this.formatString);
-			this.lblClientTimezoneOffset.innerText = nowLocal.toFormat('Z');
+			this.lblClientTimezoneOffset.innerText = nowLocal.toFormat('ZZZ');
 		},
 
 		showServerTime: function () {
@@ -136,7 +136,7 @@ PiLot.View.Admin = (function () {
 			const boatTimeNow = this.boatTime.now();
 			this.lblClientErrorOffset.innerText = this.boatTime.getClientErrorOffsetSeconds().toFixed(1);
 			this.lblBoatTime.innerText = boatTimeNow.toFormat(this.formatString);
-            this.lblBoatTimeOffset.innerText = this.boatTime.getUtcOffsetHours();
+            this.lblBoatTimeOffset.innerText = boatTimeNow.toFormat('ZZZ');
 		}
 	};
 

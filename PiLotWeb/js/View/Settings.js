@@ -104,7 +104,7 @@ PiLot.View.Settings = (function () {
 		showBoatTime: function () {
 			const boatTimeNow = this.boatTime.now();
             this.lblBoatTime.innerText = boatTimeNow.toFormat(this.formatString);
-            this.lblBoatTimeOffset.innerText = this.boatTime.getUtcOffsetHours();
+            this.lblBoatTimeOffset.innerText = boatTimeNow.toFormat('ZZZ');
 		}
 	};
 
