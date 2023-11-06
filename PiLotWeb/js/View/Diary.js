@@ -465,7 +465,7 @@ PiLot.View.Diary = (function () {
 			pEvent.preventDefault();
 		},
 
-		/** Shows the photo as soon as it has been loades, and triggers preloading the next one */
+		/** Shows the photo as soon as it has been loaded, and triggers preloading the next one */
 		image_load: function () {
 			this.imgFullSize.hidden = false;
 			this.preloadNextPhoto();
@@ -576,9 +576,8 @@ PiLot.View.Diary = (function () {
 		showPhoto: function (pImageName) {
 			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
 			this.setPhotoUrl(pImageName);
-			this.pnlPhotoScreen.hidden = false;
-			this.showNavigation(4);
-			this.lblFileName.innerText = pImageName;
+            this.pnlPhotoScreen.hidden = false;
+            this.toggleNavigation(true);
 			document.addEventListener('keydown', this.keyHandler);
 		},
 
@@ -635,7 +634,8 @@ PiLot.View.Diary = (function () {
 			this.imgFullSize.src = this.getPhotoUrl(pImageName);
 			this.imgFullSize.hidden = true;
 			this.lnkDownload.href = this.getOriginalImageUrl(pImageName);
-			this.lnkOpenBlank.href = this.getOriginalImageUrl(pImageName);
+            this.lnkOpenBlank.href = this.getOriginalImageUrl(pImageName);
+            this.lblFileName.innerText = pImageName;
 			this.lblPhotoIndex.innerText = this.imageIndex + 1;
 		},
 
