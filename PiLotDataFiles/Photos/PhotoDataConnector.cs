@@ -12,9 +12,10 @@ namespace PiLot.Data.Files {
 
 	public class PhotoDataConnector {
 
-		public const String PHOTOSDIR = "photos";
-		public const String THUMBNAILFOLDER = "thumbnail1";
-		public const String PHOTOFILEFORMAT = "{0:yyyy-MM-dd}";
+		public const String PHOTOSROOTDIR = "photos";
+		public const String PHOTODIRFORMAT = "{0:yyyy-MM-dd}";
+		public const String PHOTOFILEFORMAT = "{0:yyyyMMdd-mmss}.jpg";
+		public const String PHOTOFILEFORMAT2 = "{0:yyyyMMdd-mmss}[{1}].jpg";
 
 		private static readonly List<String> imageFileExtensions = new List<String> { ".jpg", ".jpeg" };
 
@@ -83,7 +84,7 @@ namespace PiLot.Data.Files {
 			List<String> imageNames = new List<String>();
 			DirectoryInfo photosDirectory = new DirectoryInfo(this.GetPhotosFilePath(pDay, false));
 			if (photosDirectory.Exists) {
-				imageNames = photosDirectory.GetFiles().OrderBy(f => f.CreationTimeUtc).Select(f => f.Name).ToList();
+				imageNames = photosDirectory.GetFiles().OrderBy(f => f.Name).Select(f => f.Name).ToList();
 			}
 			return new ImageCollection() {
 				RootURL = this.GetPhotosRelativePath(pDay),
@@ -99,26 +100,21 @@ namespace PiLot.Data.Files {
 		/// it from the exif data.
 		/// </summary>
 		/// <param name="pImageData">The image data containing bytes, name and day</param>
-		/// <param name="pFileDate">Optionally pass a date which will be used if no EXIF data is available</param>
-		public void SaveImageWithThumbnails(ImageData pImageData, DateTime? pFileDate) {
+		/// <param name="pFallbackDate">Optionally pass a date which will be used if no EXIF data is available</param>
+		public void SaveImageWithThumbnails(ImageData pImageData, DateTime? pFallbackDate) {
 			Logger.Log($"PhotoDataConnector starting SaveImageWithThumbnail for {pImageData.Name}", LogLevels.DEBUG);
 			try {
-				Date? day = pImageData.Day;
+				
 				Image image = Image.Load(pImageData.Bytes);
-				if (day == null) {
-					DateTime? imageDateTime = ImageHelper.GetImageDate(image, pFileDate);
-					if(imageDateTime != null) {
-						day = new Date(imageDateTime.Value);
-					}
-				}
-				if (day != null) {
+				DateTime? imageDateTime = ImageHelper.GetEXIFImageDate(image) ?? pFallbackDate ?? pImageData.Day.Value.DateTime;
+				if(imageDateTime != null) {
+					Date? day = pImageData.Day ?? new Date(imageDateTime.Value);
 					String datePath = this.GetPhotosFilePath(day.Value, true);
 					ImageHelper.EnsureOrientation(ref image);
-					String imageFilePath = this.GetImageFilePath(day.Value, pImageData.Name, false);
-					if (!File.Exists(imageFilePath)) {
-						image.Save(imageFilePath);
-					}
-					this.CreateThumbnails(image, pImageData.Name, datePath);
+					String fileName = this.CreateFileName(datePath, imageDateTime.Value);
+					String imageFilePath = this.GetImageFilePath(day.Value, fileName, false);
+					image.Save(imageFilePath);
+					this.CreateThumbnails(image, fileName, datePath);
 				} else {
 					Logger.Log($"Image {pImageData.Name} does not have a valid date and can not be processed.", LogLevels.ERROR);
 				}
@@ -155,7 +151,7 @@ namespace PiLot.Data.Files {
 		/// returns a relative path in the form /photos/date/ for the photos folder of a certain date
 		/// </summary>
 		private String GetPhotosRelativePath(Date pDay) {
-			return String.Concat(PHOTOSDIR, "/", String.Format(PHOTOFILEFORMAT, pDay));
+			return String.Concat(PHOTOSROOTDIR, "/", String.Format(PHOTODIRFORMAT, pDay));
 		}
 
 		/// <summary>
@@ -165,12 +161,30 @@ namespace PiLot.Data.Files {
 		/// <param name="pDay">the Day</param>
 		/// <param name="pCreateMissingFolder">If true, missing folders will be created automagically</param>
 		private String GetPhotosFilePath(Date pDay, Boolean pCreateMissingFolder) {
-			String photoRootPath = this.helper.GetDataPath(PHOTOSDIR, pCreateMissingFolder);
-			String photoDayPath = Path.Combine(photoRootPath, String.Format(PHOTOFILEFORMAT, pDay));
+			String photoRootPath = this.helper.GetDataPath(PHOTOSROOTDIR, pCreateMissingFolder);
+			String photoDayPath = Path.Combine(photoRootPath, String.Format(PHOTODIRFORMAT, pDay));
 			if (pCreateMissingFolder && !Directory.Exists(photoDayPath)) {
 				Directory.CreateDirectory(photoDayPath);
 			}
 			return photoDayPath;
+		}
+
+		/// <summary>
+		/// Creates a filename based on a datetime and the constant format strings.
+		/// If such a file exists, a suffix [x] will be added.
+		/// </summary>
+		/// <param name="pDirectoryPath">The path where the file will be saved</param>
+		/// <param name="pImageDate">The datetime used to create the name</param>
+		/// <returns>a filename unique for pDirectoryPath</returns>
+		private String CreateFileName(String pDirectoryPath, DateTime pImageDate) {
+			DirectoryInfo directory = new DirectoryInfo(pDirectoryPath);
+			String result = String.Format(PHOTOFILEFORMAT, pImageDate);
+			Int32 counter = 0;
+			while (directory.GetFiles(result, SearchOption.TopDirectoryOnly).Length > 0) {
+				counter++;
+				result = String.Format(PHOTOFILEFORMAT2, pImageDate, counter);
+			}
+			return result;
 		}
 
 		/// <summary>

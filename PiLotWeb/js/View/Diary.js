@@ -84,8 +84,7 @@ PiLot.View.Diary = (function () {
 
 		/** Upload handler for the photo upload */
 		photoUpload_upload: function(pSender, pArg){
-			//this.showPhotosAsync();
-			this.photoGallery.addPhoto(pArg);
+			this.photoGallery.ensureAutoUpdate();
 		},
 
 		/** Change handler for the edit mode checkbox */
@@ -420,7 +419,8 @@ PiLot.View.Diary = (function () {
 		this.imageCollection = null;
 		this.imageIndex = -1;
 		this.navigationVisible = false;
-		this.hideNavTimeout = null;
+        this.hideNavTimeout = null;
+        this.updateInterval = null;
 		this.initialize();
 	};
 
@@ -518,12 +518,26 @@ PiLot.View.Diary = (function () {
 		 * Loads and shows the photos for a certain date
 		 * @param {RC.Date.DateOnly} pDate
 		 */
-		loadPhotosAsync: async function (pDate) {
+        loadPhotosAsync: async function (pDate) {
+            if (this.updateInterval) {
+                window.clearInterval(this.updateInterval);
+                this.updateInterval = null;
+            }
 			this.date = pDate;
 			this.plhPhotos.clear();
 			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
 			this.showThumbnails();
-		},
+        },
+
+        /** Reloads the photos from the server, and if the number of photos changed, refreshes the view. */
+        reloadPhotosAsync: async function () {
+            const imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
+            if (imageCollection.getImagesCount() !== this.imageCollection.getImagesCount()) {
+                this.plhPhotos.clear();
+                this.imageCollection = imageCollection;
+                this.showThumbnails();
+            }
+        },
 		
 		/** Shows the photos based on the current imageCollection */
 		showThumbnails: function(){
@@ -536,16 +550,14 @@ PiLot.View.Diary = (function () {
 			this.lblPhotoTotal.innerText = this.imageCollection.getImagesCount();
 		},
 
-		/**
-		 * Manually adds a photo to the collection. This is useful to avoid timing
-		 * problems when uploading (the photo isn't actually saved when the upload
-		 * promise resolves)
-		 * @param {String} pFileName - the image file without any path prefix
-		 */
-		addPhoto: function(pFileName){
-			this.imageCollection.addImageName(pFileName);
-			this.showThumbnails();
-		},
+        /**
+         * Makes sure we have an interval that automatically reloads the images every 
+         * five seconds. This will make sure that newly uploades images will be displayed
+         * automatically.
+         * */
+        ensureAutoUpdate: function () {
+            this.updateInterval |= window.setInterval(this.reloadPhotosAsync.bind(this), 5000);
+        },
 
 		/**
 		 * Sends the delete request for a photo to the server, and removes it from

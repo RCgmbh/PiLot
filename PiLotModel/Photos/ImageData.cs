@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace PiLot.Model.Photos {
 
 	/// <summary>
-	/// This is used to send an image to the rest api.
+	/// This is contains the bytes and some metadata about an image
 	/// </summary>
 	public class ImageData {
 

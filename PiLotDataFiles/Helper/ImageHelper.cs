@@ -71,11 +71,9 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Tries to read the metadata from the file and returns the creation date. If no EXIF data
-		/// is available, it will take the pFileDate, if one has been passed.
+		/// Tries to read the metadata from the file and returns the creation date.
 		/// </summary>
-		/// <param name="pFileDate">Pass the file's creation date as fallback</param>
-		public static DateTime? GetImageDate(Image pImage, DateTime? pFileDate) {
+		public static DateTime? GetEXIFImageDate(Image pImage) {
 			DateTime? result = null;
 			CultureInfo cultureInfo = CultureInfo.CurrentCulture;
 			DateTime testDate;
@@ -91,7 +89,6 @@ namespace PiLot.Data.Files {
 				}
 			} if (result == null) {
 				Logger.Log($"ImageHelper.GetImageDate: No EXIF found. Falling back to file info.", LogLevels.WARNING);
-				result = pFileDate;
 			}
 			return result;
 		}
