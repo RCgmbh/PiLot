@@ -340,7 +340,8 @@ PiLot.Service.Nav = (function () {
 		>;
 		out skel qt;`;
 
-	OsmPoiLoader.tagFilter = 'nwr["{tagName}" ~ "{tagValue}"];';
+    OsmPoiLoader.tagNameFilter = 'nwr["{tagName}"];';
+	OsmPoiLoader.tagKeyValueFilter = 'nwr["{tagName}" ~ "{tagValue}"];';
 
 	OsmPoiLoader.tags = {
 		marina: [['leisure', 'marina'], ['mooring', 'yes']],
@@ -349,7 +350,7 @@ PiLot.Service.Nav = (function () {
 		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes'], ['seamark:small_craft_facility:category', 'pump-out']],
 		toilet: [['amenity', 'toilets']],
         shop: [['shop', 'convenience'], ['shop', 'supermarket'], ['shop', 'yes']],
-        bridge: [['seamark:type', 'bridge']]
+        bridge: [['seamark:type', 'bridge'], ['bridge', 'movable']]
 	};
 
 	OsmPoiLoader.apiUrls = [
@@ -378,8 +379,12 @@ PiLot.Service.Nav = (function () {
 
 		buildQuery: function (pTags) {
 			let tagFilters = '';
-			for (aTag of pTags) {
-				tagFilters += OsmPoiLoader.tagFilter.replace('{tagName}', aTag[0]).replace('{tagValue}', aTag[1]);
+            for (aTag of pTags) {
+                if (aTag.length === 1) {
+                    tagFilters += OsmPoiLoader.tagNameFilter.replace('{tagName}', aTag[0]);
+                } else if(aTag.length === 2) {
+                    tagFilters += OsmPoiLoader.tagKeyValueFilter.replace('{tagName}', aTag[0]).replace('{tagValue}', aTag[1]);
+                }
 			}
 			return OsmPoiLoader.genericQuery.replace('{tagFilters}', tagFilters);
 		},
