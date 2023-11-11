@@ -348,7 +348,8 @@ PiLot.Service.Nav = (function () {
 		fuel: [['waterway', 'fuel'], ['amenity', 'fuel'], ['seamark:small_craft_facility:category', 'fuel']],
 		pump: [['waterway', 'sanitary_dump_station'], ['sanitary_dump_station', 'yes'], ['seamark:small_craft_facility:category', 'pump-out']],
 		toilet: [['amenity', 'toilets']],
-		shop: [['shop', 'convenience'], ['shop', 'supermarket'], ['shop', 'yes']]
+        shop: [['shop', 'convenience'], ['shop', 'supermarket'], ['shop', 'yes']],
+        bridge: [['seamark:type', 'bridge']]
 	};
 
 	OsmPoiLoader.apiUrls = [

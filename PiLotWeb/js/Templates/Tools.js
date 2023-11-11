@@ -170,6 +170,7 @@ PiLot.Templates.Tools = {
 					<div class="marginBottom">
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportMarinas marginRight" /><span data-text="marinas"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportLocks marginRight" /><span data-text="locks"></span></label>
+                        <label class="marginRight noWrap"><input type="checkbox" class="cbImportBridges marginRight" /><span data-text="bridges"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportFuel marginRight" /><span data-text="fuelStations"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportShops marginRight" /><span data-text="shops"></span></label>
 						<label class="marginRight noWrap"><input type="checkbox" class="cbImportPump marginRight" /><span data-text="pumpingStations"></span></label>

@@ -704,10 +704,11 @@ PiLot.View.Tools = (function () {
 			this.ddlApi = control.querySelector('.ddlApi');
 			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
 			this.cbImportLocks = control.querySelector('.cbImportLocks');
-			this.cbImportFuel = control.querySelector('.cbImportFuel');
+            this.cbImportBridges = control.querySelector('.cbImportBridges');
+            this.cbImportFuel = control.querySelector('.cbImportFuel');
 			this.cbImportPump = control.querySelector('.cbImportPump');
 			this.cbImportToilets = control.querySelector('.cbImportToilets');
-			this.cbImportShops = control.querySelector('.cbImportShops');
+            this.cbImportShops = control.querySelector('.cbImportShops');
 			this.lblLoadingData = control.querySelector('.lblLoadingData');
 			this.seamap = new PiLot.View.Map.Seamap(control.querySelector('.pnlMap'), { persistMapState: true });
 			await this.seamap.showAsync();
@@ -737,7 +738,10 @@ PiLot.View.Tools = (function () {
 			}
 			if (this.cbImportLocks.checked) {
 				types.push('lock');
-			}
+            }
+            if (this.cbImportBridges.checked) {
+                types.push('bridge');
+            }
 			if (this.cbImportFuel.checked) {
 				types.push('fuel');
 			}
