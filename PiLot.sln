@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30309.148
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotModel", "PiLotModel\PiLotModel.csproj", "{0568D877-324B-4AFE-9129-9F2943711DFA}"
 EndProject
@@ -87,6 +87,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 		installScripts\10-install-liveclient.sh = installScripts\10-install-liveclient.sh
 		installScripts\91-update-prerequisites.sh = installScripts\91-update-prerequisites.sh
 		installScripts\92-update-webapp.sh = installScripts\92-update-webapp.sh
+		installScripts\93-update-photosWatcher.sh = installScripts\93-update-photosWatcher.sh
 		installScripts\95-update-backupAPI.sh = installScripts\95-update-backupAPI.sh
 		installScripts\96-update-backupClient.sh = installScripts\96-update-backupClient.sh
 		createInstallPackage.bat = createInstallPackage.bat
@@ -127,7 +128,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "sql", "sql", "{B438012B-443
 		installScripts\sql\setup-db.sh = installScripts\sql\setup-db.sh
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotGPIO", "PiLotGPIO\PiLotGPIO.csproj", "{5519B99B-064C-4271-A4B8-73100EEA7386}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotGPIO", "PiLotGPIO\PiLotGPIO.csproj", "{5519B99B-064C-4271-A4B8-73100EEA7386}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

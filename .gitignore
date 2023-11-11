@@ -357,3 +357,4 @@ healthchecksdb
 /PiLotAPICore/App_Data/gps
 /PiLotAPICore/App_Data
 /PiLotSensors/Properties/launchSettings.json
+/PiLotLiveClient/Properties/launchSettings.json
