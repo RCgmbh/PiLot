@@ -1632,7 +1632,8 @@ PiLot.View.Map = (function () {
 				this.fitMap();
 			} else {
 				this.deleteFromMap();
-			}
+            }
+            this.showHideContextPopupLink();
 		},
 
 		/// handles the click to the "lock route" button
@@ -1645,12 +1646,8 @@ PiLot.View.Map = (function () {
 				this.mapWaypoints.forEach(function (pValue, pKey, pMap) {
 					pValue.setLocked(locked);
 				});
-			}
-			if (locked) {
-				this.map.contextPopup.removeLink(this.lnkAddWaypoint);
-			} else {
-				this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
-			}
+            }
+            this.showHideContextPopupLink();
 		},
 
 		/// handles the click on the add waypoint link in the context popup of the map.
@@ -1740,7 +1737,6 @@ PiLot.View.Map = (function () {
 					previousMapWayoint = mapWaypoint;
 				}
 			}
-			RC.Utils.showHide(this.lnkAddWaypoint, this.showRoute && !this.lockRoute);
 			return this;
 		},
 
@@ -1759,12 +1755,15 @@ PiLot.View.Map = (function () {
 		},
 
 		/// adds an "add Waypoint" link to the map context popup
-		addContextPopupLink: function () {
-			if (!this.lockRoute) {
-				this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
-				this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
-			}
-		},
+        addContextPopupLink: function () {
+            this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
+            this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
+            this.showHideContextPopupLink();
+        },
+
+        showHideContextPopupLink: function () {
+            this.lnkAddWaypoint.hidden = this.lockRoute || !this.showRoute;
+        },
 
 		/// adjust zoom and center of the map so that all waypoints are visible on the map
 		fitMap: function () {
@@ -1869,15 +1868,14 @@ PiLot.View.Map = (function () {
 
 		/// handles the marker being dragged by updating the legs
 		marker_drag: function (e) {
-			var latLng = e.target.getLatLng();
-			this.waypoint.setLatLng(latLng, true, this);
+            this.waypoint.setLatLng(e.target.getLatLng(), true, this);
 		},
 
 		/// handles the drag-end by informing the waypoint about its new position
 		/// and unlocking the map
 		marker_dragend: function (e) {
 			this.mapRoute.unlock();
-			this.waypoint.setLatLng(e.target.getLatLng());
+			this.waypoint.setLatLng(e.target.getLatLng(), false, this);
 		},
 
 		/// handles clicks on the marker, showing the popup
