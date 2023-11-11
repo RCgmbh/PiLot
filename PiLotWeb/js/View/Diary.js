@@ -115,13 +115,13 @@ PiLot.View.Diary = (function () {
 			diaryPage.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			diaryPage.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
 			this.lblDiary = diaryPage.querySelector('.lblDiary');
-			this.applyDiaryFontSize();
 			this.plhDistance = diaryPage.querySelector('.plhDistance');
 			this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
 			this.lblDistanceNm = this.plhDistance.querySelector('.lblDistanceNm');
 			this.pnlEditDiary = diaryPage.querySelector('.pnlEditDiary');
 			this.tbDiary = diaryPage.querySelector('.tbDiary');
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
+			this.applyDiaryFontSize();
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlSpeedDiagram = diaryPage.querySelector('.pnlSpeedDiagram');
 			if(PiLot.Permissions.canWrite()){	
@@ -279,7 +279,8 @@ PiLot.View.Diary = (function () {
 					this.diaryFontSize = DiaryPage.diaryFontSizes.indexOf(1);
 				}
 			}
-			this.pnlDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
+            this.pnlDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
+            this.tbDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
 		},
 
 		/** sets the current date, re-loads the data and saves the currently selected day to the user settings */

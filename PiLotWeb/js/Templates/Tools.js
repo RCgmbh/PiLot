@@ -247,7 +247,7 @@ PiLot.Templates.Tools = {
 					<button class="btnImport input7" type="button" data-text="import"></button>
 				</div>
 				<div class="paddingRight" style="min-width:16em; flex-basis:20em; flex-grow:1;">
-					<div class="plhOutput preWrap"></div>
+					<div class="plhOutput preWrap" style="max-height:80vh; overflow:auto;"></div>
 				</div>
 			</div>
 		</div>
