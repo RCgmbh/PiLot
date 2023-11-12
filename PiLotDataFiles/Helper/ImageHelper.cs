@@ -88,7 +88,7 @@ namespace PiLot.Data.Files {
 					Logger.Log($"Image EXIF Date could not be parsed: {dateTakenString}", LogLevels.WARNING);
 				}
 			} if (result == null) {
-				Logger.Log($"ImageHelper.GetImageDate: No EXIF found. Falling back to file info.", LogLevels.WARNING);
+				Logger.Log($"ImageHelper.GetImageDate: No EXIF found.", LogLevels.WARNING);
 			}
 			return result;
 		}

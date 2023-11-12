@@ -104,7 +104,6 @@ namespace PiLot.Data.Files {
 		public void SaveImageWithThumbnails(ImageData pImageData, DateTime? pFallbackDate) {
 			Logger.Log($"PhotoDataConnector starting SaveImageWithThumbnail for {pImageData.Name}", LogLevels.DEBUG);
 			try {
-				
 				Image image = Image.Load(pImageData.Bytes);
 				DateTime? imageDateTime = ImageHelper.GetEXIFImageDate(image) ?? pFallbackDate ?? pImageData.Day.Value.DateTime;
 				if(imageDateTime != null) {
