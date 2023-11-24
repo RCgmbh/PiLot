@@ -1079,7 +1079,8 @@ PiLot.View.Map = (function () {
 			this.addTimeSlider();
 			if (this.showTrack && this.autoShowTrack) {
 				this.loadAndShowTrackAsync(false);
-			}
+            }
+            PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 		},
 
 		/// reads the persisted user settings
@@ -1097,7 +1098,11 @@ PiLot.View.Map = (function () {
 				end = RC.Date.DateHelper.unixToLuxon(endUnix);
 			}
 			this.setTimeFrame(start, end, seconds);
-		},
+        },
+
+        authHelper_login: function () {
+            this.loadAndShowTrackAsync(true);
+        },
 
 		/// handles click onto the show track button, showing or hiding the track
 		lnkShowTrack_click: function () {
