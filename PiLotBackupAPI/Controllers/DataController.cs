@@ -36,7 +36,7 @@ namespace PiLot.Backup.API.Controllers {
 					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 				}
 			} else {
-				result = this.NotFound();
+				result = this.Unauthorized();
 			}
 			return result;
 		}

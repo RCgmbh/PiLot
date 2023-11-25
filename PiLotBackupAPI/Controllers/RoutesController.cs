@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -36,7 +35,7 @@ namespace PiLot.Backup.API.Controllers {
 					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 				}
 			} else {
-				result = this.NotFound();
+				result = this.Unauthorized();
 			}
 			return result;
 		}
