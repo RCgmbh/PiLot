@@ -34,6 +34,11 @@
 					"dataType": "POIs",
 					"dataSource": "pois",
 					"lastSuccess": null
+				},
+				{
+					"dataType": "Photos",
+					"dataSource": "photos",
+					"lastSuccess": null
 				}
 			]
 		}

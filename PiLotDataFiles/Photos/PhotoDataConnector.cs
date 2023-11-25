@@ -7,13 +7,14 @@ using SixLabors.ImageSharp;
 using PiLot.Model.Photos;
 using PiLot.Utils;
 using PiLot.Utils.Logger;
+using System.Globalization;
 
 namespace PiLot.Data.Files {
 
 	public class PhotoDataConnector {
 
 		public const String PHOTOSROOTDIR = "photos";
-		public const String PHOTODIRFORMAT = "{0:yyyy-MM-dd}";
+		public const String PHOTODIRFORMAT = "yyyy-MM-dd";
 		public const String PHOTOFILEFORMAT = "{0:yyyyMMdd-HHmm}.jpg";
 		public const String PHOTOFILEFORMAT2 = "{0:yyyyMMdd-HHmm}[{1}].jpg";
 
@@ -94,6 +95,33 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Gets a list of images that have been changed after a certain time
+		/// </summary>
+		/// <param name="pChangedAfter">Photos must have been created or changed after that date</param>
+		public List<ImageReference> ReadChangedPhotos(DateTime pChangedAfter) {
+			List<ImageReference> result = new List<ImageReference>();
+			Date day;
+			DirectoryInfo photosRoot = new DirectoryInfo(this.helper.GetDataPath(PHOTOSROOTDIR, false));
+			DirectoryInfo[] directories = photosRoot.GetDirectories();
+			foreach(DirectoryInfo aDirectory in directories) {
+				if(Date.TryParseExact(aDirectory.Name, PHOTODIRFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out day)) {
+					foreach(FileInfo aFile in aDirectory.EnumerateFiles()) {
+						if(aFile.LastAccessTimeUtc >= pChangedAfter) {
+							result.Add(new ImageReference() { 
+								Path = aFile.FullName,
+								Name = aFile.Name,
+								Day = day
+							});
+						}
+					}
+				} else {
+					Logger.Log($"PhotoDataConnector: Invalid daily photos directory found: {aDirectory.Name}", LogLevels.WARNING);
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// This saves an image and creates the thumbnails. The folder
 		/// to save to is based on the day the picture was taken. If
 		/// this is not passed within the ImageData, we try to extract
@@ -111,7 +139,7 @@ namespace PiLot.Data.Files {
 					String datePath = this.GetPhotosFilePath(day.Value, true);
 					ImageHelper.EnsureOrientation(ref image);
 					String fileName = this.CreateFileName(datePath, imageDateTime.Value);
-					String imageFilePath = this.GetImageFilePath(day.Value, fileName, false);
+					String imageFilePath = Path.Combine(datePath, fileName);
 					image.Save(imageFilePath);
 					this.CreateThumbnails(image, fileName, datePath);
 				} else {
@@ -125,12 +153,24 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Saves an image, without doing any processing. Any existing file for the 
+		/// same date with the same name will be replaced!
+		/// </summary>
+		/// <param name="pDay">The date of the image, used to find the right path</param>
+		/// <param name="pFileName">The filename to be used</param>
+		/// <param name="pBytes">The raw image bytes</param>
+		public void SaveImage(Date pDay, String pFileName, Byte[] pBytes) {
+			Image image = Image.Load(pBytes);
+			image.Save(Path.Combine(this.GetPhotosFilePath(pDay, true), pFileName));
+		}
+
+		/// <summary>
 		/// Deletes an image and all its thumbnails
 		/// </summary>
 		/// <param name="pImageName">The image name, without any path prefix</param>
 		/// <param name="pDay">The day of the image</param>
 		public void DeleteImageWithThumbnails(Date pDay, String pImageName) {
-			String imagePath = this.GetImageFilePath(pDay, pImageName, false);
+			String imagePath = this.GetImageFilePath(pDay, pImageName);
 			if (File.Exists(imagePath)) {
 				File.Delete(imagePath);
 				Logger.Log($"Deleted photo at {imagePath}", LogLevels.DEBUG);
@@ -150,7 +190,7 @@ namespace PiLot.Data.Files {
 		/// returns a relative path in the form /photos/date/ for the photos folder of a certain date
 		/// </summary>
 		private String GetPhotosRelativePath(Date pDay) {
-			return String.Concat(PHOTOSROOTDIR, "/", String.Format(PHOTODIRFORMAT, pDay));
+			return String.Concat(PHOTOSROOTDIR, "/", pDay.ToString(PHOTODIRFORMAT));
 		}
 
 		/// <summary>
@@ -161,7 +201,7 @@ namespace PiLot.Data.Files {
 		/// <param name="pCreateMissingFolder">If true, missing folders will be created automagically</param>
 		private String GetPhotosFilePath(Date pDay, Boolean pCreateMissingFolder) {
 			String photoRootPath = this.helper.GetDataPath(PHOTOSROOTDIR, pCreateMissingFolder);
-			String photoDayPath = Path.Combine(photoRootPath, String.Format(PHOTODIRFORMAT, pDay));
+			String photoDayPath = Path.Combine(photoRootPath, pDay.ToString(PHOTODIRFORMAT));
 			if (pCreateMissingFolder && !Directory.Exists(photoDayPath)) {
 				Directory.CreateDirectory(photoDayPath);
 			}
@@ -188,16 +228,13 @@ namespace PiLot.Data.Files {
 
 		/// <summary>
 		/// Returns the path for one specific image file, without checking, whether the 
-		/// folder or the image does exist. However, the folder can be created, if it
-		/// does not exist yet (which makes sense, if you use this to get the saving
-		/// path for an image).
+		/// folder or the image does exist.
 		/// </summary>
 		/// <param name="pDay">The date the image was taken</param>
 		/// <param name="pImageName">The image name, like P1234.jpg</param>
-		/// <param name="pCreateMissingFolder">If true, the folder will be created, if it does not exist</param>
 		/// <returns>The full absolute path (where an image might or might not be found)</returns>
-		private String GetImageFilePath(Date pDay, String pImageName, Boolean pCreateMissingFolder = false) {
-			return Path.Combine(this.GetPhotosFilePath(pDay, pCreateMissingFolder), pImageName);
+		private String GetImageFilePath(Date pDay, String pImageName) {
+			return Path.Combine(this.GetPhotosFilePath(pDay, false), pImageName);
 		}
 
 		/// <summary>

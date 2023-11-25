@@ -9,5 +9,6 @@
       262800,
 			525600,
       1051200
-	]
+	],
+  "backupPath": "~\\App_Data\\backup"
 }

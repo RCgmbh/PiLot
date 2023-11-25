@@ -147,6 +147,9 @@ namespace PiLot.Backup.Client {
 				case DataTypes.POIs:
 					backupHelper = new PoisBackupHelper(pProxy);
 					break;
+				case DataTypes.Photos:
+					backupHelper = new PhotosBackupHelper(pProxy);
+					break;
 			}
 			if (backupHelper != null) {
 				DateTime backupDate = DateTime.UtcNow;

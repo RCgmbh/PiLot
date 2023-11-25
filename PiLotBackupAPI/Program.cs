@@ -16,7 +16,7 @@ using System.Configuration;
 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-
+using PiLot.Backup.API.Helpers;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API {
@@ -25,9 +25,11 @@ namespace PiLot.Backup.API {
 
 		public const String APIROOT = "pilotbackupapi/v1/";
 		private static Dictionary<String, Object> application;
+		private static Helpers.Config config;
 
 		public static void Main(string[] args) {
 			Program.SetupLogger();
+			Program.config = ConfigHelper.ReadConfig();
 			Program.application = new Dictionary<string, object>();
 			CreateHostBuilder(args).Build().Run();
 		}
@@ -60,6 +62,16 @@ namespace PiLot.Backup.API {
 			Program.application[pKey] = pValue;
 		}
 
+		/// <summary>
+		/// Returns the config object for the application
+		/// </summary>
+		public static Helpers.Config GetConfig() {
+			return Program.config;
+		}
+
+		/// <summary>
+		/// Sets up the logger based on the settings in app.config
+		/// </summary>
 		private static void SetupLogger() {
 			String configLogLevel = ConfigurationManager.AppSettings["logLevel"];
 			LogLevels logLevel = LogLevels.ERROR;

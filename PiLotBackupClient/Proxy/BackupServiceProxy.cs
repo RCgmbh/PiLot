@@ -9,6 +9,7 @@ using PiLot.APIProxy;
 using PiLot.Utils;
 using PiLot.Utils.DateAndTime;
 using PiLot.Model.Sensors;
+using PiLot.Model.Photos;
 
 namespace PiLot.Backup.Client.Proxies {
 
@@ -100,6 +101,18 @@ namespace PiLot.Backup.Client.Proxies {
 			jsonString = JsonSerializer.Serialize(pAllFeatures);
 			success &= await this.httpClient.PutAsync(jsonString, url);
 			return success;
+		}
+
+		/// <summary>
+		/// Sends a photo to the backup api
+		/// </summary>
+		/// <param name="pImage">The image, with Day not null</param>
+		/// <returns>True, if the call was successful, else false</returns>
+		public async Task<Boolean> BackupPhotoAsync(ImageData pImage) {
+			Assert.IsNotNull(pImage?.Day, "Image day must not be null for backup");
+			String qsDay = pImage.Day.Value.ToString("yyyy-MM-dd");
+			String url = $"{this.apiUrl}/Photos?day={qsDay}&fileName={pImage.Name}";
+			return await this.httpClient.PutAsync(pImage.Bytes, url);
 		}
 
 		/// <summary>
