@@ -134,10 +134,9 @@ namespace PiLot.Backup.API.Helpers {
 
 		/// <summary>
 		/// Prepares the directory for one backup set. Below here, we will expect
-		/// the same structure as in /data/
+		/// the same structure as in the original data directory.
 		/// If the directory did not exist before, it will be pre-populated with the
-		/// data from the most recent backup. Also, older backups will be deleted
-		/// in order to match with the configured history structure
+		/// data from the most recent backup. 
 		/// </summary>
 		private static DirectoryInfo GetBackupDirectory(String pClientName, DateTime pBackupTime, Boolean pCreateIfMissing, Boolean pIsTemporary) {
 			DirectoryInfo result = null;
@@ -165,11 +164,17 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientRoot">The root directory for the current client</param>
 		private static String GetLatestBackupSet(String pClientRoot) {
 			String result = null;
-			List<DirectoryInfo> backupSets = new DirectoryInfo(pClientRoot).GetDirectories().ToList();
-			backupSets.RemoveAll(s => s.FullName.EndsWith("_temp"));
-			if (backupSets.Count > 0) {
-				String latestBackupName = backupSets.Max(b => b.Name);
-				result = backupSets.First(b => b.Name == latestBackupName).FullName;
+			DirectoryInfo[] backupSets = new DirectoryInfo(pClientRoot).GetDirectories();
+			DateTime directoryDate;
+			DateTime? maxDate = null;
+			foreach (DirectoryInfo aDirectory in backupSets) {
+				if(
+					DateTime.TryParseExact(aDirectory.Name, BackupHelper.DATEDIRECTORYFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out directoryDate)
+					&& ((maxDate == null) || (maxDate < directoryDate))
+				) {
+					maxDate = directoryDate;
+					result = aDirectory.FullName;
+				}
 			}
 			return result;
 		}
@@ -217,8 +222,6 @@ namespace PiLot.Backup.API.Helpers {
 							break;
 						}
 					}
-				} else {
-					Logger.Log($"Invalid date directory found: {aBackupSet.FullName}", LogLevels.WARNING);
 				}
 			}
 			foreach(DirectoryInfo aDirectory in deleteBackupSets) {
