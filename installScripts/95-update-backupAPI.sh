@@ -14,9 +14,11 @@ cd /home/pi/repos/PiLot
 git pull
 echo "Build and install latest backup API version"
 systemctl stop pilotBackupApi
+rm -r /opt/pilotbackupapi/config_bak
 mv /opt/pilotbackupapi/config /opt/pilotbackupapi/config_bak
 dotnet build PiLotBackupAPI -o /opt/pilotbackupapi -c release -r linux-arm --no-self-contained
-mv -f /opt/pilotbackupapi/config_bak/* /opt/pilotbackupapi/config/
+mv -f /opt/pilotbackupapi/config_bak/* /opt/pilotbackupapi/config
+rm -r /opt/pilotbackupapi/config_bak
 echo "New backup API installed"
 systemctl start pilotBackupApi
 

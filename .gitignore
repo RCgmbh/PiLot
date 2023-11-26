@@ -358,3 +358,4 @@ healthchecksdb
 /PiLotAPICore/App_Data
 /PiLotSensors/Properties/launchSettings.json
 /PiLotLiveClient/Properties/launchSettings.json
+/PiLotBackupAPI/config/config.newhome.json
