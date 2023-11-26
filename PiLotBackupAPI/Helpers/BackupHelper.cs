@@ -110,8 +110,8 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pBytes">The image bytes</param>
 		/// <param name="pClientName">The client name</param>
 		public static void BackupPhoto(Date pDay, String pFileName, Byte[] pBytes, String pClientName) {
-			String photosBackupPath = BackupHelper.GetPhotosClientRoot(pClientName);
-			new PhotoDataConnector(photosBackupPath).SaveImage(pDay, pFileName, pBytes);
+			DirectoryInfo photosBackupDirectory = BackupHelper.GetClientRoot(pClientName, true);
+			new PhotoDataConnector(photosBackupDirectory.FullName).SaveImage(pDay, pFileName, pBytes);
 			Logger.Log("Recieved photo {0} to backup", pFileName, LogLevels.DEBUG);
 		}
 
@@ -255,15 +255,6 @@ namespace PiLot.Backup.API.Helpers {
 				}
 			}
 			return new DirectoryInfo(clientPath);
-		}
-
-		/// <summary>
-		/// Returns the root directory to backup photos for a certain client.
-		/// </summary>
-		/// <param name="pClientName">the client name</param>
-		private static String GetPhotosClientRoot(String pClientName) {
-			String clientRoot = BackupHelper.GetClientRoot(pClientName, true).FullName;
-			return Path.Combine(clientRoot, PhotoDataConnector.PHOTOSROOTDIR);
 		}
 	}
 }
