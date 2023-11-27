@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Buffers;
-using System.Linq;
+using System.IO;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,17 +19,19 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// PUT:  api/Tiles/tileSourceName/z/x/y
 		/// Saves a tile onto the server
-		/// Note: bytes is an Int array, because it did not work with a byte array. Seems
-		/// to be some kind of bug/feature with the serializer.
 		/// </summary>
 		[Route(Program.APIROOT + "[controller]/{tileSource}/{z}/{x}/{y}")]
 		[HttpPut]
-		public ActionResult Put(String tileSource, Int32 z, Int32 x, Int32 y, [FromBody] Int32[] bytes) {
+		public async Task<ActionResult> Put(String tileSource, Int32 z, Int32 x, Int32 y) {
 			TileDataConnector.SaveResults saveResult;
-			TileSource objTileSource = TilesConfigReader.Instance.GetTileSource(tileSource);
-			if (objTileSource != null) {
-				Byte[] realBytes = bytes.Select(b => (Byte)b).ToArray();
-				saveResult = TileDataConnector.Instance.SaveTile(realBytes, objTileSource, z, x, y);
+			TileSource knownTileSource = TilesConfigReader.Instance.GetTileSource(tileSource);
+			if (knownTileSource != null) {
+				Byte[] bytes = await new PiLot.Utils.Various.BytesHelper().ReadBytes(this.Request.Body, this.Request.ContentLength.Value);
+				if(bytes.Length > 0) {
+					saveResult = TileDataConnector.Instance.SaveTile(bytes, knownTileSource, z, x, y);
+				} else {
+					saveResult = TileDataConnector.SaveResults.Failed;
+				}
 			} else {
 				saveResult = TileDataConnector.SaveResults.UnknownTileSet;
 			}			

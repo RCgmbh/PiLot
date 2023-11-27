@@ -38,14 +38,9 @@ namespace PiLot.Backup.API.Controllers {
 				if (date != null) {
 					Stream requestStream = this.Request.Body;
 					try {
-						long? length = this.Request.ContentLength;
-						Byte[] bytesInStream = new Byte[length.Value];
-						int bytesRead = 0;
-						while (bytesRead < length.Value) { // Tricky. ReadAsync() does not read all, but just some bytes...
-							bytesRead += await requestStream.ReadAsync(bytesInStream, bytesRead, (int)bytesInStream.Length - bytesRead);
-						}
-						Logger.Log($"PhotoController recieved {bytesInStream.Length} bytes for {fileName}", LogLevels.DEBUG);
-						BackupHelper.BackupPhoto(date.Value, fileName, bytesInStream, user.Username);
+						Byte[] bytes = await new PiLot.Utils.Various.BytesHelper().ReadBytes(this.Request.Body, this.Request.ContentLength.Value);
+						Logger.Log($"PhotoController recieved {bytes.Length} bytes for {fileName}", LogLevels.DEBUG);
+						BackupHelper.BackupPhoto(date.Value, fileName, bytes, user.Username);
 						result = this.Ok();
 					} catch (Exception ex) {
 						result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);

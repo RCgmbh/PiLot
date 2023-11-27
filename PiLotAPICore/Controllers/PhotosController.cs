@@ -46,15 +46,10 @@ namespace PiLot.API.Controllers {
 					if (!String.IsNullOrEmpty(day)) {
 						date = new Date(DateTime.ParseExact(day, QSDATEFORMAT, null));
 					}
-					long? length = this.Request.ContentLength;
-					Byte[] bytesInStream = new Byte[length.Value];
-					int bytesRead = 0;
-					while (bytesRead < length.Value) { // wow. Spent a sunday afternoon with this. ReadAsync does not read all, but just some bytes...
-						bytesRead += await requestStream.ReadAsync(bytesInStream, bytesRead, (int)bytesInStream.Length - bytesRead);
-					}
-					Logger.Log($"PhotoController recieved {bytesInStream.Length} bytes for {fileName}", LogLevels.DEBUG);
+					Byte[] bytes = await new PiLot.Utils.Various.BytesHelper().ReadBytes(this.Request.Body, this.Request.ContentLength.Value);
+					Logger.Log($"PhotoController recieved {bytes.Length} bytes for {fileName}", LogLevels.DEBUG);
 					PhotosWorker.Instance.ProcessPhoto(new ImageData() {
-						Bytes = bytesInStream,
+						Bytes = bytes,
 						Day = date,
 						Name = fileName
 					});
