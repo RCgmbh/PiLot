@@ -80,7 +80,7 @@ PiLot.View.Settings = (function () {
 			this.btnPlus = contentArea.querySelector('#btnPlus');
 			this.btnPlus.onclick = this.btnPlus_click.bind(this);
 			this.clockCanvas = contentArea.querySelector('#lblClientTime');
-			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours());
+			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours(), this.boatTime.getClientErrorOffsetSeconds() * -1);
 		},
 
 		startTimer: function () {
