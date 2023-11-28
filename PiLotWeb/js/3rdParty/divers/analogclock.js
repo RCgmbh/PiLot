@@ -207,14 +207,15 @@ var Analogclock = {
 		[18, 0]
 	],
 
-	drawClock: function(id, utcOffset) {
+	drawClock: function(id, utcOffset, secondsOffset) {
 		var clk = new Analogclock.Clock(id);
 		var clkOpts = clk.getClockOpts(); //cheezeee returns ref to object so now public
 		var textOpts = clk.getTextOpts();
     
 		clkOpts.smoothTicks = true;
 		clkOpts.useUTC = true;
-		clkOpts.hoursOffset = utcOffset;
+		clkOpts.hoursOffset = utcOffset || 0;
+		clkOpts.secondsOffset = secondsOffset || 0;
 		textOpts.text1 = 'πLot';
 		textOpts.text1Color = '#ff0000';
 		textOpts.text1OffsetY= -80;
@@ -225,7 +226,7 @@ var Analogclock = {
 		return clk;
 	},
 
-		Clock: function (id) {
+	Clock: function (id) {
 
 		var bezelOpts = {
     
@@ -383,6 +384,7 @@ var Analogclock = {
 		var clockOpts = {
 			smoothTicks: true, // smooth sweep second hand
 			hoursOffset: 0, // offset from current time (Local or UTC), may have some glitches
+			secondsOffset: 0, // allows to set an offset of seconds, used to implement an error on the client
 			useUTC: false, // use UTC as base for time
 		};
         
@@ -404,8 +406,8 @@ var Analogclock = {
 		ds = new Date(); // just to set it up
 		d = new Date();     // aways pull new date
     
-		if (clockOpts.hoursOffset != 0) // Add offset to new time, hopefull works OK with date
-			d = new Date(d.getTime() + clockOpts.hoursOffset * 3600000);
+		if (clockOpts.hoursOffset !== 0 || clockOpts.secondsOffset !== 0) // Add offset to new time, hopefull works OK with date
+			d = new Date(d.getTime() + clockOpts.hoursOffset * 3600000 + clockOfts.secondsOffset * 1000);
     
 		// set up pre computed options, and one time drawing that
 		// don't get affected by hands or other display changes
@@ -466,8 +468,8 @@ var Analogclock = {
 
 			d = new Date();     // aways pull new date and time
 
-			if (clockOpts.hoursOffset != 0) // Add offset to new time, hopefull works OK with date
-				d = new Date(d.getTime() + clockOpts.hoursOffset * 3600000);
+			if (clockOpts.hoursOffset !== 0 || clockOpts.secondsOffset !== 0) // Add offset to new time, hopefull works OK with date
+				d = new Date(d.getTime() + clockOpts.hoursOffset * 3600000 + clockOpts.secondsOffset * 1000);
 
 			// get system 
 			if (clockOpts.useUTC) h = d.getUTCHours();
