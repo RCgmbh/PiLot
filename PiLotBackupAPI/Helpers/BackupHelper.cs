@@ -225,6 +225,7 @@ namespace PiLot.Backup.API.Helpers {
 				}
 			}
 			foreach(DirectoryInfo aDirectory in deleteBackupSets) {
+				aDirectory.MoveTo(aDirectory.FullName + "_delete"); // we first rename it, so it will not be used to copy data from, if the next backup starts immediately
 				aDirectory.Delete(true);
 			}
 		}
