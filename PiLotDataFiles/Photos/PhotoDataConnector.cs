@@ -5,7 +5,6 @@ using System.Linq;
 using SixLabors.ImageSharp;
 
 using PiLot.Model.Photos;
-using PiLot.Utils;
 using PiLot.Utils.Logger;
 using System.Globalization;
 

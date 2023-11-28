@@ -23,12 +23,5 @@ namespace PiLot.Backup.API.Helpers {
 		[JsonPropertyName("backupPath")]
 		public String BackupPath { get; set; }
 
-		/// <summary>
-		/// A specific path for backing up photos, as they will not be
-		/// backed up in multiple sets
-		/// </summary>
-		[JsonPropertyName("backupPhotosPath")]
-		public String BackupPhotosPath { get; set; }
-
 	}
 }
