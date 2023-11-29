@@ -30,6 +30,7 @@ namespace PiLot.Backup.Client {
 	class Program {
 
 		private const Int32 TIMERINTERVALMS = 1000 * 60 * 5;
+		private const Int32 MININTERVALMS = 1000 * 30; // we will sleep at least some seconds between backups in oder to clean up properly on the server.
 		private static Boolean busy = false;
 
 		/// <summary>
@@ -70,9 +71,8 @@ namespace PiLot.Backup.Client {
 				Program.TimerEventAsync();
 				end = DateTime.UtcNow;
 				sleepMS = TIMERINTERVALMS - (Int32)(end - start).TotalMilliseconds;
-				if (sleepMS > 0) {
-					Thread.Sleep(sleepMS);
-				}
+				sleepMS = Math.Max(sleepMS, MININTERVALMS);
+				Thread.Sleep(sleepMS);
 			}
 		}
 
