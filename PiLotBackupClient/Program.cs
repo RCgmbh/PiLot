@@ -32,6 +32,7 @@ namespace PiLot.Backup.Client {
 		private const Int32 TIMERINTERVALMS = 1000 * 60 * 5;
 		private const Int32 MININTERVALMS = 1000 * 30; // we will sleep at least some seconds between backups in oder to clean up properly on the server.
 		private static Boolean busy = false;
+		private static Boolean full = false;
 
 		/// <summary>
 		/// Usage: ./PiLot.Backup.Client [verbose] 
@@ -43,6 +44,7 @@ namespace PiLot.Backup.Client {
 
 			List<String> argsList = args.ToList();
 			Boolean verbose = argsList.Any(a => a.ToLower() == "verbose");
+			Program.full = argsList.Any(a => a.ToLower() == "full");
 			if (verbose) {
 				Out.SetMode(Out.Modes.Console);
 			}
@@ -103,6 +105,10 @@ namespace PiLot.Backup.Client {
 					Boolean success = true;
 					foreach (BackupTask aTask in aTarget.BackupTasks) {
 						Out.WriteDebug($"Starting Backup for task {aTask.DataType}: {aTask.DataSource}");
+						if (Program.full) {
+							Out.WriteInfo($"Performing full backup");
+							aTask.LastSuccess = null;
+						}
 						success = success && await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
 					}
 					if (success) {
