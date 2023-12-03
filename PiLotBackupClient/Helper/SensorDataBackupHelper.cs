@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 using PiLot.Backup.Client.Model;
 using PiLot.Backup.Client.Proxies;
-using PiLot.Data.Files;
+using PiLot.Backup.Client.Data;
 using PiLot.Model.Sensors;
 
 namespace PiLot.Backup.Client.Helper {
@@ -25,27 +25,21 @@ namespace PiLot.Backup.Client.Helper {
 		/// </summary>
 		/// <param name="pTask">The backup task, neede to get the last Backup date</param>
 		/// <param name="pBackupTime">The date of the backup</param>
-		public async Task<Boolean> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
+		public async Task<BackupTaskResult> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
 			Boolean success = true;
 			DateTime lastBackupDate = pTask.LastSuccess ?? new DateTime(0);
-			try {
-				Dictionary<Date, List<SensorDataRecord>> changedData = new SensorDataConnector().GetChangedDailyData(pTask.DataSource, lastBackupDate);
-				Boolean serviceResult;
-				foreach (Date aDate in changedData.Keys) {
-					serviceResult = await this.proxy.BackupSensorDataAsync(changedData[aDate], pTask.DataSource, pBackupTime);
-					if (serviceResult) {
-						Out.WriteDebug(String.Format($"Sensor data backupped for sensor {pTask.DataSource} and date {aDate:d}"));
-					} else {
-						Out.WriteError(String.Format($"Backing up sensor data for sensor {pTask.DataSource} and date {aDate:d} failed"));
-						success = false;
-					}
+			BackupTaskData<Dictionary<Date, List<SensorDataRecord>>> backupSensorData = new SensorDataConnector().GetChangedDailyData(pTask.DataSource, lastBackupDate);
+			Boolean serviceResult;
+			foreach (Date aDate in backupSensorData.ChangedItems.Keys) {
+				serviceResult = await this.proxy.BackupSensorDataAsync(backupSensorData.ChangedItems[aDate], pTask.DataSource, pBackupTime);
+				if (serviceResult) {
+					Out.WriteDebug(String.Format($"Sensor data backupped for sensor {pTask.DataSource} and date {aDate:d}"));
+				} else {
+					Out.WriteError(String.Format($"Backing up sensor data for sensor {pTask.DataSource} and date {aDate:d} failed"));
+					success = false;
 				}
-			} catch (Exception ex) {
-				Out.WriteError(String.Format($"Backing up sensor data for sensor {pTask.DataSource} failed"));
-				Out.WriteError($"SensorDataBackupHelper.PerformBackupTaskAsync: {ex.Message}");
-				success = false;
 			}
-			return success;
+			return new BackupTaskResult(success, backupSensorData.TotalItems);
 		}
 	}
 }

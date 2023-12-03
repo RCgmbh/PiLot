@@ -11,11 +11,11 @@ namespace PiLot.Backup.Client.Helper {
 	interface IBackupHelper {
 
 		/// <summary>
-		/// Performs a backup task and returns true, if it was successful
+		/// Performs a backup task and returns a result which indicates whether the
+		/// task was successful, and how much data there is in total for the source.
 		/// </summary>
 		/// <param name="pTask"></param>
 		/// <param name="pBackupTime"></param>
-		/// <returns>true: success, false: failed</returns>
-		Task<Boolean> PerformBackupTaskAsync (BackupTask pTask, DateTime pBackupTime);
+		Task<BackupTaskResult> PerformBackupTaskAsync (BackupTask pTask, DateTime pBackupTime);
 	}
 }

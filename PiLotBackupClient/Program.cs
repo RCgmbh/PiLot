@@ -16,6 +16,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
+using PiLot.Model.Common;
 using PiLot.Backup.Client.Helper;
 using PiLot.Backup.Client.Model;
 using PiLot.Backup.Client.Proxies;
@@ -101,6 +102,8 @@ namespace PiLot.Backup.Client {
 			foreach (BackupTarget aTarget in configHelper.BackupTargets) {
 				proxy = new BackupServiceProxy(aTarget.TargetUrl, aTarget.Username, aTarget.Password);
 				Out.WriteInfo($"Starting Backup for target {aTarget.TargetUrl}");
+				BackupTaskResult? backupTaskResult;
+				Dictionary<BackupTask, BackupTaskResult> backupTaskResults = new();
 				if (await proxy.PingAsync()) {
 					Boolean success = true;
 					foreach (BackupTask aTask in aTarget.BackupTasks) {
@@ -109,7 +112,11 @@ namespace PiLot.Backup.Client {
 							Out.WriteInfo($"Performing full backup");
 							aTask.LastSuccess = null;
 						}
-						success = success && await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
+						backupTaskResult = await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
+						if(backupTaskResult != null) {
+							backupTaskResults[aTask] = backupTaskResult.Value;
+							success = success && backupTaskResult.Value.Success;
+						}
 					}
 					if (success) {
 						success = success && await proxy.CommitAsync(backupDate);
@@ -135,9 +142,9 @@ namespace PiLot.Backup.Client {
 		/// <param name="pTask">The task to be performed</param>
 		/// <param name="pProxy">The proxy, created for the Task's backup target</param>
 		/// <param name="pBackupTime">A DateTime to be used for each backupTask in order to get one single BackupSet</param>
-		private static async Task<Boolean> PerformBackupTaskAsync(BackupTask pTask, BackupServiceProxy pProxy, DateTime pBackupTime) {
+		private static async Task<BackupTaskResult?> PerformBackupTaskAsync(BackupTask pTask, BackupServiceProxy pProxy, DateTime pBackupTime) {
 			IBackupHelper backupHelper = null;
-			Boolean result = true;
+			BackupTaskResult? result = null;
 			switch (pTask.DataType) {
 				case DataTypes.GPS:
 					backupHelper = new GpsBackupHelper(pProxy);
@@ -155,7 +162,10 @@ namespace PiLot.Backup.Client {
 					backupHelper = new PoisBackupHelper(pProxy);
 					break;
 				case DataTypes.Photos:
-					backupHelper = new PhotosBackupHelper(pProxy);
+					backupHelper = new PhotoBackupHelper(pProxy);
+					break;
+				default:
+					Logger.Log($"PerformBackupTaskAsync: Unknown DataType: {pTask.DataType}. Skipping", LogLevels.WARNING);
 					break;
 			}
 			if (backupHelper != null) {

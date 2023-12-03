@@ -25,7 +25,7 @@ namespace PiLot.Data.Files {
 
 		#region instance variables
 
-		private DataHelper dataHelper;
+		protected DataHelper dataHelper;
 		private String dataRoot = null;
 
 		#endregion
@@ -98,6 +98,20 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns the total number of LogbookDays, even those with no data inside
+		/// </summary>
+		public Int32 ReadLogbookDaysCount() {
+			Int32 result;
+			DirectoryInfo logbookDirectory = new DirectoryInfo(this.dataHelper.GetDataPath(LOGBOOKDIR, false));
+			if (logbookDirectory.Exists) {
+				result = logbookDirectory.GetFiles("*", SearchOption.AllDirectories).Length;
+			} else {
+				result = 0;
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// Reads the latest BoatSetup within LogbookEntries before or at pDate, where
 		/// the BoatSetup corresponds to the BoatConfig named pBoatConfig. Goes back a
 		/// certain number of days, see BOATSETUPMAXDAYS and returns null, if nothing
@@ -145,7 +159,7 @@ namespace PiLot.Data.Files {
 				maxMS = DateTimeHelper.ToJSTime(loopDate.AddDays(1));
 				hasTrack = track.GpsRecords.Exists(r => (r.BoatTime != null) && (r.BoatTime >= minMS) && (r.BoatTime <= maxMS));
 				logbookDay = this.ReadLogbookDay(loopDate);
-				hasLogbook = new FileInfo(this.GetLogbookFilePath(new Model.Common.Date(loopDate), false)).Exists;
+				hasLogbook = logbookDay != null && logbookDay.HasData;
 				hasPhotos = photoData.HasPhotos(loopDate);
 				result.Add(new {
 					hasTrack,
@@ -165,28 +179,24 @@ namespace PiLot.Data.Files {
 		/// <param name="pUpdateDateChanged">Optionally set false to not update the DateChanged attribute</param>
 		public void SaveLogbookDay(LogbookDay pLogbookDay, Boolean pUpdateDateChanged = true) {
 			if (pLogbookDay != null) {
-				if (pLogbookDay.HasData) {
-					if (pUpdateDateChanged) {
-						pLogbookDay.DateChanged = DateTimeHelper.ToUnixTime(DateTime.UtcNow);
+				if (pUpdateDateChanged) {
+					pLogbookDay.DateChanged = DateTimeHelper.ToUnixTime(DateTime.UtcNow);
+				}
+				pLogbookDay.LogbookEntries.ForEach(e => {
+					if (e.EntryID == null) {
+						e.EntryID = this.CreateLogbookEntryID(e, pLogbookDay);
 					}
-					pLogbookDay.LogbookEntries.ForEach(e => {
-						if (e.EntryID == null) {
-							e.EntryID = this.CreateLogbookEntryID(e, pLogbookDay);
-						}
-					});
-					pLogbookDay.LogbookEntries.Sort((x, y) => x.Utc.CompareTo(y.Utc));
-					String json = null;
-					try {
-						json = JsonSerializer.Serialize(pLogbookDay);
-					} catch (Exception ex) {
-						Logger.Log("Error when trying to serialize Object. Exception: {0}, Object:{1:d}", ex.Message, pLogbookDay.Date, LogLevels.WARNING);
-						throw;
-					}
-					if (json != null) {
-						File.WriteAllText(this.GetLogbookFilePath(pLogbookDay.Date, true), json);
-					}
-				} else {
-					this.DeleteEmptyLogbookDay(pLogbookDay);
+				});
+				pLogbookDay.LogbookEntries.Sort((x, y) => x.Utc.CompareTo(y.Utc));
+				String json = null;
+				try {
+					json = JsonSerializer.Serialize(pLogbookDay);
+				} catch (Exception ex) {
+					Logger.Log("Error when trying to serialize Object. Exception: {0}, Object:{1:d}", ex.Message, pLogbookDay.Date, LogLevels.WARNING);
+					throw;
+				}
+				if (json != null) {
+					File.WriteAllText(this.GetLogbookFilePath(pLogbookDay.Date, true), json);
 				}
 			}
 		}
@@ -246,11 +256,7 @@ namespace PiLot.Data.Files {
 				if (logbookEntry != null) {
 					result = true;
 					logbookDay.LogbookEntries.Remove(logbookEntry);
-					if (logbookDay.HasData) {
-						this.SaveLogbookDay(logbookDay);
-					} else {
-						this.DeleteEmptyLogbookDay(logbookDay);
-					}
+					this.SaveLogbookDay(logbookDay);
 				}
 			}
 			return result;
@@ -277,47 +283,8 @@ namespace PiLot.Data.Files {
 			} else {
 				pLogbookDay.DiaryText = pText.Text;
 			}
-			if (pLogbookDay.HasData) {
-				this.SaveLogbookDay(pLogbookDay);
-			} else {
-				this.DeleteEmptyLogbookDay(pLogbookDay);
-			}
+			this.SaveLogbookDay(pLogbookDay);
 			return isNew;
-		}
-
-		/// <summary>
-		/// Returns a list of all GPS records that have been changed after a certain
-		/// date, clustered by date
-		/// </summary>
-		/// <returns></returns>
-		public List<LogbookDay> GetChangedData(DateTime pChangedAfter) {
-			List<LogbookDay> result = new List<LogbookDay>();
-			string dataPath = this.dataHelper.GetDataPath(LOGBOOKDIR);
-			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
-			LogbookDay logbookDay;
-			foreach (var aFile in dataDir.EnumerateFiles("*", SearchOption.AllDirectories)) {
-				if (aFile.LastWriteTimeUtc > pChangedAfter) {
-					logbookDay = this.ReadLogbookDay(aFile.FullName);
-					if (logbookDay != null) {
-						result.Add(logbookDay);
-					}
-				}
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// This checks, if the logbook has no entry and no diary text, and in that case
-		/// deletes the logbook file, if one exists. Returns true, if there is no data
-		/// in the logbook
-		/// </summary>
-		/// <param name="pLogbookDay">A LogbookDay with no data</param>
-		private void DeleteEmptyLogbookDay(LogbookDay pLogbookDay) {
-			Assert.IsFalse(pLogbookDay.HasData);
-			String filePath = this.GetLogbookFilePath(pLogbookDay.Date, false);
-			if (File.Exists(filePath)) {
-				File.Delete(filePath);
-			}
 		}
 
 		/// <summary>

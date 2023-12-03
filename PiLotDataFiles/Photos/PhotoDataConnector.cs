@@ -6,7 +6,6 @@ using SixLabors.ImageSharp;
 
 using PiLot.Model.Photos;
 using PiLot.Utils.Logger;
-using System.Globalization;
 
 namespace PiLot.Data.Files {
 
@@ -21,7 +20,7 @@ namespace PiLot.Data.Files {
 
 		#region instance variables
 
-		private DataHelper helper;
+		protected DataHelper helper;
 
 		#endregion
 
@@ -91,33 +90,6 @@ namespace PiLot.Data.Files {
 				ZoomFolders = this.GetImageFolders(),
 				ImageNames = imageNames
 			};
-		}
-
-		/// <summary>
-		/// Gets a list of images that have been changed after a certain time
-		/// </summary>
-		/// <param name="pChangedAfter">Photos must have been created or changed after that date</param>
-		public List<ImageReference> ReadChangedPhotos(DateTime pChangedAfter) {
-			List<ImageReference> result = new List<ImageReference>();
-			Date day;
-			DirectoryInfo photosRoot = new DirectoryInfo(this.helper.GetDataPath(PHOTOSROOTDIR, false));
-			DirectoryInfo[] directories = photosRoot.GetDirectories();
-			foreach(DirectoryInfo aDirectory in directories) {
-				if(Date.TryParseExact(aDirectory.Name, PHOTODIRFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out day)) {
-					foreach(FileInfo aFile in aDirectory.EnumerateFiles()) {
-						if(aFile.LastAccessTimeUtc >= pChangedAfter) {
-							result.Add(new ImageReference() { 
-								Path = aFile.FullName,
-								Name = aFile.Name,
-								Day = day
-							});
-						}
-					}
-				} else {
-					Logger.Log($"PhotoDataConnector: Invalid daily photos directory found: {aDirectory.Name}", LogLevels.WARNING);
-				}
-			}
-			return result;
 		}
 
 		/// <summary>

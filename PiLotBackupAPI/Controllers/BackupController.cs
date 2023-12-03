@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PiLot.Backup.API.ActionFilters;
 using PiLot.Backup.API.Helpers;
+using PiLot.Model.Common;
 using PiLot.Model.Users;
 using PiLot.Utils.DateAndTime;
 
@@ -37,6 +39,13 @@ namespace PiLot.Backup.API.Controllers {
 				result = this.Unauthorized();
 			}
 			return result;
+		}
+
+		[Route(Program.APIROOT + "[controller]/summary")]
+		[HttpGet]
+		[ServiceFilter(typeof(BackupAuthorizationFilter))]
+		public Dictionary<DataSource, Int32> GetDataSummary(List<DataSource> dataSources) {
+
 		}
 	}
 }

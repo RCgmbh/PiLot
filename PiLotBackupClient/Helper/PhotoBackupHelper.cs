@@ -5,8 +5,7 @@ using System.Threading.Tasks;
 
 using PiLot.Backup.Client.Model;
 using PiLot.Backup.Client.Proxies;
-using PiLot.Data.Files;
-using PiLot.Model.Logbook;
+using PiLot.Backup.Client.Data;
 using PiLot.Model.Photos;
 using PiLot.Utils.Logger;
 
@@ -15,27 +14,27 @@ namespace PiLot.Backup.Client.Helper {
 	/// <summary>
 	/// Helper to create backups of Photos
 	/// </summary>
-	public class PhotosBackupHelper : BackupHelper, IBackupHelper {
+	public class PhotoBackupHelper : BackupHelper, IBackupHelper {
 
 		/// <summary>
 		/// Default constructor, requires a BackupServiceProxy
 		/// </summary>
 		/// <param name="pProxy">The proxy used to consume the api</param>
-		public PhotosBackupHelper(BackupServiceProxy pProxy):base(pProxy) { }
+		public PhotoBackupHelper(BackupServiceProxy pProxy):base(pProxy) { }
 
 		/// <summary>
 		/// Reads newly created or changed photos and sends them to the backup service
 		/// </summary>
 		/// <param name="pTask">The backup task, needed to get the last Backup date</param>
 		/// <param name="pBackupTime">The date of the backup</param>
-		public async Task<Boolean> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
+		public async Task<BackupTaskResult> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
 			Boolean success = true;
 			DateTime lastBackupDate = pTask.LastSuccess ?? new DateTime(0);
-			List<ImageReference> changedPhotos = new PhotoDataConnector().ReadChangedPhotos(lastBackupDate);
+			BackupTaskData<List<ImageReference>> backupPhotosData = new PhotoDataConnector().ReadChangedPhotos(lastBackupDate);
 			Boolean serviceResult;
 			Byte[] bytes = null;
 			ImageData imageData = null;
-			foreach(ImageReference aPhoto in changedPhotos) {
+			foreach(ImageReference aPhoto in backupPhotosData.ChangedItems) {
 				try {
 					bytes = File.ReadAllBytes(aPhoto.Path);
 				} catch(Exception ex) {
@@ -58,7 +57,7 @@ namespace PiLot.Backup.Client.Helper {
 					}
 				}
 			}
-			return success;
+			return new BackupTaskResult(success, backupPhotosData.TotalItems);
 		}
 	}
 }

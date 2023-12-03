@@ -4,8 +4,7 @@ using System.Threading.Tasks;
 
 using PiLot.Backup.Client.Model;
 using PiLot.Backup.Client.Proxies;
-using PiLot.Data;
-using PiLot.Data.Files;
+using PiLot.Backup.Client.Data;
 using PiLot.Model.Nav;
 
 namespace PiLot.Backup.Client.Helper {
@@ -26,14 +25,14 @@ namespace PiLot.Backup.Client.Helper {
 		/// </summary>
 		/// <param name="pTask">The backup task, neede to get the last Backup date</param>
 		/// <param name="pBackupTime">The date of the backup</param>
-		public async Task<Boolean> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
+		public async Task<BackupTaskResult> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
 			Boolean success = true;
 			DateTime lastBackupDate = pTask.LastSuccess ?? new DateTime(0);
-			Data.Postgres.Nav.PoiDataConnector dataConnector = new Data.Postgres.Nav.PoiDataConnector();
+			PoiDataConnector dataConnector = new PoiDataConnector();
 			DateTime? lastPoiChange = dataConnector.ReadLatestChange();
+			List<Poi> allPois = dataConnector.ReadPois();
 			if((lastPoiChange != null) && (lastPoiChange > lastBackupDate)) {
 				Boolean serviceResult;
-				List<Poi> allPois = dataConnector.ReadPois();
 				List<PoiCategory> allCategories = dataConnector.ReadPoiCategories();
 				List<PoiFeature> allFeatures = dataConnector.ReadPoiFeatures();
 				serviceResult = await this.proxy.BackupPoiDataAsync(allPois, allCategories, allFeatures, pBackupTime);
@@ -44,7 +43,7 @@ namespace PiLot.Backup.Client.Helper {
 					success = false;
 				}
 			}
-			return success;
+			return new BackupTaskResult(success, allPois.Count);
 		}
 	}
 }

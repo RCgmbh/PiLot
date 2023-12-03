@@ -19,7 +19,7 @@ namespace PiLot.Data.Files {
 
 		#region instance variables
 
-		private DataHelper helper;
+		protected DataHelper helper;
 
 		#endregion
 
@@ -137,26 +137,6 @@ namespace PiLot.Data.Files {
 			if (file.Exists) {
 				file.Delete();
 				result = true;
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// Returns a list of all Routes that have been changed after a certain
-		/// date
-		/// </summary>
-		public List<Route> GetChangedData(DateTime pChangedAfter) {
-			List<Route> result = new List<Route>();
-			string dataPath = this.helper.GetDataPath(DATADIR);
-			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
-			Route route;
-			foreach (var aFile in dataDir.EnumerateFiles("*", SearchOption.AllDirectories)) {
-				if (aFile.LastWriteTimeUtc > pChangedAfter) {
-					route = this.ReadRouteFromFile(aFile.FullName);
-					if (route != null) {
-						result.Add(route);
-					}
-				}
 			}
 			return result;
 		}

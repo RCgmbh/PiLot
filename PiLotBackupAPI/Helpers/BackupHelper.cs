@@ -10,6 +10,7 @@ using PiLot.Model.Nav;
 using PiLot.Model.Logbook;
 using PiLot.Model.Sensors;
 using PiLot.Utils.Logger;
+using PiLot.Model.Common;
 
 namespace PiLot.Backup.API.Helpers {
 
@@ -130,6 +131,31 @@ namespace PiLot.Backup.API.Helpers {
 				BackupHelper.ClearPreviousBackups(clientRoot);
 				BackupHelper.ClearTempDirectories(clientRoot);
 			}			
+		}
+
+		public static Dictionary<DataSource, Int32> GetDataSummary(List<DataSource> pDataSources) {
+			Dictionary<DataSource, Int32> result = new();
+			foreach(DataSource aDataSource in pDataSources) {
+				Int32 dataCount = 0;
+				switch (aDataSource.DataType) {
+					case DataTypes.GPS:
+						dataCount = new GPSDataConnector().ReadDaysWithData();
+						break;
+					case DataTypes.Logbook:
+						dataCount = new LogbookDataConnector().ReadLogbookDaysCount();
+						break;
+					case DataTypes.Routes:
+						break;
+					case DataTypes.SensorData:
+						break;
+					case DataTypes.POIs:
+						break;
+					case DataTypes.Photos:
+						break;
+				}
+				result[aDataSource] = dataCount;
+			}
+			return result;
 		}
 
 		/// <summary>

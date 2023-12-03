@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
 using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
 using PiLot.Model.Nav;
+using System.Globalization;
 
 namespace PiLot.Data.Files {
 
@@ -17,13 +17,13 @@ namespace PiLot.Data.Files {
 
 		#region constants
 
-		private const String DATASOURCENAME = "gps";
+		protected const String DATASOURCENAME = "gps";
 
 		#endregion
 
 		#region instance variables
 
-		private DataHelper helper;
+		protected DataHelper helper;
 
 		#endregion
 
@@ -142,6 +142,24 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns the amount of days that have a valid gps data file, even if it's empty
+		/// means no data.
+		/// </summary>
+		/// <returns></returns>
+		public Int32 ReadDaysWithData() {
+			Int32 result = 0;
+			DirectoryInfo gpsDirectory = new DirectoryInfo(this.helper.GetDataPath(DATASOURCENAME, false));
+			if (gpsDirectory.Exists) {
+				foreach(FileInfo aFile in gpsDirectory.EnumerateFiles()) {
+					if (Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
+						result++;
+					}
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// This reads a track, but always in a way the entire data for all involved days is loaded. That way,
 		/// the data can be manipulated and saved back to files, without losing existing data.
 		/// </summary>
@@ -178,7 +196,7 @@ namespace PiLot.Data.Files {
 		/// there is a file, the file will be deleted.
 		/// </summary>
 		/// <param name="pTrack">The track for which we save the data</param>
-		/// <param name="pDates">Optionally pass a list of dates, to ensure days with no records are properly deleted</param>
+		/// <param name="pDates">Optionally pass a list of dates, to ensure days with no records are properly updated</param>
 		private void SaveTrack(Track pTrack, List<Date> pDates = null) {
 			Dictionary<Date, Track> dailyTracks = new Dictionary<Date, Track>();
 			if(pDates != null) {
@@ -196,16 +214,9 @@ namespace PiLot.Data.Files {
 			FileInfo file;
 			List<String> lines;
 			foreach (Date aKey in dailyTracks.Keys) {
-				if (dailyTracks[aKey].GpsRecords.Count > 0) {
-					lines = dailyTracks[aKey].GpsRecords.Select(r => r.ToString()).ToList();
-					file = this.helper.GetDataFile(DATASOURCENAME, aKey, true);
-					File.WriteAllLines(file.FullName, lines);
-				} else {
-					file = this.helper.GetDataFile(DATASOURCENAME, aKey, false);
-					if (file != null && file.Exists) {
-						file.Delete();
-					}
-				}
+				lines = dailyTracks[aKey].GpsRecords.Select(r => r.ToString()).ToList();
+				file = this.helper.GetDataFile(DATASOURCENAME, aKey, true);
+				File.WriteAllLines(file.FullName, lines);
 			}
 		}
 
@@ -227,7 +238,7 @@ namespace PiLot.Data.Files {
 		/// <param name="pFile">the file to read from</param>
 		/// <param name="pTrack">if a track is passed, the positions will be appended to it</param>
 		/// <returns></returns>
-		private Track ReadRecordsFromFile(FileInfo pFile, Track pTrack = null) {
+		protected Track ReadRecordsFromFile(FileInfo pFile, Track pTrack = null) {
 			List<GpsRecord> records = new List<GpsRecord>();
 			if (pFile != null) {
 				try {
@@ -247,29 +258,6 @@ namespace PiLot.Data.Files {
 				result.AddRecords(records);
 			} else {
 				result = new Track(records);
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// Returns a list of all GPS records that have been changed after a certain
-		/// date, clustered by date
-		/// </summary>
-		/// <returns>A Dictionary with the track for each UTC Day</returns>
-		public Dictionary<Date, Track> GetChangedDailyData(DateTime pChangedAfter) {
-			Dictionary<Date, Track> result = new Dictionary<Date, Track>();
-			string dataPath = this.helper.GetDataPath(DATASOURCENAME);
-			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
-			if (dataDir.Exists) {
-				foreach (var aFile in dataDir.EnumerateFiles()) {
-					if (aFile.LastWriteTimeUtc > pChangedAfter) {
-						if (Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
-							result.Add(date, this.ReadRecordsFromFile(aFile));
-						}
-					}
-				}
-			} else {
-				Logger.Log($"GPSDataConnector.GetChangedDailyData: gps directory not found at {dataPath}", LogLevels.WARNING);
 			}
 			return result;
 		}

@@ -16,7 +16,7 @@ namespace PiLot.Data.Files {
 	/// </summary>
 	public class SensorDataConnector {
 
-		private DataHelper dataHelper;
+		protected DataHelper dataHelper;
 		// we use these variable in loops, and save some memory-allocation that way :-)
 		private String[] segments;
 		private Int32 utc;
@@ -161,39 +161,11 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Reads all data that has been changed after a certain time, by just reading those files
-		/// that have a younger changed after value. The result is clustered by date, giving one
-		/// list of SensorDataRecords per day.
-		/// </summary>
-		/// <param name="pSensorName">The name of the sensor</param>
-		/// <param name="pChangedAfter">The minimal changed date</param>
-		/// <returns></returns>
-		public Dictionary<Date, List<SensorDataRecord>> GetChangedDailyData(String pSensorName, DateTime pChangedAfter) {
-			Dictionary<Date, List<SensorDataRecord>> result = new Dictionary<Date, List<SensorDataRecord>>();
-			string dataPath = this.dataHelper.GetDataPath(pSensorName);
-			DirectoryInfo dataDir = new DirectoryInfo(dataPath);
-			if (dataDir.Exists) {
-				foreach (var aFile in dataDir.EnumerateFiles()) {
-					if (aFile.LastWriteTimeUtc > pChangedAfter) {
-						if(Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
-							result.Add(date, this.ReadRawData(aFile));
-						} else {
-							Logger.Log($"Filename does not represent a date: {aFile.FullName}", LogLevels.WARNING);
-						}						
-					}
-				}
-			} else {
-				Logger.Log($"SensorDataConnector.GetChangedDailyData: Invalid directory: {dataPath}", LogLevels.WARNING);
-			}
-			return result;
-		}
-
-		/// <summary>
 		/// This returns a list of all SensorDataRecords from a specified file, if the file exists.
 		/// Otherwise returns an empty list.
 		/// </summary>
 		/// <param name="pFile">The file containing data. Can be null, which will return an empty list.</param>
-		private List<SensorDataRecord> ReadRawData(FileInfo pFile) {
+		protected List<SensorDataRecord> ReadRawData(FileInfo pFile) {
 			List<SensorDataRecord> result = new List<SensorDataRecord>();
 			if ((pFile != null) && pFile.Exists) {
 				try {
