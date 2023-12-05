@@ -45,7 +45,7 @@ namespace PiLot.Backup.API.Controllers {
 		[HttpPost]
 		[ServiceFilter(typeof(BackupAuthorizationFilter))]
 		public ActionResult GetDataSummary(List<DataSource> dataSources, Int32 backupTime) {
-			Dictionary<DataSource, Int32> result = null;
+			List<Tuple<DataSource, Int32>> result = null;
 			Object userObj = this.HttpContext.Items["user"];
 			if (userObj != null) {
 				User user = (User)userObj;

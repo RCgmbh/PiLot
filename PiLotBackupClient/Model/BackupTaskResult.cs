@@ -11,12 +11,12 @@ namespace PiLot.Backup.Client.Model {
 
 		public BackupTaskResult(Boolean pSuccess, Int32 pTotalDailyData) {
 			this.Success = pSuccess;
-			this.TotalDailyData = pTotalDailyData;
+			this.TotalDataCount = pTotalDailyData;
 		}
 
 		public Boolean Success { get; set; }
 
-		public Int32 TotalDailyData { get; set; }
+		public Int32 TotalDataCount { get; set; }
 
 	}
 }

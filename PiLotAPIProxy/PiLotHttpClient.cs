@@ -59,7 +59,7 @@ namespace PiLot.APIProxy {
 		/// <param name="pJson">The payload to post</param>
 		/// <returns>A ProxyResult object of the given type</returns>
 		public async Task<ProxyResult<T>> PostAsync<T>(String pUrl, String pJson) {
-			ProxyResult<T> result = await this.CallAsync<T>(HttpMethod.Get, pJson, pUrl);
+			ProxyResult<T> result = await this.CallAsync<T>(HttpMethod.Post, pJson, pUrl);
 			return result;
 		}
 
@@ -105,7 +105,7 @@ namespace PiLot.APIProxy {
 			if (!String.IsNullOrEmpty(pJson)) {
 				content = new StringContent(pJson, Encoding.UTF8, "application/json");
 			}
-			ProxyResult<String> stringResult = await this.CallAsync(HttpMethod.Put, pUrl, content, false);
+			ProxyResult<String> stringResult = await this.CallAsync(pMethod, pUrl, content, false);
 			Logger.Log($"PiLotHttpClient.GetAsync<T>: Recieved Data: {stringResult.Data}, url: {pUrl}", LogLevels.DEBUG);
 			if (stringResult.Success) {
 				result.Success = true;

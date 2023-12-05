@@ -21,6 +21,7 @@ using PiLot.Backup.Client.Helper;
 using PiLot.Backup.Client.Model;
 using PiLot.Backup.Client.Proxies;
 using PiLot.Utils.Logger;
+using PiLot.APIProxy;
 
 namespace PiLot.Backup.Client {
 
@@ -119,6 +120,9 @@ namespace PiLot.Backup.Client {
 						}
 					}
 					if (success) {
+						success = success && await Program.VerifyBackupAsync(aTarget.BackupTasks, backupDate, backupTaskResults, proxy);
+					}
+					if (success) {
 						success = success && await proxy.CommitAsync(backupDate);
 					}
 					if (success) {
@@ -134,6 +138,27 @@ namespace PiLot.Backup.Client {
 					Out.WriteInfo($"Did not start backup because target {aTarget.TargetUrl} can not be reached");
 				}
 			}
+		}
+
+		private static async Task<Boolean> VerifyBackupAsync(List<BackupTask> pBackupTasks, DateTime pBackupDate, Dictionary<BackupTask, BackupTaskResult> pBackupTaskResults, BackupServiceProxy pProxy) {
+			ProxyResult<List<Tuple<DataSource, Int32>>> proxyResult = await pProxy.VerifyAsync(pBackupTasks, pBackupDate);
+			Boolean result;
+			if (proxyResult.Success) {
+				result = true;
+				foreach (BackupTask aBackupTask in pBackupTaskResults.Keys) {
+					Tuple<DataSource, Int32> tuple = proxyResult.Data.FirstOrDefault(t => t.Item1.DataType == aBackupTask.DataType && t.Item1.Name == aBackupTask.DataSource);
+					Int32 totalLocalData = pBackupTaskResults[aBackupTask].TotalDataCount;
+					Int32 totalBackupData = tuple.Item2;
+					if(totalBackupData != totalLocalData) {
+						result = false;
+						Out.WriteError($"PiLot.Backup.Client Verification mismatch: expected: {totalLocalData}, in backup: {totalBackupData}, data source: {aBackupTask.DataSource}");
+					}
+				}
+			} else {
+				Out.WriteError("BackupServiceProxy: Verification failed");
+				result = false;
+			}
+			return result;
 		}
 
 		/// <summary>
