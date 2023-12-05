@@ -11,6 +11,11 @@ namespace PiLot.Model.Common {
 
 	public struct DataSource {
 
+		public DataSource(DataTypes pType, String pName) {
+			this.DataType = pType;
+			this.Name = pName;
+		}
+
 		[JsonPropertyName("dataType")]
 		public DataTypes DataType {
 			get;set;

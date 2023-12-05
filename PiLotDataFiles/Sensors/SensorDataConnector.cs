@@ -122,6 +122,20 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns the total number of days with sensor data, based on the number of existing files
+		/// </summary>
+		public Int32 ReadDaysWithData(String pSensorName) {
+			Int32 result;
+			DirectoryInfo dataDirectory = new DirectoryInfo(this.dataHelper.GetDataPath(pSensorName, false));
+			if (dataDirectory.Exists) {
+				result = dataDirectory.GetFiles().Length;
+			} else {
+				result = 0;
+			}
+			return result;					
+		}
+
+		/// <summary>
 		/// Returns an aggregated list of Sensor Data which lies between 
 		/// </summary>
 		/// <param name="pSensorName">The name of the sensor / data source</param>

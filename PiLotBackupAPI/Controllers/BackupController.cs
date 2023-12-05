@@ -42,10 +42,18 @@ namespace PiLot.Backup.API.Controllers {
 		}
 
 		[Route(Program.APIROOT + "[controller]/summary")]
-		[HttpGet]
+		[HttpPost]
 		[ServiceFilter(typeof(BackupAuthorizationFilter))]
-		public Dictionary<DataSource, Int32> GetDataSummary(List<DataSource> dataSources) {
-
+		public ActionResult GetDataSummary(List<DataSource> dataSources, Int32 backupTime) {
+			Dictionary<DataSource, Int32> result = null;
+			Object userObj = this.HttpContext.Items["user"];
+			if (userObj != null) {
+				User user = (User)userObj;
+				result = BackupHelper.GetDataSummary(dataSources, user.Username, DateTimeHelper.FromUnixTime(backupTime));
+				return this.Ok(result);
+			} else {
+				return this.Unauthorized();
+			}			
 		}
 	}
 }

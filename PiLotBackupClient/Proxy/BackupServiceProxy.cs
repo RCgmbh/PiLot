@@ -10,6 +10,9 @@ using PiLot.Utils;
 using PiLot.Utils.DateAndTime;
 using PiLot.Model.Sensors;
 using PiLot.Model.Photos;
+using PiLot.Backup.Client.Model;
+using PiLot.Model.Common;
+using System.Linq;
 
 namespace PiLot.Backup.Client.Proxies {
 
@@ -113,6 +116,15 @@ namespace PiLot.Backup.Client.Proxies {
 			String qsDay = pImage.Day.Value.ToString("yyyy-MM-dd");
 			String url = $"{this.apiUrl}/Photos?day={qsDay}&fileName={pImage.Name}";
 			return await this.httpClient.PutAsync(pImage.Bytes, url);
+		}
+
+		public async Task<Boolean> VerifyAsync(List<BackupTask> pTasks, DateTime pBackupTime) {
+			List<DataSource> dataScources = pTasks.Select(t => new DataSource(t.DataType, t.DataSource)).ToList();
+			String url = $"{this.apiUrl}/Backup/summary?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			String jsonString = JsonSerializer.Serialize(dataScources);
+			ProxyResult<Dictionary<DataSource, Int32>> proxyResult = await this.httpClient.PostAsync<Dictionary<DataSource, Int32>>(url, jsonString);
+
+			return false;
 		}
 
 		/// <summary>

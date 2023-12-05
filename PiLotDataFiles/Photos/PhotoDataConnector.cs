@@ -93,6 +93,22 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns the total number of photos, without the thumbnails. Only photos that are
+		/// stored in a subdirectory of the photos directory will be counted.
+		/// </summary>
+		/// <returns></returns>
+		public Int32 ReadPhotosCount() {
+			Int32 result = 0;
+			DirectoryInfo photosDirectory = new DirectoryInfo(this.helper.GetDataPath(PHOTOSROOTDIR, false));
+			if (photosDirectory.Exists) {
+				foreach(DirectoryInfo aDateDirectory in photosDirectory.GetDirectories()) {
+					result += aDateDirectory.GetFiles().Length;
+				}
+			} 
+			return result;
+		}
+
+		/// <summary>
 		/// This saves an image and creates the thumbnails. The folder
 		/// to save to is based on the day the picture was taken. If
 		/// this is not passed within the ImageData, we try to extract

@@ -99,6 +99,20 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns the total number of routes based on the existing files, without looking into them.
+		/// </summary>
+		public Int32 ReadRoutesCount() {
+			Int32 result;
+			DirectoryInfo routesDirectory = new DirectoryInfo(this.GetRoutesPath());
+			if (routesDirectory.Exists) {
+				result = routesDirectory.GetFiles().Length;
+			} else {
+				result = 0;
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// saves pRoute as json to the datadirectory. if pRoute is null, then nothing happens.
 		/// For the route and for each waypoint, an ID is created if necessary
 		/// </summary>

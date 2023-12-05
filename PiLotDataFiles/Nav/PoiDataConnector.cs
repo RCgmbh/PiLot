@@ -74,6 +74,27 @@ namespace PiLot.Data.Files {
 			this.SaveData(pPoiFeatures, FEATURESFILENAME);
 		}
 
+		/// <summary>
+		/// Returns all pois, or an empty list of pois
+		/// </summary>
+		/// <returns></returns>
+		public List<Poi> ReadAllPois() {
+			List<Poi> result;
+			FileInfo file = this.GetFile(true, POISFILENAME);
+			if (file.Exists) {
+				String content = File.ReadAllText(file.FullName);
+				try {
+					result = JsonSerializer.Deserialize<List<Poi>>(content);
+				} catch(Exception ex) {
+					Logger.Log($"PoiDataConnector: Error when trying to deserialize Object. Exception: {ex.Message}", LogLevels.ERROR);
+					result = new List<Poi>();
+				}
+			} else {
+				result = new List<Poi>();
+			}
+			return result;
+		}
+
 		#endregion
 
 		#region private methods

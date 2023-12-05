@@ -110,7 +110,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pFileName">The original filename that will be reused</param>
 		/// <param name="pBytes">The image bytes</param>
 		/// <param name="pClientName">The client name</param>
-		public static void BackupPhoto(Date pDay, String pFileName, Byte[] pBytes, String pClientName) {
+		public static void BackupPhoto(System.Date pDay, String pFileName, Byte[] pBytes, String pClientName) {
 			DirectoryInfo photosBackupDirectory = BackupHelper.GetClientRoot(pClientName, true);
 			new PhotoDataConnector(photosBackupDirectory.FullName).SaveImage(pDay, pFileName, pBytes);
 			Logger.Log("Recieved photo {0} to backup", pFileName, LogLevels.DEBUG);
@@ -120,8 +120,8 @@ namespace PiLot.Backup.API.Helpers {
 		/// This renames the temp backup folder to its definitive name, and then removes any
 		/// previous backups that aren't needed anymore
 		/// </summary>
-		/// <param name="pClientName"></param>
-		/// <param name="pBackupTime"></param>
+		/// <param name="pClientName">the client name</param>
+		/// <param name="pBackupTime">the backup timestamp</param>
 		public static void CommitBackup(String pClientName, DateTime pBackupTime) {
 			DirectoryInfo tempDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, true);
 			if (tempDirectory.Exists) {
@@ -133,24 +133,36 @@ namespace PiLot.Backup.API.Helpers {
 			}			
 		}
 
-		public static Dictionary<DataSource, Int32> GetDataSummary(List<DataSource> pDataSources) {
+		/// <summary>
+		/// Takes a list of data sources, and returns the total number of items for each dataSource.
+		/// </summary>
+		/// <param name="pDataSources">The list of data sources to summarize</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">the backup timestamp</param>
+		/// <returns></returns>
+		public static Dictionary<DataSource, Int32> GetDataSummary(List<DataSource> pDataSources, String pClientName, DateTime pBackupTime) {
 			Dictionary<DataSource, Int32> result = new();
-			foreach(DataSource aDataSource in pDataSources) {
+			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, true);
+			foreach (DataSource aDataSource in pDataSources) {
 				Int32 dataCount = 0;
 				switch (aDataSource.DataType) {
 					case DataTypes.GPS:
-						dataCount = new GPSDataConnector().ReadDaysWithData();
+						dataCount = new GPSDataConnector(backupDirectory.FullName).ReadDaysWithData();
 						break;
 					case DataTypes.Logbook:
-						dataCount = new LogbookDataConnector().ReadLogbookDaysCount();
+						dataCount = new LogbookDataConnector(backupDirectory.FullName).ReadLogbookDaysCount();
 						break;
 					case DataTypes.Routes:
+						dataCount = new RouteDataConnector(backupDirectory.FullName).ReadRoutesCount();
 						break;
 					case DataTypes.SensorData:
+						dataCount = new SensorDataConnector(backupDirectory.FullName).ReadDaysWithData(aDataSource.Name);
 						break;
 					case DataTypes.POIs:
+						dataCount = new PoiDataConnector(backupDirectory.FullName).ReadAllPois().Count;
 						break;
 					case DataTypes.Photos:
+						dataCount = new PhotoDataConnector(BackupHelper.GetClientRoot(pClientName, false).FullName).ReadPhotosCount();
 						break;
 				}
 				result[aDataSource] = dataCount;
@@ -252,7 +264,9 @@ namespace PiLot.Backup.API.Helpers {
 			}
 			foreach(DirectoryInfo aDirectory in deleteBackupSets) {
 				aDirectory.MoveTo(aDirectory.FullName + "_delete"); // we first rename it, so it will not be used to copy data from, if the next backup starts immediately
-				aDirectory.Delete(true);
+			}
+			foreach(DirectoryInfo aDirectory in pClientRoot.GetDirectories("*_delete")) {
+				aDirectory.Delete(true); // it happend that directories did not get deleted immediately, so we also delete old _delete directories.
 			}
 		}
 
