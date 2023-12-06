@@ -140,8 +140,8 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">the backup timestamp</param>
 		/// <returns></returns>
-		public static List<Tuple<DataSource, Int32>> GetDataSummary(List<DataSource> pDataSources, String pClientName, DateTime pBackupTime) {
-			List<Tuple<DataSource, Int32>> result = new();
+		public static List<Int32> GetDataSummary(List<DataSource> pDataSources, String pClientName, DateTime pBackupTime) {
+			List<Int32> result = new();
 			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, true);
 			foreach (DataSource aDataSource in pDataSources) {
 				Int32 dataCount = 0;
@@ -165,7 +165,7 @@ namespace PiLot.Backup.API.Helpers {
 						dataCount = new PhotoDataConnector(BackupHelper.GetClientRoot(pClientName, false).FullName).ReadPhotosCount();
 						break;
 				}
-				result.Add(new Tuple<DataSource, int>(aDataSource, dataCount));
+				result.Add(dataCount);
 			}
 			return result;
 		}

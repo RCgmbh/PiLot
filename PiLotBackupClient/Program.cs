@@ -104,7 +104,7 @@ namespace PiLot.Backup.Client {
 				proxy = new BackupServiceProxy(aTarget.TargetUrl, aTarget.Username, aTarget.Password);
 				Out.WriteInfo($"Starting Backup for target {aTarget.TargetUrl}");
 				BackupTaskResult? backupTaskResult;
-				Dictionary<BackupTask, BackupTaskResult> backupTaskResults = new();
+				List<Int32> backupTaskResults = new();
 				if (await proxy.PingAsync()) {
 					Boolean success = true;
 					foreach (BackupTask aTask in aTarget.BackupTasks) {
@@ -114,10 +114,8 @@ namespace PiLot.Backup.Client {
 							aTask.LastSuccess = null;
 						}
 						backupTaskResult = await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
-						if(backupTaskResult != null) {
-							backupTaskResults[aTask] = backupTaskResult.Value;
-							success = success && backupTaskResult.Value.Success;
-						}
+						backupTaskResults.Add(backupTaskResult?.TotalDataCount ?? 0);
+						success = success && (backupTaskResult?.Success ?? false);
 					}
 					if (success) {
 						success = success && await Program.VerifyBackupAsync(aTarget.BackupTasks, backupDate, backupTaskResults, proxy);
@@ -140,18 +138,16 @@ namespace PiLot.Backup.Client {
 			}
 		}
 
-		private static async Task<Boolean> VerifyBackupAsync(List<BackupTask> pBackupTasks, DateTime pBackupDate, Dictionary<BackupTask, BackupTaskResult> pBackupTaskResults, BackupServiceProxy pProxy) {
-			ProxyResult<List<Tuple<DataSource, Int32>>> proxyResult = await pProxy.VerifyAsync(pBackupTasks, pBackupDate);
+		private static async Task<Boolean> VerifyBackupAsync(List<BackupTask> pBackupTasks, DateTime pBackupDate, List<Int32> pBackupTaskResults, BackupServiceProxy pProxy) {
+			ProxyResult<List<Int32>> proxyResult = await pProxy.VerifyAsync(pBackupTasks, pBackupDate);
 			Boolean result;
 			if (proxyResult.Success) {
+				List<Int32> backupSummaryItems = proxyResult.Data;
 				result = true;
-				foreach (BackupTask aBackupTask in pBackupTaskResults.Keys) {
-					Tuple<DataSource, Int32> tuple = proxyResult.Data.FirstOrDefault(t => t.Item1.DataType == aBackupTask.DataType && t.Item1.Name == aBackupTask.DataSource);
-					Int32 totalLocalData = pBackupTaskResults[aBackupTask].TotalDataCount;
-					Int32 totalBackupData = tuple.Item2;
-					if(totalBackupData != totalLocalData) {
+				for (Int32 i = 0; i < pBackupTaskResults.Count; i++) {
+					if(pBackupTaskResults[i] != backupSummaryItems[i]) {
 						result = false;
-						Out.WriteError($"PiLot.Backup.Client Verification mismatch: expected: {totalLocalData}, in backup: {totalBackupData}, data source: {aBackupTask.DataSource}");
+						Out.WriteError($"PiLot.Backup.Client Verification mismatch: expected: {pBackupTaskResults[i]}, in backup: {backupSummaryItems[i]}, data source: {pBackupTasks[i].DataSource}");
 					}
 				}
 			} else {

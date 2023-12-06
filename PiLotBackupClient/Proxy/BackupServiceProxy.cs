@@ -119,11 +119,11 @@ namespace PiLot.Backup.Client.Proxies {
 			return await this.httpClient.PutAsync(pImage.Bytes, url);
 		}
 
-		public async Task<ProxyResult<List<Tuple<DataSource, Int32>>>> VerifyAsync(List<BackupTask> pTasks, DateTime pBackupTime) {
+		public async Task<ProxyResult<List<Int32>>> VerifyAsync(List<BackupTask> pTasks, DateTime pBackupTime) {
 			List<DataSource> dataScources = pTasks.Select(t => new DataSource(t.DataType, t.DataSource)).ToList();
 			String url = $"{this.apiUrl}/Backup/summary?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
 			String jsonString = JsonSerializer.Serialize(dataScources);
-			return await this.httpClient.PostAsync<List<Tuple<DataSource, Int32>>>(url, jsonString);
+			return await this.httpClient.PostAsync<List<Int32>>(url, jsonString);
 		}
 
 		/// <summary>
