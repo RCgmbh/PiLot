@@ -31,7 +31,7 @@ namespace PiLot.Backup.Client.Helper {
 			BackupTaskData<Dictionary<Date, Track>> gpsData = new GPSDataConnector().GetChangedDailyData(lastBackupDate);
 			Boolean serviceResult;
 			foreach (Date aDate in gpsData.ChangedItems.Keys) {
-				serviceResult = await this.proxy.BackupDailyTrackAsync(gpsData.ChangedItems[aDate], pBackupTime);
+				serviceResult = await this.proxy.BackupDailyTrackAsync(gpsData.ChangedItems[aDate], aDate, pBackupTime);
 				if (serviceResult) {
 					Out.WriteDebug(String.Format("Track backupped for date {0:d}", aDate));
 				} else {

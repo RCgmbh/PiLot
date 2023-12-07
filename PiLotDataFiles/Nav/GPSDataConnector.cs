@@ -80,6 +80,17 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Saves the track for one UTC date to file, replacing the existing data for that day
+		/// </summary>
+		/// <param name="pRecords">The list of records to write</param>
+		/// <param name="pDay">The day</param>
+		public void SaveDailyTrack(List<GpsRecord> pRecords, Date pDay) {
+			IEnumerable<String> lines = pRecords.Select(r => r.ToString());
+			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay, true);
+			File.WriteAllLines(file.FullName, lines);
+		}
+
+		/// <summary>
 		/// Saves a list of positions to the files. Optionally, the existing data for the
 		/// period of the track is deleted, an then the new data is added.
 		/// </summary>
@@ -211,12 +222,8 @@ namespace PiLot.Data.Files {
 				}
 				dailyTracks[recordDate].AddRecord(aRecord);
 			}
-			FileInfo file;
-			List<String> lines;
 			foreach (Date aKey in dailyTracks.Keys) {
-				lines = dailyTracks[aKey].GpsRecords.Select(r => r.ToString()).ToList();
-				file = this.helper.GetDataFile(DATASOURCENAME, aKey, true);
-				File.WriteAllLines(file.FullName, lines);
+				this.SaveDailyTrack(dailyTracks[aKey].GpsRecords, aKey);
 			}
 		}
 

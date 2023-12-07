@@ -107,6 +107,9 @@ namespace PiLot.Backup.Client {
 				List<Int32> backupTaskResults = new();
 				if (await proxy.PingAsync()) {
 					Boolean success = true;
+					if (Program.enforceFullBackup) {
+						success = success && await proxy.PrepareAsync(backupDate, true);
+					}
 					foreach (BackupTask aTask in aTarget.BackupTasks) {
 						Out.WriteDebug($"Starting Backup for task {aTask.DataType}: {aTask.DataSource}");
 						if (Program.enforceFullBackup) {
@@ -139,7 +142,10 @@ namespace PiLot.Backup.Client {
 		}
 
 		private static async Task<Boolean> VerifyBackupAsync(List<BackupTask> pBackupTasks, DateTime pBackupDate, List<Int32> pBackupTaskResults, BackupServiceProxy pProxy) {
-			ProxyResult<List<Int32>> proxyResult = await pProxy.VerifyAsync(pBackupTasks, pBackupDate);
+			List<DataSource> dataScources = pBackupTasks
+				.Where(t => t.DataType != DataTypes.Photos && t.DataType != DataTypes.Routes)
+				.Select(t => new DataSource(t.DataType, t.DataSource)).ToList();
+			ProxyResult<List<Int32>> proxyResult = await pProxy.GetSummaryAsync(dataScources, pBackupDate);
 			Boolean result;
 			if (proxyResult.Success) {
 				List<Int32> backupSummaryItems = proxyResult.Data;

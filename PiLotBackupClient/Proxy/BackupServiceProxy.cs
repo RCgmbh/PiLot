@@ -38,9 +38,9 @@ namespace PiLot.Backup.Client.Proxies {
 		/// <param name="pTrack">The track of the day</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		/// <returns>True, if the call was successful, else false</returns>
-		public async Task<Boolean> BackupDailyTrackAsync(Track pTrack, DateTime pBackupTime) {
+		public async Task<Boolean> BackupDailyTrackAsync(Track pTrack, System.Date pTrackDay, DateTime pBackupTime) {
 			Assert.IsNotNull(pTrack, "pTrack must not be null");
-			String url = $"{this.apiUrl}/Track?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			String url = $"{this.apiUrl}/Track?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}&day={DateTimeHelper.ToUnixTime(pTrackDay)}";
 			String jsonString = JsonSerializer.Serialize(pTrack.GpsRecords);
 			return await this.httpClient.PutAsync(jsonString, url);
 		}
@@ -119,10 +119,28 @@ namespace PiLot.Backup.Client.Proxies {
 			return await this.httpClient.PutAsync(pImage.Bytes, url);
 		}
 
-		public async Task<ProxyResult<List<Int32>>> VerifyAsync(List<BackupTask> pTasks, DateTime pBackupTime) {
-			List<DataSource> dataScources = pTasks.Select(t => new DataSource(t.DataType, t.DataSource)).ToList();
+		/// <summary>
+		/// Sends the command to prepare a new backup set api, which will create a new
+		/// backup directory. This needs to be called before anything else.
+		/// </summary>
+		/// <param name="pBackupTime">The time of the current backup</param>
+		/// <param name="pFullBackup">If true, data won't be copied from the previous backup set</param>
+		/// <returns>True, if success</returns>
+		public async Task<Boolean> PrepareAsync(DateTime pBackupTime, Boolean pFullBackup) {
+			String url = $"{this.apiUrl}/Backup?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}&isFullBackup={pFullBackup}";
+			return await this.httpClient.PutAsync(String.Empty, url);
+		}
+
+		/// <summary>
+		/// Gets the backup summary from the api, which summarizes the data for the
+		/// given data sources.
+		/// </summary>
+		/// <param name="pTasks">The list of tasks that have been completed</param>
+		/// <param name="pBackupTime">The timestamp of the backup set</param>
+		/// <returns>The number of items per data source, in the order of the backup tasks in pTasks</returns>
+		public async Task<ProxyResult<List<Int32>>> GetSummaryAsync(List<DataSource> pDataSources, DateTime pBackupTime) {
 			String url = $"{this.apiUrl}/Backup/summary?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
-			String jsonString = JsonSerializer.Serialize(dataScources);
+			String jsonString = JsonSerializer.Serialize(pDataSources);
 			return await this.httpClient.PostAsync<List<Int32>>(url, jsonString);
 		}
 

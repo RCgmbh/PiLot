@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -9,8 +8,8 @@ using PiLot.Data.Files;
 using PiLot.Model.Nav;
 using PiLot.Model.Logbook;
 using PiLot.Model.Sensors;
-using PiLot.Utils.Logger;
 using PiLot.Model.Common;
+using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API.Helpers {
 
@@ -19,14 +18,26 @@ namespace PiLot.Backup.API.Helpers {
 		public const String DATEDIRECTORYFORMAT = "yyyyMMdd-HHmm";
 
 		/// <summary>
-		/// Backup GPS Data for one day
+		/// Prepares the backup by creating the backup directory, and for partial backups
+		/// copies the data from the latest backup.  
+		/// </summary>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the backup set</param>
+		/// <param name="pIsFullBackup">If true, data won't be copied from the previous backup set</param>
+		public static void PrepareBackup(String pClientName, DateTime pBackupTime, Boolean pIsFullBackup) {
+			BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true, !pIsFullBackup);
+		}
+
+		/// <summary>
+		/// Backup GPS Data for one day.
 		/// </summary>
 		/// <param name="pRecords">The gps records to save</param>
+		/// <param name="pDay">The day the track belongs to</param>
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
-		public static void BackupGpsData(List<GpsRecord> pRecords, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
-			new GPSDataConnector(backupDirectory.FullName).SavePositions(pRecords, true);
+		public static void BackupGpsData(List<GpsRecord> pRecords, System.Date pDay, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
+			new GPSDataConnector(backupDirectory.FullName).SaveDailyTrack(pRecords, pDay);
 			Logger.Log("Recieved {0} GpsRecords to backup", pRecords.Count, LogLevels.DEBUG);
 		}
 
@@ -37,7 +48,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupLogbookData(LogbookDay pLogbookDay, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			new LogbookDataConnector(backupDirectory.FullName).SaveLogbookDay(pLogbookDay, false);
 			Logger.Log("Recieved LogbookDay for date {0:d} to backup", pLogbookDay.Date, LogLevels.DEBUG);
 		}
@@ -49,7 +60,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupRoute(Route pRoute, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			new RouteDataConnector(backupDirectory.FullName).SaveRoute(pRoute);
 			Logger.Log("Recieved Route with ID {0} to backup", pRoute.RouteID, LogLevels.DEBUG);
 		}
@@ -62,7 +73,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pSensorName">The sensor name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupSensorData(SensorDataRecord[] pData, String pSensorName, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			new SensorDataConnector(backupDirectory.FullName).SaveDailyData(pData.ToList(), pSensorName);
 			Logger.Log($"Recieved {pData.Length} records for sensor {pSensorName} to backup", LogLevels.DEBUG);
 		}
@@ -74,7 +85,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupPois(List<Poi> pData, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			new PoiDataConnector(backupDirectory.FullName).SaveAllPois(pData);
 			Logger.Log($"Recieved {pData.Count} POIs to backup", LogLevels.DEBUG);
 		}
@@ -86,7 +97,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupPoiCategories(List<PoiCategory> pData, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			new PoiDataConnector(backupDirectory.FullName).SaveAllCategories(pData);
 			Logger.Log($"Recieved {pData.Count} poi categories to backup", LogLevels.DEBUG);
 		}
@@ -98,7 +109,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupPoiFeatures(List<PoiFeature> pData, String pClientName, DateTime pBackupTime) {
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			new PoiDataConnector(backupDirectory.FullName).SaveAllFeatures(pData);
 			Logger.Log($"Recieved {pData.Count} poi features to backup", LogLevels.DEBUG);
 		}
@@ -123,9 +134,9 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">the client name</param>
 		/// <param name="pBackupTime">the backup timestamp</param>
 		public static void CommitBackup(String pClientName, DateTime pBackupTime) {
-			DirectoryInfo tempDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, true);
+			DirectoryInfo tempDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			if (tempDirectory.Exists) {
-				DirectoryInfo finalDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, false);
+				DirectoryInfo finalDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, false, false);
 				tempDirectory.MoveTo(finalDirectory.FullName);
 				DirectoryInfo clientRoot = BackupHelper.GetClientRoot(pClientName, false);
 				BackupHelper.ClearPreviousBackups(clientRoot);
@@ -142,7 +153,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <returns></returns>
 		public static List<Int32> GetDataSummary(List<DataSource> pDataSources, String pClientName, DateTime pBackupTime) {
 			List<Int32> result = new();
-			DirectoryInfo backupDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, true);
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
 			foreach (DataSource aDataSource in pDataSources) {
 				Int32 dataCount = 0;
 				switch (aDataSource.DataType) {
@@ -171,12 +182,28 @@ namespace PiLot.Backup.API.Helpers {
 		}
 
 		/// <summary>
+		/// Returns the backup directory where the data should be backupped to. If the directory does not
+		/// exist, it will be created and prefilled with the data from the last backup set.
+		/// </summary>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the backup set</param>
+		/// <returns></returns>
+		private static DirectoryInfo GetTempDirectory(String pClientName, DateTime pBackupTime) {
+			return BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, true, true);
+		}
+
+		/// <summary>
 		/// Prepares the directory for one backup set. Below here, we will expect
 		/// the same structure as in the original data directory.
 		/// If the directory did not exist before, it will be pre-populated with the
-		/// data from the most recent backup. 
+		/// data from the most recent backup.
 		/// </summary>
-		private static DirectoryInfo GetBackupDirectory(String pClientName, DateTime pBackupTime, Boolean pCreateIfMissing, Boolean pIsTemporary) {
+		/// <param name="pClientName">The client name used to define the base path</param>
+		/// <param name="pBackupTime">The backup time used to identify the backup set</param>
+		/// <param name="pIsTemporary">If true, returns the _temp directory</param>
+		/// <param name="pCreateIfMissing">If true, the directory will be created if its missing</param>
+		/// <param name="pPrepopulate">If true, the new directory will be populated with data from last backup</param>
+		private static DirectoryInfo GetBackupDirectory(String pClientName, DateTime pBackupTime, Boolean pIsTemporary, Boolean pCreateIfMissing, Boolean pPrepopulate) {
 			DirectoryInfo result = null;
 			DirectoryInfo clientRoot = BackupHelper.GetClientRoot(pClientName, pCreateIfMissing);
 			if((clientRoot != null) && clientRoot.Exists) {
@@ -188,9 +215,10 @@ namespace PiLot.Backup.API.Helpers {
 				if (!result.Exists && pCreateIfMissing) {
 					String latestBackup = BackupHelper.GetLatestBackupSet(clientRoot.FullName);
 					result.Create();
-					Logger.Log("New backup folder created: {0}", result, LogLevels.DEBUG);
-					BackupHelper.PrepopulateBackupSet(latestBackup, result.FullName);
-
+					if (pPrepopulate) {
+						Logger.Log("New backup folder created: {0}", result, LogLevels.DEBUG);
+						BackupHelper.PrepopulateBackupSet(latestBackup, result.FullName);
+					}
 				}
 			}
 			return result;

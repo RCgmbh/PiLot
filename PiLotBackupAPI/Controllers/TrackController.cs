@@ -23,13 +23,15 @@ namespace PiLot.Backup.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(BackupAuthorizationFilter))]
-		public ActionResult Put(List<GpsRecord> track, Int32 backupTime) {
+		public ActionResult Put(List<GpsRecord> track, Int32 day, Int32 backupTime) {
 			ActionResult result;
 			Object userObj = this.HttpContext.Items["user"];
 			if(userObj != null) {
 				User user = (User)userObj;
 				try {
-					BackupHelper.BackupGpsData(track, user.Username, DateTimeHelper.FromUnixTime(backupTime));
+					DateTime time = DateTimeHelper.FromUnixTime(backupTime);
+					Date trackDay = new Date(DateTimeHelper.FromUnixTime(day));
+					BackupHelper.BackupGpsData(track, trackDay, user.Username, time);
 					result = this.Ok();
 				} catch (Exception ex) {
 					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);

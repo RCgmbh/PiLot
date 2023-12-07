@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+
 using PiLot.Backup.API.ActionFilters;
 using PiLot.Backup.API.Helpers;
 using PiLot.Model.Common;
@@ -15,6 +16,32 @@ namespace PiLot.Backup.API.Controllers {
 	/// </summary>
 	[ApiController]
 	public class BackupController : ControllerBase {
+
+		/// <summary>
+		/// This prepares a backup set. It must be called before
+		/// adding data.
+		/// </summary>
+		/// <param name="backupTime">The timestamp of the backup set</param>
+		/// <param name="fullBackup">True for full backup, no data will be copied from the previous backup</param>
+		[Route(Program.APIROOT + "[controller]")]
+		[HttpPut]
+		[ServiceFilter(typeof(BackupAuthorizationFilter))]
+		public ActionResult PutCreate([FromQuery] Int32 backupTime, Boolean fullBackup) {
+			ActionResult result;
+			Object userObj = this.HttpContext.Items["user"];
+			if (userObj != null) {
+				User user = (User)userObj;
+				try {
+					BackupHelper.PrepareBackup(user.Username, DateTimeHelper.FromUnixTime(backupTime), fullBackup);
+					result = this.Ok();
+				} catch (Exception ex) {
+					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+				}
+			} else {
+				result = this.Unauthorized();
+			}
+			return result;
+		}
 
 		/// <summary>
 		/// This calls the commit, which will persist the temporary data
