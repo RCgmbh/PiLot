@@ -39,7 +39,7 @@ namespace PiLot.Backup.Client.Helper {
 					success = false;
 				}
 			}
-			return new BackupTaskResult(success, gpsData.TotalItems);
+			return new BackupTaskResult(pTask, success, gpsData.TotalItems);
 		}
 	}
 }

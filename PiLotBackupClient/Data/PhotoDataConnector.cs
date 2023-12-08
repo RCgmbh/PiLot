@@ -29,7 +29,7 @@ namespace PiLot.Backup.Client.Data {
 			foreach (DirectoryInfo aDirectory in directories) {
 				if (Date.TryParseExact(aDirectory.Name, PHOTODIRFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out day)) {
 					foreach (FileInfo aFile in aDirectory.EnumerateFiles()) {
-						if (aFile.LastAccessTimeUtc >= pChangedAfter) {
+						if (aFile.LastWriteTimeUtc >= pChangedAfter) {
 							changedPhotos.Add(new ImageReference() {
 								Path = aFile.FullName,
 								Name = aFile.Name,

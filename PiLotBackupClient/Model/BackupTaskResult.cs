@@ -9,10 +9,13 @@ namespace PiLot.Backup.Client.Model {
 	/// </summary>
 	public struct BackupTaskResult {
 
-		public BackupTaskResult(Boolean pSuccess, Int32 pTotalDailyData) {
+		public BackupTaskResult(BackupTask pBackupTask, Boolean pSuccess, Int32 pTotalDailyData) {
+			this.BackupTask = pBackupTask;
 			this.Success = pSuccess;
 			this.TotalDataCount = pTotalDailyData;
 		}
+
+		public BackupTask BackupTask { get; set; }
 
 		public Boolean Success { get; set; }
 

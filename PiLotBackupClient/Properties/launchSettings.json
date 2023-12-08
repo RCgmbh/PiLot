@@ -2,7 +2,7 @@
   "profiles": {
     "PiLotBackupClient": {
       "commandName": "Project",
-      "commandLineArgs": "verbose"
+      "commandLineArgs": "verbose -i"
     }
   }
 }

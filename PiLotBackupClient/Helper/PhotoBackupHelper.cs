@@ -57,7 +57,7 @@ namespace PiLot.Backup.Client.Helper {
 					}
 				}
 			}
-			return new BackupTaskResult(success, backupPhotosData.TotalItems);
+			return new BackupTaskResult(pTask, success, backupPhotosData.TotalItems);
 		}
 	}
 }
