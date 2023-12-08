@@ -27,7 +27,8 @@ namespace PiLot.Backup.Client {
 
 	/// <summary>
 	/// Console app that sends changed data to the backup api within an interval. This 
-	/// is intended to run as a service.
+	/// is usually intended to run as a service, or can be called in an interactive
+	/// mode with the -i option.
 	/// </summary>
 	class Program {
 
@@ -36,7 +37,7 @@ namespace PiLot.Backup.Client {
 		private static ConfigHelper configHelper;
 
 		/// <summary>
-		/// Usage: ./PiLot.Backup.Client [verbose] 
+		/// Usage: ./PiLot.Backup.Client [-i] [-verbose] 
 		/// </summary>
 		/// <param name="args">Add "verbose" so that the output is written to the console instead of the log</param>
 		static async Task Main(string[] args) {
@@ -47,7 +48,7 @@ namespace PiLot.Backup.Client {
 				Out.SetMode(Out.Modes.Console);
 				await StartInteractiveSession();
 			} else {
-				Boolean verbose = argsList.Any(a => a.ToLower() == "verbose");
+				Boolean verbose = argsList.Any(a => a.ToLower() == "-verbose");
 				if (verbose) {
 					Out.SetMode(Out.Modes.Console);
 				}
@@ -55,6 +56,10 @@ namespace PiLot.Backup.Client {
 			}
 		}
 
+		/// <summary>
+		/// Starts an interactive session where the user can select the target, and
+		/// decide, whether he wants to create a differential or a full backup.
+		/// </summary>
 		private static async Task StartInteractiveSession() {
 			Program.configHelper = new ConfigHelper();
 			List<BackupTarget> targets = Program.configHelper.BackupTargets;
@@ -209,10 +214,10 @@ namespace PiLot.Backup.Client {
 					success = success && (backupTaskResult.Success);
 				}
 				if (success) {
-					success = success && await Program.VerifyBackupAsync(backupDate, backupTaskResults, proxy, pFullBackup);
+					success = await Program.VerifyBackupAsync(backupDate, backupTaskResults, proxy, pFullBackup);
 				}
 				if (success) {
-					success = success && await proxy.CommitAsync(backupDate);
+					success = await proxy.CommitAsync(backupDate);
 				}
 				if (success) {
 					pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);
@@ -226,6 +231,16 @@ namespace PiLot.Backup.Client {
 			}
 		}
 
+		/// <summary>
+		/// This verifies the backup by comparing the data that has been collected during the backup with
+		/// a data summary from the backup api. For a full backup, all data sources are compared, for a
+		/// differential backup, routes and photos are ignored, as deleted items are not deleted from the
+		/// backup.
+		/// </summary>
+		/// <param name="pBackupDate">The timestamp of the backup</param>
+		/// <param name="pBackupTaskResults">The list of the backup task results</param>
+		/// <param name="pProxy">The proxy we use for the current target</param>
+		/// <param name="pFullBackup">Indicated whether we control a full backup</param>
 		private static async Task<Boolean> VerifyBackupAsync(DateTime pBackupDate, List<BackupTaskResult> pBackupTaskResults, BackupServiceProxy pProxy, Boolean pFullBackup) {
 			List<BackupTaskResult> resultsToCheck;
 			if (pFullBackup) {
@@ -288,7 +303,6 @@ namespace PiLot.Backup.Client {
 					break;
 			}
 			if (backupHelper != null) {
-				DateTime backupDate = DateTime.UtcNow;
 				result = await backupHelper.PerformBackupTaskAsync(pTask, pBackupTime);
 			} else {
 				result = new BackupTaskResult(pTask, false, 0);
