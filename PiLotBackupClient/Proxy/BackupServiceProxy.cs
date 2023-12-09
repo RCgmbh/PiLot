@@ -127,7 +127,7 @@ namespace PiLot.Backup.Client.Proxies {
 		/// <param name="pFullBackup">If true, data won't be copied from the previous backup set</param>
 		/// <returns>True, if success</returns>
 		public async Task<Boolean> PrepareAsync(DateTime pBackupTime, Boolean pFullBackup) {
-			String url = $"{this.apiUrl}/Backup?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}&isFullBackup={pFullBackup}";
+			String url = $"{this.apiUrl}/Backup?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}&fullBackup={pFullBackup}";
 			return await this.httpClient.PutAsync(String.Empty, url);
 		}
 

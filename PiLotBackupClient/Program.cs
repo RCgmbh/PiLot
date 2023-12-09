@@ -205,30 +205,38 @@ namespace PiLot.Backup.Client {
 				Boolean success = true;
 				if (pFullBackup) {
 					success = success && await proxy.PrepareAsync(backupDate, true);
-				}
-				foreach (BackupTask aTask in pTarget.BackupTasks) {
-					Out.WriteDebug($"Starting Backup for task {aTask.DataType}: {aTask.DataSource}");
-					if (pFullBackup) {
-						Out.WriteInfo($"Performing full backup");
-						aTask.LastSuccess = null;
+					if (success) {
+						Out.WriteInfo("Full backup prepared successfully");
+					} else {
+						Out.WriteError("Preparing full backup failed.");
 					}
-					backupTaskResult = await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
-					backupTaskResults.Add(backupTaskResult);
-					success = success && (backupTaskResult.Success);
 				}
 				if (success) {
-					success = await Program.VerifyBackupAsync(backupDate, backupTaskResults, proxy, pFullBackup);
+					foreach (BackupTask aTask in pTarget.BackupTasks) {
+						Out.WriteDebug($"Starting Backup for task {aTask.DataType}: {aTask.DataSource}");
+						if (pFullBackup) {
+							Out.WriteInfo($"Performing full backup");
+							aTask.LastSuccess = null;
+						}
+						backupTaskResult = await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
+						backupTaskResults.Add(backupTaskResult);
+						success = success && (backupTaskResult.Success);
+					}
+					if (success) {
+						success = await Program.VerifyBackupAsync(backupDate, backupTaskResults, proxy, pFullBackup);
+					}
+					if (success) {
+						success = await proxy.CommitAsync(backupDate);
+					}
+					if (success) {
+						pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);
+						Program.configHelper.SaveConfig();
+						Out.WriteInfo($"Finished Backup for target {pTarget.TargetUrl}");
+					} else {
+						Out.WriteInfo($"Backup for target {pTarget.TargetUrl} failed");
+					}
 				}
-				if (success) {
-					success = await proxy.CommitAsync(backupDate);
-				}
-				if (success) {
-					pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);
-					Program.configHelper.SaveConfig();
-					Out.WriteInfo($"Finished Backup for target {pTarget.TargetUrl}");
-				} else {
-					Out.WriteInfo($"Backup for target {pTarget.TargetUrl} failed");
-				}
+				
 			} else {
 				Out.WriteInfo($"Did not start backup because target {pTarget.TargetUrl} can not be reached");
 			}

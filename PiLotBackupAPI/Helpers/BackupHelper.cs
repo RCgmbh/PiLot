@@ -134,7 +134,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pClientName">the client name</param>
 		/// <param name="pBackupTime">the backup timestamp</param>
 		public static void CommitBackup(String pClientName, DateTime pBackupTime) {
-			DirectoryInfo tempDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
+			DirectoryInfo tempDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, false, false);
 			if (tempDirectory.Exists) {
 				DirectoryInfo finalDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, false, false);
 				tempDirectory.MoveTo(finalDirectory.FullName);
@@ -215,8 +215,8 @@ namespace PiLot.Backup.API.Helpers {
 				if (!result.Exists && pCreateIfMissing) {
 					String latestBackup = BackupHelper.GetLatestBackupSet(clientRoot.FullName);
 					result.Create();
+					Logger.Log("New backup folder created: {0}", result, LogLevels.DEBUG);
 					if (pPrepopulate) {
-						Logger.Log("New backup folder created: {0}", result, LogLevels.DEBUG);
 						BackupHelper.PrepopulateBackupSet(latestBackup, result.FullName);
 					}
 				}

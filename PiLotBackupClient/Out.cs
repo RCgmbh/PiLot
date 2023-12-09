@@ -56,7 +56,12 @@ namespace PiLot.Backup.Client {
 		public static void Write(String pMessage, LogLevels pLogLevel) {
 			switch(Out.mode){
 				case Modes.Console:
+					ConsoleColor originalColor = Console.ForegroundColor;
+					if(pLogLevel == LogLevels.ERROR) {
+						Console.ForegroundColor = ConsoleColor.Red;
+					}
 					Console.WriteLine(pMessage);
+					Console.ForegroundColor = originalColor;
 					break;
 				case Modes.Log:
 					Logger.Log(pMessage, pLogLevel);
