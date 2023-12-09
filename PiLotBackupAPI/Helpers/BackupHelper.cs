@@ -15,7 +15,7 @@ namespace PiLot.Backup.API.Helpers {
 
 	public class BackupHelper {
 
-		public const String DATEDIRECTORYFORMAT = "yyyyMMdd-HHmm";
+		public const String DATEDIRECTORYFORMAT = "yyyyMMdd-HHmmss";
 
 		/// <summary>
 		/// Prepares the backup by creating the backup directory, and for partial backups
@@ -139,7 +139,7 @@ namespace PiLot.Backup.API.Helpers {
 				DirectoryInfo finalDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, false, false, false);
 				tempDirectory.MoveTo(finalDirectory.FullName);
 				DirectoryInfo clientRoot = BackupHelper.GetClientRoot(pClientName, false);
-				BackupHelper.ClearPreviousBackups(clientRoot);
+				BackupHelper.ClearPreviousBackups(clientRoot, finalDirectory);
 				BackupHelper.ClearTempDirectories(clientRoot);
 			}			
 		}
@@ -262,7 +262,8 @@ namespace PiLot.Backup.API.Helpers {
 		/// we will keep the oldest backup set that is just younger than the interval in minutes.
 		/// </summary>
 		/// <param name="pClientRoot">the root directory for backup data for the current client</param>
-		private static void ClearPreviousBackups(DirectoryInfo pClientRoot) {
+		/// <param name="pLatestDirectory">the directory that has just been created. We don't want to delete it.</param>
+		private static void ClearPreviousBackups(DirectoryInfo pClientRoot, DirectoryInfo pLatestDirectory) {
 			List<Int32> backupSetsInterval = new List<Int32>(Program.GetConfig().BackupSetsInterval);
 			backupSetsInterval.Sort();
 			backupSetsInterval.Reverse();
@@ -275,7 +276,10 @@ namespace PiLot.Backup.API.Helpers {
 			Logger.Log("Current max age in minutes is {0}", backupSetsInterval[0], LogLevels.DEBUG);
 			foreach (DirectoryInfo aBackupSet in backupSets) {
 				minDate = utcNow.AddMinutes(backupSetsInterval[0] * -1);
-				if(DateTime.TryParseExact(aBackupSet.Name, DATEDIRECTORYFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out backupTime)) {
+				if(
+					aBackupSet.FullName != pLatestDirectory.FullName
+					&& DateTime.TryParseExact(aBackupSet.Name, DATEDIRECTORYFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out backupTime)
+				) {
 					if (backupTime < minDate) {
 						deleteBackupSets.Add(aBackupSet);
 						Logger.Log("Backup Set {0} will be deleted.", aBackupSet.Name, LogLevels.DEBUG);
