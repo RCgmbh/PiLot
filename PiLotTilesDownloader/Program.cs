@@ -91,6 +91,7 @@ namespace PiLot.TilesDownloader {
 			Program.PrepareStats();
 			Program.PrepareHttpClient();
 			Console.CursorVisible = false;
+			Console.Clear();
 			await Program.DownloadRandomTiles();
 		}
 
