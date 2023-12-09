@@ -359,3 +359,5 @@ healthchecksdb
 /PiLotSensors/Properties/launchSettings.json
 /PiLotLiveClient/Properties/launchSettings.json
 /PiLotBackupAPI/config/config.*.json
+/PiLotTilesDownloader/Properties/launchSettings.json
+/.gitignore

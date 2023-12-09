@@ -10,13 +10,14 @@ using PiLot.Utils.Logger;
 namespace PiLot.Config {
 
 	/// <summary>
-	/// Helper for readind TileSources. We use a singleton
+	/// Helper for reading TileSources. We use a singleton
 	/// pattern in order to minimize read/write effort to read configs.
 	/// </summary>
 	public class TilesConfigReader {
 
 		public const String CONFIGFILENAME = "tileSources.json";
 
+		private string configFilePath = null;
 		private Dictionary<String, TileSource> tileSources = null;
 		private static TilesConfigReader instance = null;
 
@@ -26,6 +27,17 @@ namespace PiLot.Config {
 		/// Default constructor, only privately accessible, so use the static Instance
 		/// </summary>
 		private TilesConfigReader() {
+			this.ReadTileSources();
+		}
+
+		/// <summary>
+		/// Allows to create a config reader which does not use the config file in the
+		/// application, but any other config file. Can be useful for applications that
+		/// want to access the APIs tile sources.
+		/// </summary>
+		/// <param name="pConfigFilePath">An absolute file path</param>
+		public TilesConfigReader(String pConfigFilePath) {
+			this.configFilePath = pConfigFilePath;
 			this.ReadTileSources();
 		}
 
@@ -77,13 +89,19 @@ namespace PiLot.Config {
 		#region private methods
 
 		/// <summary>
-		/// Reads the tileSources configs from the tileSources.json in App_Data
+		/// Reads the tileSources configs from the tileSources.json, or
+		/// from the config file that has been passed to the constructor.
 		/// </summary>
 		private void ReadTileSources() {
 			this.tileSources = new Dictionary<string, TileSource>();
+			String configPath;
+			if(this.configFilePath == null) {
+				String configRoot = ConfigHelper.GetConfigDirectory();
+				configPath = Path.Combine(configRoot, CONFIGFILENAME);
+			} else {
+				configPath = this.configFilePath;
+			}
 			List<TileSource> tileSourcesList = null;
-			String configRoot = ConfigHelper.GetConfigDirectory();
-			String configPath = Path.Combine(configRoot, CONFIGFILENAME);
 			Logger.Log("TileSources configPath is {0}", configPath, LogLevels.DEBUG);
 			if (File.Exists(configPath)) {
 				try {
