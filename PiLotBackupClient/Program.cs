@@ -67,6 +67,7 @@ namespace PiLot.Backup.Client {
 			Boolean fullBackup = false;
 			Boolean validEntry = false;
 			Boolean quit = false;
+			ConsoleColor defaultColor = Console.ForegroundColor;
 			Console.Clear();
 			Console.WriteLine("******************************************");
 			Console.WriteLine("| PiLot Backup Client - Interactive Mode |");
@@ -93,7 +94,7 @@ namespace PiLot.Backup.Client {
 						Console.ForegroundColor = ConsoleColor.Red;
 						Console.WriteLine($"Invalid entry: {input}");
 						Thread.Sleep(300);
-						Console.ForegroundColor = ConsoleColor.Gray;
+						Console.ForegroundColor = defaultColor;
 						validEntry = false;
 					}
 				}
@@ -118,7 +119,7 @@ namespace PiLot.Backup.Client {
 							Console.ForegroundColor = ConsoleColor.Red;
 							Console.WriteLine($"Invalid entry: {input}");
 							Thread.Sleep(300);
-							Console.ForegroundColor = ConsoleColor.Gray;
+							Console.ForegroundColor = defaultColor;
 						break;
 					}
 				}
@@ -129,11 +130,13 @@ namespace PiLot.Backup.Client {
 					String input = (Console.ReadKey().KeyChar).ToString().ToLower();
 					Console.WriteLine();
 					if (input != "x") {
+						Console.ForegroundColor = ConsoleColor.Green;
 						if (selectedTarget == null) {
 							await Program.BackupAllTargetsAsync(fullBackup);
 						} else {
 							await Program.BackupTargetAsync(selectedTarget, fullBackup);
 						}
+						Console.ForegroundColor = defaultColor;
 					}
 					Console.WriteLine();
 				}
