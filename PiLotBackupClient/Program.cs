@@ -267,7 +267,7 @@ namespace PiLot.Backup.Client {
 					Out.WriteInfo("Verification successful");
 				}
 			} else {
-				Out.WriteError($"BackupServiceProxy: Verification failed. Error calling serfer: {proxyResult.Message}");
+				Out.WriteError($"BackupServiceProxy: Verification failed. {proxyResult.Message}");
 				result = false;
 			}
 			return result;

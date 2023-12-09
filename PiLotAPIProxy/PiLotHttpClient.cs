@@ -75,7 +75,6 @@ namespace PiLot.APIProxy {
 			HttpContent content = new StringContent(pJson, Encoding.UTF8, "application/json");
 			ProxyResult proxyResult = await this.CallAsync(HttpMethod.Put, pUrl, content, false);
 			return proxyResult.Success;
-			//return await this.PutAsync(content, pUrl, false);
 		}
 
 		/// <summary>
@@ -90,7 +89,6 @@ namespace PiLot.APIProxy {
 			HttpContent content = new ByteArrayContent(pBytes);
 			ProxyResult proxyResult = await this.CallAsync(HttpMethod.Put, pUrl, content, false);
 			return proxyResult.Success;
-			//return await this.PutAsync(content, pUrl, false);
 		}
 
 		/// <summary>
@@ -174,85 +172,5 @@ namespace PiLot.APIProxy {
 			}
 			return result;
 		}
-
-		/// <summary>
-		/// This does the actual Job for the public GetAsync. It will call itself
-		/// once with pForceAuthenticatio = true, if at first it fails
-		/// </summary>
-		/// <param name="pUrl">The API url</param>
-		/// <returns>The result as string (json serialized)</returns>
-		/*private async Task<ProxyResult<String>> GetAsync(String pUrl, Boolean pForceAuthentication) {
-			ProxyResult<String> result = new ProxyResult<String>();
-			Logger.Log($"Reading Data from {pUrl}", LogLevels.DEBUG);
-			try {
-				HttpRequestMessage message = new HttpRequestMessage(HttpMethod.Get, pUrl);
-				if (this.loginHelper != null) {
-					if (pForceAuthentication) {
-						this.loginHelper.InvalidateToken();
-					}
-					await this.loginHelper?.AddCookieAsync(message.Headers);
-				}
-				HttpResponseMessage response = await this.httpClient.SendAsync(message);
-				Logger.Log($"Response recieved from {pUrl}. StatusCode: {response.StatusCode}, Content: {response.Content}", LogLevels.DEBUG);
-				if (response.IsSuccessStatusCode) {
-					result.Data = await response.Content.ReadAsStringAsync();
-					result.Success = true;
-					result.MediaType = response.Content.Headers?.ContentType?.MediaType;
-					Logger.Log($"Done reading data. Response: {result.Data}", LogLevels.DEBUG);
-				} else if (
-					   ((response.StatusCode == HttpStatusCode.Unauthorized) || (response.StatusCode == HttpStatusCode.Forbidden))
-					&& !pForceAuthentication
-					&& (this.loginHelper != null)
-				) {
-					result = await this.GetAsync(pUrl, true);
-				} else {
-					result.Message = $"Error reading {pUrl}: Status Code: {response.StatusCode}, Message: {await response.Content.ReadAsStringAsync()}";
-					result.Success = false;
-					Logger.Log(result.Message, LogLevels.ERROR);
-				}
-			} catch (Exception ex) {
-				result.Message = ex.Message;
-				result.Success = false;
-				Logger.Log(ex, pUrl);
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// This does the actual job for the public PutAsync. It will call itself
-		/// once with pForceAuthentication = true, if at first it fails.
-		/// </summary>
-		/// <param name="pContent">The HttpContent, e.g. StringContent, MultipartFormDataContent</param>
-		/// <param name="pUrl">The fully qualified url of the rest endpoint</param>
-		/// <param name="pForceAuthentication">If true, a re-authentication will be forced. Only use this, if the request fails with access denied</param>
-		/// <returns>true, if the operation succeeded</returns>
-		private async Task<Boolean> PutAsync(HttpContent pContent, String pUrl, Boolean pForceAuthentication) {
-			Boolean result = false;
-			try {
-				if (this.loginHelper != null) {
-					if (pForceAuthentication) {
-						this.loginHelper.InvalidateToken();
-					}
-					await this.loginHelper?.AddCookieAsync(pContent.Headers);
-				}
-				HttpResponseMessage response = await this.httpClient.PutAsync(pUrl, pContent);
-				if (response.IsSuccessStatusCode) {
-					result = true;
-					Logger.Log($"Successfully put data to {pUrl}", LogLevels.DEBUG);
-				} else if (
-					   ((response.StatusCode == HttpStatusCode.Unauthorized) || (response.StatusCode == HttpStatusCode.Forbidden))
-					&& !pForceAuthentication
-					&& (this.loginHelper != null)
-				) {
-					result = await this.PutAsync(pContent, pUrl, true);
-				} else {
-					String responseMessage = response.Content.ReadAsStringAsync().Result;
-					Logger.Log($"Error putting data to {pUrl}: Status Code: {response.StatusCode}, Response Message: {responseMessage}", LogLevels.ERROR);
-				}
-			} catch (Exception ex) {
-				Logger.Log(ex, pUrl);
-			}
-			return result;
-		}*/
 	}
 }
