@@ -13,8 +13,8 @@ namespace PiLot.Data.Files {
 
 		public const String PHOTOSROOTDIR = "photos";
 		public const String PHOTODIRFORMAT = "yyyy-MM-dd";
-		public const String PHOTOFILEFORMAT = "{0:yyyyMMdd-HHmm}.jpg";
-		public const String PHOTOFILEFORMAT2 = "{0:yyyyMMdd-HHmm}[{1}].jpg";
+		public const String PHOTOFILEFORMAT = "{0:yyyyMMdd-HHmmss}.jpg";
+		public const String PHOTOFILEFORMAT2 = "{0:yyyyMMdd-HHmmss}[{1}].jpg";
 
 		private static readonly List<String> imageFileExtensions = new List<String> { ".jpg", ".jpeg" };
 
