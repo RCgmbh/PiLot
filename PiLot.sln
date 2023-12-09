@@ -90,6 +90,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "installScripts", "installSc
 		installScripts\93-update-photosWatcher.sh = installScripts\93-update-photosWatcher.sh
 		installScripts\95-update-backupAPI.sh = installScripts\95-update-backupAPI.sh
 		installScripts\96-update-backupClient.sh = installScripts\96-update-backupClient.sh
+		installScripts\97-update-tilesDownloader.sh = installScripts\97-update-tilesDownloader.sh
 		createInstallPackage.bat = createInstallPackage.bat
 	EndProjectSection
 EndProject
