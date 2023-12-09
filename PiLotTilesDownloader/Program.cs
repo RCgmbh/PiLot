@@ -10,8 +10,8 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public 
 The full license text is available at https://github.com/RCgmbh/PiLot/blob/master/LICENSE.
 */
 using System;
+using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -24,18 +24,21 @@ namespace PiLot.TilesDownloader {
 	
 	class Program {
 
-		private const Int32 PAUSEMS = 5000;
-		private const Int32 PAUSEAFTER = 10;
-		private const Int32 MAXAGEDAYS = 365;
+		private const Int32 PAUSEMS = 3000;
+		private const Int32 PAUSEAFTER = 20;
+		private const Int32 MAXAGEDAYS = 700;
 
 		private static String configFilePath;
 		private static TileSource[] tileSources;
 		private static TileDataConnector tileDataConnector;
 		private static HttpClient httpClient;
 		private static Random random;
+		private static Dictionary<String, List<Int32>> stats;
+		private static String lastError;
+		private static String lastInfo;
 
 		/// <summary>
-		/// Usage: ./PiLot.TilesDownloader
+		/// Usage: ./PiLot.TilesDownloader /path/to/config.json
 		/// </summary>
 		/// <param name="args">The path to the tileSources config must be passed</param>
 		static async Task Main(string[] args) {
@@ -71,7 +74,6 @@ namespace PiLot.TilesDownloader {
 						Program.WriteError("The config file does not contain any tile sources");
 						result = false;
 					}
-					
 				} catch (Exception ex) {
 					Program.WriteError(ex.Message);
 					result = false;
@@ -86,8 +88,17 @@ namespace PiLot.TilesDownloader {
 		private static async Task StartTilesDownload() {
 			Program.random = new Random();
 			Program.tileDataConnector = TileDataConnector.Instance;
+			Program.PrepareStats();
 			Program.PrepareHttpClient();
+			Console.CursorVisible = false;
 			await Program.DownloadRandomTiles();
+		}
+
+		private static void PrepareStats() {
+			Program.stats = new Dictionary<String, List<Int32>>();
+			foreach(TileSource aTileSource in Program.tileSources) {
+				stats[aTileSource.Name] = new List<Int32>() { 0, 0 };
+			}
 		}
 
 		private static void PrepareHttpClient() {
@@ -98,26 +109,32 @@ namespace PiLot.TilesDownloader {
 			Program.httpClient.DefaultRequestHeaders.Add("User-Agent", "PiLot map tiles download service. See github.com/RCgmbh.");
 		}
 
-
 		private static async Task DownloadRandomTiles() {
 			DateTime maxChangeDate = DateTime.UtcNow.AddDays(Program.MAXAGEDAYS * -1);
 			Int32 pauseCounter = 0;
+			List<Int32> statsItem;
 			while (true) {
 				TileSource tileSource = Program.tileSources[Program.random.Next(0, Program.tileSources.Length)];
 				String tileSourceRoot = tileSource.LocalPath.Substring(0, tileSource.LocalPath.IndexOf("{"));
 				DirectoryInfo rootDir = new DirectoryInfo(tileSourceRoot);
 				DirectoryInfo zoomDir = Program.GetRandomDirectory(rootDir);
 				DirectoryInfo xDir = Program.GetRandomDirectory(zoomDir);
+				statsItem = Program.stats[tileSource.Name];
 				if (xDir != null && xDir.Exists) {
-					foreach (FileInfo aFile in xDir.GetFiles().Where(f => f.LastWriteTimeUtc < maxChangeDate)) {
-						String y = aFile.Name.Substring(0, aFile.Name.Length - aFile.Extension.Length);
-						Console.WriteLine($"  {y}: {aFile.FullName}");
-						await Program.DownloadTile(tileSource, zoomDir.Name, xDir.Name, y);
-						pauseCounter++;
-						if(pauseCounter >= PAUSEAFTER) {
-							pauseCounter = 0;
-							Thread.Sleep(Program.PAUSEMS);
+					foreach (FileInfo aFile in xDir.GetFiles()) {
+						if (aFile.LastWriteTimeUtc < maxChangeDate) {
+							String y = aFile.Name.Substring(0, aFile.Name.Length - aFile.Extension.Length);
+							statsItem[0]++;
+							await Program.DownloadTile(tileSource, zoomDir.Name, xDir.Name, y);
+							pauseCounter++;
+							if (pauseCounter >= PAUSEAFTER) {
+								pauseCounter = 0;
+								Thread.Sleep(Program.PAUSEMS);
+							}
+						} else {
+							statsItem[1]++;
 						}
+						Program.ShowStats();
 					}
 				}
 			}
@@ -147,15 +164,38 @@ namespace PiLot.TilesDownloader {
 					.Replace("{y}", pY);
 				HttpResponseMessage response = await Program.httpClient.GetAsync(url);
 				if (response.StatusCode == System.Net.HttpStatusCode.OK) {
-
 					Byte[] bytes = await response.Content.ReadAsByteArrayAsync();
 					TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTileSource, z, x, y);
-					if(saveResult != TileDataConnector.SaveResults.Ok) {
-						Program.WriteError($"Error saving tile from {url}. Result: {saveResult}");
+					if (saveResult == TileDataConnector.SaveResults.Ok) {
+						Program.lastError = String.Empty;
+						Program.lastInfo = $"{url} downloaded";
+					} else {
+						Program.lastError = ($"Error saving tile from {url}. Result: {saveResult}");
 					}
 				} else {
-					Program.WriteError($"Status code {response.StatusCode} for {url}");
+					Program.lastError = $"Status code {response.StatusCode} for {url}";
 				}
+			}
+		}
+
+		private static void ShowStats() {
+			Console.SetCursorPosition(0, 0);
+			Console.WriteLine("┌──────────────────────┬────────────┬────────────┐");
+			Console.WriteLine("│ Tile source          │ outdated   │ up-to-date │");
+			Console.WriteLine("├──────────────────────┼────────────┼────────────┤");
+			String name;
+			String outdated, uptodate;
+			foreach(KeyValuePair<String, List<Int32>> anItem in Program.stats) {
+				name = String.Format("{0, -20}", anItem.Key);
+				outdated = String.Format("{0, 10}", anItem.Value[0]);
+				uptodate = String.Format("{0, 10}", anItem.Value[1]);
+				Console.WriteLine($"│ {name} │ {outdated} │ {uptodate} │");
+			}
+			Console.WriteLine("└──────────────────────┴────────────┴────────────┘");
+			Console.WriteLine();
+			Console.WriteLine(Program.lastInfo);
+			if (!String.IsNullOrEmpty(Program.lastError)) {
+				Program.WriteError(Program.lastError);
 			}
 		}
 
