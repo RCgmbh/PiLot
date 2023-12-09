@@ -91,10 +91,8 @@ namespace PiLot.Backup.Client {
 						validEntry = true;
 						selectedTarget = targets[inputNumber - 1];
 					} else {
-						Console.ForegroundColor = ConsoleColor.Red;
-						Console.WriteLine($"Invalid entry: {input}");
+						Out.WriteError($"Invalid entry: {input}");
 						Thread.Sleep(300);
-						Console.ForegroundColor = defaultColor;
 						validEntry = false;
 					}
 				}
@@ -116,17 +114,16 @@ namespace PiLot.Backup.Client {
 							fullBackup = true;
 							break;
 						default:
-							Console.ForegroundColor = ConsoleColor.Red;
-							Console.WriteLine($"Invalid entry: {input}");
+							Out.WriteError($"Invalid entry: {input}");
 							Thread.Sleep(300);
-							Console.ForegroundColor = defaultColor;
 						break;
 					}
 				}
 				if (!quit) {
 					String backupTyp = fullBackup ? "full" : "differential";
 					String targetName = selectedTarget == null ? "all targets" : $"target {selectedTarget.TargetUrl}";
-					Console.WriteLine($"\nYou selected a {backupTyp} backup for {targetName}. Hit any key to start the backup, or X to quit.");
+					Console.WriteLine($"\nYou selected a {backupTyp} backup for {targetName}.");
+					Console.WriteLine($"Hit any key to start the backup, or X to quit.");
 					String input = (Console.ReadKey().KeyChar).ToString().ToLower();
 					Console.WriteLine();
 					if (input != "x") {
@@ -215,7 +212,6 @@ namespace PiLot.Backup.Client {
 					foreach (BackupTask aTask in pTarget.BackupTasks) {
 						Out.WriteDebug($"Starting Backup for task {aTask.DataType}: {aTask.DataSource}");
 						if (pFullBackup) {
-							Out.WriteInfo($"Performing full backup");
 							aTask.LastSuccess = null;
 						}
 						backupTaskResult = await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
@@ -227,6 +223,11 @@ namespace PiLot.Backup.Client {
 					}
 					if (success) {
 						success = await proxy.CommitAsync(backupDate);
+						if (success) {
+							Out.WriteInfo("Committed backup successfully");
+						} else { 
+							Out.WriteError("Committing backup failed");
+						}
 					}
 					if (success) {
 						pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);
@@ -244,7 +245,7 @@ namespace PiLot.Backup.Client {
 
 		/// <summary>
 		/// This verifies the backup by comparing the data that has been collected during the backup with
-		/// a data summary from the backup api. For a full backup, all data sources are compared, for a
+		/// a data summary from the backup api. For a full backup, photos are not compared, for a
 		/// differential backup, routes and photos are ignored, as deleted items are not deleted from the
 		/// backup.
 		/// </summary>
@@ -254,11 +255,11 @@ namespace PiLot.Backup.Client {
 		/// <param name="pFullBackup">Indicated whether we control a full backup</param>
 		private static async Task<Boolean> VerifyBackupAsync(DateTime pBackupDate, List<BackupTaskResult> pBackupTaskResults, BackupServiceProxy pProxy, Boolean pFullBackup) {
 			List<BackupTaskResult> resultsToCheck;
-			if (pFullBackup) {
-				resultsToCheck = pBackupTaskResults;
-			} else {
-				resultsToCheck = pBackupTaskResults.Where(t => t.BackupTask.DataType != DataTypes.Photos && t.BackupTask.DataType != DataTypes.Routes).ToList();
+			List<DataTypes> ignoreTypes = new() { DataTypes.Photos };
+			if (!pFullBackup) {
+				ignoreTypes.Add(DataTypes.Routes);
 			}
+			resultsToCheck = pBackupTaskResults.Where(t => !ignoreTypes.Contains(t.BackupTask.DataType)).ToList();
 			List<DataSource> dataScources = resultsToCheck.Select(t => new DataSource(t.BackupTask.DataType, t.BackupTask.DataSource)).ToList();
 			ProxyResult<List<Int32>> proxyResult = await pProxy.GetSummaryAsync(dataScources, pBackupDate);
 			Boolean result;
@@ -268,7 +269,7 @@ namespace PiLot.Backup.Client {
 				for (Int32 i = 0; i < resultsToCheck.Count; i++) {
 					if(resultsToCheck[i].TotalDataCount != backupSummaryItems[i]) {
 						result = false;
-						Out.WriteError($"PiLot.Backup.Client Verification mismatch: expected: {resultsToCheck[i].TotalDataCount}, in backup: {backupSummaryItems[i]}, data source: {pBackupTaskResults[i].BackupTask.DataSource}");
+						Out.WriteError($"PiLot.Backup.Client Verification mismatch: expected: {resultsToCheck[i].TotalDataCount}, in backup: {backupSummaryItems[i]}, data source: {resultsToCheck[i].BackupTask.DataSource}");
 					}
 				}
 				if (result) {
