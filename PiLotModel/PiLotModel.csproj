@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>PiLot.Model</AssemblyName>
+    <RootNamespace>PiLot.Model</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

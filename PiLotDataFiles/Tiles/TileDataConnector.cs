@@ -45,11 +45,21 @@ namespace PiLot.Data.Files {
 		/// Saves a tile to disk, if the TileSet is valid and has a LocalPath
 		/// </summary>
 		/// <param name="pImageBytes">The Image Bytes, not null or empty</param>
+		/// <param name="pTileInfo">The tile information</param>
+		/// <returns>Info about whether saving was successful</returns>
+		public SaveResults SaveTile(Byte[] pImageBytes, TileInfo pTileInfo) {
+			return this.SaveTile(pImageBytes, pTileInfo.TileSource, pTileInfo.Zoom, pTileInfo.X, pTileInfo.Y);
+		}
+
+		/// <summary>
+		/// Saves a tile to disk, if the TileSet is valid and has a LocalPath
+		/// </summary>
+		/// <param name="pImageBytes">The Image Bytes, not null or empty</param>
 		/// <param name="pTileSource">The TileSource to which the tile belongs</param>
 		/// <param name="pZ">The zoom factor</param>
 		/// <param name="pX">The tiles X-Coordinate</param>
 		/// <param name="pY">The tiles Y-Coordinate</param>
-		/// <returns></returns>
+		/// <returns>Info about whether saving was successful</returns>
 		public SaveResults SaveTile(Byte[] pImageBytes, TileSource pTileSource, Int32 pZ, Int32 pX, Int32 pY) {
 			SaveResults result;
 			if ((pImageBytes != null) && (pImageBytes.Length > 0)) {

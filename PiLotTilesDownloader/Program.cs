@@ -16,9 +16,11 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
+using PiLot.TilesDownloader.Model;
 using PiLot.Config;
 using PiLot.Data.Files;
 using PiLot.Model.Tiles;
+using System.Linq;
 
 namespace PiLot.TilesDownloader {
 	
@@ -29,6 +31,9 @@ namespace PiLot.TilesDownloader {
 		
 		private static String configFilePath;
 		private static Int32 maxAgeDays;
+		private static TileSource selectedTileSource;
+		private static Int32? selectedZoom;
+		private static Boolean randomMode;
 		private static TileSource[] tileSources;
 		private static TileDataConnector tileDataConnector;
 		private static HttpClient httpClient;
@@ -47,7 +52,10 @@ namespace PiLot.TilesDownloader {
 				Program.ReadParameters(args) 
 				&& Program.LoadTileSources()
 			){
-				Program.ReadMaxAgeDays();
+				Program.AskTileSource();
+				Program.AskZoomLevel();
+				Program.AskRandomMode();
+				Program.AskMaxAgeDays();
 				Console.CancelKeyPress += Console_CancelKeyPress;
 				await Program.StartTilesDownload();
 			}
@@ -71,20 +79,79 @@ namespace PiLot.TilesDownloader {
 			return result;
 		}
 
-		private static void ReadMaxAgeDays() {
+		private static void AskTileSource() {
 			Boolean valid = false;
 			while (!valid) {
-				Console.WriteLine("Enter the max age of tiles to keep, in days:");
-				String input = (Console.ReadLine());
+				Console.WriteLine("Please select a tile source.");
+				Console.WriteLine("0: all tile sources");
+				for (Int32 i = 0; i < Program.tileSources.Length; i++) {
+					Console.WriteLine($"{i + 1}: {Program.tileSources[i].Name}");
+				}
+				Char input = (Console.ReadKey().KeyChar);
 				Console.WriteLine();
+				if (input == '0') {
+					valid = true;
+				} else if (Int32.TryParse(input.ToString(), out Int32 inputNumber) && inputNumber > 0 && inputNumber <= Program.tileSources.Length) {
+					valid = true;
+					Program.selectedTileSource = Program.tileSources[inputNumber - 1];
+				} else {
+					Console.WriteLine($"Invalid entry: {input}");
+					Thread.Sleep(200);
+					valid = false;
+				}
+				Console.WriteLine();
+			}
+		}
+
+		private static void AskZoomLevel() {
+			Boolean valid = false;
+			while (!valid) {
+				Console.Write("Please select the zoom level. Enter -1 for all zoom levels. ");
+				String input = (Console.ReadLine());
+				if (input == "-1") {
+					valid = true;
+				} else if (Int32.TryParse(input.ToString(), out Int32 inputNumber)) {
+					valid = true;
+					Program.selectedZoom = inputNumber;
+				} else {
+					Console.WriteLine($"Invalid entry: {input}");
+					Thread.Sleep(200);
+					valid = false;
+				}
+				Console.WriteLine();
+			}
+		}
+
+		private static void AskRandomMode() {
+			Boolean valid = false;
+			while (!valid) {
+				Console.Write("Please select the mode. 1: serial, 2: random. ");
+				String input = (Console.ReadKey().KeyChar).ToString().ToLower();
+				Console.WriteLine();
+				Program.randomMode = input == "2";
+				Boolean serialMode = input == "1";
+				valid = Program.randomMode || serialMode;
+				if (!valid) {
+					Console.WriteLine($"Invalid entry: {input}");
+					Thread.Sleep(200);
+				}
+				Console.WriteLine();
+			}
+		}
+
+		private static void AskMaxAgeDays() {
+			Boolean valid = false;
+			while (!valid) {
+				Console.Write("Enter the max age of tiles to keep, in days: ");
+				String input = (Console.ReadLine());
 				if (Int32.TryParse(input, out Int32 days)) {
 					Program.maxAgeDays = days;
 					valid = true;
 				} else {
 					Program.WriteError("Invalid number. Please try again.");
-					Console.WriteLine();
 					Thread.Sleep(200);
 				}
+				Console.WriteLine();
 			}
 		}
 
@@ -118,7 +185,7 @@ namespace PiLot.TilesDownloader {
 			Console.CursorVisible = false;
 			Console.Clear();
 			Program.ShowStats();
-			await Program.DownloadRandomTiles();
+			await Program.DownloadTiles();
 		}
 
 		private static void PrepareStats() {
@@ -136,38 +203,89 @@ namespace PiLot.TilesDownloader {
 			Program.httpClient.DefaultRequestHeaders.Add("User-Agent", "PiLot map tiles download service. See github.com/RCgmbh.");
 		}
 
-		private static async Task DownloadRandomTiles() {
+		private static async Task DownloadTiles() {
+			Func<IEnumerable<TileFile>> getTilesFunction = Program.randomMode ? Program.GetRandomTiles : Program.GetAllTiles;
 			DateTime maxChangeDate = DateTime.UtcNow.AddDays(Program.maxAgeDays * -1);
 			Int32 pauseCounter = 0;
-			List<Int32> statsItem;
-			while (true) {
-				TileSource tileSource = Program.tileSources[Program.random.Next(0, Program.tileSources.Length)];
-				String tileSourceRoot = tileSource.LocalPath.Substring(0, tileSource.LocalPath.IndexOf("{"));
-				DirectoryInfo rootDir = new DirectoryInfo(tileSourceRoot);
-				DirectoryInfo zoomDir = Program.GetRandomDirectory(rootDir);
-				DirectoryInfo xDir = Program.GetRandomDirectory(zoomDir);
-				statsItem = Program.stats[tileSource.Name];
-				if (xDir != null && xDir.Exists) {
-					foreach (FileInfo aFile in xDir.GetFiles()) {
-						if (aFile.LastWriteTimeUtc < maxChangeDate) {
-							String y = aFile.Name.Substring(0, aFile.Name.Length - aFile.Extension.Length);
-							if(await Program.DownloadTile(tileSource, zoomDir.Name, xDir.Name, y)) {
-								statsItem[0]++;
-							} else {
-								statsItem[2]++;
+			foreach(TileFile aTileFile in getTilesFunction()) {
+				if (aTileFile.File.LastWriteTimeUtc < maxChangeDate) {
+					if (await Program.DownloadTile(aTileFile.Tile)) {
+						Program.stats[aTileFile.Tile.TileSource.Name][0]++;
+					} else {
+						Program.stats[aTileFile.Tile.TileSource.Name][2]++;
+					}
+					pauseCounter++;
+					if (pauseCounter >= PAUSEAFTER) {
+						pauseCounter = 0;
+						Thread.Sleep(Program.PAUSEMS);
+					}
+				} else {
+					Program.stats[aTileFile.Tile.TileSource.Name][1]++;
+				}
+				Program.ShowStats();
+			}
+		}
+
+		private static IEnumerable<TileFile> GetAllTiles() {
+			IEnumerable<TileSource> tileSources = Program.selectedTileSource == null ? Program.tileSources : new List<TileSource>() {Program.selectedTileSource };
+			DirectoryInfo tileSourceDir;
+			IOrderedEnumerable<DirectoryInfo> zoomDirectories;
+			foreach(TileSource aTileSource in tileSources) {
+				tileSourceDir = Program.GetTileSourceRoot(aTileSource);
+				zoomDirectories = (
+					Program.selectedZoom == null
+					? tileSourceDir.EnumerateDirectories()
+					: new List<DirectoryInfo> { Program.GetChildDirectory(tileSourceDir, Program.selectedZoom) }
+				).OrderBy(d => String.Format("{0, 2}", d.Name));
+				foreach(DirectoryInfo aZoomDirectory in zoomDirectories) {
+					foreach(DirectoryInfo aXDirectory in aZoomDirectory.GetDirectories()) {
+						foreach(FileInfo aFile in aXDirectory.GetFiles()) {
+							String filename = Program.GetPureFilename(aFile);
+							if (
+									Int32.TryParse(aZoomDirectory.Name, out Int32 z)
+									&& Int32.TryParse(aXDirectory.Name, out Int32 x)
+									&& Int32.TryParse(filename, out Int32 y)
+							) {
+								yield return new TileFile(new TileInfo(aTileSource, z, x, y), aFile);
 							}
-							pauseCounter++;
-							if (pauseCounter >= PAUSEAFTER) {
-								pauseCounter = 0;
-								Thread.Sleep(Program.PAUSEMS);
-							}
-						} else {
-							statsItem[1]++;
 						}
-						Program.ShowStats();
 					}
 				}
 			}
+		}
+
+		private static IEnumerable<TileFile> GetRandomTiles() {
+			while (true) {
+				TileSource tileSource =  Program.selectedTileSource ?? Program.tileSources[Program.random.Next(0, Program.tileSources.Length)];
+				DirectoryInfo rootDir = Program.GetTileSourceRoot(tileSource);
+				DirectoryInfo zoomDir = Program.selectedZoom == null ? Program.GetRandomDirectory(rootDir) : Program.GetChildDirectory(rootDir, Program.selectedZoom);
+				DirectoryInfo xDir = Program.GetRandomDirectory(zoomDir);
+				if (xDir != null && xDir.Exists) {
+					foreach (FileInfo aFile in xDir.GetFiles()) {
+						String filename = Program.GetPureFilename(aFile);
+						if (
+								Int32.TryParse(zoomDir.Name, out Int32 z)
+								&& Int32.TryParse(xDir.Name, out Int32 x)
+								&& Int32.TryParse(filename, out Int32 y)
+						) {
+							yield return new TileFile(new TileInfo(tileSource, z, x, y), aFile);
+						}
+					}
+				}
+			}
+		}
+
+		private static DirectoryInfo GetTileSourceRoot(TileSource pTileSource) {
+			string path = pTileSource.LocalPath.Substring(0, pTileSource.LocalPath.IndexOf("{"));
+			return new DirectoryInfo(path);
+		}
+
+		private static DirectoryInfo GetChildDirectory(DirectoryInfo pParent, Object pName) {
+			return pParent.GetDirectories(pName.ToString(), SearchOption.TopDirectoryOnly).ToList().FirstOrDefault();
+		}
+
+		private static String GetPureFilename(FileInfo pFile) {
+			return pFile.Name.Substring(0, pFile.Name.Length - pFile.Extension.Length);
 		}
 
 		private static DirectoryInfo GetRandomDirectory(DirectoryInfo pParent) {
@@ -181,37 +299,38 @@ namespace PiLot.TilesDownloader {
 			return result;
 		}
 
-		private static async Task<Boolean> DownloadTile(TileSource pTileSource, String pZ, String pX, String pY) {
+		private static async Task<Boolean> DownloadTile(TileInfo pTile) {
 			Boolean result = false;
-			if (
-					Int32.TryParse(pZ, out Int32 z)
-					&& Int32.TryParse(pX, out Int32 x)
-					&& Int32.TryParse(pY, out Int32 y)
-			) {
-				String url = pTileSource.OnlineUrl
-					.Replace("{s}", "a")
-					.Replace("{z}", pZ)
-					.Replace("{x}", pX)
-					.Replace("{y}", pY);
-				HttpResponseMessage response = await Program.httpClient.GetAsync(url);
-				if (response.StatusCode == System.Net.HttpStatusCode.OK) {
-					Byte[] bytes = await response.Content.ReadAsByteArrayAsync();
-					TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTileSource, z, x, y);
-					if (saveResult == TileDataConnector.SaveResults.Ok) {
-						Program.lastInfo = $"{url} downloaded";
-						result = true;
-					} else {
-						Program.lastError = ($"Error saving tile. Result: {saveResult}, url: {url}");
-					}
+			String url = pTile.TileSource.OnlineUrl
+				.Replace("{s}", "a")
+				.Replace("{z}", pTile.Zoom.ToString())
+				.Replace("{x}", pTile.X.ToString())
+				.Replace("{y}", pTile.Y.ToString())
+			;
+			/*HttpResponseMessage response = await Program.httpClient.GetAsync(url);
+			if (response.StatusCode == System.Net.HttpStatusCode.OK) {
+				Byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+				TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTile);
+				if (saveResult == TileDataConnector.SaveResults.Ok) {
+					Program.lastInfo = $"{url} downloaded";
+					result = true;
 				} else {
-					Program.lastError = $"{response.StatusCode}: {url}";
+					Program.lastError = ($"Error saving tile. Result: {saveResult}, url: {url}");
 				}
-			}
+			} else {
+				Program.lastError = $"{response.StatusCode}: {url}";
+			}*/
+			Program.lastInfo = $"{url} downloaded";
+			Thread.Sleep(300);
+
 			return result;
 		}
 
 		private static void ShowStats() {
 			Console.SetCursorPosition(0, 0);
+			Console.WriteLine($"Tile Source: {(Program.selectedTileSource?.Name ?? "all")}\n");
+			Console.WriteLine($"Zoom level: {(Program.selectedZoom?.ToString() ?? "all")}\n");
+			Console.WriteLine($"Mode: {(Program.randomMode ? "Random" : "Serial")}\n");
 			Console.WriteLine($"Maximal age of tiles: {Program.maxAgeDays} days\n");
 			Console.WriteLine("┌──────────────────────┬────────────┬────────────┬────────────┐");
 			Console.WriteLine("│ Tile source          │ outdated   │ up-to-date │ error      │");
