@@ -58,7 +58,9 @@ namespace PiLot.TilesDownloader {
 				Program.AskMaxAgeDays();
 				Console.CancelKeyPress += Console_CancelKeyPress;
 				await Program.StartTilesDownload();
+				Console.Write("Done. ");
 			}
+			Console.Write("Hit any key to quit.\n");
 			Console.ReadKey();
 		}
 
@@ -307,7 +309,7 @@ namespace PiLot.TilesDownloader {
 				.Replace("{x}", pTile.X.ToString())
 				.Replace("{y}", pTile.Y.ToString())
 			;
-			/*HttpResponseMessage response = await Program.httpClient.GetAsync(url);
+			HttpResponseMessage response = await Program.httpClient.GetAsync(url);
 			if (response.StatusCode == System.Net.HttpStatusCode.OK) {
 				Byte[] bytes = await response.Content.ReadAsByteArrayAsync();
 				TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTile);
@@ -319,10 +321,7 @@ namespace PiLot.TilesDownloader {
 				}
 			} else {
 				Program.lastError = $"{response.StatusCode}: {url}";
-			}*/
-			Program.lastInfo = $"{url} downloaded";
-			Thread.Sleep(300);
-
+			}
 			return result;
 		}
 
