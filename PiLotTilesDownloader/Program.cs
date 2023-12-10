@@ -194,7 +194,6 @@ namespace PiLot.TilesDownloader {
 					Byte[] bytes = await response.Content.ReadAsByteArrayAsync();
 					TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTileSource, z, x, y);
 					if (saveResult == TileDataConnector.SaveResults.Ok) {
-						Program.lastError = String.Empty;
 						Program.lastInfo = $"{url} downloaded";
 					} else {
 						Program.lastError = ($"Error saving tile. Result: {saveResult}, url: {url}");
