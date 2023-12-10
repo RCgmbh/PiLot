@@ -25,10 +25,10 @@ namespace PiLot.TilesDownloader {
 	class Program {
 
 		private const Int32 PAUSEMS = 3000;
-		private const Int32 PAUSEAFTER = 20;
-		private const Int32 MAXAGEDAYS = 700;
-
+		private const Int32 PAUSEAFTER = 50;
+		
 		private static String configFilePath;
+		private static Int32 maxAgeDays;
 		private static TileSource[] tileSources;
 		private static TileDataConnector tileDataConnector;
 		private static HttpClient httpClient;
@@ -46,6 +46,7 @@ namespace PiLot.TilesDownloader {
 				Program.ReadParameters(args) 
 				&& Program.LoadTileSources()
 			){
+				Program.ReadMaxAgeDays();
 				Console.CancelKeyPress += Console_CancelKeyPress;
 				await Program.StartTilesDownload();
 			}
@@ -53,7 +54,7 @@ namespace PiLot.TilesDownloader {
 		}
 
 		private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
-			Console.WriteLine("Bye...\n"); 
+			Console.WriteLine("\n\nBye...\n\n"); 
 			Console.CursorVisible = true;
 		}
 
@@ -67,7 +68,26 @@ namespace PiLot.TilesDownloader {
 				result = true;
 			}
 			return result;
-		} 
+		}
+
+		private static void ReadMaxAgeDays() {
+			Boolean valid = false;
+			while (!valid) {
+				Console.WriteLine("Enter the max age of tiles to keep, in days:");
+				String input = (Console.ReadLine());
+				Console.WriteLine();
+				if (Int32.TryParse(input, out Int32 days)) {
+					Console.WriteLine($"Maximal age: {days} days. Starting Tiles download");
+					Program.maxAgeDays = days;
+					valid = true;
+					Thread.Sleep(500);
+				} else {
+					Program.WriteError("Invalid number. Please try again.");
+					Console.WriteLine();
+					Thread.Sleep(200);
+				}
+			}
+		}
 
 		private static Boolean LoadTileSources() {
 			Boolean result;
@@ -117,7 +137,7 @@ namespace PiLot.TilesDownloader {
 		}
 
 		private static async Task DownloadRandomTiles() {
-			DateTime maxChangeDate = DateTime.UtcNow.AddDays(Program.MAXAGEDAYS * -1);
+			DateTime maxChangeDate = DateTime.UtcNow.AddDays(Program.maxAgeDays * -1);
 			Int32 pauseCounter = 0;
 			List<Int32> statsItem;
 			while (true) {
@@ -175,7 +195,7 @@ namespace PiLot.TilesDownloader {
 					TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTileSource, z, x, y);
 					if (saveResult == TileDataConnector.SaveResults.Ok) {
 						Program.lastError = String.Empty;
-						Program.lastInfo = $"{url} downloaded               ";
+						Program.lastInfo = $"{url} downloaded";
 					} else {
 						Program.lastError = ($"Error saving tile from {url}. Result: {saveResult}");
 					}
@@ -187,6 +207,7 @@ namespace PiLot.TilesDownloader {
 
 		private static void ShowStats() {
 			Console.SetCursorPosition(0, 0);
+			Console.WriteLine($"Maximal age of tiles: {Program.maxAgeDays} days\n");
 			Console.WriteLine("┌──────────────────────┬────────────┬────────────┐");
 			Console.WriteLine("│ Tile source          │ outdated   │ up-to-date │");
 			Console.WriteLine("├──────────────────────┼────────────┼────────────┤");
@@ -200,7 +221,8 @@ namespace PiLot.TilesDownloader {
 			}
 			Console.WriteLine("└──────────────────────┴────────────┴────────────┘");
 			Console.WriteLine();
-			Console.WriteLine(Program.lastInfo);
+			String formatString = $"{{0, -{Console.WindowWidth}}}";
+			Console.WriteLine(String.Format(formatString, Program.lastInfo));
 			Program.WriteError(Program.lastError ?? "");
 			Console.WriteLine();
 		}
