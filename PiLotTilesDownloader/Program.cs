@@ -124,7 +124,7 @@ namespace PiLot.TilesDownloader {
 		private static void PrepareStats() {
 			Program.stats = new Dictionary<String, List<Int32>>();
 			foreach(TileSource aTileSource in Program.tileSources) {
-				stats[aTileSource.Name] = new List<Int32>() { 0, 0 };
+				stats[aTileSource.Name] = new List<Int32>() { 0, 0, 0 };
 			}
 		}
 
@@ -151,8 +151,11 @@ namespace PiLot.TilesDownloader {
 					foreach (FileInfo aFile in xDir.GetFiles()) {
 						if (aFile.LastWriteTimeUtc < maxChangeDate) {
 							String y = aFile.Name.Substring(0, aFile.Name.Length - aFile.Extension.Length);
-							statsItem[0]++;
-							await Program.DownloadTile(tileSource, zoomDir.Name, xDir.Name, y);
+							if(await Program.DownloadTile(tileSource, zoomDir.Name, xDir.Name, y)) {
+								statsItem[0]++;
+							} else {
+								statsItem[2]++;
+							}
 							pauseCounter++;
 							if (pauseCounter >= PAUSEAFTER) {
 								pauseCounter = 0;
@@ -178,7 +181,8 @@ namespace PiLot.TilesDownloader {
 			return result;
 		}
 
-		private static async Task DownloadTile(TileSource pTileSource, String pZ, String pX, String pY) {
+		private static async Task<Boolean> DownloadTile(TileSource pTileSource, String pZ, String pX, String pY) {
+			Boolean result = false;
 			if (
 					Int32.TryParse(pZ, out Int32 z)
 					&& Int32.TryParse(pX, out Int32 x)
@@ -195,6 +199,7 @@ namespace PiLot.TilesDownloader {
 					TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTileSource, z, x, y);
 					if (saveResult == TileDataConnector.SaveResults.Ok) {
 						Program.lastInfo = $"{url} downloaded";
+						result = true;
 					} else {
 						Program.lastError = ($"Error saving tile. Result: {saveResult}, url: {url}");
 					}
@@ -202,23 +207,25 @@ namespace PiLot.TilesDownloader {
 					Program.lastError = $"{response.StatusCode}: {url}";
 				}
 			}
+			return result;
 		}
 
 		private static void ShowStats() {
 			Console.SetCursorPosition(0, 0);
 			Console.WriteLine($"Maximal age of tiles: {Program.maxAgeDays} days\n");
-			Console.WriteLine("┌──────────────────────┬────────────┬────────────┐");
-			Console.WriteLine("│ Tile source          │ outdated   │ up-to-date │");
-			Console.WriteLine("├──────────────────────┼────────────┼────────────┤");
+			Console.WriteLine("┌──────────────────────┬────────────┬────────────┬────────────┐");
+			Console.WriteLine("│ Tile source          │ outdated   │ up-to-date │ error      │");
+			Console.WriteLine("├──────────────────────┼────────────┼────────────┼────────────┤");
 			String name;
-			String outdated, uptodate;
+			String outdated, uptodate, error;
 			foreach(KeyValuePair<String, List<Int32>> anItem in Program.stats) {
 				name = String.Format("{0, -20}", anItem.Key);
 				outdated = String.Format("{0, 10}", anItem.Value[0]);
 				uptodate = String.Format("{0, 10}", anItem.Value[1]);
-				Console.WriteLine($"│ {name} │ {outdated} │ {uptodate} │");
+				error = String.Format("{0, 10}", anItem.Value[2]);
+				Console.WriteLine($"│ {name} │ {outdated} │ {uptodate} │ {error} │");
 			}
-			Console.WriteLine("└──────────────────────┴────────────┴────────────┘");
+			Console.WriteLine("└──────────────────────┴────────────┴────────────┴────────────┘");
 			Console.WriteLine();
 			String formatString = $"{{0, -{Console.WindowWidth}}}";
 			Console.WriteLine(String.Format(formatString, Program.lastInfo).Substring(0, Console.WindowWidth));
