@@ -10,9 +10,19 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="launch.sh" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\PiLotConfig\PiLotConfig.csproj" />
     <ProjectReference Include="..\PiLotDataFiles\PiLotDataFiles.csproj" />
     <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="launch.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>
