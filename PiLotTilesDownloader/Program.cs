@@ -54,7 +54,7 @@ namespace PiLot.TilesDownloader {
 		}
 
 		private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
-			Console.WriteLine("\n\nBye...\n\n"); 
+			Console.WriteLine("\nBye...\n"); 
 			Console.CursorVisible = true;
 		}
 
@@ -77,10 +77,8 @@ namespace PiLot.TilesDownloader {
 				String input = (Console.ReadLine());
 				Console.WriteLine();
 				if (Int32.TryParse(input, out Int32 days)) {
-					Console.WriteLine($"Maximal age: {days} days. Starting Tiles download");
 					Program.maxAgeDays = days;
 					valid = true;
-					Thread.Sleep(500);
 				} else {
 					Program.WriteError("Invalid number. Please try again.");
 					Console.WriteLine();
@@ -118,6 +116,7 @@ namespace PiLot.TilesDownloader {
 			Program.PrepareHttpClient();
 			Console.CursorVisible = false;
 			Console.Clear();
+			Program.ShowStats();
 			await Program.DownloadRandomTiles();
 		}
 
