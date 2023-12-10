@@ -42,6 +42,7 @@ namespace PiLot.TilesDownloader {
 		/// </summary>
 		/// <param name="args">The path to the tileSources config must be passed</param>
 		static async Task Main(string[] args) {
+			Console.Clear();
 			if (
 				Program.ReadParameters(args) 
 				&& Program.LoadTileSources()
@@ -196,10 +197,10 @@ namespace PiLot.TilesDownloader {
 						Program.lastError = String.Empty;
 						Program.lastInfo = $"{url} downloaded";
 					} else {
-						Program.lastError = ($"Error saving tile from {url}. Result: {saveResult}");
+						Program.lastError = ($"Error saving tile. Result: {saveResult}, url: {url}");
 					}
 				} else {
-					Program.lastError = $"Status code {response.StatusCode} for {url}";
+					Program.lastError = $"{response.StatusCode}: {url}";
 				}
 			}
 		}
@@ -221,8 +222,8 @@ namespace PiLot.TilesDownloader {
 			Console.WriteLine("└──────────────────────┴────────────┴────────────┘");
 			Console.WriteLine();
 			String formatString = $"{{0, -{Console.WindowWidth}}}";
-			Console.WriteLine(String.Format(formatString, Program.lastInfo));
-			Program.WriteError(Program.lastError ?? "");
+			Console.WriteLine(String.Format(formatString, Program.lastInfo).Substring(0, Console.WindowWidth));
+			Program.WriteError(String.Format(formatString, Program.lastError ?? "").Substring(0, Console.WindowWidth));
 			Console.WriteLine();
 		}
 
