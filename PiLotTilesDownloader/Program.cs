@@ -46,9 +46,15 @@ namespace PiLot.TilesDownloader {
 				Program.ReadParameters(args) 
 				&& Program.LoadTileSources()
 			){
+				Console.CancelKeyPress += Console_CancelKeyPress;
 				await Program.StartTilesDownload();
 			}
 			Console.ReadKey();
+		}
+
+		private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
+			Console.WriteLine("Bye...\n"); 
+			Console.CursorVisible = true;
 		}
 
 		private static Boolean ReadParameters(String[] args) {
@@ -169,7 +175,7 @@ namespace PiLot.TilesDownloader {
 					TileDataConnector.SaveResults saveResult = Program.tileDataConnector.SaveTile(bytes, pTileSource, z, x, y);
 					if (saveResult == TileDataConnector.SaveResults.Ok) {
 						Program.lastError = String.Empty;
-						Program.lastInfo = $"{url} downloaded";
+						Program.lastInfo = $"{url} downloaded               ";
 					} else {
 						Program.lastError = ($"Error saving tile from {url}. Result: {saveResult}");
 					}
@@ -195,9 +201,8 @@ namespace PiLot.TilesDownloader {
 			Console.WriteLine("└──────────────────────┴────────────┴────────────┘");
 			Console.WriteLine();
 			Console.WriteLine(Program.lastInfo);
-			if (!String.IsNullOrEmpty(Program.lastError)) {
-				Program.WriteError(Program.lastError);
-			}
+			Program.WriteError(Program.lastError ?? "");
+			Console.WriteLine();
 		}
 
 		private static void WriteError(String pMessage) {
