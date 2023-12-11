@@ -133,8 +133,7 @@ namespace PiLot.TilesDownloader {
 			Boolean valid = false;
 			while (!valid) {
 				Console.Write("Please select the mode. 1: serial, 2: random. ");
-				String input = (Console.ReadKey().KeyChar).ToString().ToLower();
-				Console.WriteLine();
+				String input = Console.ReadLine().ToLower();
 				Program.randomMode = input == "2";
 				Boolean serialMode = input == "1";
 				valid = Program.randomMode || serialMode;
