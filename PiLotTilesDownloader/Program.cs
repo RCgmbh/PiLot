@@ -62,10 +62,15 @@ namespace PiLot.TilesDownloader {
 			}
 			Console.Write("Hit any key to quit.\n");
 			Console.ReadKey();
+			Program.CleanupConsole();
 		}
 
 		private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
-			Console.WriteLine("\nBye...\n"); 
+			Program.CleanupConsole();
+		}
+
+		private static void CleanupConsole() {
+			Console.WriteLine("\nBye...\n");
 			Console.CursorVisible = true;
 		}
 
