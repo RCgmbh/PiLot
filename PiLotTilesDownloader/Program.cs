@@ -332,9 +332,9 @@ namespace PiLot.TilesDownloader {
 
 		private static void ShowStats() {
 			Console.SetCursorPosition(0, 0);
-			Console.WriteLine($"Tile Source: {(Program.selectedTileSource?.Name ?? "all")}\n");
-			Console.WriteLine($"Zoom level: {(Program.selectedZoom?.ToString() ?? "all")}\n");
-			Console.WriteLine($"Mode: {(Program.randomMode ? "Random" : "Serial")}\n");
+			Console.WriteLine($"Tile Source: {(Program.selectedTileSource?.Name ?? "all")}");
+			Console.WriteLine($"Zoom level: {(Program.selectedZoom?.ToString() ?? "all")}");
+			Console.WriteLine($"Mode: {(Program.randomMode ? "Random" : "Serial")}");
 			Console.WriteLine($"Maximal age of tiles: {Program.maxAgeDays} days\n");
 			Console.WriteLine("┌──────────────────────┬────────────┬────────────┬────────────┐");
 			Console.WriteLine("│ Tile source          │ outdated   │ up-to-date │ error      │");
