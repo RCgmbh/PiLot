@@ -243,7 +243,9 @@ namespace PiLot.TilesDownloader {
 					Program.selectedZoom == null
 					? tileSourceDir.EnumerateDirectories()
 					: new List<DirectoryInfo> { Program.GetChildDirectory(tileSourceDir, Program.selectedZoom) }
-				).OrderBy(d => String.Format("{0, 2}", d.Name));
+				)
+				.Where(d => d!= null)
+				.OrderBy(d => String.Format("{0, 2}", d.Name));
 				foreach(DirectoryInfo aZoomDirectory in zoomDirectories) {
 					foreach(DirectoryInfo aXDirectory in aZoomDirectory.GetDirectories()) {
 						foreach(FileInfo aFile in aXDirectory.GetFiles()) {
