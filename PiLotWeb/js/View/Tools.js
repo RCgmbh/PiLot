@@ -26,7 +26,7 @@ PiLot.View.Tools = (function () {
 	};
 
 	/// a form which allows deleting and exporting gps data
-	var GpsExportForm = function () {
+	var GpsImportExportForm = function () {
 
 		this.track = null;
 		this.boatTime = null;
@@ -46,10 +46,11 @@ PiLot.View.Tools = (function () {
 		this.divResultTable = null;
 		this.tblPositions = null;
 		this.pnlSpeedDiagram = null;
+		this.tbImport = null;
 		this.initializeAsync();
 	};
 
-	GpsExportForm.prototype = {
+	GpsImportExportForm.prototype = {
 
 		initializeAsync: async function () {
 			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
@@ -61,7 +62,7 @@ PiLot.View.Tools = (function () {
 
 		drawFormAsync: async function () {
 			const loader = PiLot.Utils.Loader;
-			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.gpsExportForm);
+			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.gpsImportExportForm);
 			loader.getContentArea().appendChild(this.pageContent);
 			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
 			let tbStartDate = this.pageContent.querySelector('.tbStartDate');
@@ -102,6 +103,15 @@ PiLot.View.Tools = (function () {
 			}			
 			this.pnlSpeedDiagram = document.querySelector('.pnlSpeedDiagram');
 			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkSpeedDiagram'), this.pnlSpeedDiagram).on('expand', this.showSpeedChartData.bind(this));
+			const lnkImport = this.pageContent.querySelector('.lnkImport');
+			if (PiLot.Permissions.canWrite()){
+				new PiLot.View.Common.ExpandCollapse(lnkImport, this.pageContent.querySelector('.divImport'));
+				this.tbImport = this.pageContent.querySelector('.tbImport');
+				this.pageContent.querySelector('.btnImportPreview').addEventListener('click', this.btnImportPreview_click.bind(this));
+				this.pageContent.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
+			} else {
+				lnkImport.hidden = true;
+			}
 			
 			RC.Utils.selectOnFocus(this.tbStartTime, this.tbEndTime);
 		},
@@ -161,6 +171,25 @@ PiLot.View.Tools = (function () {
 				}
 			}
 		},
+
+		btnImportPreview_click: function () {
+			let parser = new DOMParser();
+			let doc = parser.parseFromString(this.tbImport.value, "text/xml");
+			let trackPoints = doc.documentElement.getElementsByTagName('Trackpoint');
+			console.log(trackPoints);
+			let elementsLat, elementsLon
+			for (trackPoint of trackPoints) {
+				elementsLat = trackPoint.getElementsByTagName("LatitudeDegrees");
+				elementsLon = trackPoint.getElementsByTagName("LatitudeDegrees");
+				if ((elementsLat.length === 1) && (elementsLon.length === 1)){
+					let lat = elementsLat[0].innerHTML;
+					let lon = elementsLon[0].innerHTML;
+					console.log(`lat: ${lat}, lon: ${lon}`);
+				}
+			}
+		},
+
+		btnImport_click: async function () { },
 
 		setDefaultDates: function () {
 			let startDate = PiLot.Utils.Common.parseQsDate(this.boatTime);
@@ -1963,7 +1992,7 @@ PiLot.View.Tools = (function () {
 	/// return the classes
 	return {
 		ToolsOverviewPage: ToolsOverviewPage,
-		GpsExportForm: GpsExportForm,
+		GpsImportExportForm: GpsImportExportForm,
 		SpeedDiagram: SpeedDiagram,
 		TilesDownloadForm: TilesDownloadForm,
 		PoisManagementPage: PoisManagementPage

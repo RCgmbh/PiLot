@@ -250,7 +250,7 @@ PiLot.Utils.Loader = (function () {
 					break;
 				case pages.system.tools.data:
 					dependencies = [defaultScripts, navScripts, flotScripts, toolsScripts];
-					startAction = function () { new PiLot.View.Tools.GpsExportForm(); };
+					startAction = function () { new PiLot.View.Tools.GpsImportExportForm(); };
 					break;
 				case pages.system.tools.tiles:
 					dependencies = [defaultScripts, navScripts, toolsScripts];

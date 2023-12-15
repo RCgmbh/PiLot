@@ -27,7 +27,7 @@ PiLot.Templates.Tools = {
 		</div>
 	`,
 
-	gpsExportForm: `
+	gpsImportExportForm: `
 		<div class="contentPadding">
 			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="gpsData"></span></h1>
 			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
@@ -78,6 +78,12 @@ PiLot.Templates.Tools = {
 				</div>
 				<h3><a class="lnkSpeedDiagram" data-text="speedDiagram"></a></h3>
 				<div class="pnlSpeedDiagram" hidden></div>
+				<h3><a class="lnkImport" data-text="import"></a></h3>
+				<div class="divImport" hidden>
+					<textarea class="fullWidth big tbImport marginBottomSmall" style="max-height: 20em; overflow:auto; border:1px solid #666"></textarea>
+					<button type="button" class="btnImportPreview marginRight" data-text="preview"></button>
+					<button type="button" class="btnImport marginRight" data-text="import"></button>
+				</div>
 			</div>
 		</div>
 	`,
