@@ -80,9 +80,14 @@ PiLot.Templates.Tools = {
 				<div class="pnlSpeedDiagram" hidden></div>
 				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<div class="divImport" hidden>
+					<label><input type="radio" checked="true" /> TCX</label>
 					<textarea class="fullWidth big tbImport marginBottomSmall" style="max-height: 20em; overflow:auto; border:1px solid #666"></textarea>
-					<button type="button" class="btnImportPreview marginRight" data-text="preview"></button>
-					<button type="button" class="btnImport marginRight" data-text="import"></button>
+					<div class="fullWidth marginBottom">
+						<span data-text="utcOffset" class="marginRight"></span><input type="text" class="tbImportUtcOffset input4" />
+					</div>
+					<div class="pnlImportSuccess fullWidth feedbackGood marginBottom" hidden data-text="importSuccess"></div>
+					<button type="button" class="btnImportPreview input6 marginRight" data-text="preview"></button>
+					<button type="button" class="btnImport input6 marginRight" data-text="import"></button>
 				</div>
 			</div>
 		</div>

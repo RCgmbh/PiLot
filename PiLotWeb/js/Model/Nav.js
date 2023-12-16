@@ -1504,6 +1504,11 @@ PiLot.Model.Nav = (function () {
 			}
 			return this.latLon;
 		},
+
+		/** @returns {Array} an array of utc, boatTime, lat, lng */
+		toArray: function () {
+			return [this.utc, this.boatTime, this.latitude, this.longitude];
+		}
 	};
 
 	/**
@@ -1605,6 +1610,11 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
+		/// returns all positions
+		getPositions: function () {
+			return this.positions;
+		},
+
 		/// returns an array containing arrays with lat, lng
 		getRawPositions: function () {
 			return this.positions.map(p => p.getLatLng());
@@ -1673,12 +1683,17 @@ PiLot.Model.Nav = (function () {
 		return result;
 	};
 
+	/**
+	 * Creates a track from a TCX XML String
+	 * @param {String} pTCXString - The xml
+	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to set boatTime
+	 * */
 	Track.fromTCX = function (pTCXString, pUtcOffset) {
-		let parser = new DOMParser();
-		let doc = parser.parseFromString(pTCXString, "text/xml");
 		const result = { track: new Track(), success: true, message: '' };
 		try {
-			let trackPoints = doc.documentElement.getElementsByTagName('Trackpoint');
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(pTCXString, "text/xml");
+			const trackPoints = doc.documentElement.getElementsByTagName('Trackpoint');
 			let elementsLat, elementsLon, elementsTime;
 			let lat, lon, timeString, utc, boatTime;
 			for (trackPoint of trackPoints) {
@@ -1728,6 +1743,14 @@ PiLot.Model.Nav = (function () {
 	var deleteGPSPositionsAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
 		const url = PiLot.Utils.Common.toApiUrl(`/Track?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`);
 		await fetch(url, { method: 'DELETE' });
+	};
+
+	/** 
+	 * Saves a track back to the server
+	 * */
+	var saveTrackAsync = async function (pTrack) {
+		const url = PiLot.Utils.Common.toApiUrl('/Track?doOverwrite=false');
+		return await PiLot.Utils.Common.putToServerAsync(url, pTrack.getPositions().map(p => p.toArray()));
 	};
 
 	/** 
@@ -2173,7 +2196,8 @@ PiLot.Model.Nav = (function () {
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
 		loadTrackAsync: loadTrackAsync,
-		deleteGPSPositionsAsync: deleteGPSPositionsAsync
+		deleteGPSPositionsAsync: deleteGPSPositionsAsync,
+		saveTrackAsync: saveTrackAsync
 	};
 
 })();

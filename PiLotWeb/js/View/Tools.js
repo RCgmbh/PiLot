@@ -25,7 +25,7 @@ PiLot.View.Tools = (function () {
 		}
 	};
 
-	/// a form which allows deleting and exporting gps data
+	/// a form which allows deleting, importing and exporting gps data
 	var GpsImportExportForm = function () {
 
 		this.track = null;
@@ -47,6 +47,8 @@ PiLot.View.Tools = (function () {
 		this.tblPositions = null;
 		this.pnlSpeedDiagram = null;
 		this.tbImport = null;
+		this.tbImportUtcOffset = null;
+		this.pnlImportSuccess = null;
 		this.initializeAsync();
 	};
 
@@ -106,7 +108,9 @@ PiLot.View.Tools = (function () {
 			const lnkImport = this.pageContent.querySelector('.lnkImport');
 			if (PiLot.Permissions.canWrite()){
 				new PiLot.View.Common.ExpandCollapse(lnkImport, this.pageContent.querySelector('.divImport'));
+				this.pnlImportSuccess = this.pageContent.querySelector('.pnlImportSuccess');
 				this.tbImport = this.pageContent.querySelector('.tbImport');
+				this.tbImportUtcOffset = this.pageContent.querySelector('.tbImportUtcOffset');
 				this.pageContent.querySelector('.btnImportPreview').addEventListener('click', this.btnImportPreview_click.bind(this));
 				this.pageContent.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
 			} else {
@@ -173,10 +177,17 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnImportPreview_click: function () {
-			let result = this.processTCX(this.tbImport.value);
+			this.pnlImportSuccess.hidden = true;
+			let result = this.processTCX();
 		},
 
-		btnImport_click: async function () { },
+		btnImport_click: async function () {
+			const processTCXResult = this.processTCX();
+			if (processTCXResult.success) {
+				const saveResult = await PiLot.Model.Nav.saveTrackAsync(this.track);
+				this.pnlImportSuccess.hidden = false;
+			}
+		},
 
 		setDefaultDates: function () {
 			let startDate = PiLot.Utils.Common.parseQsDate(this.boatTime);
@@ -310,11 +321,12 @@ PiLot.View.Tools = (function () {
 			}
 		},
 
-		processTCX: function (pTCXString) {
-			let trackFromTCXResult = PiLot.Model.Nav.Track.fromTCX(pTCXString);
+		processTCX: function () {
+			const utcOffset = RC.Utils.getNumericValue(this.tbImportUtcOffset) || 0;
+			let trackFromTCXResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset);
 			if (trackFromTCXResult.success) {
-				this.mapTrack.setTrack(trackFromTCXResult.track);
-				this.mapTrack.draw();
+				this.track = trackFromTCXResult.track;
+				this.mapTrack.setAndShowTrack(this.track, true);
 			} else {
 				alert(trackFromTCXResult.message);
 			}

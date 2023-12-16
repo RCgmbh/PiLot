@@ -1299,6 +1299,22 @@ PiLot.View.Map = (function () {
 			return track;
 		},
 
+
+		/**
+		 * This is your one-stop method to show a track, if you already have
+		 * the track at hand and don't want it to be loaded from the backend.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * @param {Boolean} pZoomToTrack
+		 * */
+		setAndShowTrack: function (pTrack, pZoomToTrack) {
+			this.setTrack(pTrack);
+			this.draw();
+			this.showTimeSlider();
+			if (pZoomToTrack) {
+				this.zoomToTrack();
+			}
+		},
+
 		/// sets the start time and seconds, and makes sure the trackObserver
 		/// gets informed. We only want the trackObserver to draw live data,
 		/// if the end date is not null (meaning we have a startTime xor seconds)
