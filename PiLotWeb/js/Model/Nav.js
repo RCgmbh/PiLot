@@ -1673,6 +1673,39 @@ PiLot.Model.Nav = (function () {
 		return result;
 	};
 
+	Track.fromTCX = function (pTCXString, pUtcOffset) {
+		let parser = new DOMParser();
+		let doc = parser.parseFromString(pTCXString, "text/xml");
+		const result = { track: new Track(), success: true, message: '' };
+		try {
+			let trackPoints = doc.documentElement.getElementsByTagName('Trackpoint');
+			let elementsLat, elementsLon, elementsTime;
+			let lat, lon, timeString, utc, boatTime;
+			for (trackPoint of trackPoints) {
+				elementsLat = trackPoint.getElementsByTagName("LatitudeDegrees");
+				elementsLon = trackPoint.getElementsByTagName("LongitudeDegrees");
+				elementsTime = trackPoint.getElementsByTagName("Time");
+				if ((elementsLat.length === 1) && (elementsLon.length === 1) && (elementsTime.length === 1)) {
+					timeString = elementsTime[0].innerHTML;
+					utc = DateTime.fromISO(timeString, { zone: 'utc' });
+					if (utc) {
+						boatTime = utc.plus({ hours: pUtcOffset });
+						lat = elementsLat[0].innerHTML;
+						lon = elementsLon[0].innerHTML;
+						if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
+							result.track.addPosition(new GPSRecord(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
+						}
+					}
+				}
+			}
+		} catch (ex) {
+			result.track = null;
+			result.success = false;
+			result.message = ex;
+		}
+		return result;
+	};
+
 	/**
 	 * Loads a track from the server, using UTC for start and end time
 	 * @param {Number} pStartUTC - the start time in milliseconds from epoc, in UTC or BoatTime

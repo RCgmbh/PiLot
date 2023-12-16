@@ -173,20 +173,7 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnImportPreview_click: function () {
-			let parser = new DOMParser();
-			let doc = parser.parseFromString(this.tbImport.value, "text/xml");
-			let trackPoints = doc.documentElement.getElementsByTagName('Trackpoint');
-			console.log(trackPoints);
-			let elementsLat, elementsLon
-			for (trackPoint of trackPoints) {
-				elementsLat = trackPoint.getElementsByTagName("LatitudeDegrees");
-				elementsLon = trackPoint.getElementsByTagName("LatitudeDegrees");
-				if ((elementsLat.length === 1) && (elementsLon.length === 1)){
-					let lat = elementsLat[0].innerHTML;
-					let lon = elementsLon[0].innerHTML;
-					console.log(`lat: ${lat}, lon: ${lon}`);
-				}
-			}
+			let result = this.processTCX(this.tbImport.value);
 		},
 
 		btnImport_click: async function () { },
@@ -321,6 +308,17 @@ PiLot.View.Tools = (function () {
 			if (RC.Utils.isVisible(this.pnlSpeedDiagram)) {
 				new PiLot.View.Tools.SpeedDiagram(this.pnlSpeedDiagram, this.track);
 			}
+		},
+
+		processTCX: function (pTCXString) {
+			let trackFromTCXResult = PiLot.Model.Nav.Track.fromTCX(pTCXString);
+			if (trackFromTCXResult.success) {
+				this.mapTrack.setTrack(trackFromTCXResult.track);
+				this.mapTrack.draw();
+			} else {
+				alert(trackFromTCXResult.message);
+			}
+			return trackFromTCXResult;
 		}
 
 	};
