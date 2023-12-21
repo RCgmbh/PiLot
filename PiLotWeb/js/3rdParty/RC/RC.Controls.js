@@ -15,10 +15,6 @@ RC.Controls = (function () {
 		this.container = pContainer;			// HTMLElement
 		this.attachedTo = pControlToAttach;		// HTMLElement
 		this.calendarLink = pCalendarLink;
-		this.onDateSelected = null;
-		if (typeof pOnDateSelected === 'function') {
-			this.onDateSelected = pOnDateSelected;
-		}
 		this.utcOffset = pUtcOffset || 0;
 		this.locale = pLocale || 'en';
 		this.onMonthRendered = null;
@@ -29,7 +25,9 @@ RC.Controls = (function () {
 		this.currentMonth = now.month;
 		this.currentYear = now.year;
 		this.mode = 0				// 0 = days, 1: months, 2: years
+		this.observers = null;
 		this.prepare();
+		pOnDateSelected && this.on('change', pOnDateSelected);
 	};
 
 	/// Calendar Methods
@@ -60,6 +58,15 @@ RC.Controls = (function () {
 		tblYears: null,
 
 		dayCells: null,				// a map with date (yyyymmdd) and the corresponding cell, used to add custom content
+
+		/**
+		 * Registers an observer which will be called when pEvent happens
+		 * @param {String} pEvent - "change"
+		 * @param {Function} pCallback - the function to call
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
 
 		/// handles clicks on the body. hides the calendar, if the click did not happen
 		/// on the calendarLink or the attachedTo control. Clicks on the calendar
@@ -165,10 +172,50 @@ RC.Controls = (function () {
 			}
 		},
 
+		/**
+		 * Handler for changes of the minDateCalendar, setting the current date to 
+		 * that calendar's date, if it's earlier.
+		 * */
+		minDateCalendar_change: function (pSender, pDate) {
+			if(this.selectedDate !== null && this.selectedDate < pDate){
+				this.date(pDate);
+				this.showDate();
+			}
+		},
+
+		/**
+		 * Handler for changes of the maxDateCalendar, setting the current date to 
+		 * that calendar's date, if it's later.
+		 * */
+		maxDateCalendar_change: function (pSender, pDate) { 
+			if(this.selectedDate !== null && this.selectedDate > pDate){
+				this.date(pDate);
+				this.showDate();
+			}
+		},
+
 		/// sets the function to be called when a month is rendered in the days view. The 
 		/// function will be called using (pYear, pMonth)
 		setOnMonthRendered: function (pCallback) {
 			this.onMonthRendered = pCallback;
+		},
+
+		/**
+		 * This allows to connect this calendar to another calendar, typically in a date from-to
+		 * scenario. If the date in the other calendar is set or changed, and the selected date
+		 * in this calendar is earlier, it will be set to the other calendar's date.
+		 * */
+		setMinDateCalendar: function (pCalendar) {
+			pCalendar && pCalendar.on('change', this.minDateCalendar_change.bind(this));
+		},
+
+		/**
+		 * This allows to connect this calendar to another calendar, typically in a date from-to
+		 * scenario. If the date in the other calendar is set or changed, and the selected date
+		 * in this calendar is later, it will be set to the other calendar's date.
+		 * */
+		setMaxDateCalendar: function (pCalendar) {
+			pCalendar && pCalendar.on('change', this.maxDateCalendar_change.bind(this));
 		},
 
 		/// builds up the main structure which we will keep during the lifetime of the control.
@@ -184,6 +231,7 @@ RC.Controls = (function () {
 					this.renderCurrentView();
 				}
 			}
+			this.observers = RC.Utils.initializeObservers(['change']);
 		},
 
 		/// binds handlers mainly to ensure proper show/hide behaviour
@@ -503,11 +551,9 @@ RC.Controls = (function () {
 			this.setYear(this.currentYear + pChangeBy);
 		},
 
-		/// fires the onDataSelected method which has been assigned
+		/** fires the change event */
 		dateSelected: function(){
-			if (this.onDateSelected !== null) {
-				this.onDateSelected(this.selectedDate);
-			}
+			RC.Utils.notifyObservers(this, this.observers, 'change', this.selectedDate);
 		},
 
 		/// shows the selected date in the attached control

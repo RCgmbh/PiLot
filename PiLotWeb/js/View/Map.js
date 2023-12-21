@@ -1194,17 +1194,21 @@ PiLot.View.Map = (function () {
 			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
 			this.tbStartDate = optionsControl.querySelector('.tbStartDate');
 			const locale = PiLot.Utils.Language.getLanguage();
-			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), this.tbStartDate, null, this.calDate_change.bind(this), null, locale);
+			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), this.tbStartDate, null, null, null, locale);
 			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
 			this.calStartDate.showDate();
 			const tbEndDate = optionsControl.querySelector('.tbEndDate');
-			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, this.calDate_change.bind(this), null, locale);
+			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
 			if (this.startTime && this.seconds) {
 				this.calEndDate.date(this.startTime.toLocal().plus({ seconds: this.seconds }).minus({ days: 1 }));
 			} else {
 				this.calEndDate.date(this.endTime);
 			}
 			this.calEndDate.showDate();
+			this.calStartDate.setMaxDateCalendar(this.calEndDate);
+			this.calEndDate.setMinDateCalendar(this.calStartDate);
+			this.calStartDate.on('change', this.calDate_change.bind(this));
+			this.calEndDate.on('change', this.calDate_change.bind(this));
 			this.pnlCustomDates.hidden = this.selTrackMode.value !== "null";
 			this.map.addSettingsItem(optionsControl);
 			RC.Utils.selectOnFocus(this.tbStartDate, tbEndDate);
