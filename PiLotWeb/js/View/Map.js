@@ -1110,7 +1110,7 @@ PiLot.View.Map = (function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showTrack', this.showTrack);
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			if (this.showTrack) {
-				this.loadAndShowTrackAsync(false);
+				this.loadAndShowTrackAsync(true);
 			} else {
 				this.deleteFromMap();
 				this.hideTimeSlider();
