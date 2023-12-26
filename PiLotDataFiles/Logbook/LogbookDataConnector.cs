@@ -149,7 +149,7 @@ namespace PiLot.Data.Files {
 		public List<Object> ReadLogbookMonthInfo(Int32 pYear, Int32 pMonth) {
 			List<Object> result = new List<Object>();
 			Date loopDate = new Date(pYear, pMonth, 1);
-			Track track = new GPSDataConnector().ReadTrack(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true);
+			Track track = new TrackDataConnector().ReadTrack(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true);
 			Boolean hasTrack, hasLogbook, hasPhotos;
 			Int64 minMS, maxMS;
 			LogbookDay logbookDay;
@@ -157,7 +157,7 @@ namespace PiLot.Data.Files {
 			while (loopDate.Month == pMonth) {
 				minMS = DateTimeHelper.ToJSTime(loopDate);
 				maxMS = DateTimeHelper.ToJSTime(loopDate.AddDays(1));
-				hasTrack = track.GpsRecords.Exists(r => (r.BoatTime != null) && (r.BoatTime >= minMS) && (r.BoatTime <= maxMS));
+				hasTrack = track.TrackPoints.Exists(r => (r.BoatTime != null) && (r.BoatTime >= minMS) && (r.BoatTime <= maxMS));
 				logbookDay = this.ReadLogbookDay(loopDate);
 				hasLogbook = logbookDay != null && logbookDay.HasData;
 				hasPhotos = photoData.HasPhotos(loopDate);

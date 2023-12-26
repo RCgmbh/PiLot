@@ -41,7 +41,7 @@ namespace PiLot.Backup.Client.Proxies {
 		public async Task<Boolean> BackupDailyTrackAsync(Track pTrack, System.Date pTrackDay, DateTime pBackupTime) {
 			Assert.IsNotNull(pTrack, "pTrack must not be null");
 			String url = $"{this.apiUrl}/Track?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}&day={DateTimeHelper.ToUnixTime(pTrackDay)}";
-			String jsonString = JsonSerializer.Serialize(pTrack.GpsRecords);
+			String jsonString = JsonSerializer.Serialize(pTrack.TrackPoints);
 			return await this.httpClient.PutAsync(jsonString, url);
 		}
 

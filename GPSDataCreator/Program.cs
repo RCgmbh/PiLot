@@ -95,7 +95,7 @@ namespace PiLot.GPSDataCreator {
 				position.MoveBy(speed, course);
 				utcTime = DateTimeHelper.ToJSTime(DateTime.UtcNow);
 				boatTime = utcTime + boatTimeOffset;
-				GpsRecord record = new GpsRecord();
+				TrackPoint record = new TrackPoint();
 				record.UTC = utcTime;
 				record.Latitude = position.Latitude;
 				record.Longitude = position.Longitude;
@@ -148,8 +148,8 @@ namespace PiLot.GPSDataCreator {
 			Int64 start = utcNow - (7 * 24 * 3600 * 1000); // 7 days
 			ProxyResult<Track> proxyResult = await trackProxy.GetTrackAsync(start, utcNow, false);
 			if (proxyResult.Success) {
-				if (proxyResult.Data.HasRecords) {
-					GpsRecord record = proxyResult.Data.LastRecord;
+				if (proxyResult.Data.HasTrackPoints) {
+					TrackPoint record = proxyResult.Data.LastTrackPoint;
 					result = new LatLon(record.Latitude.Value, record.Longitude.Value);
 				}
 			} else {
@@ -161,7 +161,7 @@ namespace PiLot.GPSDataCreator {
 		/// <summary>
 		/// Saves the current position to the server.
 		/// </summary>
-		private async static Task SendPositionAsync(GpsRecord pRecord) {
+		private async static Task SendPositionAsync(TrackPoint pRecord) {
 			Boolean success = await positionProxy.PutPositionAsync(pRecord);
 			if(!success) {
 				Console.WriteLine("Sending position was not successful");

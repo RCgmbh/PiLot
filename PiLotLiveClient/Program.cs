@@ -115,7 +115,7 @@ namespace PiLot.LiveClient {
 			if (Program.lastPositionTimestamp == null) {
 				Program.lastPositionTimestamp = DateTimeHelper.JSNow;
 			}
-			List<GpsRecord> records = await Program.localPositionProxy.GetLatestPositions(lastPositionTimestamp.Value);
+			List<TrackPoint> records = await Program.localPositionProxy.GetLatestPositions(lastPositionTimestamp.Value);
 			Logger.Log($"LiveClient recieved {records.Count} Records from local API", LogLevels.DEBUG);
 			if (records.Count > 0) {
 				if (await Program.remotePositionProxy.PutPositionsAsync(records.ToArray())) {

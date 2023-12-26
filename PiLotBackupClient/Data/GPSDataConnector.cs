@@ -13,7 +13,7 @@ namespace PiLot.Backup.Client.Data {
 	/// <summary>
 	/// Helps reading GPS data for backup
 	/// </summary>
-	internal class GPSDataConnector: PiLot.Data.Files.GPSDataConnector {
+	internal class GPSDataConnector: PiLot.Data.Files.TrackDataConnector {
 
 		internal GPSDataConnector() : base() { }
 
@@ -31,7 +31,7 @@ namespace PiLot.Backup.Client.Data {
 				foreach (var aFile in dataDir.EnumerateFiles()) {
 					if (Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
 						if (aFile.LastWriteTimeUtc > pChangedAfter) {
-							changedDailyData.Add(date, this.ReadRecordsFromFile(aFile));
+							changedDailyData.Add(date, this.ReadTrackPointsFromFile(aFile));
 						}
 						totalDailyData++;
 					}

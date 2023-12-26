@@ -11,9 +11,9 @@ using System.Globalization;
 namespace PiLot.Data.Files {
 
 	/// <summary>
-	/// Helper class to read and write GPS data
+	/// Helper class to read and write track points
 	/// </summary>
-	public class GPSDataConnector {
+	public class TrackDataConnector {
 
 		#region constants
 
@@ -32,15 +32,15 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// Default constructor
 		/// </summary>
-		public GPSDataConnector() {
+		public TrackDataConnector() {
 			this.helper = new DataHelper();
 		}
 
 		/// <summary>
-		/// Creates a new GPSDataConnector for a specific data root path
+		/// Creates a new TrackPointDataConnector for a specific data root path
 		/// </summary>
 		/// <param name="pDataRoot">root path</param>
-		public GPSDataConnector(String pDataRoot) {
+		public TrackDataConnector(String pDataRoot) {
 			this.helper = new DataHelper(pDataRoot);
 		}
 
@@ -49,75 +49,77 @@ namespace PiLot.Data.Files {
 		#region public methods
 
 		/// <summary>
-		/// Appends a GPS record to the file with records. Data is always appended to
+		/// Saves all data for a track
+		/// </summary>
+		/// <param name="pTrack">The track, not null</param>
+		public void SaveTrack(Track pTrack) {
+			this.SaveTrackPoints(pTrack.TrackPoints);
+		}
+
+		/// <summary>
+		/// Appends a track point to the file with records. Data is always appended to
 		/// the end of the file, so there is no guarantee for records to be sorted
 		/// within the file
 		/// </summary>
-		public void SavePosition(GpsRecord pRecord) {
-			Date recordDate = new Date(pRecord.GetUTCDate());
-			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, recordDate, true);
-			String[] line = new String[] { pRecord.ToString() };
+		public void SaveTrackPoint(TrackPoint pTrackPoint) {
+			Date trackPointDate = new Date(pTrackPoint.GetUTCDate());
+			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, trackPointDate, true);
+			String[] line = new String[] { pTrackPoint.ToString() };
 			File.AppendAllLines(file.FullName, line);
 		}
 
 		/// <summary>
-		/// Saves a list of positions to the files. Optionally, the existing data for the
-		/// period of the track is deleted, an then the new data is added.
+		/// Saves a list of positions to the files. 
 		/// </summary>
-		/// <param name="pRecords">The records as a list of double arrays representing UTC, BoatTime, Lat, Lng</param>
-		/// <param name="pReplaceExisting">True, if all data overlapping with pRecords should be deleted</param>
-		public void SavePositions(List<Double?[]> pRecords, Boolean pReplaceExisting) {
-			if ((pRecords != null) && (pRecords.Count > 0)) {
-				List<GpsRecord> records = new List<GpsRecord>();
-				foreach(Double?[] aRecord in pRecords) {
-					GpsRecord gpsRecord = GpsRecord.FromArray(aRecord);
-					if(gpsRecord != null) {
-						records.Add(gpsRecord);
+		/// <param name="pTrackPoints">The track points as a list of double arrays representing UTC, BoatTime, Lat, Lng</param>
+		public void SaveTrackPoints(List<Double?[]> pTrackPoints) {
+			if ((pTrackPoints != null) && (pTrackPoints.Count > 0)) {
+				List<TrackPoint> trackPoints = new List<TrackPoint>();
+				foreach(Double?[] aTrackPoint in pTrackPoints) {
+					TrackPoint trackPoint = TrackPoint.FromArray(aTrackPoint);
+					if(trackPoint != null) {
+						trackPoints.Add(trackPoint);
 					}
 				}
-				this.SavePositions(records, pReplaceExisting);
+				this.SaveTrackPoints(trackPoints);
 			}
 		}
 
 		/// <summary>
 		/// Saves the track for one UTC date to file, replacing the existing data for that day
 		/// </summary>
-		/// <param name="pRecords">The list of records to write</param>
+		/// <param name="pTrackPoints">The list of track points to write</param>
 		/// <param name="pDay">The day</param>
-		public void SaveDailyTrack(List<GpsRecord> pRecords, Date pDay) {
-			IEnumerable<String> lines = pRecords.Select(r => r.ToString());
+		public void SaveDailyTrack(List<TrackPoint> pTrackPoints, Date pDay) {
+			IEnumerable<String> lines = pTrackPoints.Select(r => r.ToString());
 			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay, true);
 			File.WriteAllLines(file.FullName, lines);
 		}
 
 		/// <summary>
-		/// Saves a list of positions to the files. Optionally, the existing data for the
-		/// period of the track is deleted, an then the new data is added.
+		/// Saves a list of track points to the files.
 		/// </summary>
-		/// <param name="pRecords">A list of GpsRecords</param>
-		/// <param name="pReplaceExisting">True, if all data overlapping with pRecords should be deleted</param>
-		public void SavePositions(List<GpsRecord> pRecords, Boolean pReplaceExisting) {
-			if ((pRecords != null) && (pRecords.Count > 0)) {
+		/// <param name="pTrackPoints">A list of TrackPoints</param>
+		public void SaveTrackPoints(List<TrackPoint> pTrackPoints) {
+			if ((pTrackPoints != null) && (pTrackPoints.Count > 0)) {
 				List<Date> dates = new List<Date>();
-				Int64 minUTC = pRecords.Min(r => r.UTC);
-				Int64 maxUTC = pRecords.Max(r => r.UTC);
+				Int64 minUTC = pTrackPoints.Min(r => r.UTC);
+				Int64 maxUTC = pTrackPoints.Max(r => r.UTC);
 				Track track = this.ReadFullDatesTrack(minUTC, maxUTC, false, ref dates);
-				if (pReplaceExisting) {
-					track.Cut(minUTC, maxUTC, false);
-				}
-				track.AddRecords(pRecords);
+				track.Cut(minUTC, maxUTC, false);
+				track.AddTrackPoints(pTrackPoints);
 				this.SaveTrack(track, dates);
 			}
 		}
 
 		/// <summary>
-		/// Deletes all positions between pStartTime and pEndTime from the gps files.
+		/// Deletes all track points between pStartTime and pEndTime from the files.
 		/// It's a bit tricky because we have to read entire utc days (1 UTC day = 1 file),
 		/// then remove the unwanted part and re-save the files. 
 		/// </summary>
 		/// <param name="pStartTime">The js timestamp of the start time</param>
 		/// <param name="pEndTime">The js timestamp of the end time</param>
-		public void DeletePositions(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
+		public void DeleteTrackPoints(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
 			List<Date> dates = new List<Date>();
 			Track track = this.ReadFullDatesTrack(pStartTime, pEndTime, pIsBoatTime, ref dates);
 			track.Cut(pStartTime, pEndTime, pIsBoatTime);
@@ -125,8 +127,8 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Reads the GPS Track for a certain period from files. If there are no GPS Records,
-		/// the result will be a Track with an empty positions list
+		/// Reads the track for a certain period from files. If there are no track points,
+		/// the result will be a track with an empty track points list
 		/// </summary>
 		/// <param name="pStartTime">The start time in milliseconds, either UTC or BoatTime</param>
 		/// <param name="pEndTime">The end time in milliseconds, either UTC or BoatTime</param>
@@ -138,8 +140,8 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Reads the GPS Track for a certain period from files. If there are no GPS Records,
-		/// the result will be a Track with an empty positions list
+		/// Reads the track for a certain period from files. If there are no track points,
+		/// the result will be a track with an empty positions list
 		/// </summary>
 		/// <param name="pStartTime">The start time in milliseconds, either UTC or BoatTime</param>
 		/// <param name="pEndTime">The end time in milliseconds, either UTC or BoatTime</param>
@@ -153,10 +155,8 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Returns the amount of days that have a valid gps data file, even if it's empty
-		/// means no data.
+		/// Returns the amount of days that have a valid gps data file, even if it's empty.
 		/// </summary>
-		/// <returns></returns>
 		public Int32 ReadDaysWithData() {
 			Int32 result = 0;
 			DirectoryInfo gpsDirectory = new DirectoryInfo(this.helper.GetDataPath(DATASOURCENAME, false));
@@ -192,7 +192,7 @@ namespace PiLot.Data.Files {
 			Date loopDate = new Date(loopStartUtc);
 			Date loopEndDate = new Date(loopEndUtc);
 			while (loopDate <= loopEndDate) {
-				this.ReadRecordsFromFile(loopDate, result);
+				this.ReadTrackPointsFromFile(loopDate, result);
 				if (pDates != null) {
 					pDates.Add(loopDate);
 				}
@@ -213,46 +213,44 @@ namespace PiLot.Data.Files {
 			if(pDates != null) {
 				pDates.ForEach(d => dailyTracks.Add(d, new Track()));
 			}
-			Date recordDate;
-			pTrack.SortRecords();
-			foreach (GpsRecord aRecord in pTrack.GpsRecords) {
-				recordDate = new Date(aRecord.GetUTCDate());
-				if (!dailyTracks.ContainsKey(recordDate)) {
-					dailyTracks.Add(recordDate, new Track());
+			Date trackPointDate;
+			pTrack.SortTrackPoints();
+			foreach (TrackPoint aTrackPoint in pTrack.TrackPoints) {
+				trackPointDate = new Date(aTrackPoint.GetUTCDate());
+				if (!dailyTracks.ContainsKey(trackPointDate)) {
+					dailyTracks.Add(trackPointDate, new Track());
 				}
-				dailyTracks[recordDate].AddRecord(aRecord);
+				dailyTracks[trackPointDate].AddTrackPoint(aTrackPoint);
 			}
 			foreach (Date aKey in dailyTracks.Keys) {
-				this.SaveDailyTrack(dailyTracks[aKey].GpsRecords, aKey);
+				this.SaveDailyTrack(dailyTracks[aKey].TrackPoints, aKey);
 			}
 		}
 
 		/// <summary>
-		/// Reads the records from a file for a specific date and adds them to a given track or
+		/// Reads the track points from a file for a specific date and adds them to a given track or
 		/// creates a new track
 		/// </summary>
 		/// <param name="pDate">The date used to find the file</param>
 		/// <param name="pTrack">A given track or null</param>
-		/// <returns></returns>
-		private Track ReadRecordsFromFile(Date pDate, Track pTrack = null) {
+		private Track ReadTrackPointsFromFile(Date pDate, Track pTrack = null) {
 			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDate);
-			return this.ReadRecordsFromFile(file, pTrack);
+			return this.ReadTrackPointsFromFile(file, pTrack);
 		}
 
 		/// <summary>
-		/// Reads the records from a file and adds the to a given Track or creates a new track
+		/// Reads the track points from a file and adds the to a given Track or creates a new track
 		/// </summary>
 		/// <param name="pFile">the file to read from</param>
 		/// <param name="pTrack">if a track is passed, the positions will be appended to it</param>
-		/// <returns></returns>
-		protected Track ReadRecordsFromFile(FileInfo pFile, Track pTrack = null) {
-			List<GpsRecord> records = new List<GpsRecord>();
+		protected Track ReadTrackPointsFromFile(FileInfo pFile, Track pTrack = null) {
+			List<TrackPoint> trackPoints = new List<TrackPoint>();
 			if (pFile != null) {
 				try {
 					foreach (String aLine in File.ReadLines(pFile.FullName)) {
-						GpsRecord record = GpsRecord.FromString(aLine);
-						if (record != null) {
-							records.Add(record);
+						TrackPoint trackPoint = TrackPoint.FromString(aLine);
+						if (trackPoint != null) {
+							trackPoints.Add(trackPoint);
 						}
 					};
 				} catch (Exception ex) {
@@ -262,9 +260,9 @@ namespace PiLot.Data.Files {
 			Track result;
 			if (pTrack != null) {
 				result = pTrack;
-				result.AddRecords(records);
+				result.AddTrackPoints(trackPoints);
 			} else {
-				result = new Track(records);
+				result = new Track(trackPoints);
 			}
 			return result;
 		}

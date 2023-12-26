@@ -35,9 +35,9 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pDay">The day the track belongs to</param>
 		/// <param name="pClientName">The client name</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
-		public static void BackupGpsData(List<GpsRecord> pRecords, System.Date pDay, String pClientName, DateTime pBackupTime) {
+		public static void BackupGpsData(List<TrackPoint> pRecords, System.Date pDay, String pClientName, DateTime pBackupTime) {
 			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
-			new GPSDataConnector(backupDirectory.FullName).SaveDailyTrack(pRecords, pDay);
+			new TrackDataConnector(backupDirectory.FullName).SaveDailyTrack(pRecords, pDay);
 			Logger.Log("Recieved {0} GpsRecords to backup", pRecords.Count, LogLevels.DEBUG);
 		}
 
@@ -158,7 +158,7 @@ namespace PiLot.Backup.API.Helpers {
 				Int32 dataCount = 0;
 				switch (aDataSource.DataType) {
 					case DataTypes.GPS:
-						dataCount = new GPSDataConnector(backupDirectory.FullName).ReadDaysWithData();
+						dataCount = new TrackDataConnector(backupDirectory.FullName).ReadDaysWithData();
 						break;
 					case DataTypes.Logbook:
 						dataCount = new LogbookDataConnector(backupDirectory.FullName).ReadLogbookDaysCount();

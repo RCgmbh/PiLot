@@ -1424,10 +1424,17 @@ PiLot.Model.Nav = (function () {
 		}
 	};
 
-	/// a data class representing a single GPS Record which consists of a 
-	/// UTC timestamp, a BoatTime timestamp (both in ms from epoc), a
-	/// latitude and a longitude
-	var GPSRecord = function (pUTC, pBoatTime, pLatitude, pLongitude) {
+	/**
+	 * A class representing a position at a certain time. This is used
+	 * both for historic positions within a saved track, but also for
+	 * recent ("current") positions, used to calculate current course, 
+	 * speed etc.
+	 * @param {Number} pUTC - timestamp im ms from epoc utc
+	 * @param {Number} pBoatTime - timestamp in ms from epoc boatTime
+	 * @param {Number} pLatitude - latitude in degrees
+	 * @param {Number} pLongitude - longitude in degrees
+	 * */
+	 var TrackPoint = function (pUTC, pBoatTime, pLatitude, pLongitude) {
 		this.utc = pUTC;
 		this.boatTime = pBoatTime;
 		this.latitude = pLatitude;
@@ -1435,14 +1442,14 @@ PiLot.Model.Nav = (function () {
 		this.latLon = null;
 	}
 
-	GPSRecord.prototype = {
+	TrackPoint.prototype = {
 
 		/**
 		 * Allows to update all four values, however without further validation
-		 * @param {number} pUTC
-		 * @param {number} pBoatTime
-		 * @param {number} pLatitude
-		 * @param {number} pLongitude
+		 * @param {Number} pUTC
+		 * @param {Number} pBoatTime
+		 * @param {Number} pLatitude
+		 * @param {Number} pLongitude
 		 */
 		updateValues: function (pUTC, pBoatTime, pLatitude, pLongitude) {
 			this.utc = pUTC;
@@ -1452,47 +1459,47 @@ PiLot.Model.Nav = (function () {
 			this.latLon = null;
 		},
 
-		/** Creates a duplicate of the record */
+		/** Creates a duplicate of the track point */
 		clone: function () {
-			return new GPSRecord(this.utc, this.boatTime, this.latitude, this.longitude);
+			return new TrackPoint(this.utc, this.boatTime, this.latitude, this.longitude);
 		},
 
-		/**  @returns {number} the utc timestamp in ms */
+		/**  @returns {Number} the utc timestamp in ms */
 		getUTC: function () {
 			return this.utc;
 		},
 
-		/** @returns {number} utc timestamp in seconds as integer */
+		/** @returns {Number} utc timestamp in seconds as integer */
 		getUTCSeconds: function () {
 			return Math.round(this.utc / 1000);
 		},
 
-		/** @returns {number} BoatTime timestamp in ms */
+		/** @returns {Number} BoatTime timestamp in ms */
 		getBoatTime: function () {
 			return this.boatTime;
 		},
 
-		/** @returns {number} BoatTime timestamp in seconds as integer */
+		/** @returns {Number} BoatTime timestamp in seconds as integer */
 		getBoatTimeSeconds: function () {
 			return Math.round(this.boatTime / 1000);
 		},
 
-		/** @returns {number} The difference between boatTime and utc in minutes */
+		/** @returns {Number} The difference between boatTime and utc in minutes */
 		getBoatTimeOffset: function () {
 			return (this.boatTime - this.utc) / 60000;
 		},
 
-		/** @returns {number} The latitude as float */
+		/** @returns {Number} The latitude as float */
 		getLatitude: function () {
 			return this.latitude;
 		},
 
-		/** @returns {number} The longitude as float */
+		/** @returns {Number} The longitude as float */
 		getLongitude: function () {
 			return this.longitude;
 		},
 
-		/** @returns {Array} an array with latitude, longitude. Useful for leaflet */
+		/** @returns {Number[]} an array with latitude, longitude. Useful for leaflet */
 		getLatLng: function () {
 			return [this.latitude, this.longitude];
 		},
@@ -1505,20 +1512,20 @@ PiLot.Model.Nav = (function () {
 			return this.latLon;
 		},
 
-		/** @returns {Array} an array of utc, boatTime, lat, lng */
+		/** @returns {Number[]} an array of utc, boatTime, lat, lng */
 		toArray: function () {
 			return [this.utc, this.boatTime, this.latitude, this.longitude];
 		}
 	};
 
 	/**
-	 * Creates a GPRRecord from data, which can either be an array wir 
+	 * Creates a TrackPoint from data, which can either be an array with 
 	 * [utc, boatTime, latitude, longitude] or an object with those
 	 * fields.
 	 * @param {(Object|Array)} pData
-	 * @returns	{GPSRecord} the record or null for invalid values
+	 * @returns	{TrackPoint} the track point or null for invalid values
 	 */
-	GPSRecord.fromData = function (pData) {
+	TrackPoint.fromData = function (pData) {
 		let result = null;
 		if (pData) {
 			let data = Array.isArray(pData) ? 
@@ -1535,7 +1542,7 @@ PiLot.Model.Nav = (function () {
 				&& RC.Utils.isNumeric(data.latitude)
 				&& RC.Utils.isNumeric(data.longitude)
 			) {
-				result = new GPSRecord(data.utc, data.boatTime, data.latitude, data.longitude);
+				result = new TrackPoint(data.utc, data.boatTime, data.latitude, data.longitude);
 			} else {
 				PiLot.log(`invalid data when reading GPSData: ${pData}, 3`);
 			}
@@ -1543,10 +1550,12 @@ PiLot.Model.Nav = (function () {
 		return result;
 	};
 
-	/// Class Tack 
-	/// A Track consists of historic gps data
+	/**
+	 * Class Tack 
+	 * A Track consists of track points
+	 * */
 	var Track = function () {
-		this.positions = null;  // array of GPSRecords
+		this.trackPoints = null;  // array of TrackPoints
 		this.observers = null;
 		this.initialize();
 	};
@@ -1554,103 +1563,119 @@ PiLot.Model.Nav = (function () {
 	Track.prototype = {
 
 		initialize: function () {
-			this.positions = new Array();
-			this.observers = RC.Utils.initializeObservers(['addPosition', 'cropPositions', 'changeLastPosition']);
+			this.trackPoints = new Array();
+			this.observers = RC.Utils.initializeObservers(['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint']);
 		},
 
-		/// calls all observers that registered for pEvent. Passes this
-		/// and pArg as parameters.
+		/**
+		 * Calls all observers that registered for pEvent. Passes this and pArg as parameters.
+		 * @param {String} pEvent
+		 * @param {any} pArg
+		 * */
 		notifyObservers: function (pEvent, pArg) {
 			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
 		},
 
-		/// registers an observer which will be called when pEvent happens
+		/**
+		 * Registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent - one of ['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint']
+		 * @param {Function} pCallback
+		 * */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		/// adds a position to the positions array
-		addPosition: function (pGpsRecord, pSuppressNotification) {
-			if (pGpsRecord !== null) {
-				this.positions.push(pGpsRecord);
+		/**
+		 * Adds a track point to the trackPoints array
+		 * @param {TrackPoint} pTrackPoint
+		 * @param {Boolean} pSuppressNotification - set true to not trigger an 'addTrackPoint' event
+		 * */
+		addTrackPoint: function (pTrackPoint, pSuppressNotification) {
+			if (pTrackPoint !== null) {
+				this.trackPoints.push(pTrackPoint);
 				if (!pSuppressNotification) {
-					this.notifyObservers('addPosition', this.positions[this.positions.length - 1]);
+					this.notifyObservers('addTrackPoint', this.trackPoints[this.trackPoints.length - 1]);
 				}
 			}
 		},
 
-		/// this updates the last element in the positions list,
-		/// if there is any. If not, it adds an item
-		updateLastPosition: function (pUTC, pBoatTime, pLatitude, pLongitude) {
-			if (this.positions.length > 0) {
-				var lastRecord = this.positions[this.positions.length - 1];
-				lastRecord.updateValues(pUTC, pBoatTime, pLatitude, pLongitude);
+		/**
+		 * This updates the last element in the trackPoints list, if there is any. If not, it adds an item.
+		 * @param {Number} pUTC
+		 * @param {Number} pBoatTime
+		 * @param {Number} pLatitude
+		 * @param {Number} pLongitude
+		 * */
+		updateLastTrackPoint: function (pUTC, pBoatTime, pLatitude, pLongitude) {
+			if (this.trackPoints.length > 0) {
+				const lastTrackPoint = this.trackPoints[this.trackPoints.length - 1];
+				lastTrackPoint.updateValues(pUTC, pBoatTime, pLatitude, pLongitude);
 			} else {
-				this.addPosition(GPSRecord.fromData([pUTC, pBoatTime, pLatitude, pLongitude]));
+				this.addTrackPoint(TrackPoint.fromData([pUTC, pBoatTime, pLatitude, pLongitude]));
 			}
-			this.notifyObservers('changeLastPosition', this.positions[this.positions.length - 1]);
+			this.notifyObservers('changeLastTrackPoint', this.trackPoints[this.trackPoints.length - 1]);
 		},
 
-		/// crops positions before pStartTimeUTC or after pEndTimeUTC
-		cropPositions: function (pStartTimeUTC, pEndTimeUTC) {
+		/**
+		 * Crops positions before pStartTimeUTC or after pEndTimeUTC
+		 * @param {Number} pStartTimeUTC - lower limit in ms from epoc utc
+		 * @param {Number} pEndTimeUTC - upper limit in ms from epoc utc
+		 * */
+		cropTrackPoints: function (pStartTimeUTC, pEndTimeUTC) {
 			var hasChanged = false;
 			let utcSeconds;
-			for (let i = this.positions.length - 1; i >= 0; i--) {
-				utcSeconds = this.positions[i].getUTCSeconds();
+			for (let i = this.trackPoints.length - 1; i >= 0; i--) {
+				utcSeconds = this.trackPoints[i].getUTCSeconds();
 				if (
 					((pStartTimeUTC !== null) && (utcSeconds < pStartTimeUTC))
 					|| ((pEndTimeUTC !== null) && (utcSeconds > pEndTimeUTC))
 				) {
-					this.positions.splice(i, 1);
+					this.trackPoints.splice(i, 1);
 					hasChanged = true;
 				}
 			};
 			if (hasChanged) {
-				this.notifyObservers('cropPositions', this.positions);
+				this.notifyObservers('cropTrackPoints', this.trackPoints);
 			}
 		},
 
-		/// returns all positions
-		getPositions: function () {
-			return this.positions;
+		/** @returns {TrackPoint[]} - all track points */
+		getTrackPoints: function () {
+			return this.trackPoints;
 		},
 
-		/// returns an array containing arrays with lat, lng
+		/** @returns {Number[][]} - an array containing arrays with lat, lng */
 		getRawPositions: function () {
-			return this.positions.map(p => p.getLatLng());
+			return this.trackPoints.map(p => p.getLatLng());
 		},
 
-		/// returns the position at pIndex or null, if the
-		/// index is out of bounds. The result ist GPSRecord
-		getPositionAt: function (pIndex) {
+		/** @returns {TrackPoint} - the track point at pIndex or null, if the index is out of bounds. */
+		getTrackPointAt: function (pIndex) {
 			var result = null;
-			if ((pIndex >= 0) && (pIndex < this.positions.length)) {
-				result = this.positions[pIndex];
+			if ((pIndex >= 0) && (pIndex < this.trackPoints.length)) {
+				result = this.trackPoints[pIndex];
 			}
 			return result;
 		},
 
-		/// returns the last position of the track. The result
-		/// is a GPSRecord or null, if the track has zero length
-		getLastPosition: function () {
-			return this.getPositionAt(this.positions.length - 1);
+		/** @returns {TrackPoint} - the last position of the track or null, if the track has zero length */
+		getLastTrackPoint: function () {
+			return this.getTrackPointAt(this.trackPoints.length - 1);
 		},
 
-		/// gets the number of positions in the track
-		getPositionsCount: function () {
-			return this.positions !== null ? this.positions.length : 0;
+		/** @returns {Number} - the number of track points in the track */
+		getTrackPointsCount: function () {
+			return this.trackPoints !== null ? this.trackPoints.length : 0;
 		},
 
-		/**
-		 * Calculates the total distance of the track in meters
-		 * */
+		/** @returns {Number} - the total distance of the track in meters */
 		getDistance: function () {
 			let result = 0;
 			let latLon0, latLon1;
-			if (this.positions.length > 0) {
-				for (let i = 0; i < this.positions.length - 1; i++) {
-					latLon0 = this.positions[i].getLatLon();
-					latLon1 = this.positions[i + 1].getLatLon();
+			if (this.trackPoints.length > 0) {
+				for (let i = 0; i < this.trackPoints.length - 1; i++) {
+					latLon0 = this.trackPoints[i].getLatLon();
+					latLon1 = this.trackPoints[i + 1].getLatLon();
 					result += latLon0.distanceTo(latLon1);
 				}
 			}
@@ -1659,19 +1684,19 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
-	 * Creates a track object based on a data object. Returns null, if the 
-	 * data object is invalid
-	 * @param {any} pData
+	 * Creates a track object based on an array of arrays. Returns null, if the 
+	 * pData is invalid
+	 * @param {Number[][]} pData - an array of arrays with utc, boatTime, lat, lon
 	 */
 	Track.fromData = function (pData) {
 		let result = null;
 		if (pData) {
 			result = new Track();
-			if ((pData !== null) && Array.isArray(pData)) {
-				pData.forEach((value, index, array) => {
+			if ((pData !== null) && Array.isArray(pData.trackPointsArray)) {
+				pData.trackPointsArray.forEach((value, index, array) => {
 					if (Array.isArray(value) && value.length == 4) {
-						let gpsRecord = GPSRecord.fromData(value);
-						result.addPosition(gpsRecord, true);
+						let trackPoint = TrackPoint.fromData(value);
+						result.addTrackPoint(trackPoint, true);
 					} else {
 						PiLot.log(`invalid data when reading track: ${value}, expected was an array of 4 items`);
 					}
@@ -1708,7 +1733,7 @@ PiLot.Model.Nav = (function () {
 						lat = elementsLat[0].innerHTML;
 						lon = elementsLon[0].innerHTML;
 						if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
-							result.track.addPosition(new GPSRecord(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
+							result.track.addTrackPoint(new TrackPoint(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
 						}
 					}
 				}
@@ -1726,37 +1751,42 @@ PiLot.Model.Nav = (function () {
 	 * @param {Number} pStartUTC - the start time in milliseconds from epoc, in UTC or BoatTime
 	 * @param {Number} pEndUTC - the end time in milliseconds from epoc, in UTC or BoatTime
 	 * @param {Boolean} pIsBoatTime - If true, start and end are BoatTime, else UTC
+	 * @returns {Track} - the resulting track or null
 	 */
 	var loadTrackAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
-		const url = `/Track?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
+		const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
 		const json = await PiLot.Utils.Common.getFromServerAsync(url);
 		const result = Track.fromData(json);
 		return result;
 	};
 
 	/**
-	 * Deletes GPS positions within a certain time frame from the server
+	 * Deletes TrackPoints within a certain time frame from the server
 	 * @param {Number} pStartTime - Begin of deletion interval in seconds, either UTC or BoatTime
 	 * @param {Number} pEndTime - End of deletion interval in seconds, either UTC or BoatTime
 	 * @param {Boolean} pIsBoatTime - If true, start and end are intepreted as BoatTime, else as UTC
 	 */
-	var deleteGPSPositionsAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
-		const url = PiLot.Utils.Common.toApiUrl(`/Track?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`);
+	var deleteTrackPointsAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
+		const url = PiLot.Utils.Common.toApiUrl(`/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`);
 		await fetch(url, { method: 'DELETE' });
 	};
 
 	/** 
-	 * Saves a track back to the server
+	 * Saves a list of TrackPoints back to the server, replacing any existing gps data for that range
+	 * @param {PiLot.Model.Nav.TrackPoint[]} pRecords - the list of track points to save
 	 * */
-	var saveTrackAsync = async function (pTrack) {
-		const url = PiLot.Utils.Common.toApiUrl('/Track?doOverwrite=false');
-		return await PiLot.Utils.Common.putToServerAsync(url, pTrack.getPositions().map(p => p.toArray()));
+	var saveTrackPointsAsync = async function (pRecords) {
+		const url = PiLot.Utils.Common.toApiUrl('/Tracks');
+		const trackObj = { trackPointsArray: pRecords.map(p => p.toArray()) };
+		return await PiLot.Utils.Common.putToServerAsync(url, trackObj);
 	};
 
 	/** 
-	 *  class TrackObserver, takes a track and a GPSObserver, and makes sure
-	 *  the track is continuously updated by changing/adding the latest positions
-	 *  and calling crop to remove old positions
+	 * Class TrackObserver, takes a track and a GPSObserver, and makes sure
+	 * the track is continuously updated by changing/adding the latest track points
+	 * and calling crop to remove old track points
+	 * @param {Track} pTrack
+	 * @param {GPSObserver} pGPSObserver
 	 *  */
 	var TrackObserver = function (pTrack, pGPSObserver) {
 		this.track = pTrack;
@@ -1783,35 +1813,35 @@ PiLot.Model.Nav = (function () {
 		cropTimer_interval: function () {
 			if ((this.track != null) && (this.trackSeconds !== null)) {
 				var utcNowUnix =  RC.Date.DateHelper.utcNowUnix();
-				this.track.cropPositions(utcNowUnix - this.trackSeconds, null);
+				this.track.cropTrackPoints(utcNowUnix - this.trackSeconds, null);
 			}
 		},
 
 		/// this handles new gps data. If the time/local difference
 		/// to the latest position is above threshold, a new position
 		/// will be added, otherwise the latest position will be updated
-		gpsObserver_recieveGpsData: function (pSender, pGpsRecords) {
+		gpsObserver_recieveGpsData: function (pSender, pTrackPoints) {
 			if (this.track != null) {
-				for (let i = 0; i < pGpsRecords.length; i++) {
-					if ((pGpsRecords[i].latitude !== null) && (pGpsRecords[i].longitude !== null)) {
+				for (let i = 0; i < pTrackPoints.length; i++) {
+					if ((pTrackPoints[i].latitude !== null) && (pTrackPoints[i].longitude !== null)) {
 						var deltaTMs = null;
-						if (this.lastPosition !== null && this.lastPosition.utc !== null && pGpsRecords[i].utc !== null) {
-							deltaTMs = pGpsRecords[i].utc - this.lastPosition.utc;
+						if (this.lastPosition !== null && this.lastPosition.utc !== null && pTrackPoints[i].utc !== null) {
+							deltaTMs = pTrackPoints[i].utc - this.lastPosition.utc;
 						}
 						var deltaX = null;
-						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pGpsRecords[i].getLatLon() !== null) {
-							deltaX = pGpsRecords[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
+						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pTrackPoints[i].getLatLon() !== null) {
+							deltaX = pTrackPoints[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
 						}
 						if (
 							(this.lastPosition === null)
 							|| ((deltaTMs > this.addPositionThreshold.seconds * 1000) && (deltaX > this.addPositionThreshold.meters))
 						) {
-							this.track.addPosition(pGpsRecords[i].clone());
-							this.lastPosition = pGpsRecords[i];
+							this.track.addTrackPoint(pTrackPoints[i].clone());
+							this.lastPosition = pTrackPoints[i];
 						} else {
 							PiLot.log('Did not add position to Track. deltaT is ' + deltaTMs.toFixed(1) + ', deltaX is ' + deltaX.toFixed(1), 3);
 							if ((deltaTMs > this.updatePositionThreshold.seconds) && (deltaX > this.updatePositionThreshold.meters)) {
-								this.track.updateLastPosition(pGpsRecords[i].utc, pGpsRecords[i].boatTime, pGpsRecords[i].latitude, pGpsRecords[i].longitude);
+								this.track.updateLastTrackPoint(pTrackPoints[i].utc, pTrackPoints[i].boatTime, pTrackPoints[i].latitude, pTrackPoints[i].longitude);
 							} else {
 								PiLot.log('Did not update latest track position. deltaT is ' + deltaTMs.toFixed(1) + ', deltaX is ' + deltaX.toFixed(1), 3);
 							}
@@ -1894,7 +1924,7 @@ PiLot.Model.Nav = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens 
 		 * @param {String} pEvent - 'recieveGpsData', 'outdatedGpsData'
-		 * @param {Function} pCallback - Callback function(sender: GPSObserver, args: GPSRecord[])
+		 * @param {Function} pCallback - Callback function(sender: GPSObserver, args: TrackPoint[])
 		 * */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
@@ -1925,7 +1955,7 @@ PiLot.Model.Nav = (function () {
 		/** reads the position data from the API */
 		fetchDataAsync: async function () {
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-			const positions = await this.loadLatestPositionsAsync();
+			const positions = await this.loadLatestTrackPointsAsync();
 			this.fetchDataSuccess(positions);
 		},
 
@@ -1934,7 +1964,7 @@ PiLot.Model.Nav = (function () {
 		* or null (if we don't get any valid data). We use the timestamp of the last
 	    * record we got, or just this.maxDataAgeSeconds into the past
 		* */
-		loadLatestPositionsAsync: async function () {
+		loadLatestTrackPointsAsync: async function () {
 			let lastTimestamp;
 			if (this.latestPositions.length > 0) {
 				lastTimestamp = this.latestPositions[0].getUTC();
@@ -1945,7 +1975,7 @@ PiLot.Model.Nav = (function () {
 			const result = new Array();
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
-					result.push(GPSRecord.fromData(json[i]));
+					result.push(TrackPoint.fromData(json[i]));
 				}
 			}
 			return result;
@@ -1953,15 +1983,15 @@ PiLot.Model.Nav = (function () {
 
 		/// success handler, adds the latest positions to recentPositions and
 		/// calls onGpsDataChanged for all observers, if the data is valid
-		fetchDataSuccess: function (pGpsRecords) {
+		fetchDataSuccess: function (pTrackPoints) {
 			this.ensureInterval();
-			if (pGpsRecords !== null && pGpsRecords.length > 0) {
-				for (let i = 0; i < pGpsRecords.length; i++) {
-					this.latestPositions.unshift(pGpsRecords[i]);
-				} this.cropPositions();
+			if (pTrackPoints !== null && pTrackPoints.length > 0) {
+				for (let i = 0; i < pTrackPoints.length; i++) {
+					this.latestPositions.unshift(pTrackPoints[i]);
+				} this.cropTrackPoints();
 				this.calculateSpeedAndCourse();
 				if (!this.checkOutdatedData()) {
-					this.notifyObservers('recieveGpsData', pGpsRecords);
+					this.notifyObservers('recieveGpsData', pTrackPoints);
 				}
 			}
 			else {
@@ -1988,7 +2018,7 @@ PiLot.Model.Nav = (function () {
 		/**
 		 * Returns the latest position record, if it's not older than pMaxSeconds or pMaxAgeSeconds is null. 
 		 * @param {Number} pMaxSecondsOld
-		 * @returns {PiLot.Model.Nav.GPSRecord}
+		 * @returns {PiLot.Model.Nav.TrackPoint}
 		 * */
 		getLatestPosition: function (pMaxAgeSeconds = null) {
 			var result = null;
@@ -2022,7 +2052,7 @@ PiLot.Model.Nav = (function () {
 
 		/// this makes sure the positions array is not longer than this.maxPositions. If
 		/// it's longer, the oldest entries are cropped
-		cropPositions: function () {
+		cropTrackPoints: function () {
 			while (this.latestPositions.length > this.maxPositions) {
 				this.latestPositions.pop();
 			}
@@ -2184,7 +2214,7 @@ PiLot.Model.Nav = (function () {
 		Waypoint: Waypoint,
 		Track: Track,
 		AnchorWatch: AnchorWatch,
-		GPSRecord: GPSRecord,
+		TrackPoint: TrackPoint,
 		TrackObserver: TrackObserver,
 		GPSObserver: GPSObserver,
 		RouteObserver: RouteObserver,
@@ -2196,8 +2226,8 @@ PiLot.Model.Nav = (function () {
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
 		loadTrackAsync: loadTrackAsync,
-		deleteGPSPositionsAsync: deleteGPSPositionsAsync,
-		saveTrackAsync: saveTrackAsync
+		deleteTrackPointsAsync: deleteTrackPointsAsync,
+		saveTrackPointsAsync: saveTrackPointsAsync
 	};
 
 })();

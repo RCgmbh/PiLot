@@ -1131,7 +1131,7 @@ PiLot.View.Map = (function () {
 
 		/// handles sliding the slider
 		timeSlider_slide: function () {
-			this.historicPosition = this.track.getPositionAt(this.timeSlider.value * this.timeScaleFactor);
+			this.historicPosition = this.track.getTrackPointAt(this.timeSlider.value * this.timeScaleFactor);
 			if (this.historicPosition !== null) {
 				this.drawHistoricPosition();
 			}
@@ -1141,7 +1141,7 @@ PiLot.View.Map = (function () {
 		 * Handles adding a new position to the Track. The track is only updated, if we
 		 * have "open end" or the new position is before the end
 		 * @param {any} pSender
-		 * @param {GPSRecord} pNewPosition - The position which was added
+		 * @param {TrackPoint} pNewPosition - The position which was added
 		 */
 		track_addPosition: function (pSender, pNewPosition) {
 			this.updateTimeScale();
@@ -1158,7 +1158,7 @@ PiLot.View.Map = (function () {
 		 * Handles changing the lates position of the Track. The track is only updated, if we
 		 * have "open end" or the changed position is before the end
 		 * @param {any} pSender
-		 * @param {GPSRecord} pLastPosition - The position which was updated
+		 * @param {TrackPoint} pLastPosition - The position which was updated
 		 */
 		track_changeLastPosition: function (pSender, pLastPosition) {
 			if (this.showTrack && ((this.endTime === null) || (pLastPosition.getUTCSeconds() <= RC.Date.DateHelper.luxonToUnix(this.endTime)))) {
@@ -1228,7 +1228,7 @@ PiLot.View.Map = (function () {
 		/// who distribute the whole visible track to 
 		updateTimeScale: function () {
 			if ((this.track !== null) && this.timeSlider) {
-				var trackLength = this.track.getPositionsCount();
+				var trackLength = this.track.getTrackPointsCount();
 				this.timeScaleFactor = Math.ceil(trackLength / this.maxTimeSteps);
 				this.timeSlider.setAttribute("max", Math.ceil(trackLength / this.timeScaleFactor) - 1);
 			}
@@ -1342,11 +1342,11 @@ PiLot.View.Map = (function () {
 			this.track = pTrack || null;
 			this.historicPosition = null;
 			if (this.track !== null) {
-				this.track.on('addPosition', this.track_addPosition.bind(this));
-				this.track.on('changeLastPosition', this.track_changeLastPosition.bind(this));
-				this.track.on('cropPositions', this.track_cropPositions.bind(this));
+				this.track.on('addTrackPoint', this.track_addPosition.bind(this));
+				this.track.on('changeLastTrackPoint', this.track_changeLastPosition.bind(this));
+				this.track.on('cropTrackPoints', this.track_cropPositions.bind(this));
 				this.updateTimeScale();
-				if (this.track.getPositionsCount() > 0) {
+				if (this.track.getTrackPointsCount() > 0) {
 					this.historicPosition = this.track.getRawPositions()[0];
 				}
 				if (this.trackObserver != null) {
@@ -1399,12 +1399,12 @@ PiLot.View.Map = (function () {
 		/// shows the time slider, if we have a track with at least one
 		/// positions, otherwise hides the slider and historic position marker.
 		showTimeSlider: function (pResetPosition) {
-			if (this.track && this.track.getPositionsCount() > 0) {
+			if (this.track && this.track.getTrackPointsCount() > 0) {
 				if (pResetPosition) {
 					this.timeSlider.value = 0;
 				}
 				this.timeSliderContainer.hidden = false;
-				this.historicPosition = this.track.getPositionAt(this.timeSlider.value)
+				this.historicPosition = this.track.getTrackPointAt(this.timeSlider.value)
 				if (this.historicPosition != null) {
 					this.drawHistoricPosition();
 				}

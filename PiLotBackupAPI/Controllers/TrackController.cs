@@ -23,7 +23,7 @@ namespace PiLot.Backup.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(BackupAuthorizationFilter))]
-		public ActionResult Put(List<GpsRecord> track, Int32 day, Int32 backupTime) {
+		public ActionResult Put(List<TrackPoint> track, Int32 day, Int32 backupTime) {
 			ActionResult result;
 			Object userObj = this.HttpContext.Items["user"];
 			if(userObj != null) {

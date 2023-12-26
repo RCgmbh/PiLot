@@ -160,19 +160,19 @@ PiLot.View.Tools = (function () {
 			var position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
 				if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePosition'))) {
-					await PiLot.Model.Nav.deleteGPSPositionsAsync(position.getBoatTime(), position.getBoatTime(), true);
+					await PiLot.Model.Nav.deleteTrackPointsAsync(position.getBoatTime(), position.getBoatTime(), true);
 					this.loadTrack();
 				}
 			} 
 		},
 
 		btnDeleteAll_click: async function (pEvent) {
-			var firstPosition = this.track.getPositionAt(0);
-			var lastPosition = this.track.getLastPosition();
+			var firstPosition = this.track.getTrackPointAt(0);
+			var lastPosition = this.track.getLastTrackPoint();
 			if ((firstPosition !== null) && (lastPosition !== null)) {
-				const message = PiLot.Utils.Language.getText('confirmDeletePosition').replace('{{x}}', this.track.getPositionsCount());
+				const message = PiLot.Utils.Language.getText('confirmDeletePosition').replace('{{x}}', this.track.getTrackPointsCount());
 				if (window.confirm(message)) {
-					await PiLot.Model.Nav.deleteGPSPositionsAsync(firstPosition.getBoatTime(), lastPosition.getBoatTime(), true);
+					await PiLot.Model.Nav.deleteTrackPointsAsync(firstPosition.getBoatTime(), lastPosition.getBoatTime(), true);
 					this.loadTrack();
 				}
 			}
@@ -186,7 +186,7 @@ PiLot.View.Tools = (function () {
 		btnImport_click: async function () {
 			const processTCXResult = this.processTCX();
 			if (processTCXResult.success) {
-				const saveResult = await PiLot.Model.Nav.saveTrackAsync(this.track);
+				const saveResult = await PiLot.Model.Nav.saveTrackPointsAsync(this.track.getTrackPoints());
 				this.pnlImportSuccess.hidden = false;
 			}
 		},
@@ -229,7 +229,7 @@ PiLot.View.Tools = (function () {
 
 		loadTrackSuccess: function (pTrack) {
 			this.track = pTrack;
-			let length = this.track.getPositionsCount();
+			let length = this.track.getTrackPointsCount();
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
@@ -259,13 +259,13 @@ PiLot.View.Tools = (function () {
 
 		showTabularData: function () {
 			let row, position;
-			let length = this.track.getPositionsCount();
+			let length = this.track.getTrackPointsCount();
 			let dataRows = this.tblPositions.querySelectorAll('tr:not(.dgHeader)');
 			dataRows.forEach(function (pRow) {
 				this.tblPositions.removeChild(pRow);
 			}.bind(this));
 			for (var i = 0; i < length; i++) {
-				position = this.track.getPositionAt(i);
+				position = this.track.getTrackPointAt(i);
 				row = document.createElement('tr');
 				row.insertAdjacentHTML('beforeend', '<td>' + position.getUTC().toString() + '</td>');
 				row.insertAdjacentHTML('beforeend', '<td>' + RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss') + '</td>');
@@ -286,8 +286,8 @@ PiLot.View.Tools = (function () {
 			let timeNode;
 			let timeText;
 			let position;
-			for (let i = 0; i < this.track.getPositionsCount(); i++) {
-				position = this.track.getPositionAt(i);
+			for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
+				position = this.track.getTrackPointAt(i);
 				trkpt = doc.createElement('trkpt');
 				trkpt.setAttribute('lat', position.getLatitude());
 				trkpt.setAttribute('lon', position.getLongitude());
@@ -303,14 +303,14 @@ PiLot.View.Tools = (function () {
 		},
 
 		showJsonData: function () {
-			this.tbResultText.value = JSON.stringify(this.track.positions, null, 4);
+			this.tbResultText.value = JSON.stringify(this.track.getTrackPoints(), null, 4);
 		},
 
 		showCSVData: function () {
 			let txt = 'Timestamp UTC	DateTime UTC	Latitude	Longitude\n';
 			let dateString;
-			for (let i = 0; i < this.track.getPositionsCount(); i++) {
-				position = this.track.getPositionAt(i);
+			for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
+				position = this.track.getTrackPointAt(i);
 				dateString = RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss')
 				txt += [position.getUTC(), dateString, position.getLatitude(), position.getLongitude()].join('	') + '\n';
 			}
@@ -410,7 +410,7 @@ PiLot.View.Tools = (function () {
 			this.samples = new Array();
 			this.boatTimeOffsets = new Array();
 			if (this.track !== null) {
-				const positionsCount = this.track.getPositionsCount();
+				const positionsCount = this.track.getTrackPointsCount();
 				let position1, position2, latLon1, latLon2;
 				let deltaT, deltaTHalf;		// in s
 				let speed;					// in m/s
@@ -419,13 +419,13 @@ PiLot.View.Tools = (function () {
 				let lastBoatTimeOffset = null;
 				let i = 0;
 				while (i < positionsCount - 1) {
-					position1 = position1 || this.track.getPositionAt(i);
+					position1 = position1 || this.track.getTrackPointAt(i);
 					boatTimeOffset = position1.getBoatTimeOffset();
 					if (lastBoatTimeOffset === null || (boatTimeOffset != lastBoatTimeOffset)) {
 						this.boatTimeOffsets.push({ validFrom: position1.getUTCSeconds(), offset: boatTimeOffset });
 						lastBoatTimeOffset = boatTimeOffset;
 					}
-					position2 = this.track.getPositionAt(i + 1);
+					position2 = this.track.getTrackPointAt(i + 1);
 					deltaT = (position2.getUTC() - position1.getUTC()) / 1000;
 					if (deltaT >= this.sampleSeconds) {
 						latLon1 = latLon2 || position1.getLatLon();

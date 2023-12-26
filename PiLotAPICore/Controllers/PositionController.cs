@@ -11,71 +11,73 @@ using PiLot.Utils.Logger;
 namespace PiLot.API.Controllers {
 
 	/// <summary>
-	/// Cotroller which delivers the current Position
+	/// Cotroller for the current Position. While also the current position is always somewhat historical (it has
+	/// a timestamp that came from the GPS reciever, and it's delivered as TrackPoint), this differs from the Track 
+	/// controller in a way that it's using the GPS Cache instead of loading persisted track data.
 	/// </summary>
 	[ApiController]
 	public class PositionController : ControllerBase {
 
 		/// <summary>
-		/// Gets the latest GPS records after a certain time. Only data from the cache
+		/// Gets the latest TrackPoint after a certain time. Only data from the cache
 		/// is returned, so consider GPSCache.MAXLENGTH
 		/// </summary>
-		/// <param name="startTime">Only records after this time will be returned. UTC Milliseconds</param>
-		/// <returns>Array of GPSRecords, possibly empty, never null</returns>
+		/// <param name="startTime">Only track points after this time will be returned. UTC Milliseconds</param>
+		/// <returns>Array of TrackPoints, possibly empty, never null</returns>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public GpsRecord[] Get(Int64 startTime) {
-			List<GpsRecord> records = GpsCache.Instance?.GetLatestRecords(startTime);
-			Logger.Log($"GPS Record requested for startTime: {startTime}, delivering {records.Count} records", LogLevels.DEBUG);
-			return records?.ToArray() ?? new GpsRecord[0];
+		public TrackPoint[] GetPositions(Int64 startTime) {
+			List<TrackPoint> trackPoints = GPSCache.Instance?.GetLatestTrackPoints(startTime);
+			Logger.Log($"PositionController.GetPositions requested for startTime: {startTime}, delivering {trackPoints.Count} records", LogLevels.DEBUG);
+			return trackPoints?.ToArray() ?? Array.Empty<TrackPoint>();
 		}
 
 		/// <summary>
-		/// Allows to put a gps position
+		/// Allows to put a the latest position
 		/// </summary>
-		/// <param name="pRecord">The gpsPosition or null</param>
+		/// <param name="pTrackPoint">The current posistion or null</param>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public void PutGpsRecord(GpsRecord pRecord) {
-			Logger.Log($"GPS Record recieved: {pRecord}", LogLevels.DEBUG);
-			if (pRecord != null) {
-				GpsCache.Instance.AddRecord(pRecord);
+		public void PutPosition(TrackPoint pTrackPoint) {
+			Logger.Log($"PositionController.PutPosition: TrackPoint recieved: {pTrackPoint}", LogLevels.DEBUG);
+			if (pTrackPoint != null) {
+				GPSCache.Instance.AddTrackPoint(pTrackPoint);
 			}
 		}
 
 		/// <summary>
-		/// Allows to put a gps position. This operation can only be called from local clients, 
-		/// but then does not need any credentials. This is intended to simplify the connection
-		/// from the GPS logger to the api, and make it more robust.
+		/// Allows to put a the latest position. This operation can only be called from local clients, but 
+		/// then does not need any credentials. This is intended to simplify the connection from the GPS 
+		/// logger to the api, and make it more robust.
 		/// </summary>
-		/// <param name="pRecord">The gpsPosition or null</param>
+		/// <param name="pTrackPoint">The gpsPosition or null</param>
 		[Route(Program.APIROOT + "[controller]/local")]
 		[HttpPut]
 		[ServiceFilter(typeof(LocalAuthorizationFilter))]
-		public void PutGpsRecordLocal(GpsRecord pRecord) {
-			Logger.Log($"GPS Record recieved: {pRecord}", LogLevels.DEBUG);
-			if (pRecord != null) {
-				GpsTimeSync.Instance.HandleGPSRecord(pRecord);
-				GpsCache.Instance.AddRecord(pRecord);
+		public void PutPositionsLocal(TrackPoint pTrackPoint) {
+			Logger.Log($"PositionController.PutPositionLocal: TrackPoint recieved: {pTrackPoint}", LogLevels.DEBUG);
+			if (pTrackPoint != null) {
+				GpsTimeSync.Instance.HandleGPSRecord(pTrackPoint);
+				GPSCache.Instance.AddTrackPoint(pTrackPoint);
 			}
 		}
 
 		/// <summary>
-		/// Allows to put a series of GPS Records. It expects, without verifying, that all 
-		/// records are newer than any records sent before. The records themselves however
-		/// need not be sorted, as we will sort them anyways.
+		/// Allows to put a series of TrackPoints, representing the latest positions. It expects, without 
+		/// verifying, that all records are newer than any records sent before. The records themselves 
+		/// however need not be sorted, as we will sort them anyways.
 		/// </summary>
-		/// <param name="pRecords">An array of GpsRecords, or null</param>
+		/// <param name="pTrackPoints">An array of TrackPoints, or null</param>
 		[Route(Program.APIROOT + "[controller]/multiple")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public void PutGpsRecords(GpsRecord[] pRecords) {
-			if (pRecords != null) {
-				GpsCache cache = GpsCache.Instance;
-				List<GpsRecord> records = pRecords.OrderBy(record => record.UTC).ToList();
-				records.ForEach(record => cache.AddRecord(record));
+		public void PutPositions(TrackPoint[] pTrackPoints) {
+			if (pTrackPoints != null) {
+				GPSCache cache = GPSCache.Instance;
+				List<TrackPoint> orderedTrackPoints = pTrackPoints.OrderBy(record => record.UTC).ToList();
+				orderedTrackPoints.ForEach(record => cache.AddTrackPoint(record));
 			}
 		}
 	}

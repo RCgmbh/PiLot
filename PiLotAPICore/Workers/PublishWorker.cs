@@ -76,10 +76,10 @@ namespace PiLot.API.Workers {
 		private async Task PublishTrackAsync(LoginHelper pLoginHelper) {
 			if(this.Job.Selection.PublishTrackMode != 0) {
 				TrackProxy proxy = new TrackProxy(this.Job.Target.APIUrl, pLoginHelper);
-				Track track = new GPSDataConnector().ReadTrack(DateTimeHelper.ToJSTime(this.Job.Date), DateTimeHelper.ToJSTime(this.Job.Date.AddDays(1)), true);
-				Boolean success = await proxy.PutTrackAsync(track, true);
+				Track track = new TrackDataConnector().ReadTrack(DateTimeHelper.ToJSTime(this.Job.Date), DateTimeHelper.ToJSTime(this.Job.Date.AddDays(1)), true);
+				Boolean success = await proxy.PutTrackAsync(track);
 				if (success) {
-					this.Job.Messages.Add($"Track published successfully: {track.GpsRecords.Count} positions");
+					this.Job.Messages.Add($"Track published successfully: {track.TrackPoints.Count} positions");
 				} else {
 					this.Job.Messages.Add("😥 Publishing track failed. See logfiles for (hopefully) more details.");
 				}				

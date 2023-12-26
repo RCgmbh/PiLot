@@ -107,8 +107,8 @@ namespace PiLotDemoDataSender {
 			Int32 offsetDays = (Int32)(Program.currentDay.ToDateTime() - date.ToDateTime()).TotalDays;
 			Int32 offsetSeconds = offsetDays * 24 * 3600 + hoursOffset * 3600;
 			Int64 offsetMs = (Int64)offsetSeconds * 1000;
-			List<GpsRecord> records = Program.dailyTrack.GpsRecords;
-			foreach (GpsRecord aRecord in records){
+			List<TrackPoint> records = Program.dailyTrack.TrackPoints;
+			foreach (TrackPoint aRecord in records){
 				aRecord.UTC = aRecord.UTC + offsetMs;
 				aRecord.BoatTime = null;
 			}
@@ -138,7 +138,7 @@ namespace PiLotDemoDataSender {
 			Int64 nowMs = nowSeconds * 1000;
 			Int64 lastSendSeconds = DateTimeHelper.ToUnixTime(Program.lastSendDate.Value);
 			Int64 lastSendMs = lastSendSeconds * 1000;
-			GpsRecord[] positions = Program.dailyTrack.GpsRecords.FindAll(r => ((r.UTC > lastSendMs) && (r.UTC <= nowMs))).ToArray();
+			TrackPoint[] positions = Program.dailyTrack.TrackPoints.FindAll(r => ((r.UTC > lastSendMs) && (r.UTC <= nowMs))).ToArray();
 			Console.WriteLine($"Sending {positions.Length} gps positions");
 			if (positions.Length > 0) {
 				await Program.positionProxy.PutPositionsAsync(positions);
@@ -157,9 +157,9 @@ namespace PiLotDemoDataSender {
 		/// gaps with some more positions, and save the files in a separate folder (temp)
 		/// </summary>
 		private static void PrepareTracks() {
-			List<GpsRecord> records;
+			List<TrackPoint> records;
 			Track newTrack;
-			GpsRecord record1, record2;
+			TrackPoint record1, record2;
 			Int64 deltaT;
 			LatLon pos1, pos2;
 			LatLon splitPoint;
@@ -167,10 +167,10 @@ namespace PiLotDemoDataSender {
 			Int64 stepMS;
 			foreach(PiLot.Model.Common.Date aDate in Program.days) {
 				Console.WriteLine($"Preparing track for {aDate}");
-				records = Program.GetDailyTrack(aDate)?.GpsRecords;
+				records = Program.GetDailyTrack(aDate)?.TrackPoints;
 				Console.WriteLine($"Track has {records?.Count} positions");
 				newTrack = new Track();
-				newTrack.AddRecords(records);
+				newTrack.AddTrackPoints(records);
 				if ((records != null) && (records.Count > 1)) {
 					for(Int32 i = 0; i < records.Count - 1; i++) {
 						record1 = records[i];
@@ -183,25 +183,25 @@ namespace PiLotDemoDataSender {
 							Console.WriteLine($"Adding {newPositionCount} new positions");
 							stepMS = deltaT / (newPositionCount + 1);
 							for (Int32 j = 0; j < newPositionCount; j++) {
-								GpsRecord newRecord = new GpsRecord();
+								TrackPoint newRecord = new TrackPoint();
 								newRecord.UTC = record1.UTC + (stepMS * (j + 1));
 								newRecord.BoatTime = record1.BoatTime + (stepMS * (j + 1));
 								splitPoint = pos1.IntermediatePointTo(pos2, (Single)(j + 1) / (Single)(newPositionCount + 1));
 								newRecord.Latitude = splitPoint.Latitude;
 								newRecord.Longitude = splitPoint.Longitude;
-								newTrack.AddRecord(newRecord);
+								newTrack.AddTrackPoint(newRecord);
 							}
 						}						
 					}
 				}
-				Console.WriteLine($"New track has {newTrack.GpsRecords.Count} positions");
-				newTrack.SortRecords();
-				new GPSDataConnector(ConfigurationManager.AppSettings["tempDataDir"]).SavePositions(newTrack.GpsRecords, true);
+				Console.WriteLine($"New track has {newTrack.TrackPoints.Count} positions");
+				newTrack.SortTrackPoints();
+				new TrackDataConnector(ConfigurationManager.AppSettings["tempDataDir"]).SaveTrackPoints(newTrack.TrackPoints);
 			}
 		}
 
 		private static Track GetDailyTrack(PiLot.Model.Common.Date pDate) {
-			return new GPSDataConnector().ReadTrack(DateTimeHelper.ToJSTime(pDate.ToDateTime()), DateTimeHelper.ToJSTime(pDate.ToDateTime().AddDays(1)), true);
+			return new TrackDataConnector().ReadTrack(DateTimeHelper.ToJSTime(pDate.ToDateTime()), DateTimeHelper.ToJSTime(pDate.ToDateTime().AddDays(1)), true);
 		}
 	}
 }

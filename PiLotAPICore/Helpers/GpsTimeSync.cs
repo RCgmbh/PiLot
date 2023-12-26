@@ -68,7 +68,7 @@ namespace PiLot.API.Helpers {
 		/// from the system time more than applyGpsTimeThreshold seconds.
 		/// </summary>
 		/// <param name="pRecord">The current GPS record</param>
-		public void HandleGPSRecord(GpsRecord pRecord) {
+		public void HandleGPSRecord(TrackPoint pRecord) {
 			if((this.threshold != null) && (pRecord != null)) {
 				if(Math.Abs(pRecord.UTC - DateTimeHelper.ToJSTime(DateTime.UtcNow)) > this.threshold) {
 					DateTime prevousTime = DateTime.UtcNow;

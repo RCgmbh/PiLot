@@ -95,10 +95,10 @@ namespace PiLot.API.Controllers {
 			Boolean isBoatTime;
 			Int64 trackStart = DateTimeHelper.ToJSTime(pDate);
 			Int64 trackEnd = DateTimeHelper.ToJSTime(pDate.AddDays(1));
-			Track localTrack = new GPSDataConnector().ReadTrack(trackStart, trackEnd, true);
-			if (localTrack.HasRecords) {
-				trackStart = localTrack.FirstRecord.UTC;
-				trackEnd = localTrack.LastRecord.UTC;
+			Track localTrack = new TrackDataConnector().ReadTrack(trackStart, trackEnd, true);
+			if (localTrack.HasTrackPoints) {
+				trackStart = localTrack.FirstTrackPoint.UTC;
+				trackEnd = localTrack.LastTrackPoint.UTC;
 				isBoatTime = false;
 			} else {
 				isBoatTime = true;

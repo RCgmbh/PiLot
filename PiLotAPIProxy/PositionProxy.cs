@@ -37,7 +37,7 @@ namespace PiLot.APIProxy {
 		/// </summary>
 		/// <param name="pPositions">Array of GpsRecords</param>
 		/// <returns>true, if the operation succeeded</returns>
-		public async Task<Boolean> PutPositionsAsync(GpsRecord[] pPositions) {
+		public async Task<Boolean> PutPositionsAsync(TrackPoint[] pPositions) {
 			String jsonString = JsonSerializer.Serialize(pPositions);
 			return await this.httpClient.PutAsync(jsonString, this.putMultipleUrl);
 		}
@@ -49,7 +49,7 @@ namespace PiLot.APIProxy {
 		/// </summary>
 		/// <param name="pPosition">GpsRecord</param>
 		/// <returns>true, if the operation succeeded</returns>
-		public async Task<Boolean> PutPositionAsync(GpsRecord pPosition) {
+		public async Task<Boolean> PutPositionAsync(TrackPoint pPosition) {
 			String jsonString = JsonSerializer.Serialize(pPosition);
 			return await this.httpClient.PutAsync(jsonString, this.putLocalUrl);
 		}
@@ -60,11 +60,11 @@ namespace PiLot.APIProxy {
 		/// </summary>
 		/// <param name="pStartTime">Start time in MS UTC. Only records later than this will be loaded</param>
 		/// <returns>Array of GpsRecords, possibly empty but not null</returns>
-		public async Task<List<GpsRecord>> GetLatestPositions(Int64 pStartTime) {
-			List<GpsRecord> result = new List<GpsRecord>();
+		public async Task<List<TrackPoint>> GetLatestPositions(Int64 pStartTime) {
+			List<TrackPoint> result = new List<TrackPoint>();
 			String url = this.getUrl;
 			url = UrlHelper.AddParameter(url, "startTime", pStartTime.ToString());
-			ProxyResult<List<GpsRecord>> clientResult = await this.httpClient.GetAsync<List<GpsRecord>>(url);
+			ProxyResult<List<TrackPoint>> clientResult = await this.httpClient.GetAsync<List<TrackPoint>>(url);
 			if (clientResult.Success) {
 				result = clientResult.Data;
 			}

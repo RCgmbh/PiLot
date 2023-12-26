@@ -132,7 +132,7 @@ namespace PiLot.API.Workers {
 		private void EnsureObserveGps() {
 			if (!this.observingGps) {
 				this.observingGps = true;
-				GpsCache.Instance.PositionChanged += this.GpsDataRecieved;
+				GPSCache.Instance.PositionChanged += this.GpsDataRecieved;
 			}
 		}
 
@@ -142,7 +142,7 @@ namespace PiLot.API.Workers {
 		/// </summary>
 		private void StopObserveGps() {
 			this.observingGps = false;
-			GpsCache.Instance.PositionChanged -= this.GpsDataRecieved;
+			GPSCache.Instance.PositionChanged -= this.GpsDataRecieved;
 		}
 
 		/// <summary>
@@ -150,7 +150,7 @@ namespace PiLot.API.Workers {
 		/// checked if we have an AnchorWatch
 		/// </summary>
 		/// <param name="pRecord">The latest GpsRecord, not null</param>
-		private void GpsDataRecieved(GpsRecord pRecord) {
+		private void GpsDataRecieved(TrackPoint pRecord) {
 			try {
 				LatLon positionLatLon = new LatLon(pRecord.Latitude.Value, pRecord.Longitude.Value);
 				LatLon anchorLatLon = new LatLon(this.anchorWatch.Latitude, this.anchorWatch.Longitude);

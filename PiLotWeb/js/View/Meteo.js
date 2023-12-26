@@ -866,8 +866,8 @@ PiLot.View.Meteo = (function () {
 			const utcNowMillis = RC.Date.DateHelper.utcNowMillis();
 			const start = utcNowMillis - (24 * 60 * 60 * 1000);
 			PiLot.Model.Nav.loadTrackAsync(start, utcNowMillis, false).then(function (pTrack) {
-				if (pTrack && pTrack.getPositionsCount() > 0) {
-					const lastPosition = pTrack.getLastPosition();
+				if (pTrack && pTrack.getTrackPointsCount() > 0) {
+					const lastPosition = pTrack.getLastTrackPoint();
 					this.latitude = lastPosition.getLatitude();
 					this.longitude = lastPosition.getLongitude();
 				}

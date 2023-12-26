@@ -5,24 +5,24 @@ using PiLot.Utils.DateAndTime;
 namespace PiLot.Model.Nav {
 
 	/// <summary>
-	/// Represents one GPS record
+	/// Represents one point on a track. A TrackPoint has a position and a timestamp.
 	/// </summary>
-	public class GpsRecord : IComparable<GpsRecord> {
+	public class TrackPoint : IComparable<TrackPoint> {
 
 		private const Char SEPARATOR = ';';
 
 		#region constructor
 
-		public GpsRecord() { }
+		public TrackPoint() { }
 
 		/// <summary>
-		/// Creates a GpsRecord from an Array with UTC, BoatTime, Lat, Lng. If any of them is
+		/// Creates a TrackPoint from an Array with UTC, BoatTime, Lat, Lng. If any of them is
 		/// null, the result is null. Additional values will be ignored
 		/// </summary>
 		/// <param name="pData">Array with UTC (ms), BoatTime (ms), Latitude, Longitude</param>
-		/// <returns>A GpsRecord or null</returns>
-		public static GpsRecord FromArray(Double?[] pData) {
-			GpsRecord result = null;
+		/// <returns>A TrackPoint or null</returns>
+		public static TrackPoint FromArray(Double?[] pData) {
+			TrackPoint result = null;
 			if(
 				(pData.Length > 3)
 				&& (pData[0] != null)
@@ -30,7 +30,7 @@ namespace PiLot.Model.Nav {
 				&& (pData[2] != null)
 				&& (pData[3] != null)
 			) {
-				result = new GpsRecord {
+				result = new TrackPoint {
 					UTC = Convert.ToInt64(pData[0]),
 					BoatTime = Convert.ToInt64(pData[1]),
 					Latitude = pData[2],
@@ -41,19 +41,19 @@ namespace PiLot.Model.Nav {
 		}
 
 		/// <summary>
-		/// Tries to create a GpsRecord from a Separator separated String as it
+		/// Tries to create a TrackPoint from a Separator separated String as it
 		/// is created by ToString()
 		/// </summary>
 		/// <param name="pString">The string representation to parse</param>
-		/// <returns>the GpsRecord or null, if parsing fails</returns>
-		public static GpsRecord FromString(String pString) {
+		/// <returns>the TrackPoint or null, if parsing fails</returns>
+		public static TrackPoint FromString(String pString) {
 			String[] segments = pString.Split(SEPARATOR);
-			return GpsRecord.FromStringArray(segments);
+			return TrackPoint.FromStringArray(segments);
 		}
 
 		/// <summary>
-		/// Reads a GPS record from an array of strings, where each item 
-		/// represents one value of the record, as follows:
+		/// Reads a track point from an array of strings, where each item 
+		/// represents one value of the track point, as follows:
 		/// utc in milliseconds from epoc
 		/// boatTime in milliseconds from epoc
 		/// lat in a decimal degrees value or "null"
@@ -68,8 +68,8 @@ namespace PiLot.Model.Nav {
 		/// </summary>
 		/// <param name="pStringArray">An array of Strings</param>
 		/// <returns></returns>
-		public static GpsRecord FromStringArray(String[] pStringArray) {
-			GpsRecord result = null;
+		public static TrackPoint FromStringArray(String[] pStringArray) {
+			TrackPoint result = null;
 			Double testDouble;
 			if (pStringArray.Length >= 4) {
 				if (
@@ -78,7 +78,7 @@ namespace PiLot.Model.Nav {
 						&& Double.TryParse(pStringArray[2], out Double lat)
 						&& Double.TryParse(pStringArray[3], out Double lon)
 				) {
-					result = new GpsRecord();
+					result = new TrackPoint();
 					result.UTC = utc;
 					result.BoatTime = boatTime;
 					result.Latitude = lat;
@@ -157,7 +157,7 @@ namespace PiLot.Model.Nav {
 		#region public methods
 
 		/// <summary>
-		/// Serializes the record into a string
+		/// Serializes the track point into a string
 		/// </summary>
 		public override String ToString() {
 			return String.Join(SEPARATOR.ToString(), new string[] {
@@ -182,7 +182,7 @@ namespace PiLot.Model.Nav {
 		}
 
 		/// <summary>
-		/// Gets the UTC Timestamp of the record as DateTime object
+		/// Gets the UTC Timestamp of the track point as DateTime object
 		/// </summary>
 		/// <returns></returns>
 		public DateTime GetUTCDate() {
@@ -192,8 +192,8 @@ namespace PiLot.Model.Nav {
 		/// <summary>
 		/// Default comparison based on UTC
 		/// </summary>
-		public Int32 CompareTo(GpsRecord pRecord) {
-			return this.UTC.CompareTo(pRecord.UTC);
+		public Int32 CompareTo(TrackPoint pOther) {
+			return this.UTC.CompareTo(pOther.UTC);
 		}
 
 		#endregion

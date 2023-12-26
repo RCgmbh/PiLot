@@ -324,7 +324,7 @@ PiLot.View.Diary = (function () {
 
 		/** takes a track and shows it on the map */
 		showTrackAsync: async function (pTrack) {
-			if (pTrack.getPositionsCount() > 0) {
+			if (pTrack.getTrackPointsCount() > 0) {
 				await this.map.showAsync();
 				if (this.mapTrack === null) {
 					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.currentBoatTime, null, { ignoreSettings: true, showTrack: true });
@@ -371,7 +371,7 @@ PiLot.View.Diary = (function () {
 		 * @param {PiLot.Model.Nav.Track} pTrack
 		 */
 		showSpeedDiagram: function (pTrack) {
-			if (pTrack && pTrack.getPositionsCount() > 0) {
+			if (pTrack && pTrack.getTrackPointsCount() > 0) {
 				this.pnlSpeedDiagram.hidden = false;
 				new PiLot.View.Tools.SpeedDiagram(this.pnlSpeedDiagram, pTrack);
 			} else {
@@ -1000,7 +1000,7 @@ PiLot.View.Diary = (function () {
 		 * @param {HTMLElement} pControl - the control containing the map
 		 */
 		showTrackAsync: async function (pTrack, pMap, pTrackControl, pPositionsLabel) {
-			pPositionsLabel.innerText = pTrack ? pTrack.getPositionsCount() : "...";
+			pPositionsLabel.innerText = pTrack ? pTrack.getTrackPointsCount() : "...";
 			await pMap.showAsync();
 			pTrackControl.setTrack(pTrack);
 			pTrackControl.draw();
