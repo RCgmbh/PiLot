@@ -1,4 +1,4 @@
 # PiLot
 ## PiLotDataPostgres
 
-This is not even work in progress. It is just the long-term goal to replace the file-based storage by a database.
+Postgres database connector to replace the file-based storage. By now only used for POIs
