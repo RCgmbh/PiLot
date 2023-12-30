@@ -177,16 +177,16 @@ namespace PiLotDemoDataSender {
 						record2 = records[i + 1];
 						deltaT = record2.UTC - record1.UTC;
 						if(deltaT >= 2000) {
-							pos1 = new LatLon(record1.Latitude.Value, record1.Longitude.Value);
-							pos2 = new LatLon(record2.Latitude.Value, record2.Longitude.Value);
+							pos1 = new LatLon(record1.Latitude, record1.Longitude);
+							pos2 = new LatLon(record2.Latitude, record2.Longitude);
 							newPositionCount = (Int32)(deltaT / 1000) - 1;
 							Console.WriteLine($"Adding {newPositionCount} new positions");
 							stepMS = deltaT / (newPositionCount + 1);
 							for (Int32 j = 0; j < newPositionCount; j++) {
-								TrackPoint newRecord = new TrackPoint();
+								splitPoint = pos1.IntermediatePointTo(pos2, (Single)(j + 1) / (Single)(newPositionCount + 1));
+								TrackPoint newRecord = new TrackPoint(splitPoint.Latitude, splitPoint.Longitude);
 								newRecord.UTC = record1.UTC + (stepMS * (j + 1));
 								newRecord.BoatTime = record1.BoatTime + (stepMS * (j + 1));
-								splitPoint = pos1.IntermediatePointTo(pos2, (Single)(j + 1) / (Single)(newPositionCount + 1));
 								newRecord.Latitude = splitPoint.Latitude;
 								newRecord.Longitude = splitPoint.Longitude;
 								newTrack.AddTrackPoint(newRecord);

@@ -141,9 +141,7 @@ namespace PiLot.API.Helpers {
 				TrackPoint lastTrackPoint = this.trackPoints[0];
 				if (this.previousSavedTrackPoint != null) {
 					deltaT = lastTrackPoint.UTC - this.previousSavedTrackPoint.UTC;
-					LatLon latestPosition = new LatLon(lastTrackPoint.Latitude.Value, lastTrackPoint.Longitude.Value);
-					LatLon previousPosition = new LatLon(this.previousSavedTrackPoint.Latitude.Value, this.previousSavedTrackPoint.Longitude.Value);
-					deltaX = latestPosition.DistanceTo(previousPosition);
+					deltaX = lastTrackPoint.DistanceTo(previousSavedTrackPoint);
 					doPersist = (deltaT >= MINDELTAT) && (deltaX > MINDISTANCE);
 				} else {
 					doPersist = true;

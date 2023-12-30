@@ -95,10 +95,8 @@ namespace PiLot.GPSDataCreator {
 				position.MoveBy(speed, course);
 				utcTime = DateTimeHelper.ToJSTime(DateTime.UtcNow);
 				boatTime = utcTime + boatTimeOffset;
-				TrackPoint record = new TrackPoint();
+				TrackPoint record = new TrackPoint(position.Latitude, position.Longitude);
 				record.UTC = utcTime;
-				record.Latitude = position.Latitude;
-				record.Longitude = position.Longitude;
 				SendPositionAsync(record);
 			}
 		}
@@ -149,8 +147,7 @@ namespace PiLot.GPSDataCreator {
 			ProxyResult<Track> proxyResult = await trackProxy.GetTrackAsync(start, utcNow, false);
 			if (proxyResult.Success) {
 				if (proxyResult.Data.HasTrackPoints) {
-					TrackPoint record = proxyResult.Data.LastTrackPoint;
-					result = new LatLon(record.Latitude.Value, record.Longitude.Value);
+					result = proxyResult.Data.LastTrackPoint;
 				}
 			} else {
 				Console.WriteLine(proxyResult.Message);

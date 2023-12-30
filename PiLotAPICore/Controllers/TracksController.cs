@@ -1,11 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.API.Helpers;
 using PiLot.Data.Files;
 using PiLot.Model.Nav;
-using PiLot.Utils.Logger;
 
 namespace PiLot.API.Controllers {
 
@@ -24,9 +23,25 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public Track Get(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
+		public Track GetTrack(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
 			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
 			return track;
+		}
+
+		/// <summary>
+		/// Gets the track segments for a track defined by a certain range
+		/// </summary>
+		/// <param name="startTime">Starttime in ms utc or boatTime</param>
+		/// <param name="endTime">Endtime in ms utc or boatTime</param>
+		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
+		[Route(Program.APIROOT + "[controller]/segments")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public TrackSegment GetFastestMile(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
+			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
+			TrackSegmentType type = new TrackSegmentType(-1, 3600, null, null);
+			TrackSegment segment = new TrackAnalyzer(track).GetFastestTrackSegment(type);
+			return segment;
 		}
 
 		/// <summary>

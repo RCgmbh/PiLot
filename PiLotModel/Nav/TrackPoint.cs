@@ -7,13 +7,13 @@ namespace PiLot.Model.Nav {
 	/// <summary>
 	/// Represents one point on a track. A TrackPoint has a position and a timestamp.
 	/// </summary>
-	public class TrackPoint : IComparable<TrackPoint> {
+	public class TrackPoint : LatLon, IComparable<TrackPoint> {
 
 		private const Char SEPARATOR = ';';
 
 		#region constructor
 
-		public TrackPoint() { }
+		public TrackPoint(Double pLatitude, Double pLongitude):base(pLatitude, pLongitude) { }
 
 		/// <summary>
 		/// Creates a TrackPoint from an Array with UTC, BoatTime, Lat, Lng. If any of them is
@@ -30,11 +30,9 @@ namespace PiLot.Model.Nav {
 				&& (pData[2] != null)
 				&& (pData[3] != null)
 			) {
-				result = new TrackPoint {
+				result = new TrackPoint(pData[2].Value, pData[3].Value) {
 					UTC = Convert.ToInt64(pData[0]),
-					BoatTime = Convert.ToInt64(pData[1]),
-					Latitude = pData[2],
-					Longitude = pData[3]
+					BoatTime = Convert.ToInt64(pData[1])
 				};
 			}
 			return result;
@@ -78,11 +76,9 @@ namespace PiLot.Model.Nav {
 						&& Double.TryParse(pStringArray[2], out Double lat)
 						&& Double.TryParse(pStringArray[3], out Double lon)
 				) {
-					result = new TrackPoint();
+					result = new TrackPoint(lat, lon);
 					result.UTC = utc;
 					result.BoatTime = boatTime;
-					result.Latitude = lat;
-					result.Longitude = lon;
 				}
 				if ((pStringArray.Length >= 5) && Double.TryParse(pStringArray[4], out testDouble)) {
 					result.Altitude = testDouble;
@@ -115,18 +111,6 @@ namespace PiLot.Model.Nav {
 		/// </summary>
 		[JsonPropertyName("boatTime")]
 		public Int64? BoatTime { get; set; }
-
-		/// <summary>
-		/// The latitude in degrees
-		/// </summary>
-		[JsonPropertyName("latitude")]
-		public Double? Latitude { get; set; }
-
-		/// <summary>
-		/// The longitude in degrees
-		/// </summary>
-		[JsonPropertyName("longitude")]
-		public Double? Longitude { get; set; }
 
 		/// <summary>
 		/// The asm in m as measured by the gps

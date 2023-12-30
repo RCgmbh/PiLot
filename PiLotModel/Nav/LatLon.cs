@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 
 namespace PiLot.Model.Nav {
 
@@ -24,11 +25,13 @@ namespace PiLot.Model.Nav {
 		/// <summary>
 		/// Gets or sets the latitude in degrees. Allowed values are -90 to 90
 		/// </summary>
+		[JsonPropertyName("latitude")]
 		public Double Latitude { get; set; }
 
 		/// <summary>
 		/// The longitude in degrees. Any values are accepted, but will translate to -180 .. 180
 		/// </summary>
+		[JsonPropertyName("longitude")]
 		public Double Longitude {
 			get { return this.longitude; }
 			set {
@@ -46,7 +49,7 @@ namespace PiLot.Model.Nav {
 			Double φ1 = this.Latitude * Math.PI / 180;
 			Double φ2 = pOther.Latitude * Math.PI / 180;
 			Double Δφ = (pOther.Latitude - this.Latitude) * Math.PI / 180;
-			Double Δλ = (pOther.longitude - this.longitude) * Math.PI / 180;
+			Double Δλ = (pOther.Longitude - this.Longitude) * Math.PI / 180;
 			Double a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
 					  Math.Cos(φ1) * Math.Cos(φ2) *
 					  Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);

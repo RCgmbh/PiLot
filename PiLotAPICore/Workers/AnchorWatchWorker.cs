@@ -152,9 +152,8 @@ namespace PiLot.API.Workers {
 		/// <param name="pRecord">The latest GpsRecord, not null</param>
 		private void GpsDataRecieved(TrackPoint pRecord) {
 			try {
-				LatLon positionLatLon = new LatLon(pRecord.Latitude.Value, pRecord.Longitude.Value);
 				LatLon anchorLatLon = new LatLon(this.anchorWatch.Latitude, this.anchorWatch.Longitude);
-				Double distance = positionLatLon.DistanceTo(anchorLatLon);
+				Double distance = pRecord.DistanceTo(anchorLatLon);
 				Int32 newAlarmIndex = this.anchorWatch.Radius != 0 ? AnchorWatchWorker.ALARMS.FindIndex(a => a.Item1 < distance / this.anchorWatch.Radius) : 0;
 				if (newAlarmIndex != this.alarmIndex) {
 					this.StopAlarm();
