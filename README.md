@@ -47,7 +47,8 @@ The PiLot is a Raspberry Pi based system for boating. It's used with any device 
 
 **Other**
 - User interface language: english or german
-- Export track as gpx, csv, json or tabular data
+- Export track as GPX, CSV, JSON or tabular data
+- Import TCX data
 - Download offline maps for any desired region and detail level
 - Publish diary data to any other pilot
 - Online live tracking
