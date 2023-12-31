@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
@@ -37,11 +38,11 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/segments")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public TrackSegment GetFastestMile(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
+		public List<TrackSegment> GetTrackSegments(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
 			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
-			TrackSegmentType type = new TrackSegmentType(-1, 3600, null, null);
-			TrackSegment segment = new TrackAnalyzer(track).GetFastestTrackSegment(type);
-			return segment;
+			TrackSegmentType type = new TrackSegmentType(TrackSegmentType.Criterions.Fastest, -1, 3600, null, null);
+			List<TrackSegment> segments = new TrackAnalyzer(track).GetTrackSegments(new List<TrackSegmentType>() { type });
+			return segments;
 		}
 
 		/// <summary>

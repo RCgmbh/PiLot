@@ -18,6 +18,31 @@ namespace PiLot.API.Helpers {
 		}
 
 		/// <summary>
+		/// Returns the segments for a list of types. The result can contain zero, one
+		/// or more Segments per type.
+		/// </summary>
+		/// <param name="pTypes">The list of types, not null</param>
+		/// <returns>A list of segments, can be empty, but never null</returns>
+		public List<TrackSegment> GetTrackSegments(List<TrackSegmentType> pTypes) {
+			List<TrackSegment> result = new List<TrackSegment>();
+			foreach(TrackSegmentType aType in pTypes) {
+				switch (aType.Criterion) {
+					case TrackSegmentType.Criterions.Fastest:
+						TrackSegment segment = this.GetFastestTrackSegment(aType);
+						if(segment != null) {
+							result.Add(segment);
+						}
+						break;
+					case TrackSegmentType.Criterions.Uniterrupted:
+						// todo
+						break;
+				}
+			}
+			
+			return result;
+		}
+
+		/// <summary>
 		/// Returns the fastest segment either for a minimal distance or a minimal duration.
 		/// The resulting segment can be slightly longer than required, because  of course 
 		/// the TrackPoints can have any distance between them. If the track is shorter than
@@ -25,8 +50,8 @@ namespace PiLot.API.Helpers {
 		/// </summary>
 		/// <param name="pType">The type of track segment to find</param>
 		/// <returns>The fastest segment for the type, or null</returns>
-		public TrackSegment GetFastestTrackSegment(TrackSegmentType pType) {
-			if (pType.IsDistance) {
+		private TrackSegment GetFastestTrackSegment(TrackSegmentType pType) {
+			if (pType.Distance != null) {
 				return this.GetFastestSegmentByDistance(pType);
 			} else {
 				return this.GetFastestSegmentByDuration(pType);
