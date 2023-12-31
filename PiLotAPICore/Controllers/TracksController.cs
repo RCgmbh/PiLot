@@ -40,8 +40,8 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<TrackSegment> GetTrackSegments(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
 			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
-			TrackSegmentType type = new TrackSegmentType(TrackSegmentType.Criterions.Fastest, -1, 3600, null, null);
-			List<TrackSegment> segments = new TrackAnalyzer(track).GetTrackSegments(new List<TrackSegmentType>() { type });
+			List<TrackSegmentType> types = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTrackSegmentTypes();
+			List<TrackSegment> segments = new TrackAnalyzer(track).GetTrackSegments(types);
 			return segments;
 		}
 

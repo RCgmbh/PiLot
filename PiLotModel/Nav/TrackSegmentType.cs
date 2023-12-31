@@ -21,11 +21,11 @@ namespace PiLot.Model.Nav {
 		/// <param name="pDuration">The duration in seconds</param>
 		/// <param name="pDistance">The distance in meters</param>
 		/// <param name="pLabels">The Labels for the GUI in all languages</param>
-		public TrackSegmentType(Criterions pCriterion, Int32 pId, Int32? pDuration, Int32? pDistance, Object pLabels) {
+		public TrackSegmentType(Int32 pId, Criterions pCriterion, Int32? pDuration, Int32? pDistance, Object pLabels) {
 			Assert.IsTrue(
 				   pCriterion == Criterions.Fastest && (pDuration != null) ^ (pDistance != null)
 				|| pCriterion == Criterions.Uniterrupted && (pDuration != null) && (pDistance != null)
-				, "TrackSegmentType: pDuration xor pDistance must be non-null for criterion Fastest, both must be non-null for criterion Uniterrupted"
+				, "TrackSegmentType: pDuration xor pDistance must be non-null for criterion Fastest. Both must be non-null for criterion Uninterrupted"
 			);
 			this.ID = pId;
 			this.Criterion = pCriterion;

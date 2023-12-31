@@ -333,5 +333,31 @@ PiLot.Templates.Nav = {
 		</div>
 	`,
 
-	anchorWatchMarker: '<i class="icon-anchor"></i>'
+	anchorWatchMarker: '<i class="icon-anchor"></i>',
+
+	trackStatistics: `
+		<div class="borderLight" style="padding: 0.5em 0.25em 0.25em 0.25em;">
+			<span class="semiBold" style="flex-grow:1;" data-text="trackStatistics"></span>
+			<div class="plhSegmentCategories flex"></div>
+			<div>
+		</div>
+	`,
+
+	trackStatisticsCategory: '<div class="plhCategory"></div>',
+
+	trackStatisticsDistanceItem: `
+		<div>
+			<span class="lblLabel"></span>
+			<span class="lblDuration"></span>
+			<span>(<span class="lblSpeed"></span> <span data-text="kn"></span>)</span>
+			<span><span class="lblStartTime"></span> - <span class="lblEndTime"></span></span>
+		</div>`,
+
+	trackStatisticsDurationItem: `
+		<div>
+			<span class="lblLabel"></span>
+			<span><span class="lblSpeed"></span> <span data-text="kn"></span></span>
+			<span class="lblDistance"></span>
+			<span><span class="lblStartTime"></span> - <span class="lblEndTime"></span></span>
+		</div>`
 };

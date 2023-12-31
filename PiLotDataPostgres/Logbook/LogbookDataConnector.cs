@@ -3,7 +3,7 @@ using Npgsql;
 
 using PiLot.Model.Logbook;
 
-namespace PiLot.Data.Postgres {
+namespace PiLot.Data.Postgres.Logbook {
 
 	/// <summary>
 	/// Helps with CRUD Operations for Logbook data
