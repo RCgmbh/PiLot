@@ -1627,9 +1627,7 @@ PiLot.View.Map = (function () {
 				this.addSettingsControl();
 			}
 			this.addContextPopupLink();
-			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
-			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
-			this.route.on('changeWaypoints', this.route_changeWaypoints.bind(this));
+			this.bindRouteEvents();
 		},
 
 		/** registers an observer which will be called when pEvent happens */
@@ -1732,6 +1730,27 @@ PiLot.View.Map = (function () {
 			RC.Utils.notifyObservers(this, this.observers, 'unselectWaypoint', null);
 		},
 
+		/** Binds the events to the route, so that route and Waypoints list are in sync */
+		bindRouteEvents: function(){
+			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
+			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
+			this.route.on('changeWaypoints', this.route_changeWaypoints.bind(this));
+		},
+
+		/**
+		 * Allows to set different route, without the need of re-creating the MapRoute object.
+		 * Tries to clean up a bit before setting the new route. The caller might have to call
+		 * the "draw()" method after having set the route.
+		 * @param {PiLot.Model.Nav.Route} pRoute
+		 * */
+		setRoute: function(pRoute){
+			this.deleteFromMap();
+			this.mapWaypoints = null;
+			this.route = pRoute;
+			this.bindRouteEvents();
+			return this;
+		},
+
 		/// draws the route to the map, but only if this.showRoute is true
 		draw: function (pResetWaypointPositions) {
 			if (this.showRoute) {
@@ -1780,10 +1799,10 @@ PiLot.View.Map = (function () {
 		},
 
 		/// adds an "add Waypoint" link to the map context popup
-        addContextPopupLink: function () {
-            this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
-            this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
-            this.showHideContextPopupLink();
+		addContextPopupLink: function () {
+			this.lnkAddWaypoint = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapAddWaypointLink);
+			this.map.getContextPopup().addLink(this.lnkAddWaypoint, this.lnkAddWaypoint_click.bind(this));
+			this.showHideContextPopupLink();
         },
 
         showHideContextPopupLink: function () {

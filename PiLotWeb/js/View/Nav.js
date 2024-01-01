@@ -612,6 +612,7 @@ PiLot.View.Nav = (function () {
 	var RouteDetail = function () {
 		this.route = null;
 		this.map = null;
+		this.mapRoute = null;
 		this.isActiveRoute = false;
 		this.waypointForms = null // an array with all waypoint forms
 		this.tbRouteName = null;
@@ -794,9 +795,13 @@ PiLot.View.Nav = (function () {
 			this.showWaypoints();
 			this.showActiveState();
 			const lockRoute = !PiLot.Permissions.canWrite();
-			const mapRoute = new PiLot.View.Map.MapRoute(this.map, this.route, { showRoute: true, lockRoute: lockRoute, showOptions: false }).draw().fitMap();
-			mapRoute.on('selectWaypoint', this.mapRoute_selectWaypoint.bind(this));
-			mapRoute.on('unselectWaypoint', this.mapRoute_unselectWaypoint.bind(this));
+			if(this.mapRoute !== null){
+				this.mapRoute.setRoute(this.route).draw().fitMap();
+			} else{
+				this.mapRoute = new PiLot.View.Map.MapRoute(this.map, this.route, { showRoute: true, lockRoute: lockRoute, showOptions: false }).draw().fitMap();
+			}
+			this.mapRoute.on('selectWaypoint', this.mapRoute_selectWaypoint.bind(this));
+			this.mapRoute.on('unselectWaypoint', this.mapRoute_unselectWaypoint.bind(this));
 		},
 
 		/// shows the waypoints (create the forms if necessary, refresh all values). Pass
