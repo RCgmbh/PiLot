@@ -324,6 +324,136 @@ PiLot.Service.Nav = (function () {
         return poiServiceInstance;
 	};
 
+	var trackServiceInstance = null;
+
+    /** Helper class to access all track related services. Does some caching too. */
+    var TrackService = function(){
+		this.trackSegmentTypes = null;	// Map with key = id, value = trackSegmentType
+		this.initialize();
+    };
+
+    TrackService.prototype = {
+        
+		initialize: function () { },
+
+		/**
+		 * Gets the track segments for a certain track. If the track does not exist, null is
+		 * returned. Otherwise, an array of TrackSegment is returned, which can be empty.
+		 * @param {Number} pTrackId
+		 * @returns {PiLot.Model.Nav.TrackSegment[]}
+		 * */
+		getTrackSegmentsByTrackIdAsync: async function(pTrackId){
+			return await this.getTrackSegmentsAsync(`/Tracks/${pTrackId}/Segments`);
+		},
+
+		/** this is a temporary solution for as long as we don't have tracks saved in the db */
+		getTrackSegmentsByTimeAsync: async function(pStartTime, pEndTime, pIsBoatTime){
+			const url = `/Tracks/Segments?startTime=${pStarTime.toMillis()}&endTime=${pEndTime.toMillis()}&isBoatTime=${pIsBoatTime}`;
+			return await this.getTrackSegmentsAsync(url);
+		},
+
+		/** this can be merged with getTrackSegmentsByTrackIdAsync, as soon as getTrackSegmentsByTimeAsync isn't used anymore */
+		getTrackSegmentsAsync: async function(pUrl){
+			let result = null;
+			await this.ensureTrackSegmentTypesLoadedAsync();
+			const json = await PiLot.Utils.Common.getFromServerAsync(pUrl);
+			const language = PiLot.Utils.Language.getLanguage();
+			if(json !== null) {
+				if (Array.isArray(json)) {
+					result = [];
+					for (anItem of json) {
+						const trackSegment = new TrackSegment(
+							anItem.trackId,
+							this.trackSegmentTypes[anItem.typeId],
+							RC.Date.DateHelper.millisToLuxon(anItem.startUtc, language),
+							RC.Date.DateHelper.millisToLuxon(anItem.endUtc, language),
+							RC.Date.DateHelper.millisToLuxon(anItem.startBoatTime, language),
+							RC.Date.DateHelper.millisToLuxon(anItem.endBoatTime, language),
+							anItem.distance
+						);
+						result.push(trackSegment);
+					}
+				} else {
+					PiLot.log('Did not get an array from TrackSegmentTypes endpoint.', 0);
+				}
+			}
+			return result;
+		},
+
+		/** 
+		 * Gets the cached map of all trackSegmentTypes
+		 * @returns {Map} key: id, value: trackSegmentType
+		 * */
+		getTrackSegmentTypesAsync: async function (pForceReload = false) {
+			await this.ensureTrackSegmentTypesLoadedAsync(pForceReload);
+            return this.trackSegmentTypes;
+		},
+
+		/** Makes sure this.trackSegmentTypes is populated with the track segment types from the server */
+		ensureTrackSegmentTypesLoadedAsync: async function (pForceReload = false) {
+			if ((this.trackSegmentTypes === null) || pForceReload) {
+				this.trackSegmentTypes = await this.loadTrackSegmentTypesAsync();
+			}
+		},
+
+		/** Loads the track segment types from the server */
+		loadTrackSegmentTypesAsync: async function () {
+			const result = new Map();
+			const json = await PiLot.Utils.Common.getFromServerAsync('/TrackSegmentTypes');
+			if (Array.isArray(json)) {
+				for (let i = 0; i < json.length; i++) {
+					let labels = json[i].labels;
+					if (typeof labels === "string") {
+						labels = JSON.parse(labels);
+					}
+					const trackSegmentType = new TrackSegmentType(
+						json[i].id, 
+						json[i].criterion,
+						json[i].duration,
+						json[i].distance,
+						labels || {}
+					);
+					result.set(trackSegmentType.getId(), trackSegmentType);
+				}
+			} else {
+				PiLot.log('Did not get an array from TrackSegmentTypes endpoint.', 0);
+			}
+			return result;
+		},
+
+		/**
+		 * Saves a TrackSegmentType to the server and returns its id
+		 * @param {PiLot.Model.Nav.TrackSegmentType} pTrackSegmentType
+		 */
+		saveTrackSegmentTypeAsync: async function (pTrackSegmentType) {
+			const isNew = !pTrackSegmentType.id;
+			const result = await PiLot.Utils.Common.putToServerAsync('/TrackSegmentTypes', pTrackSegmentType);
+			if (isNew) {
+				this.ensureTrackSegmentTypesLoadedAsync(true);
+			}
+			return result;
+		},
+
+		/**
+		 * Deletes a TrackSegmentType
+		 * @param {PiLot.Model.Nav.TrackSegmentType} pTrackSegmentType
+		 * @returns true, if the track segment type was deleted
+		 */
+		deleteTrackSegmentTypeAsync: async function (pTrackSegmentType) {
+			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/TrackSegmentTypes/${pTrackSegmentType.getId()}`);
+			this.ensureTrackSegmentTypesLoadedAsync(true);
+			return !!result;
+		}
+    };
+
+    /** Singleton accessor returning the current instance of the TrackService object */
+    TrackService.getInstance = function(){
+        if(trackServiceInstance === null){
+            trackServiceInstance = new TrackService();
+        }
+        return trackServiceInstance;
+	};
+
 	/**
 	 * Loads pois from OSM using overpass turbo
 	 * @see {@link https://wiki.openstreetmap.org/wiki/Overpass_API}
@@ -543,6 +673,7 @@ PiLot.Service.Nav = (function () {
     /// Returning the class and static method definitions
 	return {
 		PoiService: PoiService,
+		TrackService: TrackService,
 		OsmPoiLoader: OsmPoiLoader,
 		AnchorWatchService: AnchorWatchService
 	}

@@ -33,7 +33,7 @@ namespace PiLot.API.Helpers {
 							result.Add(segment);
 						}
 						break;
-					case TrackSegmentType.Criterions.Uniterrupted:
+					case TrackSegmentType.Criterions.Uninterrupted:
 						// todo
 						break;
 				}

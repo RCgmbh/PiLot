@@ -13,7 +13,7 @@ DELETE FROM track_segment_types;
 /* INSERT TRACK SEGMENT TYPES */
 SELECT insert_track_segment_type('Fastest', null, 1000, '{"de": "Schnellster Kilometer", "en": "Fastest kilometer"}');
 SELECT insert_track_segment_type('Fastest', null, 1852, '{"de": "Schnellste Meile", "en": "Fastest mile"}');
-SELECT insert_track_segment_type('Fastest', null, 5000, '{"de": "Schnellster fünf Kilometer", "en": "Fastest five kilometers"}');
+SELECT insert_track_segment_type('Fastest', null, 5000, '{"de": "Schnellste fünf Kilometer", "en": "Fastest five kilometers"}');
 SELECT insert_track_segment_type('Fastest', null, 21097, '{"de": "Schnellster Halbmarathon", "en": "Fastest half marathon"}');
 SELECT insert_track_segment_type('Fastest', null, 42195, '{"de": "Schnellster Marathon", "en": "Fastest marathon"}');
 SELECT insert_track_segment_type('Fastest', 10, null, '{"de": "Top Speed (10 Sekunden)", "en": "Top speed (10 seconds)"}');

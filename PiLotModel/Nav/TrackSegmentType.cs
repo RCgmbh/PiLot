@@ -11,7 +11,7 @@ namespace PiLot.Model.Nav {
 	/// </summary>
 	public struct TrackSegmentType {
 
-		public enum Criterions { Fastest, Uniterrupted }
+		public enum Criterions { Fastest, Uninterrupted }
 
 		/// <summary>
 		/// Default constructor. Please note that either the duration or the distance must
@@ -24,7 +24,7 @@ namespace PiLot.Model.Nav {
 		public TrackSegmentType(Int32 pId, Criterions pCriterion, Int32? pDuration, Int32? pDistance, Object pLabels) {
 			Assert.IsTrue(
 				   pCriterion == Criterions.Fastest && (pDuration != null) ^ (pDistance != null)
-				|| pCriterion == Criterions.Uniterrupted && (pDuration != null) && (pDistance != null)
+				|| pCriterion == Criterions.Uninterrupted && (pDuration != null) && (pDistance != null)
 				, "TrackSegmentType: pDuration xor pDistance must be non-null for criterion Fastest. Both must be non-null for criterion Uninterrupted"
 			);
 			this.ID = pId;

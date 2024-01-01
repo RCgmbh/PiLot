@@ -1781,6 +1781,151 @@ PiLot.Model.Nav = (function () {
 		return await PiLot.Utils.Common.putToServerAsync(url, trackObj);
 	};
 
+	/**
+	 * A track segment is a specific part of a track, corresponding to a certain 
+	 * TrackSegmentType. An example would be the fastest mile of a certain track.
+	 * The object does not hold a reference to the track, but only to its id, so
+	 * it can exist without the track having been loaded.
+	 * @param {Number} pTrackId - the id of the track this belongs to
+	 * @param {PiLot.Model.Nav.TrackSegmentType} pType - the type of the segment
+	 * @param {DateTime} pStartUtc - the beginning of the segment in UTC
+	 * @param {DateTime} pEndUtc - the end of the segment in UTC
+	 * @param {DateTime} pStartBoatTime - the beginning of the segment in BoatTime
+	 * @param {DateTime} pEndBoatTime - the end of the segment in BoatTime
+	 * @param {Number} pDistance - the distance covered in meters
+	 */
+	var TrackSegment = function (pTrackId, pType, pStartUtc, pEndUtc, pStartBoatTime, pEndBoatTime, pDistance) {
+		this.trackId = pTrackId;
+		this.type = pType;
+		this.startUtc = pStartUtc;
+		this.endUtc = pEndUtc;
+		this.startBoatTime = pStartBoatTime;
+		this.endBoatTime = pEndBoatTime;
+		this.distance = pDistance;
+		this.initialize();
+	};
+
+	TrackSegment.prototype = {
+
+		initialize: function () { },
+
+		/** @returns {Number} */
+		getTrackId: function () {
+			return this.trackId;
+		},
+
+		/** @returns {PiLot.Model.Nav.TrackSegmentType} */
+		getType: function () {
+			return this.type;
+		},
+
+		/** @returns {DateTime} */
+		getStartUtc: function () {
+			return this.startUtc;
+		},
+
+		/** @returns {DateTime} */
+		getEndUtc: function () {
+			return this.endUtc;
+		},
+
+		/** @returns {DateTime} */
+		getStartBoatTime: function () {
+			return this.startBoatTime;
+		},
+
+		/** @returns {DateTime} */
+		getEndBoatTime: function () {
+			return this.endBoatTime;
+		},
+
+		/**
+		 * @returns {Number} - the total distance in meters. This can be more
+		 * than the distance defined by the TrackSegmentType, because it's based
+		 * on acutal TrackPoints. 
+		 * */
+		getDistance: function() {
+			return this.distance;
+		}
+	};
+
+	/**
+	 * A track segment type, describing a certain type of track segment, e.g. the fastest mile of a track
+	 * @param {Number} pId
+	 * @param {String} pCriterion - either "Fastest" or "Uninterrupted"
+	 * @param {Number} pDuration - the minimal duration in seconds, e.g. for fastest 12 minutes
+	 * @param {Number} pDistance - the minimal distance in meters, e.g. for fastest mile
+	 * @param {Object} pLabels - labels in different languages as object
+	 */
+	var TrackSegmentType = function (pId, pCriterion, pDuration, pDistance, pLabels) {
+		this.id = pId;
+		this.criterion = pCriterion;
+		this.duration = pDuration;
+		this.distance = pDistance;
+		this.labels = pLabels;
+		this.initialize();
+	};
+
+	TrackSegmentType.prototype = {
+
+		initialize: function () { },
+
+		getId: function () {
+			return this.id;
+		},
+
+		getCriterion: function () {
+			return this.criterion;
+		},
+
+		getDuration: function () {
+			return this.duration;
+		},
+
+		getDistance: function() {
+			return this.distance;
+		},
+
+		getLabel: function (pLanguage) {
+			if (this.labels && pLanguage in this.labels) {
+				return this.labels[pLanguage]
+			} else return this.name;
+		},
+
+		/** Saves the TrackSegmentType back to the server */
+		saveAsync: async function () {
+			const result = await PiLot.Service.Nav.TrackService.getInstance().saveTrackSegmentTypeAsync(this);
+			this.id = result.data;
+		},
+
+		/** Deletes the TrackSegmentType from the server */
+		deleteAsync: async function () {
+			return await PiLot.Service.Nav.TrackService.getInstance().deleteTrackSegmentTypeAsync(this);
+		}
+	};
+
+	/**
+	 * Creates a new TrackSegmentType based on a data object. Returns null, if required attributes are missing.
+	 * @param {Object} pData - object with at least id, criterion
+	 */
+	TrackSegmentType.fromData = function (pData) {
+		let result = null;
+		let labels = pData.labels;
+		if (typeof labels === "string") {
+			labels = JSON.parse(labels);
+		}
+		if (pData.id && pData.criterion) {
+			result = new TrackSegmentType(
+				pData.id, 
+				pData.criterion,
+				pData.duration,
+				pData.distance,
+				labels || {}
+			);
+		}
+		return result;
+	};
+
 	/** 
 	 * Class TrackObserver, takes a track and a GPSObserver, and makes sure
 	 * the track is continuously updated by changing/adding the latest track points
@@ -2213,6 +2358,7 @@ PiLot.Model.Nav = (function () {
 		OsmPoi: OsmPoi,
 		Waypoint: Waypoint,
 		Track: Track,
+		TrackSegmentType: TrackSegmentType,
 		AnchorWatch: AnchorWatch,
 		TrackPoint: TrackPoint,
 		TrackObserver: TrackObserver,
