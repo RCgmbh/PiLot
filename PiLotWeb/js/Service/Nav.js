@@ -346,9 +346,13 @@ PiLot.Service.Nav = (function () {
 			return await this.getTrackSegmentsAsync(`/Tracks/${pTrackId}/Segments`);
 		},
 
-		/** this is a temporary solution for as long as we don't have tracks saved in the db */
+		/**
+		 * This is a temporary solution for as long as we don't have tracks saved in the db 
+		 * @param {Number} pStartTime - start time in ms
+		 * @param {Number} pEndTime - end time in ms
+		 * */
 		getTrackSegmentsByTimeAsync: async function(pStartTime, pEndTime, pIsBoatTime){
-			const url = `/Tracks/Segments?startTime=${pStarTime.toMillis()}&endTime=${pEndTime.toMillis()}&isBoatTime=${pIsBoatTime}`;
+			const url = `/Tracks/Segments?startTime=${pStartTime}&endTime=${pEndTime}&isBoatTime=${pIsBoatTime}`;
 			return await this.getTrackSegmentsAsync(url);
 		},
 
@@ -362,9 +366,9 @@ PiLot.Service.Nav = (function () {
 				if (Array.isArray(json)) {
 					result = [];
 					for (anItem of json) {
-						const trackSegment = new TrackSegment(
+						const trackSegment = new PiLot.Model.Nav.TrackSegment(
 							anItem.trackId,
-							this.trackSegmentTypes[anItem.typeId],
+							this.trackSegmentTypes.get(anItem.typeId),
 							RC.Date.DateHelper.millisToLuxon(anItem.startUtc, language),
 							RC.Date.DateHelper.millisToLuxon(anItem.endUtc, language),
 							RC.Date.DateHelper.millisToLuxon(anItem.startBoatTime, language),
@@ -406,7 +410,7 @@ PiLot.Service.Nav = (function () {
 					if (typeof labels === "string") {
 						labels = JSON.parse(labels);
 					}
-					const trackSegmentType = new TrackSegmentType(
+					const trackSegmentType = new PiLot.Model.Nav.TrackSegmentType(
 						json[i].id, 
 						json[i].criterion,
 						json[i].duration,

@@ -671,14 +671,13 @@ PiLot.View.Nav = (function () {
 		},
 
 		/** click handler for the "reverse route" link */
-		lnkReverseRoute_click: function () {
-			event.preventDefault();
+		lnkReverseRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.route.reverse(this);
 		},
 
 		/** click handler for the "copy" link */
 		lnkCopyRoute_click: function () {
-			event.preventDefault();
 			this.route.setRouteId(null);
 			this.route.setName(`${this.route.getName()}-Copy`);
 			this.showRoute();
@@ -686,8 +685,7 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// click handler for the "delete route" link. Deletes the route, ignoring the result
-		lnkDeleteRoute_click: function () {
-			event.preventDefault();
+		lnkDeleteRoute_click: function (pEvent) {
 			if (confirm(PiLot.Utils.Language.getText('confirmDeleteRoute'))) {
 				this.route.deleteFromServerAsync().then(r => {
 					window.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routes);
@@ -898,8 +896,8 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// click handler for the delete waypoint link
-		lnkDeleteWaypoint_click: function () {
-			event.preventDefault();
+		lnkDeleteWaypoint_click: function (pEvent) {
+			pEevent.preventDefault();
 			const message = PiLot.Utils.Language.getText('confirmDeleteWaypoint').replace("{{waypointName}}", this.waypoint.getName());
 			if (confirm(message)) {
 				this.routeDetail.getRoute().deleteWaypoint(this.waypoint, this);
@@ -907,14 +905,14 @@ PiLot.View.Nav = (function () {
 			return false;
 		},
 
-		lnkMoveUp_click: function () {
-			event.preventDefault();
+		lnkMoveUp_click: function (pEvent) {
+			pEvent.preventDefault();
 			const route = this.routeDetail.getRoute();
 			route.swapWaypoints(this.waypoint, route.getPreviousWaypoint(this.waypoint));
 		},
 
-		lnkMoveDown_click: function () {
-			event.preventDefault();
+		lnkMoveDown_click: function (pEvent) {
+			pEvent.preventDefault();
 			const route = this.routeDetail.getRoute();
 			route.swapWaypoints(this.waypoint, route.getNextWaypoint(this.waypoint));
 		},
@@ -1229,6 +1227,41 @@ PiLot.View.Nav = (function () {
 				this.divWaypoint.hidden = !doShow;
 			}
 		}
+	};
+
+	/** A control showing statistics for a track */
+	var TrackStatistics = function (pContainer) {
+		this.container = pContainer;
+		this.trackService = null;
+		this.initialize();
+	};
+
+	TrackStatistics.prototype = {
+
+		initialize: function () {
+			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
+		},
+
+		draw: function () { },
+
+		showTrackStatisticsAsync: async function (pTrack) {
+			const firstTrackPoint = pTrack.getFirstTrackPoint();
+			const lastTrackPoint = pTrack.getLastTrackPoint();
+			if (firstTrackPoint && lastTrackPoint) {
+				await this.loadAndShowDataAsync(firstTrackPoint.getUTC(), lastTrackPoint.getUTC(), false); 
+			}
+		},
+
+		loadAndShowDataAsync: async function (pStartTime, pEndTime, pIsBoatTime) {
+			this.container.hidden = false;
+			const trackSegments = await this.trackService.getTrackSegmentsByTimeAsync(pStartTime, pEndTime, pIsBoatTime);
+			console.log(trackSegments);
+		},
+
+		hide: function () {
+			this.container.hidden = true;
+		}
+
 	};
 
 	/** The form used to configure the anchor watch, and to activate/deactivate it */
@@ -2373,6 +2406,7 @@ PiLot.View.Nav = (function () {
 		RoutesList: RoutesList,
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,
+		TrackStatistics: TrackStatistics,
 		AnchorWatchForm: AnchorWatchForm,
 		PoiDetails: PoiDetails,
 		getPoiCategoryIcon: getPoiCategoryIcon,

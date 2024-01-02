@@ -32,7 +32,8 @@ PiLot.View.Diary = (function () {
 		this.plhDistance = null;						// container showing the total distance of the day
 		this.lblDistanceKm = null;						// the label for distance in km
 		this.lblDistanceNm = null;						// the label for distance in nm
-		this.pnlSpeedDiagram = null;					// panel where the speed diagram will be added
+		this.plhSpeedDiagram = null;					// placeholder where the speed diagram will be added
+		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics control to show track statistics
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery for the daily photos
 		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
 		this.lnkTop = null;								// link to go back to the page top
@@ -123,7 +124,8 @@ PiLot.View.Diary = (function () {
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.applyDiaryFontSize();
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
-			this.pnlSpeedDiagram = diaryPage.querySelector('.pnlSpeedDiagram');
+			this.plhSpeedDiagram = diaryPage.querySelector('.plhSpeedDiagram');
+			this.trackStatistics = new PiLot.View.Nav.TrackStatistics(diaryPage.querySelector('.plhTrackStatistics'));
 			if(PiLot.Permissions.canWrite()){	
 				const plhPhotoUpload = diaryPage.querySelector('.plhPhotoUpload');
 				this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this);
@@ -320,6 +322,7 @@ PiLot.View.Diary = (function () {
 			this.showTrackAsync(track);
 			this.showDistance(track.getDistance());
 			this.showSpeedDiagram(track);
+			this.showTrackStatistics(track);
 		},
 
 		/** takes a track and shows it on the map */
@@ -372,10 +375,23 @@ PiLot.View.Diary = (function () {
 		 */
 		showSpeedDiagram: function (pTrack) {
 			if (pTrack && pTrack.getTrackPointsCount() > 0) {
-				this.pnlSpeedDiagram.hidden = false;
-				new PiLot.View.Tools.SpeedDiagram(this.pnlSpeedDiagram, pTrack);
+				this.plhSpeedDiagram.hidden = false;
+				new PiLot.View.Tools.SpeedDiagram(this.plhSpeedDiagram, pTrack);
 			} else {
-				this.pnlSpeedDiagram.hidden = true;
+				this.plhSpeedDiagram.hidden = true;
+			}
+		},
+
+		/**
+		 * Shows the track statistics for the track that has been loaded, or hides it, if the 
+		 * track has no positions.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * */
+		showTrackStatistics: function (pTrack) {
+			if (pTrack && pTrack.getTrackPointsCount() > 0) {
+				this.trackStatistics.showTrackStatisticsAsync(pTrack);
+			} else {
+				this.trackStatistics.hide();
 			}
 		},
 

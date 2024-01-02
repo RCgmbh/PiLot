@@ -1622,7 +1622,7 @@ PiLot.Model.Nav = (function () {
 		 * @param {Number} pEndTimeUTC - upper limit in ms from epoc utc
 		 * */
 		cropTrackPoints: function (pStartTimeUTC, pEndTimeUTC) {
-			var hasChanged = false;
+			let hasChanged = false;
 			let utcSeconds;
 			for (let i = this.trackPoints.length - 1; i >= 0; i--) {
 				utcSeconds = this.trackPoints[i].getUTCSeconds();
@@ -1651,11 +1651,16 @@ PiLot.Model.Nav = (function () {
 
 		/** @returns {TrackPoint} - the track point at pIndex or null, if the index is out of bounds. */
 		getTrackPointAt: function (pIndex) {
-			var result = null;
+			let result = null;
 			if ((pIndex >= 0) && (pIndex < this.trackPoints.length)) {
 				result = this.trackPoints[pIndex];
 			}
 			return result;
+		},
+
+		/** @returns {TrackPoint} - the first position of the track or null, if the track has zero length */
+		getFirstTrackPoint: function () {
+			return this.getTrackPointAt(0);
 		},
 
 		/** @returns {TrackPoint} - the last position of the track or null, if the track has zero length */
@@ -2358,6 +2363,7 @@ PiLot.Model.Nav = (function () {
 		OsmPoi: OsmPoi,
 		Waypoint: Waypoint,
 		Track: Track,
+		TrackSegment: TrackSegment,
 		TrackSegmentType: TrackSegmentType,
 		AnchorWatch: AnchorWatch,
 		TrackPoint: TrackPoint,
