@@ -1,7 +1,7 @@
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   This will create the db structure for tracks
-  ALL EXISTING POI DATA WILL BE LOST!
+  ALL EXISTING TRACK DATA WILL BE LOST!
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
