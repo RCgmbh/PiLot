@@ -1240,9 +1240,13 @@ PiLot.View.Nav = (function () {
 
 		initialize: function () {
 			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
+			this.draw();
 		},
 
-		draw: function () { },
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.anchorWatchForm);
+
+		},
 
 		showTrackStatisticsAsync: async function (pTrack) {
 			const firstTrackPoint = pTrack.getFirstTrackPoint();
