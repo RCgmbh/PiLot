@@ -26,19 +26,11 @@ namespace PiLot.API.Helpers {
 		public List<TrackSegment> GetTrackSegments(List<TrackSegmentType> pTypes) {
 			List<TrackSegment> result = new List<TrackSegment>();
 			foreach(TrackSegmentType aType in pTypes) {
-				switch (aType.Criterion) {
-					case TrackSegmentType.Criterions.Fastest:
-						TrackSegment segment = this.GetFastestTrackSegment(aType);
-						if(segment != null) {
-							result.Add(segment);
-						}
-						break;
-					case TrackSegmentType.Criterions.Uninterrupted:
-						// todo
-						break;
+				TrackSegment segment = this.GetFastestTrackSegment(aType);
+				if(segment != null) {
+					result.Add(segment);
 				}
-			}
-			
+			}			
 			return result;
 		}
 

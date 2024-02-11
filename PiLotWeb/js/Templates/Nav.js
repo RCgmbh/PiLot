@@ -338,24 +338,24 @@ PiLot.Templates.Nav = {
 	trackStatistics: `
 		<div class="borderLight" style="padding: 0.5em 0.25em 0.25em 0.25em;">
 			<span class="semiBold" style="flex-grow:1;" data-text="trackStatistics"></span>
-			<div class="plhSegmentCategories flex"></div>
-			<div>
+			<div class="plhSegmentCategories flex">
+				<div class="plhDistanceSegments"></div>
+				<div class="plhDurationSegments"></div>
+			</div>			
 		</div>
 	`,
 
-	trackStatisticsCategory: '<div class="plhCategory"></div>',
-
-	trackStatisticsDistanceItem: `
+	trackStatisticsDistanceSegment: `
 		<div>
-			<span class="lblLabel"></span>
+			<span class="lblLabel"></span>:
 			<span class="lblDuration"></span>
 			<span>(<span class="lblSpeed"></span> <span data-text="kn"></span>)</span>
 			<span><span class="lblStartTime"></span> - <span class="lblEndTime"></span></span>
 		</div>`,
 
-	trackStatisticsDurationItem: `
+	trackStatisticsDurationSegment: `
 		<div>
-			<span class="lblLabel"></span>
+			<span class="lblLabel"></span>:
 			<span><span class="lblSpeed"></span> <span data-text="kn"></span></span>
 			<span class="lblDistance"></span>
 			<span><span class="lblStartTime"></span> - <span class="lblEndTime"></span></span>

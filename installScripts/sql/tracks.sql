@@ -11,15 +11,14 @@ DROP FUNCTION IF EXISTS insert_track_segment_type;
 DROP FUNCTION IF EXISTS update_track_segment_type;
 DROP FUNCTION IF EXISTS delete_track_segment_type;
 /* DROP VIEW IF EXISTS blah; */
+DROP TABLE IF EXISTS track_segments;
 DROP TABLE IF EXISTS track_segment_types;
 DROP TABLE IF EXISTS tracks;
-DROP TABLE IF EXISTS track_segments;
 
 /*-----------TABLE track_segment_types -------------------------*/
 
 CREATE TABLE track_segment_types(
 	id serial PRIMARY KEY,
-	criterion text NOT NULL,
 	duration integer,
 	distance integer,
 	labels jsonb,
@@ -74,7 +73,6 @@ GRANT DELETE ON track_segments TO pilotweb;
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
 CREATE OR REPLACE FUNCTION public.insert_track_segment_type(
-	p_criterion text,
 	p_duration integer,
 	p_distance integer,
 	p_labels jsonb
@@ -83,9 +81,9 @@ RETURNS integer
 LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO track_segment_types(
-		criterion, duration, distance, labels, date_created, date_changed
+		duration, distance, labels, date_created, date_changed
 	) VALUES (
-		p_criterion, p_duration, p_distance, p_labels, NOW(), NOW()
+		p_duration, p_distance, p_labels, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
@@ -97,7 +95,6 @@ GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;
 
 CREATE OR REPLACE FUNCTION public.update_track_segment_type(
 	p_id integer,
-	p_criterion text,
 	p_duration integer,
 	p_distance integer,
 	p_labels jsonb
@@ -107,7 +104,6 @@ LANGUAGE 'sql'
 AS $BODY$
 	UPDATE track_segment_types
 	SET
-		criterion = p_criterion,
 		duration = p_duration,
 		distance = p_distance,
 		labels = p_labels,

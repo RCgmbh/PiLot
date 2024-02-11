@@ -412,7 +412,6 @@ PiLot.Service.Nav = (function () {
 					}
 					const trackSegmentType = new PiLot.Model.Nav.TrackSegmentType(
 						json[i].id, 
-						json[i].criterion,
 						json[i].duration,
 						json[i].distance,
 						labels || {}

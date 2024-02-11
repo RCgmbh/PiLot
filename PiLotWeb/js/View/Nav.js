@@ -1232,6 +1232,8 @@ PiLot.View.Nav = (function () {
 	/** A control showing statistics for a track */
 	var TrackStatistics = function (pContainer) {
 		this.container = pContainer;
+		this.plhDistanceSegments = null;
+		this.plhDurationSegments = null;
 		this.trackService = null;
 		this.initialize();
 	};
@@ -1244,13 +1246,17 @@ PiLot.View.Nav = (function () {
 		},
 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.anchorWatchForm);
-
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.trackStatistics);
+			this.container.appendChild(control);
+			this.plhDistanceSegments = control.querySelector('.plhDistanceSegments');
+			this.plhDurationSegments = control.querySelector('.plhDurationSegments');
+			
 		},
 
 		showTrackStatisticsAsync: async function (pTrack) {
 			const firstTrackPoint = pTrack.getFirstTrackPoint();
 			const lastTrackPoint = pTrack.getLastTrackPoint();
+			this.clear();
 			if (firstTrackPoint && lastTrackPoint) {
 				await this.loadAndShowDataAsync(firstTrackPoint.getUTC(), lastTrackPoint.getUTC(), false); 
 			}
@@ -1260,12 +1266,53 @@ PiLot.View.Nav = (function () {
 			this.container.hidden = false;
 			const trackSegments = await this.trackService.getTrackSegmentsByTimeAsync(pStartTime, pEndTime, pIsBoatTime);
 			console.log(trackSegments);
+			const currentLanguage = PiLot.Utils.Language.getLanguage();
+			for (const trackSegment of trackSegments) {
+				this.showSegment(trackSegment, currentLanguage);
+			}
+		},
+
+		showSegment: function (pSegment, pLanguage) {
+			const isDistance = pSegment.getType().getDistance();
+			const control = PiLot.Utils.Common.createNode(
+				isDistance ? PiLot.Templates.Nav.trackStatisticsDistanceSegment : PiLot.Templates.Nav.trackStatisticsDurationSegment
+			); 
+			const label = pSegment.getType().getLabel(pLanguage);
+			control.querySelector('.lblLabel').innerHTML = label;
+			// todo: calculate duration (end - start), and calculate speed. From that, calculate either distance or duration, because
+			// the distance or duration of pSegment does not need to match the distance or duration defined by the type!
+			if (isDistance) {
+				let duration = pSegment.getEndUtc().diff(pSegment.getStartUtc());
+				//	console.log(this.durationToHHMMSS(duration));
+				control.querySelector('.lblDuration').innerHTML = this.durationToHHMMSS(duration);
+				this.plhDistanceSegments.appendChild(control);
+			}
+
+		},
+
+		durationToHHMMSS: function (pDuration) {
+			const duration = pDuration.rescale();
+			const hours = Math.floor(duration.toMillis() / 3600000);
+			let result = "";
+			if (hours) {
+				result = hours + ' h';
+			}
+			if (hours || duration.minutes) {
+				result += ' ' + duration.minutes + "'";
+			}
+			const seconds = duration.seconds + Math.round(duration.milliseconds / 1000);
+			result += ' ' + seconds + "''";
+			return result.trim();
 		},
 
 		hide: function () {
 			this.container.hidden = true;
-		}
+		},
 
+		clear: function () {
+			this.plhDistanceSegments.clear();
+			this.plhDurationSegments.clear();
+		}
 	};
 
 	/** The form used to configure the anchor watch, and to activate/deactivate it */

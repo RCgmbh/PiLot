@@ -39,7 +39,6 @@ namespace PiLot.Data.Postgres.Nav {
 			Object labelsObj = System.Text.Json.JsonSerializer.Deserialize<Object>(labelsString);
 			TrackSegmentType result = new TrackSegmentType(
 				pReader.GetInt32("id"),
-				Enum.Parse<TrackSegmentType.Criterions>(pReader.GetString("criterion")),
 				this.dbHelper.ReadNullableField<Int32?>(pReader, "duration"),
 				this.dbHelper.ReadNullableField<Int32?>(pReader, "distance"),
 				labelsObj

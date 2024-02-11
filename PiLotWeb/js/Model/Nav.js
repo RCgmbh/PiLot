@@ -1857,14 +1857,12 @@ PiLot.Model.Nav = (function () {
 	/**
 	 * A track segment type, describing a certain type of track segment, e.g. the fastest mile of a track
 	 * @param {Number} pId
-	 * @param {String} pCriterion - either "Fastest" or "Uninterrupted"
 	 * @param {Number} pDuration - the minimal duration in seconds, e.g. for fastest 12 minutes
 	 * @param {Number} pDistance - the minimal distance in meters, e.g. for fastest mile
 	 * @param {Object} pLabels - labels in different languages as object
 	 */
-	var TrackSegmentType = function (pId, pCriterion, pDuration, pDistance, pLabels) {
+	var TrackSegmentType = function (pId, pDuration, pDistance, pLabels) {
 		this.id = pId;
-		this.criterion = pCriterion;
 		this.duration = pDuration;
 		this.distance = pDistance;
 		this.labels = pLabels;
@@ -1877,10 +1875,6 @@ PiLot.Model.Nav = (function () {
 
 		getId: function () {
 			return this.id;
-		},
-
-		getCriterion: function () {
-			return this.criterion;
 		},
 
 		getDuration: function () {
@@ -1919,10 +1913,9 @@ PiLot.Model.Nav = (function () {
 		if (typeof labels === "string") {
 			labels = JSON.parse(labels);
 		}
-		if (pData.id && pData.criterion) {
+		if (pData.id) {
 			result = new TrackSegmentType(
 				pData.id, 
-				pData.criterion,
 				pData.duration,
 				pData.distance,
 				labels || {}
