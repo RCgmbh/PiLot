@@ -433,7 +433,7 @@ PiLot.View.Tools = (function () {
 						speed = latLon1.distanceTo(latLon2) / deltaT;
 						switch (this.unit) {
 							case 'kts':
-								speed = PiLot.Utils.Common.mpsToKnots(speed);
+								speed = PiLot.Utils.Nav.mpsToKnots(speed);
 								break;
 							case 'kmh':
 								speed = speed * 3.6;

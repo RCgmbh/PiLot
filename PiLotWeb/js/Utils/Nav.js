@@ -105,5 +105,25 @@ PiLot.Utils.Nav = {
 	 */
 	getLonPrefix: function (pLon) {
 		return pLon > 0 ? PiLot.Utils.Language.getText('directionE') : PiLot.Utils.Language.getText('directionW')
+	},
+
+	/// converts a distance in meters into a distance in nautical miles
+	metersToNauticalMiles: function (pMeters) {
+		return pMeters == null ? null : pMeters / 1852;
+	},
+
+	/** @returns {Number} the input value converted from knots to m/s **/
+	knotsToMps: function (pKnots) {
+		return pKnots * 1852 / 3600;
+	},
+
+	/** @returns {Number} the input value converted from m/s to knots **/
+	mpsToKnots: function (pMps) {
+		return pMps * 3600 / 1852;
+	},
+
+	/** @returns {Number} the input value converted from m/s to km/h **/
+	mpsToKmh: function (pMps) {
+		return pMps * 3.6;
 	}
 };

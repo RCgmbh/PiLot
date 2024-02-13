@@ -203,7 +203,7 @@ PiLot.View.Nav = (function () {
 			let distanceText;
 			if (pRouteObserver) {
 				var xte = pRouteObserver.getXTE();
-				var xteDistanceMiles = PiLot.Utils.Common.metersToNauticalMiles(xte.distance);
+				var xteDistanceMiles = PiLot.Utils.Nav.metersToNauticalMiles(xte.distance);
 				if (RC.Utils.isNumeric(xteDistanceMiles)) {
 					xteDistanceMiles = Math.abs(xteDistanceMiles);
 					if (xteDistanceMiles > 9.9) {
@@ -568,7 +568,7 @@ PiLot.View.Nav = (function () {
 			lnkName.innerText = pRoute.getName();
 			let detailUrl = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routeDetails);
 			lnkName.setAttribute('href', `${detailUrl}&routeId=${routeId}`);
-			let distanceNM = PiLot.Utils.Common.metersToNauticalMiles(pRoute.getTotalDistance());
+			let distanceNM = PiLot.Utils.Nav.metersToNauticalMiles(pRoute.getTotalDistance());
 			row.querySelector('.tdDistance').innerText = distanceNM.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 			row.querySelector('.tdWaypoints').innerText = pRoute.getWaypoints().length;
 			pTableBody.appendChild(row);
@@ -829,7 +829,7 @@ PiLot.View.Nav = (function () {
 
 		/// shows the total distance of the route in the label
 		showTotalDistance: function () {
-			this.lblTotalDistance.innerText = PiLot.Utils.Common.metersToNauticalMiles(this.route.getTotalDistance()).toFixed(1);
+			this.lblTotalDistance.innerText = PiLot.Utils.Nav.metersToNauticalMiles(this.route.getTotalDistance()).toFixed(1);
 		},
 
 		/// highlights the activate route link if this is the active route
@@ -997,7 +997,7 @@ PiLot.View.Nav = (function () {
 			const leg = this.waypoint.getLegToNext();
 			RC.Utils.showHide(this.divLeg, leg !== null);
 			if (leg !== null) {
-				this.lblDistance.innerText = PiLot.Utils.Common.metersToNauticalMiles(leg.distance).toFixed(1);
+				this.lblDistance.innerText = PiLot.Utils.Nav.metersToNauticalMiles(leg.distance).toFixed(1);
 				this.lblBearing.innerText = RC.Utils.toFixedLength(leg.bearing, 3, 0);
 			}
 		},
@@ -1265,7 +1265,6 @@ PiLot.View.Nav = (function () {
 		loadAndShowDataAsync: async function (pStartTime, pEndTime, pIsBoatTime) {
 			this.container.hidden = false;
 			const trackSegments = await this.trackService.getTrackSegmentsByTimeAsync(pStartTime, pEndTime, pIsBoatTime);
-			console.log(trackSegments);
 			const currentLanguage = PiLot.Utils.Language.getLanguage();
 			for (const trackSegment of trackSegments) {
 				this.showSegment(trackSegment, currentLanguage);
@@ -1277,17 +1276,24 @@ PiLot.View.Nav = (function () {
 			const control = PiLot.Utils.Common.createNode(
 				isDistance ? PiLot.Templates.Nav.trackStatisticsDistanceSegment : PiLot.Templates.Nav.trackStatisticsDurationSegment
 			); 
-			const label = pSegment.getType().getLabel(pLanguage);
+			const segmentType = pSegment.getType();
+			const label = segmentType.getLabel(pLanguage);
 			control.querySelector('.lblLabel').innerHTML = label;
-			// todo: calculate duration (end - start), and calculate speed. From that, calculate either distance or duration, because
-			// the distance or duration of pSegment does not need to match the distance or duration defined by the type!
+			const effectiveDurationMS = pSegment.getEndUtc().toMillis() - pSegment.getStartUtc().toMillis();
+			const speed = pSegment.getDistance() / (effectiveDurationMS / 1000); // speed in m/s
 			if (isDistance) {
-				let duration = pSegment.getEndUtc().diff(pSegment.getStartUtc());
-				//	console.log(this.durationToHHMMSS(duration));
+				let duration = luxon.Duration.fromObject({ seconds: segmentType.getDistance() / speed });
 				control.querySelector('.lblDuration').innerHTML = this.durationToHHMMSS(duration);
 				this.plhDistanceSegments.appendChild(control);
+			} else {
+				let distance = speed * segmentType.getDuration();
+				let friendlyDistance = PiLot.Utils.Nav.metersToNauticalMiles(distance).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 3 });
+				control.querySelector('.lblDistance').innerHTML = friendlyDistance;
+				this.plhDurationSegments.appendChild(control);
 			}
-
+			control.querySelector('.lblSpeed').innerHTML = PiLot.Utils.Nav.mpsToKnots(speed).toFixed(2);
+			control.querySelector('.lblStartTime').innerHTML = pSegment.getStartBoatTime().toLocaleString(DateTime.TIME_WITH_SECONDS);
+			control.querySelector('.lblEndTime').innerHTML = pSegment.getEndBoatTime().toLocaleString(DateTime.TIME_WITH_SECONDS);
 		},
 
 		durationToHHMMSS: function (pDuration) {
@@ -1301,7 +1307,7 @@ PiLot.View.Nav = (function () {
 				result += ' ' + duration.minutes + "'";
 			}
 			const seconds = duration.seconds + Math.round(duration.milliseconds / 1000);
-			result += ' ' + seconds + "''";
+			result += seconds + "''";
 			return result.trim();
 		},
 
@@ -1652,7 +1658,7 @@ PiLot.View.Nav = (function () {
 			const poiLatLon = this.poi.getLatLon();
 			const vmg = pGpsObserver.getVMG(poiLatLon);
 			const distance = poiLatLon.distanceTo(gpsLatLon);
-			const distanceNm = PiLot.Utils.Common.metersToNauticalMiles(distance);
+			const distanceNm = PiLot.Utils.Nav.metersToNauticalMiles(distance);
 			const now = this.boatTime.now().setLocale(PiLot.Utils.Language.getLanguage());
 			if (vmg > 0) {
 				const deltaT = distanceNm / vmg;

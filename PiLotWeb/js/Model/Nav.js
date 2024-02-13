@@ -1148,9 +1148,9 @@ PiLot.Model.Nav = (function () {
 					isPastWaypoint = (i < this.nextWaypointIndex);
 					isFinalWaypoint = (i === waypoints.length - 1);
 					if (isNextWaypoint) {
-						legMiles = PiLot.Utils.Common.metersToNauticalMiles(waypoint.distanceTo(this.latestPosition.latLon));
+						legMiles = PiLot.Utils.Nav.metersToNauticalMiles(waypoint.distanceTo(this.latestPosition.latLon));
 					} else if (i > 0 && !isPastWaypoint) {
-						legMiles = PiLot.Utils.Common.metersToNauticalMiles(waypoint.distanceTo(waypoints[i - 1].latLon));
+						legMiles = PiLot.Utils.Nav.metersToNauticalMiles(waypoint.distanceTo(waypoints[i - 1].latLon));
 					}
 					if (legMiles != null) {
 						totalMiles = (totalMiles === null ? 0 : totalMiles) + legMiles;

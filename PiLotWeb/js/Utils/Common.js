@@ -272,21 +272,6 @@ PiLot.Utils.Common = {
 		}
 	},
 
-	/// converts a distance in meters into a distance in nautical miles
-	metersToNauticalMiles: function (pMeters) {
-		return pMeters == null ? null : pMeters / 1852;
-	},
-
-	/// converts a speed in knots into a speed in meters per second
-	knotsToMpS: function (pKnots) {
-		return pKnots * 1852 / 3600;
-	},
-
-	/// converts a speed in meters per second to knots
-	mpsToKnots: function (pMps) {
-		return pMps * 3600 / 1852;
-	},
-
 	/**
 	 * This is a workaround for luxon Duration.toHuman not working on the
 	 * old ebook reader. It relies on translated texts for daysSingular,

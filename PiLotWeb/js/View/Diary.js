@@ -361,7 +361,7 @@ PiLot.View.Diary = (function () {
 					nm = '...';
 				} else {
 					km = (pDistance / 1000).toFixed(2);
-					nm = PiLot.Utils.Common.metersToNauticalMiles(pDistance).toFixed(2)
+					nm = PiLot.Utils.Nav.metersToNauticalMiles(pDistance).toFixed(2)
 				}
 				this.lblDistanceKm.innerText = km;
 				this.lblDistanceNm.innerText = nm;

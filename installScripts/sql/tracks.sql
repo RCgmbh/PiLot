@@ -6,10 +6,10 @@
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 /* DROP EXISTING ELEMENTS */
-
 DROP FUNCTION IF EXISTS insert_track_segment_type;
 DROP FUNCTION IF EXISTS update_track_segment_type;
 DROP FUNCTION IF EXISTS delete_track_segment_type;
+
 /* DROP VIEW IF EXISTS blah; */
 DROP TABLE IF EXISTS track_segments;
 DROP TABLE IF EXISTS track_segment_types;
