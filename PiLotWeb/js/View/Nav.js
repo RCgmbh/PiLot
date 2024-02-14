@@ -1234,6 +1234,7 @@ PiLot.View.Nav = (function () {
 		this.container = pContainer;
 		this.plhDistanceSegments = null;
 		this.plhDurationSegments = null;
+		this.divNoData = null;
 		this.trackService = null;
 		this.initialize();
 	};
@@ -1250,7 +1251,7 @@ PiLot.View.Nav = (function () {
 			this.container.appendChild(control);
 			this.plhDistanceSegments = control.querySelector('.plhDistanceSegments');
 			this.plhDurationSegments = control.querySelector('.plhDurationSegments');
-			
+			this.divNoData = control.querySelector('.divNoData');
 		},
 
 		showTrackStatisticsAsync: async function (pTrack) {
@@ -1269,6 +1270,7 @@ PiLot.View.Nav = (function () {
 			for (const trackSegment of trackSegments) {
 				this.showSegment(trackSegment, currentLanguage);
 			}
+			this.divNoData.hidden = trackSegments.length > 0;
 		},
 
 		showSegment: function (pSegment, pLanguage) {

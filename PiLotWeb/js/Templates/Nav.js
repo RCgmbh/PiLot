@@ -337,27 +337,30 @@ PiLot.Templates.Nav = {
 
 	trackStatistics: `
 		<div class="borderLight trackStatistics">
-			<span class="semiBold" style="flex-grow:1;" data-text="trackStatistics"></span>
+			<div class="semiBold marginBottom" data-text="trackStatistics"></div>
 			<div class="plhSegmentCategories flexRowWrap">
-				<div class="plhDistanceSegments segmentsContainer"></div>
-				<div class="plhDurationSegments segmentsContainer"></div>
-			</div>			
+				<span class="plhDistanceSegments segmentsContainer"></span>
+				<span class="plhDurationSegments segmentsContainer"></span>
+			</div>
+			<div class="divNoData feedbackInfo" hidden data-text="noData"><div>
 		</div>
 	`,
 
 	trackStatisticsDistanceSegment: `
 		<div>
-			<span class="lblLabel semiBold"></span>:
-			<span class="lblDuration semiBold"></span>
-			(<span class="lblSpeed"></span> <span data-text="kn"></span>,
-			<span class="lblStartTime"></span>-<span class="lblEndTime"></span>)
+			<span class="lblLabel"></span>:
+			<span class="semiBold">
+				<span class="lblDuration"></span> (<span class="lblSpeed"></span> <span data-text="kn"></span>)
+			</span>
+			<span class="lblStartTime"></span>-<span class="lblEndTime"></span>
 		</div>`,
 
 	trackStatisticsDurationSegment: `
-		<div>
-			<span class="lblLabel semiBold"></span>:
-			<span class="lblSpeed semiBold"></span> <span data-text="kn"></span>
-			(<span class="lblDistance"></span> <span data-text="nm"></span>
-			<span class="lblStartTime"></span> - <span class="lblEndTime"></span>)
+		<div class="row">
+			<span class="lblLabel"></span>:
+			<span class="semiBold">
+				<span class="lblSpeed"></span> <span data-text="kn"></span> (<span class="lblDistance"></span> <span data-text="nm"></span>)
+			</span>
+			<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
 		</div>`
 };
