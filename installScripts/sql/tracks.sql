@@ -10,7 +10,7 @@ DROP FUNCTION IF EXISTS insert_track_segment_type;
 DROP FUNCTION IF EXISTS update_track_segment_type;
 DROP FUNCTION IF EXISTS delete_track_segment_type;
 DROP FUNCTION IF EXISTS insert_track;
-DROP FUNCTION IF EXISTS calculate_track_distance;
+DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
@@ -47,6 +47,7 @@ CREATE TABLE tracks(
 	end_boattime bigint NOT NULL,
 	distance real NOT NULL,
 	boat text NOT NULL,
+	stats_available boolean NOT NULL,
 	date_created timestamp NOT NULL,
 	date_changed timestamp NOT NULL
 );
@@ -163,20 +164,6 @@ $BODY$;
 
 GRANT EXECUTE ON FUNCTION delete_track_segment_type TO pilotweb;
 
-/*-----------FUNCTION calculate_track_distance-----------------*/
--- Calculates the distance of a track based on the existing track_points
-
-CREATE OR REPLACE FUNCTION public.calculate_track_distance(
-	p_id integer
-)
-RETURNS float
-LANGUAGE 'sql'
-AS $BODY$
-	SELECT ST_Length(ST_MakeLine("coordinates"::geometry)::geography) FROM track_points WHERE track_id = p_id
-$BODY$;
-
-GRANT EXECUTE ON FUNCTION calculate_track_distance TO pilotweb;
-
 /*-----------FUNCTION insert_track-----------------*/
 -- inserts a new track, initializing start and end to one single time, and
 -- the distance to 0
@@ -190,32 +177,57 @@ RETURNS integer
 LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO tracks(
-		start_utc, end_utc, start_boattime, end_boattime, distance, boat, date_created, date_changed
+		start_utc, end_utc, start_boattime, end_boattime, distance, boat, stats_available, date_created, date_changed
 	) VALUES (
-		p_utc, p_utc, p_boattime, p_boattime, 0, p_boat, NOW(), NOW()
+		p_utc, p_utc, p_boattime, p_boattime, 0, p_boat, false, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_track TO pilotweb;
 
-/*-----------FUNCTION update_track_data-----------------*/
--- updates the track distance and start/end based on the track_points
+/*-----------FUNCTION delete_track-----------------*/
+-- deletes a track and all connected segments and track_points
 
-
-CREATE OR REPLACE FUNCTION public.update_track_data(
-	p_track_id integer
+CREATE OR REPLACE FUNCTION public.delete_track(
+	p_id integer
 )
 RETURNS void
 LANGUAGE 'sql'
 AS $BODY$
-	UPDATE tracks SET (start_utc, end_utc, start_boattime, end_boattime, distance) = (
-		SELECT MIN(utc), MAX(utc), MIN(boattime), MAX(boattime), calculate_track_distance(p_track_id)
-		FROM track_points 
-		WHERE track_id = p_track_id
-	)
-	WHERE id = p_track_id;
+	DELETE FROM track_points WHERE track_id = p_id;
+	DELETE FROM track_segments WHERE track_id = p_id;
+	DELETE FROM tracks WHERE id = p_id;
 $BODY$;
+
+GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
+
+/*-----------FUNCTION update_track_data-----------------*/
+-- updates the track distance and start/end based on the track_points
+-- deletes the track if no positions are available
+-- deletes all track segments
+-- sets stats_available to false
+
+CREATE OR REPLACE FUNCTION public.update_track_data(
+	p_id integer
+)
+RETURNS void
+LANGUAGE 'plpgsql'
+AS $$ BEGIN
+	IF EXISTS (SELECT FROM track_points WHERE track_id = p_id) THEN
+		UPDATE tracks SET (start_utc, end_utc, start_boattime, end_boattime, stats_available, distance, date_changed) = (
+			SELECT
+				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
+				FALSE,
+				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
+				NOW()
+			FROM track_points tp WHERE track_id = p_id
+		)
+		WHERE id = p_id;
+	ELSE
+		PERFORM delete_track(p_id);
+	END IF;
+END $$;
 
 GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 
@@ -254,18 +266,15 @@ CREATE OR REPLACE FUNCTION public.delete_track_points(
 RETURNS void
 LANGUAGE 'sql'
 AS $BODY$
-	
 	DELETE FROM track_points
-	WHERE (
+	WHERE 
 		track_id = p_track_id
 		AND (
 			(p_is_boattime = FALSE AND (utc >= p_start AND utc <= p_end))
 			OR 
 			(p_is_boattime = TRUE AND (boatTime >= p_start AND boattime <= p_end))
-		)
-	);
+		);
 	SELECT update_track_data(p_track_id);
-	
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION delete_track_points TO pilotweb;
