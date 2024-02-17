@@ -14,6 +14,12 @@ namespace PiLot.Model.Nav {
 	/// </summary>
 	public class Track {
 
+		#region constants
+
+		public const Int32 MINGAPSECONDS = 28800; // A new track is created, if the previous ended more than 8 h ago.
+
+		#endregion
+
 		#region instance variables
 
 		private List<TrackPoint> trackPoints = null;
@@ -42,6 +48,51 @@ namespace PiLot.Model.Nav {
 		#endregion
 
 		#region public properties
+
+		[JsonPropertyName("id")]
+		public Int32 ID {
+			get; set;
+		}
+
+		[JsonPropertyName("startUtc")]
+		public Int64 StartUTC {
+			get; set;
+		}
+
+		[JsonPropertyName("endUtc")]
+		public Int64 EndUTC {
+			get; set; 
+		}
+
+		[JsonPropertyName("startBoatTime")]
+		public Int64 StartBoatTime {
+			get; set;
+		}
+
+		[JsonPropertyName("endBoatTime")]
+		public Int64 EndBoatTime {
+			get; set;
+		}
+
+		[JsonPropertyName("distance")]
+		public Double Distance {
+			get; set;
+		}
+
+		[JsonPropertyName("boat")]
+		public String Boat {
+			get; set;
+		}
+
+		[JsonIgnore]
+		public DateTime DateCreated {
+			get; set;
+		}
+
+		[JsonIgnore]
+		public DateTime DateChanged {
+			get; set;
+		}
 
 		/// <summary>
 		/// Gets the list of all TrackPoints within the track 

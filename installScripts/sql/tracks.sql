@@ -9,9 +9,11 @@
 DROP FUNCTION IF EXISTS insert_track_segment_type;
 DROP FUNCTION IF EXISTS update_track_segment_type;
 DROP FUNCTION IF EXISTS delete_track_segment_type;
+DROP FUNCTION IF EXISTS read_tracks;
 DROP FUNCTION IF EXISTS insert_track;
 DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
+DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
 
@@ -164,6 +166,51 @@ $BODY$;
 
 GRANT EXECUTE ON FUNCTION delete_track_segment_type TO pilotweb;
 
+/*-----------FUNCTION read_tracks-----------------*/
+-- reads all tracks overlapping a certain period of time
+
+CREATE OR REPLACE FUNCTION public.read_tracks(
+	p_start bigint,
+	p_end bigint,
+	p_is_boattime boolean
+)
+RETURNS TABLE (
+	id integer,
+	start_utc bigint,
+	end_utc bigint,
+	start_boattime bigint,
+	end_boattime bigint,
+	distance real,
+	boat text,
+	stats_available boolean,
+	date_created timestamp,
+	date_changed timestamp
+)
+LANGUAGE 'sql'
+AS $BODY$
+	SELECT
+		id,
+		start_utc,
+		end_utc,
+		start_boattime,
+		end_boattime,
+		distance,
+		boat,
+		stats_available,
+		date_created,
+		date_changed
+	FROM
+		tracks
+	WHERE
+		(p_is_boattime = FALSE AND start_utc <= p_end AND end_utc >= p_start)
+		OR
+		(p_is_boattime = TRUE AND start_boattime <= p_end AND end_boattime >= p_start)
+	ORDER BY start_utc ASC
+
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION read_tracks TO pilotweb;
+
 /*-----------FUNCTION insert_track-----------------*/
 -- inserts a new track, initializing start and end to one single time, and
 -- the distance to 0
@@ -231,6 +278,38 @@ END $$;
 
 GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 
+/*-----------FUNCTION read_track_points-----------------*/
+-- reads all track points of a track
+
+CREATE OR REPLACE FUNCTION public.read_track_points(
+	p_track_id integer
+)
+RETURNS TABLE (
+	utc bigint,
+	boattime bigint,
+	latitude double precision,
+	longitude double precision,
+	date_created timestamp,
+	date_changed timestamp
+)
+LANGUAGE 'sql'
+AS $BODY$
+	SELECT
+		utc, 
+		boattime,
+		ST_Y(coordinates::geometry) AS latitude,
+		ST_X(coordinates::geometry) AS longitude,
+		date_created,
+		date_changed
+	FROM
+		track_points
+	WHERE
+		track_id = p_track_id
+	ORDER BY utc ASC
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION read_track_points TO pilotweb;
+
 /*-----------FUNCTION insert_track_point-----------------*/
 -- inserts a track_point and updates the distance and start/end of the track
 
@@ -254,7 +333,7 @@ $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_track_point TO pilotweb;
 
-/*-----------FUNCTION insert_track_point-----------------*/
+/*-----------FUNCTION delete_track_point-----------------*/
 -- deletes a range of track_points and updates the distance and start/end of the track
 
 CREATE OR REPLACE FUNCTION public.delete_track_points(
