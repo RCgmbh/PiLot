@@ -9,10 +9,14 @@
 DROP FUNCTION IF EXISTS insert_track_segment_type;
 DROP FUNCTION IF EXISTS update_track_segment_type;
 DROP FUNCTION IF EXISTS delete_track_segment_type;
+DROP FUNCTION IF EXISTS insert_track;
+DROP FUNCTION IF EXISTS calculate_track_distance;
+DROP FUNCTION IF EXISTS insert_track_point;
 
 /* DROP VIEW IF EXISTS blah; */
 DROP TABLE IF EXISTS track_segments;
 DROP TABLE IF EXISTS track_segment_types;
+DROP TABLE IF EXISTS track_points;
 DROP TABLE IF EXISTS tracks;
 
 /*-----------TABLE track_segment_types -------------------------*/
@@ -70,6 +74,25 @@ GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
 GRANT DELETE ON track_segments TO pilotweb;
 
+/*-----------TABLE track_points -------------------------*/
+
+CREATE TABLE track_points(
+	track_id integer REFERENCES tracks NOT NULL,
+	utc bigint NOT NULL,
+	boattime bigint NOT NULL,
+	coordinates geography(POINT, 4326) NOT NULL,
+	date_created timestamp NOT NULL
+);
+
+GRANT SELECT ON track_points TO pilotweb;
+GRANT INSERT ON track_points TO pilotweb;
+GRANT UPDATE ON track_points TO pilotweb;
+GRANT DELETE ON track_points TO pilotweb;
+
+CREATE INDEX pois_coordinates_index
+  ON pois
+  USING GIST (coordinates);
+
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
 CREATE OR REPLACE FUNCTION public.insert_track_segment_type(
@@ -118,6 +141,7 @@ GRANT EXECUTE ON FUNCTION update_track_segment_type to pilotweb;
 
 /*-----------FUNCTION delete_track_segment_type-----------------*/
 -- Deletes a track_segment_type, and with it all track segments for this type
+
 CREATE OR REPLACE FUNCTION public.delete_track_segment_type(
 	p_id integer
 )
@@ -131,3 +155,69 @@ AS $BODY$
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION delete_track_segment_type TO pilotweb;
+
+/*-----------FUNCTION calculate_track_distance-----------------*/
+-- Calculates the distance of a track based on the existing track_points
+
+CREATE OR REPLACE FUNCTION public.calculate_track_distance(
+	p_id integer
+)
+RETURNS float
+LANGUAGE 'sql'
+AS $BODY$
+	SELECT ST_Length(ST_MakeLine("coordinates"::geometry)::geography) FROM track_points WHERE track_id = p_id
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION calculate_track_distance TO pilotweb;
+
+/*-----------FUNCTION insert_track-----------------*/
+-- inserts a new track, initializing start and end to one single time, and
+-- the distance to 0
+
+CREATE OR REPLACE FUNCTION public.insert_track(
+	p_utc bigint,
+	p_boattime bigint,
+	p_boat text
+)
+RETURNS integer
+LANGUAGE 'sql'
+AS $BODY$
+	INSERT INTO tracks(
+		start_utc, end_utc, start_boattime, end_boattime, distance, boat, date_created, date_changed
+	) VALUES (
+		p_utc, p_utc, p_boattime, p_boattime, 0, p_boat, NOW(), NOW()
+	)
+	RETURNING id
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION insert_track TO pilotweb;
+
+/*-----------FUNCTION insert_track_point-----------------*/
+-- inserts a track_point and updates the distance and start/end of the track
+
+CREATE OR REPLACE FUNCTION public.insert_track_point(
+	p_track_id integer,
+	p_utc bigint,
+	p_boattime bigint,
+	p_latitude double precision,
+	p_longitude double precision
+)
+RETURNS void
+LANGUAGE 'sql'
+AS $BODY$
+	INSERT INTO track_points(
+		track_id, utc, boatTime, coordinates, date_created, date_changed
+	) VALUES (
+		p_track_id, p_utc, p_boattime, ST_MakePoint(p_longitude, p_latitude), NOW(), NOW()
+	);
+	UPDATE tracks SET
+		start_utc = LEAST(start_utc, p_utc),
+		end_utc = GREATEST(end_utc, p_utc),
+		start_boattime = LEAST(start_boattime, p_boattime),
+		end_boattime = GREATEST(end_boattime, p_boattime),
+		distance = (SELECT calculate_track_distance(p_track_id))
+	WHERE 
+		id = p_track_id;
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION insert_track_point TO pilotweb;
