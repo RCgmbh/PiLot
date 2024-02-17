@@ -307,12 +307,12 @@ PiLot.View.Tools = (function () {
 		},
 
 		showCSVData: function () {
-			let txt = 'Timestamp UTC	DateTime UTC	Latitude	Longitude\n';
+			let txt = 'Timestamp UTC	Timestamp BoatTime	DateTime UTC	Latitude	Longitude\n';
 			let dateString;
 			for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
 				position = this.track.getTrackPointAt(i);
-				dateString = RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss')
-				txt += [position.getUTC(), dateString, position.getLatitude(), position.getLongitude()].join('	') + '\n';
+				dateString = RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss');
+				txt += [position.getUTC(), position.getBoatTime(), dateString, position.getLatitude(), position.getLongitude()].join('	') + '\n';
 			}
 			this.tbResultText.value = txt;
 		},
