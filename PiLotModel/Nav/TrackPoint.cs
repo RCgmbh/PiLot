@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Policy;
 using System.Text.Json.Serialization;
 using PiLot.Utils.DateAndTime;
 
@@ -12,8 +13,13 @@ namespace PiLot.Model.Nav {
 		private const Char SEPARATOR = ';';
 
 		#region constructor
+		/// <summary>
+		/// Default constructor, used for deserialization. For other scenarios, please use
+		/// the version accepting pLatitude and pLongitude.
+		/// </summary>
+		public TrackPoint() : base(null, null) { }
 
-		public TrackPoint(Double pLatitude, Double pLongitude):base(pLatitude, pLongitude) { }
+		public TrackPoint(Double? pLatitude, Double? pLongitude):base(pLatitude, pLongitude) { }
 
 		/// <summary>
 		/// Creates a TrackPoint from an Array with UTC, BoatTime, Lat, Lng. If any of them is

@@ -55,7 +55,7 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@max_lng", pMaxLon));
 			pars.Add(("@categories", pCategories));
 			pars.Add(("@features", pFeatures));
-			return this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
+			return this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObjects), pars);
 		}
 
 		/// <summary>
@@ -68,7 +68,7 @@ namespace PiLot.Data.Postgres.Nav {
 			String query = "SELECT * FROM read_poi(@poi_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@poi_id", pPoiId));
-			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
+			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObjects), pars);
 			if(resultList.Count == 1){
 				result = resultList[0];
 			}
@@ -88,7 +88,7 @@ namespace PiLot.Data.Postgres.Nav {
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_source", pSource));
 			pars.Add(("@p_source_id", pSourceId));
-			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObject), pars);
+			List<Object[]> resultList = this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObjects), pars);
 			if (resultList.Count == 1) {
 				result = resultList[0];
 			}
@@ -119,8 +119,8 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_longitude", pPoi.Longitude));
 			pars.Add(("@p_valid_from", this.NullableUnixToDateTime(pPoi.ValidFrom)));
 			pars.Add(("@p_valid_to", this.NullableUnixToDateTime(pPoi.ValidTo)));
-			pars.Add(("@p_source", this.dbHelper.GetParameterValue(pPoi.Source)));
-			pars.Add(("@p_source_id", this.dbHelper.GetParameterValue(pPoi.SourceID)));
+			pars.Add(("@p_source", this.dbHelper.GetNullableParameterValue(pPoi.Source)));
+			pars.Add(("@p_source_id", this.dbHelper.GetNullableParameterValue(pPoi.SourceID)));
 			result = this.dbHelper.ExecuteCommand<Int64>(command, pars);
 			this.SavePoiFeatures(result, pPoi.FeatureIDs);
 			return result;

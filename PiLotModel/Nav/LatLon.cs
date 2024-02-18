@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PiLot.Utils;
+using System;
 using System.Text.Json.Serialization;
 
 namespace PiLot.Model.Nav {
@@ -8,16 +9,16 @@ namespace PiLot.Model.Nav {
 	/// </summary>
 	public class LatLon {
 
-		public const Double RADIUS = 6371000; // earh radius in meters
+		public const Double RADIUS = 6371000; // earth radius in meters
 
-		private double longitude;
+		private double? longitude;
 
 		/// <summary>
 		/// Default constructor
 		/// </summary>
 		/// <param name="pLat">The latitude in degrees. Allowed values are -90 to 90</param>
 		/// <param name="pLon">The longitude in degrees. Any values are accepted, but will translate to -180 to 180</param>
-		public LatLon(Double pLat, Double pLon) {
+		public LatLon(Double? pLat, Double? pLon) {
 			this.Latitude = pLat;
 			this.Longitude = pLon;
 		}
@@ -26,13 +27,13 @@ namespace PiLot.Model.Nav {
 		/// Gets or sets the latitude in degrees. Allowed values are -90 to 90
 		/// </summary>
 		[JsonPropertyName("latitude")]
-		public Double Latitude { get; set; }
+		public Double? Latitude { get; set; }
 
 		/// <summary>
 		/// The longitude in degrees. Any values are accepted, but will translate to -180 .. 180
 		/// </summary>
 		[JsonPropertyName("longitude")]
-		public Double Longitude {
+		public Double? Longitude {
 			get { return this.longitude; }
 			set {
 				this.longitude = (value + 180) % 360 - 180;
@@ -46,10 +47,12 @@ namespace PiLot.Model.Nav {
 		/// <param name="pOther">The other point, not null</param>
 		/// <returns>Distance in meters</returns>
 		public Double DistanceTo(LatLon pOther) {
-			Double φ1 = this.Latitude * Math.PI / 180;
-			Double φ2 = pOther.Latitude * Math.PI / 180;
-			Double Δφ = (pOther.Latitude - this.Latitude) * Math.PI / 180;
-			Double Δλ = (pOther.Longitude - this.Longitude) * Math.PI / 180;
+			Assert.IsNotNull(this.Latitude, "LatLon.DistanceTo can not be calculated when latitude is null");
+			Assert.IsNotNull(this.Longitude, "LatLon.DistanceTo can not be calculated when longitude is null");
+			Double φ1 = this.Latitude.Value * Math.PI / 180;
+			Double φ2 = pOther.Latitude.Value * Math.PI / 180;
+			Double Δφ = (pOther.Latitude.Value - this.Latitude.Value) * Math.PI / 180;
+			Double Δλ = (pOther.Longitude.Value - this.Longitude.Value) * Math.PI / 180;
 			Double a = Math.Sin(Δφ / 2) * Math.Sin(Δφ / 2) +
 					  Math.Cos(φ1) * Math.Cos(φ2) *
 					  Math.Sin(Δλ / 2) * Math.Sin(Δλ / 2);
@@ -67,10 +70,12 @@ namespace PiLot.Model.Nav {
 		/// <param name="pDistance">the distance in meters</param>
 		/// <param name="pCourse">The initial bearing, in degrees from north</param>
 		public void MoveBy (Double pDistance, Double pCourse) {
+			Assert.IsNotNull(this.Latitude, "LatLon.MoveBy can not be calculated when latitude is null");
+			Assert.IsNotNull(this.Longitude, "LatLon.MoveBy can not be calculated when longitude is null");
 			Double δ = pDistance / RADIUS; // angular distance in radians
 			Double θ = pCourse * Math.PI / 180;
-			Double φ1 = this.Latitude * Math.PI / 180;
-			Double λ1 = this.Longitude * Math.PI / 180;
+			Double φ1 = this.Latitude.Value * Math.PI / 180;
+			Double λ1 = this.Longitude.Value * Math.PI / 180;
 			Double sinφ1 = Math.Sin(φ1);
 			Double cosφ1 = Math.Cos(φ1);
 			Double sinδ = Math.Sin(δ);
@@ -94,10 +99,12 @@ namespace PiLot.Model.Nav {
 		/// <param name="pFraction">Fraction between the two points (0 = this point, 1 = specified point)</param>
 		/// <returns>Intermediate point between this point and destination point</returns>
 		public LatLon IntermediatePointTo(LatLon pOther, float pFraction) {
-			var φ1 = this.Latitude * Math.PI / 180;
-			var λ1 = this.Longitude * Math.PI / 180;
-			var φ2 = pOther.Latitude * Math.PI / 180;
-			var λ2 = pOther.Longitude * Math.PI / 180;
+			Assert.IsNotNull(this.Latitude, "LatLon.IntermediatePointTo can not be calculated when latitude is null");
+			Assert.IsNotNull(this.Longitude, "LatLon.IntermediatePointTo can not be calculated when longitude is null");
+			var φ1 = this.Latitude.Value * Math.PI / 180;
+			var λ1 = this.Longitude.Value * Math.PI / 180;
+			var φ2 = pOther.Latitude.Value * Math.PI / 180;
+			var λ2 = pOther.Longitude.Value * Math.PI / 180;
 			var sinφ1 = Math.Sin(φ1);
 			var cosφ1 = Math.Cos(φ1);
 			var sinλ1 = Math.Sin(λ1);

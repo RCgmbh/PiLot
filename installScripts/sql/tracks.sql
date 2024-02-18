@@ -39,6 +39,8 @@ GRANT INSERT ON track_segment_types TO pilotweb;
 GRANT UPDATE ON track_segment_types TO pilotweb;
 GRANT DELETE ON track_segment_types TO pilotweb;
 
+GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;
+
 /*-----------TABLE tracks -------------------------*/
 
 CREATE TABLE tracks(
@@ -49,7 +51,7 @@ CREATE TABLE tracks(
 	end_boattime bigint NOT NULL,
 	distance real NOT NULL,
 	boat text NOT NULL,
-	stats_available boolean NOT NULL,
+	stats_dirty boolean NOT NULL,
 	date_created timestamp NOT NULL,
 	date_changed timestamp NOT NULL
 );
@@ -58,6 +60,8 @@ GRANT SELECT ON tracks TO pilotweb;
 GRANT INSERT ON tracks TO pilotweb;
 GRANT UPDATE ON tracks TO pilotweb;
 GRANT DELETE ON tracks TO pilotweb;
+
+GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;
 
 /*-----------TABLE track_segments -------------------------*/
 
@@ -122,7 +126,6 @@ AS $BODY$
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION insert_track_segment_type TO pilotweb;
-GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;
 
 /*-----------FUNCTION update_track_segment_type-----------------*/
 
@@ -182,7 +185,7 @@ RETURNS TABLE (
 	end_boattime bigint,
 	distance real,
 	boat text,
-	stats_available boolean,
+	stats_dirty boolean,
 	date_created timestamp,
 	date_changed timestamp
 )
@@ -196,7 +199,7 @@ AS $BODY$
 		end_boattime,
 		distance,
 		boat,
-		stats_available,
+		stats_dirty,
 		date_created,
 		date_changed
 	FROM
@@ -224,9 +227,9 @@ RETURNS integer
 LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO tracks(
-		start_utc, end_utc, start_boattime, end_boattime, distance, boat, stats_available, date_created, date_changed
+		start_utc, end_utc, start_boattime, end_boattime, distance, boat, stats_dirty, date_created, date_changed
 	) VALUES (
-		p_utc, p_utc, p_boattime, p_boattime, 0, p_boat, false, NOW(), NOW()
+		p_utc, p_utc, p_boattime, p_boattime, 0, p_boat, FALSE, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
@@ -251,9 +254,8 @@ GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
 
 /*-----------FUNCTION update_track_data-----------------*/
 -- updates the track distance and start/end based on the track_points
--- deletes the track if no positions are available
 -- deletes all track segments
--- sets stats_available to false
+-- sets stats_dirty to true
 
 CREATE OR REPLACE FUNCTION public.update_track_data(
 	p_id integer
@@ -262,13 +264,13 @@ RETURNS void
 LANGUAGE 'plpgsql'
 AS $$ BEGIN
 	IF EXISTS (SELECT FROM track_points WHERE track_id = p_id) THEN
-		UPDATE tracks SET (start_utc, end_utc, start_boattime, end_boattime, stats_available, distance, date_changed) = (
+		UPDATE tracks SET (start_utc, end_utc, start_boattime, end_boattime, stats_dirty, distance, date_changed) = (
 			SELECT
 				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
-				FALSE,
+				TRUE,
 				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
 				NOW()
-			FROM track_points tp WHERE track_id = p_id
+			FROM track_points tp WHERE track_id = p_id ORDER BY utc ASC
 		)
 		WHERE id = p_id;
 	ELSE

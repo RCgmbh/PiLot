@@ -6,7 +6,7 @@ using Npgsql;
 
 using PiLot.Data.Postgres.Helper;
 using PiLot.Model.Nav;
-using PiLot.Utils.DateAndTime;
+using PiLot.Utils;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Data.Postgres.Nav {
@@ -32,15 +32,23 @@ namespace PiLot.Data.Postgres.Nav {
 
 		#region public methods
 
-		/// <summary>
-		/// Finds the current track. This is the track that ended less than a certain time
-		/// ago, defined by a constant of Track.
-		/// </summary>
-		/// <returns>The current track or null, if there is no current track</returns>
-		public Track FindCurrentTrack(String pBoat) {
-			Int64 end = DateTimeHelper.JSNow;
-			Int64 start = end - (Track.MINGAPSECONDS * 1000);
-			return this.ReadTracks(start, end, false).Where(t => t.Boat == pBoat).OrderByDescending(t => t.EndUTC).FirstOrDefault();
+		public void SaveTrackPoint(TrackPoint pTrackPoint, String pBoat) {
+			NpgsqlConnection connection = this.dbHelper.GetConnection();
+			if (connection != null) {
+				connection.Open();
+				NpgsqlTransaction transaction = connection.BeginTransaction();
+				try {
+					Track track = this.EnsureTrack(pBoat, pTrackPoint.UTC, pTrackPoint.BoatTime ?? pTrackPoint.UTC, transaction);
+					this.InsertTrackPoint(pTrackPoint, track, transaction);
+					transaction.Commit();
+					connection.Close();
+				} catch (Exception ex) {
+					Logger.Log(ex, "TrackDataConnector.EnsureTrack");
+					transaction.Rollback();
+					connection.Close();
+					throw;
+				}
+			}
 		}
 
 		/// <summary>
@@ -49,14 +57,30 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pStart">Start of the period in ms since epoc</param>
 		/// <param name="pEnd">End of the period in ms since epoc</param>
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
+		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
 		/// <returns></returns>
-		public List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false) {
+		public List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false, NpgsqlTransaction pTransaction = null) {
 			String query = "SELECT * FROM read_tracks(@p_start, @p_end, @p_is_boattime);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_start", pStart));
 			pars.Add(("@p_end", pEnd));
 			pars.Add(("@p_is_boattime", pIsBoatTime));
-			return this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars);
+			return this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars, pTransaction);
+		}
+
+		/// <summary>
+		/// Inserts a track into the database, and sets the Track.ID
+		/// </summary>
+		/// <param name="pTrack">The track to save</param>
+		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
+		public void InsertTrack(Track pTrack, NpgsqlTransaction pTransaction = null) {
+			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
+			String command = "SELECT * FROM insert_track(@p_utc, @p_boattime, @p_boat);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_utc", pTrack.StartUTC));
+			pars.Add(("@p_boattime", pTrack.StartBoatTime));
+			pars.Add(("@p_boat", pTrack.Boat));
+			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 		}
 
 		/// <summary>
@@ -83,6 +107,56 @@ namespace PiLot.Data.Postgres.Nav {
 		#endregion
 
 		#region private methods
+
+		/// <summary>
+		/// Saves a trackpoint to the DB. 
+		/// </summary>
+		/// <param name="pTrackPoint">The trackpoint to save</param>
+		/// <param name="pTrack">The track the trackpoint belongs to. Must have an ID</param>
+		private void InsertTrackPoint(TrackPoint pTrackPoint, Track pTrack, NpgsqlTransaction pTransaction) {
+			Assert.IsNotNull(pTrack.ID, "TrackDataController.InsertTrackPoint: Track.ID must not be null.");
+			String command = "SELECT * FROM insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_track_id", pTrack.ID));
+			pars.Add(("@p_utc", pTrackPoint.UTC));
+			pars.Add(("@p_boattime", pTrackPoint.BoatTime));
+			pars.Add(("@p_latitude", pTrackPoint.Latitude));
+			pars.Add(("@p_longitude", pTrackPoint.Longitude));
+			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+		}
+
+		/// <summary>
+		/// Returns the track a new TrackPoint should belong to. This is the track that is closer than a
+		/// certain time (defined by a constant of the Track class) to the timestamp, and belongs to a 
+		/// given boat. If there is no such track, a new one will be created and returned.
+		/// </summary>
+		/// <param name="pBoat">The boat for which a track is needed</param>
+		/// <param name="pUtc">The initial track start/end in utc</param>
+		/// <param name="pBoatTime">The initial track start/end in boat time </param>
+		/// <param name="pTransaction">An open transaction, not null</param>
+		/// <returns>The current track or null, if no db connection is configured</returns>
+		private Track EnsureTrack(String pBoat, Int64 pUtc, Int64 pBoatTime, NpgsqlTransaction pTransaction) {
+			Assert.IsNotNull(pTransaction, "pTransaction must not be null in TrackDataConnector.EnsureTrack");
+			Track result = null;
+			Int64 range = Track.MINGAPSECONDS * 1000;
+			Int64 start = pUtc - range;
+			Int64 end = pUtc + range;
+			result = this.ReadTracks(start, end, false, pTransaction)
+				.Where(t => t.Boat == pBoat)
+				.OrderBy(t => Math.Min(Math.Abs(pUtc - t.StartUTC), Math.Abs(pUtc - t.EndUTC)))
+				.FirstOrDefault();
+			if (result == null) {
+				result = new Track() {
+					StartUTC = pUtc,
+					EndUTC = pUtc,
+					StartBoatTime = pBoatTime,
+					EndBoatTime = pBoatTime,
+					Boat = pBoat
+				};
+				this.InsertTrack(result, pTransaction);
+			}
+			return result;
+		}
 
 		/// <summary>
 		/// Helper to create a Track out of a db record

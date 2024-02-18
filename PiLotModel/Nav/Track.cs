@@ -50,7 +50,7 @@ namespace PiLot.Model.Nav {
 		#region public properties
 
 		[JsonPropertyName("id")]
-		public Int32 ID {
+		public Int32? ID {
 			get; set;
 		}
 

@@ -13,6 +13,23 @@ namespace PiLot.Data.Postgres.Helper {
 		public DBHelper() { }
 
 		/// <summary>
+		/// Returns the db connection for the connection string. If there is no connection string
+		/// defined, null is returned, so make sure you look at what you get.
+		/// </summary>
+		/// <returns>A new, closed db connection or null</returns>
+		public NpgsqlConnection GetConnection() {
+			NpgsqlConnection result = null;
+			String connectionString = ConfigurationManager.AppSettings["connectionString"];
+			if (!String.IsNullOrEmpty(connectionString)) {
+				result = new NpgsqlConnection(connectionString);
+				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
+			} else {
+				Logger.Log("No DB connection configured", LogLevels.WARNING);
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// Reads data and returns a list of Object of a certain type. The type and a function which
 		/// creates an object of that type using an NpgsqlDataReader must be passed, as well as 
 		/// the query and the parameters.
@@ -21,78 +38,54 @@ namespace PiLot.Data.Postgres.Helper {
 		/// <param name="pQuery">Well... the query</param>
 		/// <param name="pReadDataDelegate">Function to create a result object from a db record.</param>
 		/// <param name="pParams">The parameters with name and value</param>
+		/// <param name="pTransaction">Optionally pass a transaction, which must be handled by the caller</param>
 		/// <returns></returns>
-		public List<T> ReadData<T>(String pQuery, Func<NpgsqlDataReader, T> pReadDataDelegate, List<(String, Object)> pParams = null) {
-			NpgsqlConnection connection = null;
+		public List<T> ReadData<T>(String pQuery, Func<NpgsqlDataReader, T> pReadDataDelegate, List<(String, Object)> pParams = null, NpgsqlTransaction pTransaction = null) {
 			List<T> result = new List<T>();
-			String connectionString = ConfigurationManager.AppSettings["connectionString"];
-			if (!String.IsNullOrEmpty(connectionString)) {
+			NpgsqlCommand cmd = this.CreateCommand(pQuery, pParams, pTransaction);
+			if(cmd != null) { 
 				try {
-
-					Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
-					connection = new NpgsqlConnection(connectionString);
-					NpgsqlCommand cmd = new NpgsqlCommand(pQuery, connection);
-					if (pParams != null) {
-						foreach (var aParam in pParams) {
-							cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
-						}
-					}
-					connection.Open();
+					this.OpenConnection(cmd.Connection);
 					NpgsqlDataReader reader = cmd.ExecuteReader();
 					while (reader.Read()) {
 						result.Add((T)pReadDataDelegate(reader));
 					}
 					reader.Close();
 				} catch (Exception ex) {
-					Logger.Log(ex, "PoiDataConnector.ReadData");
+					Logger.Log(ex, "DBHelper.ReadData");
 					throw;
 				} finally {
-					if ((connection != null) && (connection.State == ConnectionState.Open)) {
-						connection.Close();
-					}
+					this.CloseConnection(cmd);
 				}
-			} else {
-				Logger.Log("No DB connection configured", LogLevels.WARNING);
-			}
+			} 
 			return result;
 		}
 
-		public T ExecuteCommand<T>(String pCommand, List<(String, Object)> pParams) {
-			NpgsqlConnection connection = null;
+		/// <summary>
+		/// Executes a command against the database and returns the result
+		/// </summary>
+		/// <typeparam name="T">The type of the result</typeparam>
+		/// <param name="pCommand">The command string</param>
+		/// <param name="pParams">The parameters with name and value</param>
+		/// <param name="pTransaction">Optionally pass a transaction, which must be handled by the caller</param>
+		/// <returns></returns>
+		public T ExecuteCommand<T>(String pCommand, List<(String, Object)> pParams, NpgsqlTransaction pTransaction = null) {
 			T result = default(T);
-			String connectionString = ConfigurationManager.AppSettings["connectionString"];
-			if (!String.IsNullOrEmpty(connectionString)) {
+			NpgsqlCommand command = this.CreateCommand(pCommand, pParams, pTransaction);
+			if(command != null) {
 				try {
-					connection = new NpgsqlConnection(connectionString);
-					NpgsqlCommand cmd = new NpgsqlCommand(pCommand, connection);
-					if (pParams != null) {
-						foreach (var aParam in pParams) {
-							if(aParam.Item2 == null) {
-								cmd.Parameters.AddWithValue(aParam.Item1, DBNull.Value);
-							} else if (aParam.Item2.GetType() == typeof(System.Text.Json.JsonElement)) {
-								String serialized = System.Text.Json.JsonSerializer.Serialize<Object>(aParam.Item2);
-								cmd.Parameters.AddWithValue(aParam.Item1, NpgsqlTypes.NpgsqlDbType.Jsonb, serialized);
-							} else {
-								cmd.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
-							}
-						}
-					}
-					connection.Open();
-					Object cmdResult = cmd.ExecuteScalar();
+					this.OpenConnection(command.Connection);
+					Object cmdResult = command.ExecuteScalar();
 					if (cmdResult != DBNull.Value) {
 						result = (T)cmdResult;
 					}
 				} catch (Exception ex) {
-					Logger.Log(ex, "PoiDataConnector.SavePoi");
+					Logger.Log(ex, "DBHelper.ExecuteCommand");
 					throw;
 				} finally {
-					if ((connection != null) && (connection.State == ConnectionState.Open)) {
-						connection.Close();
-					}
+					this.CloseConnection(command);
 				}
-			} else {
-				Logger.Log("No DB connection configured", LogLevels.WARNING);
-			}
+			} 
 			return result;
 		}
 
@@ -100,7 +93,7 @@ namespace PiLot.Data.Postgres.Helper {
 		/// Helper to create an array of objects from a db record.
 		/// </summary>
 		/// <returns>Array of objects as long as the number of fileds in the db record</returns>
-		public Object[] ReadObject(NpgsqlDataReader pReader) {
+		public Object[] ReadObjects(NpgsqlDataReader pReader) {
 			Object[] result = new Object[pReader.FieldCount];
 			pReader.GetValues(result);
 			for(Int32 i = 0; i < result.Length; i++) { 
@@ -111,6 +104,14 @@ namespace PiLot.Data.Postgres.Helper {
 			return result;
 		}
 
+		/// <summary>
+		/// Reads a nullable db field. Returns the type's default value, if the
+		/// field in the db is null
+		/// </summary>
+		/// <typeparam name="T">The result type</typeparam>
+		/// <param name="pReader">the db reader</param>
+		/// <param name="pFieldName">the field name</param>
+		/// <returns></returns>
 		public T ReadNullableField<T>(NpgsqlDataReader pReader, String pFieldName) {
 			T result = default(T);
 			if (!pReader.IsDBNull(pFieldName)) {
@@ -131,14 +132,79 @@ namespace PiLot.Data.Postgres.Helper {
 			return result;
 		}
 
-		public Object GetParameterValue(Object pValue) {
-			Object result;
-			if(pValue != null) {
-				result = pValue;
+		/// <summary>
+		/// Returns the value for a nullable parameter, which is either the
+		/// value passed in, or dbNull, if the value is null.
+		/// </summary>
+		/// <param name="pValue">The parameter value</param>
+		/// <returns>DBNull or pValue</returns>
+		public Object GetNullableParameterValue(Object pValue) {
+			return pValue != null ? pValue : DBNull.Value;
+		}
+
+		#region private methods
+
+		/// <summary>
+		/// Creates a command, using either a given transaction, or creating a new connection.
+		/// Also adds the parameters to the command
+		/// </summary>
+		/// <param name="pSqlCommand"></param>
+		/// <param name="pParams"></param>
+		/// <param name="pTransaction"></param>
+		/// <returns></returns>
+		private NpgsqlCommand CreateCommand(String pSqlCommand, List<(String, Object)> pParams, NpgsqlTransaction pTransaction) {
+			NpgsqlCommand result = null;
+			NpgsqlConnection connection;
+			if (pTransaction != null) {
+				connection = pTransaction.Connection;
 			} else {
-				result = DBNull.Value;
+				connection = this.GetConnection();
+			}
+			if (connection != null) {
+				if (pTransaction != null) {
+					result = new NpgsqlCommand(pSqlCommand, connection, pTransaction);
+				} else {
+					result = new NpgsqlCommand(pSqlCommand, connection);
+				}
+				if (pParams != null) {
+					foreach (var aParam in pParams) {
+						if (aParam.Item2 == null) {
+							result.Parameters.AddWithValue(aParam.Item1, DBNull.Value);
+						} else if (aParam.Item2.GetType() == typeof(System.Text.Json.JsonElement)) {
+							String serialized = System.Text.Json.JsonSerializer.Serialize<Object>(aParam.Item2);
+							result.Parameters.AddWithValue(aParam.Item1, NpgsqlTypes.NpgsqlDbType.Jsonb, serialized);
+						} else {
+							result.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
+						}
+					}
+
+				}
 			}
 			return result;
 		}
+
+		/// <summary>
+		/// Opens the db connection, if it's not open yet
+		/// </summary>
+		private void OpenConnection(NpgsqlConnection pConnection) {
+			if (pConnection.State != ConnectionState.Open) {
+				pConnection.Open();
+			}
+		}
+
+		/// <summary>
+		/// Closes the db connection associated to pCommand, if it's open
+		/// and there is no transaction assigned to it. If there is a
+		/// transaction, the caller has to commit the transaction and close 
+		/// the connection himself.
+		/// </summary>
+		/// <param name="pCommand"></param>
+		private void CloseConnection(NpgsqlCommand pCommand) {
+			if ((pCommand.Connection != null) && (pCommand.Transaction == null) && (pCommand.Connection.State == ConnectionState.Open)) {
+				pCommand.Connection.Close();
+			}
+		}
+
+		#endregion
 	}
 }

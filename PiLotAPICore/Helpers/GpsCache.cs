@@ -40,7 +40,7 @@ namespace PiLot.API.Helpers {
 		private List<TrackPoint> trackPoints = null;
 		private TrackPoint previousSavedTrackPoint = null;   // the last track point we saved to disk
 		private GlobalDataConnector globalDataConnector = null;
-		private TrackDataConnector trackPointDataConnector = null;
+		private PiLot.Data.Postgres.Nav.TrackDataConnector trackPointDataConnector = null;
 
 		#endregion
 
@@ -50,7 +50,7 @@ namespace PiLot.API.Helpers {
 		private GPSCache() {
 			this.trackPoints = new List<TrackPoint>();
 			this.globalDataConnector = new GlobalDataConnector();
-			this.trackPointDataConnector = new TrackDataConnector();
+			this.trackPointDataConnector = new PiLot.Data.Postgres.Nav.TrackDataConnector();
 			Logger.Log("TrackPointsCache: New instance created", LogLevels.DEBUG);
 		}
 
@@ -147,7 +147,7 @@ namespace PiLot.API.Helpers {
 					doPersist = true;
 				}
 				if (doPersist) {
-					this.trackPointDataConnector.SaveTrackPoint(lastTrackPoint);
+					this.trackPointDataConnector.SaveTrackPoint(lastTrackPoint, BoatCache.Instance.CurrentBoat);
 					this.previousSavedTrackPoint = lastTrackPoint;
 				}
 			}

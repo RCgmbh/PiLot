@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.API.Helpers;
 using PiLot.Data.Files;
 using PiLot.Model.Common;
 
@@ -42,7 +43,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public String GetCurrentBoatConfigName() {
-			return new GlobalDataConnector().GetCurrentBoatConfigName();
+			return BoatCache.Instance.CurrentBoat;
 		}
 
 		/// <summary>
@@ -53,7 +54,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(SettingsAuthorizationFilter))]
 		public ActionResult PutCurrentBoatConfigName(String name) {
-			new GlobalDataConnector().SetCurrentBoatConfigName(name);
+			BoatCache.Instance.CurrentBoat = name;
 			return this.Ok(name);
 		}
 
