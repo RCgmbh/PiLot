@@ -52,20 +52,33 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Returns all tracks that overlap a certain time period
+		/// Reads a track by id, including all track points
+		/// </summary>
+		/// <param name="pTrackId">The track id</param>
+		/// <returns>The track including its track points</returns>
+		public Track ReadTrack(Int32 pTrackId) {
+			Track result = null;
+			String query = "SELECT * FROM tracks WHERE id=@p_id";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_id", pTrackId));
+			List<Track> tracks = this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars);
+			if (tracks.Count == 1) {
+				result = tracks[0];
+				result.AddTrackPoints(this.ReadTrackPoints(result.ID.Value));
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Returns all tracks that overlap with a certain time period
 		/// </summary>
 		/// <param name="pStart">Start of the period in ms since epoc</param>
 		/// <param name="pEnd">End of the period in ms since epoc</param>
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
-		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
+		/// <param name="pReadTrackPoints">True to also read all trackpoints. False by default</param>
 		/// <returns></returns>
-		public List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false, NpgsqlTransaction pTransaction = null) {
-			String query = "SELECT * FROM read_tracks(@p_start, @p_end, @p_is_boattime);";
-			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_start", pStart));
-			pars.Add(("@p_end", pEnd));
-			pars.Add(("@p_is_boattime", pIsBoatTime));
-			return this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars, pTransaction);
+		public List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false, Boolean pReadTrackPoints = false) {
+			return this.ReadTracks(pStart, pEnd, pIsBoatTime, pReadTrackPoints, null);
 		}
 
 		/// <summary>
@@ -98,7 +111,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pTrackId">The id of the track</param>
 		/// <returns>List of TrackPoint</returns>
 		public List<TrackPoint> ReadTrackPoints(Int32 pTrackId) {
-			String query = "SELECT * FROM find_track_points(@p_track_id);";
+			String query = "SELECT * FROM read_track_points(@p_track_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrackId));
 			return this.dbHelper.ReadData<TrackPoint>(query, new Func<NpgsqlDataReader, TrackPoint>(this.ReadTrackPoint), pars);
@@ -126,6 +139,31 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Returns all tracks that overlap a certain time period
+		/// </summary>
+		/// <param name="pStart">Start of the period in ms since epoc</param>
+		/// <param name="pEnd">End of the period in ms since epoc</param>
+		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
+		/// <param name="pReadTrackPoints">If set true, the trackpoints will be added</param>
+		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
+		/// <returns></returns>
+		private List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false, Boolean pReadTrackPoints = false, NpgsqlTransaction pTransaction = null) {
+			List<Track> result;
+			String query = "SELECT * FROM read_tracks(@p_start, @p_end, @p_is_boattime);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_start", pStart));
+			pars.Add(("@p_end", pEnd));
+			pars.Add(("@p_is_boattime", pIsBoatTime));
+			result = this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars, pTransaction);
+			if (pReadTrackPoints) {
+				foreach(Track aTrack in result) {
+					aTrack.AddTrackPoints(this.ReadTrackPoints(aTrack.ID.Value));
+				}
+			}
+			return result;
+		}
+
+		/// <summary>
 		/// Returns the track a new TrackPoint should belong to. This is the track that is closer than a
 		/// certain time (defined by a constant of the Track class) to the timestamp, and belongs to a 
 		/// given boat. If there is no such track, a new one will be created and returned.
@@ -141,7 +179,7 @@ namespace PiLot.Data.Postgres.Nav {
 			Int64 range = Track.MINGAPSECONDS * 1000;
 			Int64 start = pUtc - range;
 			Int64 end = pUtc + range;
-			result = this.ReadTracks(start, end, false, pTransaction)
+			result = this.ReadTracks(start, end, false, false, pTransaction)
 				.Where(t => t.Boat == pBoat)
 				.OrderBy(t => Math.Min(Math.Abs(pUtc - t.StartUTC), Math.Abs(pUtc - t.EndUTC)))
 				.FirstOrDefault();
@@ -198,7 +236,10 @@ namespace PiLot.Data.Postgres.Nav {
 			TrackPoint result = new TrackPoint(
 				pReader.GetDouble("latitude"),
 				pReader.GetDouble("longitude")
-			);
+			) { 
+				UTC = pReader.GetInt64("utc"),
+				BoatTime = pReader.GetInt64("boattime")
+			};
 			return result;
 		}
 

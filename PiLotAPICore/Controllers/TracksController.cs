@@ -16,7 +16,8 @@ namespace PiLot.API.Controllers {
 	public class TracksController : ControllerBase {
 
 		/// <summary>
-		/// Reads positions within a certain range
+		/// Reads tracks within a certain range. A list of all Tracks that
+		/// overlap with the period from startTime to endTime is returned.
 		/// </summary>
 		/// <param name="startTime">Starttime in ms utc or boatTime</param>
 		/// <param name="endTime">Endtime in ms utc or boatTime</param>
@@ -24,9 +25,9 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public Track GetTrack(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
-			return track;
+		public List<Track> GetTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
+			List<Track> tracks = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTracks(startTime, endTime, isBoatTime, true);
+			return tracks;
 		}
 
 		/// <summary>
@@ -38,7 +39,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/Segments")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<TrackSegment> GetTrackSegments(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
+		public List<TrackSegment> GetTrackSegments(Int32 startTime, Int64 endTime, Boolean isBoatTime) {
 			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
 			// todo: read persisted track segments, make sure the track is analyzed before. Then just
 			// load the segments based on the track id, loading the TrackSegmentTypes will not be needed.
@@ -54,8 +55,17 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/{id}/Segments")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<TrackSegment> GetTrackSegments(Int32 pTrackId) {
-			throw new NotImplementedException();
+		public List<TrackSegment> GetTrackSegments(Int32 id) {
+			// todo: don't read the track first, but directly read the persisted segments
+			List<TrackSegment> segments;
+			Track track = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTrack(id);
+			if (track != null) {
+				List<TrackSegmentType> types = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTrackSegmentTypes();
+				segments = new TrackAnalyzer(track).GetTrackSegments(types);
+			} else {
+				segments = new();
+			}
+			return segments;
 		}
 
 		/// <summary>

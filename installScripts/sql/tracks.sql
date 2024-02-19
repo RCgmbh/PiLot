@@ -256,6 +256,7 @@ GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
 -- updates the track distance and start/end based on the track_points
 -- deletes all track segments
 -- sets stats_dirty to true
+-- deletes the track if it has no track_points
 
 CREATE OR REPLACE FUNCTION public.update_track_data(
 	p_id integer
@@ -264,13 +265,20 @@ RETURNS void
 LANGUAGE 'plpgsql'
 AS $$ BEGIN
 	IF EXISTS (SELECT FROM track_points WHERE track_id = p_id) THEN
-		UPDATE tracks SET (start_utc, end_utc, start_boattime, end_boattime, stats_dirty, distance, date_changed) = (
+		WITH ordered_track_points AS (
+			SELECT utc, boattime, coordinates
+			FROM track_points
+			WHERE track_id = p_id
+			ORDER BY utc ASC
+		)	
+		UPDATE tracks
+		SET (start_utc, end_utc, start_boattime, end_boattime, stats_dirty, distance, date_changed) = (
 			SELECT
 				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
 				TRUE,
 				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
 				NOW()
-			FROM track_points tp WHERE track_id = p_id ORDER BY utc ASC
+			FROM ordered_track_points 
 		)
 		WHERE id = p_id;
 	ELSE

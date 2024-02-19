@@ -1555,6 +1555,7 @@ PiLot.Model.Nav = (function () {
 	 * A Track consists of track points
 	 * */
 	var Track = function () {
+		this.id = null;
 		this.trackPoints = null;  // array of TrackPoints
 		this.observers = null;
 		this.initialize();
@@ -1583,6 +1584,14 @@ PiLot.Model.Nav = (function () {
 		 * */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		getId: function () {
+			return this.id;
+		},
+
+		setId: function (pId) {
+			this.id = pId;
 		},
 
 		/**
@@ -1697,7 +1706,8 @@ PiLot.Model.Nav = (function () {
 		let result = null;
 		if (pData) {
 			result = new Track();
-			if ((pData !== null) && Array.isArray(pData.trackPointsArray)) {
+			result.setId(pData.id || null);
+			if (Array.isArray(pData.trackPointsArray)) {
 				pData.trackPointsArray.forEach((value, index, array) => {
 					if (Array.isArray(value) && value.length == 4) {
 						let trackPoint = TrackPoint.fromData(value);
@@ -1759,10 +1769,14 @@ PiLot.Model.Nav = (function () {
 	 * @returns {Track} - the resulting track or null
 	 */
 	var loadTrackAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
+		const result = [];
 		const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
 		const json = await PiLot.Utils.Common.getFromServerAsync(url);
-		const result = Track.fromData(json);
-		return result;
+		for (aTrackData of json) {
+			result.push(Track.fromData(aTrackData));
+		}
+		//const result = Track.fromData(json);
+		return result.length > 0 ? result[0] : null; // todo: pass on the entire list, update all consumers to properly handle it.
 	};
 
 	/**

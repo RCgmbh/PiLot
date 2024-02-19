@@ -320,14 +320,14 @@ PiLot.View.Diary = (function () {
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
 			const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
 			this.showTrackAsync(track);
-			this.showDistance(track.getDistance());
-			this.showSpeedDiagram(track);
-			this.showTrackStatistics(track);
 		},
 
 		/** takes a track and shows it on the map */
 		showTrackAsync: async function (pTrack) {
-			if (pTrack.getTrackPointsCount() > 0) {
+			this.showSpeedDiagram(pTrack);
+			this.showTrackStatistics(pTrack);
+			if (pTrack && pTrack.getTrackPointsCount() > 0) {
+				this.showDistance(pTrack);
 				await this.map.showAsync();
 				if (this.mapTrack === null) {
 					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.currentBoatTime, null, { ignoreSettings: true, showTrack: true });

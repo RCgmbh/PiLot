@@ -1259,13 +1259,13 @@ PiLot.View.Nav = (function () {
 			const lastTrackPoint = pTrack.getLastTrackPoint();
 			this.clear();
 			if (firstTrackPoint && lastTrackPoint) {
-				await this.loadAndShowDataAsync(firstTrackPoint.getUTC(), lastTrackPoint.getUTC(), false); 
+				await this.loadAndShowDataAsync(pTrack.getId()); 
 			}
 		},
 
-		loadAndShowDataAsync: async function (pStartTime, pEndTime, pIsBoatTime) {
+		loadAndShowDataAsync: async function (pTrackId) {
 			this.container.hidden = false;
-			const trackSegments = await this.trackService.getTrackSegmentsByTimeAsync(pStartTime, pEndTime, pIsBoatTime);
+			const trackSegments = await this.trackService.getTrackSegmentsByTrackIdAsync(pTrackId);
 			const currentLanguage = PiLot.Utils.Language.getLanguage();
 			for (const trackSegment of trackSegments) {
 				this.showSegment(trackSegment, currentLanguage);
