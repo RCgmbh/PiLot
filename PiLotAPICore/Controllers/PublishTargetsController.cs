@@ -48,13 +48,13 @@ namespace PiLot.API.Controllers {
 				System.Date date = new System.Date(year, month, day);
 				LoginHelper loginHelper = new LoginHelper(target.APIUrl, target.Username, target.Password);
 				TargetData<LogbookDay> logbookDayData = await this.LoadLogbookDayAsync(target, loginHelper, date);
-				TargetData<Track> trackData = await this.LoadTrackAsync(target, loginHelper, date);
+				TargetData<List<Track>> trackData = await this.LoadTracksAsync(target, loginHelper, date);
 				TargetData<ImageCollection> photoData = await this.LoadPhotoInfosAsync(target, loginHelper, date);
 				if(logbookDayData.Success && trackData.Success && photoData.Success) {
 					result.Success = true;
 					result.Data = new DailyData() {
 						LogbookDay = logbookDayData.Data,
-						Track = trackData.Data.ToList(),
+						Track = Track.ToCoordinatesList(trackData.Data),
 						PhotoInfos = photoData.Data
 					};
 				} else {
@@ -91,7 +91,7 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="pDate">The date for which we want the track.</param>
 		/// <returns>A ProxyResult containing a track which might be empty, but never null</returns>
-		private async Task<TargetData<Track>> LoadTrackAsync(PublishTarget pTarget, LoginHelper pLoginHelper, System.Date pDate) {
+		private async Task<TargetData<List<Track>>> LoadTracksAsync(PublishTarget pTarget, LoginHelper pLoginHelper, System.Date pDate) {
 			Boolean isBoatTime;
 			Int64 trackStart = DateTimeHelper.ToJSTime(pDate);
 			Int64 trackEnd = DateTimeHelper.ToJSTime(pDate.AddDays(1));
@@ -104,8 +104,8 @@ namespace PiLot.API.Controllers {
 				isBoatTime = true;
 			}
 			TrackProxy trackProxy = new TrackProxy(pTarget.APIUrl, pLoginHelper);
-			ProxyResult<Track> proxyResult = await trackProxy.GetTrackAsync(trackStart, trackEnd, isBoatTime);
-			TargetData<Track> result = new TargetData<Track>() {
+			ProxyResult<List<Track>> proxyResult = await trackProxy.GetTracksAsync(trackStart, trackEnd, isBoatTime);
+			TargetData<List<Track>> result = new TargetData<List<Track>>() {
 				Success = proxyResult.Success,
 				Messages = proxyResult.Message,
 				Data = proxyResult.Data

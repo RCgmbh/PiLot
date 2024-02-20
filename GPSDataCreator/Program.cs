@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Configuration;
 using System.Threading.Tasks;
 using PiLot.APIProxy;
@@ -144,11 +145,9 @@ namespace PiLot.GPSDataCreator {
 			TrackProxy trackProxy = new TrackProxy(url, null);
 			Int64 utcNow = DateTimeHelper.JSNow;
 			Int64 start = utcNow - (7 * 24 * 3600 * 1000); // 7 days
-			ProxyResult<Track> proxyResult = await trackProxy.GetTrackAsync(start, utcNow, false);
-			if (proxyResult.Success) {
-				if (proxyResult.Data.HasTrackPoints) {
-					result = proxyResult.Data.LastTrackPoint;
-				}
+			ProxyResult<List<Track>> proxyResult = await trackProxy.GetTracksAsync(start, utcNow, false);
+			if (proxyResult.Success && proxyResult.Data.Count > 0) {
+				result = proxyResult.Data[proxyResult.Data.Count - 1].LastTrackPoint;
 			} else {
 				Console.WriteLine(proxyResult.Message);
 			}

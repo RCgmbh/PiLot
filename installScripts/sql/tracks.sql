@@ -328,20 +328,21 @@ CREATE OR REPLACE FUNCTION public.insert_track_point(
 	p_utc bigint,
 	p_boattime bigint,
 	p_latitude double precision,
-	p_longitude double precision
+	p_longitude double precision,
+	p_update_track_data boolean
 )
 RETURNS void
-LANGUAGE 'sql'
-AS $BODY$
+LANGUAGE 'plpgsql'
+AS $$ BEGIN
 	INSERT INTO track_points(
 		track_id, utc, boatTime, coordinates, date_created, date_changed
 	) VALUES (
 		p_track_id, p_utc, p_boattime, ST_MakePoint(p_longitude, p_latitude), NOW(), NOW()
 	);
-	SELECT update_track_data(p_track_id);
-$BODY$;
-
-GRANT EXECUTE ON FUNCTION insert_track_point TO pilotweb;
+	IF (p_update_track_data = TRUE) THEN
+		PERFORM update_track_data(p_track_id);
+	END IF;
+END $$;
 
 /*-----------FUNCTION delete_track_point-----------------*/
 -- deletes a range of track_points and updates the distance and start/end of the track

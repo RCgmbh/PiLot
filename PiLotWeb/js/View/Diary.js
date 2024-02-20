@@ -327,7 +327,7 @@ PiLot.View.Diary = (function () {
 			this.showSpeedDiagram(pTrack);
 			this.showTrackStatistics(pTrack);
 			if (pTrack && pTrack.getTrackPointsCount() > 0) {
-				this.showDistance(pTrack);
+				this.showDistance(pTrack.getDistance());
 				await this.map.showAsync();
 				if (this.mapTrack === null) {
 					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.currentBoatTime, null, { ignoreSettings: true, showTrack: true });
@@ -348,7 +348,7 @@ PiLot.View.Diary = (function () {
 		 * shows the distance in km and nm. If pDistance is null, the value ... will be 
 		 * shown, as this is used while loading the track. If the distance is 0, the entire
 		 * panel will be hidden.
-		 * @param {Number} pDistance
+		 * @param {Number} pDistance - the distance in meters
 		 */
 		showDistance: function (pDistance) {
 			if (pDistance === 0) {

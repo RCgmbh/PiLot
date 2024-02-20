@@ -32,21 +32,44 @@ namespace PiLot.Data.Postgres.Nav {
 
 		#region public methods
 
+		/// <summary>
+		/// Saves a TrackPoint to the DB, using the current track for the given boat, or
+		/// creating a new track if there is none
+		/// </summary>
+		/// <param name="pTrackPoint">The TrackPoint to save</param>
+		/// <param name="pBoat">The name of the boat being used</param>
 		public void SaveTrackPoint(TrackPoint pTrackPoint, String pBoat) {
+			this.SaveTrackPoints(new List<TrackPoint>(1) { pTrackPoint }, pBoat);
+		}
+
+		/// <summary>
+		/// Saves a list of TrackPoint to the DB, using the current track for the given boat, or
+		/// creating a new track if there is none
+		/// </summary>
+		/// <param name="pTrackPoints">The list of track points to save</param>
+		/// <param name="pBoat">The name of the current baot</param>
+		public void SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat) {
 			NpgsqlConnection connection = this.dbHelper.GetConnection();
-			if (connection != null) {
-				connection.Open();
-				NpgsqlTransaction transaction = connection.BeginTransaction();
-				try {
-					Track track = this.EnsureTrack(pBoat, pTrackPoint.UTC, pTrackPoint.BoatTime ?? pTrackPoint.UTC, transaction);
-					this.InsertTrackPoint(pTrackPoint, track, transaction);
-					transaction.Commit();
-					connection.Close();
-				} catch (Exception ex) {
-					Logger.Log(ex, "TrackDataConnector.EnsureTrack");
-					transaction.Rollback();
-					connection.Close();
-					throw;
+			if (pTrackPoints.Count > 0) {
+				if (connection != null) {
+					connection.Open();
+					NpgsqlTransaction transaction = connection.BeginTransaction();
+					try {
+						Track track = this.EnsureTrack(pBoat, pTrackPoints[0].UTC, pTrackPoints[0].BoatTime ?? pTrackPoints[0].UTC, transaction);
+						foreach (TrackPoint aTrackPoint in pTrackPoints) {
+							this.InsertTrackPoint(aTrackPoint, track, pTrackPoints.Count == 1, transaction);
+						}
+						if(pTrackPoints.Count > 1) {
+							this.UpdateTrackData(track, transaction);
+						}
+						transaction.Commit();
+						connection.Close();
+					} catch (Exception ex) {
+						Logger.Log(ex, "TrackDataConnector.EnsureTrack");
+						transaction.Rollback();
+						connection.Close();
+						throw;
+					}
 				}
 			}
 		}
@@ -126,15 +149,18 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		/// <param name="pTrackPoint">The trackpoint to save</param>
 		/// <param name="pTrack">The track the trackpoint belongs to. Must have an ID</param>
-		private void InsertTrackPoint(TrackPoint pTrackPoint, Track pTrack, NpgsqlTransaction pTransaction) {
+		/// <param name="pUpdateTrack">Set to true to automatically update track distance etc.</param>
+		/// <param name="pTransaction">Pass an open transaction or null</param>
+		private void InsertTrackPoint(TrackPoint pTrackPoint, Track pTrack, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
 			Assert.IsNotNull(pTrack.ID, "TrackDataController.InsertTrackPoint: Track.ID must not be null.");
-			String command = "SELECT * FROM insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude);";
+			String command = "SELECT * FROM insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude, @p_update_track_data);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrack.ID));
 			pars.Add(("@p_utc", pTrackPoint.UTC));
 			pars.Add(("@p_boattime", pTrackPoint.BoatTime));
 			pars.Add(("@p_latitude", pTrackPoint.Latitude));
 			pars.Add(("@p_longitude", pTrackPoint.Longitude));
+			pars.Add(("@p_update_track_data", pUpdateTrack));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 		}
 
@@ -160,6 +186,24 @@ namespace PiLot.Data.Postgres.Nav {
 					aTrack.AddTrackPoints(this.ReadTrackPoints(aTrack.ID.Value));
 				}
 			}
+			return result;
+		}
+
+		/// <summary>
+		/// Helper to create a Track out of a db record
+		/// </summary>
+		private Track ReadTrack(NpgsqlDataReader pReader) {
+			Track result = new Track() {
+				ID = pReader.GetInt32("id"),
+				StartUTC = pReader.GetInt64("start_utc"),
+				EndUTC = pReader.GetInt64("end_utc"),
+				StartBoatTime = pReader.GetInt64("start_boattime"),
+				EndBoatTime = pReader.GetInt64("end_boattime"),
+				Distance = pReader.GetFloat("distance"),
+				Boat = pReader.GetString("boat"),
+				DateCreated = pReader.GetDateTime("date_created"),
+				DateChanged = pReader.GetDateTime("date_changed")
+			};
 			return result;
 		}
 
@@ -197,21 +241,16 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Helper to create a Track out of a db record
+		/// Updates a track so that its distance, start and end corresponds to the track points
 		/// </summary>
-		private Track ReadTrack(NpgsqlDataReader pReader) {
-			Track result = new Track() {
-				ID = pReader.GetInt32("id"),
-				StartUTC = pReader.GetInt64("start_utc"),
-				EndUTC = pReader.GetInt64("end_utc"),
-				StartBoatTime = pReader.GetInt64("start_boattime"),
-				EndBoatTime = pReader.GetInt64("end_boattime"),
-				Distance = pReader.GetFloat("distance"),
-				Boat = pReader.GetString("boat"),
-				DateCreated = pReader.GetDateTime("date_created"),
-				DateChanged = pReader.GetDateTime("date_changed")
-			};
-			return result;
+		/// <param name="pTrack">The track to update</param>
+		/// <param name="pTransaction">Pass an open transaction or null</param>
+		private void UpdateTrackData(Track pTrack, NpgsqlTransaction pTransaction) {
+			Assert.IsNotNull(pTrack.ID, "TrackDataController.UpdateTrackData: Track.ID must not be null.");
+			String command = "SELECT * FROM update_track_data(@p_id);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_track_id", pTrack.ID));
+			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 		}
 
 		/// <summary>

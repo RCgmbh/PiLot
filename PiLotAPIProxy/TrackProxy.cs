@@ -29,22 +29,14 @@ namespace PiLot.APIProxy {
 		}
 
 		/// <summary>
-		/// Reads the Track for a certain time range. 
+		/// Reads the Tracks for a certain time range. 
 		/// </summary>
 		/// <param name="pStartTime">The start time in milliseconds (UTC or BoatTime)</param>
 		/// <param name="pEndTime">The end time of the track in milliseconds (UTC or BoatTime)</param>
-		/// <returns>The Track, might be without any positions, but not null</returns>
-		public async Task<ProxyResult<Track>> GetTrackAsync(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
-			//Track track = new Track();
+		/// <returns>The Tracks, might be empty, with one or more tracks</returns>
+		public async Task<ProxyResult<List<Track>>> GetTracksAsync(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
 			String url = $"{this.apiControllerUrl}?startTime={pStartTime}&endTime={pEndTime}&isBoatTime={pIsBoatTime}";
-			/*ProxyResult<List<Double?[]>> clientResult = await this.httpClient.GetAsync<List<Double?[]>>(url);
-			if (clientResult.Success) {
-				clientResult.Data.ForEach(p => track.AddTrackPoint(p));
-			}*/
-			ProxyResult<Track> result = await this.httpClient.GetAsync<Track>(url);
-			//result.Success = clientResult.Success;
-			//result.Message = clientResult.Message;
-			//result.Data = track;
+			ProxyResult<List<Track>> result = await this.httpClient.GetAsync<List<Track>>(url);
 			return result;
 		}
 
