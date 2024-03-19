@@ -247,6 +247,20 @@ namespace PiLot.Model.Nav {
 			}
 		}
 
+
+		/// <summary>
+		/// Returns true, if a Track overlaps with a certain time period, defined by pStartTime and pEndTime
+		/// </summary>
+		/// <param name="pStartTime">The start time of the period in ms utc or boattime</param>
+		/// <param name="pEndTime">The end time of the persiod in ms utc or boattime</param>
+		/// <param name="pIsBoatTime">True to treat pStartTime and pEndTime as boattime, false for UTC</param>
+		/// <returns></returns>
+		public Boolean Overlaps(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime){
+			Int64 trackStart = pIsBoatTime ? this.StartBoatTime : this.StartUTC;
+			Int64 trackEnd = pIsBoatTime ? this.EndBoatTime : this.EndUTC;
+			return PiLot.Utils.DateAndTime.DateTimeHelper.Overlaps(trackStart, trackEnd, pStartTime, pEndTime);
+		}
+
 		/// <summary>
 		/// Returns a list of arrays, each array representing a track point (UTC, BoatTime, Lat, Lng).
 		/// This is helpful to send data across the wire, as the array is very light when serialized.

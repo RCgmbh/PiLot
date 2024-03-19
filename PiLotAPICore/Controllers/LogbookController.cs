@@ -36,7 +36,7 @@ namespace PiLot.API.Controllers {
 
 		/// <summary>
 		/// Gets summarized data for each day a month. The result is an array of objects
-		/// {day, hasTrack, hasDiary, hasLogbook, hasPhotos}
+		/// {hasLogbook, hasPhotos}
 		/// </summary>
 		[Route(Program.APIROOT + "[controller]/{year}/{month}")]
 		[HttpGet]

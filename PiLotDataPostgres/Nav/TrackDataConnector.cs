@@ -7,6 +7,7 @@ using Npgsql;
 using PiLot.Data.Postgres.Helper;
 using PiLot.Model.Nav;
 using PiLot.Utils;
+using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Data.Postgres.Nav {
@@ -32,6 +33,58 @@ namespace PiLot.Data.Postgres.Nav {
 
 		#region public methods
 
+		/// <summary>
+		/// Reads a track by id, including all track points
+		/// </summary>
+		/// <param name="pTrackId">The track id</param>
+		/// <returns>The track including its track points</returns>
+		public Track ReadTrack(Int32 pTrackId) {
+			Track result = null;
+			String query = "SELECT * FROM tracks WHERE id=@p_id";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_id", pTrackId));
+			List<Track> tracks = this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars);
+			if (tracks.Count == 1) {
+				result = tracks[0];
+				result.AddTrackPoints(this.ReadTrackPoints(result.ID.Value));
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Returns all tracks that overlap with a certain time period
+		/// </summary>
+		/// <param name="pStart">Start of the period in ms since epoc</param>
+		/// <param name="pEnd">End of the period in ms since epoc</param>
+		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
+		/// <param name="pReadTrackPoints">True to also read all trackpoints. False by default</param>
+		/// <returns></returns>
+		public List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false, Boolean pReadTrackPoints = false) {
+			return this.ReadTracks(pStart, pEnd, pIsBoatTime, pReadTrackPoints, null);
+		}
+
+		/// <summary>
+		/// Reads for each day of a month whether we have a track.
+		/// </summary>
+		/// <param name="pYear">The year</param>
+		/// <param name="pMonth">The month of the year, in c#-style (1-based index)</param>
+		/// <returns>List of Booleans, a value per day</returns>
+		public List<Boolean> ReadTracksMonthInfo(Int32 pYear, Int32 pMonth) {
+			List<Boolean> result = new List<Boolean>();
+			Date loopDate = new Date(pYear, pMonth, 1);
+			List<Track> tracks = new TrackDataConnector().ReadTracks(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true, false);
+			Boolean hasTrack;
+			Int64 minMS, maxMS;
+			while (loopDate.Month == pMonth) {
+				minMS = DateTimeHelper.ToJSTime(loopDate);
+				maxMS = DateTimeHelper.ToJSTime(loopDate.AddDays(1));
+				hasTrack = tracks.Exists(t => t.Overlaps(minMS, maxMS, true));
+				result.Add(hasTrack);
+				loopDate = loopDate.AddDays(1);
+			}
+			return result;
+		}
+		
 		/// <summary>
 		/// Saves a TrackPoint to the DB, using the current track for the given boat, or
 		/// creating a new track if there is none
@@ -72,36 +125,6 @@ namespace PiLot.Data.Postgres.Nav {
 					}
 				}
 			}
-		}
-
-		/// <summary>
-		/// Reads a track by id, including all track points
-		/// </summary>
-		/// <param name="pTrackId">The track id</param>
-		/// <returns>The track including its track points</returns>
-		public Track ReadTrack(Int32 pTrackId) {
-			Track result = null;
-			String query = "SELECT * FROM tracks WHERE id=@p_id";
-			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_id", pTrackId));
-			List<Track> tracks = this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars);
-			if (tracks.Count == 1) {
-				result = tracks[0];
-				result.AddTrackPoints(this.ReadTrackPoints(result.ID.Value));
-			}
-			return result;
-		}
-
-		/// <summary>
-		/// Returns all tracks that overlap with a certain time period
-		/// </summary>
-		/// <param name="pStart">Start of the period in ms since epoc</param>
-		/// <param name="pEnd">End of the period in ms since epoc</param>
-		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
-		/// <param name="pReadTrackPoints">True to also read all trackpoints. False by default</param>
-		/// <returns></returns>
-		public List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime = false, Boolean pReadTrackPoints = false) {
-			return this.ReadTracks(pStart, pEnd, pIsBoatTime, pReadTrackPoints, null);
 		}
 
 		/// <summary>

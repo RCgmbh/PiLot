@@ -141,28 +141,22 @@ namespace PiLot.Data.Files {
 
 		/// <summary>
 		/// Reads logbook metadata for a certain month, returning wheter we have
-		/// a track, a diary text, lobook entries and photos for each day of the month.
+		/// a diary text / lobook entries and photos for each day of the month.
 		/// </summary>
 		/// <param name="pYear">The year</param>
 		/// <param name="pMonth">The month of the year, in c#-style (1-based index)</param>
-		/// <returns>List of Objects with hasTrack, hasLobgook, hasPhotos </returns>
+		/// <returns>List of Objects with hasLobgook, hasPhotos </returns>
 		public List<Object> ReadLogbookMonthInfo(Int32 pYear, Int32 pMonth) {
 			List<Object> result = new List<Object>();
 			Date loopDate = new Date(pYear, pMonth, 1);
-			Track track = new TrackDataConnector().ReadTrack(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true);
-			Boolean hasTrack, hasLogbook, hasPhotos;
-			Int64 minMS, maxMS;
+			Boolean hasLogbook, hasPhotos;
 			LogbookDay logbookDay;
 			PhotoDataConnector photoData = new PhotoDataConnector(this.dataRoot);
 			while (loopDate.Month == pMonth) {
-				minMS = DateTimeHelper.ToJSTime(loopDate);
-				maxMS = DateTimeHelper.ToJSTime(loopDate.AddDays(1));
-				hasTrack = track.TrackPoints.Exists(r => (r.BoatTime != null) && (r.BoatTime >= minMS) && (r.BoatTime <= maxMS));
 				logbookDay = this.ReadLogbookDay(loopDate);
 				hasLogbook = logbookDay != null && logbookDay.HasData;
 				hasPhotos = photoData.HasPhotos(loopDate);
 				result.Add(new {
-					hasTrack,
 					hasLogbook,
 					hasPhotos
 				});

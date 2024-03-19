@@ -4,7 +4,8 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Helpers;
-using PiLot.Data.Files;
+//using PiLot.Data.Files;
+using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Controllers {
@@ -26,7 +27,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Track> GetTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			List<Track> tracks = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTracks(startTime, endTime, isBoatTime, true);
+			List<Track> tracks = new TrackDataConnector().ReadTracks(startTime, endTime, isBoatTime, true);
 			return tracks;
 		}
 
@@ -40,10 +41,10 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<TrackSegment> GetTrackSegments(Int32 startTime, Int64 endTime, Boolean isBoatTime) {
-			Track track = new TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
+			Track track = new PiLot.Data.Files.TrackDataConnector().ReadTrack(startTime, endTime, isBoatTime);
 			// todo: read persisted track segments, make sure the track is analyzed before. Then just
 			// load the segments based on the track id, loading the TrackSegmentTypes will not be needed.
-			List<TrackSegmentType> types = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTrackSegmentTypes();
+			List<TrackSegmentType> types = new TrackDataConnector().ReadTrackSegmentTypes();
 			List<TrackSegment> segments = new TrackAnalyzer(track).GetTrackSegments(types);
 			return segments;
 		}
@@ -58,9 +59,9 @@ namespace PiLot.API.Controllers {
 		public List<TrackSegment> GetTrackSegments(Int32 id) {
 			// todo: don't read the track first, but directly read the persisted segments
 			List<TrackSegment> segments;
-			Track track = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTrack(id);
+			Track track = new TrackDataConnector().ReadTrack(id);
 			if (track != null) {
-				List<TrackSegmentType> types = new PiLot.Data.Postgres.Nav.TrackDataConnector().ReadTrackSegmentTypes();
+				List<TrackSegmentType> types = new TrackDataConnector().ReadTrackSegmentTypes();
 				segments = new TrackAnalyzer(track).GetTrackSegments(types);
 			} else {
 				segments = new();
@@ -69,7 +70,18 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Sends a track to the server
+		/// Gets summarized data for each day a month. The result is an array of booleans,
+		/// indicating for each day whether there is a track.
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/{year}/{month}")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public Boolean[] Get(Int32 year, Int32 month) {
+			return new TrackDataConnector().ReadTracksMonthInfo(year, month).ToArray();
+		}
+
+		/// <summary>
+		/// Saves a track
 		/// </summary>
 		/// <param name="positions">Array of UTC, BoatTime, Lat, Lng</param>
 		/// <param name="doOverwrite">true: any existing position within min/max utc of pTrack will be deleted</param>
@@ -78,7 +90,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int32 Put(Track pTrack) {
-			new TrackDataConnector().SaveTrack(pTrack);
+			new PiLot.Data.Files.TrackDataConnector().SaveTrack(pTrack);
 			return -1;
 		}
 
@@ -92,7 +104,7 @@ namespace PiLot.API.Controllers {
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void DeleteTrackPoints(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			new TrackDataConnector().DeleteTrackPoints(startTime, endTime, isBoatTime);
+			new PiLot.Data.Files.TrackDataConnector().DeleteTrackPoints(startTime, endTime, isBoatTime);
 		}
 	}
 }

@@ -538,6 +538,16 @@ namespace PiLot.Utils.DateAndTime {
 		}
 
 		/// <summary>
+		/// returns true, if the period pStart1-pEnd1 overlaps the period pStart2-pEnd2. 
+		/// </summary>
+		/// <returns></returns>
+		public static Boolean Overlaps(Int64 pStartDate1, Int64 pEndDate1, Int64 pStartDate2, Int64 pEndDate2) {
+			return (
+				!((pStartDate1 >= pEndDate2) || (pStartDate2 >= pEndDate1))
+			);
+		}
+
+		/// <summary>
 		/// Checks wheter one period exceeds another period, both defined by start and end date.
 		/// Exceeding means it starts before or ends after the other timeSpan.
 		/// Null values mean infinity, so startDate at null
