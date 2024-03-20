@@ -526,9 +526,19 @@ PiLot.Model.Logbook = (function () {
 				monthMap = yearMap.get(pMonth);
 			} else {
 				monthMap = new Map();
-				const data = await this.loadLogbookMonthAsync(pYear, pMonth);
-				for (let i = 0; i < data.length; i++) {
-					monthMap.set(i + 1, data[i]);
+				//const data = await this.loadLogbookMonthAsync(pYear, pMonth);
+				const monthInfos = await Promise.all([
+					this.loadLogbookMonthAsync(pYear, pMonth),
+					PiLot.Service.Nav.TrackService.getInstance().loadMonthlyTrackSummaryAsync(pYear, pMonth)
+				]);
+				const logbookMonthInfo = monthInfos[0];
+				const trackMonthInfo = monthInfos[1];
+				for (let i = 0; i < logbookMonthInfo.length; i++) {
+					monthMap.set(i + 1, {
+						hasTrack: trackMonthInfo[i],
+						hasLogbook: logbookMonthInfo[i].hasLogbook,
+						hasPhotos: logbookMonthInfo[i].hasPhotos
+					});
 				}
 				yearMap.set(pMonth, monthMap);
 			}

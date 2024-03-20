@@ -336,6 +336,11 @@ PiLot.Service.Nav = (function () {
         
 		initialize: function () { },
 
+		loadMonthlyTrackSummaryAsync: async function(pYear, pMonth){
+			const url = `/Tracks/${pYear}/${pMonth}`;
+			return await PiLot.Utils.Common.getFromServerAsync(url);
+		},
+
 		/**
 		 * Gets the track segments for a certain track. If the track does not exist, null is
 		 * returned. Otherwise, an array of TrackSegment is returned, which can be empty.
