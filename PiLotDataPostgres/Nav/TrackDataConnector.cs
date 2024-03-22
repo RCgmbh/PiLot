@@ -84,6 +84,33 @@ namespace PiLot.Data.Postgres.Nav {
 			}
 			return result;
 		}
+
+		/// <summary>
+		/// Reads all positions of a track.
+		/// </summary>
+		/// <param name="pTrackId">The id of the track</param>
+		/// <returns>List of TrackPoint</returns>
+		public List<TrackPoint> ReadTrackPoints(Int32 pTrackId) {
+			return this.ReadTrackPoints(pTrackId, null, null, null);
+		}
+
+		/// <summary>
+		/// Reads the positions of a track, limited by a timeframe.
+		/// </summary>
+		/// <param name="pTrackId">The id of the track</param>
+		/// <param name="pStart">Optionally pass the start of the timeframe in ms utc or boattime</param>
+		/// <param name="pStart">Optionally pass the end of the timeframe in ms utc or boattime</param>
+		/// <param name="pIsBoatTime">Pass whether pStart and pEnd are BoatTime (true) or UTC (false)</param>
+		/// <returns>List of TrackPoint</returns>
+		public List<TrackPoint> ReadTrackPoints(Int32 pTrackId, Int64? pStart = null, Int64? pEnd = null, Boolean? pIsBoatTime = null) {
+			String query = "SELECT * FROM read_track_points(@p_track_id, @p_start, @p_end, @p_is_boattime);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_track_id", pTrackId));
+			pars.Add(("@p_start", this.dbHelper.GetNullableParameterValue(pStart)));
+			pars.Add(("@p_end", this.dbHelper.GetNullableParameterValue(pEnd)));
+			pars.Add(("@p_is_boattime", this.dbHelper.GetNullableParameterValue(pIsBoatTime)));
+			return this.dbHelper.ReadData<TrackPoint>(query, new Func<NpgsqlDataReader, TrackPoint>(this.ReadTrackPoint), pars);
+		}
 		
 		/// <summary>
 		/// Saves a TrackPoint to the DB, using the current track for the given boat, or
@@ -151,18 +178,6 @@ namespace PiLot.Data.Postgres.Nav {
 			return this.dbHelper.ReadData<TrackSegmentType>(query, new Func<NpgsqlDataReader, TrackSegmentType>(this.ReadTrackSegmentType));
 		}
 
-		/// <summary>
-		/// Reads all positions of a track.
-		/// </summary>
-		/// <param name="pTrackId">The id of the track</param>
-		/// <returns>List of TrackPoint</returns>
-		public List<TrackPoint> ReadTrackPoints(Int32 pTrackId) {
-			String query = "SELECT * FROM read_track_points(@p_track_id);";
-			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_track_id", pTrackId));
-			return this.dbHelper.ReadData<TrackPoint>(query, new Func<NpgsqlDataReader, TrackPoint>(this.ReadTrackPoint), pars);
-		}
-
 		#endregion
 
 		#region private methods
@@ -206,7 +221,7 @@ namespace PiLot.Data.Postgres.Nav {
 			result = this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrack), pars, pTransaction);
 			if (pReadTrackPoints) {
 				foreach(Track aTrack in result) {
-					aTrack.AddTrackPoints(this.ReadTrackPoints(aTrack.ID.Value));
+					aTrack.AddTrackPoints(this.ReadTrackPoints(aTrack.ID.Value, pStart, pEnd, pIsBoatTime));
 				}
 			}
 			return result;

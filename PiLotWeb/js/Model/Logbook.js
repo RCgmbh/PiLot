@@ -526,7 +526,6 @@ PiLot.Model.Logbook = (function () {
 				monthMap = yearMap.get(pMonth);
 			} else {
 				monthMap = new Map();
-				//const data = await this.loadLogbookMonthAsync(pYear, pMonth);
 				const monthInfos = await Promise.all([
 					this.loadLogbookMonthAsync(pYear, pMonth),
 					PiLot.Service.Nav.TrackService.getInstance().loadMonthlyTrackSummaryAsync(pYear, pMonth)

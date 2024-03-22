@@ -289,10 +289,13 @@ END $$;
 GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 
 /*-----------FUNCTION read_track_points-----------------*/
--- reads all track points of a track
+-- reads all track points of a track, optionally limited by start-/endtime
 
 CREATE OR REPLACE FUNCTION public.read_track_points(
-	p_track_id integer
+	p_track_id integer,
+	p_start bigint,
+	p_end bigint,
+	p_is_boattime boolean
 )
 RETURNS TABLE (
 	utc bigint,
@@ -315,6 +318,8 @@ AS $BODY$
 		track_points
 	WHERE
 		track_id = p_track_id
+		AND ((p_start is null) OR (p_is_boattime = FALSE AND utc >= p_start) OR (p_is_boattime = TRUE AND boattime >= p_start))
+		AND ((p_end is null) OR (p_is_boattime = FALSE AND utc <= p_end) OR (p_is_boattime = TRUE AND boattime <= p_end))
 	ORDER BY utc ASC
 $BODY$;
 
