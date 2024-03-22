@@ -86,6 +86,21 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Inserts a track into the database, and sets the Track.ID
+		/// </summary>
+		/// <param name="pTrack">The track to save</param>
+		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
+		public void InsertTrack(Track pTrack, NpgsqlTransaction pTransaction = null) {
+			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
+			String command = "SELECT * FROM insert_track(@p_utc, @p_boattime, @p_boat);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_utc", pTrack.StartUTC));
+			pars.Add(("@p_boattime", pTrack.StartBoatTime));
+			pars.Add(("@p_boat", pTrack.Boat));
+			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+		}
+
+		/// <summary>
 		/// Reads all positions of a track.
 		/// </summary>
 		/// <param name="pTrackId">The id of the track</param>
@@ -155,18 +170,16 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Inserts a track into the database, and sets the Track.ID
+		/// Deletes a range of trackpoints from a track
 		/// </summary>
-		/// <param name="pTrack">The track to save</param>
-		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
-		public void InsertTrack(Track pTrack, NpgsqlTransaction pTransaction = null) {
-			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
-			String command = "SELECT * FROM insert_track(@p_utc, @p_boattime, @p_boat);";
+		public void DeleteTrackPoints(Int32 pTrackId, Int64 pStart, Int64 pEnd, Boolean pIsBoatTime){
+			String command = "SELECT * FROM delete_track_points(@p_track_id, @p_start, @p_end, @p_is_boattime);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_utc", pTrack.StartUTC));
-			pars.Add(("@p_boattime", pTrack.StartBoatTime));
-			pars.Add(("@p_boat", pTrack.Boat));
-			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+			pars.Add(("@p_track_id", pTrackId));
+			pars.Add(("@p_start", pStart));
+			pars.Add(("@p_end", pEnd));
+			pars.Add(("@p_is_boattime", pIsBoatTime));
+			this.dbHelper.ExecuteCommand<Int32>(command, pars);
 		}
 
 		/// <summary>

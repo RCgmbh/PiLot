@@ -336,6 +336,19 @@ PiLot.Service.Nav = (function () {
         
 		initialize: function () { },
 
+		/**
+		 * Deletes trackPoint from a track on the server
+		 * @param {Number} pTrackId - the id of the track 
+		 * @param {Number} pStart - inclusive start time of deletion in ms 
+		 * @param {Number} pEnd - inclusive end time of deletion in ms
+		 * @param {Boolean} pIsBoatTime - true to trat pStart, pEnd as BoatTime
+		 * @returns 
+		 */
+		deleteTrackPointsAsync: async function(pTrackId, pStart, pEnd, pIsBoatTime){
+			const url = `/Tracks/${pTrackId}/TrackPoints?startTime=${pStart}&endTime=${pEnd}&isBoatTime=${pIsBoatTime}`;
+			return await PiLot.Utils.Common.deleteFromServerAsync(url);
+		},
+		
 		loadMonthlyTrackSummaryAsync: async function(pYear, pMonth){
 			const url = `/Tracks/${pYear}/${pMonth}`;
 			return await PiLot.Utils.Common.getFromServerAsync(url);

@@ -1779,17 +1779,6 @@ PiLot.Model.Nav = (function () {
 		return result.length > 0 ? result[0] : null; // todo: pass on the entire list, update all consumers to properly handle it.
 	};
 
-	/**
-	 * Deletes TrackPoints within a certain time frame from the server
-	 * @param {Number} pStartTime - Begin of deletion interval in seconds, either UTC or BoatTime
-	 * @param {Number} pEndTime - End of deletion interval in seconds, either UTC or BoatTime
-	 * @param {Boolean} pIsBoatTime - If true, start and end are intepreted as BoatTime, else as UTC
-	 */
-	var deleteTrackPointsAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
-		const url = PiLot.Utils.Common.toApiUrl(`/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`);
-		await fetch(url, { method: 'DELETE' });
-	};
-
 	/** 
 	 * Saves a list of TrackPoints back to the server, replacing any existing gps data for that range
 	 * @param {PiLot.Model.Nav.TrackPoint[]} pRecords - the list of track points to save
@@ -2385,7 +2374,6 @@ PiLot.Model.Nav = (function () {
 		loadRouteAsync: loadRouteAsync,
 		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
 		loadTrackAsync: loadTrackAsync,
-		deleteTrackPointsAsync: deleteTrackPointsAsync,
 		saveTrackPointsAsync: saveTrackPointsAsync
 	};
 

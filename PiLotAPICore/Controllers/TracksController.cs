@@ -97,14 +97,15 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Deletes track points within a certain range
 		/// </summary>
+		/// <param name="id">The id of the track from which data should be deleted</param>
 		/// <param name="startTime">Starttime in ms utc or boatTime</param>
 		/// <param name="endTime">Endtime in ms utc or boatTime</param>
 		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
-		[Route(Program.APIROOT + "[controller]")]
+		[Route(Program.APIROOT + "[controller]/{id}/TrackPoints")]
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public void DeleteTrackPoints(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			new PiLot.Data.Files.TrackDataConnector().DeleteTrackPoints(startTime, endTime, isBoatTime);
+		public void DeleteTrackPoints(Int32 id, Int64 startTime, Int64 endTime, Boolean isBoatTime) {
+			new TrackDataConnector().DeleteTrackPoints(id, startTime, endTime, isBoatTime);
 		}
 	}
 }

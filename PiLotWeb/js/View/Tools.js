@@ -160,7 +160,7 @@ PiLot.View.Tools = (function () {
 			var position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
 				if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePosition'))) {
-					await PiLot.Model.Nav.deleteTrackPointsAsync(position.getBoatTime(), position.getBoatTime(), true);
+					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), position.getBoatTime(), position.getBoatTime(), true);
 					this.loadTrack();
 				}
 			} 
@@ -172,7 +172,7 @@ PiLot.View.Tools = (function () {
 			if ((firstPosition !== null) && (lastPosition !== null)) {
 				const message = PiLot.Utils.Language.getText('confirmDeletePosition').replace('{{x}}', this.track.getTrackPointsCount());
 				if (window.confirm(message)) {
-					await PiLot.Model.Nav.deleteTrackPointsAsync(firstPosition.getBoatTime(), lastPosition.getBoatTime(), true);
+					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), firstPosition.getBoatTime(), lastPosition.getBoatTime(), true);
 					this.loadTrack();
 				}
 			}
@@ -229,7 +229,7 @@ PiLot.View.Tools = (function () {
 
 		loadTrackSuccess: function (pTrack) {
 			this.track = pTrack;
-			let length = this.track.getTrackPointsCount();
+			let length = this.track && this.track.getTrackPointsCount() || 0;
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
@@ -258,21 +258,23 @@ PiLot.View.Tools = (function () {
 		},
 
 		showTabularData: function () {
-			let row, position;
-			let length = this.track.getTrackPointsCount();
 			let dataRows = this.tblPositions.querySelectorAll('tr:not(.dgHeader)');
 			dataRows.forEach(function (pRow) {
 				this.tblPositions.removeChild(pRow);
 			}.bind(this));
-			for (var i = 0; i < length; i++) {
-				position = this.track.getTrackPointAt(i);
-				row = document.createElement('tr');
-				row.insertAdjacentHTML('beforeend', '<td>' + position.getUTC().toString() + '</td>');
-				row.insertAdjacentHTML('beforeend', '<td>' + RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss') + '</td>');
-				row.insertAdjacentHTML('beforeend', '<td>' + RC.Date.DateHelper.millisToLuxon(position.getBoatTime()).toFormat('dd. MMM yyyy HH:mm:ss') + '</td>');
-				row.insertAdjacentHTML('beforeend', '<td>' + PiLot.Utils.Nav.toCoordinateString(position.getLatitude(), true, true) + '</td>');
-				row.insertAdjacentHTML('beforeend', '<td>' + PiLot.Utils.Nav.toCoordinateString(position.getLongitude(), false, true) + '</td>');
-				this.tblPositions.appendChild(row);
+			if(this.track){
+				let row, position;
+				let length = this.track.getTrackPointsCount();
+				for (var i = 0; i < length; i++) {
+					position = this.track.getTrackPointAt(i);
+					row = document.createElement('tr');
+					row.insertAdjacentHTML('beforeend', '<td>' + position.getUTC().toString() + '</td>');
+					row.insertAdjacentHTML('beforeend', '<td>' + RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss') + '</td>');
+					row.insertAdjacentHTML('beforeend', '<td>' + RC.Date.DateHelper.millisToLuxon(position.getBoatTime()).toFormat('dd. MMM yyyy HH:mm:ss') + '</td>');
+					row.insertAdjacentHTML('beforeend', '<td>' + PiLot.Utils.Nav.toCoordinateString(position.getLatitude(), true, true) + '</td>');
+					row.insertAdjacentHTML('beforeend', '<td>' + PiLot.Utils.Nav.toCoordinateString(position.getLongitude(), false, true) + '</td>');
+					this.tblPositions.appendChild(row);
+				}
 			}
 		},
 
@@ -286,16 +288,18 @@ PiLot.View.Tools = (function () {
 			let timeNode;
 			let timeText;
 			let position;
-			for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
-				position = this.track.getTrackPointAt(i);
-				trkpt = doc.createElement('trkpt');
-				trkpt.setAttribute('lat', position.getLatitude());
-				trkpt.setAttribute('lon', position.getLongitude());
-				timeNode = doc.createElement('time');
-				timeText = doc.createTextNode(RC.Date.DateHelper.millisToLuxon(position.getUTC()).toISO());
-				timeNode.appendChild(timeText);
-				trkpt.appendChild(timeNode);
-				trkseg.appendChild(trkpt);
+			if(this.track){
+				for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
+					position = this.track.getTrackPointAt(i);
+					trkpt = doc.createElement('trkpt');
+					trkpt.setAttribute('lat', position.getLatitude());
+					trkpt.setAttribute('lon', position.getLongitude());
+					timeNode = doc.createElement('time');
+					timeText = doc.createTextNode(RC.Date.DateHelper.millisToLuxon(position.getUTC()).toISO());
+					timeNode.appendChild(timeText);
+					trkpt.appendChild(timeNode);
+					trkseg.appendChild(trkpt);
+				}
 			}
 			let serializer = new XMLSerializer();
 			xml = serializer.serializeToString(doc);
@@ -303,16 +307,19 @@ PiLot.View.Tools = (function () {
 		},
 
 		showJsonData: function () {
-			this.tbResultText.value = JSON.stringify(this.track.getTrackPoints(), null, 4);
+			let json = this.track ? JSON.stringify(this.track.getTrackPoints(), null, 4) : '';
+			this.tbResultText.value = json;
 		},
 
 		showCSVData: function () {
 			let txt = 'Timestamp UTC	Timestamp BoatTime	DateTime UTC	Latitude	Longitude\n';
 			let dateString;
-			for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
-				position = this.track.getTrackPointAt(i);
-				dateString = RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss');
-				txt += [position.getUTC(), position.getBoatTime(), dateString, position.getLatitude(), position.getLongitude()].join('	') + '\n';
+			if(this.track){
+				for (let i = 0; i < this.track.getTrackPointsCount(); i++) {
+					position = this.track.getTrackPointAt(i);
+					dateString = RC.Date.DateHelper.millisToLuxon(position.getUTC()).toFormat('dd. MMM yyyy HH:mm:ss');
+					txt += [position.getUTC(), position.getBoatTime(), dateString, position.getLatitude(), position.getLongitude()].join('	') + '\n';
+				}
 			}
 			this.tbResultText.value = txt;
 		},
