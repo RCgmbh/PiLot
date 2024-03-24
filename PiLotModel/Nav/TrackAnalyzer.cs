@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using PiLot.Model.Nav;
 
-namespace PiLot.API.Helpers {
+namespace PiLot.Model.Nav {
 
 	/// <summary>
 	/// This class helps analyzing a track, especially finding the fastest periods.

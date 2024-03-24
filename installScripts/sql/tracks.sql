@@ -13,6 +13,7 @@ DROP FUNCTION IF EXISTS read_tracks;
 DROP FUNCTION IF EXISTS insert_track;
 DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
+DROP FUNCTION IF EXISTS save_track_segment;
 DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
@@ -287,6 +288,54 @@ AS $$ BEGIN
 END $$;
 
 GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
+
+/*-----------FUNCTION save_track_segment -----------------*/
+-- saves a track segment, replacing any existing segment for
+-- the same type and track.
+
+CREATE OR REPLACE FUNCTION public.save_track_segment(
+	p_type_id integer,
+	p_track_id integer,
+	p_start_utc bigint,
+	p_end_utc bigint,
+	p_start_boattime bigint,
+	p_end_boattime bigint,
+	p_distance real
+)
+RETURNS void
+LANGUAGE 'plpgsql'
+AS $$ BEGIN
+	DELETE FROM 
+		track_segments 
+	WHERE
+		track_id = p_track_id
+		AND type_id = p_type_id;
+	INSERT INTO track_segments (
+		type_id, 
+		track_id,
+		start_utc,
+		end_utc,
+		start_boattime,
+		end_boattime,
+		distance,
+		date_created,
+		date_changed
+	)
+	VALUES (
+		p_type_id,
+		p_track_id,
+		p_start_utc,
+		p_end_utc,
+		p_start_boattime,
+		p_end_boattime,
+		p_distance,
+		NOW(),
+		NOW()
+	);
+	
+END $$;
+
+GRANT EXECUTE ON FUNCTION save_track_segment TO pilotweb;
 
 /*-----------FUNCTION read_track_points-----------------*/
 -- reads all track points of a track, optionally limited by start-/endtime

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using Npgsql;
 
 using PiLot.Data.Postgres.Helper;
@@ -101,6 +102,24 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Saves a track segment to the database. Any existing segment for the same track and type
+		/// will be replaced.
+		/// </summary>
+		/// <param name="pSegment">The TrackSegment to save</param>
+		public void SaveTrackSegment(TrackSegment pSegment) {
+			String command = "SELECT * FROM save_track_segment (@p_type_id, @p_track_id, @p_start_utc, @p_end_utc, @p_start_boattime, @p_end_boattime, @p_distance)";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_type_id", pSegment.TypeID));
+			pars.Add(("@p_track_id", pSegment.TrackID));
+			pars.Add(("@p_start_utc", pSegment.StartUTC));
+			pars.Add(("@p_end_utc", pSegment.EndUTC));
+			pars.Add(("@p_start_boattime", pSegment.StartBoatTime));
+			pars.Add(("@p_end_boattime", pSegment.EndBoatTime));
+			pars.Add(("@p_distance", pSegment.Distance));
+			this.dbHelper.ExecuteCommand<Int32>(command, pars);
+		}
+
+		/// <summary>
 		/// Reads all positions of a track.
 		/// </summary>
 		/// <param name="pTrackId">The id of the track</param>
@@ -144,8 +163,8 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pTrackPoints">The list of track points to save</param>
 		/// <param name="pBoat">The name of the current baot</param>
 		public void SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat) {
-			NpgsqlConnection connection = this.dbHelper.GetConnection();
 			if (pTrackPoints.Count > 0) {
+				NpgsqlConnection connection = this.dbHelper.GetConnection();
 				if (connection != null) {
 					connection.Open();
 					NpgsqlTransaction transaction = connection.BeginTransaction();

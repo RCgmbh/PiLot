@@ -40,7 +40,7 @@ namespace PiLot.API.Workers {
 		private Int32? alarmIndex = null;
 		private Int32? buzzerPin = null;
 
-		LED buzzer = null;
+		private LED buzzer = null;
 
 		/// <summary>
 		/// Private constructor. The Instance accessor should be used
