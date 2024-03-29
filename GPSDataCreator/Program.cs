@@ -50,7 +50,7 @@ namespace PiLot.GPSDataCreator {
 			Console.WriteLine("Loading latest position to continue");
 			LatLon startPosition = await LoadLatestPosistionAsync();
 			if (startPosition != null) {
-				Console.WriteLine($"Last position was lat {startPosition}");
+				Console.WriteLine($"Last position was lat {startPosition.Latitude}, lon {startPosition.Longitude}");
 				Console.WriteLine("Press y to use this position");
 				if(Console.ReadLine() == "y") {
 					result = startPosition;

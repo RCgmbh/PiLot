@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-using PiLot.Utils;
-
 namespace PiLot.Model.Nav {
 
 	/// <summary>
@@ -11,46 +9,28 @@ namespace PiLot.Model.Nav {
 	/// </summary>
 	public class TrackSegment {
 
-		private Track track;
-
-		public TrackSegment(Track pTrack, Int32 pTypeId) {
-			this.Track = pTrack;
+		public TrackSegment(Int32? pTrackId, Int32 pTypeId) {
+			this.TrackID = pTrackId;
 			this.TypeID = pTypeId;
-		}
-
-		/// <summary>
-		/// The track this belongs to. Not null.
-		/// </summary>
-		[JsonIgnore]
-		public Track Track {
-			get { return this.track; }
-			set {
-				Assert.IsNotNull(value, "TrackSegment.Track must not be null");
-				this.track = value;
-			}
 		}
 
 		/// <summary>
 		/// The ID of the track. 
 		/// </summary>
 		[JsonPropertyName("trackId")]
-		public Int32 TrackID {
-			get { return -1; }
-		}
+		public Int32? TrackID { get; private set; }
 
 		/// <summary>
 		/// The type of the TrackSegment
 		/// </summary>
 		[JsonPropertyName("typeId")]
-		public Int32 TypeID {
-			get;
-		}
+		public Int32 TypeID { get; private set;	}
 
 		/// <summary>
 		/// The timestamp of the first TrackPoint in UTC
 		/// </summary>
 		[JsonPropertyName("startUtc")]
-		public Int64 StartUTC { get; set; }
+		public Int64 StartUTC { get;  set; }
 
 		/// <summary>
 		/// The timestamp of the last TrackPoint in UTC
@@ -74,7 +54,23 @@ namespace PiLot.Model.Nav {
 		/// The total distance of the segment in Meters
 		/// </summary>
 		[JsonPropertyName("distance")]
-		public Double Distance { get; set; }
+		public Double Distance {
+			get {
+				return this.Distance_mm / 1000d;
+			}
+			set {
+				this.Distance_mm = (Int32)Math.Round(value * 1000d);
+			}
+		}
+
+		/// <summary>
+		/// The total distance of the segment in millimeters. This is uses in the db,
+		/// and for precise comparison of Segments
+		/// </summary>
+		[JsonIgnore]
+		public Int32 Distance_mm {
+			get; set;
+		}
 
 	}
 }

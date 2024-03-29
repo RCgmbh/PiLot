@@ -1,28 +1,36 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using PiLot.Data.Postgres.Nav;
+using PiLot.Model.Nav;
 
 namespace PiLot.API.Workers {
 
 	/// <summary>
 	/// Worker that will regularly update the statistics (also referred to
-	/// as track segments) for the tracks. Needs to be started by someone,
-	/// then will just do its work. When needed, can be accessed by the
-	/// static Instance Property
+	/// as track segments) for the tracks. It will make sure the calcuation
+	/// does not happen too often. When calling EnsureStatistics(), it will
+	/// re-calculate the stats if it didn't for a while (INTERVALMS), or 
+	/// the statistics will be re-calculated no later than after INTERVALMS
 	/// </summary>
 	public class TrackStatisticsWorker {
 
 		#region constants
 
 		private const String APPKEY = "trackStatisticsWorker";
-		private const Int32 SLEEPMS = 10000;
+		private const Int32 INTERVALMS = 10000;
 
 		#endregion
 
 		#region instance fields
 
 		private TrackDataConnector dataConnector = null;
+		private Boolean statisticsRequested = false;
+		private Task processingTask = null;
+		private CancellationToken cancellationToken;
+		private List<Int32> trackIds;
 
 		#endregion
 
@@ -33,7 +41,8 @@ namespace PiLot.API.Workers {
 		/// </summary>
 		private TrackStatisticsWorker() {
 			this.dataConnector = new TrackDataConnector();
-			this.StartProcessingTask();
+			this.cancellationToken = new CancellationTokenSource().Token;
+			this.trackIds = new List<Int32>();
 		}
 
 		/// <summary>
@@ -55,25 +64,60 @@ namespace PiLot.API.Workers {
 
 		#endregion
 
+		#region public methods
+
+		public void EnsureStatistics(Int32 pTrackId) {
+			this.statisticsRequested = true;
+			if (!this.trackIds.Contains(pTrackId)) {
+				this.trackIds.Add(pTrackId);
+			}
+			if(this.processingTask == null || (this.processingTask.Status != TaskStatus.Running && this.processingTask.Status != TaskStatus.WaitingToRun)) {
+				this.StartProcessingTask();
+			}
+		}
+
+		#endregion
+
 		/// <summary>
 		/// Launches a new Task for the processing
 		/// </summary>
 		private void StartProcessingTask() {
-			var tokenSource = new CancellationTokenSource();
-			var cancellationToken = tokenSource.Token;
-			Task.Factory.StartNew((token) => {
-				CancellationToken ct = (CancellationToken)token;
-				this.StartProcessing(ct);
-			}, cancellationToken, cancellationToken);
+			this.processingTask = Task.Run(() => this.StartProcessing(this.cancellationToken), this.cancellationToken);
 		}
 
 		/// <summary>
-		/// Processes
+		/// Triggers the statistics processing in an interval, as long as it's been requested
 		/// </summary>
-		/// <returns></returns>
 		private void StartProcessing(CancellationToken pCancellationToken) {
-			while (!pCancellationToken.IsCancellationRequested) {
-				Thread.Sleep(SLEEPMS);
+			while (this.statisticsRequested && !pCancellationToken.IsCancellationRequested) {
+				this.statisticsRequested = false;
+				this.UpdateStatistics();
+				this.processingTask.Wait(INTERVALMS);
+			}
+		}
+
+		/// <summary>
+		/// Does the actual work of updating the statistics. Reads all dirty tracks, calculates them statistics
+		/// and saves them back to the db.
+		/// </summary>
+		private void UpdateStatistics() {
+			while(this.trackIds.Count > 0) {
+				Int32 trackId = this.trackIds.First();
+				TrackDataConnector dataConnector = new TrackDataConnector();
+				Track track = dataConnector.ReadTrack(trackId);
+				List<TrackSegment> currentSegments = dataConnector.ReadTrackSegments(trackId);
+				List<TrackSegmentType> allTrackSegmentTypes = dataConnector.ReadTrackSegmentTypes();
+				List<TrackSegment> newSegments = new TrackAnalyzer(track).GetTrackSegments(allTrackSegmentTypes);
+				foreach (TrackSegmentType aType in allTrackSegmentTypes) {
+					TrackSegment currentSegment = currentSegments.FirstOrDefault(s => s.TypeID == aType.ID);
+					TrackSegment newSegment = newSegments.FirstOrDefault(s => s.TypeID == aType.ID);
+					if (newSegment != null) {
+						if (currentSegment == null || newSegment.Distance_mm > currentSegment.Distance_mm) {
+							dataConnector.SaveTrackSegment(newSegment);
+						}
+					}
+				}
+				this.trackIds.Remove(trackId);
 			}
 		}
 	}

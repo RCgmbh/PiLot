@@ -13,6 +13,7 @@ DROP FUNCTION IF EXISTS read_tracks;
 DROP FUNCTION IF EXISTS insert_track;
 DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
+DROP FUNCTION IF EXISTS read_track_segments_by_track;
 DROP FUNCTION IF EXISTS save_track_segment;
 DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
@@ -74,7 +75,7 @@ CREATE TABLE track_segments(
 	end_utc bigint NOT NULL,
 	start_boattime bigint NOT NULL,
 	end_boattime bigint NOT NULL,
-	distance integer,
+    distance_mm integer,
 	date_created timestamp NOT NULL,
 	date_changed timestamp NOT NULL
 );
@@ -83,6 +84,8 @@ GRANT SELECT ON track_segments TO pilotweb;
 GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
 GRANT DELETE ON track_segments TO pilotweb;
+
+GRANT USAGE, SELECT ON SEQUENCE track_segments_id_seq TO pilotweb;
 
 /*-----------TABLE track_points -------------------------*/
 
@@ -289,6 +292,39 @@ END $$;
 
 GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 
+/*-----------FUNCTION read_track_segments-----------------*/
+-- reads all track segments for a certain track
+
+CREATE OR REPLACE FUNCTION public.read_track_segments_by_track(
+	p_track_id integer
+)
+RETURNS TABLE (
+	type_id integer,
+	track_id integer,
+	start_utc bigint,
+	end_utc bigint,
+	start_boattime bigint,
+	end_boattime bigint,
+	distance_mm integer
+)
+LANGUAGE 'sql'
+AS $BODY$
+	SELECT
+		type_id,
+		track_id,
+		start_utc,
+		end_utc,
+		start_boattime,
+		end_boattime,
+		distance_mm
+	FROM
+		track_segments
+	WHERE
+		track_id = p_track_id
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION read_track_segments_by_track TO pilotweb;
+
 /*-----------FUNCTION save_track_segment -----------------*/
 -- saves a track segment, replacing any existing segment for
 -- the same type and track.
@@ -300,7 +336,7 @@ CREATE OR REPLACE FUNCTION public.save_track_segment(
 	p_end_utc bigint,
 	p_start_boattime bigint,
 	p_end_boattime bigint,
-	p_distance real
+	p_distance_mm integer
 )
 RETURNS void
 LANGUAGE 'plpgsql'
@@ -317,7 +353,7 @@ AS $$ BEGIN
 		end_utc,
 		start_boattime,
 		end_boattime,
-		distance,
+		distance_mm,
 		date_created,
 		date_changed
 	)
@@ -328,7 +364,7 @@ AS $$ BEGIN
 		p_end_utc,
 		p_start_boattime,
 		p_end_boattime,
-		p_distance,
+		p_distance_mm,
 		NOW(),
 		NOW()
 	);

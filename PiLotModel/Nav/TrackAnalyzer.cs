@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using PiLot.Model.Nav;
 
 namespace PiLot.Model.Nav {
 
@@ -71,10 +70,10 @@ namespace PiLot.Model.Nav {
 					distance = this.trackPoints[endIndex].TotalDistance - this.trackPoints[startIndex].TotalDistance;
 					speed = distance / duration;
 					if (speed > topSpeed) {
-						result = result ?? new TrackSegment(this.track, pType.ID);
+						result = result ?? new TrackSegment(this.track.ID, pType.ID);
 						result.StartUTC = this.trackPoints[startIndex].UTC;
-						result.StartBoatTime = this.trackPoints[startIndex].BoatTime ?? this.trackPoints[startIndex].UTC;
 						result.EndUTC = this.trackPoints[endIndex].UTC;
+						result.StartBoatTime = this.trackPoints[startIndex].BoatTime ?? this.trackPoints[startIndex].UTC;
 						result.EndBoatTime = this.trackPoints[endIndex].BoatTime ?? this.trackPoints[endIndex].UTC;
 						result.Distance = distance;
 						topSpeed = speed;
@@ -104,10 +103,10 @@ namespace PiLot.Model.Nav {
 				} else {
 					speed = distance / ((this.trackPoints[endIndex].UTC - this.trackPoints[startIndex].UTC) / 1000);
 					if(speed > topSpeed) {
-						result = result ?? new TrackSegment(this.track, pType.ID);
+						result = result ?? new TrackSegment(this.track.ID, pType.ID);
 						result.StartUTC = this.trackPoints[startIndex].UTC;
-						result.StartBoatTime = this.trackPoints[startIndex].BoatTime ?? this.trackPoints[startIndex].UTC;
 						result.EndUTC = this.trackPoints[endIndex].UTC;
+						result.StartBoatTime = this.trackPoints[startIndex].BoatTime ?? this.trackPoints[startIndex].UTC;
 						result.EndBoatTime = this.trackPoints[endIndex].BoatTime ?? this.trackPoints[endIndex].UTC;
 						result.Distance = distance;
 						topSpeed = speed;

@@ -102,12 +102,24 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Reads all TrackSegments that belong to a certain track.
+		/// </summary>
+		/// <param name="pTrackId">The id of the track</param>
+		/// <returns>A list of TrackSegment, can be empty but will not be null</returns>
+		public List<TrackSegment> ReadTrackSegments(Int32 pTrackId) {
+			String query = "SELECT * FROM read_track_segments_by_track(@p_track_id)";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_track_id", pTrackId));
+			return this.dbHelper.ReadData<TrackSegment>(query, new Func<NpgsqlDataReader, TrackSegment>(this.ReadTrackSegment), pars);
+		}
+
+		/// <summary>
 		/// Saves a track segment to the database. Any existing segment for the same track and type
 		/// will be replaced.
 		/// </summary>
 		/// <param name="pSegment">The TrackSegment to save</param>
 		public void SaveTrackSegment(TrackSegment pSegment) {
-			String command = "SELECT * FROM save_track_segment (@p_type_id, @p_track_id, @p_start_utc, @p_end_utc, @p_start_boattime, @p_end_boattime, @p_distance)";
+			String command = "SELECT * FROM save_track_segment (@p_type_id, @p_track_id, @p_start_utc, @p_end_utc, @p_start_boattime, @p_end_boattime, @p_distance_mm)";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_type_id", pSegment.TypeID));
 			pars.Add(("@p_track_id", pSegment.TrackID));
@@ -115,7 +127,7 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_end_utc", pSegment.EndUTC));
 			pars.Add(("@p_start_boattime", pSegment.StartBoatTime));
 			pars.Add(("@p_end_boattime", pSegment.EndBoatTime));
-			pars.Add(("@p_distance", pSegment.Distance));
+			pars.Add(("@p_distance_mm", pSegment.Distance_mm));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars);
 		}
 
@@ -152,17 +164,21 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		/// <param name="pTrackPoint">The TrackPoint to save</param>
 		/// <param name="pBoat">The name of the boat being used</param>
-		public void SaveTrackPoint(TrackPoint pTrackPoint, String pBoat) {
-			this.SaveTrackPoints(new List<TrackPoint>(1) { pTrackPoint }, pBoat);
+		/// <returns>The id of the track to which the point is added</returns>
+		public Int32? SaveTrackPoint(TrackPoint pTrackPoint, String pBoat) {
+			return this.SaveTrackPoints(new List<TrackPoint>(1) { pTrackPoint }, pBoat);
 		}
 
 		/// <summary>
 		/// Saves a list of TrackPoint to the DB, using the current track for the given boat, or
-		/// creating a new track if there is none
+		/// creating a new track if there is none. All TrackPoints will be associated with the
+		/// same track, defined by the first TrackPoint.
 		/// </summary>
 		/// <param name="pTrackPoints">The list of track points to save</param>
 		/// <param name="pBoat">The name of the current baot</param>
-		public void SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat) {
+		/// <returns>The id of the track to which the points are added or null, if there are no points</returns>
+		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat) {
+			Int32? result = null;
 			if (pTrackPoints.Count > 0) {
 				NpgsqlConnection connection = this.dbHelper.GetConnection();
 				if (connection != null) {
@@ -170,6 +186,7 @@ namespace PiLot.Data.Postgres.Nav {
 					NpgsqlTransaction transaction = connection.BeginTransaction();
 					try {
 						Track track = this.EnsureTrack(pBoat, pTrackPoints[0].UTC, pTrackPoints[0].BoatTime ?? pTrackPoints[0].UTC, transaction);
+						result = track.ID;
 						foreach (TrackPoint aTrackPoint in pTrackPoints) {
 							this.InsertTrackPoint(aTrackPoint, track, pTrackPoints.Count == 1, transaction);
 						}
@@ -186,6 +203,7 @@ namespace PiLot.Data.Postgres.Nav {
 					}
 				}
 			}
+			return result;
 		}
 
 		/// <summary>
@@ -348,6 +366,20 @@ namespace PiLot.Data.Postgres.Nav {
 			) { 
 				UTC = pReader.GetInt64("utc"),
 				BoatTime = pReader.GetInt64("boattime")
+			};
+			return result;
+		}
+
+		/// <summary>
+		/// Helper to create a TrackSegment out of a db record
+		/// </summary>
+		private TrackSegment ReadTrackSegment(NpgsqlDataReader pReader) {
+			TrackSegment result = new TrackSegment(pReader.GetInt32("track_id"), pReader.GetInt32("type_id")) {
+				StartUTC = pReader.GetInt64("start_utc"),
+				EndUTC = pReader.GetInt64("end_utc"),
+				StartBoatTime = pReader.GetInt64("start_boattime"),
+				EndBoatTime = pReader.GetInt64("end_boattime"),
+				Distance_mm = pReader.GetInt32("distance_mm")
 			};
 			return result;
 		}

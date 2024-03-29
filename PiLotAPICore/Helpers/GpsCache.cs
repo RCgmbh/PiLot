@@ -51,7 +51,7 @@ namespace PiLot.API.Helpers {
 			this.trackPoints = new List<TrackPoint>();
 			this.globalDataConnector = new GlobalDataConnector();
 			this.trackPointDataConnector = new PiLot.Data.Postgres.Nav.TrackDataConnector();
-			Logger.Log("TrackPointsCache: New instance created", LogLevels.DEBUG);
+			Logger.Log("GPSCache: New instance created", LogLevels.DEBUG);
 		}
 
 		/// <summary>
@@ -90,7 +90,7 @@ namespace PiLot.API.Helpers {
 		public List<TrackPoint> GetLatestTrackPoints(Int64 pMinDateUTCMS) {
 			List<TrackPoint> result = this.trackPoints.FindAll(r => ((r != null) && (r.UTC > pMinDateUTCMS)));
 			result.Sort();
-			Logger.Log($"TrackPointsCache.GetLatestTrackPoints: Having {this.trackPoints.Count} items in cache, returning {result.Count} items.", LogLevels.DEBUG);
+			Logger.Log($"GPSCache.GetLatestTrackPoints: Having {this.trackPoints.Count} items in cache, returning {result.Count} items.", LogLevels.DEBUG);
 			return result;
 		}
 
@@ -98,7 +98,9 @@ namespace PiLot.API.Helpers {
 		/// Adds a track point to the list, and persits it if necessary. Only records
 		/// that have latitude and longitude are processed
 		/// </summary>
-		public void AddTrackPoint(TrackPoint pTrackPoint) {
+		/// <returns>The ID of the track to which the point was persisted, null if it was not persisted</returns>
+		public Int32? AddTrackPoint(TrackPoint pTrackPoint) {
+			Int32? result = null;
 			if ((pTrackPoint?.Latitude != null) && (pTrackPoint?.Longitude != null)) {
 				Int64 utcOffset = this.globalDataConnector.GetBoatTime().UtcOffsetMinutes * 60 * 1000;
 				pTrackPoint.BoatTime = pTrackPoint.UTC + utcOffset;
@@ -109,10 +111,11 @@ namespace PiLot.API.Helpers {
 					Logger.Log($"TrackPointsCache.AddTrackPoint: Exception {ex.Message} when adding record {pTrackPoint}.", LogLevels.ERROR);
 				}
 				this.PositionChanged?.Invoke(pTrackPoint);
-				Logger.Log($"TrackPointsCache.AddTrackPoint: Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
+				Logger.Log($"TrackPointsCache.AddTrackPoint {pTrackPoint} : Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
 				this.CropTrackPoints();
-				this.PersistLatest();
+				result = this.PersistLatest();
 			}
+			return result;
 		}
 
 		#endregion
@@ -133,7 +136,9 @@ namespace PiLot.API.Helpers {
 		/// Persists the latest track point, if the distance and delta t to the previous
 		/// track point are above the minimal values. If not, nothing happens.
 		/// </summary>
-		private void PersistLatest() {
+		/// <returns>The ID of the track to which the point is added, null if the point has not been persisted</returns>
+		private Int32? PersistLatest() {
+			Int32? result = null;
 			Boolean doPersist;
 			Int64 deltaT;
 			Double deltaX;
@@ -147,10 +152,11 @@ namespace PiLot.API.Helpers {
 					doPersist = true;
 				}
 				if (doPersist) {
-					this.trackPointDataConnector.SaveTrackPoint(lastTrackPoint, BoatCache.Instance.CurrentBoat);
+					result = this.trackPointDataConnector.SaveTrackPoint(lastTrackPoint, BoatCache.Instance.CurrentBoat);
 					this.previousSavedTrackPoint = lastTrackPoint;
 				}
 			}
+			return result;
 		}
 
 		#endregion

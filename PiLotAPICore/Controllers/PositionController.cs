@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Helpers;
+using PiLot.API.Workers;
 using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
@@ -43,7 +44,10 @@ namespace PiLot.API.Controllers {
 		public void PutPosition(TrackPoint pTrackPoint) {
 			Logger.Log($"PositionController.PutPosition: TrackPoint recieved: {pTrackPoint}", LogLevels.DEBUG);
 			if (pTrackPoint != null) {
-				GPSCache.Instance.AddTrackPoint(pTrackPoint);
+				Int32? trackId = GPSCache.Instance.AddTrackPoint(pTrackPoint);
+				if(trackId != null) {
+					TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+				}				
 			}
 		}
 
@@ -60,7 +64,10 @@ namespace PiLot.API.Controllers {
 			Logger.Log($"PositionController.PutPositionLocal: TrackPoint recieved: {pTrackPoint}", LogLevels.DEBUG);
 			if (pTrackPoint != null) {
 				GpsTimeSync.Instance.HandleGPSRecord(pTrackPoint);
-				GPSCache.Instance.AddTrackPoint(pTrackPoint);
+				Int32? trackId = GPSCache.Instance.AddTrackPoint(pTrackPoint);
+				if (trackId != null) {
+					TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+				}
 			}
 		}
 
@@ -77,7 +84,17 @@ namespace PiLot.API.Controllers {
 			if (pTrackPoints != null) {
 				GPSCache cache = GPSCache.Instance;
 				List<TrackPoint> orderedTrackPoints = pTrackPoints.OrderBy(record => record.UTC).ToList();
-				orderedTrackPoints.ForEach(record => cache.AddTrackPoint(record));
+				Int32? lastTrackId = null;
+				Int32? trackId = null;
+				foreach (TrackPoint aTrackPoint in orderedTrackPoints) {
+					trackId = cache.AddTrackPoint(aTrackPoint);
+					if (trackId != null && (lastTrackId == null || lastTrackId != trackId)){
+						if(lastTrackId != null) {
+							TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+						}
+						lastTrackId = trackId;
+					}
+				}
 			}
 		}
 	}
