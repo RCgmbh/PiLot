@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.API.Helpers;
 using PiLot.API.Workers;
 
 using PiLot.Data.Postgres.Nav;
@@ -106,7 +107,8 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void DeleteTrackPoints(Int32 id, Int64 startTime, Int64 endTime, Boolean isBoatTime) {
 			new TrackDataConnector().DeleteTrackPoints(id, startTime, endTime, isBoatTime);
-			TrackStatisticsWorker.Instance.EnsureStatistics(id);
+			//TrackStatisticsWorker.Instance.EnsureStatistics(id);
+			TrackStatisticsHelper.UpdateStatistics(id);
 		}
 	}
 }

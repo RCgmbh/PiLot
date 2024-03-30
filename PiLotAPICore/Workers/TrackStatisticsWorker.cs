@@ -115,6 +115,10 @@ namespace PiLot.API.Workers {
 						if (currentSegment == null || newSegment.Distance_mm > currentSegment.Distance_mm) {
 							dataConnector.SaveTrackSegment(newSegment);
 						}
+					} else{
+						if(currentSegment != null){
+							dataConnector.DeleteTrackSegment(currentSegment);
+						}
 					}
 				}
 				this.trackIds.Remove(trackId);

@@ -46,7 +46,8 @@ namespace PiLot.API.Controllers {
 			if (pTrackPoint != null) {
 				Int32? trackId = GPSCache.Instance.AddTrackPoint(pTrackPoint);
 				if(trackId != null) {
-					TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+					//TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+					TrackStatisticsHelper.UpdateStatistics(trackId.Value);
 				}				
 			}
 		}
@@ -66,7 +67,8 @@ namespace PiLot.API.Controllers {
 				GpsTimeSync.Instance.HandleGPSRecord(pTrackPoint);
 				Int32? trackId = GPSCache.Instance.AddTrackPoint(pTrackPoint);
 				if (trackId != null) {
-					TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+					//TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+					TrackStatisticsHelper.UpdateStatistics(trackId.Value);
 				}
 			}
 		}
@@ -90,7 +92,8 @@ namespace PiLot.API.Controllers {
 					trackId = cache.AddTrackPoint(aTrackPoint);
 					if (trackId != null && (lastTrackId == null || lastTrackId != trackId)){
 						if(lastTrackId != null) {
-							TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+							//TrackStatisticsWorker.Instance.EnsureStatistics(trackId.Value);
+							TrackStatisticsHelper.UpdateStatistics(trackId.Value);
 						}
 						lastTrackId = trackId;
 					}

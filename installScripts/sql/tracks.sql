@@ -15,6 +15,7 @@ DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
 DROP FUNCTION IF EXISTS read_track_segments_by_track;
 DROP FUNCTION IF EXISTS save_track_segment;
+DROP FUNCTION IF EXISTS delete_track_segment;
 DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
@@ -82,6 +83,10 @@ CREATE TABLE track_segments(
 ALTER TABLE public.track_segments
     ADD CONSTRAINT track_segments_track_id_type_id_key UNIQUE (type_id, track_id);
 
+CREATE INDEX track_segments_track_id_index
+   ON track_segments 
+   USING btree (track_id);
+
 GRANT SELECT ON track_segments TO pilotweb;
 GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
@@ -108,7 +113,7 @@ CREATE INDEX track_points_coordinates_index
   ON track_points
   USING GIST (coordinates);
 
- CREATE INDEX IF NOT EXISTS track_points_track_id_index
+ CREATE INDEX track_points_track_id_index
    ON track_points 
    USING btree (track_id);
 
@@ -368,6 +373,22 @@ AS $$ BEGIN
 END $$;
 
 GRANT EXECUTE ON FUNCTION save_track_segment TO pilotweb;
+
+/*-----------FUNCTION delete_track_segment -----------------*/
+-- deletes a track segment identified by type and track
+
+CREATE OR REPLACE FUNCTION public.delete_track_segment(
+	p_type_id integer,
+	p_track_id integer
+)
+RETURNS void
+LANGUAGE 'sql'
+AS $BODY$
+	DELETE FROM track_segments
+	WHERE track_id = p_track_id AND type_id = p_type_id;
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION delete_track_segment TO pilotweb;
 
 /*-----------FUNCTION read_track_points-----------------*/
 -- reads all track points of a track, optionally limited by start-/endtime

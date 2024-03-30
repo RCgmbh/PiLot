@@ -119,7 +119,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		/// <param name="pSegment">The TrackSegment to save</param>
 		public void SaveTrackSegment(TrackSegment pSegment) {
-			String command = "SELECT * FROM save_track_segment (@p_type_id, @p_track_id, @p_start_utc, @p_end_utc, @p_start_boattime, @p_end_boattime, @p_distance_mm)";
+			String command = "SELECT save_track_segment (@p_type_id, @p_track_id, @p_start_utc, @p_end_utc, @p_start_boattime, @p_end_boattime, @p_distance_mm)";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_type_id", pSegment.TypeID));
 			pars.Add(("@p_track_id", pSegment.TrackID));
@@ -128,6 +128,18 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_start_boattime", pSegment.StartBoatTime));
 			pars.Add(("@p_end_boattime", pSegment.EndBoatTime));
 			pars.Add(("@p_distance_mm", pSegment.Distance_mm));
+			this.dbHelper.ExecuteCommand<Int32>(command, pars);
+		}
+
+		/// <summary>
+		/// Deletes a single TrackSegment from the DB
+		/// </summary>
+		/// <param name="pSegment">The segment to delete</param>
+		public void DeleteTrackSegment(TrackSegment pSegment){
+			String command = "SELECT delete_track_segment (@p_type_id, @p_track_id)";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_type_id", pSegment.TypeID));
+			pars.Add(("@p_track_id", pSegment.TrackID));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars);
 		}
 
@@ -210,7 +222,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Deletes a range of trackpoints from a track
 		/// </summary>
 		public void DeleteTrackPoints(Int32 pTrackId, Int64 pStart, Int64 pEnd, Boolean pIsBoatTime){
-			String command = "SELECT * FROM delete_track_points(@p_track_id, @p_start, @p_end, @p_is_boattime);";
+			String command = "SELECT delete_track_points(@p_track_id, @p_start, @p_end, @p_is_boattime);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrackId));
 			pars.Add(("@p_start", pStart));
@@ -241,7 +253,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pTransaction">Pass an open transaction or null</param>
 		private void InsertTrackPoint(TrackPoint pTrackPoint, Track pTrack, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
 			Assert.IsNotNull(pTrack.ID, "TrackDataController.InsertTrackPoint: Track.ID must not be null.");
-			String command = "SELECT * FROM insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude, @p_update_track_data);";
+			String command = "SELECT insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude, @p_update_track_data);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrack.ID));
 			pars.Add(("@p_utc", pTrackPoint.UTC));
@@ -335,7 +347,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pTransaction">Pass an open transaction or null</param>
 		private void UpdateTrackData(Track pTrack, NpgsqlTransaction pTransaction) {
 			Assert.IsNotNull(pTrack.ID, "TrackDataController.UpdateTrackData: Track.ID must not be null.");
-			String command = "SELECT * FROM update_track_data(@p_id);";
+			String command = "SELECT update_track_data(@p_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrack.ID));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
