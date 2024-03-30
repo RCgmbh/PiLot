@@ -352,7 +352,7 @@ PiLot.Templates.Nav = {
 			<span class="semiBold">
 				<span class="lblDuration"></span> (<span class="lblSpeed"></span> <span data-text="kn"></span>)
 			</span>
-			<span class="lblStartTime"></span>-<span class="lblEndTime"></span>
+			<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
 		</div>`,
 
 	trackStatisticsDurationSegment: `

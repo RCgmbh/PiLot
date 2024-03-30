@@ -68,7 +68,6 @@ GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;
 /*-----------TABLE track_segments -------------------------*/
 
 CREATE TABLE track_segments(
-	id serial PRIMARY KEY,
 	type_id integer REFERENCES track_segment_types NOT NULL,
 	track_id integer REFERENCES tracks NOT NULL,
 	start_utc bigint NOT NULL,
@@ -80,12 +79,14 @@ CREATE TABLE track_segments(
 	date_changed timestamp NOT NULL
 );
 
+ALTER TABLE public.track_segments
+    ADD CONSTRAINT track_segments_track_id_type_id_key UNIQUE (type_id, track_id);
+
 GRANT SELECT ON track_segments TO pilotweb;
 GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
 GRANT DELETE ON track_segments TO pilotweb;
 
-GRANT USAGE, SELECT ON SEQUENCE track_segments_id_seq TO pilotweb;
 
 /*-----------TABLE track_points -------------------------*/
 
@@ -341,34 +342,29 @@ CREATE OR REPLACE FUNCTION public.save_track_segment(
 RETURNS void
 LANGUAGE 'plpgsql'
 AS $$ BEGIN
-	DELETE FROM 
-		track_segments 
-	WHERE
-		track_id = p_track_id
-		AND type_id = p_type_id;
-	INSERT INTO track_segments (
-		type_id, 
-		track_id,
-		start_utc,
-		end_utc,
-		start_boattime,
-		end_boattime,
-		distance_mm,
-		date_created,
-		date_changed
-	)
-	VALUES (
-		p_type_id,
-		p_track_id,
-		p_start_utc,
-		p_end_utc,
-		p_start_boattime,
-		p_end_boattime,
-		p_distance_mm,
-		NOW(),
-		NOW()
-	);
-	
+	IF EXISTS (SELECT FROM track_segments WHERE	track_id = p_track_id AND type_id = p_type_id) THEN
+		UPDATE track_segments
+		SET
+			start_utc = p_start_utc, end_utc = p_end_utc,
+			start_boattime = p_start_boattime, end_boattime = p_end_boattime,
+			distance_mm = p_distance_mm,
+			date_changed = NOW()
+		WHERE 
+			track_id = p_track_id AND type_id = p_type_id;
+	ELSE
+		INSERT INTO track_segments (
+			type_id, track_id, 
+			start_utc, end_utc,	start_boattime,	end_boattime,
+			distance_mm,
+			date_created, date_changed
+		)
+		VALUES (
+			p_type_id, p_track_id,
+			p_start_utc, p_end_utc, p_start_boattime, p_end_boattime,
+			p_distance_mm,
+			NOW(), NOW()
+		);
+	END IF;
 END $$;
 
 GRANT EXECUTE ON FUNCTION save_track_segment TO pilotweb;
