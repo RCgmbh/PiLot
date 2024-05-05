@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Threading;
 using PiLot.API.Helpers;
 using PiLot.Config;
 using PiLot.Data.Files;
@@ -104,6 +104,21 @@ namespace PiLot.API.Workers {
 		}
 
 		/// <summary>
+		/// Plays a test sound and returns a text informing about pin number
+		/// </summary>
+		/// <returns>Pin nr, if configured, else "no buzzer configured"</returns>
+		public String PlayTestAlarm(Int32? pAlarmIndex) {
+			String result = this.buzzerPin != null ? $"Buzzer pin: {this.buzzerPin}" : "No buzzer configured";
+			if(pAlarmIndex == null || pAlarmIndex < 0 || pAlarmIndex >= ALARMS.Count) {
+				pAlarmIndex = 0;
+			}
+			this.PlayAlarm(ALARMS[pAlarmIndex.Value].Item2);
+			Thread.Sleep(2000);
+			this.StopAlarm();
+			return result;
+		}
+
+		/// <summary>
 		/// Loads the current AnchorWatch from the data source
 		/// </summary>
 		private void LoadAnchorWatch() {
@@ -184,14 +199,19 @@ namespace PiLot.API.Workers {
 		}
 
 		/// <summary>
-		/// Plays a sound on the passive buzzer connected to PIN 24 (logical 24, physical 18)
+		/// Plays a sound on the buzzer connected to the configured buzzer
 		/// </summary>
 		private void PlayAlarm(AlarmConfig? pAlarmConfig) {
 			if (this.EnsureBuzzer()) {
 				this.StopAlarm();
-				if(pAlarmConfig != null) {
+				if (pAlarmConfig != null) {
 					this.buzzer.Blink(pAlarmConfig.Value.PlayMS, pAlarmConfig.Value.PauseMS);
-				}				
+					Logger.Log("Alarm triggered", LogLevels.DEBUG);
+				} else {
+					Logger.Log("Alarm triggered, but no AlarmConfig passed", LogLevels.DEBUG);
+				}
+			} else {
+				Logger.Log("Alarm triggered, but no buzzer configured", LogLevels.DEBUG);
 			}
 		}
 

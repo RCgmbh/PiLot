@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using PiLot.API.Helpers;
+using PiLot.Data.Nav;
 using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 
@@ -14,6 +16,11 @@ namespace PiLot.API.Workers {
 	/// does not happen too often. When calling EnsureStatistics(), it will
 	/// re-calculate the stats if it didn't for a while (INTERVALMS), or 
 	/// the statistics will be re-calculated no later than after INTERVALMS
+	/// 
+	/// This is currently NOT being used, but I keep it just in case one day
+	/// I ran into performance problems with doing this synchronously when
+	/// saving position data, e.g. when decreasing the save threshhold one
+	/// day.
 	/// </summary>
 	public class TrackStatisticsWorker {
 
@@ -101,28 +108,31 @@ namespace PiLot.API.Workers {
 		/// and saves them back to the db.
 		/// </summary>
 		private void UpdateStatistics() {
-			while(this.trackIds.Count > 0) {
-				Int32 trackId = this.trackIds.First();
+			//ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
+			//if (dataConnector.SupportsStatistics) {
 				TrackDataConnector dataConnector = new TrackDataConnector();
-				Track track = dataConnector.ReadTrack(trackId);
-				List<TrackSegment> currentSegments = dataConnector.ReadTrackSegments(trackId);
-				List<TrackSegmentType> allTrackSegmentTypes = dataConnector.ReadTrackSegmentTypes();
-				List<TrackSegment> newSegments = new TrackAnalyzer(track).GetTrackSegments(allTrackSegmentTypes);
-				foreach (TrackSegmentType aType in allTrackSegmentTypes) {
-					TrackSegment currentSegment = currentSegments.FirstOrDefault(s => s.TypeID == aType.ID);
-					TrackSegment newSegment = newSegments.FirstOrDefault(s => s.TypeID == aType.ID);
-					if (newSegment != null) {
-						if (currentSegment == null || newSegment.Distance_mm > currentSegment.Distance_mm) {
-							dataConnector.SaveTrackSegment(newSegment);
-						}
-					} else{
-						if(currentSegment != null){
-							dataConnector.DeleteTrackSegment(currentSegment);
+				while(this.trackIds.Count > 0) {
+					Int32 trackId = this.trackIds.First();
+					Track track = dataConnector.ReadTrack(trackId);
+					List<TrackSegment> currentSegments = dataConnector.ReadTrackSegments(trackId);
+					List<TrackSegmentType> allTrackSegmentTypes = dataConnector.ReadTrackSegmentTypes();
+					List<TrackSegment> newSegments = new TrackAnalyzer(track).GetTrackSegments(allTrackSegmentTypes);
+					foreach (TrackSegmentType aType in allTrackSegmentTypes) {
+						TrackSegment currentSegment = currentSegments.FirstOrDefault(s => s.TypeID == aType.ID);
+						TrackSegment newSegment = newSegments.FirstOrDefault(s => s.TypeID == aType.ID);
+						if (newSegment != null) {
+							if (currentSegment == null || newSegment.Distance_mm > currentSegment.Distance_mm) {
+								dataConnector.SaveTrackSegment(newSegment);
+							}
+						} else {
+							if (currentSegment != null) {
+								dataConnector.DeleteTrackSegment(currentSegment);
+							}
 						}
 					}
+					this.trackIds.Remove(trackId);
 				}
-				this.trackIds.Remove(trackId);
-			}
+			//}
 		}
 	}
 }

@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.7" />
+    <PackageReference Include="SixLabors.ImageSharp" Version="2.1.8" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PiLotData\PiLotData.csproj" />
     <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
     <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />
   </ItemGroup>

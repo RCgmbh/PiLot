@@ -361,26 +361,11 @@ PiLot.Service.Nav = (function () {
 		 * @returns {PiLot.Model.Nav.TrackSegment[]}
 		 * */
 		getTrackSegmentsByTrackIdAsync: async function(pTrackId){
-			return await this.getTrackSegmentsAsync(`/Tracks/${pTrackId}/Segments`);
-		},
-
-		/**
-		 * This is a temporary solution for as long as we don't have tracks saved in the db 
-		 * @param {Number} pStartTime - start time in ms
-		 * @param {Number} pEndTime - end time in ms
-		 * */
-		getTrackSegmentsByTimeAsync: async function(pStartTime, pEndTime, pIsBoatTime){
-			const url = `/Tracks/Segments?startTime=${pStartTime}&endTime=${pEndTime}&isBoatTime=${pIsBoatTime}`;
-			return await this.getTrackSegmentsAsync(url);
-		},
-
-		/** this can be merged with getTrackSegmentsByTrackIdAsync, as soon as getTrackSegmentsByTimeAsync isn't used anymore */
-		getTrackSegmentsAsync: async function(pUrl){
 			let result = null;
 			await this.ensureTrackSegmentTypesLoadedAsync();
-			const json = await PiLot.Utils.Common.getFromServerAsync(pUrl);
+			const json = await PiLot.Utils.Common.getFromServerAsync(`/Tracks/${pTrackId}/Segments`);
 			const language = PiLot.Utils.Language.getLanguage();
-			if(json !== null) {
+			if (json !== null) {
 				if (Array.isArray(json)) {
 					result = [];
 					for (anItem of json) {

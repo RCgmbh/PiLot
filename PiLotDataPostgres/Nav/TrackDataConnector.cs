@@ -30,6 +30,10 @@ namespace PiLot.Data.Postgres.Nav {
 			this.dbHelper = new DBHelper();
 		}
 
+		public TrackDataConnector(String pConnectionString) {
+			this.dbHelper = new DBHelper(pConnectionString);
+		}
+
 		#endregion
 
 		#region public methods
@@ -73,7 +77,7 @@ namespace PiLot.Data.Postgres.Nav {
 		public List<Boolean> ReadTracksMonthInfo(Int32 pYear, Int32 pMonth) {
 			List<Boolean> result = new List<Boolean>();
 			Date loopDate = new Date(pYear, pMonth, 1);
-			List<Track> tracks = new TrackDataConnector().ReadTracks(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true, false);
+			List<Track> tracks = this.ReadTracks(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true, false);
 			Boolean hasTrack;
 			Int64 minMS, maxMS;
 			while (loopDate.Month == pMonth) {
@@ -90,15 +94,10 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Inserts a track into the database, and sets the Track.ID
 		/// </summary>
 		/// <param name="pTrack">The track to save</param>
-		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
-		public void InsertTrack(Track pTrack, NpgsqlTransaction pTransaction = null) {
-			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
-			String command = "SELECT * FROM insert_track(@p_utc, @p_boattime, @p_boat);";
-			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_utc", pTrack.StartUTC));
-			pars.Add(("@p_boattime", pTrack.StartBoatTime));
-			pars.Add(("@p_boat", pTrack.Boat));
-			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+		public void InsertTrack(Track pTrack) {
+			// TODO: find any overlapping track for the same boat. If there is one,
+			// replace it, if there is none, insert the new track
+			this.InsertTrack(pTrack, null);
 		}
 
 		/// <summary>
@@ -202,9 +201,9 @@ namespace PiLot.Data.Postgres.Nav {
 						foreach (TrackPoint aTrackPoint in pTrackPoints) {
 							this.InsertTrackPoint(aTrackPoint, track, pTrackPoints.Count == 1, transaction);
 						}
-						if(pTrackPoints.Count > 1) {
+						if (pTrackPoints.Count > 1) {
 							this.UpdateTrackData(track, transaction);
-						}
+						}						
 						transaction.Commit();
 						connection.Close();
 					} catch (Exception ex) {
@@ -243,6 +242,21 @@ namespace PiLot.Data.Postgres.Nav {
 		#endregion
 
 		#region private methods
+
+		/// <summary>
+		/// Inserts a track into the database, and sets the Track.ID
+		/// </summary>
+		/// <param name="pTrack">The track to save</param>
+		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
+		private void InsertTrack(Track pTrack, NpgsqlTransaction pTransaction = null) {
+			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
+			String command = "SELECT * FROM insert_track(@p_utc, @p_boattime, @p_boat);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_utc", pTrack.StartUTC));
+			pars.Add(("@p_boattime", pTrack.StartBoatTime));
+			pars.Add(("@p_boat", pTrack.Boat));
+			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+		}
 
 		/// <summary>
 		/// Saves a trackpoint to the DB. 

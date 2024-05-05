@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.API.Helpers;
 using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
@@ -48,7 +49,7 @@ namespace PiLot.API.Controllers {
 				Logger.Log(ex, "PoisController.Get");
 				throw;
 			}
-			return new PoiDataConnector().FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
+			return DataConnectionHelper.PoiDataConnector.FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
 		}
 
 		/// <summary>
@@ -59,7 +60,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Poi> Get() {
 			Logger.Log("PoisController.Get", LogLevels.DEBUG);
-			return new PoiDataConnector().ReadPois();
+			return DataConnectionHelper.PoiDataConnector.ReadPois();
 		}
 
 		/// <summary>
@@ -71,7 +72,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int64 Put(Poi poi) {
-			return new PoiDataConnector().SavePoi(poi);
+			return DataConnectionHelper.PoiDataConnector.SavePoi(poi);
 		}
 
 		/// <summary>
@@ -83,7 +84,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Object[] Get(Int64 id) {
 			Logger.Log("PoisController.Get", LogLevels.DEBUG);
-			return new PoiDataConnector().ReadPoi(id);
+			return DataConnectionHelper.PoiDataConnector.ReadPoi(id);
 		}
 
 		/// <summary>
@@ -97,7 +98,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Object[] Get(String id, String source) {
 			Logger.Log("PoisController.Get (external)", LogLevels.DEBUG);
-			return new PoiDataConnector().ReadExternalPoi(source, id);
+			return DataConnectionHelper.PoiDataConnector.ReadExternalPoi(source, id);
 		}
 
 		/// <summary>
@@ -108,7 +109,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void Delete(Int64 id) {
 			Logger.Log("PoisController.Delete", LogLevels.DEBUG);
-			new PoiDataConnector().DeletePoi(id);
+			DataConnectionHelper.PoiDataConnector.DeletePoi(id);
 		}
 
 		/// <summary>

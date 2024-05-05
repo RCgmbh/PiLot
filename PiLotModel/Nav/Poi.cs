@@ -56,5 +56,35 @@ namespace PiLot.Model.Nav {
 		[JsonPropertyName("sourceId")]
 		public String SourceID { get; set; }
 
+		/// <summary>
+		/// Returns the attributes needed to show the poi on the map as an object array. We do this, 
+		/// because the DB-Connector returns the data read straight out of the db. So for the file
+		/// based storage, we do a bit of extra work.
+		/// </summary>
+		public Object[] ToShortArray() {
+			return new Object[] {
+				this.ID, this.Title,
+				this.CategoryID, this.FeatureIDs,
+				this.Latitude, this.Longitude,
+				this.ValidFrom, this.ValidTo, 
+				this.Source, this.SourceID
+			};
+		}
+
+		/// <summary>
+		/// Returns all Attributes of the poi as an array. This is needed for compatibility reasons
+		/// with the db connector
+		/// </summary>
+		public Object[] ToArray() {
+			return new Object[] {
+				this.ID, this.Title,
+				this.CategoryID, this.FeatureIDs,
+				this.Latitude, this.Longitude,
+				this.ValidFrom, this.ValidTo,
+				this.Source, this.SourceID,
+				this.Description, this.Properties
+			};
+		}
+
 	}
 }

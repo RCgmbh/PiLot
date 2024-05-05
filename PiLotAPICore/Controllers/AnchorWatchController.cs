@@ -3,6 +3,7 @@
 using PiLot.API.ActionFilters;
 using PiLot.API.Workers;
 using PiLot.Model.Nav;
+using System;
 
 namespace PiLot.API.Controllers {
 
@@ -20,6 +21,16 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public AnchorWatch Get() {
 			return AnchorWatchWorker.Instance.GetAnchorWatch();
+		}
+
+		/// <summary>
+		/// plays the alarm sound to test
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/test")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public String GetTestSound(Int32? alarmIndex) {
+			return AnchorWatchWorker.Instance.PlayTestAlarm(alarmIndex);
 		}
 
 		/// <summary>

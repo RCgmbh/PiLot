@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
-using PiLot.Data.Postgres.Nav;
+using PiLot.API.Helpers;
 using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
@@ -23,7 +23,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<PoiFeature> GetFeatures() {
 			Logger.Log("PoisController.GetPoiFeatures", LogLevels.DEBUG);
-			return new PoiDataConnector().ReadPoiFeatures();
+			return DataConnectionHelper.PoiDataConnector.ReadPoiFeatures();
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int32 PutFeature(PoiFeature feature) {
 			Logger.Log("PoisController.PutFeature", LogLevels.DEBUG);
-			return new PoiDataConnector().SavePoiFeature(feature);
+			return DataConnectionHelper.PoiDataConnector.SavePoiFeature(feature);
 		}
 
 		/// <summary>
@@ -47,8 +47,8 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult DeleteFeature(Int32 featureId) {
 			Logger.Log("PoisController.DeleteFeature", LogLevels.DEBUG);
-			Int32 result = new PoiDataConnector().DeletePoiFeature(featureId);
-			if (result == 1) {
+			Boolean result = DataConnectionHelper.PoiDataConnector.DeletePoiFeature(featureId);
+			if (result) {
 				return this.Ok();
 			} else {
 				return this.BadRequest("The poi feature is in use");

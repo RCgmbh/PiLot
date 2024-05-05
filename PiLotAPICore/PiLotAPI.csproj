@@ -13,6 +13,7 @@
     <ProjectReference Include="..\PiLotConfig\PiLotConfig.csproj" />
     <ProjectReference Include="..\PiLotDataFiles\PiLotDataFiles.csproj" />
     <ProjectReference Include="..\PiLotDataPostgres\PiLotDataPostgres.csproj" />
+    <ProjectReference Include="..\PiLotData\PiLotData.csproj" />
     <ProjectReference Include="..\PiLotGPIO\PiLotGPIO.csproj" />
     <ProjectReference Include="..\PiLotModel\PiLotModel.csproj" />
     <ProjectReference Include="..\PiLotUtils\PiLotUtils.csproj" />

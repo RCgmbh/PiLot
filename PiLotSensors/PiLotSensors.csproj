@@ -28,8 +28,8 @@
 
   <ItemGroup>
     <PackageReference Include="Iot.Device.Bindings" Version="2.1.0" />
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="6.0.0" />
-    <PackageReference Include="System.Device.Gpio" Version="2.1.0" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="8.0.0" />
+    <PackageReference Include="System.Device.Gpio" Version="2.2.0" />
     <PackageReference Include="UnitsNet" Version="5.0.0-alpha003" />
   </ItemGroup>
 

@@ -170,7 +170,7 @@ namespace PiLot.Backup.API.Helpers {
 						dataCount = new SensorDataConnector(backupDirectory.FullName).ReadDaysWithData(aDataSource.Name);
 						break;
 					case DataTypes.POIs:
-						dataCount = new PoiDataConnector(backupDirectory.FullName).ReadAllPois().Count;
+						dataCount = new PoiDataConnector(backupDirectory.FullName).ReadPois().Count;
 						break;
 					case DataTypes.Photos:
 						dataCount = new PhotoDataConnector(BackupHelper.GetClientRoot(pClientName, false).FullName).ReadPhotosCount();

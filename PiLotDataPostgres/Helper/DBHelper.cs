@@ -10,7 +10,15 @@ using PiLot.Utils.Logger;
 namespace PiLot.Data.Postgres.Helper {
 	public class DBHelper {
 
-		public DBHelper() { }
+		private String connectionString;
+
+		public DBHelper() {
+			this.connectionString = ConfigurationManager.AppSettings["connectionString"];
+		}
+
+		public DBHelper(String pConnectionString) {
+			this.connectionString = pConnectionString;
+		}
 
 		/// <summary>
 		/// Returns the db connection for the connection string. If there is no connection string
@@ -19,10 +27,9 @@ namespace PiLot.Data.Postgres.Helper {
 		/// <returns>A new, closed db connection or null</returns>
 		public NpgsqlConnection GetConnection() {
 			NpgsqlConnection result = null;
-			String connectionString = ConfigurationManager.AppSettings["connectionString"];
-			if (!String.IsNullOrEmpty(connectionString)) {
-				result = new NpgsqlConnection(connectionString);
-				Logger.Log($"connectionString: {connectionString}", LogLevels.DEBUG);
+			if (!String.IsNullOrEmpty(this.connectionString)) {
+				result = new NpgsqlConnection(this.connectionString);
+				Logger.Log($"connectionString: {this.connectionString}", LogLevels.DEBUG);
 			} else {
 				Logger.Log("No DB connection configured", LogLevels.WARNING);
 			}

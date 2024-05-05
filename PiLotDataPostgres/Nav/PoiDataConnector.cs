@@ -2,23 +2,28 @@
 using System.Collections.Generic;
 using System.Data;
 using Npgsql;
-
+using PiLot.Data.Nav;
 using PiLot.Data.Postgres.Helper;
 using PiLot.Model.Nav;
 using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
 
-namespace PiLot.Data.Postgres.Nav {
-	
-	/// <summary>
-	/// Reads and writes POIs from/to the database
-	/// </summary>
-	public class PoiDataConnector {
+namespace PiLot.Data.Postgres.Nav
+{
+
+    /// <summary>
+    /// Reads and writes POIs from/to the database
+    /// </summary>
+    public class PoiDataConnector: IPoiDataConnector {
 
 		protected DBHelper dbHelper;
 
 		public PoiDataConnector() {
 			this.dbHelper = new DBHelper();
+		}
+
+		public PoiDataConnector(String pConnectionString) {
+			this.dbHelper = new DBHelper(pConnectionString);
 		}
 
 		/// <summary>
@@ -253,15 +258,15 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Deletes a Poi Category, it it isn't used by any poi. 
 		/// </summary>
 		/// <param name="pCategoryId">The id of the category to delete</param>
-		/// <returns>1, if the category has been deleted, 0 if it couldn't be deleted</returns>
-		public Int32 DeletePoiCategory(Int32 pCategoryId) {
+		/// <returns>true, if the category has been deleted, false if it couldn't be deleted</returns>
+		public Boolean DeletePoiCategory(Int32 pCategoryId) {
 			Logger.Log("PoiDataConnector.DeletePoiCategory", LogLevels.DEBUG);
 			Int32 result;
 			String command = "SELECT * FROM delete_poi_category(@p_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_id", pCategoryId));
 			result = this.dbHelper.ExecuteCommand<Int32>(command, pars);
-			return result;
+			return result == 1;
 		}
 
 		/// <summary>
@@ -320,15 +325,15 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Deletes a Poi Feature, it it isn't used by any poi. 
 		/// </summary>
 		/// <param name="pFeatureId">The id of the feature to delete</param>
-		/// <returns>1, if the feature has been deleted, 0 if it couldn't be deleted</returns>
-		public Int32 DeletePoiFeature(Int32 pFeatureId) {
+		/// <returns>true, if the feature has been deleted, false if it couldn't be deleted</returns>
+		public Boolean DeletePoiFeature(Int32 pFeatureId) {
 			Logger.Log("PoiDataConnector.DeletePoiFeature", LogLevels.DEBUG);
 			Int32 result;
 			String command = "SELECT * FROM delete_poi_feature(@p_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_id", pFeatureId));
 			result = this.dbHelper.ExecuteCommand<Int32>(command, pars);
-			return result;
+			return result == 1;
 		}
 
 		/// <summary>

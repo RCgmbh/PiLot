@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.API.Helpers;
 using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
@@ -23,7 +24,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<PoiCategory> GetCategories( ) {
 			Logger.Log("PoisController.GetPoiCategories", LogLevels.DEBUG);
-			return new PoiDataConnector().ReadPoiCategories();
+			return DataConnectionHelper.PoiDataConnector.ReadPoiCategories();
 		}
 
 		/// <summary>
@@ -35,7 +36,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int32 PutCategory(PoiCategory category) {
 			Logger.Log("PoisController.PutCategory", LogLevels.DEBUG);
-			return new PoiDataConnector().SavePoiCategory(category);
+			return DataConnectionHelper.PoiDataConnector.SavePoiCategory(category);
 		}
 
 		/// <summary>
@@ -48,8 +49,8 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult DeleteCategory(Int32 categoryId) {
 			Logger.Log("PoisController.DeleteCategory", LogLevels.DEBUG);
-			Int32 result = new PoiDataConnector().DeletePoiCategory(categoryId);
-			if(result == 1) {
+			Boolean result = DataConnectionHelper.PoiDataConnector.DeletePoiCategory(categoryId);
+			if(result) {
 				return this.Ok();
 			} else {
 				return this.BadRequest("The poi category is in use");
