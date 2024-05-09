@@ -4,8 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Helpers;
-
-using PiLot.Data.Postgres.Nav;
+using PiLot.Data.Nav;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Controllers {
@@ -27,7 +26,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Track> GetTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			List<Track> tracks = new TrackDataConnector().ReadTracks(startTime, endTime, isBoatTime, true);
+			List<Track> tracks = DataConnectionHelper.TrackDataConnector.ReadTracks(startTime, endTime, isBoatTime, true);
 			return tracks;
 		}
 
@@ -39,7 +38,12 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<TrackSegment> GetTrackSegments(Int32 id) {
-			return new TrackDataConnector().ReadTrackSegments(id);
+			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
+			if (dataConnector.SupportsStatistics) {
+				return DataConnectionHelper.TrackDataConnector.ReadTrackSegments(id);
+			} else {
+				return new List<TrackSegment>(0);
+			}
 		}
 
 		/// <summary>
@@ -50,11 +54,12 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public Boolean[] Get(Int32 year, Int32 month) {
-			return new TrackDataConnector().ReadTracksMonthInfo(year, month).ToArray();
+			return DataConnectionHelper.TrackDataConnector.ReadTracksMonthInfo(year, month).ToArray();
 		}
 
 		/// <summary>
-		/// Saves a track. The Track must have ID=null. To update a track,
+		/// Saves a track. The Track must have ID=null. Any existing track for the same
+		/// boat that overlaps this track will be deleted
 		/// </summary>
 		/// <param name="Track">The track to save, ID must be null</param>
 		/// <returns>The id of the track</returns>
@@ -62,7 +67,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int32 PutInsert(Track pTrack) {
-			new TrackDataConnector().InsertTrack(pTrack);
+			DataConnectionHelper.TrackDataConnector.InsertTrack(pTrack);
 			return pTrack.ID.Value;
 		}
 
@@ -77,7 +82,7 @@ namespace PiLot.API.Controllers {
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void DeleteTrackPoints(Int32 id, Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			new TrackDataConnector().DeleteTrackPoints(id, startTime, endTime, isBoatTime);
+			DataConnectionHelper.TrackDataConnector.DeleteTrackPoints(id, startTime, endTime, isBoatTime);
 			TrackStatisticsHelper.UpdateStatistics(id);
 		}
 	}

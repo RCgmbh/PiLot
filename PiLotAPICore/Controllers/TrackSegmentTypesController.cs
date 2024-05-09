@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Helpers;
+using PiLot.Data.Nav;
 using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 
@@ -22,7 +23,12 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<TrackSegmentType> Get() {
-			return new TrackDataConnector().ReadTrackSegmentTypes();
+			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
+			if (dataConnector.SupportsStatistics) {
+				return dataConnector.ReadTrackSegmentTypes();
+			} else {
+				return new List<TrackSegmentType>(0);
+			}			
 		}
 
 		/// <summary>

@@ -296,13 +296,13 @@ namespace PiLot.Data.Files
 		/// <typeparam name="T">The type of the result</typeparam>
 		/// <param name="pFileName">The filename (no path)</param>
 		private T ReadData<T>(String pFileName) {
-			T result;
+			T result = default(T);
 			FileInfo file = this.GetFile(true, pFileName);
 			if (file.Exists) {
 				String fileContent = File.ReadAllText(file.FullName);
-				result = JsonSerializer.Deserialize<T>(fileContent);
-			} else {
-				result = default(T);
+				if (!String.IsNullOrEmpty(fileContent)) {
+					result = JsonSerializer.Deserialize<T>(fileContent);
+				}
 			}
 			return result;
 		}

@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 using PiLot.API.Helpers;
 using PiLot.Data.Nav;
-using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Workers {
@@ -33,7 +33,7 @@ namespace PiLot.API.Workers {
 
 		#region instance fields
 
-		private TrackDataConnector dataConnector = null;
+		private ITrackDataConnector dataConnector = null;
 		private Boolean statisticsRequested = false;
 		private Task processingTask = null;
 		private CancellationToken cancellationToken;
@@ -47,7 +47,7 @@ namespace PiLot.API.Workers {
 		/// Private constructor. The Instance accessor should be used
 		/// </summary>
 		private TrackStatisticsWorker() {
-			this.dataConnector = new TrackDataConnector();
+			this.dataConnector = DataConnectionHelper.TrackDataConnector;
 			this.cancellationToken = new CancellationTokenSource().Token;
 			this.trackIds = new List<Int32>();
 		}
@@ -104,14 +104,13 @@ namespace PiLot.API.Workers {
 		}
 
 		/// <summary>
-		/// Does the actual work of updating the statistics. Reads all dirty tracks, calculates them statistics
-		/// and saves them back to the db.
+		/// Does the actual work of updating the statistics. loops through all trackIs that have
+		/// been reported using EnsureStatistics, calculates them statistics and saves them back 
+		/// to the db. Does nothing, it the data connector does not support statistics.
 		/// </summary>
 		private void UpdateStatistics() {
-			//ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
-			//if (dataConnector.SupportsStatistics) {
-				TrackDataConnector dataConnector = new TrackDataConnector();
-				while(this.trackIds.Count > 0) {
+			if (this.dataConnector.SupportsStatistics) {
+				while (this.trackIds.Count > 0) {
 					Int32 trackId = this.trackIds.First();
 					Track track = dataConnector.ReadTrack(trackId);
 					List<TrackSegment> currentSegments = dataConnector.ReadTrackSegments(trackId);
@@ -132,7 +131,7 @@ namespace PiLot.API.Workers {
 					}
 					this.trackIds.Remove(trackId);
 				}
-			//}
+			}
 		}
 	}
 }

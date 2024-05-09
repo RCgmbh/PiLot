@@ -95,7 +95,7 @@ namespace PiLot.Model.Nav {
 		}
 
 		[JsonPropertyName("distance")]
-		public Double Distance {
+		public Double? Distance {
 			get; set;
 		}
 
@@ -105,12 +105,12 @@ namespace PiLot.Model.Nav {
 		}
 
 		[JsonIgnore]
-		public DateTime DateCreated {
+		public DateTime? DateCreated {
 			get; set;
 		}
 
 		[JsonIgnore]
-		public DateTime DateChanged {
+		public DateTime? DateChanged {
 			get; set;
 		}
 

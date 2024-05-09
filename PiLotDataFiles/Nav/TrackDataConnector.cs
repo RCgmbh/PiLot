@@ -1,19 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 
 using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
 using PiLot.Model.Nav;
-using System.Globalization;
+using PiLot.Data.Nav;
+using PiLot.Utils;
 
 namespace PiLot.Data.Files {
 
 	/// <summary>
 	/// Helper class to read and write track points
 	/// </summary>
-	public class TrackDataConnector {
+	public class TrackDataConnector: ITrackDataConnector {
 
 		#region constants
 
@@ -46,14 +48,116 @@ namespace PiLot.Data.Files {
 
 		#endregion
 
+		#region public properties
+
+		public Boolean SupportsStatistics {
+			get { return false; }
+		}
+
+		public Boolean SupportsTrackIDs {
+			get { return true; }
+		}
+
+		#endregion
+
 		#region public methods
 
 		/// <summary>
-		/// Saves all data for a track
+		/// This should not be called as SupportsTrackIDs is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public Track ReadTrack(Int32 pTrackId) {
+			throw new NotImplementedException("Files based DataConnector does not support track ids. Check SupportsTrackIDs before calling ReadTrack(Int32)");
+		}
+
+		/// <summary>
+		/// Reads the track for a certain period from files. If there are no track points,
+		/// the result will be a track with an empty track points list
+		/// </summary>
+		/// <param name="pStartTime">The start time in milliseconds, either UTC or BoatTime</param>
+		/// <param name="pEndTime">The end time in milliseconds, either UTC or BoatTime</param>
+		/// <param name="pIsBoatTime">If true, pStartTime and pEndTime are BoatTime, else UTC</param>
+		/// <param name="pReadTrackPoints">If true, track points will be read</param>
+		/// <returns>A Track, never null</returns>
+		public List<Track> ReadTracks(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime = false, Boolean pReadTrackPoints = false) {
+			List<Date> dates = null;
+			return new List<Track>(1) { this.ReadTrack(pStartTime, pEndTime, pIsBoatTime, ref dates) };
+		}
+
+		/// <summary>
+		/// Reads for each day of a month whether we have a track.
+		/// </summary>
+		/// <param name="pYear">The year</param>
+		/// <param name="pMonth">The month of the year, in c#-style (1-based index)</param>
+		/// <returns>List of Booleans, a value per day</returns>
+		public List<Boolean> ReadTracksMonthInfo(Int32 pYear, Int32 pMonth) {
+			List<Boolean> result = new List<Boolean>();
+			Date loopDate = new Date(pYear, pMonth, 1);
+			List<Track> tracks = this.ReadTracks(DateTimeHelper.ToJSTime(loopDate), DateTimeHelper.ToJSTime(loopDate.AddMonths(1)), true, false);
+			Boolean hasTrack;
+			Int64 minMS, maxMS;
+			while (loopDate.Month == pMonth) {
+				minMS = DateTimeHelper.ToJSTime(loopDate);
+				maxMS = DateTimeHelper.ToJSTime(loopDate.AddDays(1));
+				hasTrack = tracks.Exists(t => t.Overlaps(minMS, maxMS, true));
+				result.Add(hasTrack);
+				loopDate = loopDate.AddDays(1);
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Saves all data for a track, deleting overlapping track points
 		/// </summary>
 		/// <param name="pTrack">The track, not null</param>
-		public void SaveTrack(Track pTrack) {
+		public void InsertTrack(Track pTrack) {
 			this.SaveTrackPoints(pTrack.TrackPoints);
+		}
+
+		/// <summary>
+		/// This should not be called as SupportsTrackIDs is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public void DeleteTrack(Int32 pTrackId) {
+			throw new NotImplementedException("Files based DataConnector does not support track ids. Check SupportsTrackIDs before calling DeleteTrack(Int32)");
+		}
+
+		/// <summary>
+		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public List<TrackSegmentType> ReadTrackSegmentTypes() {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling ReadTrackSegmentTypes()");
+		}
+
+		/// <summary>
+		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public List<TrackSegment> ReadTrackSegments(Int32 pTrackId) {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling ReadTrackSegments()");
+		}
+
+		/// <summary>
+		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public void SaveTrackSegment(TrackSegment pSegment) {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling SaveTrackSegment(TrackSegment)");
+		}
+
+		/// <summary>
+		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
+		public void DeleteTrackSegment(TrackSegment pSegment) {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling DeleteTrackSegment(TrackSegment)");
 		}
 
 		/// <summary>
@@ -61,29 +165,37 @@ namespace PiLot.Data.Files {
 		/// the end of the file, so there is no guarantee for records to be sorted
 		/// within the file
 		/// </summary>
-		public void SaveTrackPoint(TrackPoint pTrackPoint) {
+		/// <param name="pTrackPoint">The track points to save</param>
+		/// <param name="pBoat">The boat name will be ignored in files based DataConnector</param>
+		/// <returns>Returns -1 as the connector does not support TrackIDs</returns>
+		public Int32? SaveTrackPoint(TrackPoint pTrackPoint, String pBoat = null) {
 			Date trackPointDate = new Date(pTrackPoint.GetUTCDate());
 			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, trackPointDate, true);
 			String[] line = new String[] { pTrackPoint.ToString() };
 			File.AppendAllLines(file.FullName, line);
+			return -1;
 		}
 
 		/// <summary>
-		/// Saves a list of positions to the files. 
+		/// Saves a list of track points to the files. Any existing trackpoints within
+		/// that period will be deleted.
 		/// </summary>
-		/// <param name="pTrackPoints">The track points as a list of double arrays representing UTC, BoatTime, Lat, Lng</param>
-		public void SaveTrackPoints(List<Double?[]> pTrackPoints) {
+		/// <param name="pTrackPoints">A list of TrackPoints</param>
+		/// <param name="pBoat">The boat name will be ignored in files based DataConnector</param>
+		/// <returns>Returns -1 as the connector does not support TrackIDs</returns>
+		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat = null) {
 			if ((pTrackPoints != null) && (pTrackPoints.Count > 0)) {
-				List<TrackPoint> trackPoints = new List<TrackPoint>();
-				foreach(Double?[] aTrackPoint in pTrackPoints) {
-					TrackPoint trackPoint = TrackPoint.FromArray(aTrackPoint);
-					if(trackPoint != null) {
-						trackPoints.Add(trackPoint);
-					}
-				}
-				this.SaveTrackPoints(trackPoints);
+				List<Date> dates = new List<Date>();
+				Int64 minUTC = pTrackPoints.Min(r => r.UTC);
+				Int64 maxUTC = pTrackPoints.Max(r => r.UTC);
+				Track track = this.ReadFullDatesTrack(minUTC, maxUTC, false, ref dates);
+				track.Cut(minUTC, maxUTC, false);
+				track.AddTrackPoints(pTrackPoints);
+				this.SaveTrack(track, dates);
 			}
+			return -1;
 		}
+
 
 		/// <summary>
 		/// Saves the track for one UTC date to file, replacing the existing data for that day
@@ -97,47 +209,42 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Saves a list of track points to the files.
-		/// </summary>
-		/// <param name="pTrackPoints">A list of TrackPoints</param>
-		public void SaveTrackPoints(List<TrackPoint> pTrackPoints) {
-			if ((pTrackPoints != null) && (pTrackPoints.Count > 0)) {
-				List<Date> dates = new List<Date>();
-				Int64 minUTC = pTrackPoints.Min(r => r.UTC);
-				Int64 maxUTC = pTrackPoints.Max(r => r.UTC);
-				Track track = this.ReadFullDatesTrack(minUTC, maxUTC, false, ref dates);
-				track.Cut(minUTC, maxUTC, false);
-				track.AddTrackPoints(pTrackPoints);
-				this.SaveTrack(track, dates);
-			}
-		}
-
-		/// <summary>
 		/// Deletes all track points between pStartTime and pEndTime from the files.
 		/// It's a bit tricky because we have to read entire utc days (1 UTC day = 1 file),
 		/// then remove the unwanted part and re-save the files. 
 		/// </summary>
-		/// <param name="pStartTime">The js timestamp of the start time</param>
-		/// <param name="pEndTime">The js timestamp of the end time</param>
-		public void DeleteTrackPoints(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
+		/// <param name="pTrackId">The track id must always be -1</param>
+		/// <param name="pStart">The js timestamp of the start time</param>
+		/// <param name="pEnd">The js timestamp of the end time</param>
+		/// <param name="pIsBoatTime">Whether start and end are BoatTime (true) or UTC (fale)</param>
+		public void DeleteTrackPoints(Int32 pTrackId, Int64 pStart, Int64 pEnd, Boolean pIsBoatTime) {
+			Assert.IsTrue(pTrackId == -1, "Files based TrackDataConnector does not support track ids. pTrackID must be -1 in DeleteTrackPoints");
 			List<Date> dates = new List<Date>();
-			Track track = this.ReadFullDatesTrack(pStartTime, pEndTime, pIsBoatTime, ref dates);
-			track.Cut(pStartTime, pEndTime, pIsBoatTime);
+			Track track = this.ReadFullDatesTrack(pStart, pEnd, pIsBoatTime, ref dates);
+			track.Cut(pStart, pEnd, pIsBoatTime);
 			this.SaveTrack(track, dates);
 		}
 
 		/// <summary>
-		/// Reads the track for a certain period from files. If there are no track points,
-		/// the result will be a track with an empty track points list
+		/// Returns the number of days that have a valid gps data file, even if it's empty.
 		/// </summary>
-		/// <param name="pStartTime">The start time in milliseconds, either UTC or BoatTime</param>
-		/// <param name="pEndTime">The end time in milliseconds, either UTC or BoatTime</param>
-		/// <param name="pIsBoatTime">If true, pStartTime and pEndTime are BoatTime, else UTC</param>
-		/// <returns>A Track, never null</returns>
-		public Track ReadTrack(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
-			List<Date> dates = null;
-			return this.ReadTrack(pStartTime, pEndTime, pIsBoatTime, ref dates);
+		public Int32 ReadDaysWithData() {
+			Int32 result = 0;
+			DirectoryInfo gpsDirectory = new DirectoryInfo(this.helper.GetDataPath(DATASOURCENAME, false));
+			if (gpsDirectory.Exists) {
+				foreach(FileInfo aFile in gpsDirectory.EnumerateFiles()) {
+					if (Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
+						result++;
+					}
+					// todo: maybe add tryParse(int) for the case when we save tracks that come from DB, serialized as Track, using TrackID as filename
+				}
+			}
+			return result;
 		}
+
+		#endregion
+
+		#region private methods
 
 		/// <summary>
 		/// Reads the track for a certain period from files. If there are no track points,
@@ -148,24 +255,18 @@ namespace PiLot.Data.Files {
 		/// <param name="pIsBoatTime">If true, pStartTime and pEndTime are BoatTime, else UTC</param>
 		/// <param name="pDates">Takes a list of Dates that will be filled with all processed days</param>
 		/// <returns>A Track, never null</returns>
-		public Track ReadTrack(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime, ref List<Date> pDates) {
+		private Track ReadTrack(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime, ref List<Date> pDates) {
 			Track result = this.ReadFullDatesTrack(pStartTime, pEndTime, pIsBoatTime, ref pDates);
 			result.Crop(pStartTime, pEndTime, pIsBoatTime);
-			return result;
-		}
-
-		/// <summary>
-		/// Returns the amount of days that have a valid gps data file, even if it's empty.
-		/// </summary>
-		public Int32 ReadDaysWithData() {
-			Int32 result = 0;
-			DirectoryInfo gpsDirectory = new DirectoryInfo(this.helper.GetDataPath(DATASOURCENAME, false));
-			if (gpsDirectory.Exists) {
-				foreach(FileInfo aFile in gpsDirectory.EnumerateFiles()) {
-					if (Date.TryParseExact(aFile.Name, DataHelper.FILENAMEFORMAT, CultureInfo.InvariantCulture, DateTimeStyles.None, out Date date)) {
-						result++;
-					}
-				}
+			if (result.HasTrackPoints) {
+				result.StartUTC = result.FirstTrackPoint.UTC;
+				result.EndUTC = result.LastTrackPoint.UTC;
+				result.StartBoatTime = result.FirstTrackPoint.BoatTime.Value;
+				result.EndBoatTime = result.LastTrackPoint.BoatTime.Value;
+				result.Distance = null;
+				result.Boat = null;
+				result.DateCreated = null;
+				result.DateChanged = null;
 			}
 			return result;
 		}
@@ -181,6 +282,7 @@ namespace PiLot.Data.Files {
 		/// <returns>A track containing all positions for the involved UTC days (= files)</returns>
 		private Track ReadFullDatesTrack(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime, ref List<Date> pDates) {
 			Track result = new Track();
+			result.ID = -1;
 			DateTime loopStartUtc = DateTimeHelper.FromJSTime(pStartTime); // we need this to loop the files, the filename is based on utc
 			DateTime loopEndUtc = DateTimeHelper.FromJSTime(pEndTime);
 			if (pIsBoatTime) {
@@ -203,8 +305,7 @@ namespace PiLot.Data.Files {
 
 		/// <summary>
 		/// saves track data to files, creating one file per date (in UTC). BE AWARE that all data for the impacted days 
-		/// will be replaced, so you might want to start off with ReadFullDatesTrack. If the track has no positions, but
-		/// there is a file, the file will be deleted.
+		/// will be replaced, so you might want to start off with ReadFullDatesTrack.
 		/// </summary>
 		/// <param name="pTrack">The track for which we save the data</param>
 		/// <param name="pDates">Optionally pass a list of dates, to ensure days with no records are properly updated</param>

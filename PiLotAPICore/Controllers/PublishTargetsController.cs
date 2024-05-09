@@ -16,6 +16,7 @@ using PiLot.Model.Publishing;
 using PiLot.Model.Photos;
 using PiLot.Utils.Logger;
 using PiLot.Utils.DateAndTime;
+using PiLot.API.Helpers;
 
 namespace PiLot.API.Controllers {
 
@@ -92,16 +93,16 @@ namespace PiLot.API.Controllers {
 		/// <param name="pDate">The date for which we want the track.</param>
 		/// <returns>A ProxyResult containing a track which might be empty, but never null</returns>
 		private async Task<TargetData<List<Track>>> LoadTracksAsync(PublishTarget pTarget, LoginHelper pLoginHelper, System.Date pDate) {
-			Boolean isBoatTime;
+			Boolean isBoatTime = true;
 			Int64 trackStart = DateTimeHelper.ToJSTime(pDate);
 			Int64 trackEnd = DateTimeHelper.ToJSTime(pDate.AddDays(1));
-			Track localTrack = new TrackDataConnector().ReadTrack(trackStart, trackEnd, true);
-			if (localTrack.HasTrackPoints) {
-				trackStart = localTrack.FirstTrackPoint.UTC;
-				trackEnd = localTrack.LastTrackPoint.UTC;
-				isBoatTime = false;
-			} else {
-				isBoatTime = true;
+			List<Track> localTracks = DataConnectionHelper.TrackDataConnector.ReadTracks(trackStart, trackEnd, true, true);
+			foreach(Track aTrack in localTracks) {
+				if (aTrack.HasTrackPoints) {
+					trackStart = aTrack.StartUTC;
+					trackEnd = aTrack.EndUTC;
+					isBoatTime = false;
+				}
 			}
 			TrackProxy trackProxy = new TrackProxy(pTarget.APIUrl, pLoginHelper);
 			ProxyResult<List<Track>> proxyResult = await trackProxy.GetTracksAsync(trackStart, trackEnd, isBoatTime);

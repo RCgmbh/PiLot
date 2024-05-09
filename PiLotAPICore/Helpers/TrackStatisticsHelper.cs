@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 using PiLot.Data.Nav;
-using PiLot.Data.Postgres.Nav;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Helpers {
@@ -11,9 +10,8 @@ namespace PiLot.API.Helpers {
     public class TrackStatisticsHelper{
 
         public static void UpdateStatistics(Int32 pTrackId){
-			//ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
-			//if (dataConnector.SupportsStatistics) {
-				TrackDataConnector dataConnector = new TrackDataConnector();
+			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
+			if (dataConnector.SupportsStatistics) {
 				Track track = dataConnector.ReadTrack(pTrackId);
 				List<TrackSegment> currentSegments = dataConnector.ReadTrackSegments(pTrackId);
 				List<TrackSegmentType> allTrackSegmentTypes = dataConnector.ReadTrackSegmentTypes();
@@ -31,8 +29,7 @@ namespace PiLot.API.Helpers {
 						}
 					}
 				}
-			//}
+			}
         }
     }
-
 }

@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
 using PiLot.API.Helpers;
-using PiLot.API.Workers;
 using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
@@ -52,7 +51,7 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Allows to put a the latest position. This operation can only be called from local clients, but 
+		/// Allows to put the latest position. This operation can only be called from local clients, but 
 		/// then does not need any credentials. This is intended to simplify the connection from the GPS 
 		/// logger to the api, and make it more robust.
 		/// </summary>
@@ -60,7 +59,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/local")]
 		[HttpPut]
 		[ServiceFilter(typeof(LocalAuthorizationFilter))]
-		public void PutPositionsLocal(TrackPoint pTrackPoint) {
+		public void PutPositionLocal(TrackPoint pTrackPoint) {
 			Logger.Log($"PositionController.PutPositionLocal: TrackPoint recieved: {pTrackPoint}", LogLevels.DEBUG);
 			if (pTrackPoint != null) {
 				GpsTimeSync.Instance.HandleGPSRecord(pTrackPoint);
@@ -72,9 +71,7 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Allows to put a series of TrackPoints, representing the latest positions. It expects, without 
-		/// verifying, that all records are newer than any records sent before. The records themselves 
-		/// however need not be sorted, as we will sort them anyways.
+		/// Allows to put a series of TrackPoints, representing the latest positions.
 		/// </summary>
 		/// <param name="pTrackPoints">An array of TrackPoints, or null</param>
 		[Route(Program.APIROOT + "[controller]/multiple")]
@@ -83,17 +80,9 @@ namespace PiLot.API.Controllers {
 		public void PutPositions(TrackPoint[] pTrackPoints) {
 			if (pTrackPoints != null) {
 				GPSCache cache = GPSCache.Instance;
-				List<TrackPoint> orderedTrackPoints = pTrackPoints.OrderBy(record => record.UTC).ToList();
-				Int32? lastTrackId = null;
-				Int32? trackId = null;
-				foreach (TrackPoint aTrackPoint in orderedTrackPoints) {
-					trackId = cache.AddTrackPoint(aTrackPoint);
-					if (trackId != null && (lastTrackId == null || lastTrackId != trackId)){
-						if(lastTrackId != null) {
-							TrackStatisticsHelper.UpdateStatistics(trackId.Value);
-						}
-						lastTrackId = trackId;
-					}
+				Int32? trackId = cache.AddTrackPoints(pTrackPoints.ToList());
+				if(trackId != null) {
+					TrackStatisticsHelper.UpdateStatistics(trackId.Value);
 				}
 			}
 		}

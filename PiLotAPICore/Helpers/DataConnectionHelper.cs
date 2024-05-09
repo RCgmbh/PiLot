@@ -26,7 +26,7 @@ namespace PiLot.API.Helpers
 			}
 		}
 
-		/*public static ITrackDataConnector TrackDataConnector {
+		public static ITrackDataConnector TrackDataConnector {
 			get {
 				ITrackDataConnector result = null;
 				String connectionString = ConfigurationManager.AppSettings["connectionString"];
@@ -37,6 +37,6 @@ namespace PiLot.API.Helpers
 				}
 				return result;
 			}
-		}*/
+		}
 	}
 }

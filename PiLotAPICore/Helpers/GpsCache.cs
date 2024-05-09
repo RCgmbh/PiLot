@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 using PiLot.Data.Files;
+using PiLot.Data.Nav;
 using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
@@ -40,7 +41,7 @@ namespace PiLot.API.Helpers {
 		private List<TrackPoint> trackPoints = null;
 		private TrackPoint previousSavedTrackPoint = null;   // the last track point we saved to disk
 		private GlobalDataConnector globalDataConnector = null;
-		private PiLot.Data.Postgres.Nav.TrackDataConnector trackPointDataConnector = null;
+		private ITrackDataConnector trackPointDataConnector = null;
 
 		#endregion
 
@@ -50,7 +51,7 @@ namespace PiLot.API.Helpers {
 		private GPSCache() {
 			this.trackPoints = new List<TrackPoint>();
 			this.globalDataConnector = new GlobalDataConnector();
-			this.trackPointDataConnector = new PiLot.Data.Postgres.Nav.TrackDataConnector();
+			this.trackPointDataConnector = DataConnectionHelper.TrackDataConnector;
 			Logger.Log("GPSCache: New instance created", LogLevels.DEBUG);
 		}
 
@@ -100,20 +101,48 @@ namespace PiLot.API.Helpers {
 		/// </summary>
 		/// <returns>The ID of the track to which the point was persisted, null if it was not persisted</returns>
 		public Int32? AddTrackPoint(TrackPoint pTrackPoint) {
+			return this.AddTrackPoints(new List<TrackPoint>(1){ pTrackPoint });
+		}
+
+		/// <summary>
+		/// Allows to add a list of TrackPoints to the cache, and persists those that need to
+		/// be persisted. Returns the ID of the track the trackpoints are added to, which is
+		/// defined by the first trackpoint. Also sets the BoatTime for each point based on
+		/// the UTC value and the current BoatTime Offset.
+		/// </summary>
+		/// <param name="pTrackPoints"></param>
+		/// <returns></returns>
+		public Int32? AddTrackPoints(List<TrackPoint> pTrackPoints) {
 			Int32? result = null;
-			if ((pTrackPoint?.Latitude != null) && (pTrackPoint?.Longitude != null)) {
+			if (pTrackPoints.Count > 0) {
+				Boolean doPersist;
+				Int64 deltaT;
+				Double deltaX;
+				List<TrackPoint> pointsToPersist = new List<TrackPoint>();
 				Int64 utcOffset = this.globalDataConnector.GetBoatTime().UtcOffsetMinutes * 60 * 1000;
-				pTrackPoint.BoatTime = pTrackPoint.UTC + utcOffset;
-				this.trackPoints.Insert(0, pTrackPoint);
-				try {
-					this.trackPoints.Sort((x, y) => y.UTC.CompareTo(x.UTC));
-				} catch (Exception ex){
-					Logger.Log($"TrackPointsCache.AddTrackPoint: Exception {ex.Message} when adding record {pTrackPoint}.", LogLevels.ERROR);
+				foreach (TrackPoint aTrackPoint in pTrackPoints.OrderBy(t => t.UTC)) {
+					if ((aTrackPoint?.Latitude != null) && (aTrackPoint?.Longitude != null)) {
+						aTrackPoint.BoatTime = aTrackPoint.UTC + utcOffset;
+						this.trackPoints.Insert(0, aTrackPoint);
+						this.PositionChanged?.Invoke(aTrackPoint);
+						Logger.Log($"TrackPointsCache.AddTrackPoint {aTrackPoint} : Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
+						if (this.previousSavedTrackPoint != null) {
+							deltaT = aTrackPoint.UTC - this.previousSavedTrackPoint.UTC;
+							deltaX = aTrackPoint.DistanceTo(previousSavedTrackPoint);
+							doPersist = (deltaT >= MINDELTAT) && (deltaX > MINDISTANCE);
+						} else {
+							doPersist = true;
+						}
+						if (doPersist) {
+							pointsToPersist.Add(aTrackPoint);
+							this.previousSavedTrackPoint = aTrackPoint;
+						}
+					}
 				}
-				this.PositionChanged?.Invoke(pTrackPoint);
-				Logger.Log($"TrackPointsCache.AddTrackPoint {pTrackPoint} : Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
+				result = this.trackPointDataConnector.SaveTrackPoints(pointsToPersist, BoatCache.Instance.CurrentBoat);
+				this.trackPoints.RemoveAll(tp => tp?.UTC == null); // quick fix for some weird null pointer exceptions when sorting
+				this.trackPoints.Sort((x, y) => y.UTC.CompareTo(x.UTC));
 				this.CropTrackPoints();
-				result = this.PersistLatest();
 			}
 			return result;
 		}
@@ -127,7 +156,7 @@ namespace PiLot.API.Helpers {
 		/// </summary>
 		private void CropTrackPoints() {
 			if (this.trackPoints.Count > MAXLENGTH) {
-				this.trackPoints.RemoveRange(MAXLENGTH - 1, this.trackPoints.Count - MAXLENGTH);
+				this.trackPoints.RemoveRange(MAXLENGTH, this.trackPoints.Count - MAXLENGTH);
 				Logger.Log($"TrackPointsCache.CropTrackPoints: Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
 			}
 		}

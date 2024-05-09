@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 using PiLot.APIProxy;
 using PiLot.Data.Files;
@@ -11,6 +14,8 @@ using PiLot.Model.Logbook;
 using PiLot.Utils;
 using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
+using PiLot.Data.Nav;
+using PiLot.API.Helpers;
 
 namespace PiLot.API.Workers {
 
@@ -76,10 +81,17 @@ namespace PiLot.API.Workers {
 		private async Task PublishTrackAsync(LoginHelper pLoginHelper) {
 			if(this.Job.Selection.PublishTrackMode != 0) {
 				TrackProxy proxy = new TrackProxy(this.Job.Target.APIUrl, pLoginHelper);
-				Track track = new TrackDataConnector().ReadTrack(DateTimeHelper.ToJSTime(this.Job.Date), DateTimeHelper.ToJSTime(this.Job.Date.AddDays(1)), true);
-				Boolean success = await proxy.PutTrackAsync(track);
+				ITrackDataConnector trackDataConnector = DataConnectionHelper.TrackDataConnector;
+				List<Track> tracks = trackDataConnector.ReadTracks(DateTimeHelper.ToJSTime(this.Job.Date), DateTimeHelper.ToJSTime(this.Job.Date.AddDays(1)), true, true);
+				Boolean success = true;
+				foreach(Track aTrack in tracks) {
+					success = await proxy.PutTrackAsync(aTrack);
+					if (!success) {
+						break;
+					}
+				}
 				if (success) {
-					this.Job.Messages.Add($"Track published successfully: {track.TrackPoints.Count} positions");
+					this.Job.Messages.Add($"Tracks published successfully: {tracks.Count} tracks with {tracks.Sum(t => t.TrackPoints.Count)} positions");
 				} else {
 					this.Job.Messages.Add("😥 Publishing track failed. See logfiles for (hopefully) more details.");
 				}				
