@@ -1698,7 +1698,7 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
-	 * Creates a track object based on an array of arrays. Returns null, if the 
+	 * Creates a track object based on a serialized track object. Returns null, if the 
 	 * pData is invalid
 	 * @param {Number[][]} pData - an array of arrays with utc, boatTime, lat, lon
 	 */
@@ -1709,6 +1709,31 @@ PiLot.Model.Nav = (function () {
 			result.setId(pData.id || null);
 			if (Array.isArray(pData.trackPointsArray)) {
 				pData.trackPointsArray.forEach((value, index, array) => {
+					if (Array.isArray(value) && value.length == 4) {
+						let trackPoint = TrackPoint.fromData(value);
+						result.addTrackPoint(trackPoint, true);
+					} else {
+						PiLot.log(`invalid data when reading track: ${value}, expected was an array of 4 items`);
+					}
+				});
+			} else {
+				PiLot.log('No data returned for Track', 1);
+			}
+		}
+		return result;
+	};
+
+	/**
+	 * Creates a track object based on an array of arrays. Returns null, if the 
+	 * pData is invalid
+	 * @param {Number[][]} pData - an array of arrays with utc, boatTime, lat, lon
+	 */
+	Track.fromArray = function (pData) {
+		let result = null;
+		if (pData) {
+			result = new Track();
+			if ((pData !== null) && Array.isArray(pData)) {
+				pData.forEach((value, index, array) => {
 					if (Array.isArray(value) && value.length == 4) {
 						let trackPoint = TrackPoint.fromData(value);
 						result.addTrackPoint(trackPoint, true);
