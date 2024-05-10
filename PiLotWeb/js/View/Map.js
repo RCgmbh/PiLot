@@ -2419,8 +2419,10 @@ PiLot.View.Map = (function () {
 		setContainerClick: function (pIsMinimized) {
 			if (pIsMinimized) {
 				this.container.onclick = function (e) {
-					e.stopPropagation();
-					this.startPage.setMainControl(this);
+					if(this.startPage.isMinimized(this)){
+						e.stopPropagation();
+						this.startPage.setMainControl(this);
+					}
 				}.bind(this);
 			} else {
 				this.container.onclick = null;
