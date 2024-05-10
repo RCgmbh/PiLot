@@ -204,8 +204,8 @@ namespace PiLot.Data.Files {
 		/// <param name="pDay">The day</param>
 		public void SaveDailyTrack(List<TrackPoint> pTrackPoints, Date pDay) {
 			String[] lines = pTrackPoints.Select(r => r.ToString()).ToArray();
-			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay);
-			if((lines.Length > 0) || file.Exists) {
+			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay, lines.Length > 0);
+			if((file != null) && file.Exists) {
 				File.WriteAllLines(file.FullName, lines);
 			}			
 		}
