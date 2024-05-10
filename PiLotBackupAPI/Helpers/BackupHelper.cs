@@ -152,7 +152,7 @@ namespace PiLot.Backup.API.Helpers {
 		public static void RollbackBackup(String pClientName, DateTime pBackupTime) {
 			DirectoryInfo tempDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, false, false);
 			if (tempDirectory.Exists) {
-				tempDirectory.Delete();
+				tempDirectory.Delete(true);
 			}
 		}
 
