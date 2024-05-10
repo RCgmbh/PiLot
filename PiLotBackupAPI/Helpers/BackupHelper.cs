@@ -37,7 +37,7 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		public static void BackupGpsData(List<TrackPoint> pRecords, System.Date pDay, String pClientName, DateTime pBackupTime) {
 			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
-			new TrackDataConnector(backupDirectory.FullName).SaveDailyTrack(pRecords, pDay);
+			new TrackDataConnector(backupDirectory.FullName).SaveDailyTrack(pRecords, pDay, true);
 			Logger.Log("Recieved {0} GpsRecords to backup", pRecords.Count, LogLevels.DEBUG);
 		}
 

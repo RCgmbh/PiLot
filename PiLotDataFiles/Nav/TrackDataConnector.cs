@@ -202,9 +202,10 @@ namespace PiLot.Data.Files {
 		/// </summary>
 		/// <param name="pTrackPoints">The list of track points to write</param>
 		/// <param name="pDay">The day</param>
-		public void SaveDailyTrack(List<TrackPoint> pTrackPoints, Date pDay) {
+		/// <param name="pCreateEmptyFiles">If true, a file will be created even if it's empty</param>
+		public void SaveDailyTrack(List<TrackPoint> pTrackPoints, Date pDay, Boolean pCreateEmptyFiles) {
 			String[] lines = pTrackPoints.Select(r => r.ToString()).ToArray();
-			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay, lines.Length > 0);
+			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay, (lines.Length > 0) || pCreateEmptyFiles);
 			if((file != null) && file.Exists) {
 				File.WriteAllLines(file.FullName, lines);
 			}			
@@ -326,7 +327,7 @@ namespace PiLot.Data.Files {
 				dailyTracks[trackPointDate].AddTrackPoint(aTrackPoint);
 			}
 			foreach (Date aKey in dailyTracks.Keys) {
-				this.SaveDailyTrack(dailyTracks[aKey].TrackPoints, aKey);
+				this.SaveDailyTrack(dailyTracks[aKey].TrackPoints, aKey, false);
 			}
 		}
 
