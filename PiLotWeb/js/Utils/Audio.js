@@ -26,7 +26,20 @@ PiLot.Utils.Audio = (function () {
 
 	Alarm.prototype = {
 
-		initialize: function () { },
+		initialize: function () { 
+			document.body.addEventListener('mousedown', this.document_interact.bind(this), {once:true});
+			document.body.addEventListener('pointerdown', this.document_interact.bind(this), {once:true});
+		},
+
+		/**
+		 * Because starting a sound without user interaction is not allowed, we check
+		 * at user interaction, if the audioContext is suspended, and if so, resume it.
+		 * */
+		document_interact: function () { 
+			if(this.audioContext && this.audioContext.state === "suspended"){
+				this.audioContext.resume();
+			}
+		},
 
 		/** Starts the alarm */
 		start: function (pMelody) {
@@ -37,7 +50,7 @@ PiLot.Utils.Audio = (function () {
 					this.noteIndex = 0;
 					this.timeout && window.clearTimeout(this.timeout);
 					this.playNextNote();
-				} 
+				}
 			} else {
 				this.stop();
 			}
