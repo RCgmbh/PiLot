@@ -8,6 +8,7 @@ using PiLot.Backup.API.Helpers;
 using PiLot.Model.Common;
 using PiLot.Model.Users;
 using PiLot.Utils.DateAndTime;
+using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API.Controllers {
 
@@ -36,6 +37,7 @@ namespace PiLot.Backup.API.Controllers {
 					result = this.Ok();
 				} catch (Exception ex) {
 					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+					Logger.Log(ex, this.HttpContext.Request.Path.ToString());
 				}
 			} else {
 				result = this.Unauthorized();
@@ -61,6 +63,33 @@ namespace PiLot.Backup.API.Controllers {
 					result = this.Ok();
 				} catch (Exception ex) {
 					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+					Logger.Log(ex, this.HttpContext.Request.Path.ToString());
+				}
+			} else {
+				result = this.Unauthorized();
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// This calls the rollback, which will delete the temporary data
+		/// of the newly created backup set.
+		/// </summary>
+		/// <param name="backupTime">The timestamp of the backup set</param>
+		[Route(Program.APIROOT + "[controller]/rollback")]
+		[HttpPut]
+		[ServiceFilter(typeof(BackupAuthorizationFilter))]
+		public ActionResult PutRollback([FromQuery] Int32 backupTime) {
+			ActionResult result;
+			Object userObj = this.HttpContext.Items["user"];
+			if (userObj != null) {
+				User user = (User)userObj;
+				try {
+					BackupHelper.RollbackBackup(user.Username, DateTimeHelper.FromUnixTime(backupTime));
+					result = this.Ok();
+				} catch (Exception ex) {
+					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+					Logger.Log(ex, this.HttpContext.Request.Path.ToString());
 				}
 			} else {
 				result = this.Unauthorized();

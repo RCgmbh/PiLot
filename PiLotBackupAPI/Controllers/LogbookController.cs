@@ -7,6 +7,7 @@ using PiLot.Backup.API.Helpers;
 using PiLot.Model.Logbook;
 using PiLot.Model.Users;
 using PiLot.Utils.DateAndTime;
+using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API.Controllers {
 
@@ -33,6 +34,7 @@ namespace PiLot.Backup.API.Controllers {
 					result = this.Ok();
 				} catch (Exception ex) {
 					result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+					Logger.Log(ex, this.HttpContext.Request.Path.ToString());
 				}
 			} else {
 				result = this.Unauthorized();

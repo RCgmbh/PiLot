@@ -217,6 +217,9 @@ namespace PiLot.Backup.Client {
 						backupTaskResult = await Program.PerformBackupTaskAsync(aTask, proxy, backupDate);
 						backupTaskResults.Add(backupTaskResult);
 						success = success && (backupTaskResult.Success);
+						if (!success) {
+							break;
+						}
 					}
 					if (success) {
 						success = await Program.VerifyBackupAsync(backupDate, backupTaskResults, proxy, pFullBackup);
@@ -228,13 +231,20 @@ namespace PiLot.Backup.Client {
 						} else { 
 							Out.WriteError("Committing backup failed");
 						}
+					} else {
+						Boolean rollbackSuccess = await proxy.RollbackAsync(backupDate);
+						if (rollbackSuccess) {
+							Out.WriteInfo("Rolled back successfully");
+						} else {
+							Out.WriteError("Rollback failed");
+						}
 					}
 					if (success) {
 						pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);
 						Program.configHelper.SaveConfig();
 						Out.WriteInfo($"Finished Backup for target {pTarget.TargetUrl}");
 					} else {
-						Out.WriteInfo($"Backup for target {pTarget.TargetUrl} failed");
+						Out.WriteError($"Backup for target {pTarget.TargetUrl} failed");
 					}
 				}
 				

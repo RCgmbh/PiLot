@@ -44,6 +44,7 @@ namespace PiLot.Backup.API.Controllers {
 						result = this.Ok();
 					} catch (Exception ex) {
 						result = this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
+						Logger.Log(ex, this.HttpContext.Request.Path.ToString());
 					}
 				} else {
 					result = this.BadRequest("Day is missing or invalid.");

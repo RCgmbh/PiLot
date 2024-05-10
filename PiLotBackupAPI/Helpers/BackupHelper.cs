@@ -145,6 +145,18 @@ namespace PiLot.Backup.API.Helpers {
 		}
 
 		/// <summary>
+		/// This deletes the temp directory for a failed backup attempt
+		/// </summary>
+		/// <param name="pClientName">the client name</param>
+		/// <param name="pBackupTime">the backup timestamp</param>
+		public static void RollbackBackup(String pClientName, DateTime pBackupTime) {
+			DirectoryInfo tempDirectory = BackupHelper.GetBackupDirectory(pClientName, pBackupTime, true, false, false);
+			if (tempDirectory.Exists) {
+				tempDirectory.Delete();
+			}
+		}
+
+		/// <summary>
 		/// Takes a list of data sources, and returns the total number of items for each dataSource.
 		/// </summary>
 		/// <param name="pDataSources">The list of data sources to summarize</param>

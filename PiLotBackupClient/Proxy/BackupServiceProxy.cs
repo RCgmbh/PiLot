@@ -156,6 +156,17 @@ namespace PiLot.Backup.Client.Proxies {
 		}
 
 		/// <summary>
+		/// Sends the rollback command to the backup api, which deletes the temporary data
+		/// from the server
+		/// </summary>
+		/// <param name="pBackupTime">The time of the current backup</param>
+		/// <returns>True, if success</returns>
+		public async Task<Boolean> RollbackAsync(DateTime pBackupTime) {
+			String url = $"{this.apiUrl}/Backup/rollback?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			return await this.httpClient.PutAsync(String.Empty, url);
+		}
+
+		/// <summary>
 		/// This just checks whether the API is accessible
 		/// </summary>
 		public async Task<Boolean> PingAsync() {
