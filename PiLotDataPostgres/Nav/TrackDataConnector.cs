@@ -415,8 +415,8 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		private TrackPoint ReadTrackPoint(NpgsqlDataReader pReader) {
 			TrackPoint result = new TrackPoint(
-				pReader.GetDouble("latitude"),
-				pReader.GetDouble("longitude")
+				Math.Round(pReader.GetDouble("latitude"), 7),
+				Math.Round(pReader.GetDouble("longitude"), 7)
 			) { 
 				UTC = pReader.GetInt64("utc"),
 				BoatTime = pReader.GetInt64("boattime")
