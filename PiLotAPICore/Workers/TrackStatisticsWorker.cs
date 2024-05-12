@@ -112,23 +112,7 @@ namespace PiLot.API.Workers {
 			if (this.dataConnector.SupportsStatistics) {
 				while (this.trackIds.Count > 0) {
 					Int32 trackId = this.trackIds.First();
-					Track track = dataConnector.ReadTrack(trackId);
-					List<TrackSegment> currentSegments = dataConnector.ReadTrackSegments(trackId);
-					List<TrackSegmentType> allTrackSegmentTypes = dataConnector.ReadTrackSegmentTypes();
-					List<TrackSegment> newSegments = new TrackAnalyzer(track).GetTrackSegments(allTrackSegmentTypes);
-					foreach (TrackSegmentType aType in allTrackSegmentTypes) {
-						TrackSegment currentSegment = currentSegments.FirstOrDefault(s => s.TypeID == aType.ID);
-						TrackSegment newSegment = newSegments.FirstOrDefault(s => s.TypeID == aType.ID);
-						if (newSegment != null) {
-							if (currentSegment == null || newSegment.Distance_mm > currentSegment.Distance_mm) {
-								dataConnector.SaveTrackSegment(newSegment);
-							}
-						} else {
-							if (currentSegment != null) {
-								dataConnector.DeleteTrackSegment(currentSegment);
-							}
-						}
-					}
+					// see TrackStatisticsHelper
 					this.trackIds.Remove(trackId);
 				}
 			}

@@ -83,7 +83,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void DeleteTrackPoints(Int32 id, Int64 startTime, Int64 endTime, Boolean isBoatTime) {
 			DataConnectionHelper.TrackDataConnector.DeleteTrackPoints(id, startTime, endTime, isBoatTime);
-			TrackStatisticsHelper.UpdateStatistics(id);
+			TrackStatisticsHelper.UpdateStatistics(id, true);
 		}
 	}
 }

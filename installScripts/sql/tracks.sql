@@ -15,7 +15,7 @@ DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
 DROP FUNCTION IF EXISTS read_track_segments_by_track;
 DROP FUNCTION IF EXISTS save_track_segment;
-DROP FUNCTION IF EXISTS delete_track_segment;
+DROP FUNCTION IF EXISTS delete_track_segments;
 DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
@@ -374,10 +374,10 @@ END $$;
 
 GRANT EXECUTE ON FUNCTION save_track_segment TO pilotweb;
 
-/*-----------FUNCTION delete_track_segment -----------------*/
--- deletes a track segment identified by type and track
+/*-----------FUNCTION delete_track_segments -----------------*/
+-- deletes all track segments for one or all tracks and of one or all types
 
-CREATE OR REPLACE FUNCTION public.delete_track_segment(
+CREATE OR REPLACE FUNCTION public.delete_track_segments(
 	p_type_id integer,
 	p_track_id integer
 )
@@ -385,10 +385,12 @@ RETURNS void
 LANGUAGE 'sql'
 AS $BODY$
 	DELETE FROM track_segments
-	WHERE track_id = p_track_id AND type_id = p_type_id;
+	WHERE 
+		    ((p_track_id is null) OR (track_id = p_track_id))
+		AND ((p_type_id is null) OR (type_id = p_type_id));
 $BODY$;
 
-GRANT EXECUTE ON FUNCTION delete_track_segment TO pilotweb;
+GRANT EXECUTE ON FUNCTION delete_track_segments TO pilotweb;
 
 /*-----------FUNCTION read_track_points-----------------*/
 -- reads all track points of a track, optionally limited by start-/endtime

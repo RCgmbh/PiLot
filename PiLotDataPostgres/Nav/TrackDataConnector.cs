@@ -174,11 +174,11 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Deletes a single TrackSegment from the DB
 		/// </summary>
 		/// <param name="pSegment">The segment to delete</param>
-		public void DeleteTrackSegment(TrackSegment pSegment){
-			String command = "SELECT delete_track_segment (@p_type_id, @p_track_id)";
+		public void DeleteTrackSegments(Int32? pTrackId, Int32? pTypeId){
+			String command = "SELECT delete_track_segments (@p_type_id, @p_track_id)";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_type_id", pSegment.TypeID));
-			pars.Add(("@p_track_id", pSegment.TrackID));
+			pars.Add(("@p_type_id", pTypeId));
+			pars.Add(("@p_track_id", pTrackId));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars);
 		}
 

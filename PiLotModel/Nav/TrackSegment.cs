@@ -64,12 +64,22 @@ namespace PiLot.Model.Nav {
 		}
 
 		/// <summary>
-		/// The total distance of the segment in millimeters. This is uses in the db,
+		/// The total distance of the segment in millimeters. This is used in the db,
 		/// and for precise comparison of Segments
 		/// </summary>
 		[JsonIgnore]
 		public Int32 Distance_mm {
 			get; set;
+		}
+
+		/// <summary>
+		/// Returns the average speed of the segment in m/s
+		/// </summary>
+		[JsonIgnore]
+		public Double Speed {
+			get {
+				return this.Distance_mm / (this.EndUTC - this.StartUTC);
+			}
 		}
 
 	}

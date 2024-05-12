@@ -34,15 +34,13 @@ namespace PiLot.Model.Nav {
 		public Int32 ID { get; private set; }
 
 		/// <summary>
-		/// For criterion fastest: The minimal duration in seconds, e.g. 3600 for the longest distance for an hour
-		/// For criterion uninterrupted: the minimal length of a break
+		/// The minimal duration in seconds, e.g. 3600 for the longest distance for an hour
 		/// </summary>
 		[JsonPropertyName("duration")]
 		public Int32? Duration { get; private set; }
 
 		/// <summary>
-		/// For criterion fastest: The minimal distance in meters, e.g 1852 for the fastest mile
-		/// For criterion uninterrupted: the maximal distance per Duration to be considered as interruption. It's complicated.
+		/// The minimal distance in meters, e.g 1852 for the fastest mile
 		/// </summary>
 		[JsonPropertyName("distance")]
 		public Int32? Distance { get; private set; }

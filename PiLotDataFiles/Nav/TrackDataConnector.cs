@@ -156,8 +156,8 @@ namespace PiLot.Data.Files {
 		/// Only there in order to implement ITrackDataConnector
 		/// </summary>
 		/// <exception cref="NotImplementedException"></exception>
-		public void DeleteTrackSegment(TrackSegment pSegment) {
-			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling DeleteTrackSegment(TrackSegment)");
+		public void DeleteTrackSegments(Int32? pTrackId, Int32? pTypeId) {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling DeleteTrackSegments(Int32?, Int32?)");
 		}
 
 		/// <summary>
@@ -206,7 +206,7 @@ namespace PiLot.Data.Files {
 		public void SaveDailyTrack(List<TrackPoint> pTrackPoints, Date pDay, Boolean pCreateEmptyFiles) {
 			String[] lines = pTrackPoints.Select(r => r.ToString()).ToArray();
 			FileInfo file = this.helper.GetDataFile(DATASOURCENAME, pDay, (lines.Length > 0) || pCreateEmptyFiles);
-			if((file != null) && file.Exists) {
+			if(file != null) {
 				File.WriteAllLines(file.FullName, lines);
 			}			
 		}

@@ -81,10 +81,12 @@ namespace PiLot.Data.Nav {
 		void SaveTrackSegment(TrackSegment pSegment);
 
 		/// <summary>
-		/// Deletes a single TrackSegment. Will only be implemented if SupportStatistics=true
+		/// Deletes TrackSegments, for one or all tracks, for one or all types.
+		/// Will only be implemented if SupportStatistics=true
 		/// </summary>
-		/// <param name="pSegment">The segment to delete</param>
-		void DeleteTrackSegment(TrackSegment pSegment);
+		/// <param name="pTrackId">The track id, if segments for one track should be deleted</param>
+		/// <param name="pTypeId">The type id, if segments of one type should be deleted</param>
+		void DeleteTrackSegments(Int32? pTrackId, Int32? pTypeId);
 
 		/// <summary>
 		/// Saves a TrackPoint
