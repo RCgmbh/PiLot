@@ -1267,6 +1267,8 @@ PiLot.View.Nav = (function () {
 			this.container.hidden = false;
 			const trackSegments = await this.trackService.getTrackSegmentsByTrackIdAsync(pTrackId);
 			const currentLanguage = PiLot.Utils.Language.getLanguage();
+			this.plhDistanceSegments.hidden = true;
+			this.plhDurationSegments.hidden = true;
 			for (const trackSegment of trackSegments) {
 				this.showSegment(trackSegment, currentLanguage);
 			}
@@ -1287,11 +1289,13 @@ PiLot.View.Nav = (function () {
 				let duration = luxon.Duration.fromObject({ seconds: segmentType.getDistance() / speed });
 				control.querySelector('.lblDuration').innerHTML = this.durationToHHMMSS(duration);
 				this.plhDistanceSegments.appendChild(control);
+				this.plhDistanceSegments.hidden = false;
 			} else {
 				let distance = speed * segmentType.getDuration();
 				let friendlyDistance = PiLot.Utils.Nav.metersToNauticalMiles(distance).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 3 });
 				control.querySelector('.lblDistance').innerHTML = friendlyDistance;
 				this.plhDurationSegments.appendChild(control);
+				this.plhDurationSegments.hidden = false;
 			}
 			control.querySelector('.lblSpeed').innerHTML = PiLot.Utils.Nav.mpsToKnots(speed).toFixed(2);
 			control.querySelector('.lblStartTime').innerHTML = pSegment.getStartBoatTime().toLocaleString(DateTime.TIME_WITH_SECONDS);

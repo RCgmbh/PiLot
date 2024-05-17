@@ -81,13 +81,17 @@ namespace PiLot.Data.Files {
 			if (String.IsNullOrEmpty(dateTakenString)) {
 				dateTakenString = pImage.Metadata?.ExifProfile?.GetValue(ExifTag.DateTime)?.Value;
 			}
-			if (!String.IsNullOrEmpty(dateTakenString) && (dateTakenString.Length >= 19)) {
-				if (DateTime.TryParseExact(dateTakenString.Substring(0, 19), "yyyy:MM:dd HH:mm:ss", cultureInfo, DateTimeStyles.AllowInnerWhite | DateTimeStyles.AllowTrailingWhite, out testDate)) {
-					result = testDate;
+			if (!String.IsNullOrEmpty(dateTakenString)){
+				if (dateTakenString.Length >= 19) {
+					if (DateTime.TryParseExact(dateTakenString.Substring(0, 19), "yyyy:MM:dd HH:mm:ss", cultureInfo, DateTimeStyles.AllowInnerWhite | DateTimeStyles.AllowTrailingWhite, out testDate)) {
+						result = testDate;
+					} else {
+						Logger.Log($"Image EXIF Date could not be parsed: {dateTakenString}", LogLevels.WARNING);
+					}
 				} else {
-					Logger.Log($"Image EXIF Date could not be parsed: {dateTakenString}", LogLevels.WARNING);
+					Logger.Log($"ImageHelper.GetImageDate: Invalid Date length: {dateTakenString}.", LogLevels.WARNING);
 				}
-			} if (result == null) {
+			} else {
 				Logger.Log($"ImageHelper.GetImageDate: No EXIF found.", LogLevels.WARNING);
 			}
 			return result;

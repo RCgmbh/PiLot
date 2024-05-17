@@ -337,8 +337,16 @@ PiLot.Templates.Nav = {
 
 	trackStatistics: `
 		<div class="borderLight trackStatistics">
-			<div class="semiBold marginBottom" data-text="trackStatistics"></div>
-			<div class="plhSegmentCategories flexRowWrap">
+			<div class="semiBold marginBottom">
+				<span data-text="trackStatistics"></span>
+				<span class="lblTrackSelector" hidden>
+					<a class="lnkPreviousTrack marginRightSmall"><i class="icon-arrow-left2"></i></a>
+					<span data-text="track"></span>&nbsp;
+					<span class="lblTrackNumber"></span>
+					<a class="lnkNextTrack marginRightSmall"><i class="icon-arrow-right2"></i></a>
+				</span>
+			</div>
+			<div class="plhSegmentCategories segments flexRowWrap">
 				<span class="plhDistanceSegments segmentsContainer"></span>
 				<span class="plhDurationSegments segmentsContainer"></span>
 			</div>
@@ -347,20 +355,20 @@ PiLot.Templates.Nav = {
 	`,
 
 	trackStatisticsDistanceSegment: `
-		<div>
-			<span class="lblLabel"></span>:
-			<span class="semiBold">
-				<span class="lblDuration"></span> (<span class="lblSpeed"></span> <span data-text="kn"></span>)
-			</span>
-			<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
+		<div class="flexRowWrap">
+			<div><span class="lblLabel"></span>:&nbsp;</div>
+			<div class="semiBold">
+				<span class="lblDuration"></span> (<span class="lblSpeed"></span> <span data-text="kn"></span>)&nbsp;
+			</div>
+			<div><span class="lblStartTime"></span> - <span class="lblEndTime"></span></div>
 		</div>`,
 
 	trackStatisticsDurationSegment: `
-		<div class="row">
-			<span class="lblLabel"></span>:
-			<span class="semiBold">
-				<span class="lblSpeed"></span> <span data-text="kn"></span> (<span class="lblDistance"></span> <span data-text="nm"></span>)
-			</span>
-			<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
+		<div class="flexRowWrap">
+			<div><span class="lblLabel"></span>:&nbsp;</div>
+			<div class="semiBold">
+				<span class="lblSpeed"></span> <span data-text="kn"></span> (<span class="lblDistance"></span> <span data-text="nm"></span>)&nbsp;
+			</div>
+			<div><span class="lblStartTime"></span> - <span class="lblEndTime"></span></div>
 		</div>`
 };
