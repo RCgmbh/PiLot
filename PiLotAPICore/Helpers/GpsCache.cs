@@ -25,6 +25,8 @@ namespace PiLot.API.Helpers {
 		private const Int64 MINDELTAT = 9500;   // minimal time between two persisted positions in ms > 9.5s
 		private const Int32 MINDISTANCE = 2;    // minimal distance between two persisted positions in meters
 
+		private static Object lockObject = new Object();
+
 		#endregion
 
 		#region events
@@ -61,12 +63,14 @@ namespace PiLot.API.Helpers {
 		public static GPSCache Instance {
 			get {
 				GPSCache result = null;
-				Object applicationItem = Program.GetApplicationObject(APPKEY);
-				if (applicationItem != null) {
-					result = applicationItem as GPSCache;
-				} else {
-					result = new GPSCache();
-					Program.SetApplicationObject(APPKEY, result);
+				lock (lockObject) {
+					Object applicationItem = Program.GetApplicationObject(APPKEY);
+					if (applicationItem != null) {
+						result = applicationItem as GPSCache;
+					} else {
+						result = new GPSCache();
+						Program.SetApplicationObject(APPKEY, result);
+					}
 				}
 				return result;
 			}

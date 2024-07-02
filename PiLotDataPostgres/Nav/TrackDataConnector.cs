@@ -109,6 +109,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		/// <param name="pTrack">The track to save</param>
 		public void InsertTrack(Track pTrack) {
+			Logger.Log("TrackDataConnector.InsertTrack", LogLevels.DEBUG);
 			NpgsqlConnection connection = this.dbHelper.GetConnection();
 			if (connection != null) {
 				connection.Open();
@@ -202,6 +203,7 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pBoat">The name of the current boat</param>
 		/// <returns>The id of the track to which the points are added or null, if there are no points</returns>
 		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat) {
+			Logger.Log("TrackDataConnector.SaveTrackPoints", LogLevels.DEBUG);
 			Int32? result = null;
 			if (pTrackPoints.Count > 0) {
 				NpgsqlConnection connection = this.dbHelper.GetConnection();

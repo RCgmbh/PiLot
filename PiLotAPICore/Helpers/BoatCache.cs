@@ -15,6 +15,8 @@ namespace PiLot.API.Helpers {
 
 		private const String APPKEY = "boatCache";
 
+		private static Object lockObject = new Object();
+
 		#endregion
 
 		#region events
@@ -47,12 +49,14 @@ namespace PiLot.API.Helpers {
 		public static BoatCache Instance {
 			get {
 				BoatCache result = null;
-				Object applicationItem = Program.GetApplicationObject(APPKEY);
-				if (applicationItem != null) {
-					result = applicationItem as BoatCache;
-				} else {
-					result = new BoatCache();
-					Program.SetApplicationObject(APPKEY, result);
+				lock (lockObject) {
+					Object applicationItem = Program.GetApplicationObject(APPKEY);
+					if (applicationItem != null) {
+						result = applicationItem as BoatCache;
+					} else {
+						result = new BoatCache();
+						Program.SetApplicationObject(APPKEY, result);
+					}
 				}
 				return result;
 			}

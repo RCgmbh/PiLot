@@ -28,6 +28,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public TrackPoint[] GetPositions(Int64 startTime) {
+			Logger.Log($"PositionController.GetPosition", LogLevels.DEBUG);
 			List<TrackPoint> trackPoints = GPSCache.Instance?.GetLatestTrackPoints(startTime);
 			Logger.Log($"PositionController.GetPositions requested for startTime: {startTime}, delivering {trackPoints.Count} records", LogLevels.DEBUG);
 			return trackPoints?.ToArray() ?? Array.Empty<TrackPoint>();
@@ -78,6 +79,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void PutPositions(TrackPoint[] pTrackPoints) {
+			Logger.Log($"PositionController.PutPosition: {pTrackPoints.Length} TrackPoints recieved", LogLevels.DEBUG);
 			if (pTrackPoints != null) {
 				GPSCache cache = GPSCache.Instance;
 				Int32? trackId = cache.AddTrackPoints(pTrackPoints.ToList());
