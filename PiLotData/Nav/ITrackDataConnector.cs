@@ -102,8 +102,9 @@ namespace PiLot.Data.Nav {
 		/// </summary>
 		/// <param name="pTrackPoints">The list of track points to save</param>
 		/// <param name="pBoat">The name of the current boat</param>
+		/// <param name="pTrackId">Optionally pass a TrackId</param>
 		/// <returns>if SupportTrackIDs = true: the id of the track the point is added to, -1 else, null if nothing was saved</returns>
-		Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat);
+		Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat, Int32? pTrackId = null);
 
 		/// <summary>
 		/// Deletes a range of trackpoints from a track

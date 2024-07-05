@@ -202,22 +202,26 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pTrackPoints">The list of track points to save</param>
 		/// <param name="pBoat">The name of the current boat</param>
 		/// <returns>The id of the track to which the points are added or null, if there are no points</returns>
-		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat) {
+		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat, Int32? pTrackId = null) {
 			Logger.Log("TrackDataConnector.SaveTrackPoints", LogLevels.DEBUG);
-			Int32? result = null;
+			Int32? trackId = null;
 			if (pTrackPoints.Count > 0) {
 				NpgsqlConnection connection = this.dbHelper.GetConnection();
 				if (connection != null) {
 					connection.Open();
 					NpgsqlTransaction transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
 					try {
-						Track track = this.EnsureTrack(pBoat, pTrackPoints[0].UTC, pTrackPoints[0].BoatTime ?? pTrackPoints[0].UTC, transaction);
-						result = track.ID;
+						if (pTrackId == null) {
+							Track track = this.EnsureTrack(pBoat, pTrackPoints[0].UTC, pTrackPoints[0].BoatTime ?? pTrackPoints[0].UTC, transaction);
+							trackId = track.ID;
+						} else {
+							trackId = pTrackId;
+						}
 						foreach (TrackPoint aTrackPoint in pTrackPoints) {
-							this.InsertTrackPoint(aTrackPoint, track, pTrackPoints.Count == 1, transaction);
+							this.InsertTrackPoint(aTrackPoint, trackId.Value, pTrackPoints.Count == 1, transaction);
 						}
 						if (pTrackPoints.Count > 1) {
-							this.UpdateTrackData(track, transaction);
+							this.UpdateTrackData(trackId.Value, transaction);
 						}						
 						transaction.Commit();
 						connection.Close();
@@ -229,7 +233,7 @@ namespace PiLot.Data.Postgres.Nav {
 					}
 				}
 			}
-			return result;
+			return trackId;
 		}
 
 		/// <summary>
@@ -343,13 +347,12 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <summary>
 		/// Updates a track so that its distance, start and end corresponds to the track points
 		/// </summary>
-		/// <param name="pTrack">The track to update</param>
+		/// <param name="pTrackId">The ID of the track to update</param>
 		/// <param name="pTransaction">Pass an open transaction or null</param>
-		private void UpdateTrackData(Track pTrack, NpgsqlTransaction pTransaction) {
-			Assert.IsNotNull(pTrack.ID, "TrackDataController.UpdateTrackData: Track.ID must not be null.");
+		private void UpdateTrackData(Int32 pTrackId, NpgsqlTransaction pTransaction) {
 			String command = "SELECT update_track_data(@p_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_track_id", pTrack.ID));
+			pars.Add(("@p_track_id", pTrackId));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 		}
 
@@ -430,14 +433,13 @@ namespace PiLot.Data.Postgres.Nav {
 		/// Saves a trackpoint to the DB. 
 		/// </summary>
 		/// <param name="pTrackPoint">The trackpoint to save</param>
-		/// <param name="pTrack">The track the trackpoint belongs to. Must have an ID</param>
+		/// <param name="pTrackID">The ID of the track the trackpoint belongs to</param>
 		/// <param name="pUpdateTrack">Set to true to automatically update track distance etc.</param>
 		/// <param name="pTransaction">Pass an open transaction or null</param>
-		private void InsertTrackPoint(TrackPoint pTrackPoint, Track pTrack, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
-			Assert.IsNotNull(pTrack.ID, "TrackDataController.InsertTrackPoint: Track.ID must not be null.");
+		private void InsertTrackPoint(TrackPoint pTrackPoint, Int32 pTrackId, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
 			String command = "SELECT insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude, @p_update_track_data);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_track_id", pTrack.ID));
+			pars.Add(("@p_track_id", pTrackId));
 			pars.Add(("@p_utc", pTrackPoint.UTC));
 			pars.Add(("@p_boattime", pTrackPoint.BoatTime));
 			pars.Add(("@p_latitude", pTrackPoint.Latitude));

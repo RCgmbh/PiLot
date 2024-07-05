@@ -182,8 +182,9 @@ namespace PiLot.Data.Files {
 		/// </summary>
 		/// <param name="pTrackPoints">A list of TrackPoints</param>
 		/// <param name="pBoat">The boat name will be ignored in files based DataConnector</param>
+		/// <param name="pTrackId">The trackId will be ignored in files based DataConnector</param>
 		/// <returns>Returns -1 as the connector does not support TrackIDs</returns>
-		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat = null) {
+		public Int32? SaveTrackPoints(List<TrackPoint> pTrackPoints, String pBoat = null, Int32? pTrackId = null) {
 			if ((pTrackPoints != null) && (pTrackPoints.Count > 0)) {
 				List<Date> dates = new List<Date>();
 				Int64 minUTC = pTrackPoints.Min(r => r.UTC);
