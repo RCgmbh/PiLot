@@ -31,6 +31,7 @@ PiLot.View.Tools = (function () {
 		this.track = null;
 		this.boatTime = null;
 		this.exportMode = 'CSV';
+		this.importMode = 'CSV'
 
 		this.pageContent = null;
 		this.calStartDate = null;
@@ -86,8 +87,7 @@ PiLot.View.Tools = (function () {
 			this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.boatTime, null, { ignoreSettings: true, showTrack: true, autoShowTrack: false })
 			this.divResult = this.pageContent.querySelector('.divResult');
 			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkExport'), this.pageContent.querySelector('.divExport'));
-			let rblExportFormat = this.pageContent.querySelectorAll('.rbExportFormat');
-			rblExportFormat.forEach(function (pRadiobutton) {
+			this.pageContent.querySelectorAll('.rbExportFormat').forEach(function (pRadiobutton) {
 				pRadiobutton.addEventListener('change', this.rbExportFormat_Change.bind(this));
 				pRadiobutton.checked = pRadiobutton.value === this.exportMode;
 			}.bind(this));
@@ -111,6 +111,10 @@ PiLot.View.Tools = (function () {
 			if (PiLot.Permissions.canWrite()){
 				new PiLot.View.Common.ExpandCollapse(lnkImport, this.pageContent.querySelector('.divImport'));
 				this.pnlImportSuccess = this.pageContent.querySelector('.pnlImportSuccess');
+				this.pageContent.querySelectorAll('.rbImportFormat').forEach(function (pRadiobutton) {
+					pRadiobutton.addEventListener('change', this.rbImportFormat_Change.bind(this));
+					pRadiobutton.checked = pRadiobutton.value === this.ImportMode;
+				}.bind(this));	
 				this.tbImport = this.pageContent.querySelector('.tbImport');
 				this.tbImportUtcOffset = this.pageContent.querySelector('.tbImportUtcOffset');
 				this.pageContent.querySelector('.btnImportPreview').addEventListener('click', this.btnImportPreview_click.bind(this));
@@ -178,14 +182,18 @@ PiLot.View.Tools = (function () {
 			}
 		},
 
+		rbImportFormat_Change: function (pEvent) {
+			this.ImportMode = pEvent.target.value;
+		},
+		
 		btnImportPreview_click: function () {
 			this.pnlImportSuccess.hidden = true;
-			let result = this.processTCX();
+			let result = this.processImportData();
 		},
 
 		btnImport_click: async function () {
-			const processTCXResult = this.processTCX();
-			if (processTCXResult.success) {
+			const processImportDataResult = this.processImportData();
+			if (processImportDataResult.success) {
 				const saveResult = await PiLot.Model.Nav.saveTrackPointsAsync(this.track.getTrackPoints());
 				this.pnlImportSuccess.hidden = false;
 			}
@@ -330,18 +338,25 @@ PiLot.View.Tools = (function () {
 			}
 		},
 
-		processTCX: function () {
+		processImportData: function() {
+			let processImportDataResult;
 			const utcOffset = RC.Utils.getNumericValue(this.tbImportUtcOffset) || 0;
-			let trackFromTCXResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset);
-			if (trackFromTCXResult.success) {
-				this.track = trackFromTCXResult.track;
+			switch(this.importMode){
+				case 'CSV':
+					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset);
+					break;
+				case 'TCX':
+					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset);
+					break;
+			}
+			if (processImportDataResult.success) {
+				this.track = processImportDataResult.track;
 				this.mapTrack.setAndShowTrack(this.track, true);
 			} else {
-				alert(trackFromTCXResult.message);
+				alert(trackFrprocessImportDataResultomTCXResult.message);
 			}
-			return trackFromTCXResult;
-		}
-
+			return processImportDataResult;
+		},
 	};
 
 	/// draws a speedDiagram based for a track

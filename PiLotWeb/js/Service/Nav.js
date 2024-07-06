@@ -337,6 +337,15 @@ PiLot.Service.Nav = (function () {
 		initialize: function () { },
 
 		/**
+		 * Saves a track to the server, including all track points and the
+		 * boat name.
+		 * @param {PiLot.Model.Nav.Track} pTrack 
+		 */
+		saveTrackAsync: async function (pTrack){
+
+		},
+		
+		/**
 		 * Deletes trackPoint from a track on the server
 		 * @param {Number} pTrackId - the id of the track 
 		 * @param {Number} pStart - inclusive start time of deletion in ms 

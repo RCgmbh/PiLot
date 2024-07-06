@@ -1557,6 +1557,7 @@ PiLot.Model.Nav = (function () {
 	var Track = function () {
 		this.id = null;
 		this.trackPoints = null;  // array of TrackPoints
+		this.boat = null;
 		this.observers = null;
 		this.initialize();
 	};
@@ -1592,6 +1593,16 @@ PiLot.Model.Nav = (function () {
 
 		setId: function (pId) {
 			this.id = pId;
+		},
+
+		/** @param {String} pBoat */
+		setBoat: function(pBoat){
+			this.boat = pBoat;
+		},
+
+		/** @returns {String} */
+		getBoat: function(){
+			return this.boat;
 		},
 
 		/**
