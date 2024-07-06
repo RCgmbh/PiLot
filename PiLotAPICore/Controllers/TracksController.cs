@@ -47,6 +47,26 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Gets the track segments for a track defined by its id. The segments will
+		/// not be read from the db, but calculated ad hoc. This is primarily used
+		/// for testing
+		/// </summary>
+		/// <param name="pTrackId">The track id</param>
+		[Route(Program.APIROOT + "[controller]/{id}/Segments/adhoc")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<TrackSegment> GetTrackSegmentsAdHoc(Int32 id) {
+			List<TrackSegment> result = null;
+			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
+			if (dataConnector.SupportsTrackIDs && dataConnector.SupportsStatistics) {
+				Track track = DataConnectionHelper.TrackDataConnector.ReadTrack(id);
+				if(track != null) {
+					result = new TrackAnalyzer(track).GetTrackSegments(dataConnector.ReadTrackSegmentTypes());
+				}
+			} return result ?? new List<TrackSegment>(0);
+		}
+
+		/// <summary>
 		/// Gets summarized data for each day a month. The result is an array of booleans,
 		/// indicating for each day whether there is a track.
 		/// </summary>

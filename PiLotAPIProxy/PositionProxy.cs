@@ -16,7 +16,7 @@ namespace PiLot.APIProxy {
 		private const String CONTROLLERURL = "/Position";
 
 		private PiLotHttpClient httpClient;
-		private String putMultipleUrl, putLocalUrl, getUrl;
+		private String putMultipleUrl, putUrl, getUrl;
 		
 		/// <summary>
 		/// Creates a new PositionProxy instance, which can be used to 
@@ -27,7 +27,7 @@ namespace PiLot.APIProxy {
 		public PositionProxy(String pApiUrl, LoginHelper pLoginHelper) {
 			String apiControllerUrl = pApiUrl + CONTROLLERURL;
 			this.putMultipleUrl = apiControllerUrl + "/multiple";
-			this.putLocalUrl = apiControllerUrl + "/local";
+			this.putUrl = apiControllerUrl;
 			this.getUrl = apiControllerUrl;
 			this.httpClient = new PiLotHttpClient(pLoginHelper);
 		}
@@ -43,15 +43,13 @@ namespace PiLot.APIProxy {
 		}
 
 		/// <summary>
-		/// This takes one positions and saves it to the api, using the local
-		/// option, which will only work when called from the local host, but
-		/// does not require any authentication
+		/// This takes one positions and saves it to the api
 		/// </summary>
 		/// <param name="pPosition">GpsRecord</param>
 		/// <returns>true, if the operation succeeded</returns>
 		public async Task<Boolean> PutPositionAsync(TrackPoint pPosition) {
 			String jsonString = JsonSerializer.Serialize(pPosition);
-			return await this.httpClient.PutAsync(jsonString, this.putLocalUrl);
+			return await this.httpClient.PutAsync(jsonString, this.putUrl);
 		}
 
 		/// <summary>

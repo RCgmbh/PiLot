@@ -25,6 +25,8 @@ namespace PiLot.API.Helpers {
 		private const Int64 MINDELTAT = 9500;   // minimal time between two persisted positions in ms > 9.5s
 		private const Int32 MINDISTANCE = 2;    // minimal distance between two persisted positions in meters
 
+		private static Object lockObject = new Object();
+
 		#endregion
 
 		#region events
@@ -61,12 +63,14 @@ namespace PiLot.API.Helpers {
 		public static GPSCache Instance {
 			get {
 				GPSCache result = null;
-				Object applicationItem = Program.GetApplicationObject(APPKEY);
-				if (applicationItem != null) {
-					result = applicationItem as GPSCache;
-				} else {
-					result = new GPSCache();
-					Program.SetApplicationObject(APPKEY, result);
+				lock (lockObject) {
+					Object applicationItem = Program.GetApplicationObject(APPKEY);
+					if (applicationItem != null) {
+						result = applicationItem as GPSCache;
+					} else {
+						result = new GPSCache();
+						Program.SetApplicationObject(APPKEY, result);
+					}
 				}
 				return result;
 			}
@@ -120,29 +124,31 @@ namespace PiLot.API.Helpers {
 				Double deltaX;
 				List<TrackPoint> pointsToPersist = new List<TrackPoint>();
 				Int64 utcOffset = this.globalDataConnector.GetBoatTime().UtcOffsetMinutes * 60 * 1000;
-				foreach (TrackPoint aTrackPoint in pTrackPoints.OrderBy(t => t.UTC)) {
-					if ((aTrackPoint?.Latitude != null) && (aTrackPoint?.Longitude != null)) {
-						aTrackPoint.BoatTime = aTrackPoint.UTC + utcOffset;
-						this.trackPoints.Insert(0, aTrackPoint);
-						this.PositionChanged?.Invoke(aTrackPoint);
-						Logger.Log($"TrackPointsCache.AddTrackPoint {aTrackPoint} : Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
-						if (this.previousSavedTrackPoint != null) {
-							deltaT = aTrackPoint.UTC - this.previousSavedTrackPoint.UTC;
-							deltaX = aTrackPoint.DistanceTo(previousSavedTrackPoint);
-							doPersist = (deltaT >= MINDELTAT) && (deltaX > MINDISTANCE);
-						} else {
-							doPersist = true;
-						}
-						if (doPersist) {
-							pointsToPersist.Add(aTrackPoint);
-							this.previousSavedTrackPoint = aTrackPoint;
+				lock (lockObject) {
+					foreach (TrackPoint aTrackPoint in pTrackPoints.OrderBy(t => t.UTC)) {
+						if ((aTrackPoint?.Latitude != null) && (aTrackPoint?.Longitude != null)) {
+							aTrackPoint.BoatTime = aTrackPoint.UTC + utcOffset;
+							this.trackPoints.Insert(0, aTrackPoint);
+							this.PositionChanged?.Invoke(aTrackPoint);
+							Logger.Log($"TrackPointsCache.AddTrackPoint {aTrackPoint} : Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
+							if (this.previousSavedTrackPoint != null) {
+								deltaT = aTrackPoint.UTC - this.previousSavedTrackPoint.UTC;
+								deltaX = aTrackPoint.DistanceTo(previousSavedTrackPoint);
+								doPersist = (deltaT >= MINDELTAT) && (deltaX > MINDISTANCE);
+							} else {
+								doPersist = true;
+							}
+							if (doPersist) {
+								pointsToPersist.Add(aTrackPoint);
+								this.previousSavedTrackPoint = aTrackPoint;
+							}
 						}
 					}
+					result = this.trackPointDataConnector.SaveTrackPoints(pointsToPersist, BoatCache.Instance.CurrentBoat);
+					this.trackPoints.RemoveAll(tp => tp?.UTC == null); // quick fix for some weird null pointer exceptions when sorting
+					this.trackPoints.Sort((x, y) => y.UTC.CompareTo(x.UTC));
+					this.CropTrackPoints();
 				}
-				result = this.trackPointDataConnector.SaveTrackPoints(pointsToPersist, BoatCache.Instance.CurrentBoat);
-				this.trackPoints.RemoveAll(tp => tp?.UTC == null); // quick fix for some weird null pointer exceptions when sorting
-				this.trackPoints.Sort((x, y) => y.UTC.CompareTo(x.UTC));
-				this.CropTrackPoints();
 			}
 			return result;
 		}
@@ -159,33 +165,6 @@ namespace PiLot.API.Helpers {
 				this.trackPoints.RemoveRange(MAXLENGTH, this.trackPoints.Count - MAXLENGTH);
 				Logger.Log($"TrackPointsCache.CropTrackPoints: Having {this.trackPoints.Count} items in cache.", LogLevels.DEBUG);
 			}
-		}
-
-		/// <summary>
-		/// Persists the latest track point, if the distance and delta t to the previous
-		/// track point are above the minimal values. If not, nothing happens.
-		/// </summary>
-		/// <returns>The ID of the track to which the point is added, null if the point has not been persisted</returns>
-		private Int32? PersistLatest() {
-			Int32? result = null;
-			Boolean doPersist;
-			Int64 deltaT;
-			Double deltaX;
-			if (this.trackPoints.Count > 0) {
-				TrackPoint lastTrackPoint = this.trackPoints[0];
-				if (this.previousSavedTrackPoint != null) {
-					deltaT = lastTrackPoint.UTC - this.previousSavedTrackPoint.UTC;
-					deltaX = lastTrackPoint.DistanceTo(previousSavedTrackPoint);
-					doPersist = (deltaT >= MINDELTAT) && (deltaX > MINDISTANCE);
-				} else {
-					doPersist = true;
-				}
-				if (doPersist) {
-					result = this.trackPointDataConnector.SaveTrackPoint(lastTrackPoint, BoatCache.Instance.CurrentBoat);
-					this.previousSavedTrackPoint = lastTrackPoint;
-				}
-			}
-			return result;
 		}
 
 		#endregion

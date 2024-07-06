@@ -29,7 +29,6 @@ namespace PiLot.Data.Postgres.Helper {
 			NpgsqlConnection result = null;
 			if (!String.IsNullOrEmpty(this.connectionString)) {
 				result = new NpgsqlConnection(this.connectionString);
-				Logger.Log($"connectionString: {this.connectionString}", LogLevels.DEBUG);
 			} else {
 				Logger.Log("No DB connection configured", LogLevels.WARNING);
 			}
@@ -160,6 +159,7 @@ namespace PiLot.Data.Postgres.Helper {
 		/// <param name="pTransaction"></param>
 		/// <returns></returns>
 		private NpgsqlCommand CreateCommand(String pSqlCommand, List<(String, Object)> pParams, NpgsqlTransaction pTransaction) {
+			Logger.Log($"DBHelper.CreateCommand: {pSqlCommand}", LogLevels.DEBUG);
 			NpgsqlCommand result = null;
 			NpgsqlConnection connection;
 			if (pTransaction != null) {
