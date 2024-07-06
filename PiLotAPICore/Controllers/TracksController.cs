@@ -88,6 +88,9 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int32 PutInsert(Track pTrack) {
 			DataConnectionHelper.TrackDataConnector.InsertTrack(pTrack);
+			if (pTrack.ID != null) {
+				TrackStatisticsHelper.UpdateStatistics(pTrack.ID.Value, false);
+			}
 			return pTrack.ID.Value;
 		}
 

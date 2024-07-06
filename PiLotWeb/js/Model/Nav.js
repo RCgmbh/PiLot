@@ -1659,6 +1659,11 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
+		/** @returns {Boolean} - whether the track has any points */
+		hasTrackPoints: function () {
+			return this.trackPoints.length > 0;
+		},
+
 		/** @returns {TrackPoint[]} - all track points */
 		getTrackPoints: function () {
 			return this.trackPoints;
@@ -1672,7 +1677,7 @@ PiLot.Model.Nav = (function () {
 		/** @returns {TrackPoint} - the track point at pIndex or null, if the index is out of bounds. */
 		getTrackPointAt: function (pIndex) {
 			let result = null;
-			if ((pIndex >= 0) && (pIndex < this.trackPoints.length)) {
+			if ((this.trackPoints.length > 0) && (pIndex >= 0) && (pIndex < this.trackPoints.length)) {
 				result = this.trackPoints[pIndex];
 			}
 			return result;
@@ -1760,12 +1765,44 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
+	 * Creates a track from a CSV String
+	 * @param {String} pCSVString - One line per record, as created by the CSV Export
+	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to overwrite the boatTime.
+	 * @param {String} pBoat - the name of the boat
+	 * */
+	Track.fromCSV = function (pCSVString, pUtcOffset, pBoat) {
+		const result = { track: new Track(), success: true, message: '' };
+		result.track.setBoat(pBoat);
+		const lines = pCSVString.split('\n');
+		let valuesArray;
+		for (let aLine of lines) {
+			valuesArray = aLine.split('\t');
+			if (valuesArray.length == 5) {
+				if (
+					RC.Utils.isNumeric(valuesArray[0])		// UTC
+					&& RC.Utils.isNumeric(valuesArray[1])	// BoatTime
+					&& RC.Utils.isNumeric(valuesArray[3])	// latitude
+					&& RC.Utils.isNumeric(valuesArray[4])	// longitude
+				) {
+					const utc = Number(valuesArray[0]);
+					let boatTime = pUtcOffset !== null ? utc + (pUtcOffset * 3600 * 1000) : Number(valuesArray[1]);
+					const trackPoint = new TrackPoint(utc, boatTime, Number(valuesArray[3]), Number(valuesArray[4]));
+					result.track.addTrackPoint(trackPoint, true);
+				}
+			}
+		}
+		return result;
+	};
+
+	/**
 	 * Creates a track from a TCX XML String
 	 * @param {String} pTCXString - The xml
 	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to set boatTime
+	 * @param {String} pBoat - the name of the boat
 	 * */
 	Track.fromTCX = function (pTCXString, pUtcOffset) {
 		const result = { track: new Track(), success: true, message: '' };
+		result.track.setBoat(pBoat);
 		try {
 			const parser = new DOMParser();
 			const doc = parser.parseFromString(pTCXString, "text/xml");
@@ -1780,7 +1817,7 @@ PiLot.Model.Nav = (function () {
 					timeString = elementsTime[0].innerHTML;
 					utc = DateTime.fromISO(timeString, { zone: 'utc' });
 					if (utc) {
-						boatTime = utc.plus({ hours: pUtcOffset });
+						boatTime = pUtcOffset ? utc.plus({ hours: pUtcOffset }) : utc;
 						lat = elementsLat[0].innerHTML;
 						lon = elementsLon[0].innerHTML;
 						if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
@@ -1939,6 +1976,25 @@ PiLot.Model.Nav = (function () {
 		/** Deletes the TrackSegmentType from the server */
 		deleteAsync: async function () {
 			return await PiLot.Service.Nav.TrackService.getInstance().deleteTrackSegmentTypeAsync(this);
+		},
+
+		/** Compares two types for sorting, having the shorter first, and types with distance first */
+		compareTo: function (pOther) {
+			let result = 0;
+			if (this.distance) {
+				if (pOther.getDistance()) {
+					result = this.distance - pOther.getDistance();
+				} else {
+					result = -1;
+				}
+			} else {
+				if (pOther.getDuration()) {
+					result = this.duration - pOther.getDuration();
+				} else {
+					result = 1;
+				}
+			}
+			return result;
 		}
 	};
 

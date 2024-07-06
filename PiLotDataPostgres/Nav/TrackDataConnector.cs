@@ -114,13 +114,22 @@ namespace PiLot.Data.Postgres.Nav {
 			if (connection != null) {
 				connection.Open();
 				NpgsqlTransaction transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
-				List<Track> existingTracks = this.ReadTracks(pTrack.StartUTC, pTrack.EndUTC, false, false, transaction);
-				if(existingTracks.Count > 0) {
-					foreach(Track aTrack in existingTracks) {
-						this.DeleteTrack(aTrack.ID.Value, transaction);
+				try {
+					List<Track> existingTracks = this.ReadTracks(pTrack.StartUTC, pTrack.EndUTC, false, false, transaction);
+					if (existingTracks.Count > 0) {
+						foreach (Track aTrack in existingTracks) {
+							this.DeleteTrack(aTrack.ID.Value, transaction);
+						}
 					}
+					this.InsertTrack(pTrack, transaction);
+					transaction.Commit();
+					connection.Close();
+				} catch (Exception ex) {
+					Logger.Log(ex, "TrackDataConnector.InsertTrack");
+					transaction.Rollback();
+					connection.Close();
+					throw;
 				}
-				this.InsertTrack(pTrack, transaction);
 			}
 		}
 
@@ -217,16 +226,11 @@ namespace PiLot.Data.Postgres.Nav {
 						} else {
 							trackId = pTrackId;
 						}
-						foreach (TrackPoint aTrackPoint in pTrackPoints) {
-							this.InsertTrackPoint(aTrackPoint, trackId.Value, pTrackPoints.Count == 1, transaction);
-						}
-						if (pTrackPoints.Count > 1) {
-							this.UpdateTrackData(trackId.Value, transaction);
-						}						
+						this.SaveTrackPoints(pTrackPoints, trackId.Value, transaction);
 						transaction.Commit();
 						connection.Close();
 					} catch (Exception ex) {
-						Logger.Log(ex, "TrackDataConnector.EnsureTrack");
+						Logger.Log(ex, "TrackDataConnector.SaveTrackPoints");
 						transaction.Rollback();
 						connection.Close();
 						throw;
@@ -309,6 +313,7 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_boattime", pTrack.StartBoatTime));
 			pars.Add(("@p_boat", pTrack.Boat));
 			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+			this.SaveTrackPoints(pTrack.TrackPoints, pTrack.ID.Value, pTransaction);
 		}
 
 		/// <summary>
@@ -352,7 +357,7 @@ namespace PiLot.Data.Postgres.Nav {
 		private void UpdateTrackData(Int32 pTrackId, NpgsqlTransaction pTransaction) {
 			String command = "SELECT update_track_data(@p_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_track_id", pTrackId));
+			pars.Add(("@p_id", pTrackId));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 		}
 
@@ -364,7 +369,7 @@ namespace PiLot.Data.Postgres.Nav {
 		private void DeleteTrack(Int32 pTrackId, NpgsqlTransaction pTransaction) {
 			String command = "SELECT delete_track(@p_id);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_track_id", pTrackId));
+			pars.Add(("@p_id", pTrackId));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 		}
 
@@ -430,13 +435,30 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Saves a list of TrackPoints to the db, making sure the track will be updated at the end (and only then)
+		/// </summary>
+		/// <param name="pTrackPoints">The list of TrackPoints to save</param>
+		/// <param name="pTrackId">The TrackID</param>
+		/// <param name="pTransaction">An open transaction or null</param>
+		private void SaveTrackPoints(List<TrackPoint> pTrackPoints, Int32 pTrackId, NpgsqlTransaction pTransaction) {
+			if (pTrackPoints != null && pTrackPoints.Count > 0) {
+				foreach (TrackPoint aTrackPoint in pTrackPoints) {
+					this.SaveTrackPoint(aTrackPoint, pTrackId, pTrackPoints.Count == 1, pTransaction);
+				}
+				if (pTrackPoints.Count > 1) {
+					this.UpdateTrackData(pTrackId, pTransaction);
+				}
+			}
+		}
+
+		/// <summary>
 		/// Saves a trackpoint to the DB. 
 		/// </summary>
 		/// <param name="pTrackPoint">The trackpoint to save</param>
 		/// <param name="pTrackID">The ID of the track the trackpoint belongs to</param>
 		/// <param name="pUpdateTrack">Set to true to automatically update track distance etc.</param>
 		/// <param name="pTransaction">Pass an open transaction or null</param>
-		private void InsertTrackPoint(TrackPoint pTrackPoint, Int32 pTrackId, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
+		private void SaveTrackPoint(TrackPoint pTrackPoint, Int32 pTrackId, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
 			String command = "SELECT insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude, @p_update_track_data);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrackId));

@@ -49,6 +49,7 @@ PiLot.View.Tools = (function () {
 		this.pnlSpeedDiagram = null;
 		this.tbImport = null;
 		this.tbImportUtcOffset = null;
+		this.ddlImportBoats = null;
 		this.pnlImportSuccess = null;
 		this.initializeAsync();
 	};
@@ -117,6 +118,8 @@ PiLot.View.Tools = (function () {
 				}.bind(this));	
 				this.tbImport = this.pageContent.querySelector('.tbImport');
 				this.tbImportUtcOffset = this.pageContent.querySelector('.tbImportUtcOffset');
+				this.ddlImportBoats = this.pageContent.querySelector('.ddlImportBoats');
+				this.fillDdlBoatsAsync();
 				this.pageContent.querySelector('.btnImportPreview').addEventListener('click', this.btnImportPreview_click.bind(this));
 				this.pageContent.querySelector('.btnImport').addEventListener('click', this.btnImport_click.bind(this));
 			} else {
@@ -194,7 +197,8 @@ PiLot.View.Tools = (function () {
 		btnImport_click: async function () {
 			const processImportDataResult = this.processImportData();
 			if (processImportDataResult.success) {
-				const saveResult = await PiLot.Model.Nav.saveTrackPointsAsync(this.track.getTrackPoints());
+				//const saveResult = await PiLot.Model.Nav.saveTrackPointsAsync(this.track.getTrackPoints());
+				const saveResult = await PiLot.Service.Nav.TrackService.getInstance().saveTrackAsync(this.track);
 				this.pnlImportSuccess.hidden = false;
 			}
 		},
@@ -213,6 +217,11 @@ PiLot.View.Tools = (function () {
 			this.calEndDate.date(endDate);
 			this.calEndDate.showDate();
 			RC.Utils.setText(this.tbEndTime, endDate.toFormat('HH:mm'));
+		},
+
+		fillDdlBoatsAsync: async function () {
+			const boatInfos = await PiLot.Model.Boat.loadConfigInfosAsync();
+			RC.Utils.fillDropdown(this.ddlImportBoats, boatInfos.map((b) => [b.name, b.displayName]));
 		},
 
 		loadTrack: function () {
@@ -340,13 +349,13 @@ PiLot.View.Tools = (function () {
 
 		processImportData: function() {
 			let processImportDataResult;
-			const utcOffset = RC.Utils.getNumericValue(this.tbImportUtcOffset) || 0;
+			const utcOffset = RC.Utils.getNumericValue(this.tbImportUtcOffset) || null;
 			switch(this.importMode){
 				case 'CSV':
-					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset);
+					processImportDataResult = PiLot.Model.Nav.Track.fromCSV(this.tbImport.value, utcOffset, this.ddlImportBoats.value);
 					break;
 				case 'TCX':
-					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset);
+					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset, this.ddlImportBoats.value);
 					break;
 			}
 			if (processImportDataResult.success) {

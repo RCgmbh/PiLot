@@ -11,6 +11,9 @@ namespace PiLot.Model.Nav {
 	/// This offers some functionality to crop or cut a track, which is useful when reading
 	/// track data for an entire day (from file), and afterwards limit the data to a certain 
 	/// timeframe.
+	/// This is mainly a data class, and the producers (db, GUI) are responsible to set the
+	/// reduntant attributes (e.g. StartUTC, which could also be deducted from the trackpoints)
+	/// correctly. The class does not perform any validation.
 	/// </summary>
 	public class Track {
 

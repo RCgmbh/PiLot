@@ -80,11 +80,12 @@ PiLot.Templates.Tools = {
 				<div class="pnlSpeedDiagram" hidden></div>
 				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<div class="divImport" hidden>
-					<label><input type="radio" class="rbImportFormat" checked="true" /> CSV</label>
-					<label><input type="radio" class="rbImportFormat" checked="true" /> TCX</label>
+					<label><input type="radio" name="importFormat" class="rbImportFormat" />CSV</label>
+					<label><input type="radio" name="importFormat" class="rbImportFormat" />TCX</label>
 					<textarea class="fullWidth big tbImport marginBottomSmall" style="max-height: 20em; overflow:auto; border:1px solid #666"></textarea>
 					<div class="fullWidth marginBottom">
-						<span data-text="utcOffset" class="marginRight"></span><input type="text" class="tbImportUtcOffset input4" />
+						<span data-text="utcOffset" class="marginRightSmall"></span><input type="text" class="tbImportUtcOffset input2 marginRight" />
+						<span data-text="boat" class="marginRightSmall"></span><select class="ddlImportBoats input8 marginRight"></select>
 					</div>
 					<div class="pnlImportSuccess fullWidth feedbackGood marginBottom" hidden data-text="importSuccess"></div>
 					<button type="button" class="btnImportPreview input6 marginRight" data-text="preview"></button>

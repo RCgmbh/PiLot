@@ -342,7 +342,31 @@ PiLot.Service.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Track} pTrack 
 		 */
 		saveTrackAsync: async function (pTrack){
+			const path = '/Tracks/';
+			const obj = this.trackToObject(pTrack);
+			return await PiLot.Utils.Common.putToServerAsync(path, obj);
+		},
 
+		/**
+		 * Creates a data object that can be sent to the api. An empty track
+		 * will be returned as null, as start and end can not be defined.
+		 * @param {PiLot.Model.Nav.Track} pTrack 
+		 * */
+		trackToObject: function (pTrack) {
+			let result = null;
+			if (pTrack.hasTrackPoints) {
+				result = {
+					id: pTrack.getId(),
+					startUtc: pTrack.getFirstTrackPoint().getUTC(),
+					endUtc: pTrack.getLastTrackPoint().getUTC(),
+					startBoatTime: pTrack.getFirstTrackPoint().getBoatTime(),
+					endBoatTime: pTrack.getLastTrackPoint().getBoatTime(),
+					distance: pTrack.getDistance(),
+					boat: pTrack.getBoat(),
+					trackPointsArray: pTrack.getTrackPoints().map((tp) => tp.toArray())
+				};
+			}
+			return result;
 		},
 		
 		/**
@@ -354,13 +378,13 @@ PiLot.Service.Nav = (function () {
 		 * @returns 
 		 */
 		deleteTrackPointsAsync: async function(pTrackId, pStart, pEnd, pIsBoatTime){
-			const url = `/Tracks/${pTrackId}/TrackPoints?startTime=${pStart}&endTime=${pEnd}&isBoatTime=${pIsBoatTime}`;
-			return await PiLot.Utils.Common.deleteFromServerAsync(url);
+			const path = `/Tracks/${pTrackId}/TrackPoints?startTime=${pStart}&endTime=${pEnd}&isBoatTime=${pIsBoatTime}`;
+			return await PiLot.Utils.Common.deleteFromServerAsync(path);
 		},
 		
 		loadMonthlyTrackSummaryAsync: async function(pYear, pMonth){
-			const url = `/Tracks/${pYear}/${pMonth}`;
-			return await PiLot.Utils.Common.getFromServerAsync(url);
+			const path = `/Tracks/${pYear}/${pMonth}`;
+			return await PiLot.Utils.Common.getFromServerAsync(path);
 		},
 
 		/**

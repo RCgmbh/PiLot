@@ -1255,17 +1255,14 @@ PiLot.View.Nav = (function () {
 		},
 
 		showTrackStatisticsAsync: async function (pTrack) {
-			const firstTrackPoint = pTrack.getFirstTrackPoint();
-			const lastTrackPoint = pTrack.getLastTrackPoint();
 			this.clear();
-			if (firstTrackPoint && lastTrackPoint) {
-				await this.loadAndShowDataAsync(pTrack.getId()); 
-			}
+			await this.loadAndShowDataAsync(pTrack.getId()); 
 		},
 
 		loadAndShowDataAsync: async function (pTrackId) {
 			this.container.hidden = false;
 			const trackSegments = await this.trackService.getTrackSegmentsByTrackIdAsync(pTrackId);
+			trackSegments.sort((a, b) => a.getType().compareTo(b.getType()));
 			const currentLanguage = PiLot.Utils.Language.getLanguage();
 			this.plhDistanceSegments.hidden = true;
 			this.plhDurationSegments.hidden = true;
