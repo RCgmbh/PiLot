@@ -187,8 +187,8 @@ namespace PiLot.Data.Postgres.Nav {
 		public void DeleteTrackSegments(Int32? pTrackId, Int32? pTypeId){
 			String command = "SELECT delete_track_segments (@p_type_id, @p_track_id)";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_type_id", pTypeId));
-			pars.Add(("@p_track_id", pTrackId));
+			pars.Add(("@p_type_id", this.dbHelper.GetNullableParameterValue(pTypeId)));
+			pars.Add(("@p_track_id", this.dbHelper.GetNullableParameterValue(pTrackId)));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars);
 		}
 
