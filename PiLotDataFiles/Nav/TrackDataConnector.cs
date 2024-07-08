@@ -72,8 +72,8 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Reads the track for a certain period from files. If there are no track points,
-		/// the result will be a track with an empty track points list
+		/// Reads the track for a certain period from files. Returns no more than one track!
+		/// If there are no track points, the result will be a track with an empty track points list.
 		/// </summary>
 		/// <param name="pStartTime">The start time in milliseconds, either UTC or BoatTime</param>
 		/// <param name="pEndTime">The end time in milliseconds, either UTC or BoatTime</param>

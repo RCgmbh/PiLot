@@ -430,7 +430,7 @@ $BODY$;
 GRANT EXECUTE ON FUNCTION read_track_points TO pilotweb;
 
 /*-----------FUNCTION insert_track_point-----------------*/
--- inserts a track_point and updates the distance and start/end of the track
+-- inserts a track_point and optionally updates the distance and start/end of the track
 
 CREATE OR REPLACE FUNCTION public.insert_track_point(
 	p_track_id integer,

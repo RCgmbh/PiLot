@@ -133,7 +133,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotGPIO", "PiLotGPIO\PiLo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotTilesDownloader", "PiLotTilesDownloader\PiLotTilesDownloader.csproj", "{A1E25012-96D1-49AE-9E13-119B4239FB0D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotData", "PiLotData\PiLotData.csproj", "{3E0B653F-0490-4D5A-A6EE-DA2F4BD3B192}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotData", "PiLotData\PiLotData.csproj", "{3E0B653F-0490-4D5A-A6EE-DA2F4BD3B192}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMigrator", "DataMigrator\DataMigrator.csproj", "{A1375BDF-2A07-4171-9321-156CFA1067DE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -217,6 +219,10 @@ Global
 		{3E0B653F-0490-4D5A-A6EE-DA2F4BD3B192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E0B653F-0490-4D5A-A6EE-DA2F4BD3B192}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3E0B653F-0490-4D5A-A6EE-DA2F4BD3B192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
