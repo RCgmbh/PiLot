@@ -5,7 +5,7 @@ PiLot.View.Boat = (function () {
 
 	/// The boat config defines static settings for displaying
 	/// an image of the boat. It is instantiated using a BoatConfig,
-	/// which contains the model part, plus the raw config json
+	/// which contains the model part and the raw config json
 	/// object with all required information
 	var BoatImageConfig = function (pBoatConfig) {
 		this.boatConfig = pBoatConfig;	/// the boat config, needed to get the raw config object (the one loaded from the server /data)

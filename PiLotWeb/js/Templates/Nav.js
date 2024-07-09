@@ -1,5 +1,4 @@
-﻿var PiLot = PiLot || {};
-PiLot.Templates = PiLot.Templates || {};
+﻿PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Nav = {
 
@@ -334,6 +333,22 @@ PiLot.Templates.Nav = {
 	`,
 
 	anchorWatchMarker: '<i class="icon-anchor"></i>',
+
+	tracksList: '<divclass="tracksList"><div class="plhTracks"></div></div>',
+
+	trackInfo: `
+		<div class="trackInfo">
+			<div class="plhBoat"></div>
+			<div class="trackData">
+				<span class="lblStartTime"></span>
+				<span class="lblEndTime"></span>
+				<span>
+					<span class="lblDistanceMiles"></span> <span data-text="nm"</span>
+					(<span class="lblDistanceKm"></span> <span data-text="km"</span>)
+				</span>
+			</div>
+		</div>
+	`,
 
 	trackStatistics: `
 		<div class="borderLight trackStatistics">

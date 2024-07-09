@@ -1229,6 +1229,96 @@ PiLot.View.Nav = (function () {
 		}
 	};
 
+	/**
+	 * Shows a list of tracks and allows to select one track
+	 * */
+	var TracksList = function (pContainer) {
+		this.container = pContainer;
+		this.plhTracks = null;
+		this.observers = null;
+		this.initialize();
+	};
+
+	TracksList.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['trackSelected']);
+			this.draw();
+		},
+
+		/** 
+		 * Registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent: trackSelected
+		 * @param {function} pCallback: the function to call when pEvent happens
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+			return this;
+		},
+
+		trackInfo_select: function (pSender) {
+			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', pSender.getTrack());
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.tracksList);
+			this.container.appendChild(control);
+			this.plhTracks = control.querySelector('.plhTracks');
+		},
+
+		showTracks: function (pTracks) {
+			this.plhTracks.clear();
+			for (let aTrack in pTracks) {
+				new TrackInfo(this.plhTracks, aTrack).on("select", this.trackInfo_select.bind(this));
+			}
+		}
+	};
+
+	/** Shows basic information about a track, and informs others when it's been clicked */
+	var TrackInfo = function (pContainer, pTrack) {
+		this.container = pContainer;
+		this.track = pTrack;
+		this.control = null;
+		this.observers = null;
+		this.selectedTrack = null;
+		this.initialize();
+	};
+
+	TrackInfo.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['selected']);
+			this.draw();
+		},
+
+		/** 
+		 * Registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent: selected
+		 * @param {function} pCallback: the function to call when pEvent happens
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+			return this;
+		},
+
+		control_click: function (pSender) {
+			RC.Utils.notifyObservers(this, this.observers, 'selected', pSender.getTrack());
+		},
+
+		draw: async function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.tracksList);
+			control.addEventListener('click', this.control_click.bind(this));
+			this.container.appendChild(control);
+			this.loadAndShowBoatAsync();
+		},
+
+		loadAndShowBoatAsync: async function () {
+			const plhBoat = control.querySelector('.plhBoat');
+			PiLot.Model.Boat.loadConfigAsync(this.track.getBoat());
+			const boatImage = new PiLot.View.Boat.BoatImageLink(new PiLot.View.Boat.BoatImageConfig(boatConfig), plhBoat, null);
+		}
+	};
+
 	/** A control showing statistics for a track */
 	var TrackStatistics = function (pContainer) {
 		this.container = pContainer;
