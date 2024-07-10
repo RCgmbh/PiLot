@@ -334,11 +334,13 @@ PiLot.Templates.Nav = {
 
 	anchorWatchMarker: '<i class="icon-anchor"></i>',
 
-	tracksList: '<divclass="tracksList"><div class="plhTracks"></div></div>',
+	tracksList: '<div class="tracksList"><div class="plhTracks"></div></div>',
 
 	trackInfo: `
-		<div class="trackInfo">
-			<div class="plhBoat"></div>
+		<div class="trackInfo flexRowWrap">
+			<div class="plhBoat" style="height:4em;">
+				<object class="imgBoat" type="image/svg+xml" style="height:4em; "></object>
+			</div>
 			<div class="trackData">
 				<span class="lblStartTime"></span>
 				<span class="lblEndTime"></span>

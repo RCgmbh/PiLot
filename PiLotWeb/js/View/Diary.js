@@ -32,6 +32,7 @@ PiLot.View.Diary = (function () {
 		this.plhDistance = null;						// container showing the total distance of the day
 		this.lblDistanceKm = null;						// the label for distance in km
 		this.lblDistanceNm = null;						// the label for distance in nm
+		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;					// placeholder where the speed diagram will be added
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics control to show track statistics
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery for the daily photos
@@ -83,6 +84,10 @@ PiLot.View.Diary = (function () {
 			this.changeDiaryFontSize(-1);
 		},
 
+		tracksList_trackSelected: function () {
+
+		},
+
 		/** Upload handler for the photo upload */
 		photoUpload_upload: function(pSender, pArg){
 			this.photoGallery.ensureAutoUpdate();
@@ -124,6 +129,8 @@ PiLot.View.Diary = (function () {
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.applyDiaryFontSize();
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
+			this.tracksList = new PiLot.View.Nav.TracksList(diaryPage.querySelector('.plhTracks'));
+			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
 			this.plhSpeedDiagram = diaryPage.querySelector('.plhSpeedDiagram');
 			this.trackStatistics = new PiLot.View.Nav.TrackStatistics(diaryPage.querySelector('.plhTrackStatistics'));
 			if(PiLot.Permissions.canWrite()){	
@@ -225,7 +232,7 @@ PiLot.View.Diary = (function () {
 			this.showDiaryText();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
 			await Promise.all([
-				this.loadTrackAsync(),
+				this.loadTracksAsync(),
 				this.showPhotosAsync()
 			]);
 			this.showTopLink();
@@ -314,16 +321,18 @@ PiLot.View.Diary = (function () {
 		},
 
 		/** tries to load the track and show it on the map */
-		loadTrackAsync: async function () {
+		loadTracksAsync: async function () {
 			this.showDistance(null);
 			const startMS = this.date.toLuxon().toMillis();
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
-			const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
-			this.showTrackAsync(track);
+			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
+			this.tracksList.showTracks(tracks);
+			this.showTrackAsync(tracks.length > 0 ? tracks[0] : null);
 		},
 
 		/** takes a track and shows it on the map */
 		showTrackAsync: async function (pTrack) {
+			
 			this.showSpeedDiagram(pTrack);
 			this.showTrackStatistics(pTrack);
 			if (pTrack && pTrack.getTrackPointsCount() > 0) {

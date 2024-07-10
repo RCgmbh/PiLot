@@ -1268,8 +1268,8 @@ PiLot.View.Nav = (function () {
 
 		showTracks: function (pTracks) {
 			this.plhTracks.clear();
-			for (let aTrack in pTracks) {
-				new TrackInfo(this.plhTracks, aTrack).on("select", this.trackInfo_select.bind(this));
+			for (let aTrack of pTracks) {
+				new TrackInfo(this.plhTracks, aTrack).on("selected", this.trackInfo_select.bind(this));
 			}
 		}
 	};
@@ -1306,16 +1306,16 @@ PiLot.View.Nav = (function () {
 		},
 
 		draw: async function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.tracksList);
-			control.addEventListener('click', this.control_click.bind(this));
-			this.container.appendChild(control);
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.trackInfo);
+			this.control.addEventListener('click', this.control_click.bind(this));
+			this.container.appendChild(this.control);
 			this.loadAndShowBoatAsync();
 		},
 
 		loadAndShowBoatAsync: async function () {
-			const plhBoat = control.querySelector('.plhBoat');
-			PiLot.Model.Boat.loadConfigAsync(this.track.getBoat());
-			const boatImage = new PiLot.View.Boat.BoatImageLink(new PiLot.View.Boat.BoatImageConfig(boatConfig), plhBoat, null);
+			const boatConfig = await PiLot.Model.Boat.loadConfigAsync(this.track.getBoat());
+			const boatImageConfig = new PiLot.View.Boat.BoatImageConfig(boatConfig);
+			this.control.querySelector('.imgBoat').setAttribute('data', boatImageConfig.getBoatImageUrl());
 		}
 	};
 
@@ -2556,6 +2556,7 @@ PiLot.View.Nav = (function () {
 		RoutesList: RoutesList,
 		RouteDetail: RouteDetail,
 		LiveRoute: LiveRoute,
+		TracksList: TracksList,
 		TrackStatistics: TrackStatistics,
 		AnchorWatchForm: AnchorWatchForm,
 		PoiDetails: PoiDetails,

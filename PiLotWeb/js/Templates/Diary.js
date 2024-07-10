@@ -34,6 +34,7 @@ PiLot.Templates.Diary = {
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
 				<div class="plhMap navMap borderDark marginBottom"></div>
+				<div class="plhTracks marginBottom"></div>
 				<div class="plhSpeedDiagram marginBottom"></div>
 				<div class="plhTrackStatistics marginBottom"></div>
 			</div>

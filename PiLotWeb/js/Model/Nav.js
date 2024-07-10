@@ -1723,6 +1723,7 @@ PiLot.Model.Nav = (function () {
 		if (pData) {
 			result = new Track();
 			result.setId(pData.id || null);
+			result.setBoat(pData.boat);
 			if (Array.isArray(pData.trackPointsArray)) {
 				pData.trackPointsArray.forEach((value, index, array) => {
 					if (Array.isArray(value) && value.length == 4) {
@@ -1842,6 +1843,7 @@ PiLot.Model.Nav = (function () {
 	 * @returns {Track} - the resulting track or null
 	 */
 	var loadTrackAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
+		console.warn('PiLot.Model.Nav.loadTrackAsync is obsolete. Use PiLot.Service.Nav.LoadTracksAsync instead!');
 		const result = [];
 		const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
 		const json = await PiLot.Utils.Common.getFromServerAsync(url);
