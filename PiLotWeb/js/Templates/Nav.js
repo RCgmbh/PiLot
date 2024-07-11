@@ -337,7 +337,7 @@ PiLot.Templates.Nav = {
 	tracksList: '<div class="tracksList"><div class="plhTracks"></div></div>',
 
 	trackInfo: `
-		<div class="trackInfo borderLight paddingAllSmall flex gapSmall">
+		<div class="trackInfo borderLight paddingAllSmall flex gapSmall marginBottomSmall">
 			<div class="plhBoat trackBoat">
 				<object class="imgBoat trackBoat" type="image/svg+xml"></object>
 			</div>

@@ -1234,6 +1234,7 @@ PiLot.View.Nav = (function () {
 	 * */
 	var TracksList = function (pContainer) {
 		this.container = pContainer;
+		this.trackInfos = null;
 		this.plhTracks = null;
 		this.observers = null;
 		this.initialize();
@@ -1258,6 +1259,12 @@ PiLot.View.Nav = (function () {
 
 		trackInfo_select: function (pSender) {
 			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', pSender.getTrack());
+			for (let aTrackInfo of this.trackInfos) {
+				if (aTrackInfo !== pSender) {
+					aTrackInfo.unselect();
+				}
+			}
+
 		},
 
 		draw: function () {
@@ -1268,9 +1275,17 @@ PiLot.View.Nav = (function () {
 
 		showTracks: function (pTracks) {
 			this.plhTracks.clear();
-			for (let aTrack of pTracks) {
-				new TrackInfo(this.plhTracks, aTrack).on("selected", this.trackInfo_select.bind(this));
+			this.trackInfos = [];
+			let selectedTrack = 0;
+			for (let i = 0; i < pTracks.length; i++) {
+				let trackInfo = new TrackInfo(this.plhTracks, pTracks[i]).on("selected", this.trackInfo_select.bind(this));
+				this.trackInfos.push(trackInfo);
+				if (i == 0) {
+					trackInfo.select();
+					selectedTrack = pTracks[i];
+				}
 			}
+			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', selectedTrack);
 		}
 	};
 
@@ -1278,9 +1293,9 @@ PiLot.View.Nav = (function () {
 	var TrackInfo = function (pContainer, pTrack) {
 		this.container = pContainer;
 		this.track = pTrack;
+		this.selected = false;
 		this.control = null;
 		this.observers = null;
-		this.selectedTrack = null;
 		this.initialize();
 	};
 
@@ -1302,7 +1317,10 @@ PiLot.View.Nav = (function () {
 		},
 
 		control_click: function (pSender) {
-			RC.Utils.notifyObservers(this, this.observers, 'selected', pSender.getTrack());
+			if (!this.selected) {
+				this.setSelected(true);
+				RC.Utils.notifyObservers(this, this.observers, 'selected', this);
+			}
 		},
 
 		draw: async function () {
@@ -1320,6 +1338,23 @@ PiLot.View.Nav = (function () {
 			const boatConfig = await PiLot.Model.Boat.loadConfigAsync(this.track.getBoat());
 			const boatImageConfig = new PiLot.View.Boat.BoatImageConfig(boatConfig);
 			this.control.querySelector('.imgBoat').setAttribute('data', boatImageConfig.getBoatImageUrl());
+		},
+
+		getTrack: function () {
+			return this.track;
+		},
+
+		select: function () {
+			this.setSelected(true);
+		},
+
+		unselect: function () {
+			this.setSelected(false);
+		},
+
+		setSelected: function (pSelected) {
+			this.selected = pSelected;
+			this.control.classList.toggle('selected', this.active);
 		}
 	};
 
@@ -1410,10 +1445,6 @@ PiLot.View.Nav = (function () {
 
 		hide: function () {
 			this.container.hidden = true;
-		},
-
-		unselect: function(){
-			
 		},
 
 		clear: function () {

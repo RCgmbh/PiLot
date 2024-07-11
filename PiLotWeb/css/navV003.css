@@ -116,6 +116,8 @@ a.mapLayersIcon:hover { color:#FFBF49; }
 
 .trackInfo .trackData { align-items:center; justify-content:space-around; }
 .trackInfo .trackBoat { height:4em; }
+.trackInfo.selected {border-color: #333;}
+.trackInfo:not(.selected){ cursor: pointer;}
 
 .trackStatistics {padding: 0.5em 0.25em 0.25em 0.25em;}
 .trackStatistics .segments { gap: 0em 1em;}
