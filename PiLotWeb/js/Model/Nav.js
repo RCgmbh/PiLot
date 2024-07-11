@@ -1559,6 +1559,7 @@ PiLot.Model.Nav = (function () {
 		this.trackPoints = null;  // array of TrackPoints
 		this.boat = null;
 		this.observers = null;
+		this.distance = null;		// the distance as it was persisted with the track
 		this.initialize();
 	};
 
@@ -1603,6 +1604,16 @@ PiLot.Model.Nav = (function () {
 		/** @returns {String} */
 		getBoat: function(){
 			return this.boat;
+		},
+
+		/** @returns {DateTime} the boatTime Luxon */
+		getStartBoatTime: function () {
+			return DateTime.fromMillis(this.getFirstTrackPoint().getBoatTime());
+		},
+
+		/** @returns {DateTime} the boatTime Luxon */
+		getEndBoatTime: function () {
+			return DateTime.fromMillis(this.getLastTrackPoint().getBoatTime());
 		},
 
 		/**
@@ -1698,8 +1709,18 @@ PiLot.Model.Nav = (function () {
 			return this.trackPoints !== null ? this.trackPoints.length : 0;
 		},
 
-		/** @returns {Number} - the total distance of the track in meters */
-		getDistance: function () {
+		/** @returns {Number} - either the assigned the distance or the calculated distance */
+		getDistance: function() {
+			return this.distance !== null ? this.distance : this.calculateDistance();
+		},
+
+		/** @param {Number} pDistance - the distance in meters */
+		setDistance: function (pDistance) {
+			this.distance = pDistance;
+		},
+
+		/** @returns {Number} - the calculated total distance of the track in meters */
+		calculateDistance: function () {
 			let result = 0;
 			let latLon0, latLon1;
 			if (this.trackPoints.length > 0) {

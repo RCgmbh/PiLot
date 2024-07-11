@@ -33,8 +33,8 @@ PiLot.Templates.Diary = {
 				<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
-				<div class="plhMap navMap borderDark marginBottom"></div>
 				<div class="plhTracks marginBottom"></div>
+				<div class="plhMap navMap borderDark marginBottom"></div>
 				<div class="plhSpeedDiagram marginBottom"></div>
 				<div class="plhTrackStatistics marginBottom"></div>
 			</div>

@@ -337,17 +337,18 @@ PiLot.Templates.Nav = {
 	tracksList: '<div class="tracksList"><div class="plhTracks"></div></div>',
 
 	trackInfo: `
-		<div class="trackInfo flexRowWrap">
-			<div class="plhBoat" style="height:4em;">
-				<object class="imgBoat" type="image/svg+xml" style="height:4em; "></object>
+		<div class="trackInfo borderLight paddingAllSmall flex gapSmall">
+			<div class="plhBoat trackBoat">
+				<object class="imgBoat trackBoat" type="image/svg+xml"></object>
 			</div>
-			<div class="trackData">
-				<span class="lblStartTime"></span>
-				<span class="lblEndTime"></span>
-				<span>
-					<span class="lblDistanceMiles"></span> <span data-text="nm"</span>
-					(<span class="lblDistanceKm"></span> <span data-text="km"</span>)
-				</span>
+			<div class="trackData flexRowWrap gap grow">
+				<div>
+					<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
+				</div>
+				<div>
+					<span class="lblDistanceNm"></span> <span data-text="nm"></span>, 
+					<span class="lblDistanceKm"></span> <span data-text="km"></span>
+				</div>
 			</div>
 		</div>
 	`,
