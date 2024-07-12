@@ -78,9 +78,8 @@ namespace PiLot.Model.Nav {
 		[JsonIgnore]
 		public Double Speed {
 			get {
-				return this.Distance_mm / (this.EndUTC - this.StartUTC);
+				return this.Distance_mm / (Double)(this.EndUTC - this.StartUTC);
 			}
 		}
-
 	}
 }
