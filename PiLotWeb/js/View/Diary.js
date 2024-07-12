@@ -84,8 +84,8 @@ PiLot.View.Diary = (function () {
 			this.changeDiaryFontSize(-1);
 		},
 
-		tracksList_trackSelected: function () {
-
+		tracksList_trackSelected: function (pSender, pTrack) {
+			this.showTrackAsync(pTrack);
 		},
 
 		/** Upload handler for the photo upload */
@@ -327,7 +327,6 @@ PiLot.View.Diary = (function () {
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
 			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
 			this.tracksList.showTracks(tracks);
-			this.showTrackAsync(tracks.length > 0 ? tracks[0] : null);
 		},
 
 		/** takes a track and shows it on the map */

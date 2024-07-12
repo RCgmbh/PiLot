@@ -1257,14 +1257,13 @@ PiLot.View.Nav = (function () {
 			return this;
 		},
 
-		trackInfo_select: function (pSender) {
+		trackInfo_select: function (pSender, pTrack) {
 			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', pSender.getTrack());
 			for (let aTrackInfo of this.trackInfos) {
 				if (aTrackInfo !== pSender) {
 					aTrackInfo.unselect();
 				}
 			}
-
 		},
 
 		draw: function () {
@@ -1276,7 +1275,7 @@ PiLot.View.Nav = (function () {
 		showTracks: function (pTracks) {
 			this.plhTracks.clear();
 			this.trackInfos = [];
-			let selectedTrack = 0;
+			let selectedTrack = null;
 			for (let i = 0; i < pTracks.length; i++) {
 				let trackInfo = new TrackInfo(this.plhTracks, pTracks[i]).on("selected", this.trackInfo_select.bind(this));
 				this.trackInfos.push(trackInfo);
