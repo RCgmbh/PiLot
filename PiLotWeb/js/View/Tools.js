@@ -39,6 +39,7 @@ PiLot.View.Tools = (function () {
 		this.calEndDate = null;
 		this.tbEndTime = null;
 		this.divLoadingData = null;
+		this.tracksList = null;
 		this.divDataLoaded = null;
 		this.map = null;
 		this.mapTrack = null;
@@ -61,7 +62,7 @@ PiLot.View.Tools = (function () {
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			await this.drawFormAsync();
 			this.setDefaultDates();
-			this.loadTrack();
+			await this.loadTracksAsync();
 		},
 
 		drawFormAsync: async function () {
@@ -82,6 +83,8 @@ PiLot.View.Tools = (function () {
 			this.calEndDate.setMinDateCalendar(this.calStartDate);
 			this.pageContent.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
 			this.divLoadingData = this.pageContent.querySelector('.divLoadingData');
+			this.tracksList = new PiLot.View.Nav.TracksList(this.pageContent.querySelector('.divTracksList'));
+			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
 			this.divDataLoaded = this.pageContent.querySelector('.divDataLoaded');
 			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: false });
 			await this.map.showAsync();
@@ -150,7 +153,11 @@ PiLot.View.Tools = (function () {
 		lnkEndTimeFromMap_click: function () { },
 
 		btnLoadData_click: function () {
-			this.loadTrack();
+			this.loadTracksAsync();
+		},
+
+		tracksList_trackSelected: function (pSender, pTrack) {
+			this.showTrack(pTrack);
 		},
 
 		btnCopy_Click: function () {
@@ -167,8 +174,8 @@ PiLot.View.Tools = (function () {
 			var position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
 				if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePosition'))) {
-					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), position.getBoatTime(), position.getBoatTime(), true);
-					this.loadTrack();
+					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), position.getUTC(), position.getURC(), false);
+					this.loadTracksAsync();
 				}
 			} 
 		},
@@ -179,8 +186,8 @@ PiLot.View.Tools = (function () {
 			if ((firstPosition !== null) && (lastPosition !== null)) {
 				const message = PiLot.Utils.Language.getText('confirmDeletePosition').replace('{{x}}', this.track.getTrackPointsCount());
 				if (window.confirm(message)) {
-					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), firstPosition.getBoatTime(), lastPosition.getBoatTime(), true);
-					this.loadTrack();
+					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), firstPosition.getUTC(), lastPosition.getUTC(), false);
+					this.loadTracksAsync();
 				}
 			}
 		},
@@ -197,7 +204,6 @@ PiLot.View.Tools = (function () {
 		btnImport_click: async function () {
 			const processImportDataResult = this.processImportData();
 			if (processImportDataResult.success) {
-				//const saveResult = await PiLot.Model.Nav.saveTrackPointsAsync(this.track.getTrackPoints());
 				const saveResult = await PiLot.Service.Nav.TrackService.getInstance().saveTrackAsync(this.track);
 				this.pnlImportSuccess.hidden = false;
 			}
@@ -224,7 +230,7 @@ PiLot.View.Tools = (function () {
 			RC.Utils.fillDropdown(this.ddlImportBoats, boatInfos.map((b) => [b.name, b.displayName]));
 		},
 
-		loadTrack: function () {
+		loadTracksAsync: async function () {
 			let startDate = this.calStartDate.date();
 			let endDate = this.calEndDate.date();
 			if ((startDate !== null) && (endDate !== null)) {
@@ -236,18 +242,19 @@ PiLot.View.Tools = (function () {
 					endDate = RC.Date.DateHelper.parseTime(this.tbEndTime.value, endDate).date;
 					RC.Utils.setText(this.tbEndTime, endDate.toFormat('HH:mm'));
 				}
-				this.mapTrack.setTimeFrame(startDate, endDate, null);
-				this.mapTrack.loadAndShowTrackAsync(true).then(track => this.loadTrackSuccess(track));
+				const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startDate.toMillis(), endDate.toMillis(), false);
+				this.tracksList.showTracks(tracks);
 			} else {
 				RC.Utils.showHide(this.divDataLoaded, true);
 				RC.Utils.showHide(this.divLoadingData, false);
 			}
 		},
 
-		loadTrackSuccess: function (pTrack) {
+		showTrack: function (pTrack) {
 			this.track = pTrack;
 			let length = this.track && this.track.getTrackPointsCount() || 0;
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
+			this.mapTrack.setAndShowTrack(this.track, true);
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
 			RC.Utils.showHide(this.divResult, true);

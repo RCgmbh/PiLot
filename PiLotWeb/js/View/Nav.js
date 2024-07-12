@@ -1327,8 +1327,9 @@ PiLot.View.Nav = (function () {
 			this.control.addEventListener('click', this.control_click.bind(this));
 			this.container.appendChild(this.control);
 			this.loadAndShowBoatAsync();
-			this.control.querySelector('.lblStartTime').innerText = this.track.getStartBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
-			this.control.querySelector('.lblEndTime').innerText = this.track.getEndBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
+			const language = PiLot.Utils.Language.getLanguage();
+			this.control.querySelector('.lblStartTime').innerText = RC.Date.DateHelper.millisToLuxon(this.track.getStartBoatTime(), language).toLocaleString(DateTime.TIME_SIMPLE);
+			this.control.querySelector('.lblEndTime').innerText = RC.Date.DateHelper.millisToLuxon(this.track.getEndBoatTime(), language).toLocaleString(DateTime.TIME_SIMPLE);
 			this.control.querySelector('.lblDistanceNm').innerText = PiLot.Utils.Nav.metersToNauticalMiles(this.track.getDistance()).toFixed(2);
 			this.control.querySelector('.lblDistanceKm').innerText = (this.track.getDistance() / 1000).toFixed(2);
 		},

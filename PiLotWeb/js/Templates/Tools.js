@@ -39,6 +39,7 @@ PiLot.Templates.Tools = {
 				class="lnkEndTimeFromMap" href="#"><i class="icon-map2"></i></a></div>
 				<div class="marginBottomSmall"><span class="col4 inlineBlock"></span><button type="button" class="input7 btnLoadData marginBottom" data-text="loadData"></button></div>
 				<div class="col11 feedbackInfo divLoadingData hidden" data-text="loadingData"></div>
+				<div class="col22 divTracksList"></div>
 				<div class="col11 feedbackGood divDataLoaded hidden" data-text="xPositionsFound">...</div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">

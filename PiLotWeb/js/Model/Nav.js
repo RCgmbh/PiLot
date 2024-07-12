@@ -1606,14 +1606,14 @@ PiLot.Model.Nav = (function () {
 			return this.boat;
 		},
 
-		/** @returns {DateTime} the boatTime Luxon */
+		/** @returns {Number} the boatTime in milliseconds */
 		getStartBoatTime: function () {
-			return DateTime.fromMillis(this.getFirstTrackPoint().getBoatTime());
+			return this.getFirstTrackPoint().getBoatTime();
 		},
 
-		/** @returns {DateTime} the boatTime Luxon */
+		/** @returns {DateTime} the boatTime milliseconds */
 		getEndBoatTime: function () {
-			return DateTime.fromMillis(this.getLastTrackPoint().getBoatTime());
+			return this.getLastTrackPoint().getBoatTime();
 		},
 
 		/**
