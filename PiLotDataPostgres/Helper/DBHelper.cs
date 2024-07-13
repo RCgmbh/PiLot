@@ -82,7 +82,7 @@ namespace PiLot.Data.Postgres.Helper {
 				try {
 					this.OpenConnection(command.Connection);
 					Object cmdResult = command.ExecuteScalar();
-					if (cmdResult != DBNull.Value) {
+					if ((cmdResult != null) && (cmdResult != DBNull.Value)) {
 						result = (T)cmdResult;
 					}
 				} catch (Exception ex) {
