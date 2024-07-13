@@ -142,7 +142,7 @@ PiLot.View.Tools = (function () {
 		lnkTimeFromMap_click: function (pCalendar, pTimeField) {
 			let position = this.mapTrack.getHistoricPosition();
 			if (position) {
-				let date = RC.Date.DateHelper.millisToLuxon(position.boatTime);
+				let date = RC.Date.DateHelper.millisToLuxon(position.getBoatTime());
 				pCalendar.date(date);
 				pCalendar.showDate();
 				pTimeField.value = date.toFormat('HH:mm');
@@ -174,7 +174,7 @@ PiLot.View.Tools = (function () {
 			var position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
 				if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePosition'))) {
-					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), position.getUTC(), position.getURC(), false);
+					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), position.getUTC(), position.getUTC(), false);
 					this.loadTracksAsync();
 				}
 			} 
@@ -184,7 +184,7 @@ PiLot.View.Tools = (function () {
 			var firstPosition = this.track.getTrackPointAt(0);
 			var lastPosition = this.track.getLastTrackPoint();
 			if ((firstPosition !== null) && (lastPosition !== null)) {
-				const message = PiLot.Utils.Language.getText('confirmDeletePosition').replace('{{x}}', this.track.getTrackPointsCount());
+				const message = PiLot.Utils.Language.getText('confirmDeleteXPositions').replace('{{x}}', this.track.getTrackPointsCount());
 				if (window.confirm(message)) {
 					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), firstPosition.getUTC(), lastPosition.getUTC(), false);
 					this.loadTracksAsync();

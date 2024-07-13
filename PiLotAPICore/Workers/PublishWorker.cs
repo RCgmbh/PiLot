@@ -50,7 +50,7 @@ namespace PiLot.API.Workers {
 			try {
 				LoginHelper loginHelper = new LoginHelper(this.Job.Target.APIUrl, this.Job.Target.Username, this.Job.Target.Password);
 				if (!pCancellationToken.IsCancellationRequested) {
-					await this.PublishTrackAsync(loginHelper);
+					await this.PublishTracksAsync(loginHelper);
 				} else {
 					this.Job.Messages.Add("Cancellation has been requested. Skipping Track publishing.");
 				}
@@ -76,9 +76,9 @@ namespace PiLot.API.Workers {
 		}
 
 		/// <summary>
-		/// Publishes the track according to the publish settings
+		/// Publishes the tracks according to the publish settings
 		/// </summary>
-		private async Task PublishTrackAsync(LoginHelper pLoginHelper) {
+		private async Task PublishTracksAsync(LoginHelper pLoginHelper) {
 			if(this.Job.Selection.PublishTrackMode != 0) {
 				TrackProxy proxy = new TrackProxy(this.Job.Target.APIUrl, pLoginHelper);
 				ITrackDataConnector trackDataConnector = DataConnectionHelper.TrackDataConnector;

@@ -1022,23 +1022,283 @@ PiLot.View.Map = (function () {
 		},
 	};
 
-	/// Class MapTrack represents the presentation of a track
-	/// on the map.
-	var MapTrack = function (pMap, pBoatTime, pGpsObserver, pOptions) {
+	/**
+	 * Class MapTrack represents the presentation of a track on the map.
+	 * @param {PiLot.View.Map.SeaMap} pMap - The map to draw the track onto
+	 * @param {Boolean} pIncludeTimeSlider - Set to true to show a slider 
+	 * */
+	var MapTrack = function (pMap, pIncludeTimeSlider) {
 		this.map = pMap;
-		this.boatTime = pBoatTime;
-		this.gpsObserver = pGpsObserver || null;
-		this.track = null;
-		this.ignoreSettings = false;
+		this.includeTimeSlider = pIncludeTimeSlider;
+		this.tracks = null;
+		this.timeScaleFactor = 1;
+		this.maxTimeSteps = 1000;
+		this.historicPosition = null;  // TrackPoint
+
+		// controls
+		this.timeSliderContainer = null;
+		this.timeSlider = null;
+		this.timeField = null;
+		this.historicPositionMarker = null;
+		this.polylines = null; // a Map with key=Track, value=leaflet L.polyLine
+
+		this.initialize();
+	}
+
+	/// MapTrack methods
+	MapTrack.prototype = {
+
+		initialize: function () {
+			if (this.includeTimeSlider) {
+				this.addTimeSlider();
+			}
+			this.tracks = [];
+			this.polylines = new Map();
+		},
+
+		/**
+		 * Handles sliding the slider. Finds the position on any of the tracks and 
+		 * if there is one, makes sure it is drawn / moved on the map.
+		 * */
+		timeSlider_slide: function () {
+			this.historicPosition = null;
+			const index = this.timeSlider.value * this.timeScaleFactor;
+			let counter = 0;
+			for (let aTrack of this.tracks) {
+				if (index < aTrack.getTrackPointsCount() + counter) {
+					this.historicPosition = aTrack.getTrackPointAt(index - counter);
+					break;
+				} else {
+					counter += aTrack.getTrackPointsCount();
+				}
+			}
+			if (this.historicPosition !== null) {
+				this.drawHistoricPosition();
+			}
+		},
+
+		/**
+		 * Handles adding a new position to a track.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The TrackPoint that was added
+		 */
+		track_addPosition: function (pTrack, pTrackPoint) {
+			this.updateTimeScale();
+			const polyline = this.polylines.get(pTrack);
+			if (polyline) {
+				polyline.addLatLng(pTrackPoint.getLatLng());
+			} else {
+				this.drawTrack(pTrack);
+			}			
+		},
+
+		/**
+		 * Handles changing the latest position of a track.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The position that was updated
+		 */
+		track_changeLastPosition: function (pTrack, pTrackPoint) {
+			this.updateTimeScale();
+			const polyline = this.polylines.get(pTrack);
+			if (polyline) {
+				const latLngs = polyline.getLatLngs();
+				if (latLngs.length > 0) {
+					latLngs.last = pTrackPoint.getLatLng();
+				}
+				else {
+					latLngs.push(pTrackPoint.getLatLng());
+				}
+				polyline.setLatLngs(latLngs);
+			} else {
+				this.drawTrack(pTrack);
+			}
+		},
+
+		/**
+		 * Handles cropping positions of the track
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * */
+		track_cropPositions: function (pTrack) {
+			this.updateTimeScale();
+			this.drawTrack(pTrack);
+		},
+
+		/** Adds the slider and binds events. */
+		addTimeSlider: function () {
+			this.timeSliderContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapTrackSlider);
+			this.timeSlider = this.timeSliderContainer.querySelector(".slider");
+			this.map.getMapContainer().insertAdjacentElement('afterend', this.timeSliderContainer);
+			this.timeSlider.addEventListener('input', this.timeSlider_slide.bind(this));
+			this.timeField = this.timeSliderContainer.querySelector('.time');
+		},
+
+		/** This makes sure we have a time scale factor which allowsto distribute 
+		 * the whole visible track to the slider
+		 * */
+		updateTimeScale: function () {
+			if ((this.tracks.length > 0) && this.timeSlider) {
+				let trackPointsCount = 0;
+				for (let aTrack of this.tracks) {
+					trackPointsCount += aTrack.getTrackPointsCount();
+				}
+				this.timeScaleFactor = Math.ceil(trackPointsCount / this.maxTimeSteps);
+				this.timeSlider.setAttribute("max", Math.ceil(trackPointsCount / this.timeScaleFactor) - 1);
+			}
+		},
+
+		/**
+		 * Sets the tracks to show on the map. This is the method to use
+		 * by anyone who wants to see a track on the map.
+		 * @param {PiLot.Model.Nav.Track[]} pTracks
+		 * @param {Boolean} pZoomToTracks - Set to false, if you don't want to zoom automatically
+		 * */
+		setTracks: function (pTracks, pZoomToTracks = true) {
+			this.deleteFromMap();
+			for(let aTrack of pTracks){
+				this.addTrack(aTrack, false, false);
+			}
+			this.sortTracks();
+			if (this.includeTimeSlider) {
+				this.historicPosition = null;
+				for (let aTrack of this.tracks) {
+					if (aTrack.hasTrackPoints()) {
+						this.historicPosition = aTrack.getFirstTrackPoint();
+						break;
+					}
+				}
+				this.showTimeSlider();
+			}
+			pZoomToTracks && this.zoomToTracks();
+		},
+
+		/**
+		 * Adds a track and shows it on the map. All tracks that were added before will be kept.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * @param {Boolean} pSortTracks - allows to not sort the tracks. Make sure to call sortTracks() later in that case!
+		 * */
+		addTrack: function (pTrack, pSortTracks = true) {
+			if (pTrack && !this.tracks.includes(pTrack)) {
+				this.tracks.push(pTrack);
+				if (pSortTracks){
+					this.sortTracks();
+				}
+				pTrack.on('addTrackPoint', this.track_addPosition.bind(this));
+				pTrack.on('changeLastTrackPoint', this.track_changeLastPosition.bind(this));
+				pTrack.on('cropTrackPoints', this.track_cropPositions.bind(this));
+				this.updateTimeScale();
+				this.drawTrack(pTrack);
+			}
+		},
+
+		/**
+		 * Sorts the tracks array, having the first track in time first.
+		 * */
+		sortTracks: function(){
+			this.tracks.sort((t1, t2) => t1.compareTo(t2));			
+		},
+
+		/** @param {PiLot.Model.Nav.Track} pTrack - The track to draw onto the map */
+		drawTrack: function (pTrack) {
+			if (pTrack) {
+				let positions = pTrack.getRawPositions();
+				let polyline = this.polylines.get(pTrack);
+				if (!polyline) {
+					const leafletMap = this.map.getLeafletMap();
+					polyline = L.polyline(positions, PiLot.Templates.Map.mapTrackOptions).addTo(leafletMap);
+					this.polylines.set(pTrack, polyline);
+				} else {
+					polyline.setLatLngs(positions);
+				}
+			}
+		},
+
+		/** Draws the historic position marker at the current historic position */
+		drawHistoricPosition: function () {
+			const latLng = this.historicPosition.getLatLng();
+			if (this.historicPositionMarker === null) {
+				var icon = L.divIcon({
+					className: 'navHistoricBoatIcon', iconSize: [20, 20]
+				});
+				this.historicPositionMarker = L.marker(latLng, { icon: icon, zIndexOffset: 1000 });
+				this.historicPositionMarker.addTo(this.map.getLeafletMap());
+			} else {
+				this.historicPositionMarker.setLatLng(latLng);
+			}
+			RC.Utils.setText(this.timeField, RC.Date.DateHelper.millisToLuxon(this.historicPosition.boatTime).toFormat('dd.MM.yyyy HH:mm'));
+		},
+
+		/** Adjusts the center/zoom of the map to fit all tracks entirely */
+		zoomToTracks: function () {
+			let bounds;
+			for (let aPolyline of this.polylines.values()) {
+				if (!bounds) {
+					bounds = aPolyline.getBounds();
+				} else {
+					bounds.extend(aPolyline.getBounds());
+				}
+			}
+			if (bounds) {
+				this.map.getLeafletMap().fitBounds(bounds, { maxZoom: 16 });
+			}
+		},
+
+		/** Removes all tracks from the map */
+		deleteFromMap: function () {
+			for (let aPolyline of this.polylines.values()) {
+				aPolyline.remove();
+			}
+			this.polylines = new Map();
+			this.tracks = [];
+			this.hideTimeSlider();
+		},
+
+		/**
+		 * Shows the time slider, if we have at least a track with at least one
+		 * position, otherwise hides the slider and historic position marker.
+		 * */
+		showTimeSlider: function (pResetPosition) {
+			if (this.tracks && this.tracks.some(t => t.hasTrackPoints())) {
+				if (pResetPosition) {
+					this.timeSlider.value = 0;
+				}
+				this.timeSliderContainer.hidden = false;
+				if (this.historicPosition != null) {
+					this.drawHistoricPosition();
+				}
+			} else {
+				this.hideTimeSlider();
+			}
+		},
+
+		/** Hides the time slider and the historic position marker */
+		hideTimeSlider: function () {
+			if (this.historicPositionMarker !== null) {
+				this.historicPositionMarker.remove();
+				this.historicPositionMarker = null;
+			}
+			this.timeSliderContainer.hidden = true;
+		},
+
+		/** 
+		 * Returns the position at the time selected by the time slider,
+		 * or null if we have not tracks. The result is an object like.
+		 * @returns {PiLot.Model.Nav.TrackPoint}
+		 * */
+		getHistoricPosition: function () {
+			return this.historicPosition;
+		}
+	};
+
+	/**
+	 * A control that shows track options on the map, allowing to show/hide
+	 * tracks, and to select the timeframe of the tracks to show.
+	 * */
+	var MapTrackSettings = function (pMap) {
+		this.map = pMap;
 		this.trackObserver = null;
 		this.seconds = null;		// if set, the last x seconds will be shown until now
 		this.startTime = null;		// to be used with endTime, interpreted as boatTime
 		this.endTime = null;		// to be used with startTime, interpreted as boatTime
-		this.showTrack = false;
-		this.autoShowTrack = false;
-		this.timeScaleFactor = 1;
-		this.maxTimeSteps = 1000;
-		this.historicPosition = null;
 
 		// controls
 		this.lnkShowTrack = null;
@@ -1047,44 +1307,22 @@ PiLot.View.Map = (function () {
 		this.tbStartDate = null;
 		this.calStartDate = null;
 		this.calEndDate = null;
-		this.timeSliderContainer = null;
-		this.timeSlider = null;
-		this.timeField = null;
-		this.historicPositionMarker = null;
-		this.polyline = null; // a leaflet L.polyLine
 
-		this.readOptions(pOptions);
 		this.initialize();
-	}
 
-	/// MapTrack methods
-	MapTrack.prototype = {
+	};
 
-		readOptions: function (pOptions) {
-			if (pOptions) {
-				this.ignoreSettings = pOptions.ignoreSettings || this.ignoreSettings;
-				this.showTrack = pOptions.showTrack || this.showTrack;
-				this.autoShowTrack = pOptions.autoShowTrack || this.autoShowTrack;
-			}
-		},
+	MapTrackSettings.prototype = {
 
 		initialize: function () {
-			if (this.gpsObserver != null) {
-				this.trackObserver = new PiLot.Model.Nav.TrackObserver(this.track, this.gpsObserver);
-			}
-			if (!this.ignoreSettings) {
-				this.readSettings();
-				this.addSettingsControl();
-			}
-			this.addTimeSlider();
-			if (this.showTrack && this.autoShowTrack) {
-				this.loadAndShowTrackAsync(false);
-            }
-            PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+			this.trackObserver = new PiLot.Model.Nav.TrackObserver(null);
+			this.readSettings();
+			this.addSettingsControl();
 		},
 
 		/// reads the persisted user settings
-		readSettings: function() {
+		readSettings: function () {
 			this.showTrack = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.showTrack') || this.showTrack;
 			const seconds = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.trackSeconds') || this.seconds;
 			let start = null;
@@ -1098,11 +1336,11 @@ PiLot.View.Map = (function () {
 				end = RC.Date.DateHelper.unixToLuxon(endUnix);
 			}
 			this.setTimeFrame(start, end, seconds);
-        },
+		},
 
-        authHelper_login: function () {
-            this.loadAndShowTrackAsync(true);
-        },
+		authHelper_login: function () {
+			this.loadAndShowTrackAsync(true);
+		},
 
 		/// handles click onto the show track button, showing or hiding the track
 		lnkShowTrack_click: function () {
@@ -1129,61 +1367,8 @@ PiLot.View.Map = (function () {
 			this.readInputs();
 		},
 
-		/// handles sliding the slider
-		timeSlider_slide: function () {
-			this.historicPosition = this.track.getTrackPointAt(this.timeSlider.value * this.timeScaleFactor);
-			if (this.historicPosition !== null) {
-				this.drawHistoricPosition();
-			}
-		},
-
-		/**
-		 * Handles adding a new position to the Track. The track is only updated, if we
-		 * have "open end" or the new position is before the end
-		 * @param {any} pSender
-		 * @param {TrackPoint} pNewPosition - The position which was added
-		 */
-		track_addPosition: function (pSender, pNewPosition) {
-			this.updateTimeScale();
-			if (this.showTrack && ((this.endTime === null) || (pNewPosition.getUTCSeconds() <= RC.Date.DateHelper.luxonToUnix(this.endTime)))) {
-				if (this.polyline) {
-					this.polyline.addLatLng(pNewPosition.getLatLng());
-				} else {
-					this.draw();
-				}
-			}
-		},
-
-		/**
-		 * Handles changing the lates position of the Track. The track is only updated, if we
-		 * have "open end" or the changed position is before the end
-		 * @param {any} pSender
-		 * @param {TrackPoint} pLastPosition - The position which was updated
-		 */
-		track_changeLastPosition: function (pSender, pLastPosition) {
-			if (this.showTrack && ((this.endTime === null) || (pLastPosition.getUTCSeconds() <= RC.Date.DateHelper.luxonToUnix(this.endTime)))) {
-				if (this.polyline !== null) {
-					var latLngs = this.polyline.getLatLngs();
-					if (latLngs.length > 0) {
-						latLngs[latLngs.length - 1] = pLastPosition.getLatLng();
-						this.polyline.setLatLngs(latLngs);
-					}
-				} else {
-					this.draw();
-				}
-			}
-		},
-
-		/// handles cropping positions of the track
-		track_cropPositions: function (pSender) {
-			this.updateTimeScale();
-			if (this.showTrack) {
-				this.draw();
-			}
-		},
-
-		/// adds the "show Track" and its options to the settings container
-		addSettingsControl: function () {
+		/** draws the settings control and adds it to the map settings container */
+		draw: function () {
 			const optionsControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapShowTrack);
 			this.lnkShowTrack = optionsControl.querySelector('a');
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
@@ -1214,30 +1399,10 @@ PiLot.View.Map = (function () {
 			RC.Utils.selectOnFocus(this.tbStartDate, tbEndDate);
 		},
 
-		/// adds the slider and binds events. 
-		addTimeSlider: function () {
-			this.timeSliderContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapTrackSlider);
-			this.timeSlider = this.timeSliderContainer.querySelector(".slider");
-			this.map.getMapContainer().insertAdjacentElement('afterend', this.timeSliderContainer);
-			this.timeSlider.addEventListener('input', this.timeSlider_slide.bind(this));
-			this.timeField = this.timeSliderContainer.querySelector('.time');
-
-		},
-
-		/// this makes sure we have a time scale factor which allows
-		/// who distribute the whole visible track to 
-		updateTimeScale: function () {
-			if ((this.track !== null) && this.timeSlider) {
-				var trackLength = this.track.getTrackPointsCount();
-				this.timeScaleFactor = Math.ceil(trackLength / this.maxTimeSteps);
-				this.timeSlider.setAttribute("max", Math.ceil(trackLength / this.timeScaleFactor) - 1);
-			}
-		},
-
 		/**
 		* reads the user input, assigns the value to instance values and re-loads the track. 
-	    * We can have a fixed duration, or start - end, where end is optional (and would)
-	    * thus always be "now"
+		* We can have a fixed duration, or start - end, where end is optional (and would)
+		* thus always be "now"
 		*/
 		readInputs: function () {
 			const ddlValue = this.selTrackMode.value;
@@ -1253,7 +1418,7 @@ PiLot.View.Map = (function () {
 					end = this.calEndDate.date();
 					if (end !== null) {
 						end = end.plus({ days: 1 });
-					} 
+					}
 				}
 			}
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.trackStart', start !== null ? RC.Date.DateHelper.luxonToUnix(start) : null);
@@ -1288,7 +1453,7 @@ PiLot.View.Map = (function () {
 					end = this.boatTime.nowUnix();
 				}
 				isBoatTime = true;
-			} 
+			}
 			if (start && end) {
 				track = await PiLot.Model.Nav.loadTrackAsync(start * 1000, end * 1000, isBoatTime);
 				this.setTrack(track);
@@ -1303,25 +1468,14 @@ PiLot.View.Map = (function () {
 			return track;
 		},
 
-
 		/**
-		 * This is your one-stop method to show a track, if you already have
-		 * the track at hand and don't want it to be loaded from the backend.
-		 * @param {PiLot.Model.Nav.Track} pTrack
-		 * @param {Boolean} pZoomToTrack
+		 * Sets the start time and seconds, and makes sure the trackObserver
+		 * gets informed. We only want the trackObserver to draw live data,
+		 * if the end date is not null (meaning we have a startTime xor seconds)
+		 * @param {Number} pStartTime - start of the timeframe to show the track in seconds UTC
+		 * @param {Number} pEndTime - end of the timeframe to show the track in seconds UTC. Null means forever.
+		 * @param {Number} pSeconds - lenght of the timeframe to show the track
 		 * */
-		setAndShowTrack: function (pTrack, pZoomToTrack) {
-			this.setTrack(pTrack);
-			this.draw();
-			this.showTimeSlider();
-			if (pZoomToTrack) {
-				this.zoomToTrack();
-			}
-		},
-
-		/// sets the start time and seconds, and makes sure the trackObserver
-		/// gets informed. We only want the trackObserver to draw live data,
-		/// if the end date is not null (meaning we have a startTime xor seconds)
 		setTimeFrame: function (pStartTime, pEndTime, pSeconds) {
 			if (pSeconds) {
 				this.seconds = pSeconds;
@@ -1336,98 +1490,6 @@ PiLot.View.Map = (function () {
 				this.trackObserver.setTrackSeconds(this.seconds);
 			}
 		},
-
-		/// sets the track to display, adds handlers and updates the track of the TrackObserver
-		setTrack: function (pTrack) {
-			this.track = pTrack || null;
-			this.historicPosition = null;
-			if (this.track !== null) {
-				this.track.on('addTrackPoint', this.track_addPosition.bind(this));
-				this.track.on('changeLastTrackPoint', this.track_changeLastPosition.bind(this));
-				this.track.on('cropTrackPoints', this.track_cropPositions.bind(this));
-				this.updateTimeScale();
-				if (this.track.getTrackPointsCount() > 0) {
-					this.historicPosition = this.track.getRawPositions()[0];
-				}
-				if (this.trackObserver != null) {
-					this.trackObserver.setTrack(this.track);
-				}
-			}
-		},
-		
-		/// draws this.track onto the current map.
-		draw: function () {
-			let positions = this.track !== null ? this.track.getRawPositions() : new Array();
-			if (this.polyline === null) {
-				var leafletMap = this.map.getLeafletMap();
-				this.polyline = L.polyline(positions, PiLot.Templates.Map.mapTrackOptions).addTo(leafletMap);
-			} else {
-				this.polyline.setLatLngs(positions);
-			}
-		},
-
-		/// draws the historic position marker at the current historic position
-		drawHistoricPosition: function () {
-			var latLng = this.historicPosition.getLatLng();
-			if (this.historicPositionMarker === null) {
-				var icon = L.divIcon({
-					className: 'navHistoricBoatIcon', iconSize: [20, 20]
-				});
-				this.historicPositionMarker = L.marker(latLng, { icon: icon, zIndexOffset: 1000 });
-				this.historicPositionMarker.addTo(this.map.getLeafletMap());
-			} else {
-				this.historicPositionMarker.setLatLng(latLng);
-			}
-			RC.Utils.setText(this.timeField, RC.Date.DateHelper.millisToLuxon(this.historicPosition.boatTime).toFormat('dd.MM.yyyy HH:mm'));
-		},
-
-		/// adjusts the center/zoom of the map to fit the entire track
-		zoomToTrack: function () {
-			if (!this.polyline.isEmpty()) {
-				this.map.getLeafletMap().fitBounds(this.polyline.getBounds(), { maxZoom: 16 });
-			}
-		},
-
-		/// removes the polyline from the map
-		deleteFromMap: function () {
-			if (this.polyline !== null) {
-				this.polyline.remove();
-				this.polyline = null;
-			}
-		},
-
-		/// shows the time slider, if we have a track with at least one
-		/// positions, otherwise hides the slider and historic position marker.
-		showTimeSlider: function (pResetPosition) {
-			if (this.track && this.track.getTrackPointsCount() > 0) {
-				if (pResetPosition) {
-					this.timeSlider.value = 0;
-				}
-				this.timeSliderContainer.hidden = false;
-				this.historicPosition = this.track.getTrackPointAt(this.timeSlider.value)
-				if (this.historicPosition != null) {
-					this.drawHistoricPosition();
-				}
-			} else {
-				this.hideTimeSlider();
-			}
-		},
-
-		/// hides the time slider and the historic position marker
-		hideTimeSlider: function () {
-			if (this.historicPositionMarker !== null) {
-				this.historicPositionMarker.remove();
-				this.historicPositionMarker = null;
-			}
-			this.timeSliderContainer.hidden = true;
-		},
-
-		/// returns the position at the time selected by the time slider,
-		/// or null if we have not track. The result is an object like
-		/// {timestamp: pTimestamp,	latLng: [pLat, pLng]}
-		getHistoricPosition: function () {
-			return this.historicPosition;
-		}
 	};
 
 	/// Class MapPositionMarker, shows the boat's current position, direction and heading on the map.

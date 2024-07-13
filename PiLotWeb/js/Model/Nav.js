@@ -1649,8 +1649,8 @@ PiLot.Model.Nav = (function () {
 
 		/**
 		 * Crops positions before pStartTimeUTC or after pEndTimeUTC
-		 * @param {Number} pStartTimeUTC - lower limit in ms from epoc utc
-		 * @param {Number} pEndTimeUTC - upper limit in ms from epoc utc
+		 * @param {Number} pStartTimeUTC - lower limit in seconds from epoc utc
+		 * @param {Number} pEndTimeUTC - upper limit in seconds from epoc utc
 		 * */
 		cropTrackPoints: function (pStartTimeUTC, pEndTimeUTC) {
 			let hasChanged = false;
@@ -1728,6 +1728,25 @@ PiLot.Model.Nav = (function () {
 					latLon0 = this.trackPoints[i].getLatLon();
 					latLon1 = this.trackPoints[i + 1].getLatLon();
 					result += latLon0.distanceTo(latLon1);
+				}
+			}
+			return result;
+		},
+
+		/** Compares two tracks for sorting, having the track that begins earlier first */
+		compareTo: function (pOther) {
+			let result;
+			if (this.hasTrackPoints()) {
+				if (pOther.hasTrackPoints()) {
+					result = this.getFirstTrackPoint.getUTC() - pOther.getFirstTrackPoint().getUTC();
+				} else {
+					result = 1;
+				}
+			} else {
+				if (pOther.hasTrackPoints()) {
+					result = -1;
+				} else {
+					result = 0;
 				}
 			}
 			return result;
@@ -2045,26 +2064,32 @@ PiLot.Model.Nav = (function () {
 	/** 
 	 * Class TrackObserver, takes a track and a GPSObserver, and makes sure
 	 * the track is continuously updated by changing/adding the latest track points
-	 * and calling crop to remove old track points
-	 * @param {Track} pTrack
-	 * @param {GPSObserver} pGPSObserver
+	 * and calling crop to remove old track points, allowing the track to have a
+	 * maximum length, which is useful when showing it on the map.
+	 * Use just one instance and change the track if necessary, as each instance
+	 * will add callbacks to the GPSObserver instance (that unfortunately can't be
+	 * removed).
+	 * @param {PiLot.Model.Nav.Track} pTrack - The track that will be updated with new TrackPoints
 	 *  */
-	var TrackObserver = function (pTrack, pGPSObserver) {
+	var TrackObserver = function (pTrack) {
 		this.track = pTrack;
-		this.gpsObserver = pGPSObserver;
+		this.gpsObserver = null;
+		this.boatTime = null;
 		this.trackSeconds = null;
 		this.addPositionThreshold = { seconds: 9.5, meters: 5 };		// the threshold to add new positions to the track
 		this.updatePositionThreshold = { seconds: 0.5, meters: 2 };		// the threshold to update the latest position
 		this.lastPosition = null;										// the last GPS Record
 		this.cropInterval = null;
 		this.cropIntervalMS = 10000;
-		this.initialize();
+		this.initializeAsync();
 	};
 
 	TrackObserver.prototype = {
 
-		initialize: function () {
+		initializeAsync: async function () {
+			this.gpsObserver = GPSObserver.getInstance();
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			this.boatTime = await PiLot.Model.Common.BoatTime.getCurrentBoatTimeAsync();
 			this.cropInterval = setInterval(this.cropTimer_interval.bind(this), this.cropIntervalMS);
 		},
 
@@ -2073,8 +2098,7 @@ PiLot.Model.Nav = (function () {
 		/// time are not in sync
 		cropTimer_interval: function () {
 			if ((this.track != null) && (this.trackSeconds !== null)) {
-				var utcNowUnix =  RC.Date.DateHelper.utcNowUnix();
-				this.track.cropTrackPoints(utcNowUnix - this.trackSeconds, null);
+				this.track.cropTrackPoints(this.boatTime.utcNowUnix - this.trackSeconds, null);
 			}
 		},
 

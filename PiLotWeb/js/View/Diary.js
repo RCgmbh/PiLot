@@ -331,23 +331,19 @@ PiLot.View.Diary = (function () {
 
 		/** takes a track and shows it on the map */
 		showTrackAsync: async function (pTrack) {
-			
 			this.showSpeedDiagram(pTrack);
 			this.showTrackStatistics(pTrack);
 			if (pTrack && pTrack.getTrackPointsCount() > 0) {
 				this.showDistance(pTrack.getDistance());
 				await this.map.showAsync();
 				if (this.mapTrack === null) {
-					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.currentBoatTime, null, { ignoreSettings: true, showTrack: true });
+					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
 				}
-				this.mapTrack.setTrack(pTrack);
-				this.mapTrack.draw();
-				this.mapTrack.zoomToTrack();
-				this.mapTrack.showTimeSlider(true);
+				this.mapTrack.setTracks([pTrack]);
 			} else {
 				this.map.hide();
 				if (this.mapTrack !== null) {
-					this.mapTrack.hideTimeSlider();
+					this.mapTrack.setTracks([]);
 				}
 			}
 		},
@@ -883,7 +879,7 @@ PiLot.View.Diary = (function () {
 		this.ddlPublishTarget = null;
 		this.localTrackMap = null;			// PiLot.View.Map.Seamap
 		this.targetTrackMap = null;			// PiLot.View.Map.Seamap
-		this.cbSelectPhotos = null; // not the checkbox itself, but an RC.Controls.TriStateCheckBox!
+		this.cbSelectPhotos = null;			// not the checkbox itself, but an RC.Controls.TriStateCheckBox!
 
 		this.initialize();
 	};
@@ -991,8 +987,9 @@ PiLot.View.Diary = (function () {
 		loadLocalDataAsync: async function () {
 			const startMS = this.date.toLuxon().toMillis();
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
-			const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
-			this.showTrackAsync(track, this.localTrackMap, this.localTrack, this.lblLocalPositionsCount);
+			//const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
+			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
+			this.showTracksAsync(tracks, this.localTrackMap, this.localTrack, this.lblLocalPositionsCount);
 			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.date);
 			this.showLogbook(logbookDay, this.divLocalDiaryText, this.lblLocalDiaryLength, this.divLocalLogbookEntries, this.lblLocalLogbookEntriesCount);
 			const dailyPhotos = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
@@ -1002,12 +999,12 @@ PiLot.View.Diary = (function () {
 		/** loads the target data to show in the publish form ("right side") */
 		loadTargetDataAsync: async function () {
 			this.icoWait.hidden = false;
-			this.showTrackAsync(null, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
+			this.showTracksAsync([null], this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
 			this.showLogbook(null, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
 			this.showThumbnails(null, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 			this.targetData = await PiLot.Model.Logbook.loadDailyDataAsync(this.targetName, this.date);
 			if (this.targetData.success) {
-				this.showTrackAsync(this.targetData.data.track, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
+				this.showTracksAsync(this.targetData.data.track, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
 				this.showLogbook(this.targetData.data.logbookDay, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
 				this.showThumbnails(this.targetData.data.photoInfos, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 				this.cbSelectPhotos.setState(2);
@@ -1020,13 +1017,19 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * Shows the track within a map in a control. 
-		 * @param {PiLot.Model.Nav.Track} pTrack - the track to show
+		 * @param {PiLot.Model.Nav.Track} pTracks - the tracks to show
 		 * @param {HTMLElement} pControl - the control containing the map
+		 * @param {PiLot.View.MapTrack} pTrackControl - a MapTrack used to show the tracks on the map
+		 * @param {HTMLElement} pPositionsLabel - the label showing the positions count 
 		 */
-		showTrackAsync: async function (pTrack, pMap, pTrackControl, pPositionsLabel) {
-			pPositionsLabel.innerText = pTrack ? pTrack.getTrackPointsCount() : "...";
+		showTracksAsync: async function (pTracks, pMap, pTrackControl, pPositionsLabel) {
+			let trackPointsCount = 0;
+			if (pTracks) {
+				pTracks.forEach(t => trackPointsCount += t.getTrackPointsCount());
+			}
+			pPositionsLabel.innerText = pTracks ? trackPointsCount : "...";
 			await pMap.showAsync();
-			pTrackControl.setTrack(pTrack);
+			pTrackControl.setTracks(pTracks);
 			pTrackControl.draw();
 			pTrackControl.zoomToTrack();
 		},
