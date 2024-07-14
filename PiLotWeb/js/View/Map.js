@@ -1026,7 +1026,7 @@ PiLot.View.Map = (function () {
 	 * @param {PiLot.View.Map.SeaMap} pMap - The map to draw the track onto
 	 * @param {Boolean} pIncludeTimeSlider - Set to true to show a slider 
 	 * */
-	var MapTrack = function (pMap, pIncludeTimeSlider) {
+	var MapTrack = function (pMap, pIncludeTimeSlider = true) {
 		this.map = pMap;
 		this.includeTimeSlider = pIncludeTimeSlider;
 		this.tracks = null;
@@ -1102,7 +1102,7 @@ PiLot.View.Map = (function () {
 			if (polyline) {
 				const latLngs = polyline.getLatLngs();
 				if (latLngs.length > 0) {
-					latLngs.last = pTrackPoint.getLatLng();
+					latLngs[latLngs.length - 1] = pTrackPoint.getLatLng();
 				}
 				else {
 					latLngs.push(pTrackPoint.getLatLng());
@@ -1224,17 +1224,19 @@ PiLot.View.Map = (function () {
 
 		/** Draws the historic position marker at the current historic position */
 		drawHistoricPosition: function () {
-			const latLng = this.historicPosition.getLatLng();
-			if (this.historicPositionMarker === null) {
-				var icon = L.divIcon({
-					className: 'navHistoricBoatIcon', iconSize: [20, 20]
-				});
-				this.historicPositionMarker = L.marker(latLng, { icon: icon, zIndexOffset: 1000 });
-				this.historicPositionMarker.addTo(this.map.getLeafletMap());
-			} else {
-				this.historicPositionMarker.setLatLng(latLng);
+			if (this.historicPosition) {
+				const latLng = this.historicPosition.getLatLng();
+				if (this.historicPositionMarker === null) {
+					var icon = L.divIcon({
+						className: 'navHistoricBoatIcon', iconSize: [20, 20]
+					});
+					this.historicPositionMarker = L.marker(latLng, { icon: icon, zIndexOffset: 1000 });
+					this.historicPositionMarker.addTo(this.map.getLeafletMap());
+				} else {
+					this.historicPositionMarker.setLatLng(latLng);
+				}
+				RC.Utils.setText(this.timeField, RC.Date.DateHelper.millisToLuxon(this.historicPosition.boatTime).toFormat('dd.MM.yyyy HH:mm'));
 			}
-			RC.Utils.setText(this.timeField, RC.Date.DateHelper.millisToLuxon(this.historicPosition.boatTime).toFormat('dd.MM.yyyy HH:mm'));
 		},
 
 		/** Adjusts the center/zoom of the map to fit all tracks entirely */
@@ -1336,6 +1338,7 @@ PiLot.View.Map = (function () {
 			this.readSettings();
 			if (this.showTrack) {
 				this.showSettings();
+				await this.loadAndShowTracksAsync();
 			}
 		},
 
@@ -1404,7 +1407,6 @@ PiLot.View.Map = (function () {
 			this.calEndDate.setMinDateCalendar(this.calStartDate);
 			this.calStartDate.on('change', this.calDate_change.bind(this));
 			this.calEndDate.on('change', this.calDate_change.bind(this));
-			this.pnlCustomDates.hidden = this.selTrackMode.value !== "null";
 			this.map.addSettingsItem(optionsControl);
 			RC.Utils.selectOnFocus(tbStartDate, tbEndDate);
 		},
@@ -1416,6 +1418,7 @@ PiLot.View.Map = (function () {
 			this.calEndDate.date(this.endTime !== null ? this.endTime.toLocal() : null);
 			this.calEndDate.showDate();
 			this.selTrackMode.value = this.seconds || "null";
+			this.pnlCustomDates.hidden = this.selTrackMode.value !== "null";
 		},
 
 		/**
@@ -1446,7 +1449,7 @@ PiLot.View.Map = (function () {
 			if (seconds || start) {
 				this.setTimeFrame(start, end, seconds);
 				if (this.showTrack) {
-					this.loadAndShowTrackAsync(true);
+					this.loadAndShowTracksAsync(true);
 				}
 			}
 		},
@@ -1456,7 +1459,7 @@ PiLot.View.Map = (function () {
 		 * some magic to find the start and end time based on this.startTime, this.endTime
 		 * and this.seconds
 		 */
-		loadAndShowTrackAsync: async function () {
+		loadAndShowTracksAsync: async function () {
 			let start = null;	// start in seconds from epoc, either utc or local
 			let end = null;		// end in seconds from epoc, either utc or local
 			let isBoatTime;
@@ -1475,9 +1478,13 @@ PiLot.View.Map = (function () {
 				isBoatTime = true;
 			}
 			if (start && end) {
-				//track = await PiLot.Model.Nav.loadTrackAsync(start * 1000, end * 1000, isBoatTime);
 				tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(start * 1000, end * 1000, isBoatTime);
 				this.mapTrack.setTracks(tracks);
+				if ((tracks.length > 0) && this.seconds) {
+					this.trackObserver.setTrack(tracks.last());
+				} else {
+					this.trackObserver.setTrack(null);
+				}
 			}
 		},
 
