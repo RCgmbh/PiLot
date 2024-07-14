@@ -914,9 +914,9 @@ PiLot.View.Diary = (function () {
 			this.lblLocalPositionsCount = this.pnlPublish.querySelector('.lblLocalPositionsCount');
 			this.lblTargetPositionsCount = this.pnlPublish.querySelector('.lblTargetPositionsCount');
 			this.localTrackMap = new PiLot.View.Map.Seamap(this.pnlPublish.querySelector('.divLocalTrack'), { persistMapState: false });
-			this.localTrack = new PiLot.View.Map.MapTrack(this.localTrackMap, null, null, { ignoreSettings: true, showTrack: true });
+			this.localTrack = new PiLot.View.Map.MapTrack(this.localTrackMap, false);
 			this.targetTrackMap = new PiLot.View.Map.Seamap(this.pnlPublish.querySelector('.divTargetTrack'), { persistMapState: false });
-			this.targetTrack = new PiLot.View.Map.MapTrack(this.targetTrackMap, null, null, { ignoreSettings: true, showTrack: true });
+			this.targetTrack = new PiLot.View.Map.MapTrack(this.targetTrackMap, false);
 			this.cbPublishTrack = this.pnlPublish.querySelector('.cbPublishTrack');
 			this.cbPublishDiary = this.pnlPublish.querySelector('.cbPublishDiary');
 			this.cbOverwriteDiary = this.pnlPublish.querySelector('.cbOverwriteDiary');
@@ -1030,8 +1030,6 @@ PiLot.View.Diary = (function () {
 			pPositionsLabel.innerText = pTracks ? trackPointsCount : "...";
 			await pMap.showAsync();
 			pTrackControl.setTracks(pTracks);
-			pTrackControl.draw();
-			pTrackControl.zoomToTrack();
 		},
 
 		showLogbook: function (pLogbookDay, pDiaryControl, pDiaryLengthControl, pLogbookEntriesControl, pLogbookEntriesCountControl) {

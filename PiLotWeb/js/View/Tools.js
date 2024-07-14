@@ -88,7 +88,7 @@ PiLot.View.Tools = (function () {
 			this.divDataLoaded = this.pageContent.querySelector('.divDataLoaded');
 			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: false });
 			await this.map.showAsync();
-			this.mapTrack = new PiLot.View.Map.MapTrack(this.map, this.boatTime, null, { ignoreSettings: true, showTrack: true, autoShowTrack: false })
+			this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
 			this.divResult = this.pageContent.querySelector('.divResult');
 			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkExport'), this.pageContent.querySelector('.divExport'));
 			this.pageContent.querySelectorAll('.rbExportFormat').forEach(function (pRadiobutton) {
@@ -171,7 +171,7 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnDeleteCurrent_click: async function (pEvent) {
-			var position = this.mapTrack.getHistoricPosition();
+			const position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
 				if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePosition'))) {
 					await PiLot.Service.Nav.TrackService.getInstance().deleteTrackPointsAsync(this.track.getId(), position.getUTC(), position.getUTC(), false);
@@ -181,8 +181,8 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnDeleteAll_click: async function (pEvent) {
-			var firstPosition = this.track.getTrackPointAt(0);
-			var lastPosition = this.track.getLastTrackPoint();
+			const firstPosition = this.track.getTrackPointAt(0);
+			const lastPosition = this.track.getLastTrackPoint();
 			if ((firstPosition !== null) && (lastPosition !== null)) {
 				const message = PiLot.Utils.Language.getText('confirmDeleteXPositions').replace('{{x}}', this.track.getTrackPointsCount());
 				if (window.confirm(message)) {
@@ -254,7 +254,7 @@ PiLot.View.Tools = (function () {
 			this.track = pTrack;
 			let length = this.track && this.track.getTrackPointsCount() || 0;
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
-			this.mapTrack.setAndShowTrack(this.track, true);
+			this.mapTrack.setTracks([this.track], true);
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
 			RC.Utils.showHide(this.divResult, true);

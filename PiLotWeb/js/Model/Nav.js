@@ -1738,7 +1738,7 @@ PiLot.Model.Nav = (function () {
 			let result;
 			if (this.hasTrackPoints()) {
 				if (pOther.hasTrackPoints()) {
-					result = this.getFirstTrackPoint.getUTC() - pOther.getFirstTrackPoint().getUTC();
+					result = this.getFirstTrackPoint().getUTC() - pOther.getFirstTrackPoint().getUTC();
 				} else {
 					result = 1;
 				}
@@ -2062,14 +2062,14 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/** 
-	 * Class TrackObserver, takes a track and a GPSObserver, and makes sure
-	 * the track is continuously updated by changing/adding the latest track points
-	 * and calling crop to remove old track points, allowing the track to have a
-	 * maximum length, which is useful when showing it on the map.
+	 * Class TrackObserver, takes a track, and makes sure the track is continuously 
+	 * updated by changing/adding the latest track points and calling crop to remove 
+	 * old track points, allowing the track to have a maximum length, which is useful 
+	 * when showing it on the map.
 	 * Use just one instance and change the track if necessary, as each instance
 	 * will add callbacks to the GPSObserver instance (that unfortunately can't be
 	 * removed).
-	 * @param {PiLot.Model.Nav.Track} pTrack - The track that will be updated with new TrackPoints
+	 * @param {PiLot.Model.Nav.Track} pTrack - The track to update. Can be set later. 
 	 *  */
 	var TrackObserver = function (pTrack) {
 		this.track = pTrack;
@@ -2078,7 +2078,7 @@ PiLot.Model.Nav = (function () {
 		this.trackSeconds = null;
 		this.addPositionThreshold = { seconds: 9.5, meters: 5 };		// the threshold to add new positions to the track
 		this.updatePositionThreshold = { seconds: 0.5, meters: 2 };		// the threshold to update the latest position
-		this.lastPosition = null;										// the last GPS Record
+		this.lastPosition = null;										// PiLot.Model.Nav.TrackPoint
 		this.cropInterval = null;
 		this.cropIntervalMS = 10000;
 		this.initializeAsync();
@@ -2089,7 +2089,7 @@ PiLot.Model.Nav = (function () {
 		initializeAsync: async function () {
 			this.gpsObserver = GPSObserver.getInstance();
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			this.boatTime = await PiLot.Model.Common.BoatTime.getCurrentBoatTimeAsync();
+			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.cropInterval = setInterval(this.cropTimer_interval.bind(this), this.cropIntervalMS);
 		},
 

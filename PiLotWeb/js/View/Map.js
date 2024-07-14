@@ -147,8 +147,7 @@ PiLot.View.Map = (function () {
 				new MapAnchorWatch(this);
 			}
 			if (this.options.track) {
-				const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-				new PiLot.View.Map.MapTrack(this, boatTime, PiLot.Model.Nav.GPSObserver.getInstance(), { autoShowTrack: true });
+				new MapTrackSettings(this);
 			}
 		},
 
@@ -1132,7 +1131,8 @@ PiLot.View.Map = (function () {
 			this.timeField = this.timeSliderContainer.querySelector('.time');
 		},
 
-		/** This makes sure we have a time scale factor which allowsto distribute 
+		/**
+		 * This makes sure we have a time scale factor which allows to distribute 
 		 * the whole visible track to the slider
 		 * */
 		updateTimeScale: function () {
@@ -1160,13 +1160,10 @@ PiLot.View.Map = (function () {
 			this.sortTracks();
 			if (this.includeTimeSlider) {
 				this.historicPosition = null;
-				for (let aTrack of this.tracks) {
-					if (aTrack.hasTrackPoints()) {
-						this.historicPosition = aTrack.getFirstTrackPoint();
-						break;
-					}
-				}
+				this.resetHistoricPosition();
 				this.showTimeSlider();
+				this.updateTimeScale();
+				this.drawHistoricPosition();
 			}
 			pZoomToTracks && this.zoomToTracks();
 		},
@@ -1185,7 +1182,6 @@ PiLot.View.Map = (function () {
 				pTrack.on('addTrackPoint', this.track_addPosition.bind(this));
 				pTrack.on('changeLastTrackPoint', this.track_changeLastPosition.bind(this));
 				pTrack.on('cropTrackPoints', this.track_cropPositions.bind(this));
-				this.updateTimeScale();
 				this.drawTrack(pTrack);
 			}
 		},
@@ -1210,6 +1206,20 @@ PiLot.View.Map = (function () {
 					polyline.setLatLngs(positions);
 				}
 			}
+		},
+
+		/**
+		 * Sets the historic position to the first point of the first track, and moves the
+		 * slider into the first position.
+		 * */
+		resetHistoricPosition: function () {
+			for (let aTrack of this.tracks) {
+				if (aTrack.hasTrackPoints()) {
+					this.historicPosition = aTrack.getFirstTrackPoint();
+					break;
+				}
+			}
+			this.timeSlider.value = 0;
 		},
 
 		/** Draws the historic position marker at the current historic position */
@@ -1259,7 +1269,7 @@ PiLot.View.Map = (function () {
 		showTimeSlider: function (pResetPosition) {
 			if (this.tracks && this.tracks.some(t => t.hasTrackPoints())) {
 				if (pResetPosition) {
-					this.timeSlider.value = 0;
+					this.resetHistoricPosition();
 				}
 				this.timeSliderContainer.hidden = false;
 				if (this.historicPosition != null) {
@@ -1276,7 +1286,9 @@ PiLot.View.Map = (function () {
 				this.historicPositionMarker.remove();
 				this.historicPositionMarker = null;
 			}
-			this.timeSliderContainer.hidden = true;
+			if (this.timeSliderContainer !== null) {
+				this.timeSliderContainer.hidden = true;
+			}
 		},
 
 		/** 
@@ -1296,32 +1308,38 @@ PiLot.View.Map = (function () {
 	var MapTrackSettings = function (pMap) {
 		this.map = pMap;
 		this.trackObserver = null;
+		this.boatTime = null;
 		this.seconds = null;		// if set, the last x seconds will be shown until now
-		this.startTime = null;		// to be used with endTime, interpreted as boatTime
-		this.endTime = null;		// to be used with startTime, interpreted as boatTime
+		this.startTime = null;		// start time of the track to show, boatTime
+		this.endTime = null;		// end time of the track to show (null=live track), boatTime
 
 		// controls
+		this.mapTrack = null;		// PiLot.View.Map.MapTrack
 		this.lnkShowTrack = null;
 		this.selTrackMode = null;
 		this.pnlCustomDates = null;
-		this.tbStartDate = null;
 		this.calStartDate = null;
 		this.calEndDate = null;
 
-		this.initialize();
+		this.initializeAsync();
 
 	};
 
 	MapTrackSettings.prototype = {
 
-		initialize: function () {
+		initializeAsync: async function () {
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			this.trackObserver = new PiLot.Model.Nav.TrackObserver(null);
+			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			this.mapTrack = new MapTrack(this.map);
+			this.draw();
 			this.readSettings();
-			this.addSettingsControl();
+			if (this.showTrack) {
+				this.showSettings();
+			}
 		},
 
-		/// reads the persisted user settings
+		/** Reads the persisted user settings */
 		readSettings: function () {
 			this.showTrack = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.showTrack') || this.showTrack;
 			const seconds = PiLot.Utils.Common.loadUserSetting('PiLot.View.Map.trackSeconds') || this.seconds;
@@ -1338,31 +1356,32 @@ PiLot.View.Map = (function () {
 			this.setTimeFrame(start, end, seconds);
 		},
 
+		/** Makes sure the tracks will be displayed once the user is logged in */
 		authHelper_login: function () {
-			this.loadAndShowTrackAsync(true);
+			if (this.showTrack) {
+				this.loadAndShowTracksAsync(true);
+			}
 		},
 
-		/// handles click onto the show track button, showing or hiding the track
+		/** Handles click onto the show track button, showing or hiding the tracks */
 		lnkShowTrack_click: function () {
 			this.showTrack = !this.showTrack;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showTrack', this.showTrack);
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			if (this.showTrack) {
-				this.loadAndShowTrackAsync(true);
+				this.loadAndShowTracksAsync(true);
 			} else {
-				this.deleteFromMap();
-				this.hideTimeSlider();
+				this.hideTracks();
 			}
 		},
 
-		/// handles changes in the dropdown
+		/** Handles changes in the dropdown */
 		selTrackMode_change: function () {
 			this.readInputs();
 			this.pnlCustomDates.hidden = this.selTrackMode.value !== 'null';
 		},
 
-		/// handles changes in the start or end date fields. Dates
-		/// are only applied if both fields have a value selected
+		/** Handles changes in the start or end date fields */
 		calDate_change: function () {
 			this.readInputs();
 		},
@@ -1374,41 +1393,41 @@ PiLot.View.Map = (function () {
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			this.lnkShowTrack.addEventListener('click', this.lnkShowTrack_click.bind(this));
 			this.selTrackMode = optionsControl.querySelector('select');
-			this.selTrackMode.value = this.startTime ? "null" : this.seconds || "null";
 			this.selTrackMode.addEventListener('change', this.selTrackMode_change.bind(this));
 			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
-			this.tbStartDate = optionsControl.querySelector('.tbStartDate');
+			const tbStartDate = optionsControl.querySelector('.tbStartDate');
 			const locale = PiLot.Utils.Language.getLanguage();
-			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), this.tbStartDate, null, null, null, locale);
-			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
-			this.calStartDate.showDate();
+			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, null, null, locale);
 			const tbEndDate = optionsControl.querySelector('.tbEndDate');
 			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
-			if (this.startTime && this.seconds) {
-				this.calEndDate.date(this.startTime.toLocal().plus({ seconds: this.seconds }).minus({ days: 1 }));
-			} else {
-				this.calEndDate.date(this.endTime);
-			}
-			this.calEndDate.showDate();
 			this.calStartDate.setMaxDateCalendar(this.calEndDate);
 			this.calEndDate.setMinDateCalendar(this.calStartDate);
 			this.calStartDate.on('change', this.calDate_change.bind(this));
 			this.calEndDate.on('change', this.calDate_change.bind(this));
 			this.pnlCustomDates.hidden = this.selTrackMode.value !== "null";
 			this.map.addSettingsItem(optionsControl);
-			RC.Utils.selectOnFocus(this.tbStartDate, tbEndDate);
+			RC.Utils.selectOnFocus(tbStartDate, tbEndDate);
+		},
+
+		/** Shows the current values in the controls */
+		showSettings: function () {
+			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
+			this.calStartDate.showDate();
+			this.calEndDate.date(this.endTime !== null ? this.endTime.toLocal() : null);
+			this.calEndDate.showDate();
+			this.selTrackMode.value = this.seconds || "null";
 		},
 
 		/**
-		* reads the user input, assigns the value to instance values and re-loads the track. 
+		* reads the user input, assigns the value to instance values and re-loads the tracks. 
 		* We can have a fixed duration, or start - end, where end is optional (and would)
 		* thus always be "now"
 		*/
 		readInputs: function () {
 			const ddlValue = this.selTrackMode.value;
-			var start = null;
-			var end = null;
-			var seconds = null;
+			let start = null;
+			let end = null;
+			let seconds = null;
 			if (RC.Utils.isNumeric(ddlValue)) {
 				seconds = ddlValue;
 			} else {
@@ -1426,21 +1445,22 @@ PiLot.View.Map = (function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.trackSeconds', seconds);
 			if (seconds || start) {
 				this.setTimeFrame(start, end, seconds);
-				this.loadAndShowTrackAsync(true);
+				if (this.showTrack) {
+					this.loadAndShowTrackAsync(true);
+				}
 			}
 		},
 
 		/**
-		 * This loads the track and shows it on the map as soon as it's loaded. It also does
+		 * This loads the tracks and shows them on the map. It also does
 		 * some magic to find the start and end time based on this.startTime, this.endTime
 		 * and this.seconds
-		 * @param {boolean} pZoomToTrack - If true, the map is automatically zoomed to the track
 		 */
-		loadAndShowTrackAsync: async function (pZoomToTrack) {
+		loadAndShowTrackAsync: async function () {
 			let start = null;	// start in seconds from epoc, either utc or local
 			let end = null;		// end in seconds from epoc, either utc or local
 			let isBoatTime;
-			let track = null;
+			let tracks = [];
 			if (this.seconds !== null) {
 				end = this.boatTime.utcNowUnix();
 				start = end - this.seconds;
@@ -1455,21 +1475,19 @@ PiLot.View.Map = (function () {
 				isBoatTime = true;
 			}
 			if (start && end) {
-				track = await PiLot.Model.Nav.loadTrackAsync(start * 1000, end * 1000, isBoatTime);
-				this.setTrack(track);
-				if (this.showTrack) {
-					this.draw();
-					this.showTimeSlider();
-					if (pZoomToTrack) {
-						this.zoomToTrack();
-					}
-				}
+				//track = await PiLot.Model.Nav.loadTrackAsync(start * 1000, end * 1000, isBoatTime);
+				tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(start * 1000, end * 1000, isBoatTime);
+				this.mapTrack.setTracks(tracks);
 			}
-			return track;
+		},
+
+		/** Removes the tracks from the map */
+		hideTracks: function () {
+			this.mapTrack.deleteFromMap();
 		},
 
 		/**
-		 * Sets the start time and seconds, and makes sure the trackObserver
+		 * Sets the start time, end time and seconds, and makes sure the trackObserver
 		 * gets informed. We only want the trackObserver to draw live data,
 		 * if the end date is not null (meaning we have a startTime xor seconds)
 		 * @param {Number} pStartTime - start of the timeframe to show the track in seconds UTC
@@ -2548,6 +2566,7 @@ PiLot.View.Map = (function () {
 		Seamap: Seamap,
 		MapContextPopup: MapContextPopup,
 		MapTrack: MapTrack,
+		//MapTrackSettings: MapTrackSettings,
 		MapRoute: MapRoute,
 		MapPositionMarker: MapPositionMarker,
 		MapAnchorWatch: MapAnchorWatch,
