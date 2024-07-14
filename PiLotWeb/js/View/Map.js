@@ -1120,6 +1120,9 @@ PiLot.View.Map = (function () {
 		track_cropPositions: function (pTrack) {
 			this.updateTimeScale();
 			this.drawTrack(pTrack);
+			if(this.includeTimeSlider) {
+				this.fixHistoricPosition();
+			}
 		},
 
 		/** Adds the slider and binds events. */
@@ -1220,6 +1223,24 @@ PiLot.View.Map = (function () {
 				}
 			}
 			this.timeSlider.value = 0;
+		},
+
+		/** Makes sure the historic position is within a track, resets it if not */
+		fixHistoricPosition: function() {
+			let isOnTrack = false;
+			if(this.historicPosition){
+				const utc = this.historicPosition.getUTC();
+				for(let aTrack of this.tracks){
+					if(aTrack.getStartUTC() <= utc && aTrack.getEndUTC() >= utc){
+						isOnTrack = true;
+						break;
+					}
+				}
+			}
+			if(!isOnTrack){
+				this.resetHistoricPosition();
+				this.drawHistoricPosition();
+			}
 		},
 
 		/** Draws the historic position marker at the current historic position */
@@ -1338,7 +1359,7 @@ PiLot.View.Map = (function () {
 			this.readSettings();
 			if (this.showTrack) {
 				this.showSettings();
-				await this.loadAndShowTracksAsync();
+				await this.loadAndShowTracksAsync(false);
 			}
 		},
 
@@ -1459,7 +1480,7 @@ PiLot.View.Map = (function () {
 		 * some magic to find the start and end time based on this.startTime, this.endTime
 		 * and this.seconds
 		 */
-		loadAndShowTracksAsync: async function () {
+		loadAndShowTracksAsync: async function (pZoomToTracks) {
 			let start = null;	// start in seconds from epoc, either utc or local
 			let end = null;		// end in seconds from epoc, either utc or local
 			let isBoatTime;
@@ -1479,7 +1500,7 @@ PiLot.View.Map = (function () {
 			}
 			if (start && end) {
 				tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(start * 1000, end * 1000, isBoatTime);
-				this.mapTrack.setTracks(tracks);
+				this.mapTrack.setTracks(tracks, pZoomToTracks);
 				if ((tracks.length > 0) && this.seconds) {
 					this.trackObserver.setTrack(tracks.last());
 				} else {

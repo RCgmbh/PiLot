@@ -1606,14 +1606,24 @@ PiLot.Model.Nav = (function () {
 			return this.boat;
 		},
 
-		/** @returns {Number} the boatTime in milliseconds */
-		getStartBoatTime: function () {
-			return this.getFirstTrackPoint().getBoatTime();
+		/** @returns {Number} the track start in milliseconds or null, if there are no trakpoints */
+		getStartUTC: function () {
+			return this.hasTrackPoints ? this.getFirstTrackPoint().getUTC() : null;
 		},
 
-		/** @returns {DateTime} the boatTime milliseconds */
+		/** @returns {Number} the track end in milliseconds or null, if there are no trakpoints */
+		getEndUTC: function () {
+			return this.hasTrackPoints ? this.getLastTrackPoint().getUTC() : null;
+		},
+
+		/** @returns {Number} the boatTime in milliseconds or null, if there are no trakpoints */
+		getStartBoatTime: function () {
+			return this.hasTrackPoints ? this.getFirstTrackPoint().getBoatTime() : null;
+		},
+
+		/** @returns {Number} the boatTime milliseconds or null, if there are no trakpoints */
 		getEndBoatTime: function () {
-			return this.getLastTrackPoint().getBoatTime();
+			return this.hasTrackPoints ? this.getLastTrackPoint().getBoatTime() : null;
 		},
 
 		/**
@@ -2098,7 +2108,7 @@ PiLot.Model.Nav = (function () {
 		/// time are not in sync
 		cropTimer_interval: function () {
 			if ((this.track != null) && (this.trackSeconds !== null)) {
-				this.track.cropTrackPoints(this.boatTime.utcNowUnix - this.trackSeconds, null);
+				this.track.cropTrackPoints(this.boatTime.utcNowUnix() - this.trackSeconds, null);
 			}
 		},
 
