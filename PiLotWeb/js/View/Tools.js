@@ -242,7 +242,9 @@ PiLot.View.Tools = (function () {
 					endDate = RC.Date.DateHelper.parseTime(this.tbEndTime.value, endDate).date;
 					RC.Utils.setText(this.tbEndTime, endDate.toFormat('HH:mm'));
 				}
-				const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startDate.toMillis(), endDate.toMillis(), false);
+				const startMillis = RC.Date.DateHelper.luxonToMillisLocal(startDate);
+				const endMillis = RC.Date.DateHelper.luxonToMillisLocal(endDate);
+				const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMillis, endMillis, true);
 				this.tracksList.showTracks(tracks);
 			} else {
 				RC.Utils.showHide(this.divDataLoaded, true);

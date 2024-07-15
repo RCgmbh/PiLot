@@ -65,7 +65,14 @@ RC.Date.DateHelper = {
 	/// converts a luxon DateTime to unix (seconds from epoc),
 	/// using the local time of the object
 	luxonToUnixLocal: function (pDateTime) {
-		return Math.floor((pDateTime.toMillis() / 1000) + pDateTime.offset * 60);
+		//return Math.floor((pDateTime.toMillis() / 1000) + pDateTime.offset * 60);
+		return Math.floor(this.luxonToMillisLocal(pDateTime) / 1000);
+	},
+
+	/// converts a luxon DateTime to milliseconds from epoc,
+	/// using the local time of the object
+	luxonToMillisLocal: function (pDateTime){
+		return pDateTime.toMillis() + (pDateTime.offset * 60 * 1000);
 	},
 
 	/// returns the number of seconds since midnight for a luxon date
@@ -127,7 +134,7 @@ RC.Date.DateHelper = {
 				date = date.toLuxon();
 			}
 			if (date instanceof DateTime) {
-				result.date = DateTime.fromObject({ year: date.year, month: date.month, day: date.day, hour: hours, minute: minutes });
+				result.date = DateTime.fromObject({ year: date.year, month: date.month, day: date.day, hour: hours, minute: minutes }, {zone: date.zone});
 			}
 		}
 		return result;
