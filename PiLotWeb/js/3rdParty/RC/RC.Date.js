@@ -65,7 +65,6 @@ RC.Date.DateHelper = {
 	/// converts a luxon DateTime to unix (seconds from epoc),
 	/// using the local time of the object
 	luxonToUnixLocal: function (pDateTime) {
-		//return Math.floor((pDateTime.toMillis() / 1000) + pDateTime.offset * 60);
 		return Math.floor(this.luxonToMillisLocal(pDateTime) / 1000);
 	},
 

@@ -125,7 +125,7 @@ namespace PiLot.Model.Nav {
 		/// </summary>
 		private void PreprocessTrack() {
 			this.trackPoints = new List<EnhancedTrackPoint>();
-			if(track.TrackPoints.Count > 1) {
+			if((this.track != null) && (this.track.TrackPoints.Count > 1)) {
 				EnhancedTrackPoint currentTrackPoint = null, previousTrackPoint = null;
 				foreach (TrackPoint aTrackPoint in this.track.TrackPoints) {
 					if (currentTrackPoint != null) {

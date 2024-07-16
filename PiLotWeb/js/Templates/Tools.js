@@ -46,6 +46,19 @@ PiLot.Templates.Tools = {
 				<div class="divMap navMap borderDark" style="max-height:30em;"></div>
 			</div>
 			<div class="divResult dataContainerFull marginBottom paddingRight hidden">
+				<h3><a class="lnkEdit" data-text="edit"></a></h3>
+				<div class="divEdit" hidden>
+					<span data-text="boat" class="marginRightSmall"></span><select class="ddlEditBoats input8 marginRightSmall"></select>
+					<button type="button" class="btnSaveTrack marginRight" data-text="save"></button>
+				</div>
+				<h3><a class="lnkDelete" data-text="delete"></a></h3>
+				<div class="divDelete" hidden>
+					<button type="button" class="btnDeleteCurrent marginRight" data-text="currentPosition"></button>
+					<button type="button" class="btnDeleteAll marginRight" data-text="entirePeriod"></button>
+				</div>
+				<h3><a class="lnkSpeedDiagram" data-text="speedDiagram"></a></h3>
+				<div class="pnlSpeedDiagram" hidden></div>
+				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<h3><a class="lnkExport" data-text="export"></a></h3>
 				<div class="divExport" hidden>
 					<div>
@@ -72,14 +85,6 @@ PiLot.Templates.Tools = {
 						</table>
 					</div>
 				</div>
-				<h3><a class="lnkDelete" data-text="delete"></a></h3>
-				<div class="divDelete" hidden>
-					<button type="button" class="btnDeleteCurrent marginRight" data-text="currentPosition"></button>
-					<button type="button" class="btnDeleteAll marginRight" data-text="entirePeriod"></button>
-				</div>
-				<h3><a class="lnkSpeedDiagram" data-text="speedDiagram"></a></h3>
-				<div class="pnlSpeedDiagram" hidden></div>
-				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<div class="divImport" hidden>
 					<label><input type="radio" name="importFormat" class="rbImportFormat" />CSV</label>
 					<label><input type="radio" name="importFormat" class="rbImportFormat" />TCX</label>

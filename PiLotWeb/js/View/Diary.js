@@ -29,9 +29,6 @@ PiLot.View.Diary = (function () {
 		this.tbDiary = null;							// The textbox for editing diary content
 		this.lblDiary = null;							// The label for showing diary content readonly 
 		this.diaryFontSize = null;						// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
-		this.plhDistance = null;						// container showing the total distance of the day
-		this.lblDistanceKm = null;						// the label for distance in km
-		this.lblDistanceNm = null;						// the label for distance in nm
 		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;					// placeholder where the speed diagram will be added
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics control to show track statistics
@@ -85,7 +82,8 @@ PiLot.View.Diary = (function () {
 		},
 
 		tracksList_trackSelected: function (pSender, pTrack) {
-			this.showTrackAsync(pTrack);
+			this.showSpeedDiagram(pTrack);
+			this.showTrackStatistics(pTrack);
 		},
 
 		/** Upload handler for the photo upload */
@@ -121,9 +119,6 @@ PiLot.View.Diary = (function () {
 			diaryPage.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			diaryPage.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
 			this.lblDiary = diaryPage.querySelector('.lblDiary');
-			this.plhDistance = diaryPage.querySelector('.plhDistance');
-			this.lblDistanceKm = this.plhDistance.querySelector('.lblDistanceKm');
-			this.lblDistanceNm = this.plhDistance.querySelector('.lblDistanceNm');
 			this.pnlEditDiary = diaryPage.querySelector('.pnlEditDiary');
 			this.tbDiary = diaryPage.querySelector('.tbDiary');
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
@@ -322,53 +317,26 @@ PiLot.View.Diary = (function () {
 
 		/** tries to load the track and show it on the map */
 		loadTracksAsync: async function () {
-			this.showDistance(null);
 			const startMS = this.date.toLuxon().toMillis();
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
 			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
+			this.showTracksAsync(tracks);
 			this.tracksList.showTracks(tracks);
 		},
 
-		/** takes a track and shows it on the map */
-		showTrackAsync: async function (pTrack) {
-			this.showSpeedDiagram(pTrack);
-			this.showTrackStatistics(pTrack);
-			if (pTrack && pTrack.getTrackPointsCount() > 0) {
-				this.showDistance(pTrack.getDistance());
+		/** shows the tracks on the map */
+		showTracksAsync: async function (pTracks) {
+			if (pTracks.some(t => t.hasTrackPoints())) {
 				await this.map.showAsync();
 				if (this.mapTrack === null) {
 					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
 				}
-				this.mapTrack.setTracks([pTrack]);
+				this.mapTrack.setTracks(pTracks);
 			} else {
 				this.map.hide();
 				if (this.mapTrack !== null) {
 					this.mapTrack.setTracks([]);
 				}
-			}
-		},
-
-		/**
-		 * shows the distance in km and nm. If pDistance is null, the value ... will be 
-		 * shown, as this is used while loading the track. If the distance is 0, the entire
-		 * panel will be hidden.
-		 * @param {Number} pDistance - the distance in meters
-		 */
-		showDistance: function (pDistance) {
-			if (pDistance === 0) {
-				RC.Utils.showHide(this.plhDistance, false);
-			} else {
-				RC.Utils.showHide(this.plhDistance, true);
-				let km, nm;
-				if (pDistance === null) {
-					km = '...';
-					nm = '...';
-				} else {
-					km = (pDistance / 1000).toFixed(2);
-					nm = PiLot.Utils.Nav.metersToNauticalMiles(pDistance).toFixed(2)
-				}
-				this.lblDistanceKm.innerText = km;
-				this.lblDistanceNm.innerText = nm;
 			}
 		},
 

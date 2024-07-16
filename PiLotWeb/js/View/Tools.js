@@ -43,6 +43,7 @@ PiLot.View.Tools = (function () {
 		this.divDataLoaded = null;
 		this.map = null;
 		this.mapTrack = null;
+		this.ddlBoats = null;
 		this.divResult = null;
 		this.tbResultText = null;
 		this.divResultTable = null;
@@ -89,6 +90,7 @@ PiLot.View.Tools = (function () {
 			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: false });
 			await this.map.showAsync();
 			this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
+			this.ddlEditBoats = this.pageContent.querySelector('.ddlEditBoats');
 			this.divResult = this.pageContent.querySelector('.divResult');
 			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkExport'), this.pageContent.querySelector('.divExport'));
 			this.pageContent.querySelectorAll('.rbExportFormat').forEach(function (pRadiobutton) {
@@ -100,6 +102,14 @@ PiLot.View.Tools = (function () {
 			this.pageContent.querySelector('.btnCopy').addEventListener('click', this.btnCopy_Click.bind(this));
 			this.divResultTable = this.pageContent.querySelector('.divResultTable');
 			this.tblPositions = this.pageContent.querySelector('.tblPositions');
+			const lnkEdit = this.pageContent.querySelector('.lnkEdit');
+			const divEdit = this.pageContent.querySelector('.divEdit');
+			if (PiLot.Permissions.canWrite()) {
+				new PiLot.View.Common.ExpandCollapse(lnkEdit, divEdit);
+				this.pageContent.querySelector('.btnSaveTrack').addEventListener('click', this.btnSaveTrack_click.bind(this));
+			} else {
+				lnkDelete.hidden = true;
+			}			
 			const lnkDelete = this.pageContent.querySelector('.lnkDelete');
 			const divDelete = this.pageContent.querySelector('.divDelete');
 			if (PiLot.Permissions.canWrite()) {
@@ -159,17 +169,9 @@ PiLot.View.Tools = (function () {
 		tracksList_trackSelected: function (pSender, pTrack) {
 			this.showTrack(pTrack);
 		},
-
-		btnCopy_Click: function () {
-			this.tbResultText.select();
-			document.execCommand("copy");
-		},
-
-		rbExportFormat_Change: function (pEvent) {
-			this.exportMode = pEvent.target.value;
-			this.showData();
-		},
-
+		
+		btnSaveTrack_click: async function(){},
+		
 		btnDeleteCurrent_click: async function (pEvent) {
 			const position = this.mapTrack.getHistoricPosition();
 			if (position !== null) {
@@ -191,6 +193,16 @@ PiLot.View.Tools = (function () {
 				}
 			}
 		},
+
+		btnCopy_Click: function () {
+			this.tbResultText.select();
+			document.execCommand("copy");
+		},
+
+		rbExportFormat_Change: function (pEvent) {
+			this.exportMode = pEvent.target.value;
+			this.showData();
+		},		
 
 		rbImportFormat_Change: function (pEvent) {
 			this.ImportMode = pEvent.target.value;
@@ -227,7 +239,9 @@ PiLot.View.Tools = (function () {
 
 		fillDdlBoatsAsync: async function () {
 			const boatInfos = await PiLot.Model.Boat.loadConfigInfosAsync();
-			RC.Utils.fillDropdown(this.ddlImportBoats, boatInfos.map((b) => [b.name, b.displayName]));
+			const boatNames = boatInfos.map((b) => [b.name, b.displayName]);
+			RC.Utils.fillDropdown(this.ddlEditBoats, boatNames);
+			RC.Utils.fillDropdown(this.ddlImportBoats, boatNames);
 		},
 
 		loadTracksAsync: async function () {
@@ -257,6 +271,7 @@ PiLot.View.Tools = (function () {
 			let length = this.track && this.track.getTrackPointsCount() || 0;
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
 			this.mapTrack.setTracks([this.track], true);
+			this.ddlEditBoats.value = pTrack?.getBoat();
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
 			RC.Utils.showHide(this.divResult, true);

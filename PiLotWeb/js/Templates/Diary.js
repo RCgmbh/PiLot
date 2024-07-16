@@ -21,9 +21,6 @@ PiLot.Templates.Diary = {
 						<a href="#" class="lnkSmallerText" data-title="fontsizeDecrease"><span>A&darr;</span></a>
 					</div>
 					<span class="lblDiary preLine" style="hyphens:auto;"></span>
-					<div class="plhDistance marginTop">
-						<span data-text="distance"></span>: <span class="lblDistanceKm"></span> <span data-text="km"></span> / <span class="lblDistanceNm"></span> <span data-text="nm"></span>
-					</div>
 				</div>
 				<div class="pnlEditDiary marginBottom" hidden>
 					<span class="block semiBold marginBottom" data-text="diary"></span>
@@ -33,8 +30,8 @@ PiLot.Templates.Diary = {
 				<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 			<div class="dataContainerHalf paddingRight marginTop marginBottom">
-				<div class="plhTracks marginBottom"></div>
 				<div class="plhMap navMap borderDark marginBottom"></div>
+				<div class="plhTracks marginBottom"></div>
 				<div class="plhSpeedDiagram marginBottom"></div>
 				<div class="plhTrackStatistics marginBottom"></div>
 			</div>
