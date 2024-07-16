@@ -160,8 +160,6 @@ PiLot.View.Tools = (function () {
 			return false;
 		},
 
-		lnkEndTimeFromMap_click: function () { },
-
 		btnLoadData_click: function () {
 			this.loadTracksAsync();
 		},
@@ -170,7 +168,13 @@ PiLot.View.Tools = (function () {
 			this.showTrack(pTrack);
 		},
 		
-		btnSaveTrack_click: async function(){},
+		btnSaveTrack_click: async function(){
+			if(this.track){
+				this.track.setBoat(this.ddlEditBoats.value);
+				await PiLot.Service.Nav.TrackService.getInstance().saveTrackBoatAsync(this.track);
+				this.loadTracksAsync();
+			}
+		},
 		
 		btnDeleteCurrent_click: async function (pEvent) {
 			const position = this.mapTrack.getHistoricPosition();

@@ -13,6 +13,7 @@ DROP FUNCTION IF EXISTS read_tracks;
 DROP FUNCTION IF EXISTS insert_track;
 DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
+DROP FUNCTION IF EXISTS update_track_boat;
 DROP FUNCTION IF EXISTS read_track_segments_by_track;
 DROP FUNCTION IF EXISTS save_track_segment;
 DROP FUNCTION IF EXISTS delete_track_segments;
@@ -262,41 +263,22 @@ $BODY$;
 
 GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
 
-/*-----------FUNCTION update_track_data-----------------*/
--- updates the track distance and start/end based on the track_points
--- deletes all track segments
--- sets stats_dirty to true
--- deletes the track if it has no track_points
+/*-----------FUNCTION update_track_boat-----------------*/
+-- updates the boat for a track
 
-CREATE OR REPLACE FUNCTION public.update_track_data(
-	p_id integer
+CREATE OR REPLACE FUNCTION public.update_track_boat(
+	p_id integer,
+	p_boat text 
 )
 RETURNS void
 LANGUAGE 'plpgsql'
 AS $$ BEGIN
-	IF EXISTS (SELECT FROM track_points WHERE track_id = p_id) THEN
-		WITH ordered_track_points AS (
-			SELECT utc, boattime, coordinates
-			FROM track_points
-			WHERE track_id = p_id
-			ORDER BY utc ASC
-		)	
-		UPDATE tracks
-		SET (start_utc, end_utc, start_boattime, end_boattime, stats_dirty, distance, date_changed) = (
-			SELECT
-				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
-				TRUE,
-				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
-				NOW()
-			FROM ordered_track_points 
-		)
-		WHERE id = p_id;
-	ELSE
-		PERFORM delete_track(p_id);
-	END IF;
+	UPDATE tracks
+	SET boat = p_boat
+	WHERE id = p_id;
 END $$;
 
-GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
+GRANT EXECUTE ON FUNCTION update_track_boat TO pilotweb;
 
 /*-----------FUNCTION read_track_segments-----------------*/
 -- reads all track segments for a certain track

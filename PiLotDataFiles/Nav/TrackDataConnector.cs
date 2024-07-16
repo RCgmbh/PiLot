@@ -125,6 +125,14 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// This should not be called as SupportsTrackIDs is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		public void SetBoat(Int32 pTrackId, String pBoat){
+			throw new NotImplementedException("Files based DataConnector does not support track ids. Check SupportsTrackIDs before calling SetBoat(Int32, String)");
+		}
+
+		/// <summary>
 		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
 		/// Only there in order to implement ITrackDataConnector
 		/// </summary>

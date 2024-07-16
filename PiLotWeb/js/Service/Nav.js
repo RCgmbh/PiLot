@@ -364,6 +364,12 @@ PiLot.Service.Nav = (function () {
 			return await PiLot.Utils.Common.putToServerAsync(path, obj);
 		},
 
+		/** Updates the boat for a track */
+		saveTrackBoatAsync: async function(pTrack){
+			const path = `/Tracks/${pTrack.getId()}/boat?name=${pTrack.getBoat()}`;
+			return await PiLot.Utils.Common.putToServerAsync(path, null)
+		},
+
 		/**
 		 * Creates a data object that can be sent to the api. An empty track
 		 * will be returned as null, as start and end can not be defined.

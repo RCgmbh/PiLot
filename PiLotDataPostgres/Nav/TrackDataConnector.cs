@@ -142,6 +142,19 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Sets the boat for a track
+		/// </summary>
+		/// <param name="pTrackId">The track id, not null</param>
+		/// <param name="pBoat">The boat name, not null</param>
+		public void SetBoat(Int32 pTrackId, String pBoat){
+			String command = "SELECT update_track_boat (@p_id, @p_boat)";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_id", pTrackId));
+			pars.Add(("@p_boat", pBoat));
+			this.dbHelper.ExecuteCommand<Int32>(command, pars);
+		}
+
+		/// <summary>
 		/// Reads all track segment types from the db
 		/// </summary>
 		/// <returns>List TrackSegmentType</returns>

@@ -86,12 +86,25 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public Int32 PutInsert(Track pTrack) {
-			DataConnectionHelper.TrackDataConnector.InsertTrack(pTrack);
-			if (pTrack.ID != null) {
-				TrackStatisticsHelper.UpdateStatistics(pTrack.ID.Value, false);
+		public Int32 PutInsert(Track track) {
+			DataConnectionHelper.TrackDataConnector.InsertTrack(track);
+			if (track.ID != null) {
+				TrackStatisticsHelper.UpdateStatistics(track.ID.Value, false);
 			}
-			return pTrack.ID.Value;
+			return track.ID.Value;
+		}
+
+		/// <summary>
+		/// Changes the boat for a track
+		/// </summary>
+		/// <param name="id">The track ID, not null</param>
+		/// <param name="boat">The name of the boat</param>
+		[Route(Program.APIROOT + "[controller]/{id}/boat")]
+		[HttpPut]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public void PutBoatName(Int32 id, String name) {
+			DataConnectionHelper.TrackDataConnector.SetBoat(id, name);
+			TrackStatisticsHelper.UpdateStatistics(id, true);
 		}
 
 		/// <summary>

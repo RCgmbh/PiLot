@@ -60,6 +60,13 @@ namespace PiLot.Data.Nav {
 		void DeleteTrack(Int32 pTrackId);
 
 		/// <summary>
+		/// Saves the name of the boat for a track
+		/// </summary>
+		/// <param name="pTrackId">The track id, not null</param>
+		/// <param name="pBoat">The boat name</param>
+		void SetBoat(Int32 pTrackId, String pBoat);
+
+		/// <summary>
 		/// Reads all track segment types. Will only be implemented if SupportStatistics=true
 		/// </summary>
 		/// <returns>List of TrackSegmentType, can be empty but not null</returns>
