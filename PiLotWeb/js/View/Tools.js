@@ -275,7 +275,7 @@ PiLot.View.Tools = (function () {
 			let length = this.track && this.track.getTrackPointsCount() || 0;
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
 			this.mapTrack.setTracks([this.track], true);
-			this.ddlEditBoats.value = pTrack?.getBoat();
+			this.ddlEditBoats.value = pTrack && pTrack.getBoat();
 			RC.Utils.showHide(this.divLoadingData, false)
 			RC.Utils.showHide(this.divDataLoaded, true);
 			RC.Utils.showHide(this.divResult, true);

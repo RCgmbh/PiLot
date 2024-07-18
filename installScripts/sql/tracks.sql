@@ -1,8 +1,7 @@
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   This will create the db structure for tracks
-  ALL EXISTING TRACK DATA WILL BE LOST!
-
+  
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
 /* DROP EXISTING ELEMENTS */
@@ -21,11 +20,11 @@ DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
 
-/* DROP VIEW IF EXISTS blah; */
-DROP TABLE IF EXISTS track_segments;
-DROP TABLE IF EXISTS track_segment_types;
-DROP TABLE IF EXISTS track_points;
-DROP TABLE IF EXISTS tracks;
+/* Don't delete the data. Manually drop them if needed. */
+--DROP TABLE IF EXISTS track_segments;
+--DROP TABLE IF EXISTS track_segment_types;
+--DROP TABLE IF EXISTS track_points;
+--DROP TABLE IF EXISTS tracks;
 
 /*-----------TABLE track_segment_types -------------------------*/
 

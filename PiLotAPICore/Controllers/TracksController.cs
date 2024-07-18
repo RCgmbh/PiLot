@@ -104,7 +104,6 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void PutBoatName(Int32 id, String name) {
 			DataConnectionHelper.TrackDataConnector.SetBoat(id, name);
-			TrackStatisticsHelper.UpdateStatistics(id, true);
 		}
 
 		/// <summary>
