@@ -28,7 +28,7 @@ DROP FUNCTION IF EXISTS delete_track_points;
 
 /*-----------TABLE track_segment_types -------------------------*/
 
-CREATE TABLE track_segment_types(
+/*CREATE TABLE track_segment_types(
 	id serial PRIMARY KEY,
 	duration integer,
 	distance integer,
@@ -42,11 +42,11 @@ GRANT INSERT ON track_segment_types TO pilotweb;
 GRANT UPDATE ON track_segment_types TO pilotweb;
 GRANT DELETE ON track_segment_types TO pilotweb;
 
-GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;
+GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;*/
 
 /*-----------TABLE tracks -------------------------*/
 
-CREATE TABLE tracks(
+/*CREATE TABLE tracks(
 	id serial PRIMARY KEY,
 	start_utc bigint NOT NULL,
 	end_utc bigint NOT NULL,
@@ -64,11 +64,11 @@ GRANT INSERT ON tracks TO pilotweb;
 GRANT UPDATE ON tracks TO pilotweb;
 GRANT DELETE ON tracks TO pilotweb;
 
-GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;
+GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;*/
 
 /*-----------TABLE track_segments -------------------------*/
 
-CREATE TABLE track_segments(
+/*CREATE TABLE track_segments(
 	type_id integer REFERENCES track_segment_types NOT NULL,
 	track_id integer REFERENCES tracks NOT NULL,
 	start_utc bigint NOT NULL,
@@ -90,12 +90,12 @@ CREATE INDEX track_segments_track_id_index
 GRANT SELECT ON track_segments TO pilotweb;
 GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
-GRANT DELETE ON track_segments TO pilotweb;
+GRANT DELETE ON track_segments TO pilotweb;*/
 
 
 /*-----------TABLE track_points -------------------------*/
 
-CREATE TABLE track_points(
+/*CREATE TABLE track_points(
 	track_id integer REFERENCES tracks NOT NULL,
 	utc bigint NOT NULL,
 	boattime bigint NOT NULL,
@@ -115,7 +115,7 @@ CREATE INDEX track_points_coordinates_index
 
  CREATE INDEX track_points_track_id_index
    ON track_points 
-   USING btree (track_id);
+   USING btree (track_id);*/
 
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
@@ -261,6 +261,40 @@ AS $BODY$
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
+
+/*-----------FUNCTION update_track_data-----------------*/
+-- updates the track distance and start/end based on the track_points
+-- deletes the track if it has no track_points
+
+CREATE OR REPLACE FUNCTION public.update_track_data(
+	p_id integer
+)
+RETURNS void
+LANGUAGE 'plpgsql'
+AS $$ BEGIN
+	IF EXISTS (SELECT FROM track_points WHERE track_id = p_id) THEN
+		WITH ordered_track_points AS (
+			SELECT utc, boattime, coordinates
+			FROM track_points
+			WHERE track_id = p_id
+			ORDER BY utc ASC
+		)	
+		UPDATE tracks
+		SET (start_utc, end_utc, start_boattime, end_boattime, stats_dirty, distance, date_changed) = (
+			SELECT
+				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
+				TRUE,
+				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
+				NOW()
+			FROM ordered_track_points 
+		)
+		WHERE id = p_id;
+	ELSE
+		PERFORM delete_track(p_id);
+	END IF;
+END $$;
+
+GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 
 /*-----------FUNCTION update_track_boat-----------------*/
 -- updates the boat for a track
