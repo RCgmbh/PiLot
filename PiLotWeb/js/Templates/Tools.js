@@ -38,14 +38,14 @@ PiLot.Templates.Tools = {
 				/><div class="divCalEndDate" hidden></div><input type="text" class="input3 tbEndTime" data-title="hhmm" /><a
 				class="lnkEndTimeFromMap" href="#"><i class="icon-map2"></i></a></div>
 				<div class="marginBottomSmall"><span class="col4 inlineBlock"></span><button type="button" class="input7 btnLoadData marginBottom" data-text="loadData"></button></div>
-				<div class="col22 feedbackInfo divLoadingData hidden" data-text="loadingData"></div>
+				<div class="col22 feedbackInfo divLoadingData marginBottom" hidden data-text="loadingData"></div>
 				<div class="col22 divTracksList"></div>
-				<div class="col22 feedbackGood divDataLoaded hidden" data-text="xPositionsFound">...</div>
+				<div class="col22 feedbackGood divDataLoaded" hidden data-text="xPositionsFound">...</div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
 				<div class="divMap navMap borderDark" style="max-height:30em;"></div>
 			</div>
-			<div class="divResult dataContainerFull marginBottom paddingRight hidden">
+			<div class="divResult dataContainerFull marginBottom paddingRight" hidden>
 				<h3><a class="lnkEdit" data-text="edit"></a></h3>
 				<div class="divEdit" hidden>
 					<span data-text="boat" class="marginRightSmall"></span><select class="ddlEditBoats input8 marginRightSmall"></select>
@@ -67,11 +67,11 @@ PiLot.Templates.Tools = {
 						<label><input type="radio" name="exportFormat" value="JSON" class="rbExportFormat" />JSON</label>
 						<label><input type="radio" name="exportFormat" value="Table" class="rbExportFormat" />HTML</label>		
 					</div>
-					<div class="divResultText hidden marginBottom"> 
+					<div class="divResultText marginBottom" hidden> 
 						<textarea class="fullWidth big tbResultText marginBottomSmall" style="max-height: 20em; overflow:auto; border:1px solid #666"></textarea>
 						<button type="button" class="btnCopy"><i class="icon-copy marginRight"></i><span data-text="copy"></span></button>
 					</div>
-					<div class="marginBottomSmall divResultTable hidden" style="max-height: 20em; overflow:auto; border:1px solid #666"> 
+					<div class="marginBottomSmall divResultTable" hidden style="max-height: 20em; overflow:auto; border:1px solid #666"> 
 						<table class="tblPositions dgTable">
 							<tbody>
 								<tr class="dgHeader">

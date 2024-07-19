@@ -1257,7 +1257,7 @@ PiLot.View.Nav = (function () {
 			return this;
 		},
 
-		trackInfo_select: function (pSender, pTrack) {
+		trackInfo_selected: function (pSender) {
 			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', pSender.getTrack());
 			for (let aTrackInfo of this.trackInfos) {
 				if (aTrackInfo !== pSender) {
@@ -1277,7 +1277,7 @@ PiLot.View.Nav = (function () {
 			this.trackInfos = [];
 			let selectedTrack = null;
 			for (let i = 0; i < pTracks.length; i++) {
-				let trackInfo = new TrackInfo(this.plhTracks, pTracks[i]).on("selected", this.trackInfo_select.bind(this));
+				let trackInfo = new TrackInfo(this.plhTracks, pTracks[i]).on("selected", this.trackInfo_selected.bind(this));
 				this.trackInfos.push(trackInfo);
 				if (i == 0) {
 					trackInfo.select();
@@ -1354,7 +1354,7 @@ PiLot.View.Nav = (function () {
 
 		setSelected: function (pSelected) {
 			this.selected = pSelected;
-			this.control.classList.toggle('selected', this.active);
+			this.control.classList.toggle('selected', this.selected);
 		}
 	};
 

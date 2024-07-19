@@ -252,8 +252,8 @@ PiLot.View.Tools = (function () {
 			let startDate = this.calStartDate.date();
 			let endDate = this.calEndDate.date();
 			if ((startDate !== null) && (endDate !== null)) {
-				RC.Utils.showHide(this.divDataLoaded, false);
-				RC.Utils.showHide(this.divLoadingData, true);
+				this.divDataLoaded.hidden = true;
+				this.divLoadingData.hidden = false;
 				startDate = RC.Date.DateHelper.parseTime(this.tbStartTime.value, startDate).date;
 				RC.Utils.setText(this.tbStartTime, startDate.toFormat('HH:mm'));
 				if (endDate !== null) {
@@ -265,8 +265,8 @@ PiLot.View.Tools = (function () {
 				const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMillis, endMillis, true);
 				this.tracksList.showTracks(tracks);
 			} else {
-				RC.Utils.showHide(this.divDataLoaded, true);
-				RC.Utils.showHide(this.divLoadingData, false);
+				this.divDataLoaded.hidden = false;
+				this.divLoadingData.hidden = true;
 			}
 		},
 
@@ -276,15 +276,15 @@ PiLot.View.Tools = (function () {
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
 			this.mapTrack.setTracks([this.track], true);
 			this.ddlEditBoats.value = pTrack && pTrack.getBoat();
-			RC.Utils.showHide(this.divLoadingData, false)
-			RC.Utils.showHide(this.divDataLoaded, true);
-			RC.Utils.showHide(this.divResult, true);
+			this.divLoadingData.hidden = true;
+			this.divDataLoaded.hidden = false;
+			this.divResult.hidden = false;
 			this.showData();
 		},
 
 		showData: function () {
-			RC.Utils.showHide(this.divResultText, this.exportMode !== "Table");
-			RC.Utils.showHide(this.divResultTable, this.exportMode === "Table");
+			this.divResultText.hidden = (this.exportMode === "Table");
+			this.divResultTable.hidden = (this.exportMode !== "Table");
 			switch (this.exportMode) {
 				case "Table":
 					this.showTabularData();
