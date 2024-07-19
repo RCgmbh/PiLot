@@ -96,9 +96,12 @@ namespace PiLot.Data.Postgres.Helper {
 		}
 
 		/// <summary>
-		/// Helper to create an array of objects from a db record. Sinde some npgsql version,
+		/// Helper to create an array of objects from a db record. Since some npgsql version,
 		/// this has started struggeling with arrays of nullable types (within the fields),
-		/// so it needs some special treatment.
+		/// so it needs some special treatment. It also handles the strange behaviour of 
+		/// postgresql to return [null] instead of [] as empty value from array_agg (I was 
+		/// close to fixing it in the sql query, but it broke the poi features filter, so 
+		/// we fix it here...)
 		/// </summary>
 		/// <returns>Array of objects as long as the number of fileds in the db record</returns>
 		public Object[] ReadObjects(NpgsqlDataReader pReader) {
@@ -107,7 +110,11 @@ namespace PiLot.Data.Postgres.Helper {
 				if (pReader.IsDBNull(i)) {
 					result[i] = null;
 				} else if(pReader.GetPostgresType(i).FullName == "pg_catalog.integer[]"){
-					result[i] = pReader.GetFieldValue<Int32?[]>(i);
+					Int32?[] intArray = pReader.GetFieldValue<Int32?[]>(i);
+					if((intArray.Length == 1) && (intArray[0] == null)){
+						intArray = new Int32?[0];
+					}
+					result[i] = intArray;
 				} else {
 					result [i] = pReader.GetValue(i);
 				}

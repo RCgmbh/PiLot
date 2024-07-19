@@ -398,11 +398,7 @@ PiLot.Model.Nav = (function () {
 
 		/** @param {number[]} pFeatureIds */
 		setFeatureIds: function (pFeatureIds) {
-			if (pFeatureIds && (pFeatureIds.length === 1) && (pFeatureIds[0] === 0)) {
-				this.featureIds = [];
-			} else {
-				this.featureIds = pFeatureIds || [];
-			}
+			this.featureIds = pFeatureIds || [];
 		},
 
 		/** @returns {string} */
