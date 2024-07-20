@@ -97,7 +97,7 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 .divWaypoints .navWaypointForm .divWaypoint .divButtons { flex-grow: 0; width: 6em; min-width:6em; display:flex; justify-content:space-between;}
 .divWaypoints .navWaypointForm .divWaypoint .divButtons a>i { font-size: 1.5em;}
 
-.sideMenu.expanded { width: 14em; }
+.sideMenu.expanded { width: 13.5em; }
 .sideMenu.expanded>.option{ width:13em; }
 .sideMenu.expanded>.option .label{ width:9.5em; }
 .navCurrentPosition{display:inline-block; border:3px solid black; height:1em;width:1em; border-radius:0.5em;background-color:#eee; }
