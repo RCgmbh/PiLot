@@ -1344,6 +1344,8 @@ PiLot.View.Map = (function () {
 		this.calStartDate = null;
 		this.calEndDate = null;
 
+		this.showTrack = null;
+
 		this.initializeAsync();
 
 	};
@@ -1357,8 +1359,8 @@ PiLot.View.Map = (function () {
 			this.mapTrack = new MapTrack(this.map);
 			this.draw();
 			this.readSettings();
+			this.showSettings();
 			if (this.showTrack) {
-				this.showSettings();
 				await this.loadAndShowTracksAsync(false);
 			}
 		},
@@ -1414,7 +1416,6 @@ PiLot.View.Map = (function () {
 		draw: function () {
 			const optionsControl = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapShowTrack);
 			this.lnkShowTrack = optionsControl.querySelector('a');
-			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			this.lnkShowTrack.addEventListener('click', this.lnkShowTrack_click.bind(this));
 			this.selTrackMode = optionsControl.querySelector('select');
 			this.selTrackMode.addEventListener('change', this.selTrackMode_change.bind(this));
@@ -1434,6 +1435,7 @@ PiLot.View.Map = (function () {
 
 		/** Shows the current values in the controls */
 		showSettings: function () {
+			this.lnkShowTrack.classList.toggle('active', this.showTrack);
 			this.calStartDate.date(this.startTime !== null ? this.startTime.toLocal() : null);
 			this.calStartDate.showDate();
 			this.calEndDate.date(this.endTime !== null ? this.endTime.toLocal() : null);

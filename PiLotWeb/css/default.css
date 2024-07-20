@@ -111,7 +111,9 @@ body.night .dialogPanel { background-color: black; }
 .sideMenu div.option > a, .sideMenu div.option > a:hover, .sideMenu div.option > a:visited { color: #eee; }
 .sideMenu > .expandCollapse { text-align: center; width: 3em; }
 .sideMenu > .expandCollapse > i { font-size: 1.5em; }
-.sideMenu > .option { width: 3em; min-height: 3em; border: 1px solid black; padding-top: 0.75em; margin-bottom: 0.25em; border-radius: 0.25em; width: auto; display: block; text-align: center; }
+.sideMenu .option { border: 1px solid black; margin-bottom: 0.25em; border-radius: 0.25em; display: block; text-align: center; }
+.sideMenu a.option { min-height: 3em; width: 3em; padding-top: 0.75em; }
+.sideMenu .option > a {min-height: 3em; padding-top: 0.75em;}
 .sideMenu > .option.noBorder { border: none; }
 .sideMenu.expanded > .option { text-align: left; padding-left: 0.5em; }
 .sideMenu > .option .label { margin-right: 1em; display: none; }
