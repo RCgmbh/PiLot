@@ -165,7 +165,6 @@ textarea.big { height: 20em; }
 .col6 { width: 9em; }
 .col11 { width: 16.5em; }
 .col18 { width: 27em; }
-.col22 { width: 33em; }
 
 /* GENERAL CLASSES */
 .hidden, .block.hidden, .inlineBlock.hidden, .flex.hidden, a.hidden, span.hidden, div.hidden { display: none; }
