@@ -263,6 +263,7 @@ PiLot.View.Tools = (function () {
 				const startMillis = RC.Date.DateHelper.luxonToMillisLocal(startDate);
 				const endMillis = RC.Date.DateHelper.luxonToMillisLocal(endDate);
 				const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMillis, endMillis, true);
+				this.divLoadingData.hidden = true;
 				this.tracksList.showTracks(tracks);
 			} else {
 				this.divDataLoaded.hidden = false;
@@ -274,10 +275,9 @@ PiLot.View.Tools = (function () {
 			this.track = pTrack;
 			let length = this.track && this.track.getTrackPointsCount() || 0;
 			this.divDataLoaded.innerText = PiLot.Utils.Language.getText('xPositionsFound').replace('{{x}}', length);
+			this.divDataLoaded.hidden = false;
 			this.mapTrack.setTracks([this.track], true);
 			this.ddlEditBoats.value = pTrack && pTrack.getBoat();
-			this.divLoadingData.hidden = true;
-			this.divDataLoaded.hidden = false;
 			this.divResult.hidden = false;
 			this.showData();
 		},

@@ -38,7 +38,7 @@ PiLot.Templates.Tools = {
 				/><div class="divCalEndDate" hidden></div><input type="text" class="input3 tbEndTime" data-title="hhmm" /><a
 				class="lnkEndTimeFromMap" href="#"><i class="icon-map2"></i></a></div>
 				<div class="marginBottomSmall"><span class="col4 inlineBlock"></span><button type="button" class="input7 btnLoadData marginBottom" data-text="loadData"></button></div>
-				<div class="feedbackInfo divLoadingData marginBottom" hidden data-text="loadingData"></div>
+				<div class="feedbackInfo divLoadingData marginBottomSmall" hidden data-text="loadingData"></div>
 				<div class="divTracksList"></div>
 				<div class="feedbackGood divDataLoaded" hidden data-text="xPositionsFound">...</div>
 			</div>
