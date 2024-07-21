@@ -215,9 +215,9 @@ AS $BODY$
 	FROM
 		tracks
 	WHERE
-		(p_is_boattime = FALSE AND start_utc <= p_end AND end_utc >= p_start)
+		(p_is_boattime = FALSE AND start_utc < p_end AND end_utc > p_start)
 		OR
-		(p_is_boattime = TRUE AND start_boattime <= p_end AND end_boattime >= p_start)
+		(p_is_boattime = TRUE AND start_boattime < p_end AND end_boattime > p_start)
 	ORDER BY start_utc ASC
 
 $BODY$;

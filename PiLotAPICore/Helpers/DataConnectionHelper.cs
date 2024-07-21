@@ -30,11 +30,12 @@ namespace PiLot.API.Helpers
 			get {
 				ITrackDataConnector result = null;
 				String connectionString = ConfigurationManager.AppSettings["connectionString"];
-				if (!String.IsNullOrEmpty(connectionString)) {
+				/*if (!String.IsNullOrEmpty(connectionString)) {
 					result = new Data.Postgres.Nav.TrackDataConnector(connectionString);
 				} else {
 					result = new Data.Files.TrackDataConnector();
-				}
+				}*/
+				result = Data.Files.TrackDataConnector2.GetInstance();
 				return result;
 			}
 		}

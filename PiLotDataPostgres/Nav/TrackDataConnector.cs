@@ -104,10 +104,10 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Inserts a track into the database, and sets the Track.ID. If there is an overlapping
-		/// track for the same boat, that one will be deleted. 
+		/// Inserts a track into the database, and sets the Track.ID. If there are overlapping
+		/// tracks, they will be deleted. 
 		/// </summary>
-		/// <param name="pTrack">The track to save</param>
+		/// <param name="pTrack">The track to save. Must not have an ID</param>
 		public void InsertTrack(Track pTrack) {
 			Logger.Log("TrackDataConnector.InsertTrack", LogLevels.DEBUG);
 			NpgsqlConnection connection = this.dbHelper.GetConnection();
@@ -116,10 +116,8 @@ namespace PiLot.Data.Postgres.Nav {
 				NpgsqlTransaction transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
 				try {
 					List<Track> existingTracks = this.ReadTracks(pTrack.StartUTC, pTrack.EndUTC, false, false, transaction);
-					if (existingTracks.Count > 0) {
-						foreach (Track aTrack in existingTracks) {
-							this.DeleteTrack(aTrack.ID.Value, transaction);
-						}
+					foreach (Track aTrack in existingTracks) {
+						this.DeleteTrack(aTrack.ID.Value, transaction);
 					}
 					this.InsertTrack(pTrack, transaction);
 					transaction.Commit();

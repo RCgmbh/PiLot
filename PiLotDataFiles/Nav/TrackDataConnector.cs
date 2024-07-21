@@ -55,7 +55,7 @@ namespace PiLot.Data.Files {
 		}
 
 		public Boolean SupportsTrackIDs {
-			get { return true; }
+			get { return false; }
 		}
 
 		#endregion
