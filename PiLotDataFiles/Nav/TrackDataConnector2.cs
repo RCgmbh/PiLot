@@ -41,7 +41,7 @@ namespace PiLot.Data.Files {
 		private static Dictionary<String, TrackDataConnector2> instances = new Dictionary<String, TrackDataConnector2>();
 		
 		/// <summary>
-		/// The cheap singleton default instance for construction without a path		/// 
+		/// The cheap singleton default instance for construction without a path 
 		/// </summary>
 		private static TrackDataConnector2 instance = null;
 
@@ -134,7 +134,7 @@ namespace PiLot.Data.Files {
 			foreach (TrackMetadata aTrackMetadata in tracksMetaData){
 				Track track = this.TrackFromMetadata(aTrackMetadata);
 				if(pReadTrackPoints){
-					track.AddTrackPoints(this.ReadTrackPoints(track.ID.Value));
+					track.AddTrackPoints(this.ReadTrackPoints(track.ID.Value, pStartTime, pEndTime, pIsBoatTime));
 				}
 				result.Add(track);
 			}
@@ -181,10 +181,8 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// This should not be called as SupportsTrackIDs is false. Will throw an exception. 
-		/// Only there in order to implement ITrackDataConnector
+		/// Deletes the track (Metadata and TrackPoints)
 		/// </summary>
-		/// <exception cref="NotImplementedException"></exception>
 		public void DeleteTrack(Int32 pTrackId) {
 			lock(this.lockObject) {
 				this.DeleteTrackMetadata(pTrackId);
@@ -193,8 +191,7 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// This should not be called as SupportsTrackIDs is false. Will throw an exception. 
-		/// Only there in order to implement ITrackDataConnector
+		/// Sets the boat for a certain track
 		/// </summary>
 		public void SetBoat(Int32 pTrackId, String pBoat){
 			TrackMetadata metadata = this.ReadTrackMetadata(pTrackId);
@@ -286,7 +283,11 @@ namespace PiLot.Data.Files {
 				Track track = this.ReadTrack(pTrackId);
 				if(track != null){
 					track.Cut(pStart, pEnd, pIsBoatTime);
-					this.SaveTrackPoints(track.TrackPoints, pTrackId, true, true);
+					if(track.HasTrackPoints){
+						this.SaveTrackPoints(track.TrackPoints, pTrackId, true, true);
+					} else {
+						this.DeleteTrack(pTrackId);
+					}
 				}
 			}
 		}
@@ -554,14 +555,17 @@ namespace PiLot.Data.Files {
 		/// at hand, otherwise use the version taking the track id.
 		/// </summary>
 		/// <param name="pFilePath">The path to the file holding the records</param>
+		/// <param name="pStartTime">Optional, milliseconds UTC or BoatTime</param>
+		/// <param name="pEndTime">Optional, milliseconds UTC or BoatTime</param>
+		/// <param name="pIsBoatTime">Defines whether pStart and pEnd are boat time or UTC</param>
 		/// <returns>A list of track points, can be empty but not null</returns>
-		private List<TrackPoint> ReadTrackPoints(String pFilePath) {
+		private List<TrackPoint> ReadTrackPoints(String pFilePath, Int64? pStartTime, Int64? pEndTime, Boolean? pIsBoatTime) {
 			List<TrackPoint> result = new List<TrackPoint>();
 			if (File.Exists(pFilePath)) {
 				try {
 					foreach (String aLine in File.ReadLines(pFilePath)) {
 						TrackPoint trackPoint = TrackPoint.FromString(aLine);
-						if (trackPoint != null) {
+						if (trackPoint != null && trackPoint.IsInPeriod(pStartTime, pEndTime, pIsBoatTime)) {
 							result.Add(trackPoint);
 						}
 					};
@@ -577,9 +581,9 @@ namespace PiLot.Data.Files {
 		/// </summary>
 		/// <param name="pTrackId">the id of the track</param>
 		/// <returns>A list of TrackPoint, can be empty, but not null</returns>
-		protected List<TrackPoint> ReadTrackPoints(Int32 pTrackId) {
+		protected List<TrackPoint> ReadTrackPoints(Int32 pTrackId, Int64? pStartTime = null, Int64? pEndTime = null, Boolean? pIsBoatTime = null) {
 			String filePath = this.GetTrackFilePath(pTrackId, false);
-			return this.ReadTrackPoints(filePath);
+			return this.ReadTrackPoints(filePath, pStartTime, pEndTime, pIsBoatTime);
 		}
 
 		/// <summary>
@@ -593,7 +597,7 @@ namespace PiLot.Data.Files {
 			String trackFilePath = this.GetTrackFilePath(pTrackId, true);
 			List<TrackPoint> trackPoints;
 			if(!pReplaceExisting){
-				trackPoints = this.ReadTrackPoints(trackFilePath);
+				trackPoints = this.ReadTrackPoints(trackFilePath, null, null, null);
 				trackPoints.AddRange(pTrackPoints);
 			} else {
 				trackPoints = pTrackPoints;

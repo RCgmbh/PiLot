@@ -185,6 +185,24 @@ namespace PiLot.Model.Nav {
 			return this.UTC.CompareTo(pOther.UTC);
 		}
 
+		/// <summary>
+		/// Checks whether the TrackPoint lies within e certain period, defined either
+		/// by boat time or utc. Both start and end can be null, which will mean no 
+		/// limit in that direction. Boat time must be non-null, if start or end are
+		/// set.
+		/// </summary>
+		/// <param name="pStartDate">Start time in ms UTC or BoatTime. Null means since ever.</param>
+		/// <param name="pEndDate">End time in UTC or BoatTime. Null means forever</param>
+		/// <param name="pIsBoatTime">Must be non-null, if start or end is set.</param>
+		/// <returns></returns>
+		public Boolean IsInPeriod(Int64? pStartDate, Int64? pEndDate, Boolean? pIsBoatTime){
+			return (
+				((pStartDate == null) || (pIsBoatTime == true && this.BoatTime >= pStartDate) || (pIsBoatTime == false && this.UTC >= pStartDate))
+				&&
+				((pEndDate == null) || (pIsBoatTime == true && this.BoatTime <= pEndDate) || (pIsBoatTime == false && this.UTC <= pEndDate))
+			);
+		}
+
 		#endregion
 
 		#region private methods
