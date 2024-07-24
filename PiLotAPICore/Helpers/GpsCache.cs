@@ -120,12 +120,15 @@ namespace PiLot.API.Helpers {
 			Int32? result = null;
 			if (pTrackPoints.Count > 0) {
 				Boolean doPersist;
+				Boolean doSortAll;
 				Int64 deltaT;
 				Double deltaX;
 				List<TrackPoint> pointsToPersist = new List<TrackPoint>();
 				Int64 utcOffset = this.globalDataConnector.GetBoatTime().UtcOffsetMinutes * 60 * 1000;
 				lock (lockObject) {
-					foreach (TrackPoint aTrackPoint in pTrackPoints.OrderBy(t => t.UTC)) {
+					pTrackPoints.Sort();
+					doSortAll = this.trackPoints.Count > 0 && this.trackPoints[0].UTC > pTrackPoints[0].UTC;
+					foreach (TrackPoint aTrackPoint in pTrackPoints) {
 						if ((aTrackPoint?.Latitude != null) && (aTrackPoint?.Longitude != null)) {
 							aTrackPoint.BoatTime = aTrackPoint.UTC + utcOffset;
 							this.trackPoints.Insert(0, aTrackPoint);
@@ -146,7 +149,9 @@ namespace PiLot.API.Helpers {
 					}
 					result = this.trackPointDataConnector.SaveTrackPoints(pointsToPersist, BoatCache.Instance.CurrentBoat);
 					this.trackPoints.RemoveAll(tp => tp?.UTC == null); // quick fix for some weird null pointer exceptions when sorting
-					this.trackPoints.Sort((x, y) => y.UTC.CompareTo(x.UTC));
+					if(doSortAll) {
+						this.trackPoints.Sort((x, y) => y.CompareTo(x));	// sort reverse
+					}
 					this.CropTrackPoints();
 				}
 			}
