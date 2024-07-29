@@ -525,6 +525,11 @@ PiLot.View.Nav = (function () {
 			});
 		},
 
+		lnkActivate_click: function(pRouteId, pEvent) {
+			pEvent.preventDefault();
+			this.swapActiveRoute(pRouteId);
+		},
+
 		draw: function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routesPage));
@@ -560,7 +565,7 @@ PiLot.View.Nav = (function () {
 			let lnkActivate = row.querySelector('.lnkActivate');
 			lnkActivate.classList.toggle('active', this.activeRouteId === routeId);
 			if (pAllowActivate) {
-				lnkActivate.addEventListener('click', this.swapActiveRoute.bind(this, routeId));
+				lnkActivate.addEventListener('click', this.lnkActivate_click.bind(this, routeId));
 			} else {
 				lnkActivate.removeAttribute('href');
 			}
@@ -592,6 +597,7 @@ PiLot.View.Nav = (function () {
 			}
 			PiLot.Model.Nav.saveActiveRouteIdAsync(this.activeRouteId);
 			this.drawTable();
+			return false;
 		},
 
 		setSortKey: function (pSortKey) {
@@ -665,7 +671,7 @@ PiLot.View.Nav = (function () {
 		lnkActivateRoute_click: function (pEvent) {
 			pEvent.preventDefault();
 			this.isActiveRoute = !this.isActiveRoute;
-			var activeRouteId = this.isActiveRoute ? this.route.getRouteId() : null;
+			const activeRouteId = this.isActiveRoute ? this.route.getRouteId() : null;
 			PiLot.Model.Nav.saveActiveRouteIdAsync(activeRouteId);
 			this.lnkActivate.classList.toggle('active', this.isActiveRoute);
 		},
@@ -736,7 +742,7 @@ PiLot.View.Nav = (function () {
 		 *  otherwise returns a new route.
 		 */
 		loadRoute: async function() {
-			var qsRouteId = RC.Utils.getUrlParameter('routeId');
+			const qsRouteId = RC.Utils.getUrlParameter('routeId');
 			if (qsRouteId) {
 				return await PiLot.Model.Nav.loadRouteAsync(qsRouteId);
 			} else {
@@ -747,9 +753,9 @@ PiLot.View.Nav = (function () {
 		/// draws the main form based on the template, only needs to
 		/// be called once.
 		drawFormAsync: async function () {
-			let contentArea = PiLot.Utils.Loader.getContentArea();
+			const contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routeDetailPage));
-			let routeContainer = contentArea.querySelector('#divRoute');
+			const routeContainer = contentArea.querySelector('#divRoute');
 			routeContainer.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.editRouteForm));
 			this.tbRouteName = routeContainer.querySelector('.tbRouteName');
 			this.lnkActivate = routeContainer.querySelector('.lnkActivateRoute');
@@ -781,7 +787,7 @@ PiLot.View.Nav = (function () {
 			}
 			this.lblTotalDistance = routeContainer.querySelector('.lblTotalDistance');
 			this.divWaypoints = routeContainer.querySelector('.divWaypoints');
-			let mapContainer = contentArea.querySelector('#divMap');
+			const mapContainer = contentArea.querySelector('#divMap');
 			this.map = new PiLot.View.Map.Seamap(mapContainer);
 			await this.map.showAsync();
 		},
@@ -810,7 +816,7 @@ PiLot.View.Nav = (function () {
 				this.divWaypoints.clear();
 				this.waypointForms = new Array();
 			}
-			var waypoints = this.route.getWaypoints();
+			const waypoints = this.route.getWaypoints();
 			for (var i = 0; i < waypoints.length; i++) {
 				if (!this.waypointForms.find(function (pValue) { return pValue.waypoint === waypoints[i] })){
 					this.waypointForms.push(new WaypointForm(waypoints[i], this, this.divWaypoints));
