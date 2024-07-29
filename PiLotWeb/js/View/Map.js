@@ -1514,6 +1514,7 @@ PiLot.View.Map = (function () {
 		/** Removes the tracks from the map */
 		hideTracks: function () {
 			this.mapTrack.deleteFromMap();
+			this.trackObserver.setTrack(null);
 		},
 
 		/**
