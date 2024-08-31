@@ -2428,7 +2428,7 @@ PiLot.View.Nav = (function () {
 		/// as soon as we have a current route
 		activeRouteLoaded: function (pRoute) {
 			if (pRoute !== null) {
-				this.routeObserver = new PiLot.Model.Nav.RouteObserver(pRoute, this.gpsObserver, this.boatTime, { autoCalculate: true });
+				this.routeObserver = new PiLot.Model.Nav.RouteObserver(pRoute, this.boatTime, { autoCalculate: true });
 				this.routeObserver.on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));
 			} else {
 				this.routeObserver = null;
