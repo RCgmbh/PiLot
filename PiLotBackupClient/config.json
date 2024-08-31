@@ -1,7 +1,7 @@
 {
 	"backupTargets": [
 		{
-			"targetUrl": "http://localhost/PiLotBackupAPINew",
+			"targetUrl": "http://localhost/pilotbackupAPINew",
 			"username": "test",
 			"password": "8888",
 			"backupTasks": [

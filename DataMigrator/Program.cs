@@ -47,12 +47,12 @@ namespace PiLot.DataMigrator {
 			foreach(Track aTrack in trackDataReader.ReadAllTracks()) {
 				if(aTrack?.StartBoatTime != null) {
 					try {
-						day = new Model.Common.Date(DateTimeHelper.FromJSTime(aTrack.StartBoatTime));
+						day = new Model.Common.Date(DateTimeHelper.FromJSTime(aTrack.StartBoatTime.Value));
 						logbookDay = logbookDataReader.ReadLogbookDay(day);
 						aTrack.Boat = logbookDay?.LogbookEntries.FirstOrDefault()?.BoatSetup.BoatConfigName ?? defaultBoat;
 						readMS = (DateTime.UtcNow - dateTime).TotalMilliseconds;
 						dateTime = DateTime.UtcNow;
-						trackDataWriter.InsertTrack(aTrack);
+						trackDataWriter.SaveTrack(aTrack);
 						writeMS = (DateTime.UtcNow - dateTime).TotalMilliseconds;
 						dateTime = DateTime.UtcNow;
 						analyzer = new TrackAnalyzer(aTrack);

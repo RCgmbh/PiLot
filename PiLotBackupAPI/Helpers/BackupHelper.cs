@@ -42,6 +42,18 @@ namespace PiLot.Backup.API.Helpers {
 		}
 
 		/// <summary>
+		/// Backups a Track
+		/// </summary>
+		/// <param name="pTrack"></param>
+		/// <param name="pClientName"></param>
+		/// <param name="pBackupTime"></param>
+		public static void BackupTrack(Track pTrack, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
+			TrackDataConnector2.GetInstance(backupDirectory.FullName).SaveTrack(pTrack);
+			Logger.Log($"Recieved Track with id {pTrack.ID} to backup", LogLevels.DEBUG);
+		}
+
+		/// <summary>
 		/// Backup Logbook Data for one day
 		/// </summary>
 		/// <param name="pLogbookDay">The logbook day to save</param>
@@ -170,7 +182,7 @@ namespace PiLot.Backup.API.Helpers {
 				Int32 dataCount = 0;
 				switch (aDataSource.DataType) {
 					case DataTypes.GPS:
-						dataCount = new TrackDataConnector(backupDirectory.FullName).ReadDaysWithData();
+						dataCount = TrackDataConnector2.GetInstance(backupDirectory.FullName).ReadDaysWithData();
 						break;
 					case DataTypes.Logbook:
 						dataCount = new LogbookDataConnector(backupDirectory.FullName).ReadLogbookDaysCount();

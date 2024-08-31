@@ -24,7 +24,7 @@ namespace PiLot.Data.Files {
 		protected const String DATASOURCENAME = "tracks";
 		private const String TRACKFILEFORMAT = "000000.";
 		private const String INDEXFILENAME = "index.json";
-		private const Int32 TRACKSPERFOLDER = 10;
+		private const Int32 TRACKSPERFOLDER = 100;
 
 		#endregion
 
@@ -52,7 +52,7 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// Creates a new TrackPointDataConnector for the default data root path
 		/// </summary>
-		private TrackDataConnector2() {
+		protected TrackDataConnector2() {
 			this.lockObject = new object();
 			this.helper = new DataHelper();
 		}
@@ -61,7 +61,7 @@ namespace PiLot.Data.Files {
 		/// Creates a new TrackPointDataConnector for a specific data root path
 		/// </summary>
 		/// <param name="pDataRoot">root path</param>
-		private TrackDataConnector2(String pDataRoot) {
+		protected TrackDataConnector2(String pDataRoot) {
 			this.lockObject = new object();
 			this.helper = new DataHelper(pDataRoot);
 		}
@@ -164,19 +164,23 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Inserts a track to disk, and sets the Track.ID. If there are overlapping
-		/// tracks for the same boat, they will be deleted. 
+		/// Saves a track to disk, either by creating a new one, or by updating an existing one. As a special
+		/// goodie, this allows inserting tracks with a given ID.
 		/// </summary>
 		/// <param name="pTrack">The track to save</param>
-		public void InsertTrack(Track pTrack) {
-			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
-			lock(this.lockObject){
-				List<TrackMetadata> overlappingTracks = this.ReadTracksMetadata(pTrack.StartUTC, pTrack.EndUTC, false);
-				foreach(TrackMetadata aTrack in overlappingTracks){
-					this.DeleteTrack(aTrack.TrackID);
+		public void SaveTrack(Track pTrack) {
+			lock (this.lockObject) {
+				if(
+					   (pTrack.StartUTC != null)
+					&& (pTrack.EndUTC != null) 
+					&& this.ReadTracksMetadata(pTrack.StartUTC.Value, pTrack.EndUTC.Value, false).Exists(t => t.TrackID != pTrack.ID)
+				){
+					String msg = "TrackDataConnector.SaveTrack: Could not save Track as there is an overlapping Track";
+					Logger.Log(msg, LogLevels.ERROR);
+					throw new Exception(msg);
 				}
 				this.SaveTrackMetadata(pTrack);
-				this.SaveTrackPoints(pTrack.TrackPoints, pTrack.ID.Value, true, false);
+				this.SaveTrackPoints(pTrack.TrackPoints, pTrack.ID.Value, true, true);
 			}
 		}
 
@@ -283,11 +287,7 @@ namespace PiLot.Data.Files {
 				Track track = this.ReadTrack(pTrackId);
 				if(track != null){
 					track.Cut(pStart, pEnd, pIsBoatTime);
-					if(track.HasTrackPoints){
-						this.SaveTrackPoints(track.TrackPoints, pTrackId, true, true);
-					} else {
-						this.DeleteTrack(pTrackId);
-					}
+					this.SaveTrackPoints(track.TrackPoints, pTrackId, true, true);
 				}
 			}
 		}
@@ -296,7 +296,7 @@ namespace PiLot.Data.Files {
 		/// Returns the number of days that have a track.
 		/// </summary>
 		public Int32 ReadDaysWithData() {
-			return this.EnumerateTrackIndexes().Sum(i => i.Count());
+			return this.EnumerateTrackMetadata().Where(t => t.StartUTC != null).Count();
 		}
 
 		#endregion
@@ -493,7 +493,7 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Saves the metadata to file, by adding or
+		/// Saves the metadata to file, by adding or replacing it in the index.
 		/// </summary>
 		/// <param name="pTrack">The track for which the metadata needs to be saved</param>
 		private void SaveTrackMetadata(TrackMetadata pMetadata){
@@ -534,13 +534,11 @@ namespace PiLot.Data.Files {
 			Int64 start = pUtc - range;
 			Int64 end = pUtc + range;
 			result = this.ReadTracks(start, end, false, false)
-				.Where(t => t.Boat == pBoat)
-				.OrderBy(t => Math.Min(Math.Abs(pUtc - t.StartUTC), Math.Abs(pUtc - t.EndUTC)))
+				.Where(t => (t.Boat == pBoat) && (t.StartUTC != null) && (t.EndUTC != null))
+				.OrderBy(t => Math.Min(Math.Abs(pUtc - t.StartUTC.Value), Math.Abs(pUtc - t.EndUTC.Value)))
 				.FirstOrDefault();
 			if (result == null) {
 				result = new Track() {
-					StartUTC = pUtc,
-					EndUTC = pUtc,
 					StartBoatTime = pBoatTime,
 					EndBoatTime = pBoatTime,
 					Boat = pBoat
@@ -587,32 +585,38 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Saves trackpoints to file, either by adding them or by replacing the entire track.
+		/// Saves trackpoints to file, either by adding them or by replacing the entire track. If there are no
+		/// track points, the file will be deleted.
 		/// </summary>
 		/// <param name="pTrack">The track for which we save the data</param>
 		/// <param name="pReplaceExisting">Set true, if the existing trackPoints should be replaced</param>
 		/// <param name="pDoUpdateMetadata">If true, track start and end will be updated in the index file</param>
 		private void SaveTrackPoints(List<TrackPoint> pTrackPoints, Int32 pTrackId, Boolean pReplaceExisting, Boolean pDoUpdateMetadata) {
-			Assert.IsTrue(pTrackPoints.Count > 0, "TrackDataConnector.SaveTrackPoints can not be called with an empty list.");
 			String trackFilePath = this.GetTrackFilePath(pTrackId, true);
 			List<TrackPoint> trackPoints;
-			if(!pReplaceExisting){
+			if (!pReplaceExisting){
 				trackPoints = this.ReadTrackPoints(trackFilePath, null, null, null);
 				trackPoints.AddRange(pTrackPoints);
 			} else {
 				trackPoints = pTrackPoints;
 			}
 			trackPoints.Sort();
-			String[] lines = trackPoints.Select(r => r.ToString()).ToArray();
-			File.WriteAllLines(trackFilePath, lines);
+			if (trackPoints.Count > 0) {
+				String[] lines = trackPoints.Select(r => r.ToString()).ToArray();
+				File.WriteAllLines(trackFilePath, lines);
+			} else {
+				if (File.Exists(trackFilePath)) {
+					File.Delete(trackFilePath);
+				}
+			}			
 			if(pDoUpdateMetadata){
 				TrackMetadata metaData = this.ReadTrackMetadata(pTrackId);
-				TrackPoint trackPoint = trackPoints.First();
-				metaData.StartUTC = trackPoint.UTC;
-				metaData.StartBoatTime = trackPoint.BoatTime ?? trackPoint.UTC;
-				trackPoint = trackPoints.Last();
-				metaData.EndUTC = trackPoint.UTC;
-				metaData.EndBoatTime = trackPoint.BoatTime ?? trackPoint.UTC;
+				TrackPoint trackPoint = trackPoints.FirstOrDefault();
+				metaData.StartUTC = trackPoint?.UTC;
+				metaData.StartBoatTime = trackPoint?.BoatTime ?? trackPoint?.UTC;
+				trackPoint = trackPoints.LastOrDefault();
+				metaData.EndUTC = trackPoint?.UTC;
+				metaData.EndBoatTime = trackPoint?.BoatTime ?? trackPoint?.UTC;
 				this.SaveTrackMetadata(metaData);
 			}
 		}
@@ -655,22 +659,22 @@ namespace PiLot.Data.Files {
 			}
 
 			[JsonPropertyName("startUtc")]
-			public Int64 StartUTC {
+			public Int64? StartUTC {
 				get; set;
 			}
 
 			[JsonPropertyName("endUtc")]
-			public Int64 EndUTC {
+			public Int64? EndUTC {
 				get; set; 
 			}
 
 			[JsonPropertyName("startBoatTime")]
-			public Int64 StartBoatTime {
+			public Int64? StartBoatTime {
 				get; set;
 			}
 
 			[JsonPropertyName("endBoatTime")]
-			public Int64 EndBoatTime {
+			public Int64? EndBoatTime {
 				get; set;
 			}
 
@@ -693,16 +697,23 @@ namespace PiLot.Data.Files {
 			}
 
 			/// <summary>
-			/// Returns true, if this overlaps the period defined by pStartTime and pEndTime
+			/// Returns true, if this overlaps the period defined by pStartTime and pEndTime. If this
+			/// has no start or no end, it does not overlap with anything.
 			/// </summary>
 			/// <param name="pStartTime">Start time in ms</param>
 			/// <param name="pEndTime">End time in ms</param>
 			/// <param name="pIsBoatTime">True to treat start and end as boattime, else it's UTC</param>
 			/// <returns></returns>
 			internal Boolean Overlaps (Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime){
-				Int64 trackStart = pIsBoatTime ? this.StartBoatTime : this.StartUTC;
-				Int64 trackEnd = pIsBoatTime ? this.EndBoatTime : this.EndUTC;
-				return PiLot.Utils.DateAndTime.DateTimeHelper.Overlaps(trackStart, trackEnd, pStartTime, pEndTime);
+				Boolean result;
+				if((this.StartUTC != null) && (this.EndUTC != null)) {
+					Int64 trackStart = pIsBoatTime ? this.StartBoatTime.Value : this.StartUTC.Value;
+					Int64 trackEnd = pIsBoatTime ? this.EndBoatTime.Value : this.EndUTC.Value;
+					result = DateTimeHelper.Overlaps(trackStart, trackEnd, pStartTime, pEndTime);
+				} else {
+					result = false;
+				}
+				return result;				
 			}
 		}
 

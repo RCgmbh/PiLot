@@ -104,22 +104,32 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Inserts a track into the database, and sets the Track.ID. If there are overlapping
-		/// tracks, they will be deleted. 
+		/// Saves a track into the database, and sets the Track.ID. If there are overlapping
+		/// tracks, an error is thrown and nothing is written. If you want to change the
+		/// boat for a track, please use the SetBoat Operation.
 		/// </summary>
-		/// <param name="pTrack">The track to save. Must not have an ID</param>
-		public void InsertTrack(Track pTrack) {
+		/// <param name="pTrack">The track to save.</param>
+		public void SaveTrack(Track pTrack) {
 			Logger.Log("TrackDataConnector.InsertTrack", LogLevels.DEBUG);
 			NpgsqlConnection connection = this.dbHelper.GetConnection();
 			if (connection != null) {
 				connection.Open();
 				NpgsqlTransaction transaction = connection.BeginTransaction(IsolationLevel.RepeatableRead);
 				try {
-					List<Track> existingTracks = this.ReadTracks(pTrack.StartUTC, pTrack.EndUTC, false, false, transaction);
-					foreach (Track aTrack in existingTracks) {
-						this.DeleteTrack(aTrack.ID.Value, transaction);
+					if (
+						(pTrack.StartUTC != null)
+						&& (pTrack.EndUTC != null)
+						&& this.ReadTracks(pTrack.StartUTC.Value, pTrack.EndUTC.Value, false, false, transaction).Exists(t => t.ID != pTrack.ID)
+					) {
+						String msg = "TrackDataConnector.SaveTrack: Could not save Track as there is an overlapping Track";
+						Logger.Log(msg, LogLevels.ERROR);
+						throw new Exception(msg);
 					}
-					this.InsertTrack(pTrack, transaction);
+					if (pTrack.ID == null) {
+						this.InsertTrack(pTrack, transaction);
+					} else {
+						this.SaveTrackPoints(pTrack.TrackPoints, pTrack.ID.Value, transaction);
+					}
 					transaction.Commit();
 					connection.Close();
 				} catch (Exception ex) {
@@ -299,10 +309,10 @@ namespace PiLot.Data.Postgres.Nav {
 		private Track ReadTrack(NpgsqlDataReader pReader) {
 			Track result = new Track() {
 				ID = pReader.GetInt32("id"),
-				StartUTC = pReader.GetInt64("start_utc"),
-				EndUTC = pReader.GetInt64("end_utc"),
-				StartBoatTime = pReader.GetInt64("start_boattime"),
-				EndBoatTime = pReader.GetInt64("end_boattime"),
+				StartUTC = this.dbHelper.ReadNullableField<Int64?>(pReader, "start_utc"),
+				EndUTC = this.dbHelper.ReadNullableField<Int64?>(pReader, "end_utc"), 
+				StartBoatTime = this.dbHelper.ReadNullableField<Int64?>(pReader, "start_boattime"),
+				EndBoatTime = this.dbHelper.ReadNullableField<Int64?>(pReader, "end_boattime"),
 				Distance = pReader.GetFloat("distance"),
 				Boat = pReader.GetString("boat"),
 				DateCreated = pReader.GetDateTime("date_created"),
@@ -312,16 +322,14 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Inserts a track into the database, and sets the Track.ID
+		/// Inserts a track into the database, and sets the Track.ID.
 		/// </summary>
 		/// <param name="pTrack">The track to save</param>
 		/// <param name="pTransaction">Optionally pass a transaction that is handled by the caller</param>
 		private void InsertTrack(Track pTrack, NpgsqlTransaction pTransaction = null) {
 			Assert.IsNull(pTrack.ID, "TrackDataController.InsertTrack: A track with an ID can not be inserted into the database");
-			String command = "SELECT * FROM insert_track(@p_utc, @p_boattime, @p_boat);";
+			String command = "SELECT * FROM insert_track(@p_boat);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_utc", pTrack.StartUTC));
-			pars.Add(("@p_boattime", pTrack.StartBoatTime));
 			pars.Add(("@p_boat", pTrack.Boat));
 			pTrack.ID = this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 			this.SaveTrackPoints(pTrack.TrackPoints, pTrack.ID.Value, pTransaction);
@@ -344,8 +352,8 @@ namespace PiLot.Data.Postgres.Nav {
 			Int64 start = pUtc - range;
 			Int64 end = pUtc + range;
 			result = this.ReadTracks(start, end, false, false, pTransaction)
-				.Where(t => t.Boat == pBoat)
-				.OrderBy(t => Math.Min(Math.Abs(pUtc - t.StartUTC), Math.Abs(pUtc - t.EndUTC)))
+				.Where(t => (t.Boat == pBoat) && (t.StartUTC != null) && (t.EndUTC != null))
+				.OrderBy(t => Math.Min(Math.Abs(pUtc - t.StartUTC.Value), Math.Abs(pUtc - t.EndUTC.Value)))
 				.FirstOrDefault();
 			if (result == null) {
 				result = new Track() {

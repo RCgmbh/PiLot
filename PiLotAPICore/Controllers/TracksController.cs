@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
@@ -78,20 +79,23 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Saves a track. The Track must have ID=null. Any existing track for the same
-		/// boat that overlaps this track will be deleted
+		/// Saves a track. If there is any overlapping track, this will throw an error
 		/// </summary>
 		/// <param name="Track">The track to save, ID must be null</param>
 		/// <returns>The id of the track</returns>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public Int32 PutInsert(Track track) {
-			DataConnectionHelper.TrackDataConnector.InsertTrack(track);
-			if (track.ID != null) {
-				TrackStatisticsHelper.UpdateStatistics(track.ID.Value, false);
+		public ActionResult PutInsert(Track track) {
+			try {
+				DataConnectionHelper.TrackDataConnector.SaveTrack(track);
+				if (track.ID != null) {
+					TrackStatisticsHelper.UpdateStatistics(track.ID.Value, false);
+				}
+				return this.Ok(track.ID.Value);
+			} catch (Exception ex) {
+				return this.StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
 			}
-			return track.ID.Value;
 		}
 
 		/// <summary>

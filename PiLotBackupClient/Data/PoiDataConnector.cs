@@ -20,7 +20,7 @@ namespace PiLot.Backup.Client.Data {
 		/// <returns>The date of the latest change or null</returns>
 		internal DateTime? ReadLatestChange() {
 			DateTime? result = null;
-			Logger.Log($"PoiDataConnector.ReadLatestChange", LogLevels.DEBUG);
+			Logger.Log("PoiDataConnector.ReadLatestChange", LogLevels.DEBUG);
 			String query = "SELECT * FROM poi_latest_change;";
 			List<DateTime?> resultList = this.dbHelper.ReadData<DateTime?>(query, new Func<NpgsqlDataReader, DateTime?>(this.dbHelper.ReadDateTime));
 			if (resultList.Count == 1) {

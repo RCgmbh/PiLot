@@ -78,22 +78,22 @@ namespace PiLot.Model.Nav {
 		}
 
 		[JsonPropertyName("startUtc")]
-		public Int64 StartUTC {
+		public Int64? StartUTC {
 			get; set;
 		}
 
 		[JsonPropertyName("endUtc")]
-		public Int64 EndUTC {
+		public Int64? EndUTC {
 			get; set; 
 		}
 
 		[JsonPropertyName("startBoatTime")]
-		public Int64 StartBoatTime {
+		public Int64? StartBoatTime {
 			get; set;
 		}
 
 		[JsonPropertyName("endBoatTime")]
-		public Int64 EndBoatTime {
+		public Int64? EndBoatTime {
 			get; set;
 		}
 
@@ -252,16 +252,23 @@ namespace PiLot.Model.Nav {
 
 
 		/// <summary>
-		/// Returns true, if a Track overlaps with a certain time period, defined by pStartTime and pEndTime
+		/// Returns true, if a Track overlaps with a certain time period, defined by pStartTime and pEndTime.
+		/// If start / end of the track is null, the track does not overlap with anything.
 		/// </summary>
 		/// <param name="pStartTime">The start time of the period in ms utc or boattime</param>
 		/// <param name="pEndTime">The end time of the persiod in ms utc or boattime</param>
 		/// <param name="pIsBoatTime">True to treat pStartTime and pEndTime as boattime, false for UTC</param>
 		/// <returns></returns>
 		public Boolean Overlaps(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime){
-			Int64 trackStart = pIsBoatTime ? this.StartBoatTime : this.StartUTC;
-			Int64 trackEnd = pIsBoatTime ? this.EndBoatTime : this.EndUTC;
-			return PiLot.Utils.DateAndTime.DateTimeHelper.Overlaps(trackStart, trackEnd, pStartTime, pEndTime);
+			Boolean result;
+			if ((this.StartUTC != null) && (this.EndUTC != null)) {
+				Int64 trackStart = pIsBoatTime ? this.StartBoatTime.Value : this.StartUTC.Value;
+				Int64 trackEnd = pIsBoatTime ? this.EndBoatTime.Value : this.EndUTC.Value;
+				result = Utils.DateAndTime.DateTimeHelper.Overlaps(trackStart, trackEnd, pStartTime, pEndTime);
+			} else {
+				result = false;
+			}
+			return result;
 		}
 
 		/// <summary>

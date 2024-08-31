@@ -111,7 +111,7 @@ namespace PiLot.Data.Files {
 		/// Saves all data for a track, deleting overlapping track points
 		/// </summary>
 		/// <param name="pTrack">The track, not null</param>
-		public void InsertTrack(Track pTrack) {
+		public void SaveTrack(Track pTrack) {
 			this.SaveTrackPoints(pTrack.TrackPoints);
 		}
 

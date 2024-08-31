@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Data;
-
+using System.Linq;
 using Npgsql;
 
 using PiLot.Utils.Logger;
@@ -12,10 +12,17 @@ namespace PiLot.Data.Postgres.Helper {
 
 		private String connectionString;
 
+		/// <summary>
+		/// Default constructor using the "connectionString" App setting
+		/// </summary>
 		public DBHelper() {
 			this.connectionString = ConfigurationManager.AppSettings["connectionString"];
 		}
 
+		/// <summary>
+		/// Constructor accepting a custom connection string
+		/// </summary>
+		/// <param name="pConnectionString"></param>
 		public DBHelper(String pConnectionString) {
 			this.connectionString = pConnectionString;
 		}
@@ -42,11 +49,11 @@ namespace PiLot.Data.Postgres.Helper {
 		/// </summary>
 		/// <typeparam name="T">The type of objects to create</typeparam>
 		/// <param name="pQuery">Well... the query</param>
-		/// <param name="pReadDataDelegate">Function to create a result object from a db record.</param>
+		/// <param name="pReadRecordDelegate">Function to create a result object from a db record.</param>
 		/// <param name="pParams">The parameters with name and value</param>
 		/// <param name="pTransaction">Optionally pass a transaction, which must be handled by the caller</param>
 		/// <returns></returns>
-		public List<T> ReadData<T>(String pQuery, Func<NpgsqlDataReader, T> pReadDataDelegate, List<(String, Object)> pParams = null, NpgsqlTransaction pTransaction = null) {
+		public List<T> ReadData<T>(String pQuery, Func<NpgsqlDataReader, T> pReadRecordDelegate, List<(String, Object)> pParams = null, NpgsqlTransaction pTransaction = null) {
 			List<T> result = new List<T>();
 			NpgsqlCommand cmd = this.CreateCommand(pQuery, pParams, pTransaction);
 			if(cmd != null) { 
@@ -54,7 +61,7 @@ namespace PiLot.Data.Postgres.Helper {
 					this.OpenConnection(cmd.Connection);
 					NpgsqlDataReader reader = cmd.ExecuteReader();
 					while (reader.Read()) {
-						result.Add((T)pReadDataDelegate(reader));
+						result.Add((T)pReadRecordDelegate(reader));
 					}
 					reader.Close();
 				} catch (Exception ex) {
@@ -64,6 +71,33 @@ namespace PiLot.Data.Postgres.Helper {
 					this.CloseConnection(cmd);
 				}
 			} 
+			return result;
+		}
+
+		/// <summary>
+		/// Reads the first field from the first row from the db. Useful for "select count" queries
+		/// that will most usually return one value.
+		/// </summary>
+		/// <typeparam name="T">The result type</typeparam>
+		/// <param name="pReader">the db reader</param>
+		public T ReadValue<T>(String pQuery, NpgsqlTransaction pTransaction = null) {
+			T result = default(T);
+			NpgsqlCommand cmd = this.CreateCommand(pQuery, null, pTransaction);
+			if (cmd != null) {
+				try {
+					this.OpenConnection(cmd.Connection);
+					NpgsqlDataReader reader = cmd.ExecuteReader();
+					if (reader.Read()) {
+						result = this.ReadNullableField<T>(reader);
+					}
+					reader.Close();
+				} catch (Exception ex) {
+					Logger.Log(ex, "DBHelper.ReadValue");
+					throw;
+				} finally {
+					this.CloseConnection(cmd);
+				}
+			}
 			return result;
 		}
 
@@ -123,17 +157,43 @@ namespace PiLot.Data.Postgres.Helper {
 		}
 
 		/// <summary>
-		/// Reads a nullable db field. Returns the type's default value, if the
-		/// field in the db is null
+		/// Reads the value in a nullable db field. Returns the type's default value, if the
+		/// field in the db is null. Implements the Postgres Int-Array quirk as described
+		/// above.
 		/// </summary>
 		/// <typeparam name="T">The result type</typeparam>
-		/// <param name="pReader">the db reader</param>
-		/// <param name="pFieldName">the field name</param>
-		/// <returns></returns>
+		/// <param name="pReader">The db reader</param>
+		/// <param name="pFieldName">The field name</param>
+		/// <returns>The value of the given field, or the type's default</returns>
 		public T ReadNullableField<T>(NpgsqlDataReader pReader, String pFieldName) {
-			T result = default(T);
-			if (!pReader.IsDBNull(pFieldName)) {
+			T result;
+			Type t = typeof(T);
+			if (pReader.IsDBNull(pFieldName)) {
+				result = default(T);
+			} else if (t.FullName == "System.Int32[]") {
+				Int32?[] intArray = pReader.GetFieldValue<Int32?[]>(pFieldName);
+				if ((intArray.Length == 1) && (intArray[0] == null)) {
+					intArray = new Int32?[0];
+				}
+				result = (T)Convert.ChangeType(intArray.Where(i => i != null).Select(i => i.Value).ToArray(), t);
+			} else {
 				result = pReader.GetFieldValue<T>(pFieldName);
+			}
+
+			return result;
+		}
+
+		/// <summary>
+		/// Reads the value in a nullable db field. Returns the type's default value, if the
+		/// field in the db is null. Always returns the value of the first field.
+		/// </summary>
+		/// <typeparam name="T">The result type</typeparam>
+		/// <param name="pReader">The db reader</param>
+		/// <returns>The value of the first field, or the type's default</returns>
+		public T ReadNullableField<T>(NpgsqlDataReader pReader) {
+			T result = default(T);
+			if (!pReader.IsDBNull(0)) {
+				result = pReader.GetFieldValue<T>(0);
 			}
 			return result;
 		}
@@ -196,7 +256,6 @@ namespace PiLot.Data.Postgres.Helper {
 							result.Parameters.AddWithValue(aParam.Item1, aParam.Item2);
 						}
 					}
-
 				}
 			}
 			return result;

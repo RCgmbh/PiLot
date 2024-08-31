@@ -51,7 +51,7 @@ namespace PiLot.Data.Nav {
 		/// the id must be null and will be set.
 		/// </summary>
 		/// <param name="pTrack">The track to save</param>
-		void InsertTrack(Track pTrack);
+		void SaveTrack(Track pTrack);
 
 		/// <summary>
 		/// Deletes a track, if it exists. Will only be implemented if SupportTrackIDs=true

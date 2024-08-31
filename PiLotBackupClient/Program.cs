@@ -67,7 +67,7 @@ namespace PiLot.Backup.Client {
 			Boolean fullBackup = false;
 			Boolean validEntry = false;
 			Boolean quit = false;
-			ConsoleColor defaultColor = Console.ForegroundColor;
+			Console.ResetColor();
 			Console.Clear();
 			Console.WriteLine("******************************************");
 			Console.WriteLine("| PiLot Backup Client - Interactive Mode |");
@@ -133,11 +133,12 @@ namespace PiLot.Backup.Client {
 						} else {
 							await Program.BackupTargetAsync(selectedTarget, fullBackup);
 						}
-						Console.ForegroundColor = defaultColor;
+						Console.ResetColor();
 					}
 					Console.WriteLine();
 				}
 			}
+			Console.ResetColor();
 			Console.WriteLine("Bye");
 			Thread.Sleep(1000);
 		}
@@ -232,12 +233,12 @@ namespace PiLot.Backup.Client {
 							Out.WriteError("Committing backup failed");
 						}
 					} else {
-						Boolean rollbackSuccess = await proxy.RollbackAsync(backupDate);
+						/*Boolean rollbackSuccess = await proxy.RollbackAsync(backupDate);
 						if (rollbackSuccess) {
 							Out.WriteInfo("Rolled back successfully");
 						} else {
 							Out.WriteError("Rollback failed");
-						}
+						}*/
 					}
 					if (success) {
 						pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);

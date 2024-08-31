@@ -48,13 +48,12 @@ GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;*/
 
 /*CREATE TABLE tracks(
 	id serial PRIMARY KEY,
-	start_utc bigint NOT NULL,
-	end_utc bigint NOT NULL,
-	start_boattime bigint NOT NULL,
-	end_boattime bigint NOT NULL,
+	start_utc bigint,
+	end_utc bigint,
+	start_boattime bigint,
+	end_boattime bigint,
 	distance real NOT NULL,
 	boat text NOT NULL,
-	stats_dirty boolean NOT NULL,
 	date_created timestamp NOT NULL,
 	date_changed timestamp NOT NULL
 );
@@ -116,6 +115,15 @@ CREATE INDEX track_points_coordinates_index
  CREATE INDEX track_points_track_id_index
    ON track_points 
    USING btree (track_id);*/
+
+/*----------- change tracks table structure --------------------*/
+
+ALTER TABLE tracks DROP COLUMN stats_dirty;
+ALTER TABLE tracks ALTER COLUMN start_utc DROP NOT NULL;
+ALTER TABLE tracks ALTER COLUMN end_utc DROP NOT NULL;
+ALTER TABLE tracks ALTER COLUMN start_boattime DROP NOT NULL;
+ALTER TABLE tracks ALTER COLUMN end_boattime DROP NOT NULL;
+
 
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
@@ -195,7 +203,6 @@ RETURNS TABLE (
 	end_boattime bigint,
 	distance real,
 	boat text,
-	stats_dirty boolean,
 	date_created timestamp,
 	date_changed timestamp
 )
@@ -209,13 +216,12 @@ AS $BODY$
 		end_boattime,
 		distance,
 		boat,
-		stats_dirty,
 		date_created,
 		date_changed
 	FROM
 		tracks
 	WHERE
-		(p_is_boattime = FALSE AND start_utc < p_end AND end_utc > p_start)
+		(p_is_boattime = FALSE AND start_utc IS NOT NULL AND start_utc < p_end AND end_utc IS NOT NULL AND end_utc > p_start)
 		OR
 		(p_is_boattime = TRUE AND start_boattime < p_end AND end_boattime > p_start)
 	ORDER BY start_utc ASC
@@ -225,21 +231,18 @@ $BODY$;
 GRANT EXECUTE ON FUNCTION read_tracks TO pilotweb;
 
 /*-----------FUNCTION insert_track-----------------*/
--- inserts a new track, initializing start and end to one single time, and
--- the distance to 0
+-- inserts a new track, setting the distance to 0
 
 CREATE OR REPLACE FUNCTION public.insert_track(
-	p_utc bigint,
-	p_boattime bigint,
 	p_boat text
 )
 RETURNS integer
 LANGUAGE 'sql'
 AS $BODY$
 	INSERT INTO tracks(
-		start_utc, end_utc, start_boattime, end_boattime, distance, boat, stats_dirty, date_created, date_changed
+		distance, boat, date_created, date_changed
 	) VALUES (
-		p_utc, p_utc, p_boattime, p_boattime, 0, p_boat, FALSE, NOW(), NOW()
+		0, p_boat, NOW(), NOW()
 	)
 	RETURNING id
 $BODY$;
@@ -264,7 +267,7 @@ GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
 
 /*-----------FUNCTION update_track_data-----------------*/
 -- updates the track distance and start/end based on the track_points
--- deletes the track if it has no track_points
+
 
 CREATE OR REPLACE FUNCTION public.update_track_data(
 	p_id integer
@@ -280,17 +283,20 @@ AS $$ BEGIN
 			ORDER BY utc ASC
 		)	
 		UPDATE tracks
-		SET (start_utc, end_utc, start_boattime, end_boattime, stats_dirty, distance, date_changed) = (
+		SET (start_utc, end_utc, start_boattime, end_boattime, distance, date_changed) = (
 			SELECT
 				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
-				TRUE,
 				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
 				NOW()
 			FROM ordered_track_points 
 		)
 		WHERE id = p_id;
 	ELSE
-		PERFORM delete_track(p_id);
+		UPDATE tracks
+		SET start_utc = NULL, end_utc = NULL, start_boattime = NULL, end_boattime = NULL
+		WHERE id = p_id;
+		DELETE FROM track_points WHERE track_id = p_id;
+		DELETE FROM track_segments WHERE track_id = p_id;
 	END IF;
 END $$;
 

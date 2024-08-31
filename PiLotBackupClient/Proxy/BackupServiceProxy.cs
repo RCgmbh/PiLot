@@ -33,15 +33,15 @@ namespace PiLot.Backup.Client.Proxies {
 		}
 
 		/// <summary>
-		/// Sends the gps records for one day to the server
+		/// Sends a track to the server
 		/// </summary>
-		/// <param name="pTrack">The track of the day</param>
+		/// <param name="pTrack">The track to back up</param>
 		/// <param name="pBackupTime">The timestamp of the current backup set</param>
 		/// <returns>True, if the call was successful, else false</returns>
-		public async Task<Boolean> BackupDailyTrackAsync(Track pTrack, System.Date pTrackDay, DateTime pBackupTime) {
+		public async Task<Boolean> BackupTrackAsync(Track pTrack, DateTime pBackupTime) {
 			Assert.IsNotNull(pTrack, "pTrack must not be null");
-			String url = $"{this.apiUrl}/Track?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}&day={DateTimeHelper.ToUnixTime(pTrackDay)}";
-			String jsonString = JsonSerializer.Serialize(pTrack.TrackPoints);
+			String url = $"{this.apiUrl}/Tracks?backupTime={DateTimeHelper.ToUnixTime(pBackupTime)}";
+			String jsonString = JsonSerializer.Serialize(pTrack);
 			return await this.httpClient.PutAsync(jsonString, url);
 		}
 

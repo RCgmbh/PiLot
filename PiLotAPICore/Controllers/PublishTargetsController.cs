@@ -99,8 +99,8 @@ namespace PiLot.API.Controllers {
 			List<Track> localTracks = DataConnectionHelper.TrackDataConnector.ReadTracks(trackStart, trackEnd, true, true);
 			foreach(Track aTrack in localTracks) {
 				if (aTrack.HasTrackPoints) {
-					trackStart = aTrack.StartUTC;
-					trackEnd = aTrack.EndUTC;
+					trackStart = aTrack.StartUTC.Value;
+					trackEnd = aTrack.EndUTC.Value;
 					isBoatTime = false;
 				}
 			}
