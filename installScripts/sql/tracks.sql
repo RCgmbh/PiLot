@@ -116,14 +116,6 @@ CREATE INDEX track_points_coordinates_index
    ON track_points 
    USING btree (track_id);*/
 
-/*----------- change tracks table structure --------------------*/
-
-ALTER TABLE tracks DROP COLUMN stats_dirty;
-ALTER TABLE tracks ALTER COLUMN start_utc DROP NOT NULL;
-ALTER TABLE tracks ALTER COLUMN end_utc DROP NOT NULL;
-ALTER TABLE tracks ALTER COLUMN start_boattime DROP NOT NULL;
-ALTER TABLE tracks ALTER COLUMN end_boattime DROP NOT NULL;
-
 
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
@@ -313,7 +305,7 @@ RETURNS void
 LANGUAGE 'plpgsql'
 AS $$ BEGIN
 	UPDATE tracks
-	SET boat = p_boat
+	SET boat = p_boat, date_changed = NOW()
 	WHERE id = p_id;
 END $$;
 
