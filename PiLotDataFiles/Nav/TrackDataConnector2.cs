@@ -165,23 +165,23 @@ namespace PiLot.Data.Files {
 
 		/// <summary>
 		/// Saves a track to disk, either by creating a new one, or by updating an existing one. As a special
-		/// goodie, this allows inserting tracks with a given ID.
+		/// goodie, this allows inserting tracks with a given ID. Tracks with no TrackPoints will be deleted.
 		/// </summary>
 		/// <param name="pTrack">The track to save</param>
 		public void SaveTrack(Track pTrack) {
 			lock (this.lockObject) {
-				if(
-					   (pTrack.StartUTC != null)
-					&& (pTrack.EndUTC != null) 
-					&& this.ReadTracksMetadata(pTrack.StartUTC.Value, pTrack.EndUTC.Value, false).Exists(t => t.TrackID != pTrack.ID)
-				){
+				if (
+					  (pTrack.StartUTC != null)
+				   && (pTrack.EndUTC != null)
+				   && this.ReadTracksMetadata(pTrack.StartUTC.Value, pTrack.EndUTC.Value, false).Exists(t => t.TrackID != pTrack.ID)
+			   ) {
 					String msg = "TrackDataConnector.SaveTrack: Could not save Track as there is an overlapping Track";
 					Logger.Log(msg, LogLevels.ERROR);
 					throw new Exception(msg);
 				}
 				this.SaveTrackMetadata(pTrack);
 				this.SaveTrackPoints(pTrack.TrackPoints, pTrack.ID.Value, true, true);
-			}
+			}			
 		}
 
 		/// <summary>
@@ -509,14 +509,16 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Deletes the metadata for a track from the index
+		/// Deletes the metadata for a track from the index, if the track exists in the index.
 		/// </summary>
 		/// <param name="pTrackId">The track id</param>
 		private void DeleteTrackMetadata(Int32 pTrackId){
 			String trackIndexPath = this.GetTrackIndexPath(this.GetTrackDirectoryPath(pTrackId, false));
-			List<TrackMetadata> index = this.ReadTrackIndex(trackIndexPath);
-			index.RemoveAll(m => m.TrackID == pTrackId);
-			this.PersistTrackIndex(index, trackIndexPath);
+			if (File.Exists(trackIndexPath)) {
+				List<TrackMetadata> index = this.ReadTrackIndex(trackIndexPath);
+				index.RemoveAll(m => m.TrackID == pTrackId);
+				this.PersistTrackIndex(index, trackIndexPath);
+			}
 		}
 
 		/// <summary>
@@ -586,7 +588,7 @@ namespace PiLot.Data.Files {
 
 		/// <summary>
 		/// Saves trackpoints to file, either by adding them or by replacing the entire track. If there are no
-		/// track points, the file will be deleted.
+		/// track points, the file for the track points will be deleted.
 		/// </summary>
 		/// <param name="pTrack">The track for which we save the data</param>
 		/// <param name="pReplaceExisting">Set true, if the existing trackPoints should be replaced</param>
@@ -600,14 +602,12 @@ namespace PiLot.Data.Files {
 			} else {
 				trackPoints = pTrackPoints;
 			}
-			trackPoints.Sort();
 			if (trackPoints.Count > 0) {
+				trackPoints.Sort();
 				String[] lines = trackPoints.Select(r => r.ToString()).ToArray();
 				File.WriteAllLines(trackFilePath, lines);
 			} else {
-				if (File.Exists(trackFilePath)) {
-					File.Delete(trackFilePath);
-				}
+				this.DeleteTrackPoints(pTrackId);
 			}			
 			if(pDoUpdateMetadata){
 				TrackMetadata metaData = this.ReadTrackMetadata(pTrackId);

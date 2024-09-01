@@ -293,7 +293,7 @@ AS $$ BEGIN
 		WHERE id = p_id;
 	ELSE
 		UPDATE tracks
-		SET start_utc = NULL, end_utc = NULL, start_boattime = NULL, end_boattime = NULL
+		SET start_utc = NULL, end_utc = NULL, start_boattime = NULL, end_boattime = NULL, date_changed = NOW()
 		WHERE id = p_id;
 		DELETE FROM track_points WHERE track_id = p_id;
 		DELETE FROM track_segments WHERE track_id = p_id;

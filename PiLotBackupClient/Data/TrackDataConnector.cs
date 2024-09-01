@@ -17,7 +17,7 @@ namespace PiLot.Backup.Client.Data {
 		internal TrackDataConnector(): base(){}
 
 		/// <summary>
-		/// Reads the total number of non.empty tracks and the ids of the tracks that have been changed since the last backup
+		/// Reads the total number of non-empty tracks and the ids of the tracks that have been changed since the last backup
 		/// </summary>
 		/// <param name="pChangedAfter">The date of the last backup</param>
 		/// <returns>The ids of the changed tracks, the number of non-empty tracks</returns>

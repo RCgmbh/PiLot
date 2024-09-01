@@ -233,12 +233,12 @@ namespace PiLot.Backup.Client {
 							Out.WriteError("Committing backup failed");
 						}
 					} else {
-						/*Boolean rollbackSuccess = await proxy.RollbackAsync(backupDate);
+						Boolean rollbackSuccess = await proxy.RollbackAsync(backupDate);
 						if (rollbackSuccess) {
 							Out.WriteInfo("Rolled back successfully");
 						} else {
 							Out.WriteError("Rollback failed");
-						}*/
+						}
 					}
 					if (success) {
 						pTarget.BackupTasks.ForEach(t => t.LastSuccess = backupDate);

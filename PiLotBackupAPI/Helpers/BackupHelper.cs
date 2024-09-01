@@ -49,7 +49,12 @@ namespace PiLot.Backup.API.Helpers {
 		/// <param name="pBackupTime"></param>
 		public static void BackupTrack(Track pTrack, String pClientName, DateTime pBackupTime) {
 			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
-			TrackDataConnector2.GetInstance(backupDirectory.FullName).SaveTrack(pTrack);
+			TrackDataConnector2 dataConnector = TrackDataConnector2.GetInstance(backupDirectory.FullName);
+			if (pTrack.HasTrackPoints) {
+				dataConnector.SaveTrack(pTrack);
+			} else if (pTrack.ID != null) {
+				dataConnector.DeleteTrack(pTrack.ID.Value);
+			}
 			Logger.Log($"Recieved Track with id {pTrack.ID} to backup", LogLevels.DEBUG);
 		}
 
