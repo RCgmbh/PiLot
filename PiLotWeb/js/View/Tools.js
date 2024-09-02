@@ -53,6 +53,8 @@ PiLot.View.Tools = (function () {
 		this.tbImportUtcOffset = null;
 		this.ddlImportBoats = null;
 		this.pnlImportSuccess = null;
+		this.pnlImportError = null;
+		this.lblImportErrorMessage = null;
 		this.initializeAsync();
 	};
 
@@ -125,6 +127,8 @@ PiLot.View.Tools = (function () {
 			if (PiLot.Permissions.canWrite()){
 				new PiLot.View.Common.ExpandCollapse(lnkImport, this.pageContent.querySelector('.divImport'));
 				this.pnlImportSuccess = this.pageContent.querySelector('.pnlImportSuccess');
+				this.pnlImportError = this.pageContent.querySelector('.pnlImportError');
+				this.lblImportErrorMessage = this.pageContent.querySelector('.lblImportErrorMessage');
 				this.pageContent.querySelectorAll('.rbImportFormat').forEach(function (pRadiobutton) {
 					pRadiobutton.addEventListener('change', this.rbImportFormat_Change.bind(this));
 					pRadiobutton.checked = pRadiobutton.value === this.ImportMode;
@@ -221,7 +225,14 @@ PiLot.View.Tools = (function () {
 			const processImportDataResult = this.processImportData();
 			if (processImportDataResult.success) {
 				const saveResult = await PiLot.Service.Nav.TrackService.getInstance().saveTrackAsync(this.track);
-				this.pnlImportSuccess.hidden = false;
+				if (saveResult.ok) {
+					this.pnlImportSuccess.hidden = false;
+					this.pnlImportError.hidden = true;
+				} else {
+					this.pnlImportError.hidden = false;
+					this.pnlImportSuccess.hidden = true;
+					this.lblImportErrorMessage.innerText = saveResult.data;
+				}
 			}
 		},
 
@@ -388,7 +399,7 @@ PiLot.View.Tools = (function () {
 			}
 			if (processImportDataResult.success) {
 				this.track = processImportDataResult.track;
-				this.mapTrack.setAndShowTrack(this.track, true);
+				this.mapTrack.setTracks([this.track]);
 			} else {
 				alert(trackFrprocessImportDataResultomTCXResult.message);
 			}

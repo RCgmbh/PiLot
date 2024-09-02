@@ -197,16 +197,18 @@ PiLot.Utils.Common = {
 				}
 			}
 		}
-		else if ((response.status === 200) || (result.status === 201) || (result.status === 202)) {
+		else  {
 			try {
 				const responseType = response.headers.get('Content-Type');
-				if (responseType !== null && responseType.indexOf("text/plain") === 0) {
-					result.data = await response.text();
-				} else {
-					result.data = await response.json();
+				if (responseType !== null) {
+					if (responseType.indexOf("text/plain") === 0) {
+						result.data = await response.text();
+					} else if (responseType.indexOf("application/json") === 0) {
+						result.data = await response.json();
+					}
 				}
 			} catch (ex) {
-				PiLot.Utils.Common.log(`Error in sendToServerAsync for url ${pApiPath}: ${ex}`, 0);
+				PiLot.Utils.Common.log(`Error in processing the response from url ${pApiPath}: ${ex}`, 0);
 			}
 		}
 		return result;

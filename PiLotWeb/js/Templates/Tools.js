@@ -94,6 +94,10 @@ PiLot.Templates.Tools = {
 						<span data-text="boat" class="marginRightSmall"></span><select class="ddlImportBoats input8 marginRight"></select>
 					</div>
 					<div class="pnlImportSuccess fullWidth feedbackGood marginBottom" hidden data-text="importSuccess"></div>
+					<div class="pnlImportError fullWidth feedbackBad marginBottom" hidden >
+						<span class="bold" data-text="importError"></span><br/>
+						<span class="lblImportErrorMessage"></span>
+					</div>
 					<button type="button" class="btnImportPreview input6 marginRight" data-text="preview"></button>
 					<button type="button" class="btnImport input6 marginRight" data-text="import"></button>
 				</div>
