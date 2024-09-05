@@ -65,6 +65,11 @@ GRANT DELETE ON tracks TO pilotweb;
 
 GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;*/
 
+CREATE INDEX IF NOT EXISTS track_start_utc_index ON tracks USING btree (start_utc);
+CREATE INDEX IF NOT EXISTS track_end_utc_index ON tracks USING btree (end_utc);
+CREATE INDEX IF NOT EXISTS track_start_boattime_index ON tracks USING btree (start_boattime);
+CREATE INDEX IF NOT EXISTS track_end_boattime_index ON tracks USING btree (end_boattime);
+
 /*-----------TABLE track_segments -------------------------*/
 
 /*CREATE TABLE track_segments(
