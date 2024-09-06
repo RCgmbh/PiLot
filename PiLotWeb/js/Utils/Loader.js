@@ -34,7 +34,8 @@ PiLot.Utils.Loader = (function () {
 		logbook: {
 			logbook: 'logbook',
 			diary: 'diary',
-			publish: 'publish'
+			publish: 'publish',
+			stats: 'stats'
 		},
 		media: {
 			games: 'games',
@@ -126,6 +127,11 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/Utils/Chart.js', priority: 10 }
 	];
 
+	const echartsScripts = [
+		{ url: 'js/3rdParty/echarts/echarts.js', priority: 7 }
+		//{ url: 'js/3rdParty/echarts/echarts.min.js', priority: 7 },
+	];
+
 	const boatScripts = [
 		{ url: 'js/Model/Boat.js', priority: 10 },
 		{ url: 'js/Templates/Boat.js', priority: 10 },
@@ -140,6 +146,11 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/View/Logbook.js', priority: 10 },
 		{ url: 'js/View/Diary.js', priority: 10 },
 		{ url: 'js/3rdParty/divers/zingtouch.js', priority: 5}
+	];
+
+	const statsScripts = [
+		{ url: 'js/Templates/Stats.js', priority: 10 },
+		{ url: 'js/View/Stats.js', priority: 10 }		
 	];
 
 	const mediaScripts = [
@@ -235,6 +246,10 @@ PiLot.Utils.Loader = (function () {
 				case pages.logbook.publish:
 					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts];
 					startAction = function () { new PiLot.View.Diary.PublishDiaryPage(); };
+					break;
+				case pages.logbook.stats:
+					dependencies = [defaultScripts, navScripts, boatScripts, echartsScripts, statsScripts];
+					startAction = function () { new PiLot.View.Stats.TrackStatsPage(); };
 					break;
 				case pages.media.games:
 					dependencies = [defaultScripts, mediaScripts];

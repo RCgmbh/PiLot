@@ -23,11 +23,12 @@ namespace PiLot.API.Controllers {
 		/// <param name="startTime">Starttime in ms utc or boatTime</param>
 		/// <param name="endTime">Endtime in ms utc or boatTime</param>
 		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
+		/// <param name="readTrackPoints">If false, the tracks are delivered without track points</param>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<Track> GetTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime) {
-			List<Track> tracks = DataConnectionHelper.TrackDataConnector.ReadTracks(startTime, endTime, isBoatTime, true);
+		public List<Track> GetTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime, Boolean readTrackPoints) {
+			List<Track> tracks = DataConnectionHelper.TrackDataConnector.ReadTracks(startTime, endTime, isBoatTime, readTrackPoints);
 			return tracks;
 		}
 

@@ -341,9 +341,10 @@ PiLot.Service.Nav = (function () {
 		 * @param {Number} pStartTime - the start time in milliseconds from epoc, in UTC or BoatTime
 		 * @param {Number} pEndTime - the end time in milliseconds from epoc, in UTC or BoatTime
 		 * @param {Boolean} pIsBoatTime - If true, start and end are BoatTime, else UTC
+		 * @param {Boolean} pReadTrackPoints - If false, the tracks will be read without track points
 		 * @returns {Track} - the resulting track or null
 		 */
-		loadTracksAsync: async function (pStartTime, pEndTime, pIsBoatTime) {
+		loadTracksAsync: async function (pStartTime, pEndTime, pIsBoatTime, pReadTrackPoints = true) {
 			const result = [];
 			const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
 			const json = await PiLot.Utils.Common.getFromServerAsync(url);

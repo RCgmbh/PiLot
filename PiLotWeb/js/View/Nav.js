@@ -2102,7 +2102,7 @@ PiLot.View.Nav = (function () {
 	};
 
 	/**
-	 * This creates a list of poi ategories to be used in guis, where the 
+	 * This creates a list of poi categories to be used in guis, where the 
 	 * hierarchy of categories should be visible. The list is sorted by 
 	 * translated title, and the children are always shown directly after the parent.
 	 * @param {Map} pCategoriesMap - Map with key = id, value = category

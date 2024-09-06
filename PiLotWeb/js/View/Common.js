@@ -300,8 +300,8 @@ PiLot.View.Common = (function () {
 				section: pages.logbook,
 				links: [
 					{ page: pages.logbook.diary, html: '<i class="icon-book3"></i>' },
-					{ page: pages.logbook.logbook, html: '<i class="icon-pen2"></i>', auth: PiLot.Permissions.canWrite }
-					
+					{ page: pages.logbook.logbook, html: '<i class="icon-pen2"></i>', auth: PiLot.Permissions.canWrite },
+					{ page: pages.logbook.stats, html: '<i class="icon-chart4"></i>' }
 				]
 			}, {
 				section: pages.meteo,

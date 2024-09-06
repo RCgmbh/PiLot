@@ -185,9 +185,29 @@ RC.Date.DateOnly.prototype = {
 		}
 	},
 
+	/// returns a new DateOnly pMonths later (or before) this. Fractional parts
+	/// of pMonths are ignored. If pMonths is not numeric, undefined is returned.
+	addMonths: function (pMonths) {
+		if (RC.Utils.isNumeric(pMonths)) {
+			return RC.Date.DateOnly.fromObject(this.toLuxon().plus({ months: Math.floor(Number(pMonths)) }));
+		} else {
+			return undefined;
+		}
+	},
+
+	/// returns a new DateOnly pYears later (or before) this. Fractional parts
+	/// of pYears are ignored. If pYears is not numeric, undefined is returned.
+	addYears: function (pYears) {
+		if (RC.Utils.isNumeric(pYears)) {
+			return RC.Date.DateOnly.fromObject(this.toLuxon().plus({ years: Math.floor(Number(pYears)) }));
+		} else {
+			return undefined;
+		}
+	},
+
 	/// returns the seconds for this date, 00:00, in seconds since epoc 
 	totalSeconds: function () {
-		return this.toLuxon().toMillis() / 1000;
+		this.toMillis() / 1000;
 	},
 
 	/// returns true, if pDateTime is on this date
@@ -220,6 +240,11 @@ RC.Date.DateOnly.prototype = {
 			result = result.setLocale(pLocale);
 		}
 		return result;
+	},
+
+	/** @returns the milliseconds since epoc for this date, 00:00 */
+	toMillis: function () {
+		return this.toLuxon().toMillis();
 	},
 
 	/// returns a Date object for the given day, month, year.

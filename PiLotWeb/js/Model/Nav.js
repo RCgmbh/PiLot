@@ -1554,6 +1554,10 @@ PiLot.Model.Nav = (function () {
 		this.id = null;
 		this.trackPoints = null;  // array of TrackPoints
 		this.boat = null;
+		this.startUTC = null;
+		this.endUTC = null;
+		this.startBoatTime = null;
+		this.endBoatTime = null;
 		this.observers = null;
 		this.distance = null;		// the distance as it was persisted with the track
 		this.initialize();
@@ -1602,24 +1606,37 @@ PiLot.Model.Nav = (function () {
 			return this.boat;
 		},
 
-		/** @returns {Number} the track start in milliseconds or null, if there are no trakpoints */
+		/**
+		 * Allows to set start and end explicitly, which is useful if the track
+		 * was loaded without trackpoints. If there are trackpoints, getStartUTC
+		 * etc. will ignore the values set explicitly but return the effective
+		 * start and end as deducted from the trackpoints.
+		 * */
+		setStartEnd: function (pStartUTC, pEndUTC, pStartBoatTime, pEndBoatTime) {
+			this.startUTC = pStartUTC;
+			this.endUTC = pEndUTC;
+			this.startBoatTime = pStartBoatTime;
+			this.endBoatTime = pEndBoatTime;
+		},
+
+		/** @returns {Number} the track start in milliseconds or the explicitly set value, if there are no trakpoints */
 		getStartUTC: function () {
-			return this.hasTrackPoints ? this.getFirstTrackPoint().getUTC() : null;
+			return this.hasTrackPoints ? this.getFirstTrackPoint().getUTC() : this.startUTC;
 		},
 
-		/** @returns {Number} the track end in milliseconds or null, if there are no trakpoints */
+		/** @returns {Number} the track end in milliseconds or the explicitly set value, if there are no trakpoints */
 		getEndUTC: function () {
-			return this.hasTrackPoints ? this.getLastTrackPoint().getUTC() : null;
+			return this.hasTrackPoints ? this.getLastTrackPoint().getUTC() : this.endUTC;
 		},
 
-		/** @returns {Number} the boatTime in milliseconds or null, if there are no trakpoints */
+		/** @returns {Number} the boatTime in milliseconds or the explicitly set value, if there are no trakpoints */
 		getStartBoatTime: function () {
-			return this.hasTrackPoints ? this.getFirstTrackPoint().getBoatTime() : null;
+			return this.hasTrackPoints ? this.getFirstTrackPoint().getBoatTime() : this.startBoatTime;
 		},
 
-		/** @returns {Number} the boatTime milliseconds or null, if there are no trakpoints */
+		/** @returns {Number} the boatTime milliseconds or the explicitly set value, if there are no trakpoints */
 		getEndBoatTime: function () {
-			return this.hasTrackPoints ? this.getLastTrackPoint().getBoatTime() : null;
+			return this.hasTrackPoints ? this.getLastTrackPoint().getBoatTime() : this.endBoatTime;
 		},
 
 		/**
@@ -1761,8 +1778,9 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * Creates a track object based on a serialized track object. Returns null, if the 
-	 * pData is invalid
-	 * @param {Number[][]} pData - an array of arrays with utc, boatTime, lat, lon
+	 * pData is invalid. If start/end date and distance will only be set explicitly, if
+	 * there are is no trackPointsArray delivered.
+	 * @param {Object} pData - an object with id, boat, distance, startUtc, endUtc, startBoatTime, endBoatTime, trackPointsArray
 	 */
 	Track.fromData = function (pData) {
 		let result = null;
@@ -1770,17 +1788,18 @@ PiLot.Model.Nav = (function () {
 			result = new Track();
 			result.setId(pData.id || null);
 			result.setBoat(pData.boat);
-			if (Array.isArray(pData.trackPointsArray)) {
+			if (Array.isArray(pData.trackPointsArray) && (pData.trackPointsArray.length > 0)) {
 				pData.trackPointsArray.forEach((value, index, array) => {
 					if (Array.isArray(value) && value.length == 4) {
 						let trackPoint = TrackPoint.fromData(value);
 						result.addTrackPoint(trackPoint, true);
 					} else {
-						PiLot.log(`invalid data when reading track: ${value}, expected was an array of 4 items`);
+						PiLot.log(`invalid data when reading track: ${value}, expected was an array of 4 items`, 0);
 					}
 				});
 			} else {
-				PiLot.log('No data returned for Track', 1);
+				result.setDistance(pData.distance);
+				result.setStartEnd(pData.startUtc, pData.endUtc, pData.startBoatTime, pData.endBoatTime);
 			}
 		}
 		return result;
