@@ -346,7 +346,7 @@ PiLot.Service.Nav = (function () {
 		 */
 		loadTracksAsync: async function (pStartTime, pEndTime, pIsBoatTime, pReadTrackPoints = true) {
 			const result = [];
-			const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
+			const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}&readTrackPoints=${pReadTrackPoints}`;
 			const json = await PiLot.Utils.Common.getFromServerAsync(url);
 			for (aTrackData of json) {
 				result.push(PiLot.Model.Nav.Track.fromData(aTrackData));

@@ -1270,7 +1270,7 @@ PiLot.View.Map = (function () {
 					bounds.extend(aPolyline.getBounds());
 				}
 			}
-			if (bounds) {
+			if (bounds && bounds.isValid()) {
 				this.map.getLeafletMap().fitBounds(bounds, { maxZoom: 16 });
 			}
 		},
