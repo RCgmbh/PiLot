@@ -1621,22 +1621,22 @@ PiLot.Model.Nav = (function () {
 
 		/** @returns {Number} the track start in milliseconds or the explicitly set value, if there are no trakpoints */
 		getStartUTC: function () {
-			return this.hasTrackPoints ? this.getFirstTrackPoint().getUTC() : this.startUTC;
+			return this.hasTrackPoints() ? this.getFirstTrackPoint().getUTC() : this.startUTC;
 		},
 
 		/** @returns {Number} the track end in milliseconds or the explicitly set value, if there are no trakpoints */
 		getEndUTC: function () {
-			return this.hasTrackPoints ? this.getLastTrackPoint().getUTC() : this.endUTC;
+			return this.hasTrackPoints() ? this.getLastTrackPoint().getUTC() : this.endUTC;
 		},
 
 		/** @returns {Number} the boatTime in milliseconds or the explicitly set value, if there are no trakpoints */
 		getStartBoatTime: function () {
-			return this.hasTrackPoints ? this.getFirstTrackPoint().getBoatTime() : this.startBoatTime;
+			return this.hasTrackPoints() ? this.getFirstTrackPoint().getBoatTime() : this.startBoatTime;
 		},
 
 		/** @returns {Number} the boatTime milliseconds or the explicitly set value, if there are no trakpoints */
 		getEndBoatTime: function () {
-			return this.hasTrackPoints ? this.getLastTrackPoint().getBoatTime() : this.endBoatTime;
+			return this.hasTrackPoints() ? this.getLastTrackPoint().getBoatTime() : this.endBoatTime;
 		},
 
 		/**

@@ -338,15 +338,16 @@ PiLot.Service.Nav = (function () {
 
 		/**
 		 * Loads all tracks for a specific period, using UTC or BoatTime for start and end time
-		 * @param {Number} pStartTime - the start time in milliseconds from epoc, in UTC or BoatTime
-		 * @param {Number} pEndTime - the end time in milliseconds from epoc, in UTC or BoatTime
+		 * @param {Number} pStartTime - the start time in milliseconds from epoc, in UTC or BoatTime. Can be null, which means 1.1.1970
+		 * @param {Number} pEndTime - the end time in milliseconds from epoc, in UTC or BoatTime. Not null
 		 * @param {Boolean} pIsBoatTime - If true, start and end are BoatTime, else UTC
 		 * @param {Boolean} pReadTrackPoints - If false, the tracks will be read without track points
-		 * @returns {Track} - the resulting track or null
+		 * @returns {Track[]} - the resulting tracks, can be empty
 		 */
 		loadTracksAsync: async function (pStartTime, pEndTime, pIsBoatTime, pReadTrackPoints = true) {
 			const result = [];
-			const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}&readTrackPoints=${pReadTrackPoints}`;
+			const startTime = pStartTime || 0;
+			const url = `/Tracks?startTime=${Math.round(startTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}&readTrackPoints=${pReadTrackPoints}`;
 			const json = await PiLot.Utils.Common.getFromServerAsync(url);
 			for (aTrackData of json) {
 				result.push(PiLot.Model.Nav.Track.fromData(aTrackData));

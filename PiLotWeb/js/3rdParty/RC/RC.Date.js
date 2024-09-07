@@ -232,6 +232,18 @@ RC.Date.DateOnly.prototype = {
 		);
 	},
 
+	/**
+	 * @param {RC.Date.DateOnly} pOther 
+	 * @returns {Boolean} true, if this is before pOther
+	 */
+	isBefore: function(pOther){
+		return (
+			(this.year < pOther.year)
+			|| ((this.year == pOther.year) && (this.month < pOther.month))
+			|| ((this.year == pOther.year) && (this.month == pOther.month) && (this.day < pOther.day))
+		);
+	},
+
 	/// returns a luxon object with the given day, month, year. The object
 	/// will always be in the UTC Timezone
 	toLuxon: function (pLocale = null) {
