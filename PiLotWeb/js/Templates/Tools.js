@@ -58,7 +58,6 @@ PiLot.Templates.Tools = {
 				</div>
 				<h3><a class="lnkSpeedDiagram" data-text="speedDiagram"></a></h3>
 				<div class="pnlSpeedDiagram" hidden></div>
-				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<h3><a class="lnkExport" data-text="export"></a></h3>
 				<div class="divExport" hidden>
 					<div>
@@ -85,6 +84,7 @@ PiLot.Templates.Tools = {
 						</table>
 					</div>
 				</div>
+				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<div class="divImport" hidden>
 					<label><input type="radio" name="importFormat" class="rbImportFormat" />CSV</label>
 					<label><input type="radio" name="importFormat" class="rbImportFormat" />TCX</label>

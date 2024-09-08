@@ -12,7 +12,7 @@ PiLot.View.Stats = (function () {
 		this.userSettingsName = 'PiLot.View.Stats.trackStatsSettings';
 		this.userSettings = null;
 		this.trackService = null;
-		this.allBoatNames = null;
+		this.allBoats = null;
 		// controls
 		this.pnlTotalDistance = null;
 		this.expandCollapseTotalDistance = null;
@@ -24,7 +24,7 @@ PiLot.View.Stats = (function () {
 	TrackStatsPage.prototype = {
 
 		initializeAsync: async function () {
-			await this.loadBoatNamesAsync();
+			await this.loadBoatsAsync();
 			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
 			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
 			window.addEventListener('resize', this.window_resize.bind(this));
@@ -57,9 +57,9 @@ PiLot.View.Stats = (function () {
 			this.expandCollapseTotalDistance.on('collapse', this.expandCollapseTotalDistance_collapse.bind(this));
 		},
 
-		loadBoatNamesAsync: async function(){
-			const boatInfos = await PiLot.Model.Boat.loadConfigInfosAsync();
-			this.allBoatNames = boatInfos.map((b) => [b.name, b.displayName]);
+		loadBoatsAsync: async function(){
+			this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
+			//this.allBoatNames = boatInfos.map((b) => [b.name, b.displayName]);
 		},
 
 		applyUserSettings: function () {
@@ -73,38 +73,36 @@ PiLot.View.Stats = (function () {
 
 		loadTotalDistanceChartAsync: async function () {
 			let boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-			this.userSettings.totalDistanceTimeframe = this.userSettings.totalDistanceTimeframe || 2;
+			this.userSettings.totalDistanceTimeframe = this.userSettings.totalDistanceTimeframe || 1;
 			this.userSettings.totalDistanceInterval = this.userSettings.totalDistanceInterval || 0;
-			
 			let start, end;		
 			let now = boatTime.now();
+			let showLabels;
 			switch (this.userSettings.totalDistanceTimeframe) {
 				case 0:	// current month
 					start = this.mapToMonth(now);
 					end = start.addMonths(1);
+					showLabels = this.userSettings.totalDistanceInterval > 0;
 					break;
 				case 1: // current year
 					start = this.mapToYear(now);
 					end = start.addYears(1);
+					showLabels = this.userSettings.totalDistanceInterval > 1;
 					break;
 				case 2: // all
 					start = null;
 					end = this.mapToDay(now).addDays(1);
+					showLabels = this.userSettings.totalDistanceInterval > 1;
 					break;
 			}
 			let tracks = await this.trackService.loadTracksAsync(start && start.toMillis(), end.toMillis(), true, false);
-			//console.log(tracks);
-			/*let chartData = [
-				['Boats', 'Cruiser', 'Pyranha', "P'titrabaud"],
-				['Jan 2023', 12, 0, 0],
-				['Feb 2023', 10, 0, 5.3],
-				['Mar 2023', 22, 6, 0],
-				['Apr 2023', 0, 18, 9.5],
-				['Jun 2023', 0, 24.6, 0],
-				['Jul 2023', 6.2, 22.4, 12.2],
-			];
-			let series = [{ type: 'bar', stack: 'total', }, { type: 'bar', stack: 'total', }, { type: 'bar', stack: 'total', }];
+			let chartData = this.groupTracks(tracks, start, end);
+			let series = [];
+			for(let i = 0; i < chartData[0].length - 1; i++){
+				series.push({ type: 'bar', stack: 'total',  label: { show: showLabels, position: 'inside' },});
+			}
 			let option = {
+				grid: {left: 20, right:30, bottom: 10, top:50, containLabel: true},
 				animation: false,
 				legend: {},
 				tooltip: {},
@@ -115,8 +113,7 @@ PiLot.View.Stats = (function () {
 			  };
 
 			this.totalDistanceChart = this.totalDistanceChart || echarts.init(this.pnlTotalDistance);
-			this.totalDistanceChart.setOption(option);*/
-			let chartData = this.groupTracks(tracks, start, end);
+			this.totalDistanceChart.setOption(option);
 		},
 
 		/**
@@ -161,12 +158,14 @@ PiLot.View.Stats = (function () {
 						this.userSettings.totalDistanceBoats = this.getBoats(pTracks);
 					}
 					const boatsIndex = new Map();
-					const periodsIndex = new Map();
 					let boatsArray = ['boats'];
-					for(aBoat of this.userSettings.totalDistanceBoats){
-						boatsIndex.set(aBoat, boatsArray.push(aBoat) - 1);
+					for(aBoatName of this.userSettings.totalDistanceBoats){
+						const boatInfo = this.allBoats.find(b => b.name === aBoatName);
+						let displayName = boatInfo ? boatInfo.displayName : aBoatName;
+						boatsIndex.set(aBoatName, boatsArray.push(displayName) - 1);
 					}
 					result.push(boatsArray);
+					const periodsIndex = new Map();
 					let loopDate = startDate;
 					const language = PiLot.Utils.Language.getLanguage();
 					while(loopDate.isBefore(endDate)){
@@ -174,13 +173,26 @@ PiLot.View.Stats = (function () {
 						result.push(datesArray);
 						periodsIndex.set(loopDate.toMillis(), result.length - 1);
 						for(let i = 0; i < this.userSettings.totalDistanceBoats.length; i++){
-							datesArray.push(0);
+							datesArray.push('');
 						}
 						loopDate = dateIncrementFunction(loopDate);
 					}
-					console.log(result);
+					let boatIndex, periodIndex, distanceRounded;
+					for(let aTrack of pTracks){
+						if((this.userSettings.totalDistanceBoats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)){
+							boatIndex = boatsIndex.get(aTrack.getBoat());
+							periodIndex = periodsIndex.get(dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
+							distanceRounded = this.formatDistanceNm(aTrack.getDistance());
+							result[periodIndex][boatIndex] = (result[periodIndex][boatIndex] || 0) + distanceRounded;
+						}
+					}
 				}
 			}
+			return result;
+		},
+
+		formatDistanceNm: function(pDistance){
+			return Math.round(PiLot.Utils.Nav.metersToNauticalMiles(pDistance) * 100)/100;
 		},
 
 		getMinStartDate: function(pTracks){
@@ -206,7 +218,7 @@ PiLot.View.Stats = (function () {
 		getBoats: function(pTracks){
 			const result = [];
 			for(let aTrack of pTracks){
-				if(result.indexOf(aTrack.getBoat() < 0)){
+				if(result.indexOf(aTrack.getBoat()) < 0){
 					result.push(aTrack.getBoat());
 				}
 			}
@@ -234,7 +246,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		mapToWeek: function(pDate){
-			let luxonDate = pDate.toLuxon();
+			let luxonDate = pDate.isLuxonDateTime ? pDate : pDate.toLuxon();
 			while(luxonDate.weekday !== 1){
 				luxonDate = luxonDate.plus({days: -1});
 			}
@@ -251,7 +263,7 @@ PiLot.View.Stats = (function () {
 
 		getDayLabel: function(pDate, pLocale){
 			const luxonDate = pDate.toLuxon(pLocale);
-			return luxonDate.toLocaleString(DateTime.DATA_SHORT);
+			return luxonDate.toFormat('dd.MM.');
 		},
 
 		getWeekLabel: function(pDate, pLocale){
