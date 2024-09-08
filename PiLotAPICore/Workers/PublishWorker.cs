@@ -85,6 +85,7 @@ namespace PiLot.API.Workers {
 				List<Track> tracks = trackDataConnector.ReadTracks(DateTimeHelper.ToJSTime(this.Job.Date), DateTimeHelper.ToJSTime(this.Job.Date.AddDays(1)), true, true);
 				Boolean success = true;
 				foreach(Track aTrack in tracks) {
+					aTrack.ID = null;
 					success = await proxy.PutTrackAsync(aTrack);
 					if (!success) {
 						break;

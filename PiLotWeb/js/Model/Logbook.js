@@ -657,7 +657,14 @@ PiLot.Model.Logbook = (function () {
 		const url = `/PublishTargets/${pTargetName}/${pDate.year}/${pDate.month}/${pDate.day}`;
 		const result = await PiLot.Utils.Common.getFromServerAsync(url);
 		if (result.success) {
-			result.data.track = PiLot.Model.Nav.Track.fromArray(result.data.track);
+			let tracks = [];
+			for(aTrackData of result.data.tracks){
+				const track = PiLot.Model.Nav.Track.fromData(aTrackData);
+				if(track && track.hasTrackPoints()){
+					tracks.push(track);
+				}
+			}
+			result.data.tracks = tracks;
 			result.data.logbookDay = await PiLot.Model.Logbook.LogbookDay.fromDataAsync(result.data.logbookDay);
 			result.data.photoInfos = new RC.ImageGallery.ImageCollection(result.data.photoInfos.rootUrl, result.data.photoInfos.zoomFolders, result.data.photoInfos.imageNames);
 		}

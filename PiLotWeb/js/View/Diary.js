@@ -967,12 +967,12 @@ PiLot.View.Diary = (function () {
 		/** loads the target data to show in the publish form ("right side") */
 		loadTargetDataAsync: async function () {
 			this.icoWait.hidden = false;
-			this.showTracksAsync([null], this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
+			this.showTracksAsync([], this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
 			this.showLogbook(null, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
 			this.showThumbnails(null, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 			this.targetData = await PiLot.Model.Logbook.loadDailyDataAsync(this.targetName, this.date);
 			if (this.targetData.success) {
-				this.showTracksAsync(this.targetData.data.track, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
+				this.showTracksAsync(this.targetData.data.tracks, this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
 				this.showLogbook(this.targetData.data.logbookDay, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
 				this.showThumbnails(this.targetData.data.photoInfos, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 				this.cbSelectPhotos.setState(2);
@@ -985,7 +985,7 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * Shows the track within a map in a control. 
-		 * @param {PiLot.Model.Nav.Track} pTracks - the tracks to show
+		 * @param {PiLot.Model.Nav.Track[]} pTracks - the tracks to show
 		 * @param {HTMLElement} pControl - the control containing the map
 		 * @param {PiLot.View.MapTrack} pTrackControl - a MapTrack used to show the tracks on the map
 		 * @param {HTMLElement} pPositionsLabel - the label showing the positions count 

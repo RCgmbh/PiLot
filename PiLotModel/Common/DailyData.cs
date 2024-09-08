@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
 using PiLot.Model.Logbook;
+using PiLot.Model.Nav;
 using PiLot.Model.Photos;
 
 namespace PiLot.Model.Common {
@@ -18,8 +19,8 @@ namespace PiLot.Model.Common {
 		/// <summary>
 		/// The track for the chosen date
 		/// </summary>
-		[JsonPropertyName("track")]
-		public List<Double?[]> Track {
+		[JsonPropertyName("tracks")]
+		public List<Track> Tracks {
 			get; set;
 		}
 

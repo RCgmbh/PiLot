@@ -30,26 +30,6 @@ namespace PiLot.Model.Nav {
 
 		#endregion
 
-		#region static methods
-
-		/// <summary>
-		/// Creates a list of coordinates, each represented by an array with two elements
-		/// from the coordinates of a number of tracks. This can be used to send positions
-		/// of multiple tracks together across the wire and should probably not be used
-		/// too excessively, as it does not handle nasty stuff like overlapping tracks.
-		/// </summary>
-		/// <param name="pTracks"></param>
-		/// <returns></returns>
-		public static List<Double?[]> ToCoordinatesList(IEnumerable<Track> pTracks) {
-			List<Double?[]> result = new List<Double?[]>();
-			foreach(Track aTrack in pTracks) {
-				result.AddRange(aTrack.ToList());
-			}
-			return result;
-		}
-
-		#endregion
-
 		#region constructors
 
 		/// <summary>

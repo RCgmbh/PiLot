@@ -36,8 +36,7 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Gets the daily data for a certain PublishTarget and a certain day. The track is loaded either
-		/// for the timeframe of the local track, if any, or for the entire day if we have no local track.
+		/// Gets the daily data for a certain PublishTarget and a certain day. 
 		/// </summary>
 		[Route(Program.APIROOT + "[controller]/{targetName}/{year}/{month}/{day}")]
 		[HttpGet]
@@ -55,7 +54,7 @@ namespace PiLot.API.Controllers {
 					result.Success = true;
 					result.Data = new DailyData() {
 						LogbookDay = logbookDayData.Data,
-						Track = Track.ToCoordinatesList(trackData.Data),
+						Tracks = trackData.Data,
 						PhotoInfos = photoData.Data
 					};
 				} else {
@@ -85,27 +84,17 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// This does all the magic of loading the track. We take the local track, and use
-		/// its start/end as UTC to get the relevant part of the remote track. If we have
-		/// no local track, we just get the remote track for the whole day, based on BoatTime.
-		/// In that case, it's for information only, as it won't be replaced anyways.
+		/// This loads the remote tracks for that day, based on boatTime. They might
+		/// or might not overlap with the local tracks. So the user will have to decide,
+		/// if he tries to publish or manually deletes overlapping remote tracks first.
 		/// </summary>
 		/// <param name="pDate">The date for which we want the track.</param>
-		/// <returns>A ProxyResult containing a track which might be empty, but never null</returns>
+		/// <returns>A ProxyResult containing the remote tracks for the day</returns>
 		private async Task<TargetData<List<Track>>> LoadTracksAsync(PublishTarget pTarget, LoginHelper pLoginHelper, System.Date pDate) {
-			Boolean isBoatTime = true;
 			Int64 trackStart = DateTimeHelper.ToJSTime(pDate);
 			Int64 trackEnd = DateTimeHelper.ToJSTime(pDate.AddDays(1));
-			List<Track> localTracks = DataConnectionHelper.TrackDataConnector.ReadTracks(trackStart, trackEnd, true, true);
-			foreach(Track aTrack in localTracks) {
-				if (aTrack.HasTrackPoints) {
-					trackStart = aTrack.StartUTC.Value;
-					trackEnd = aTrack.EndUTC.Value;
-					isBoatTime = false;
-				}
-			}
 			TrackProxy trackProxy = new TrackProxy(pTarget.APIUrl, pLoginHelper);
-			ProxyResult<List<Track>> proxyResult = await trackProxy.GetTracksAsync(trackStart, trackEnd, isBoatTime);
+			ProxyResult<List<Track>> proxyResult = await trackProxy.GetTracksAsync(trackStart, trackEnd, true);
 			TargetData<List<Track>> result = new TargetData<List<Track>>() {
 				Success = proxyResult.Success,
 				Messages = proxyResult.Message,
