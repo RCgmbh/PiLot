@@ -14,7 +14,10 @@ PiLot.View.Stats = (function () {
 		this.trackService = null;
 		this.allBoats = null;
 		// controls
-		this.pnlTotalDistance = null;
+		this.rblTimeframe = null;					// Array of radiobuttons
+		this.rblInterval = null;					// List of radiobuttons
+		this.cblBoats = null;						// List of checkboxes
+		this.pnlTotalDistanceChart = null;
 		this.expandCollapseTotalDistance = null;
 		this.totalDistanceChart = null;				//echart object
 		
@@ -32,34 +35,56 @@ PiLot.View.Stats = (function () {
 			this.applyUserSettings();
 		},
 
-		expandCollapseTotalDistance_expand: function (pSettingsKey) {
+		window_resize: function(){
+			this.totalDistanceChart && this.totalDistanceChart.resize();
+		},
+
+		expandCollapseTotalDistance_expand: function () {
 			this.userSettings.totalDistanceChartVisible = true;
 			this.loadTotalDistanceChartAsync();
 			this.saveUserSettings();
 		},
 
-		expandCollapseTotalDistance_collapse: function (pSettingsKey) {
+		expandCollapseTotalDistance_collapse: function () {
 			this.userSettings.totalDistanceChartVisible = false;
 			this.saveUserSettings();
 		},
 
-		window_resize: function(){
-			this.totalDistanceChart && this.totalDistanceChart.resize();
-		},
+		rblTimeframe_change: function(pSender){},
+
+		rblInterval_change: function(pSender){},
+
+		cbBoat_change: function(pSender){},
 
 		draw: function () {
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.trackStatsPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
-			let lnkTotalDistance = pageContent.querySelector('.lnkTotalDistance');
-			this.pnlTotalDistance = pageContent.querySelector('.pnlTotalDistance');
-			this.expandCollapseTotalDistance = new PiLot.View.Common.ExpandCollapse(lnkTotalDistance, this.pnlTotalDistance);
+			this.pnlTotalDistanceChart = pageContent.querySelector('.pnlTotalDistanceChart');
+			this.expandCollapseTotalDistance = new PiLot.View.Common.ExpandCollapse(
+				pageContent.querySelector('.lnkTotalDistance'),
+				pageContent.querySelector('.pnlTotalDistance')
+			);
 			this.expandCollapseTotalDistance.on('expand', this.expandCollapseTotalDistance_expand.bind(this));
 			this.expandCollapseTotalDistance.on('collapse', this.expandCollapseTotalDistance_collapse.bind(this));
+			this.fillBoatsList(pageContent.querySelector('.plhBoats'));
+		},
+
+		fillBoatsList: function(pPlaceholder){
+			this.cblBoats = [];
+			const boatNames = this.allBoats.map((b) => [b.name, b.displayName]); 
+			boatNames.sort((a, b) => a[1].localeCompare(b[1]));
+			for(aBoatName of boatNames){
+				let cbBoat = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
+				cbBoat.querySelector('input').value = aBoatName[0]
+				cbBoat.querySelector('.lblLabel').innerText = aBoatName[1];
+				pPlaceholder.appendChild(cbBoat);
+				this.cblBoats.push(cbBoat);
+			}
+
 		},
 
 		loadBoatsAsync: async function(){
 			this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
-			//this.allBoatNames = boatInfos.map((b) => [b.name, b.displayName]);
 		},
 
 		applyUserSettings: function () {
@@ -112,7 +137,7 @@ PiLot.View.Stats = (function () {
 				series: series
 			  };
 
-			this.totalDistanceChart = this.totalDistanceChart || echarts.init(this.pnlTotalDistance);
+			this.totalDistanceChart = this.totalDistanceChart || echarts.init(this.pnlTotalDistanceChart);
 			this.totalDistanceChart.setOption(option);
 		},
 
