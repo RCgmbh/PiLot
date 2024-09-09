@@ -9,40 +9,25 @@ PiLot.View.Stats = (function () {
 	 * */
 	var TrackStatsPage = function () {
 
-		this.userSettingsName = 'PiLot.View.Stats.trackStatsSettings';
+		this.userSettingsName = 'PiLot.View.Stats.TrackStatsPage';
 		this.userSettings = null;
-		this.trackService = null;
-		this.allBoats = null;
-		// controls
-		this.rblTimeframe = null;					// Array of radiobuttons
-		this.rblInterval = null;					// List of radiobuttons
-		this.cblBoats = null;						// List of checkboxes
-		this.pnlTotalDistanceChart = null;
-		this.expandCollapseTotalDistance = null;
-		this.totalDistanceChart = null;				//echart object
-		
-		this.initializeAsync();
+		this.totalDistanceChart = null;
+
+		this.initialize();
 	}
 
 	TrackStatsPage.prototype = {
 
-		initializeAsync: async function () {
-			await this.loadBoatsAsync();
-			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
-			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
-			window.addEventListener('resize', this.window_resize.bind(this));
+		initialize: function () {
 			this.draw();
+			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
 			this.applyUserSettings();
 		},
-
-		window_resize: function(){
-			this.totalDistanceChart && this.totalDistanceChart.resize();
-		},
-
+		
 		expandCollapseTotalDistance_expand: function () {
 			this.userSettings.totalDistanceChartVisible = true;
-			this.loadTotalDistanceChartAsync();
 			this.saveUserSettings();
+			this.totalDistanceChart.loadAndShowDataAsync();
 		},
 
 		expandCollapseTotalDistance_collapse: function () {
@@ -50,81 +35,190 @@ PiLot.View.Stats = (function () {
 			this.saveUserSettings();
 		},
 
-		rblTimeframe_change: function(pSender){},
-
-		rblInterval_change: function(pSender){},
-
-		cbBoat_change: function(pSender){},
-
 		draw: function () {
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.trackStatsPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
-			this.pnlTotalDistanceChart = pageContent.querySelector('.pnlTotalDistanceChart');
+			const pnlTotalDistanceChart = pageContent.querySelector('.pnlTotalDistanceChart');
 			this.expandCollapseTotalDistance = new PiLot.View.Common.ExpandCollapse(
 				pageContent.querySelector('.lnkTotalDistance'),
-				pageContent.querySelector('.pnlTotalDistance')
+				pnlTotalDistanceChart
 			);
 			this.expandCollapseTotalDistance.on('expand', this.expandCollapseTotalDistance_expand.bind(this));
 			this.expandCollapseTotalDistance.on('collapse', this.expandCollapseTotalDistance_collapse.bind(this));
-			this.fillBoatsList(pageContent.querySelector('.plhBoats'));
-		},
-
-		fillBoatsList: function(pPlaceholder){
-			this.cblBoats = [];
-			const boatNames = this.allBoats.map((b) => [b.name, b.displayName]); 
-			boatNames.sort((a, b) => a[1].localeCompare(b[1]));
-			for(aBoatName of boatNames){
-				let cbBoat = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
-				cbBoat.querySelector('input').value = aBoatName[0]
-				cbBoat.querySelector('.lblLabel').innerText = aBoatName[1];
-				pPlaceholder.appendChild(cbBoat);
-				this.cblBoats.push(cbBoat);
-			}
-
-		},
-
-		loadBoatsAsync: async function(){
-			this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
+			this.totalDistanceChart = new TotalDistanceChart(pnlTotalDistanceChart);
 		},
 
 		applyUserSettings: function () {
 			this.expandCollapseTotalDistance.expandCollapse(this.userSettings.totalDistanceChartVisible);
-			
+		},
+
+		saveUserSettings: function () {
+			PiLot.Utils.Common.saveUserSetting(this.userSettingsName, this.userSettings);
+		}
+	}
+
+	var TotalDistanceChart = function(pContainer){
+		this.container = pContainer;
+		this.userSettingsName = 'PiLot.View.Stats.TotalDistanceChart';
+		this.userSettings = null;
+		this.trackService = null;
+		this.allBoats = null;
+		this.tracks = null;							// Array of PiLot.Model.Nav.Track
+		this.start = null;							// RC.Date.DateOnly
+		this.end = null;							// RC.Date.DateOnly
+		// controls
+		this.pnlSettings = null;
+		this.rblTimeframe = null;					// Array of radiobuttons
+		this.rblInterval = null;					// NodeList of radiobuttons
+		this.cblBoats = null;						// NodeList of checkboxes
+		this.tblUnit = null;						// NodeList of checkboxes
+		this.pnlChart = null;
+		this.chart = null;							//echart object
+		
+		this.initializeAsync();
+	}
+
+	TotalDistanceChart.prototype = {
+
+		initializeAsync: function () {
+			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
+			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
+			window.addEventListener('resize', this.window_resize.bind(this));
+			this.setDefaultValues();
+			this.draw();
+		},
+
+		window_resize: function(){
+			this.chart && this.chart.resize();
+		},
+
+		rblTimeframe_change: function(pSender){
+			this.userSettings.timeframe = Number(pSender.value);
+			this.saveUserSettings();
+			this.loadAndShowDataAsync();
+		},
+
+		rblInterval_change: function(pSender){
+			this.userSettings.interval = Number(pSender.value);
+			this.saveUserSettings();
+			this.showDataAsync();
+		},
+
+		cbBoat_change: function(pSender){
+			this.userSettings.boats = this.userSettings.boats || [];
+			const index = this.userSettings.boats.indexOf(pSender.value);
+			if(pSender.checked && index < 0){
+				this.userSettings.boats.push(pSender.value);
+			} else if(!pSender.checked && index >= 0){
+				this.userSettings.boats.remove(index, index);
+			}
+			this.saveUserSettings();
+			this.showDataAsync();
+		},
+
+		rblUnit_change: function(pSender){
+			this.userSettings.unit = pSender.value;
+			this.saveUserSettings();
+			this.showDataAsync();
+		},
+
+		draw: function () {
+			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.totalDistanceChart);
+			this.container.appendChild(control);
+			this.pnlSettings = control.querySelector('.pnlSettings');
+			this.rblTimeframe = control.querySelectorAll('.rblTimeframe');
+			for(let rbTimeframe of this.rblTimeframe){
+				rbTimeframe.addEventListener('change', this.rblTimeframe_change.bind(this, rbTimeframe));
+			}
+			this.rblInterval = control.querySelectorAll('.rblInterval');
+			for(let rbInterval of this.rblInterval){
+				rbInterval.addEventListener('change', this.rblInterval_change.bind(this, rbInterval));
+			}
+			this.rblUnit = control.querySelectorAll('.rblUnit');
+			for(let rbUnit of this.rblUnit){
+				rbUnit.addEventListener('change', this.rblUnit_change.bind(this, rbUnit));
+			}
+			this.fillBoatsListAsync(control.querySelector('.plhBoats')).then(this.applyUserSettings.bind(this));
+			this.pnlChart = control.querySelector('.pnlChart');	
+		},
+
+		setDefaultValues: function(){
+			this.userSettings.interval = this.userSettings.interval || 0;
+			this.userSettings.timeframe = this.userSettings.timeframe || 1;
+			this.userSettings.boats = this.userSettings.boats || [];
+			this.userSettings.unit = this.userSettings.unit || 'nm';
+		},
+
+		fillBoatsListAsync: async function(pPlaceholder){
+			if(this.allBoats === null){
+				this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
+			}
+			this.cblBoats = [];
+			const boatNames = this.allBoats.map((b) => [b.name, b.displayName]); 
+			boatNames.sort((a, b) => a[1].localeCompare(b[1]));
+			for(aBoatName of boatNames){
+				let control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
+				let checkbox = control.querySelector('input');
+				checkbox.value = aBoatName[0];
+				checkbox.addEventListener('change', this.cbBoat_change.bind(this, checkbox));
+				control.querySelector('.lblLabel').innerText = aBoatName[1];
+				pPlaceholder.appendChild(control);
+				this.cblBoats.push(checkbox);
+			}
+		},
+
+		applyUserSettings: function () {
+			this.rblTimeframe.forEach(e => function(){e.checked = e.value === this.userSettings.timeframe}.bind(this));
 		},
 
 		saveUserSettings: function () {
 			PiLot.Utils.Common.saveUserSetting(this.userSettingsName, this.userSettings);
 		},
 
-		loadTotalDistanceChartAsync: async function () {
+		loadAndShowDataAsync: async function(){
+			await this.loadTracksAsync();
+			await this.showDataAsync();
+		},
+
+		/** Loads the tracks according to the currently set timeframe */
+		loadTracksAsync: async function () {
 			let boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-			this.userSettings.totalDistanceTimeframe = this.userSettings.totalDistanceTimeframe || 1;
-			this.userSettings.totalDistanceInterval = this.userSettings.totalDistanceInterval || 0;
-			let start, end;		
 			let now = boatTime.now();
-			let showLabels;
-			switch (this.userSettings.totalDistanceTimeframe) {
+			switch (this.userSettings.timeframe) {
 				case 0:	// current month
-					start = this.mapToMonth(now);
-					end = start.addMonths(1);
-					showLabels = this.userSettings.totalDistanceInterval > 0;
+					this.start = this.mapToMonth(now);
+					this.end = this.start.addMonths(1);
 					break;
 				case 1: // current year
-					start = this.mapToYear(now);
-					end = start.addYears(1);
-					showLabels = this.userSettings.totalDistanceInterval > 1;
+					this.start = this.mapToYear(now);
+					this.end = this.start.addYears(1);
 					break;
 				case 2: // all
-					start = null;
-					end = this.mapToDay(now).addDays(1);
-					showLabels = this.userSettings.totalDistanceInterval > 1;
+					this.start = null;
+					this.end = this.mapToDay(now).addDays(1);
 					break;
 			}
-			let tracks = await this.trackService.loadTracksAsync(start && start.toMillis(), end.toMillis(), true, false);
-			let chartData = this.groupTracks(tracks, start, end);
+			this.tracks = await this.trackService.loadTracksAsync(this.start && this.start.toMillis(), this.end.toMillis(), true, false);
+		},
+
+		/** Processes the track data and assigns it to the chart */
+		showDataAsync: async function(){
+			let showLabels;
+			switch (this.userSettings.timeframe) {
+				case 0:	// current month
+					showLabels = this.userSettings.interval > 0;
+					break;
+				case 1: // current year
+					showLabels = this.userSettings.interval > 1;
+					break;
+				case 2: // all
+					showLabels = this.userSettings.interval > 1;
+					break;
+			}
+			let chartData = await this.processDataAsync();
 			let series = [];
 			for(let i = 0; i < chartData[0].length - 1; i++){
-				series.push({ type: 'bar', stack: 'total',  label: { show: showLabels, position: 'inside' },});
+				series.push({name: chartData[0][i + 1], type: 'bar', stack: 'total',  label: { show: showLabels, position: 'inside' },});
 			}
 			let option = {
 				grid: {left: 20, right:30, bottom: 10, top:50, containLabel: true},
@@ -137,20 +231,21 @@ PiLot.View.Stats = (function () {
 				series: series
 			  };
 
-			this.totalDistanceChart = this.totalDistanceChart || echarts.init(this.pnlTotalDistanceChart);
-			this.totalDistanceChart.setOption(option);
+			this.chart && echarts.dispose(this.pnlChart); // without this, it messed up the chart when changing boats. Probably my fault :-)
+			this.chart = echarts.init(this.pnlChart);
+			this.chart.setOption(option);
 		},
 
 		/**
-		 * Takes a list of tracks, and creates an array of arrays, first having the list of boats, and
+		 * Takes the current tracks, and creates an array of arrays, first having the list of boats, and
 		 * then for each timespan having an array starting with the name of the timespan, and then the
 		 * total distance for each boat. This can then be passed to the chart as dataset.source.
 		 * */
-		groupTracks: function (pTracks, pStartDate, pEndDate) {
+		processDataAsync: async function () {
 			let result = [];
-			if(pTracks && pTracks.length){
+			if(this.tracks && this.tracks.length){
 				let dateMappingFunction, dateIncrementFunction, dateLabelFunction;
-				switch(this.userSettings.totalDistanceInterval){
+				switch(this.userSettings.interval){
 					case 0:		// per day
 						dateMappingFunction = this.mapToDay;
 						dateIncrementFunction = this.addDay;
@@ -172,19 +267,32 @@ PiLot.View.Stats = (function () {
 						dateLabelFunction = this.getMonthLabel;
 						break;
 				}
-				let startDate = pStartDate;
+				let convertDistanceFunction;
+				switch(this.userSettings.unit){
+					case 'nm':
+						convertDistanceFunction = this.convertDistanceNm;
+						break;
+					case 'km':
+						convertDistanceFunction = this.convertDistanceKm;
+						break;
+				}
+				let startDate = this.start;
 				if(startDate === null){
-					startDate = this.getMinStartDate(pTracks);
+					startDate = this.getMinStartDate();
 				}
 				if(startDate !== null){
 					startDate = dateMappingFunction(startDate);
-					const endDate = dateMappingFunction(pEndDate);
-					if(!this.userSettings.totalDistanceBoats || !this.userSettings.totalDistanceBoats.length){
-						this.userSettings.totalDistanceBoats = this.getBoats(pTracks);
+					const endDate = dateMappingFunction(this.end);
+					let boats;
+					if(this.userSettings.boats && this.userSettings.boats.length){
+						boats = Array.from(this.userSettings.boats);
+					} else{
+						boats = this.getTrackBoats();
 					}
 					const boatsIndex = new Map();
 					let boatsArray = ['boats'];
-					for(aBoatName of this.userSettings.totalDistanceBoats){
+					this.allBoats = this.allBoats || await PiLot.Model.Boat.loadConfigInfosAsync();
+					for(aBoatName of boats){
 						const boatInfo = this.allBoats.find(b => b.name === aBoatName);
 						let displayName = boatInfo ? boatInfo.displayName : aBoatName;
 						boatsIndex.set(aBoatName, boatsArray.push(displayName) - 1);
@@ -197,18 +305,17 @@ PiLot.View.Stats = (function () {
 						let datesArray = [dateLabelFunction(loopDate, language)];
 						result.push(datesArray);
 						periodsIndex.set(loopDate.toMillis(), result.length - 1);
-						for(let i = 0; i < this.userSettings.totalDistanceBoats.length; i++){
+						for(let i = 0; i < boats.length; i++){
 							datesArray.push('');
 						}
 						loopDate = dateIncrementFunction(loopDate);
 					}
 					let boatIndex, periodIndex, distanceRounded;
-					for(let aTrack of pTracks){
-						if((this.userSettings.totalDistanceBoats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)){
+					for(let aTrack of this.tracks){
+						if((boats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)){
 							boatIndex = boatsIndex.get(aTrack.getBoat());
 							periodIndex = periodsIndex.get(dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
-							distanceRounded = this.formatDistanceNm(aTrack.getDistance());
-							result[periodIndex][boatIndex] = (result[periodIndex][boatIndex] || 0) + distanceRounded;
+							result[periodIndex][boatIndex] = convertDistanceFunction((result[periodIndex][boatIndex] || 0) + aTrack.getDistance());
 						}
 					}
 				}
@@ -216,16 +323,12 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
-		formatDistanceNm: function(pDistance){
-			return Math.round(PiLot.Utils.Nav.metersToNauticalMiles(pDistance) * 100)/100;
-		},
-
-		getMinStartDate: function(pTracks){
+		getMinStartDate: function(){
 			let result = null;
 			let minTime = null;
 			let trackStart;
-			for(let i = 0; i < pTracks.length; i++){
-				trackStart = pTracks[i].getStartBoatTime();
+			for(let i = 0; i < this.tracks.length; i++){
+				trackStart = this.tracks[i].getStartBoatTime();
 				if(trackStart !== null){
 					if(minTime === null){
 						minTime = trackStart;
@@ -240,9 +343,9 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
-		getBoats: function(pTracks){
+		getTrackBoats: function(){
 			const result = [];
-			for(let aTrack of pTracks){
+			for(let aTrack of this.tracks){
 				if(result.indexOf(aTrack.getBoat()) < 0){
 					result.push(aTrack.getBoat());
 				}
@@ -304,6 +407,14 @@ PiLot.View.Stats = (function () {
 
 		getYearLabel: function(pDate, pLocale){
 			return `${pDate.year}`;
+		},
+
+		convertDistanceNm: function(pDistance){
+			return Math.round(PiLot.Utils.Nav.metersToNauticalMiles(pDistance) * 100)/100;
+		},
+
+		convertDistanceKm: function(pDistance){
+			return Math.round(pDistance / 10) / 100;
 		}
 	}
 

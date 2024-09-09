@@ -497,9 +497,9 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 
 /* full width menu on the left, always show day and night button */
 @media (min-width:1280px) {
-	#subMenu { margin-left: 10.25em; }
+	/*#subMenu { margin-left: 10.25em; }
 	#mainMenu { min-width: 10em; }
-	#mainMenu > div > a { display: unset; }
+	#mainMenu > div > a { display: unset; }*/
 }
 
 /* show header full height */
