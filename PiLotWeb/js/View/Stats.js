@@ -168,7 +168,10 @@ PiLot.View.Stats = (function () {
 		},
 
 		applyUserSettings: function () {
-			this.rblTimeframe.forEach(e => function(){e.checked = e.value === this.userSettings.timeframe}.bind(this));
+			this.rblTimeframe.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.timeframe}.bind(this));
+			this.rblInterval.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.interval}.bind(this));
+			this.cblBoats.forEach(function(cb){cb.checked = this.userSettings.boats.indexOf(cb.value) >= 0}.bind(this));
+			this.rblUnit.forEach(function(rb){rb.checked = rb.value === this.userSettings.unit}.bind(this));
 		},
 
 		saveUserSettings: function () {
@@ -216,9 +219,21 @@ PiLot.View.Stats = (function () {
 					break;
 			}
 			let chartData = await this.processDataAsync();
+			const colors = ["#32A330", "#49B0FF", "#FF49AA", "#FF7749", "#2F969E", "#AD49FF", "#FFE949", "#992D2D", "#9E6C2F", "#7C2E9B"];
+			const colorIndex = new Map();
+			for(let i = 0; i < this.allBoats.length; i++){
+				colorIndex.set(this.allBoats[i].displayName, colors[i % colors.length]); // todo: find a way to user the name, not displayName which potentially is non-unique
+			}
 			let series = [];
+			let seriesName;
 			for(let i = 0; i < chartData[0].length - 1; i++){
-				series.push({name: chartData[0][i + 1], type: 'bar', stack: 'total',  label: { show: showLabels, position: 'inside' },});
+				seriesName = chartData[0][i + 1];
+				series.push({
+					name: seriesName,
+					type: 'bar',
+					stack: 'total',
+					label: { show: showLabels, position: 'inside' },
+					itemStyle: { color: colorIndex.get(seriesName) }});
 			}
 			let option = {
 				grid: {left: 20, right:30, bottom: 10, top:50, containLabel: true},
@@ -301,7 +316,7 @@ PiLot.View.Stats = (function () {
 					const periodsIndex = new Map();
 					let loopDate = startDate;
 					const language = PiLot.Utils.Language.getLanguage();
-					while(loopDate.isBefore(endDate)){
+					while(!endDate.isBefore(loopDate)){
 						let datesArray = [dateLabelFunction(loopDate, language)];
 						result.push(datesArray);
 						periodsIndex.set(loopDate.toMillis(), result.length - 1);
@@ -315,7 +330,7 @@ PiLot.View.Stats = (function () {
 						if((boats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)){
 							boatIndex = boatsIndex.get(aTrack.getBoat());
 							periodIndex = periodsIndex.get(dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
-							result[periodIndex][boatIndex] = convertDistanceFunction((result[periodIndex][boatIndex] || 0) + aTrack.getDistance());
+							result[periodIndex][boatIndex] = (result[periodIndex][boatIndex] || 0) + convertDistanceFunction(aTrack.getDistance());
 						}
 					}
 				}
