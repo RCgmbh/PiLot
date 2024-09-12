@@ -128,8 +128,8 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	const echartsScripts = [
-		{ url: 'js/3rdParty/echarts/echarts.js', priority: 7 }
-		//{ url: 'js/3rdParty/echarts/echarts.min.js', priority: 7 },
+		//{ url: 'js/3rdParty/echarts/echarts.js', priority: 7 }
+		{ url: 'js/3rdParty/echarts/echarts.min.js', priority: 7 },
 	];
 
 	const boatScripts = [

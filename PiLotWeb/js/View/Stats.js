@@ -75,12 +75,12 @@ PiLot.View.Stats = (function () {
 		this.pnlChart = null;
 		this.chart = null;							//echart object
 		
-		this.initializeAsync();
+		this.initialize();
 	}
 
 	TotalDistanceChart.prototype = {
 
-		initializeAsync: function () {
+		initialize: function () {
 			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
 			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
 			window.addEventListener('resize', this.window_resize.bind(this));
@@ -149,13 +149,17 @@ PiLot.View.Stats = (function () {
 			this.userSettings.unit = this.userSettings.unit || 'nm';
 		},
 
-		fillBoatsListAsync: async function(pPlaceholder){
+		loadAllBoatsAsync: async function(){
 			if(this.allBoats === null){
 				this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
+				this.allBoats.sort((a, b) => a.displayName.localeCompare(b.displayName));
 			}
+		},
+
+		fillBoatsListAsync: async function(pPlaceholder){
+			this.allBoats || await this.loadAllBoatsAsync();
 			this.cblBoats = [];
 			const boatNames = this.allBoats.map((b) => [b.name, b.displayName]); 
-			boatNames.sort((a, b) => a[1].localeCompare(b[1]));
 			for(aBoatName of boatNames){
 				let control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
 				let checkbox = control.querySelector('input');
@@ -219,10 +223,10 @@ PiLot.View.Stats = (function () {
 					break;
 			}
 			let chartData = await this.processDataAsync();
-			const colors = ["#32A330", "#49B0FF", "#FF49AA", "#FF7749", "#2F969E", "#AD49FF", "#FFE949", "#992D2D", "#9E6C2F", "#7C2E9B"];
+			const colors = [ "#FF4F4F", "#FF8C49", "#FFE949", "#8DFF4C", "#32A330", "#2F969E", "#49B0FF", "#494FFF", "#AD49FF"];
 			const colorIndex = new Map();
 			for(let i = 0; i < this.allBoats.length; i++){
-				colorIndex.set(this.allBoats[i].displayName, colors[i % colors.length]); // todo: find a way to user the name, not displayName which potentially is non-unique
+				colorIndex.set(this.allBoats[i].name, colors[i % colors.length]); 
 			}
 			let series = [];
 			let seriesName;
@@ -232,13 +236,15 @@ PiLot.View.Stats = (function () {
 					name: seriesName,
 					type: 'bar',
 					stack: 'total',
-					label: { show: showLabels, position: 'inside' },
-					itemStyle: { color: colorIndex.get(seriesName) }});
+					label: { show: showLabels, position: 'inside', formatter: this.formatLabel },
+					itemStyle: { color: colorIndex.get(seriesName) }
+					
+				});
 			}
 			let option = {
 				grid: {left: 20, right:30, bottom: 10, top:50, containLabel: true},
 				animation: false,
-				legend: {},
+				legend: { formatter: this.formatLegend.bind(this) },
 				tooltip: {},
 				dataset: { source: chartData },
 				xAxis: { type: 'category' },
@@ -247,8 +253,18 @@ PiLot.View.Stats = (function () {
 			  };
 
 			this.chart && echarts.dispose(this.pnlChart); // without this, it messed up the chart when changing boats. Probably my fault :-)
-			this.chart = echarts.init(this.pnlChart);
+			this.chart = echarts.init(this.pnlChart, null, { renderer: 'svg' });
 			this.chart.setOption(option);
+		},
+
+		formatLabel: function(pData){
+			const value = pData.data[pData.seriesIndex + 1];
+			return value ? Math.round(value * 100) / 100 : '';
+		},
+
+		formatLegend: function(pName){
+			const boatInfo = this.allBoats.find(b => b.name === pName);
+			return boatInfo ? boatInfo.displayName : pName;
 		},
 
 		/**
@@ -306,11 +322,9 @@ PiLot.View.Stats = (function () {
 					}
 					const boatsIndex = new Map();
 					let boatsArray = ['boats'];
-					this.allBoats = this.allBoats || await PiLot.Model.Boat.loadConfigInfosAsync();
+					this.allBoats || await this.loadAllBoatsAsync();
 					for(aBoatName of boats){
-						const boatInfo = this.allBoats.find(b => b.name === aBoatName);
-						let displayName = boatInfo ? boatInfo.displayName : aBoatName;
-						boatsIndex.set(aBoatName, boatsArray.push(displayName) - 1);
+						boatsIndex.set(aBoatName, boatsArray.push(aBoatName) - 1);
 					}
 					result.push(boatsArray);
 					const periodsIndex = new Map();
@@ -425,14 +439,14 @@ PiLot.View.Stats = (function () {
 		},
 
 		convertDistanceNm: function(pDistance){
-			return Math.round(PiLot.Utils.Nav.metersToNauticalMiles(pDistance) * 100)/100;
+			return PiLot.Utils.Nav.metersToNauticalMiles(pDistance);
 		},
 
 		convertDistanceKm: function(pDistance){
-			return Math.round(pDistance / 10) / 100;
+			return pDistance / 1000;
 		}
-	}
-
+	};
+	
 	return {
 		TrackStatsPage: TrackStatsPage
 	};
