@@ -202,10 +202,11 @@ PiLot.View.Stats = (function () {
 					break;
 				case 2: // all
 					this.start = null;
-					this.end = this.mapToDay(now).addDays(1);
+					this.end = null;
 					break;
 			}
-			this.tracks = await this.trackService.loadTracksAsync(this.start && this.start.toMillis(), this.end.toMillis(), true, false);
+			let end = this.end || this.mapToDay(now).addDays(1);
+			this.tracks = await this.trackService.loadTracksAsync(this.start && this.start.toMillis(), end.toMillis(), true, false);
 		},
 
 		/** Processes the track data and assigns it to the chart */
@@ -223,7 +224,7 @@ PiLot.View.Stats = (function () {
 					break;
 			}
 			let chartData = await this.processDataAsync();
-			const colors = [ "#FF4F4F", "#FF8C49", "#FFE949", "#8DFF4C", "#32A330", "#2F969E", "#49B0FF", "#494FFF", "#AD49FF"];
+			const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
 			const colorIndex = new Map();
 			for(let i = 0; i < this.allBoats.length; i++){
 				colorIndex.set(this.allBoats[i].name, colors[i % colors.length]); 
@@ -295,7 +296,7 @@ PiLot.View.Stats = (function () {
 					case 3:		// per year
 						dateMappingFunction = this.mapToYear;
 						dateIncrementFunction = this.addYear;
-						dateLabelFunction = this.getMonthLabel;
+						dateLabelFunction = this.getYearLabel;
 						break;
 				}
 				let convertDistanceFunction;
@@ -308,12 +309,15 @@ PiLot.View.Stats = (function () {
 						break;
 				}
 				let startDate = this.start;
+				let endDate = this.end;
 				if(startDate === null){
-					startDate = this.getMinStartDate();
+					const timeframe = this.getTimeframeFromTracks();
+					startDate = timeframe && timeframe.start;
+					endDate = timeframe && dateIncrementFunction(dateMappingFunction(timeframe.end));
 				}
 				if(startDate !== null){
 					startDate = dateMappingFunction(startDate);
-					const endDate = dateMappingFunction(this.end);
+					endDate = dateMappingFunction(endDate);
 					let boats;
 					if(this.userSettings.boats && this.userSettings.boats.length){
 						boats = Array.from(this.userSettings.boats);
@@ -330,7 +334,7 @@ PiLot.View.Stats = (function () {
 					const periodsIndex = new Map();
 					let loopDate = startDate;
 					const language = PiLot.Utils.Language.getLanguage();
-					while(!endDate.isBefore(loopDate)){
+					while(loopDate.isBefore(endDate)){
 						let datesArray = [dateLabelFunction(loopDate, language)];
 						result.push(datesArray);
 						periodsIndex.set(loopDate.toMillis(), result.length - 1);
@@ -352,22 +356,35 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
-		getMinStartDate: function(){
+		getTimeframeFromTracks: function(){
 			let result = null;
-			let minTime = null;
+			let minStart = null;
+			let maxEnd = null;
 			let trackStart;
+			let trackEnd;
 			for(let i = 0; i < this.tracks.length; i++){
 				trackStart = this.tracks[i].getStartBoatTime();
 				if(trackStart !== null){
-					if(minTime === null){
-						minTime = trackStart;
+					if(minStart === null){
+						minStart = trackStart;
 					} else{
-						minTime = Math.min(trackStart, minTime);
+						minStart = Math.min(trackStart, minStart);
+					}
+				}
+				trackEnd = this.tracks[i].getEndBoatTime();
+				if(trackEnd !== null){
+					if(maxEnd === null){
+						maxEnd = trackEnd;
+					} else{
+						maxEnd = Math.max(trackEnd, maxEnd);
 					}
 				}
 			}
-			if(minTime !== null){
-				result = RC.Date.DateOnly.fromObject(RC.Date.DateHelper.millisToLuxon(minTime));
+			if((minStart !== null) && (maxEnd != null)){
+				result =  {
+					start: RC.Date.DateOnly.fromObject(RC.Date.DateHelper.millisToLuxon(minStart)),
+					end: RC.Date.DateOnly.fromObject(RC.Date.DateHelper.millisToLuxon(maxEnd))
+				};
 			}
 			return result;
 		},
