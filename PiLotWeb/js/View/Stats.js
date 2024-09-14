@@ -527,7 +527,7 @@ PiLot.View.Stats = (function () {
 		 * */
 		getDayLabel: function(pDateMS){
 			const luxonDate = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
-			return luxonDate.toFormat(this.userSettings.timeframe == 2 ? 'dd.MM.yyyy' : 'dd.MM');
+			return luxonDate.toFormat(this.userSettings.timeframe == 2 ? 'dd.MM.yy' : 'dd.MM');
 		},
 
 		/** 
@@ -537,8 +537,9 @@ PiLot.View.Stats = (function () {
 		getWeekLabel: function(pDateMS){
 			const startLuxon = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
 			const endLuxon = startLuxon.plus({days:6});
-			const format = this.userSettings.timeframe == 2 ? 'dd.MM.yyyy' : 'dd.MM';
-			return `${startLuxon.toFormat(format)} - ${endLuxon.toFormat(format)}`;
+			const format1 = 'dd.MM';
+			const format2 = this.userSettings.timeframe == 2 ? 'dd.MM.yy' : format1;
+			return `${startLuxon.toFormat(format1)}-${endLuxon.toFormat(format2)}`;
 		},
 
 		/** 
