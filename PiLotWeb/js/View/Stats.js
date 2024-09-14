@@ -279,7 +279,7 @@ PiLot.View.Stats = (function () {
 			  };
 
 			this.chart && echarts.dispose(this.pnlChart); // without this, it messed up the chart when changing boats. Probably my fault :-)
-			this.chart = echarts.init(this.pnlChart, null, { renderer: 'svg' });
+			this.chart = echarts.init(this.pnlChart, null);
 			this.chart.setOption(option);
 		},
 
@@ -523,11 +523,11 @@ PiLot.View.Stats = (function () {
 
 		/** 
 		 * @param {Number} pDateMS - a date in ms from epoc
-		 * @returns {String} the formatted date
+		 * @returns {String} the formatted date, including the year if 
 		 * */
 		getDayLabel: function(pDateMS){
 			const luxonDate = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
-			return luxonDate.toFormat('dd.MM.');
+			return luxonDate.toFormat(this.userSettings.timeframe == 2 ? 'dd.MM.yyyy' : 'dd.MM');
 		},
 
 		/** 
@@ -537,7 +537,8 @@ PiLot.View.Stats = (function () {
 		getWeekLabel: function(pDateMS){
 			const startLuxon = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
 			const endLuxon = startLuxon.plus({days:6});
-			return `${startLuxon.toFormat('dd.MM.')} - ${endLuxon.toFormat('dd.MM.')}`;
+			const format = this.userSettings.timeframe == 2 ? 'dd.MM.yyyy' : 'dd.MM';
+			return `${startLuxon.toFormat(format)} - ${endLuxon.toFormat(format)}`;
 		},
 
 		/** 
