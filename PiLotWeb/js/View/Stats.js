@@ -57,6 +57,10 @@ PiLot.View.Stats = (function () {
 		}
 	}
 
+	/**
+	 * Draws a diagram showing the total distance by boat, grouped by time intervals
+	 * @param {HTMLElement} pContainer 
+	 */
 	var TotalDistanceChart = function(pContainer){
 		this.container = pContainer;
 		this.userSettingsName = 'PiLot.View.Stats.TotalDistanceChart';
@@ -66,7 +70,13 @@ PiLot.View.Stats = (function () {
 		this.tracks = null;							// Array of PiLot.Model.Nav.Track
 		this.start = null;							// RC.Date.DateOnly
 		this.end = null;							// RC.Date.DateOnly
+		this.dateMappingFunction = null;
+		this.dateIncrementFunction = null;
+		this.dateLabelFunction = null;
+		this.showBarLabels = false;
+		this.userLanguage = null;
 		// controls
+		this.lnkToggleSettings = null;
 		this.pnlSettings = null;
 		this.rblTimeframe = null;					// Array of radiobuttons
 		this.rblInterval = null;					// NodeList of radiobuttons
@@ -83,6 +93,7 @@ PiLot.View.Stats = (function () {
 		initialize: function () {
 			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
 			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
+			this.userLanguage = PiLot.Utils.Language.getLanguage();
 			window.addEventListener('resize', this.window_resize.bind(this));
 			this.setDefaultValues();
 			this.draw();
@@ -90,6 +101,13 @@ PiLot.View.Stats = (function () {
 
 		window_resize: function(){
 			this.chart && this.chart.resize();
+		},
+
+		lnkToggleSettings_click: function(pEvent){
+			pEvent.preventDefault();
+			this.pnlSettings.hidden = !this.pnlSettings.hidden;
+			this.userSettings.showSettings = !this.pnlSettings.hidden;
+			this.saveUserSettings();
 		},
 
 		rblTimeframe_change: function(pSender){
@@ -125,6 +143,8 @@ PiLot.View.Stats = (function () {
 		draw: function () {
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.totalDistanceChart);
 			this.container.appendChild(control);
+			this.lnkToggleSettings = control.querySelector('.lnkToggleSettings');
+			this.lnkToggleSettings.addEventListener('click', this.lnkToggleSettings_click.bind(this));
 			this.pnlSettings = control.querySelector('.pnlSettings');
 			this.rblTimeframe = control.querySelectorAll('.rblTimeframe');
 			for(let rbTimeframe of this.rblTimeframe){
@@ -156,6 +176,11 @@ PiLot.View.Stats = (function () {
 			}
 		},
 
+		getBoatDisplayName: function(pBoatName){
+			const boatInfo = this.allBoats.find(b => b.name === pBoatName);
+			return boatInfo ? boatInfo.displayName : pBoatName;
+		},
+
 		fillBoatsListAsync: async function(pPlaceholder){
 			this.allBoats || await this.loadAllBoatsAsync();
 			this.cblBoats = [];
@@ -172,6 +197,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		applyUserSettings: function () {
+			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.rblTimeframe.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.timeframe}.bind(this));
 			this.rblInterval.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.interval}.bind(this));
 			this.cblBoats.forEach(function(cb){cb.checked = this.userSettings.boats.indexOf(cb.value) >= 0}.bind(this));
@@ -211,16 +237,15 @@ PiLot.View.Stats = (function () {
 
 		/** Processes the track data and assigns it to the chart */
 		showDataAsync: async function(){
-			let showLabels;
 			switch (this.userSettings.timeframe) {
 				case 0:	// current month
-					showLabels = this.userSettings.interval > 0;
+					this.showLabels = this.userSettings.interval > 0;
 					break;
 				case 1: // current year
-					showLabels = this.userSettings.interval > 1;
+					this.showLabels = this.userSettings.interval > 1;
 					break;
 				case 2: // all
-					showLabels = this.userSettings.interval > 1;
+					this.showLabels = this.userSettings.interval > 1;
 					break;
 			}
 			let chartData = await this.processDataAsync();
@@ -237,7 +262,7 @@ PiLot.View.Stats = (function () {
 					name: seriesName,
 					type: 'bar',
 					stack: 'total',
-					label: { show: showLabels, position: 'inside', formatter: this.formatLabel },
+					label: { show: this.showLabels, position: 'inside', formatter: this.formatBarLabel.bind(this) },
 					itemStyle: { color: colorIndex.get(seriesName) }
 					
 				});
@@ -246,9 +271,9 @@ PiLot.View.Stats = (function () {
 				grid: {left: 20, right:30, bottom: 10, top:50, containLabel: true},
 				animation: false,
 				legend: { formatter: this.formatLegend.bind(this) },
-				tooltip: {},
+				tooltip: { formatter: this.getTooltip.bind(this), triggerOn: 'click', enterable: true },
 				dataset: { source: chartData },
-				xAxis: { type: 'category' },
+				xAxis: { type: 'category', axisLabel: { formatter: this.formatXAxisLabel.bind(this)} },
 				yAxis: {},
 				series: series
 			  };
@@ -258,14 +283,40 @@ PiLot.View.Stats = (function () {
 			this.chart.setOption(option);
 		},
 
-		formatLabel: function(pData){
-			const value = pData.data[pData.seriesIndex + 1];
-			return value ? Math.round(value * 100) / 100 : '';
+		/** shows the distance per bar in a readable form */
+		formatBarLabel: function(pData){
+			return this.roundDistance(pData.data[pData.seriesIndex + 1]);
 		},
 
+		/** Shows the boat display names in the legend */
 		formatLegend: function(pName){
-			const boatInfo = this.allBoats.find(b => b.name === pName);
-			return boatInfo ? boatInfo.displayName : pName;
+			return this.getBoatDisplayName(pName);
+		},
+
+		/** Shows the date labels on the x axix */
+		formatXAxisLabel: function(pData){
+			return this.dateLabelFunction(Number(pData));
+		},
+
+		/** Creates the tooltip content based on a template */
+		getTooltip: function(pData){
+			const template = PiLot.Templates.Stats.totalDistanceChartTooltip;
+			const boatName =  this.getBoatDisplayName(pData.seriesName);
+			const distance = this.roundDistance(pData.data[pData.seriesIndex + 1]);
+			const unit = PiLot.Utils.Language.getText(this.userSettings.unit);
+			const dateString = this.dateLabelFunction(Number(pData.name));
+			return (template
+				.replace('{boat}', boatName)
+				.replace('{date}', dateString)
+				.replace('{distance}', distance)
+				.replace('{unit}', unit)
+			);
+			
+		},
+
+		/** Rounds a distance to two decimal places */
+		roundDistance: function(pDistance){
+			return (pDistance && RC.Utils.isNumeric(pDistance)) ? Math.round(pDistance * 100) / 100 : pDistance;
 		},
 
 		/**
@@ -276,27 +327,26 @@ PiLot.View.Stats = (function () {
 		processDataAsync: async function () {
 			let result = [];
 			if(this.tracks && this.tracks.length){
-				let dateMappingFunction, dateIncrementFunction, dateLabelFunction;
 				switch(this.userSettings.interval){
 					case 0:		// per day
-						dateMappingFunction = this.mapToDay;
-						dateIncrementFunction = this.addDay;
-						dateLabelFunction = this.getDayLabel;
+						this.dateMappingFunction = this.mapToDay;
+						this.dateIncrementFunction = this.addDay;
+						this.dateLabelFunction = this.getDayLabel;
 						break;
 					case 1:		// per week
-						dateMappingFunction = this.mapToWeek;
-						dateIncrementFunction = this.addWeek;
-						dateLabelFunction = this.getWeekLabel;
+						this.dateMappingFunction = this.mapToWeek;
+						this.dateIncrementFunction = this.addWeek;
+						this.dateLabelFunction = this.getWeekLabel;
 						break;
 					case 2:		// per month
-						dateMappingFunction = this.mapToMonth;
-						dateIncrementFunction = this.addMonth;
-						dateLabelFunction = this.getMonthLabel;
+						this.dateMappingFunction = this.mapToMonth;
+						this.dateIncrementFunction = this.addMonth;
+						this.dateLabelFunction = this.getMonthLabel;
 						break;
 					case 3:		// per year
-						dateMappingFunction = this.mapToYear;
-						dateIncrementFunction = this.addYear;
-						dateLabelFunction = this.getYearLabel;
+						this.dateMappingFunction = this.mapToYear;
+						this.dateIncrementFunction = this.addYear;
+						this.dateLabelFunction = this.getYearLabel;
 						break;
 				}
 				let convertDistanceFunction;
@@ -313,16 +363,16 @@ PiLot.View.Stats = (function () {
 				if(startDate === null){
 					const timeframe = this.getTimeframeFromTracks();
 					startDate = timeframe && timeframe.start;
-					endDate = timeframe && dateIncrementFunction(dateMappingFunction(timeframe.end));
+					endDate = timeframe && this.dateIncrementFunction(this.dateMappingFunction(timeframe.end));
 				}
 				if(startDate !== null){
-					startDate = dateMappingFunction(startDate);
-					endDate = dateMappingFunction(endDate);
+					startDate = this.dateMappingFunction(startDate);
+					endDate = this.dateMappingFunction(endDate);
 					let boats;
 					if(this.userSettings.boats && this.userSettings.boats.length){
 						boats = Array.from(this.userSettings.boats);
 					} else{
-						boats = this.getTrackBoats();
+						boats = this.getBoatsFromTracks();
 					}
 					const boatsIndex = new Map();
 					let boatsArray = ['boats'];
@@ -333,21 +383,22 @@ PiLot.View.Stats = (function () {
 					result.push(boatsArray);
 					const periodsIndex = new Map();
 					let loopDate = startDate;
-					const language = PiLot.Utils.Language.getLanguage();
+					let loopDateMillis;
 					while(loopDate.isBefore(endDate)){
-						let datesArray = [dateLabelFunction(loopDate, language)];
+						loopDateMillis = loopDate.toMillis();
+						let datesArray = [loopDateMillis];
 						result.push(datesArray);
-						periodsIndex.set(loopDate.toMillis(), result.length - 1);
+						periodsIndex.set(loopDateMillis, result.length - 1);
 						for(let i = 0; i < boats.length; i++){
 							datesArray.push('');
 						}
-						loopDate = dateIncrementFunction(loopDate);
+						loopDate = this.dateIncrementFunction(loopDate);
 					}
 					let boatIndex, periodIndex, distanceRounded;
 					for(let aTrack of this.tracks){
 						if((boats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)){
 							boatIndex = boatsIndex.get(aTrack.getBoat());
-							periodIndex = periodsIndex.get(dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
+							periodIndex = periodsIndex.get(this.dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
 							result[periodIndex][boatIndex] = (result[periodIndex][boatIndex] || 0) + convertDistanceFunction(aTrack.getDistance());
 						}
 					}
@@ -356,6 +407,7 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
+		/** Gets the earliest start date and the latest end date from all tracks */
 		getTimeframeFromTracks: function(){
 			let result = null;
 			let minStart = null;
@@ -389,7 +441,8 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
-		getTrackBoats: function(){
+		/** Gets the list of all boat names from all tracks */
+		getBoatsFromTracks: function(){
 			const result = [];
 			for(let aTrack of this.tracks){
 				if(result.indexOf(aTrack.getBoat()) < 0){
@@ -399,26 +452,50 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
+		/** 
+		 * @param {RC.Date.DateOnly} pDate 
+		 * @returns {RC.Date.DateOnly} pDate plus one Day
+		 * */
 		addDay: function(pDate){
 			return pDate.addDays(1);
 		},
 
+		/** 
+		 * @param {RC.Date.DateOnly} pDate 
+		 * @returns {RC.Date.DateOnly} pDate plus one Week
+		 * */
 		addWeek: function(pDate){
 			return pDate.addDays(7);
 		},
 
+		/** 
+		 * @param {RC.Date.DateOnly} pDate 
+		 * @returns {RC.Date.DateOnly} pDate plus one Month
+		 * */
 		addMonth: function(pDate){
 			return pDate.addMonths(1);
 		},
 
+		/** 
+		 * @param {RC.Date.DateOnly} pDate 
+		 * @returns {RC.Date.DateOnly} pDate plus one Year
+		 * */
 		addYear: function(pDate){
 			return pDate.addYears(1);
 		},
 
+		/** 
+		 * @param {Object} pDate - Object with day, month, year (RC.Date.DateOnly or luxon DateTime)
+		 * @returns {RC.Date.DateOnly} a Date without time
+		 * */
 		mapToDay: function(pDate){
 			return RC.Date.DateOnly.fromObject(pDate);
 		},
 
+		/** 
+		 * @param {Object} pDate - Object with day, month, year (RC.Date.DateOnly or luxon DateTime)
+		 * @returns {RC.Date.DateOnly} the monday of the week containing pDate
+		 * */
 		mapToWeek: function(pDate){
 			let luxonDate = pDate.isLuxonDateTime ? pDate : pDate.toLuxon();
 			while(luxonDate.weekday !== 1){
@@ -427,32 +504,57 @@ PiLot.View.Stats = (function () {
 			return RC.Date.DateOnly.fromObject(luxonDate);
 		},
 
+		/** 
+		 * @param {Object} pDate - Object with day, month, year (RC.Date.DateOnly or luxon DateTime)
+		 * @returns {RC.Date.DateOnly} the first day of the month containing pDate
+		 * */
 		mapToMonth: function(pDate){
 			return RC.Date.DateOnly.fromObject({ year: pDate.year, month: pDate.month, day: 1 });
 		},
 
+		/** 
+		 * @param {Object} pDate - Object with day, month, year (RC.Date.DateOnly or luxon DateTime)
+		 * @returns {RC.Date.DateOnly} january first of the year containing pDate
+		 * */
 		mapToYear: function(pDate){
 			return RC.Date.DateOnly.fromObject({ year: pDate.year, month: 1, day: 1 });
 		},
 
-		getDayLabel: function(pDate, pLocale){
-			const luxonDate = pDate.toLuxon(pLocale);
+		/** 
+		 * @param {Number} pDateMS - a date in ms from epoc
+		 * @returns {String} the formatted date
+		 * */
+		getDayLabel: function(pDateMS){
+			const luxonDate = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
 			return luxonDate.toFormat('dd.MM.');
 		},
 
-		getWeekLabel: function(pDate, pLocale){
-			const startLuxon = pDate.toLuxon(pLocale);
-			const endLuxon = pDate.addDays(6).toLuxon(pLocale);
+		/** 
+		 * @param {Number} pDateMS - a date in ms from epoc
+		 * @returns {String} the formatted start date and end date of the week
+		 * */
+		getWeekLabel: function(pDateMS){
+			const startLuxon = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
+			const endLuxon = startLuxon.plus({days:6});
 			return `${startLuxon.toFormat('dd.MM.')} - ${endLuxon.toFormat('dd.MM.')}`;
 		},
 
-		getMonthLabel: function(pDate, pLocale){
-			const luxonDate = pDate.toLuxon(pLocale);
+		/** 
+		 * @param {Number} pDateMS - a date in ms from epoc
+		 * @returns {String} the month an year
+		 * */
+		getMonthLabel: function(pDateMS){
+			const luxonDate = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
 			return luxonDate.toFormat('LLL yyyy');
 		},
 
-		getYearLabel: function(pDate, pLocale){
-			return `${pDate.year}`;
+		/** 
+		 * @param {Number} pDateMS - a date in ms from epoc
+		 * @returns {String} the year
+		 * */
+		getYearLabel: function(pDateMS){
+			const luxonDate = RC.Date.DateHelper.millisToLuxon(pDateMS, this.userLanguage);
+			return luxonDate.toFormat('yyyy');
 		},
 
 		convertDistanceNm: function(pDistance){

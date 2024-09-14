@@ -253,6 +253,7 @@ textarea.big { height: 20em; }
 .inlineBlock { display: inline-block; }
 .block { display: block; }
 .flex { display: flex; }
+.flexRow { display: flex; flex-direction: row; }
 .flexRowWrap { display: flex; flex-direction: row; flex-wrap: wrap; }
 .flexColumn { display: flex; flex-direction: column; }
 .flexColumnWrap { display: flex; flex-direction: column; flex-wrap: wrap; }
