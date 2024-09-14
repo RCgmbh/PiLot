@@ -164,7 +164,7 @@ PiLot.View.Stats = (function () {
 
 		setDefaultValues: function(){
 			this.userSettings.interval = this.userSettings.interval || 0;
-			this.userSettings.timeframe = this.userSettings.timeframe || 1;
+			this.userSettings.timeframe = this.userSettings.timeframe || 0;
 			this.userSettings.boats = this.userSettings.boats || [];
 			this.userSettings.unit = this.userSettings.unit || 'nm';
 		},
@@ -245,7 +245,7 @@ PiLot.View.Stats = (function () {
 					this.showLabels = this.userSettings.interval > 1;
 					break;
 				case 2: // all
-					this.showLabels = this.userSettings.interval > 1;
+					this.showLabels = this.userSettings.interval > 2;
 					break;
 			}
 			let chartData = await this.processDataAsync();
@@ -374,6 +374,7 @@ PiLot.View.Stats = (function () {
 					} else{
 						boats = this.getBoatsFromTracks();
 					}
+					boats.sort(function(a, b){return this.getBoatDisplayName(a).localeCompare(this.getBoatDisplayName(b))}.bind(this));
 					const boatsIndex = new Map();
 					let boatsArray = ['boats'];
 					this.allBoats || await this.loadAllBoatsAsync();
