@@ -35,7 +35,7 @@ namespace PiLot.APIProxy {
 		/// <param name="pEndTime">The end time of the track in milliseconds (UTC or BoatTime)</param>
 		/// <returns>The Tracks, might be empty, with one or more tracks</returns>
 		public async Task<ProxyResult<List<Track>>> GetTracksAsync(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime) {
-			String url = $"{this.apiControllerUrl}?startTime={pStartTime}&endTime={pEndTime}&isBoatTime={pIsBoatTime}";
+			String url = $"{this.apiControllerUrl}?startTime={pStartTime}&endTime={pEndTime}&isBoatTime={pIsBoatTime}&readTrackPoints=true";
 			ProxyResult<List<Track>> result = await this.httpClient.GetAsync<List<Track>>(url);
 			return result;
 		}
