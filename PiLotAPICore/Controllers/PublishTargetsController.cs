@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc;
 using PiLot.API.ActionFilters;
 using PiLot.APIProxy;
 using PiLot.Config;
-using PiLot.Data.Files;
 using PiLot.Model.Common;
 using PiLot.Model.Logbook;
 using PiLot.Model.Nav;
@@ -16,7 +15,6 @@ using PiLot.Model.Publishing;
 using PiLot.Model.Photos;
 using PiLot.Utils.Logger;
 using PiLot.Utils.DateAndTime;
-using PiLot.API.Helpers;
 
 namespace PiLot.API.Controllers {
 

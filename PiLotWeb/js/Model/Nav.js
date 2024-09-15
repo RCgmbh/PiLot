@@ -1901,35 +1901,6 @@ PiLot.Model.Nav = (function () {
 	};
 
 	/**
-	 * Loads a track from the server, using UTC for start and end time
-	 * @param {Number} pStartUTC - the start time in milliseconds from epoc, in UTC or BoatTime
-	 * @param {Number} pEndUTC - the end time in milliseconds from epoc, in UTC or BoatTime
-	 * @param {Boolean} pIsBoatTime - If true, start and end are BoatTime, else UTC
-	 * @returns {Track} - the resulting track or null
-	 */
-	var loadTrackAsync = async function (pStartTime, pEndTime, pIsBoatTime) {
-		console.warn('PiLot.Model.Nav.loadTrackAsync is obsolete. Use PiLot.Service.Nav.LoadTracksAsync instead!');
-		const result = [];
-		const url = `/Tracks?startTime=${Math.round(pStartTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}`;
-		const json = await PiLot.Utils.Common.getFromServerAsync(url);
-		for (aTrackData of json) {
-			result.push(Track.fromData(aTrackData));
-		}
-		//const result = Track.fromData(json);
-		return result.length > 0 ? result[0] : null; // todo: pass on the entire list, update all consumers to properly handle it.
-	};
-
-	/** 
-	 * Saves a list of TrackPoints back to the server, replacing any existing gps data for that range
-	 * @param {PiLot.Model.Nav.TrackPoint[]} pRecords - the list of track points to save
-	 * */
-	var saveTrackPointsAsync = async function (pRecords) {
-		const url = PiLot.Utils.Common.toApiUrl('/Tracks');
-		const trackObj = { trackPointsArray: pRecords.map(p => p.toArray()) };
-		return await PiLot.Utils.Common.putToServerAsync(url, trackObj);
-	};
-
-	/**
 	 * A track segment is a specific part of a track, corresponding to a certain 
 	 * TrackSegmentType. An example would be the fastest mile of a certain track.
 	 * The object does not hold a reference to the track, but only to its id, so
@@ -2536,9 +2507,7 @@ PiLot.Model.Nav = (function () {
 		loadActiveRouteAsync: loadActiveRouteAsync,
 		loadActiveRouteIdAsync: loadActiveRouteIdAsync,
 		loadRouteAsync: loadRouteAsync,
-		saveActiveRouteIdAsync: saveActiveRouteIdAsync,
-		loadTrackAsync: loadTrackAsync,
-		saveTrackPointsAsync: saveTrackPointsAsync
+		saveActiveRouteIdAsync: saveActiveRouteIdAsync
 	};
 
 })();

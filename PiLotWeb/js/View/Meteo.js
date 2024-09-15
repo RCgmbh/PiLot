@@ -850,51 +850,12 @@ PiLot.View.Meteo = (function () {
 		},
 	};
 
-	/** shows the meteoblue weather widget within an iframe */
-	var MeteoblueFrame = function (pContainer) {
-		
-		this.container = pContainer;
-		this.latitude = null;
-		this.longitude = null;
-		this.initialize();
-
-	};
-
-	MeteoblueFrame.prototype = {
-
-		initialize: function () {
-			const utcNowMillis = RC.Date.DateHelper.utcNowMillis();
-			const start = utcNowMillis - (24 * 60 * 60 * 1000);
-			PiLot.Model.Nav.loadTrackAsync(start, utcNowMillis, false).then(function (pTrack) {
-				if (pTrack && pTrack.getTrackPointsCount() > 0) {
-					const lastPosition = pTrack.getLastTrackPoint();
-					this.latitude = lastPosition.getLatitude();
-					this.longitude = lastPosition.getLongitude();
-				}
-				this.draw();
-			}.bind(this));
-		},
-
-		draw: function () {
-			if (this.latitude && this.longitude) {
-				let template = PiLot.Templates.Meteo.meteoblueFrame;
-				let layout = new PiLot.View.Common.NightModeHandler().getIsNightMode() ? 'dark' : 'light';
-				template = template.replace(/\{lat\}/g, this.latitude.toFixed(3) + (this.latitude > 0 ? 'N' : 'S'));
-				template = template.replace(/\{lon\}/g, this.longitude.toFixed(3) + (this.longitude > 0 ? 'E' : 'W'));
-				template = template.replace(/\{layout\}/g, layout);
-				const control = RC.Utils.stringToNode(template);
-				this.container.appendChild(control);
-			}
-		}
-	};
-
 	return {
 		SensorsPage: SensorsPage,
 		StartPageMeteo: StartPageMeteo,
 		TemperatureInfo: TemperatureInfo,
 		HumidityInfo: HumidityInfo,
-		PressureInfo: PressureInfo,
-		MeteoblueFrame: MeteoblueFrame
+		PressureInfo: PressureInfo
 	};
 
 })();

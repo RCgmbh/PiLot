@@ -955,7 +955,6 @@ PiLot.View.Diary = (function () {
 		loadLocalDataAsync: async function () {
 			const startMS = this.date.toLuxon().toMillis();
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
-			//const track = await PiLot.Model.Nav.loadTrackAsync(startMS, endMS, true);
 			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
 			this.showTracksAsync(tracks, this.localTrackMap, this.localTrack, this.lblLocalPositionsCount);
 			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.date);
