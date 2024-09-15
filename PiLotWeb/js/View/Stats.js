@@ -213,7 +213,14 @@ PiLot.View.Stats = (function () {
 			await this.showDataAsync();
 		},
 
-		/** Loads the tracks according to the currently set timeframe */
+		/** 
+		 * Loads the tracks according to the currently set timeframe. The result from 
+		 * the api is further filtered to those tracks starting within the given time-
+		 * frame, as the api would also return tracks that start before, and just
+		 * end within or after the timeframe. Actually we should in those cases take
+		 * the part of the track within the timeframe, but as we work with pre-calculated
+		 * distances, this would add quite some complexity.
+		 * */
 		loadTracksAsync: async function () {
 			let boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			let now = boatTime.now();
@@ -231,8 +238,10 @@ PiLot.View.Stats = (function () {
 					this.end = null;
 					break;
 			}
-			let end = this.end || this.mapToDay(now).addDays(1);
-			this.tracks = await this.trackService.loadTracksAsync(this.start && this.start.toMillis(), end.toMillis(), true, false);
+			const startMillis = this.start ? this.start.toMillis() : null;
+			const endMillis = (this.end || this.mapToDay(now).addDays(1)).toMillis();
+			const tracks = await this.trackService.loadTracksAsync(startMillis, endMillis, true, false);
+			this.tracks = tracks.filter(t => (startMillis === null || t.getStartBoatTime() >= startMillis) && (t.getEndBoatTime() <= endMillis));
 		},
 
 		/** Processes the track data and assigns it to the chart */
