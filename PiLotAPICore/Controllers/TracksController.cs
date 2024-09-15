@@ -80,15 +80,18 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Saves a track. If there is any overlapping track, this will throw an error
+		/// Saves a track. If there is any overlapping track, this will throw an error. The
+		/// track ID is always set to null, so it's not possible to update an existing Track.
+		/// This is done mainly to prevent accidential overwriting of existing tracks.
 		/// </summary>
-		/// <param name="Track">The track to save, ID must be null</param>
+		/// <param name="Track">The track to save</param>
 		/// <returns>The id of the track</returns>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult PutInsert(Track track) {
 			try {
+				track.ID = null;
 				DataConnectionHelper.TrackDataConnector.SaveTrack(track);
 				if (track.ID != null) {
 					TrackStatisticsHelper.UpdateStatistics(track.ID.Value, false);
