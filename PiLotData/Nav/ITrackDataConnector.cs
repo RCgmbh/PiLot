@@ -81,6 +81,21 @@ namespace PiLot.Data.Nav {
 		List<TrackSegment> ReadTrackSegments(Int32 pTrackId);
 
 		/// <summary>
+		/// Returns a list of TrackSegments for a certain time, optionally filtered by time
+		/// and boats. If start and end are passed, all segments that overlap with the
+		/// period start-end are returned. If any of the values is null, there will be no
+		/// limitation in that direction.
+		/// </summary>
+		/// <param name="pTypeId">The track type ID</param>
+		/// <param name="pStart">Start of the search period in ms</param>
+		/// <param name="pEnd">End of the search period in ms</param>
+		/// <param name="pIsBoatTime">Whether to search based on UTC (false) or BoatTime</param>
+		/// <param name="pBoats">A list of boats to filter by, can be null</param>
+		/// <param name="pPageSize">The maximum number of results to return</param>
+		/// <returns>a list of TrackSegment, can be empty but not null</returns>
+		List<TrackSegment> FindTrackSegments(Int32 pTypeId, Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats, Int32 pPageSize);
+
+		/// <summary>
 		/// Saves a track segment. Any existing segment for the same track and type
 		/// will be replaced. Will only be implemented if SupportStatistics=true
 		/// </summary>

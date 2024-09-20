@@ -427,22 +427,62 @@ PiLot.Service.Nav = (function () {
 				if (Array.isArray(json)) {
 					result = [];
 					for (anItem of json) {
-						const trackSegment = new PiLot.Model.Nav.TrackSegment(
-							anItem.trackId,
-							this.trackSegmentTypes.get(anItem.typeId),
-							RC.Date.DateHelper.millisToLuxon(anItem.startUtc, language),
-							RC.Date.DateHelper.millisToLuxon(anItem.endUtc, language),
-							RC.Date.DateHelper.millisToLuxon(anItem.startBoatTime, language),
-							RC.Date.DateHelper.millisToLuxon(anItem.endBoatTime, language),
-							anItem.distance
-						);
-						result.push(trackSegment);
+						result.push(this.trackSegmentFromData(anItem, language));
 					}
 				} else {
-					PiLot.log('Did not get an array from TrackSegmentTypes endpoint.', 0);
+					PiLot.log('Did not get an array from TrackSegments endpoint.', 0);
 				}
 			}
 			return result;
+		},
+
+		/**
+		 * Finds all track segments of a certain type, optionally limited by a timeframe. If start
+		 * and end is passed, all segments that overlap with the interval start-end are returned,
+		 * so be aware that the resulting segments potentially have start/end outside the interval.
+		 * @param {Number} pType - The track segment type id, mandatory
+		 * @param {Number} pStart - Start time in milliseconds, can be null
+		 * @param {Number} pEnd - timeframe end time in milliseconds, can be null
+		 * @param {Boolean} pIsBoatTime - whether start and end is boat time or utc
+		 * @param {Number} pPageSize - the number of records to return
+		 * */
+		findTrackSegmentsAsync: async function (pType, pStart, pEnd, pIsBoatTime, pBoats, pPageSize) {
+			let result = null;
+			await this.ensureTrackSegmentTypesLoadedAsync();
+			const json = await PiLot.Utils.Common.getFromServerAsync(`/Tracks/${pTrackId}/Segments`);
+			const language = PiLot.Utils.Language.getLanguage();
+			if (json !== null) {
+				if (Array.isArray(json)) {
+					result = [];
+					for (anItem of json) {
+						result.push(this.trackSegmentFromData(anItem, language));
+					}
+				} else {
+					PiLot.log('Did not get an array from TrackSegments endpoint.', 0);
+				}
+			}
+			return result;
+		},
+
+		/**
+		 * Converts a data object as delivered by the backend to a TrackSegment object. 
+		 * Please make sure to call this.ensureTrackSegmentTypesLoadedAsync before calling
+		 * this (we don't want to call it here as this is usually called within a loop).
+		 * @param {Object} pData - the data object
+		 * @param {String} pLanguage - the language key (DE, EN etc.) used for the luxon object
+		 */
+		trackSegmentFromData: function (pData, pLanguage) {
+			return new PiLot.Model.Nav.TrackSegment(
+				anItem.trackId,
+				this.trackSegmentTypes.get(pData.typeId),
+				RC.Date.DateHelper.millisToLuxon(pData.startUtc, pLanguage),
+				RC.Date.DateHelper.millisToLuxon(pData.endUtc, pLanguage),
+				RC.Date.DateHelper.millisToLuxon(pData.startBoatTime, pLanguage),
+				RC.Date.DateHelper.millisToLuxon(pData.endBoatTime, pLanguage),
+				pData.distance,
+				pData.speed,
+				pData.boat
+			);
 		},
 
 		/** 

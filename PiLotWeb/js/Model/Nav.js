@@ -1778,7 +1778,7 @@ PiLot.Model.Nav = (function () {
 
 	/**
 	 * Creates a track object based on a serialized track object. Returns null, if the 
-	 * pData is invalid. If start/end date and distance will only be set explicitly, if
+	 * pData is invalid. Start/end date and distance will only be set explicitly, if
 	 * there are is no trackPointsArray delivered.
 	 * @param {Object} pData - an object with id, boat, distance, startUtc, endUtc, startBoatTime, endBoatTime, trackPointsArray
 	 */
@@ -1913,7 +1913,7 @@ PiLot.Model.Nav = (function () {
 	 * @param {DateTime} pEndBoatTime - the end of the segment in BoatTime
 	 * @param {Number} pDistance - the distance covered in meters
 	 */
-	var TrackSegment = function (pTrackId, pType, pStartUtc, pEndUtc, pStartBoatTime, pEndBoatTime, pDistance) {
+	var TrackSegment = function (pTrackId, pType, pStartUtc, pEndUtc, pStartBoatTime, pEndBoatTime, pDistance, pSpeed, pBoat) {
 		this.trackId = pTrackId;
 		this.type = pType;
 		this.startUtc = pStartUtc;
@@ -1921,6 +1921,8 @@ PiLot.Model.Nav = (function () {
 		this.startBoatTime = pStartBoatTime;
 		this.endBoatTime = pEndBoatTime;
 		this.distance = pDistance;
+		this.speed = pSpeed;
+		this.boat = pBoat;
 		this.initialize();
 	};
 
@@ -1961,10 +1963,20 @@ PiLot.Model.Nav = (function () {
 		/**
 		 * @returns {Number} - the total distance in meters. This can be more
 		 * than the distance defined by the TrackSegmentType, because it's based
-		 * on acutal TrackPoints. 
+		 * on actual TrackPoints. 
 		 * */
 		getDistance: function() {
 			return this.distance;
+		},
+
+		/** @returns the average speed for the segment in m/s */
+		getSpeed: function () {
+			return this.speed;
+		},
+
+		/** @returns the name of the boat */
+		getBoat: function () {
+			return this.boat;
 		}
 	};
 

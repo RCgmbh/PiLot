@@ -1415,8 +1415,7 @@ PiLot.View.Nav = (function () {
 			const segmentType = pSegment.getType();
 			const label = segmentType.getLabel(pLanguage);
 			control.querySelector('.lblLabel').innerHTML = label;
-			const effectiveDurationMS = pSegment.getEndUtc().toMillis() - pSegment.getStartUtc().toMillis();
-			const speed = pSegment.getDistance() / (effectiveDurationMS / 1000); // speed in m/s
+			const speed = pSegment.getSpeed(); // speed in m/s
 			if (isDistance) {
 				let duration = luxon.Duration.fromObject({ seconds: segmentType.getDistance() / speed });
 				control.querySelector('.lblDuration').innerHTML = this.durationToHHMMSS(duration);

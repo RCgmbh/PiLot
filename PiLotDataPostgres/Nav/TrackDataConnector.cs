@@ -184,6 +184,31 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Returns a list of TrackSegments for a certain time, optionally filtered by time
+		/// and boats. If start and end are passed, all segments that overlap with the
+		/// period start-end are returned. If any of the values is null, there will be no
+		/// limitation in that direction.
+		/// </summary>
+		/// <param name="pTypeId">The track type ID</param>
+		/// <param name="pStart">Start of the search period in ms</param>
+		/// <param name="pEnd">End of the search period in ms</param>
+		/// <param name="pIsBoatTime">Whether to search based on UTC (false) or BoatTime</param>
+		/// <param name="pBoats">A list of boats to filter by, can be null</param>
+		/// <param name="pPageSize">The maximum number of results to return</param>
+		/// <returns>a list of TrackSegment, can be empty but not null</returns>
+		public List<TrackSegment> FindTrackSegments(Int32 pTypeId, Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats, Int32 pPageSize) {
+			String query = "SELECT * FROM find_track_segments(@p_type_id, @p_start, @p_end, @p_is_boattime, @p_boats, @p_page_size)";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_type_id", pTypeId));
+			pars.Add(("@p_start", this.dbHelper.GetNullableParameterValue(pStart)));
+			pars.Add(("@p_end", this.dbHelper.GetNullableParameterValue(pEnd)));
+			pars.Add(("@p_is_boattime", pIsBoatTime));
+			pars.Add(("@p_boats", pBoats));
+			pars.Add(("@p_page_size", pPageSize));
+			return this.dbHelper.ReadData<TrackSegment>(query, new Func<NpgsqlDataReader, TrackSegment>(this.ReadTrackSegment), pars);
+		}
+
+		/// <summary>
 		/// Saves a track segment to the database. Any existing segment for the same track and type
 		/// will be replaced.
 		/// </summary>
@@ -416,7 +441,9 @@ namespace PiLot.Data.Postgres.Nav {
 				EndUTC = pReader.GetInt64("end_utc"),
 				StartBoatTime = pReader.GetInt64("start_boattime"),
 				EndBoatTime = pReader.GetInt64("end_boattime"),
-				Distance_mm = pReader.GetInt32("distance_mm")
+				Distance_mm = pReader.GetInt32("distance_mm"),
+				Speed = pReader.GetDouble("speed"),
+				Boat = pReader.GetString("boat")
 			};
 			return result;
 		}

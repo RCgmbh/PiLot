@@ -14,12 +14,13 @@ DROP FUNCTION IF EXISTS delete_track;
 DROP FUNCTION IF EXISTS update_track_data;
 DROP FUNCTION IF EXISTS update_track_boat;
 DROP FUNCTION IF EXISTS read_track_segments_by_track;
+DROP FUNCTION IF EXISTS find_track_segments;
 DROP FUNCTION IF EXISTS save_track_segment;
 DROP FUNCTION IF EXISTS delete_track_segments;
 DROP FUNCTION IF EXISTS read_track_points;
 DROP FUNCTION IF EXISTS insert_track_point;
 DROP FUNCTION IF EXISTS delete_track_points;
-
+DROP VIEW IF EXISTS all_track_segments;
 /* Don't delete the data. Manually drop them if needed. */
 --DROP TABLE IF EXISTS track_segments;
 --DROP TABLE IF EXISTS track_segment_types;
@@ -121,6 +122,25 @@ CREATE INDEX track_points_coordinates_index
    ON track_points 
    USING btree (track_id);*/
 
+/*-----------VIEW all_track_segments-----------------*/
+
+CREATE VIEW all_track_segments AS (
+	SELECT
+		ts.id,
+		ts.type_id,
+		ts.track_id,
+		ts.start_utc,
+		ts.end_utc,
+		ts.start_boattime,
+		ts.end_boattime,
+		ts.distance_mm,
+		ts.distance_mm::NUMERIC/(ts.end_utc - ts.start_utc) as speed,
+		tr.boat
+	FROM
+		track_segments ts INNER JOIN tracks tr ON ts.track_id = tr.id
+);
+
+GRANT SELECT ON all_track_segments TO pilotweb;
 
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
@@ -220,7 +240,7 @@ AS $BODY$
 	WHERE
 		(p_is_boattime = FALSE AND start_utc IS NOT NULL AND start_utc < p_end AND end_utc IS NOT NULL AND end_utc > p_start)
 		OR
-		(p_is_boattime = TRUE AND start_boattime < p_end AND end_boattime > p_start)
+		(p_is_boattime = TRUE AND start_boattime IS NOT NULL AND start_boattime < p_end AND end_boattime IS NOT NULL AND end_boattime > p_start)
 	ORDER BY start_utc ASC
 
 $BODY$;
@@ -323,31 +343,93 @@ CREATE OR REPLACE FUNCTION public.read_track_segments_by_track(
 	p_track_id integer
 )
 RETURNS TABLE (
+	id integer,
 	type_id integer,
 	track_id integer,
 	start_utc bigint,
 	end_utc bigint,
 	start_boattime bigint,
 	end_boattime bigint,
-	distance_mm integer
+	distance_mm integer,
+	speed double precision,
+	boat text
 )
 LANGUAGE 'sql'
 AS $BODY$
 	SELECT
+		id,
 		type_id,
 		track_id,
 		start_utc,
 		end_utc,
 		start_boattime,
 		end_boattime,
-		distance_mm
+		distance_mm,
+		speed,
+		boat
 	FROM
-		track_segments
+		all_track_segments
 	WHERE
 		track_id = p_track_id
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION read_track_segments_by_track TO pilotweb;
+
+/*-----------FUNCTION find_track_segments -----------------*/
+-- finds track segments for a certain type, optionally limited
+-- by a timeframe and boats
+
+CREATE OR REPLACE FUNCTION public.find_track_segments(
+	p_type_id integer,
+	p_start bigint,
+	p_end bigint,
+	p_is_boattime boolean,
+	p_boats text[],
+	p_page_size integer
+)
+RETURNS TABLE (
+	id integer,
+	type_id integer,
+	track_id integer,
+	start_utc bigint,
+	end_utc bigint,
+	start_boattime bigint,
+	end_boattime bigint,
+	distance_mm integer,
+	speed double precision,
+	boat text
+)
+LANGUAGE 'sql'
+AS $BODY$
+	SELECT
+		id,
+		type_id,
+		track_id,
+		start_utc,
+		end_utc,
+		start_boattime,
+		end_boattime,
+		distance_mm,
+		distance_mm::NUMERIC/(end_utc - start_utc) as speed,
+		boat
+	FROM
+		all_track_segments
+	WHERE
+		type_id = p_type_id
+		AND	( 
+			(p_is_boattime = FALSE AND (p_end IS NULL OR start_utc < p_end) AND (p_start IS NULL OR end_utc > p_start))
+			OR
+			(p_is_boattime = TRUE AND (p_end IS NULL OR start_boattime < p_end) AND (p_start IS NULL OR end_boattime > p_start))
+		)
+		AND (
+			p_boats IS NULL OR boat = ANY (p_boats)
+		)		
+	ORDER BY speed DESC
+	LIMIT p_page_size;
+
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION find_track_segments TO pilotweb;
 
 /*-----------FUNCTION save_track_segment -----------------*/
 -- saves a track segment, replacing any existing segment for

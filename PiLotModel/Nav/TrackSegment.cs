@@ -65,21 +65,20 @@ namespace PiLot.Model.Nav {
 
 		/// <summary>
 		/// The total distance of the segment in millimeters. This is used in the db,
-		/// and for precise comparison of Segments
+		/// and for precise calculation of the speed
 		/// </summary>
 		[JsonIgnore]
-		public Int32 Distance_mm {
-			get; set;
-		}
+		public Int32 Distance_mm { get; set; }
 
 		/// <summary>
 		/// Returns the average speed of the segment in m/s
 		/// </summary>
-		[JsonIgnore]
-		public Double Speed {
-			get {
-				return this.Distance_mm / (Double)(this.EndUTC - this.StartUTC);
-			}
-		}
+		[JsonPropertyName("speed")]
+		public Double Speed { get;set; }
+
+		/// <summary>
+		/// The boat name
+		/// </summary>
+		public String Boat { get; set; }
 	}
 }

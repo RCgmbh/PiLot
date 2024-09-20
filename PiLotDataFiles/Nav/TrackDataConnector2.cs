@@ -226,6 +226,16 @@ namespace PiLot.Data.Files {
 		/// Only there in order to implement ITrackDataConnector
 		/// </summary>
 		/// <exception cref="NotImplementedException"></exception>
+		public List<TrackSegment> FindTrackSegments(Int32 pTypeId, Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats, Int32 pPageSize) {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling FindTrackSegments()");
+		}
+
+
+		/// <summary>
+		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
+		/// Only there in order to implement ITrackDataConnector
+		/// </summary>
+		/// <exception cref="NotImplementedException"></exception>
 		public void SaveTrackSegment(TrackSegment pSegment) {
 			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling SaveTrackSegment(TrackSegment)");
 		}
