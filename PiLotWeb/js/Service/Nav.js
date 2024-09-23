@@ -449,7 +449,9 @@ PiLot.Service.Nav = (function () {
 		findTrackSegmentsAsync: async function (pType, pStart, pEnd, pIsBoatTime, pBoats, pPageSize) {
 			let result = null;
 			await this.ensureTrackSegmentTypesLoadedAsync();
-			const json = await PiLot.Utils.Common.getFromServerAsync(`/Tracks/${pTrackId}/Segments`);
+			const boatsString = pBoats ? pBoats.join(',') : null;
+			const url = `/TrackSegments?type=${pType}&start=${pStart}&end=${pEnd}&isBoatTime=${pIsBoatTime}&boats=${boatsString}&pageSize=${pPageSize}`
+			const json = await PiLot.Utils.Common.getFromServerAsync(url);
 			const language = PiLot.Utils.Language.getLanguage();
 			if (json !== null) {
 				if (Array.isArray(json)) {

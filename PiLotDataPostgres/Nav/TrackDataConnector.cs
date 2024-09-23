@@ -203,7 +203,7 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_start", this.dbHelper.GetNullableParameterValue(pStart)));
 			pars.Add(("@p_end", this.dbHelper.GetNullableParameterValue(pEnd)));
 			pars.Add(("@p_is_boattime", pIsBoatTime));
-			pars.Add(("@p_boats", pBoats));
+			pars.Add(("@p_boats", this.dbHelper.GetNullableParameterValue(pBoats)));
 			pars.Add(("@p_page_size", pPageSize));
 			return this.dbHelper.ReadData<TrackSegment>(query, new Func<NpgsqlDataReader, TrackSegment>(this.ReadTrackSegment), pars);
 		}

@@ -213,11 +213,13 @@ namespace PiLot.Data.Postgres.Helper {
 		/// <summary>
 		/// Returns the value for a nullable parameter, which is either the
 		/// value passed in, or dbNull, if the value is null.
+		/// Implements the reverse postgres null array quirk, replacing ["null"] by null.
 		/// </summary>
 		/// <param name="pValue">The parameter value</param>
 		/// <returns>DBNull or pValue</returns>
 		public Object GetNullableParameterValue(Object pValue) {
-			return pValue != null ? pValue : DBNull.Value;
+			Boolean isStringArrayNull = pValue != null && pValue.GetType().FullName == "System.String[]" && ((String[])pValue).Length == 1 && ((String[])pValue)[0] == "null";
+			return ((pValue == null) || isStringArrayNull) ? DBNull.Value : pValue;
 		}
 
 		#region private methods
