@@ -422,7 +422,7 @@ AS $BODY$
 			(p_is_boattime = TRUE AND (p_end IS NULL OR start_boattime < p_end) AND (p_start IS NULL OR end_boattime > p_start))
 		)
 		AND (
-			p_boats IS NULL OR boat = ANY (p_boats)
+			p_boats IS NULL OR array_length(p_boats, 1) IS NULL OR boat = ANY (p_boats)
 		)		
 	ORDER BY speed DESC
 	LIMIT p_page_size;
