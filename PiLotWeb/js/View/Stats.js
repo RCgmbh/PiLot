@@ -624,7 +624,9 @@ PiLot.View.Stats = (function () {
 		this.tblUnit = null;						// NodeList of checkboxes
 		this.pnlNoData = null;
 		this.pnlChart = null;
-		this.chart = null;							// echart object
+		this.pnlLegend = null;
+		this.plhData = null;
+		//this.chart = null;							// echart object
 
 		this.initialize();
 	}
@@ -703,6 +705,8 @@ PiLot.View.Stats = (function () {
 			]).then(results => this.applyUserSettings());
 			this.pnlNoData = control.querySelector('.pnlNoData');
 			this.pnlChart = control.querySelector('.pnlChart');
+			this.pnlLegend = control.querySelector('.pnlLegend');
+			this.plhData = control.querySelector('.plhData');
 		},
 
 		setDefaultValues: function () {
@@ -802,44 +806,41 @@ PiLot.View.Stats = (function () {
 				20
 			);
 			console.log(this.trackSegments);
+			await this.showDataAsync();
 		},
 
 		/** Processes the track segments data and assigns it to the chart */
 		showDataAsync: async function () {
-// todo.... maybe work with seried and fill them with data this time, one series per boat
-			/*let chartData = await this.processDataAsync();
 			const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
 			const colorIndex = new Map();
 			for (let i = 0; i < this.allBoats.length; i++) {
 				colorIndex.set(this.allBoats[i].name, colors[i % colors.length]);
 			}
-			let series = [];
-			let seriesName;
-			for (let i = 0; i < chartData[0].length - 1; i++) {
-				seriesName = chartData[0][i + 1];
-				series.push({
-					name: seriesName,
-					type: 'bar',
-					stack: 'total',
-					label: { show: this.showLabels, position: 'inside', formatter: this.formatBarLabel.bind(this) },
-					itemStyle: { color: colorIndex.get(seriesName) }
+			if (this.trackSegments && this.trackSegments.length) {
+				this.pnlChart.hidden = false;
+				this.showLegend(colorIndex);
 
-				});
+			} else {
+				this.pnlChart.hidden = false;
 			}
-			let option = {
-				grid: { left: 20, right: 30, bottom: 10, top: 50, containLabel: true },
-				animation: false,
-				legend: { formatter: this.formatLegend.bind(this) },
-				tooltip: { formatter: this.getTooltip.bind(this), triggerOn: 'click', enterable: true },
-				dataset: { source: chartData },
-				xAxis: { type: 'category', axisLabel: { formatter: this.formatXAxisLabel.bind(this) } },
-				yAxis: {},
-				series: series
-			};
+			this.pnlNoData.hidden = !this.pnlChart.hidden;
+		},
 
-			this.chart && echarts.dispose(this.pnlChart); // without this, it messed up the chart when changing boats. Probably my fault :-)
-			this.chart = echarts.init(this.pnlChart, null);
-			this.chart.setOption(option);*/
+		showLegend: function (pColorIndex) {
+			this.pnlLegend.clear();
+			let boats;
+			if (this.userSettings.boats && this.userSettings.boats.length) {
+				boats = Array.from(this.userSettings.boats);
+			} else {
+				boats = this.getBoatsFromTrackSegments();
+			}
+			boats.sort(function (a, b) { return this.getBoatDisplayName(a).localeCompare(this.getBoatDisplayName(b)) }.bind(this));
+			for (let aBoat of boats) {
+				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsLegendItem);
+				node.querySelector('.divColor').style.backgroundColor = pColorIndex.get(aBoat);
+				node.querySelector('.lblText').innerText = this.getBoatDisplayName(aBoat);
+				this.pnlLegend.appendChild(node);
+			}
 		},
 
 		/** shows the distance per bar in a readable form */
@@ -927,13 +928,6 @@ PiLot.View.Stats = (function () {
 				if (startDate !== null) {
 					startDate = this.dateMappingFunction(startDate);
 					endDate = this.dateMappingFunction(endDate);
-					let boats;
-					if (this.userSettings.boats && this.userSettings.boats.length) {
-						boats = Array.from(this.userSettings.boats);
-					} else {
-						boats = this.getBoatsFromTracks();
-					}
-					boats.sort(function (a, b) { return this.getBoatDisplayName(a).localeCompare(this.getBoatDisplayName(b)) }.bind(this));
 					const boatsIndex = new Map();
 					let boatsArray = ['boats'];
 					this.allBoats || await this.loadAllBoatsAsync();
@@ -968,9 +962,9 @@ PiLot.View.Stats = (function () {
 		},		
 
 		/** Gets the list of all boat names from the current trackSegments */
-		getBoatsFromSegments: function () {
+		getBoatsFromTrackSegments: function () {
 			const result = [];
-			for (let aTrackSegment of this.tracksSegments) {
+			for (let aTrackSegment of this.trackSegments) {
 				if (result.indexOf(aTrackSegment.getBoat()) < 0) {
 					result.push(aTrackSegment.getBoat());
 				}

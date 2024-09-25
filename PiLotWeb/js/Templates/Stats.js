@@ -77,7 +77,14 @@ PiLot.Templates.Stats = {
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
-			<div class="pnlChart fullWidth borderLight" style="min-height: 200px; max-height: 1000px; height:50vh;"></div>
+			<div class="pnlChart chart fullWidth borderLight flexRow" style="min-height: 200px; max-height: 1000px; height:50vh;">
+				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
+				<div class="plhData"></div>
+			</div>
 		</div>
 	`,
+
+	fastestSegmentsLegendItem: `<div class="marginRight flex"><div class="divColor color marginRightSmall"></div><span class="lblText text"></span></div>`,
+
+	fastestSegmetsDataItem: `<div><div class="divBar bar"><span class="lblBarText"></span></div><span class="lblBarLabel marginLeft"></span></div>`
 };

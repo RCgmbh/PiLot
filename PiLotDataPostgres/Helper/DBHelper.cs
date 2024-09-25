@@ -158,7 +158,7 @@ namespace PiLot.Data.Postgres.Helper {
 
 		/// <summary>
 		/// Reads the value in a nullable db field. Returns the type's default value, if the
-		/// field in the db is null. Implements the Postgres Int-Array quirk as described
+		/// field in the db is null. Implements the npgsql Int-Array quirk as described
 		/// above.
 		/// </summary>
 		/// <typeparam name="T">The result type</typeparam>
@@ -213,7 +213,7 @@ namespace PiLot.Data.Postgres.Helper {
 		/// <summary>
 		/// Returns the value for a nullable parameter, which is either the
 		/// value passed in, or dbNull, if the value is null.
-		/// Implements the reverse postgres null array quirk, replacing ["null"] by null.
+		/// Implements the reverse npgsql null array quirk, replacing ["null"] by null.
 		/// </summary>
 		/// <param name="pValue">The parameter value</param>
 		/// <returns>DBNull or pValue</returns>
