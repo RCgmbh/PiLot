@@ -674,7 +674,7 @@ PiLot.View.Stats = (function () {
 				this.userSettings.boats.remove(index, index);
 			}
 			this.saveUserSettings();
-			this.showDataAsync();
+			this.loadAndShowDataAsync();
 		},
 
 		rblUnit_change: function (pSender) {
@@ -710,7 +710,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		setDefaultValues: function () {
-			this.userSettings.segmentType = this.userSettings.interval || null;
+			this.userSettings.segmentType = this.userSettings.segmentType || null;
 			this.userSettings.timeframe = this.userSettings.timeframe || 0;
 			this.userSettings.boats = this.userSettings.boats || [];
 			this.userSettings.unit = this.userSettings.unit || 'nm';
@@ -806,7 +806,6 @@ PiLot.View.Stats = (function () {
 				20
 			);
 			console.log(this.trackSegments);
-			await this.showDataAsync();
 		},
 
 		/** Processes the track segments data and assigns it to the chart */
@@ -819,7 +818,7 @@ PiLot.View.Stats = (function () {
 			if (this.trackSegments && this.trackSegments.length) {
 				this.pnlChart.hidden = false;
 				this.showLegend(colorIndex);
-
+				this.showBars(colorIndex);
 			} else {
 				this.pnlChart.hidden = false;
 			}
@@ -840,6 +839,31 @@ PiLot.View.Stats = (function () {
 				node.querySelector('.divColor').style.backgroundColor = pColorIndex.get(aBoat);
 				node.querySelector('.lblText').innerText = this.getBoatDisplayName(aBoat);
 				this.pnlLegend.appendChild(node);
+			}
+		},
+
+		showBars: function (pColorIndex) {
+			this.plhData.clear();
+			const maxWidth = 80;
+			const maxSpeed = this.trackSegments[0].getSpeed();
+			const factor = maxWidth / maxSpeed;
+			const loader = PiLot.Utils.Loader;
+			const utils = PiLot.Utils.Common;
+			let trackSegment, startTime;
+			let bar, lnkBarText;
+			const convertSpeedFunction = this.userSettings.unit == "kn" ? this.convertSpeedKn : this.convertSpeedKmh
+			for(let i = 0; i < this.trackSegments.length; i++){
+				trackSegment = this.trackSegments[i];
+				startTime = trackSegment.getStartBoatTime();
+				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsDataItem);
+				lnkBarText = node.querySelector('.lnkBarText');
+				lnkBarText.innerText = startTime.toLocaleString(DateTime.DATE_SHORT);
+				lnkBarText.href = `${loader.createPageLink(loader.pages.logbook.diary)}&d=${utils.getQsDateValue(RC.Date.DateOnly.fromObject(startTime))}`;
+				node.querySelector('.lblBarLabel').innerText = Math.round(convertSpeedFunction(trackSegment.getSpeed()) * 100) / 100;
+				bar = node.querySelector('.divBar');
+				bar.style.width = `${Math.round(factor * trackSegment.getSpeed())}%`;
+				bar.style.backgroundColor = pColorIndex.get(trackSegment.getBoat());
+				this.plhData.appendChild(node);
 			}
 		},
 
@@ -879,88 +903,6 @@ PiLot.View.Stats = (function () {
 			return (pDistance && RC.Utils.isNumeric(pDistance)) ? Math.round(pDistance * 100) / 100 : pDistance;
 		},
 
-		/**
-		 * Takes the current tracks, and creates an array of arrays, first having the list of boats, and
-		 * then for each timespan having an array starting with the name of the timespan, and then the
-		 * total distance for each boat. This can then be passed to the chart as dataset.source.
-		 * */
-		processDataAsync: async function () {
-			/*let result = [];
-			if (this.tracks && this.tracks.length) {
-				switch (this.userSettings.interval) {
-					case 0:		// per day
-						this.dateMappingFunction = this.mapToDay;
-						this.dateIncrementFunction = this.addDay;
-						this.dateLabelFunction = this.getDayLabel;
-						break;
-					case 1:		// per week
-						this.dateMappingFunction = this.mapToWeek;
-						this.dateIncrementFunction = this.addWeek;
-						this.dateLabelFunction = this.getWeekLabel;
-						break;
-					case 2:		// per month
-						this.dateMappingFunction = this.mapToMonth;
-						this.dateIncrementFunction = this.addMonth;
-						this.dateLabelFunction = this.getMonthLabel;
-						break;
-					case 3:		// per year
-						this.dateMappingFunction = this.mapToYear;
-						this.dateIncrementFunction = this.addYear;
-						this.dateLabelFunction = this.getYearLabel;
-						break;
-				}
-				let convertDistanceFunction;
-				switch (this.userSettings.unit) {
-					case 'nm':
-						convertDistanceFunction = this.convertDistanceNm;
-						break;
-					case 'km':
-						convertDistanceFunction = this.convertDistanceKm;
-						break;
-				}
-				let startDate = this.start;
-				let endDate = this.end;
-				if (startDate === null) {
-					const timeframe = this.getTimeframeFromTracks();
-					startDate = timeframe && timeframe.start;
-					endDate = timeframe && this.dateIncrementFunction(this.dateMappingFunction(timeframe.end));
-				}
-				if (startDate !== null) {
-					startDate = this.dateMappingFunction(startDate);
-					endDate = this.dateMappingFunction(endDate);
-					const boatsIndex = new Map();
-					let boatsArray = ['boats'];
-					this.allBoats || await this.loadAllBoatsAsync();
-					for (aBoatName of boats) {
-						boatsIndex.set(aBoatName, boatsArray.push(aBoatName) - 1);
-					}
-					result.push(boatsArray);
-					const periodsIndex = new Map();
-					let loopDate = startDate;
-					let loopDateMillis;
-					while (loopDate.isBefore(endDate)) {
-						loopDateMillis = loopDate.toMillis();
-						let datesArray = [loopDateMillis];
-						result.push(datesArray);
-						periodsIndex.set(loopDateMillis, result.length - 1);
-						for (let i = 0; i < boats.length; i++) {
-							datesArray.push('');
-						}
-						loopDate = this.dateIncrementFunction(loopDate);
-					}
-					let boatIndex, periodIndex, distanceRounded;
-					for (let aTrack of this.tracks) {
-						if ((boats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)) {
-							boatIndex = boatsIndex.get(aTrack.getBoat());
-							periodIndex = periodsIndex.get(this.dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
-							result[periodIndex][boatIndex] = (result[periodIndex][boatIndex] || 0) + convertDistanceFunction(aTrack.getDistance());
-						}
-					}
-				}
-			}
-			return result;*/
-		},		
-
 		/** Gets the list of all boat names from the current trackSegments */
 		getBoatsFromTrackSegments: function () {
 			const result = [];
@@ -972,12 +914,12 @@ PiLot.View.Stats = (function () {
 			return result;
 		},
 
-		convertDistanceNm: function (pDistance) {
-			return PiLot.Utils.Nav.metersToNauticalMiles(pDistance);
+		convertSpeedKn: function (pSpeed) {
+			return PiLot.Utils.Nav.metersToNauticalMiles(pSpeed) * 3600;
 		},
 
-		convertDistanceKm: function (pDistance) {
-			return pDistance / 1000;
+		convertSpeedKmh: function (pSpeed) {
+			return pSpeed * 3.6;
 		}
 	};
 	

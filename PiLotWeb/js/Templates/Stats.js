@@ -6,17 +6,17 @@ PiLot.Templates.Stats = {
 	trackStatsPage: `
 		<div class="contentPadding paddingRight">
 			<h1><span data-text="trackStatistics"></span></h1>
-			<h3><a class="lnkTotalDistance" data-text="totalDistance"></a></h3>
-			<div class="pnlTotalDistanceChart marginBottom"></div>
-			<h3><a class="lnkFastestSegments" data-text="fastestSegments"></a></h3>
-			<div class="pnlFastestSegmentsChart marginBottom"></div>
+			<h3 class="marginBottomSmall"><a class="lnkTotalDistance" data-text="totalDistance"></a></h3>
+			<div class="pnlTotalDistanceChart marginBottomBig"></div>
+			<h3 class="marginBottomSmall"><a class="lnkFastestSegments" data-text="fastestSegments"></a></h3>
+			<div class="pnlFastestSegmentsChart marginBottomBig"></div>
 		</div>
 	`,
 
 	totalDistanceChart: `
 		<div>
-			<div class="flexRow reverse" style="justify-content: space-between;">
-				<div class="pnlSettings flexRowWrap grow paddingBottom" hidden>
+			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
+				<div class="pnlSettings flexRowWrap grow" hidden>
 					<div class="flexColumn paddingRight grow" style="max-width:12em;">
 						<span data-text="timeframe" class="bold"></span>
 						<label><input type="radio" name="rblTotalDistanceTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
@@ -52,7 +52,7 @@ PiLot.Templates.Stats = {
 
 	fastestSegmentsChart: `
 		<div>
-			<div class="flexRow reverse" style="justify-content: space-between;">
+			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
 				<div class="pnlSettings flexRowWrap grow paddingBottom" hidden>
 					<div class="flexColumn paddingRight grow" style="max-width:12em;">
 						<span data-text="segmentType" class="bold"></span>
@@ -70,14 +70,14 @@ PiLot.Templates.Stats = {
 					</div>
 					<div class="plhUnit flexColumn paddingRight grow" style="max-width:12em;">
 						<span data-text="unit" class="bold"></span>
-						<label><input type="radio" name="rblTotalDistanceUnit" value="nm" class="rblUnit" /><span data-text="nm"></span></label>
-						<label><input type="radio" name="rblTotalDistanceUnit" value="km" class="rblUnit" /><span data-text="km"></span></label>
+						<label><input type="radio" name="rblTotalDistanceUnit" value="kn" class="rblUnit" /><span data-text="kn"></span></label>
+						<label><input type="radio" name="rblTotalDistanceUnit" value="kmh" class="rblUnit" /><span data-text="kmh"></span></label>
 					</div>
 				</div>
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
-			<div class="pnlChart chart fullWidth borderLight flexRow" style="min-height: 200px; max-height: 1000px; height:50vh;">
+			<div class="pnlChart chart fullWidth borderLight flexColumn">
 				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
 				<div class="plhData"></div>
 			</div>
@@ -86,5 +86,9 @@ PiLot.Templates.Stats = {
 
 	fastestSegmentsLegendItem: `<div class="marginRight flex"><div class="divColor color marginRightSmall"></div><span class="lblText text"></span></div>`,
 
-	fastestSegmetsDataItem: `<div><div class="divBar bar"><span class="lblBarText"></span></div><span class="lblBarLabel marginLeft"></span></div>`
+	fastestSegmentsDataItem: `
+		<div class="flexRow">
+			<div class="divBar bar vCenter"><a class="lnkBarText"></a></div>
+			<span class="lblBarLabel barLabel vCenter marginLeft"></span>
+		</div>`
 };
