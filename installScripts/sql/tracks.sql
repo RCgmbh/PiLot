@@ -126,7 +126,6 @@ CREATE INDEX track_points_coordinates_index
 
 CREATE VIEW public.all_track_segments AS (
 	SELECT
-		ts.id,
 		ts.type_id,
 		ts.track_id,
 		ts.start_utc,
