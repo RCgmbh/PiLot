@@ -343,7 +343,6 @@ CREATE OR REPLACE FUNCTION public.read_track_segments_by_track(
 	p_track_id integer
 )
 RETURNS TABLE (
-	id integer,
 	type_id integer,
 	track_id integer,
 	start_utc bigint,
@@ -357,7 +356,6 @@ RETURNS TABLE (
 LANGUAGE 'sql'
 AS $BODY$
 	SELECT
-		id,
 		type_id,
 		track_id,
 		start_utc,
@@ -388,7 +386,6 @@ CREATE OR REPLACE FUNCTION public.find_track_segments(
 	p_page_size integer
 )
 RETURNS TABLE (
-	id integer,
 	type_id integer,
 	track_id integer,
 	start_utc bigint,
@@ -402,7 +399,6 @@ RETURNS TABLE (
 LANGUAGE 'sql'
 AS $BODY$
 	SELECT
-		id,
 		type_id,
 		track_id,
 		start_utc,
