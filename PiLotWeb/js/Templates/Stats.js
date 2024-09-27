@@ -32,7 +32,7 @@ PiLot.Templates.Stats = {
 					</div>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="boats" class="bold"></span>
-						<div class="plhBoats"></div>
+						<div class="plhBoats flexColumn"></div>
 					</div>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="unit" class="bold"></span>
@@ -66,7 +66,7 @@ PiLot.Templates.Stats = {
 					</div>
 					<div class="plhBoats flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="boats" class="bold"></span>
-						<div class="plhBoats"></div>
+						<div class="plhBoats flexColumn"></div>
 					</div>
 					<div class="plhUnit flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="unit" class="bold"></span>
