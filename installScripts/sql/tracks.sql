@@ -133,7 +133,7 @@ CREATE VIEW public.all_track_segments AS (
 		ts.start_boattime,
 		ts.end_boattime,
 		ts.distance_mm,
-		ts.distance_mm::NUMERIC/(ts.end_utc - ts.start_utc) as speed,
+		ts.distance_mm::DOUBLE PRECISION/(ts.end_utc - ts.start_utc) as speed,
 		tr.boat
 	FROM
 		track_segments ts INNER JOIN tracks tr ON ts.track_id = tr.id
@@ -405,7 +405,7 @@ AS $BODY$
 		start_boattime,
 		end_boattime,
 		distance_mm,
-		distance_mm::NUMERIC/(end_utc - start_utc) as speed,
+		speed,
 		boat
 	FROM
 		all_track_segments
