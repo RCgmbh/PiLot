@@ -296,6 +296,8 @@ a.underline { text-decoration: underline; }
 a:hover, a.tile:hover { color: #4992FF; }
 
 a.lightLink, a.lightLink:active, a.lightLink:visited { color: #EEE; }
+a.darkLink, a.darkLink:active, a.darkLink:visited { color: #222; }
+a.darkLink:hover { color:#000; }
 a.active, a:visited.active, a:active.active, body.night a.active, body.night a:visited.active, body.night a:active.active { color: #FFBF49; }
 
 .linkButton { text-decoration: none; display: inline-block; min-width: 3.5em; min-height: 2.5em; border: 1px solid #222; border-radius: 3px; background-color: #eee; text-align: center; padding-top: 0.4em; }
@@ -375,7 +377,8 @@ th.right, td.right { text-align: right !important; }
 .chartLegend > div {align-items: baseline;}
 .chartLegend .color{ width:1.8em; height: 0.8em; border-radius:4px; }
 .chartLegend .text {font-size:0.8em;}
-.chart .bar {height:2.4em; padding-left:1em; margin-bottom: 1em; border-radius: 0px 2px 2px 0px;}
+.chart .bar {height:2.4em; margin-bottom: 1em; border-radius: 0px 2px 2px 0px; overflow:hidden; min-width:2px; align-items:start; }
+.chart .bar .link { overflow:hidden; text-overflow:ellipsis; margin-left:0.25em; margin-right:0.25em; }
 .chart .barLabel {height:2.4em;}
 
 @media (max-width:400px) {
