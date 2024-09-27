@@ -376,7 +376,6 @@ th.right, td.right { text-align: right !important; }
 
 .chartLegend > div {align-items: baseline;}
 .chartLegend .color{ width:1.8em; height: 0.8em; border-radius:4px; }
-.chartLegend .text {font-size:0.8em;}
 .chart .bar {height:2.4em; margin-bottom: 1em; border-radius: 0px 2px 2px 0px; overflow:hidden; min-width:2px; align-items:start; }
 .chart .bar .link { overflow:hidden; text-overflow:ellipsis; margin-left:0.25em; margin-right:0.25em; }
 .chart .barLabel {height:2.4em;}

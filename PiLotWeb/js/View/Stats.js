@@ -820,7 +820,7 @@ PiLot.View.Stats = (function () {
 				this.showLegend(colorIndex);
 				this.showBars(colorIndex);
 			} else {
-				this.pnlChart.hidden = false;
+				this.pnlChart.hidden = true;
 			}
 			this.pnlNoData.hidden = !this.pnlChart.hidden;
 		},
