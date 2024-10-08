@@ -13,7 +13,7 @@ DELETE FROM track_segment_types;
 /* INSERT TRACK SEGMENT TYPES */
 SELECT insert_track_segment_type(null, 1000, '{"de": "Top Kilometer", "en": "Top kilometer"}');
 SELECT insert_track_segment_type(null, 1852, '{"de": "Top Meile", "en": "Top mile"}');
-SELECT insert_track_segment_type(null, 5000, '{"de": "Top fünf Kilometer", "en": "Top five kilometers"}');
+SELECT insert_track_segment_type(null, 5000, '{"de": "Top 5 Kilometer", "en": "Top 5 kilometers"}');
 SELECT insert_track_segment_type(null, 21097, '{"de": "Top Halbmarathon", "en": "Top half marathon"}');
 SELECT insert_track_segment_type(null, 42195, '{"de": "Top Marathon", "en": "Top marathon"}');
 SELECT insert_track_segment_type(10, null, '{"de": "Top 10 Sekunden", "en": "Top 10 seconds"}');
