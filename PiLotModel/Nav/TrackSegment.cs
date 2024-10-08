@@ -9,6 +9,8 @@ namespace PiLot.Model.Nav {
 	/// </summary>
 	public class TrackSegment {
 
+		private Double? speed = null;
+
 		public TrackSegment(Int32? pTrackId, Int32 pTypeId) {
 			this.TrackID = pTrackId;
 			this.TypeID = pTypeId;
@@ -71,10 +73,19 @@ namespace PiLot.Model.Nav {
 		public Int32 Distance_mm { get; set; }
 
 		/// <summary>
-		/// Returns the average speed of the segment in m/s
+		/// Returns the average speed of the segment in m/s. If a value has been set
+		/// explicitly (by reading data from the DB, where the speed might already be
+		/// set), that value is returned, otherwise the speed is calculated ad hoc.
 		/// </summary>
 		[JsonPropertyName("speed")]
-		public Double Speed { get;set; }
+		public Double Speed { 
+			get{
+				return this.speed ?? this.Distance_mm / (Double)(this.EndUTC - this.StartUTC);
+			}
+			set{
+				this.speed = value;
+			} 
+		}
 
 		/// <summary>
 		/// The boat name
