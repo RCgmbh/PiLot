@@ -207,7 +207,7 @@ RC.Date.DateOnly.prototype = {
 
 	/// returns the seconds for this date, 00:00, in seconds since epoc 
 	totalSeconds: function () {
-		this.toMillis() / 1000;
+		return this.toMillis() / 1000;
 	},
 
 	/// returns true, if pDateTime is on this date
