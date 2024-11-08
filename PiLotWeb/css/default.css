@@ -470,7 +470,7 @@ body.night #mainMenu > div > a:hover { color: #4992FF; }
 /* RESPONSIVE */
 /* Default: minimal */
 body { min-width: 20em; }
-#header { width: 100%; height: 2em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index: 12000; display: flex; justify-content: space-between; }
+#header { width: 100%; height: 2em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index: 12000; display: flex; justify-content: space-between; box-shadow: 0px -2px 8px black; }
 #main { display: flex; flex-grow: 1; margin-top: 2em; }
 #hamburger { width: 3em; display: inline-block; }
 #hamburger > a { height: 100%; }
@@ -485,22 +485,66 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 #dayNightButtons .btnNightMode, body.night #dayNightButtons .btnDayMode { display: flex; }
 #headerButtons a.btnUserInfo { }
 #clock { min-width: 4.7em; display: flex; flex-direction: row; align-items: center; justify-content: space-between; font-size: 0.75em; }
-#mainMenu { display: none; min-width: 4em; width: 4em; }
+/*#mainMenu { display: none; min-width: 4em; width: 4em; }
 #mainMenu > div { height: 4em; display: flex; justify-content: center; }
 #mainMenu > div > a { padding: 0.5em 0.25em; flex-grow: 1; max-width: 2em; }
-#mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index: 12000; border-bottom: 0.25em solid black; }
+#mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index: 12000; border-bottom: 0.25em solid black; }*/
+.mainMenu { 
+	/*z-index:15000;
+	position: absolute;*/
+	background-color:black;
+	width: 100%; 
+	min-height:100%;
+	/*top:0px;
+	left:0px;*/
+}
+
+.mainMenu .menuSection{
+	display:flex; flex-direction: row; flex-wrap: wrap;
+	margin: 0.5em 0em;
+}
+
+.mainMenu .menuSectionHome a {color:rgb(221, 147, 147); border-color:rgb(221, 147, 147);}
+.mainMenu .menuSectionNav a {color:rgb(221, 168, 147); border-color:rgb(221, 168, 147);}
+.mainMenu .menuSectionLog a {color:rgb(221, 214, 147); border-color:rgb(221, 214, 147);}
+.mainMenu .menuSectionMeteo a {color:rgb(170, 221, 147); border-color:rgb(170, 221, 147);}
+.mainMenu .menuSectionEntertainment a {color:rgb(147, 221, 211); border-color:rgb(147, 221, 211);}
+.mainMenu .menuSectionSettings a {color:rgb(147, 173, 221); border-color:rgb(147, 173, 221);}
+.mainMenu .menuSectionTools a {color:rgb(175, 147, 221); border-color:rgb(175, 147, 221);}
+.mainMenu .menuSectionAdmin a {color:rgb(219, 147, 221); border-color:rgb(219, 147, 221);}
+
+.mainMenu .menuSection a { 
+	border-width:1px;
+	border-style: solid;
+	border-radius: 0.25em;
+	padding: 0.25em;
+	display:flex;
+	flex-direction: column;
+	align-items:center;
+	justify-content: space-evenly;
+	width: 8em;
+	height: 9vh;
+	max-height: 6em;
+	min-height: 4em;
+	margin: 0.25em;
+}
+
+.mainMenu .menuSection a i {
+	font-size: 2em;
+}
+
 #content { flex-grow: 1; display: flex; }
 
 /* show main menu, just narrow. Show both day and night buttons */
 @media (min-width:600px) and (min-height:420px) {
-	#hamburger { display: none; }
+	/*#hamburger { display: none; }*/
 	#subMenu { margin-left: 4.25em; }
 	#dayNightButtons > a { width: 3em; }
 	body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { display: flex; }
-	#mainMenu { display: unset; min-width: 4em; flex-grow: 0; }
+	/*#mainMenu { display: unset; min-width: 4em; flex-grow: 0; }
 	#mainMenu > div > a { display: none; }
 	#mainMenu > div > a:nth-child(1) { display: inline-block; }
-	#mainMenu.expanded { position: relative; width: unset; z-index: unset; }
+	#mainMenu.expanded { position: relative; width: unset; z-index: unset; }*/
 	#clock { margin-right: 0.5em; font-size: 1em; }
 	h1 { margin-left: 0em; }
 }

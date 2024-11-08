@@ -3,6 +3,78 @@ PiLot.View = PiLot.View || {};
 
 PiLot.View.Common = (function () {
 
+	const pages = {
+		home: {
+			accessControl: null
+		},
+		map: {
+			accessControl: null
+		},
+		nav: {
+			accessControl: null
+		},
+		routes: {
+			accessControl: null
+		},
+		diary: {
+			accessControl: null
+		},
+		logbook: {
+			accessControl: PiLot.Model.Common.Permissions.canWrite
+		},
+		stats: {
+			accessControl: null
+		},
+		publish: {
+			accessControl: null
+		},
+		measurements: {
+			accessControl: null
+		},
+		games: {
+			accessControl: null
+		},
+		library: {
+			accessControl: null
+		},
+		boat: {
+			accessControl: PiLot.Permissions.canChangeSettings
+		},
+		boatTime: {
+			accessControl: PiLot.Permissions.canChangeSettings
+		},
+		language: {
+			accessControl: null
+		},
+		data: {
+			accessControl: null
+		},
+		tiles: {
+			accessControl: PiLot.Permissions.canWrite
+		},
+		pois: {
+			accessControl: PiLot.Permissions.canWrite
+		},		
+		wifi: {
+			accessControl: PiLot.Permissions.hasSystemAccess
+		},
+		services: {
+			accessControl: PiLot.Permissions.hasSystemAccess
+		},
+		logs: {
+			accessControl: PiLot.Permissions.hasSystemAccess
+		},
+		status: {
+			accessControl: PiLot.Permissions.hasSystemAccess
+		},
+		systemTime: {
+			accessControl: PiLot.Permissions.hasSystemAccess
+		},
+		shutDown: {
+			accessControl: PiLot.Permissions.hasSystemAccess
+		}
+	};
+	
 	const clientErrorThresholdSeconds = 10;
 
 	/// class representing the clock which shows the current Boat Time
@@ -28,7 +100,7 @@ PiLot.View.Common = (function () {
 			this.lblTime = container.querySelector('.lblTime');
 			this.lblTime.addEventListener('mouseover', this.showTimezone.bind(this));
 			this.lnkWarning = container.querySelector('.lnkWarning');
-			this.lnkWarning.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.system.admin.time);
+			this.lnkWarning.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.systemTime);
 		},
 
 		/// loads the boatTime and starts the timer
@@ -270,6 +342,83 @@ PiLot.View.Common = (function () {
 			return PiLot.Utils.Common.loadUserSetting('PiLot.Utils.Common.nightMode') || false;
 		}
 
+	};
+
+	/** Renders a hamburger icon, which will, when clicked, show the main menu */
+	var MainMenuHamburger = function(){
+		this.lnkHamburger = null;
+		this.menuContainer = null;
+		this.initialize();
+	};
+
+	MainMenuHamburger.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		hamburger_click: function(pSender){
+			this.showHideMenu();
+		},
+
+		draw: function(){
+			this.lnkHamburger = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuHamburger);
+			const hamburgerContainer = document.querySelector('#hamburger');
+			hamburgerContainer.appendChild(this.lnkHamburger);
+			hamburger.addEventListener('click', this.hamburger_click.bind(this));
+			this.menuContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Common.flyoutMainMenu);
+			this.hideMenu();	
+			new MainMenu2(this.menuContainer.querySelector('.plhContent'));
+			PiLot.Utils.Loader.getContentArea().insertAdjacentElement('beforebegin', this.menuContainer);
+
+		},
+
+		showHideMenu: function(){
+			this.menuContainer.hidden = !this.menuContainer.hidden;
+			const contentArea = PiLot.Utils.Loader.getContentArea();
+			contentArea.hidden = !contentArea.hidden;
+		},
+		
+		showMenu: function(){
+			this.menuContainer.hidden = false;
+			PiLot.Utils.Loader.getContentArea().hidden = true;
+		},
+		
+		hideMenu: function(){
+			this.menuContainer.hidden = true;
+			PiLot.Utils.Loader.getContentArea().hidden = false;
+		},
+			
+	};
+
+	var MainMenu2 = function(pContainer){
+
+		this.container = pContainer;
+		this.initialize();
+
+	};
+
+	MainMenu2.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		draw: function(){
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenuContent);
+			this.container.appendChild(control);
+			let pageKey;
+			const pages = PiLot.Utils.Loader.pages;
+			for(anItem of control.querySelectorAll('[data-page]')){
+				pageKey = anItem.dataset['page'];
+				if (pageKey in pages){
+					anItem.href = PiLot.Utils.Loader.createPageLink(pages[pageKey]);
+				} else{
+					console.log(`Invalid page key in MainMenu: ${pageKey}`);
+				}
+				
+			}
+		},
 	};
 
 	/// the main menu, containing sections and links. And also
@@ -801,11 +950,13 @@ PiLot.View.Common = (function () {
 	};
 
 	return {
+		pages: pages,
 		Clock: Clock,
 		StartPage: StartPage,
 		setCurrentMainMenuPage: setCurrentMainMenuPage,
 		NightModeHandler: NightModeHandler,
 		MainMenu: MainMenu,
+		MainMenuHamburger: MainMenuHamburger,
 		TouchButtons: TouchButtons,
 		LoginForm: LoginForm,
 		getLoginForm: getLoginForm,

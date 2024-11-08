@@ -19,15 +19,15 @@ PiLot.View.Admin = (function () {
 		/** Draws the page and sets the link urls based on the Loader logic */
 		draw: function () {
 			let loader = PiLot.Utils.Loader;
-			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.system.admin.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.admin);
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.adminOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.system.admin.time));
-			pageContent.querySelector('.lnkWiFi').setAttribute('href', loader.createPageLink(loader.pages.system.admin.wifi));
-			pageContent.querySelector('.lnkServices').setAttribute('href', loader.createPageLink(loader.pages.system.admin.services));
-			pageContent.querySelector('.lnkSystemStatus').setAttribute('href', loader.createPageLink(loader.pages.system.admin.status));
-			pageContent.querySelector('.lnkLog').setAttribute('href', loader.createPageLink(loader.pages.system.admin.log));
-			pageContent.querySelector('.lnkShutDown').setAttribute('href', loader.createPageLink(loader.pages.system.admin.shutdown));
+			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.systemTime));
+			pageContent.querySelector('.lnkWiFi').setAttribute('href', loader.createPageLink(loader.pages.wifi));
+			pageContent.querySelector('.lnkServices').setAttribute('href', loader.createPageLink(loader.pages.services));
+			pageContent.querySelector('.lnkSystemStatus').setAttribute('href', loader.createPageLink(loader.pages.systemStatus));
+			pageContent.querySelector('.lnkLog').setAttribute('href', loader.createPageLink(loader.pages.log));
+			pageContent.querySelector('.lnkShutDown').setAttribute('href', loader.createPageLink(loader.pages.shutDown));
 		}
 	};
 
@@ -58,7 +58,7 @@ PiLot.View.Admin = (function () {
 	BoatTimePage.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.admin);
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.draw();
 			this.showTime();
@@ -150,7 +150,7 @@ PiLot.View.Admin = (function () {
 	SystemStatusPage.prototype = {
 
 		initialize: function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.admin);
 			this.draw();
 			this.showCPUTemperature();
 			this.startCPUTempTimer();
@@ -188,7 +188,7 @@ PiLot.View.Admin = (function () {
 	ServicesPage.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.admin);
 			await this.drawAsync();
 			this.startServiceTimer();
 		},
@@ -380,7 +380,7 @@ PiLot.View.Admin = (function () {
 
 		initializeAsync: async function () {
 			this.wifiHelper = new PiLot.Model.Admin.WiFiHelper();
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.admin.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.admin);
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			await this.drawAsync();
 			this.loadInterfacesAsync();

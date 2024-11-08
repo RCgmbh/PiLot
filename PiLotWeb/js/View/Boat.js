@@ -423,7 +423,7 @@ PiLot.View.Boat = (function () {
 	BoatPage.prototype = {
 
 		initialize: function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.settings.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.settings);
 			this.draw();
 		},
 

@@ -17,11 +17,11 @@ PiLot.View.Tools = (function () {
 			let loader = PiLot.Utils.Loader;
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.toolsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.system.tools.data));
+			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.data));
 			const lnkTiles = pageContent.querySelector('.lnkTiles');
-			PiLot.Utils.Common.bindOrHideEditLink(lnkTiles, null, loader.createPageLink(loader.pages.system.tools.tiles));
+			PiLot.Utils.Common.bindOrHideEditLink(lnkTiles, null, loader.createPageLink(loader.pages.tiles));
 			const lnkPois = pageContent.querySelector('.lnkPois');
-			PiLot.Utils.Common.bindOrHideEditLink(lnkPois, null, loader.createPageLink(loader.pages.system.tools.pois));
+			PiLot.Utils.Common.bindOrHideEditLink(lnkPois, null, loader.createPageLink(loader.pages.pois));
 		}
 	};
 
@@ -61,7 +61,7 @@ PiLot.View.Tools = (function () {
 	GpsImportExportForm.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.tools);
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			await this.drawFormAsync();
 			this.setDefaultDates();
@@ -72,7 +72,7 @@ PiLot.View.Tools = (function () {
 			const loader = PiLot.Utils.Loader;
 			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.gpsImportExportForm);
 			loader.getContentArea().appendChild(this.pageContent);
-			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
+			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.tools));
 			const locale = PiLot.Utils.Language.getLanguage();
 			let tbStartDate = this.pageContent.querySelector('.tbStartDate');
 			this.calStartDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalStartDate'), tbStartDate, null, null, null, locale);
@@ -563,7 +563,7 @@ PiLot.View.Tools = (function () {
 		/// checks the container, initializes the tileSourcesControls Array,
 		/// reads all TileSources from the server and and calls draw() when done
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.tools);
 			this.tilesDownloadHelpers = new Map();
 			this.tileSourcesControls = new Map();
 			this.tileSources = await PiLot.Model.Nav.readAllTileSourcesAsync();
@@ -730,7 +730,7 @@ PiLot.View.Tools = (function () {
 
 		initialize: function () {
 			this.draw();
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.system.tools.overview);
+			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.tools);
 		},
 
 		draw: function () {

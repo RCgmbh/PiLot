@@ -18,52 +18,37 @@ PiLot.Utils.Loader = (function () {
 	/** the name of the application html file */
 	const HTMLFILE = 'index.html';
 
+	
 	/** the query string values for each page */
 	const pages = {
-		empty: 'empty',
-		home: 'home',
-		nav: {
-			map: 'map',
-			data: 'navdata',
-			routes: 'routes',
-			routeDetails: 'route'
-		},
-		meteo: {
-			sensors: 'sensors'
-		},
-		logbook: {
-			logbook: 'logbook',
-			diary: 'diary',
-			publish: 'publish',
-			stats: 'stats'
-		},
-		media: {
-			games: 'games',
-			library: 'library'
-		},
-		system: {
-			settings: {
-				overview: 'settings',
-				boat: 'boat',
-				boatTime: 'boattime',
-				language: 'language'
-			},
-			tools: {
-				overview: 'tools',
-				data: 'data',
-				tiles: 'tiles',
-				pois: 'pois'
-			},
-			admin: {
-				overview: 'admin',
-				wifi: 'wifi',
-				services: 'services',
-				log: 'logs',
-				status: 'status',
-				time: 'time',
-				shutdown: 'shutdown'
-			}
-		}
+		empty: {key: 'empty'},
+		home: {key: 'home'},
+		map: {key: 'map'},
+		nav: {key: 'nav'},
+		routes: {key: 'routes'},
+		routeDetails: {key: 'routeDetails'},
+		measurements: {key: 'measurements'},
+		logbook: {key: 'logbook'},
+		diary: {key: 'diary'},
+		publish: {key: 'publish'},
+		stats: {key: 'stats'},
+		games: {key: 'games'},
+		library: {key: 'library'},
+		settings: {key: 'settings'},
+		boat: {key: 'boat'},
+		boatTime: {key: 'boatTime'},
+		language: {key: 'language'},
+		tools: {key: 'tools'},
+		data: {key: 'data'},
+		tiles: {key: 'tiles'},
+		pois: {key: 'pois'},
+		admin: {key: 'admin'},
+		wifi: {key: 'wifi'},
+		services: {key: 'services'},
+		logs: {key: 'logs'},
+		systemStatus: {key: 'systemStatus'},
+		systemTime: {key: 'systemTime'},
+		shutDown: {key: 'shutDown'}
 	};
 
 	/// we define arrays of scripts, each with its priority. Scripts
@@ -78,7 +63,7 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/3rdParty/RC/RC.Date.js', priority: 5 },
 		{ url: 'js/3rdParty/RC/RC.Controls.js', priority: 10 },
 		{ url: 'js/Config.js', priority: 1 },
-		{ url: 'js/Model/Common.js', priority: 10 },
+		{ url: 'js/Model/Common.js', priority: 8 },
 		{ url: 'js/Utils/Common.js', priority: 5 },
 		{ url: 'js/Utils/Audio.js', priority: 5 },
 		{ url: 'js/Templates/Common.js', priority: 10 },
@@ -191,10 +176,22 @@ PiLot.Utils.Loader = (function () {
 
 		loadPage: function () {
 			PiLot.Utils.Language.applyHTMLLanguage();
-			this.page = RC.Utils.getUrlParameter(PAGEKEY) || pages.home;
+			const urlKey = RC.Utils.getUrlParameter(PAGEKEY);
+			this.page = this.getPage(urlKey) || pages.home;
 			let pageScripts = this.getPageScripts();
 			this.addLanguageReference(pageScripts.dependencies);
 			new PiLot.Utils.Loader.ScriptLoader(pageScripts.dependencies, this.onScriptsLoaded.bind(this, pageScripts.startAction));
+		},
+
+		getPage: function(pKey){
+			let result;
+			for(let aPage in pages){
+				if(pages[aPage].key === pKey){
+					result = pages[aPage];
+					break;
+				}
+			}
+			return result;
 		},
 
 		/**
@@ -215,107 +212,107 @@ PiLot.Utils.Loader = (function () {
 					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, flotScripts];
 					startAction = function () { new PiLot.View.Common.StartPage(); };
 					break;
-				case pages.nav.map:
+				case pages.map:
 					dependencies = [defaultScripts, navScripts];
 					startAction = function () { new PiLot.View.Map.MapPage(); };
 					break;
-				case pages.nav.data:
+				case pages.nav:
 					dependencies = [defaultScripts, navScripts];
 					startAction = function () { new PiLot.View.Nav.NavPage(); };
 					break;
-				case pages.nav.routes:
+				case pages.routes:
 					dependencies = [defaultScripts, navScripts];
 					startAction = function () { new PiLot.View.Nav.RoutesList(); };
 					break;
-				case pages.nav.routeDetails:
+				case pages.routeDetails:
 					dependencies = [defaultScripts, navScripts];
 					startAction = function () { new PiLot.View.Nav.RouteDetail(); };
 					break;
-				case pages.meteo.sensors:
+				case pages.measurements:
 					dependencies = [defaultScripts, meteoScripts, flotScripts, navScripts];
 					startAction = function () { new PiLot.View.Meteo.SensorsPage(); };
 					break;
-				case pages.logbook.logbook:
+				case pages.logbook:
 					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts];
 					startAction = function () { new PiLot.View.Logbook.LogbookPage(); };
 					break;
-				case pages.logbook.diary:
+				case pages.diary:
 					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts, toolsScripts, flotScripts];
 					startAction = function () { new PiLot.View.Diary.DiaryPage(); };
 					break;
-				case pages.logbook.publish:
+				case pages.publish:
 					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts];
 					startAction = function () { new PiLot.View.Diary.PublishDiaryPage(); };
 					break;
-				case pages.logbook.stats:
+				case pages.stats:
 					dependencies = [defaultScripts, navScripts, boatScripts, echartsScripts, statsScripts];
 					startAction = function () { new PiLot.View.Stats.TrackStatsPage(); };
 					break;
-				case pages.media.games:
+				case pages.games:
 					dependencies = [defaultScripts, mediaScripts];
 					startAction = function () { new PiLot.View.Media.GamesOverviewPage(); }
 					break;
-				case pages.media.library:
+				case pages.library:
 					dependencies = [defaultScripts, mediaScripts];
 					startAction = function () { new PiLot.View.Media.LibraryPage(); }
 					break;
-				case pages.system.tools.overview:
+				case pages.tools:
 					dependencies = [defaultScripts, toolsScripts];
 					startAction = function () { new PiLot.View.Tools.ToolsOverviewPage(); };
 					break;
-				case pages.system.tools.data:
+				case pages.data:
 					dependencies = [defaultScripts, navScripts, flotScripts, toolsScripts, boatScripts];
 					startAction = function () { new PiLot.View.Tools.GpsImportExportForm(); };
 					break;
-				case pages.system.tools.tiles:
+				case pages.tiles:
 					dependencies = [defaultScripts, navScripts, toolsScripts];
 					startAction = function () { new PiLot.View.Tools.TilesDownloadForm(); };
 					break;
-				case pages.system.tools.pois:
+				case pages.pois:
 					dependencies = [defaultScripts, navScripts, toolsScripts];
 					startAction = function () { new PiLot.View.Tools.PoisManagementPage(); };
 					break;
-				case pages.system.settings.overview:
+				case pages.settings:
 					dependencies = [defaultScripts, settingsScripts];
 					startAction = function () { new PiLot.View.Settings.SettingsOverviewPage(); };
 					break;
-				case pages.system.settings.boatTime:
+				case pages.boatTime:
 					dependencies = [defaultScripts, settingsScripts];
 					startAction = function () { new PiLot.View.Settings.BoatTimePage(); };
 					break;
-				case pages.system.settings.boat:
+				case pages.boat:
 					dependencies = [defaultScripts, boatScripts];
 					startAction = function () { new PiLot.View.Boat.BoatPage(); };
 					break;
-				case pages.system.settings.language:
+				case pages.language:
 					dependencies = [defaultScripts, settingsScripts];
 					startAction = function () { new PiLot.View.Settings.LanguagePage(); };
 					break;
-				case pages.system.admin.overview:
+				case pages.admin:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.AdminOverviewPage(); };
 					break;
-				case pages.system.admin.wifi:
+				case pages.wifi:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.WiFiPage(); };
 					break;
-				case pages.system.admin.services:
+				case pages.services:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.ServicesPage(); };
 					break;
-				case pages.system.admin.status:
+				case pages.systemStatus:
 					dependencies = [defaultScripts, adminScripts, flotScripts];
 					startAction = function () { new PiLot.View.Admin.SystemStatusPage(); }
 					break;
-				case pages.system.admin.log:
+				case pages.log:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.LogFilesPage(); }
 					break;
-				case pages.system.admin.time:
+				case pages.systemTime:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.BoatTimePage(); };
 					break;
-				case pages.system.admin.shutdown:
+				case pages.shutDown:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.ShutdownPage(); };
 					break;
@@ -379,7 +376,8 @@ PiLot.Utils.Loader = (function () {
 		 * */
 		addDefaultControls: function() {
 			new PiLot.View.Common.Clock();
-			new PiLot.View.Common.MainMenu(this.page);
+			//new PiLot.View.Common.MainMenu(this.page);
+			new PiLot.View.Common.MainMenuHamburger();
 			new PiLot.View.Common.UserIcon();
 		}
 	};
@@ -493,7 +491,7 @@ PiLot.Utils.Loader = (function () {
 	 * @param {String} pPage - one of them Loader.pages
 	 */
 	function createPageLink(pPage) {
-		return `${HTMLFILE}?${PAGEKEY}=${pPage}`;
+		return `${HTMLFILE}?${PAGEKEY}=${pPage.key}`;
 	}
 
 	return {

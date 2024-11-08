@@ -190,12 +190,12 @@ PiLot.View.Diary = (function () {
 
 		/** Updates the href attribute of the editTrack link */
 		bindLnkEditTrack: function () {
-			this.bindDateLink(this.lnkEditTrack, PiLot.Utils.Loader.pages.system.tools.data);
+			this.bindDateLink(this.lnkEditTrack, PiLot.Utils.Loader.pages.gpsData);
 		},
 
 		/** Updates the href attribute of the publish link */
 		bindLnkPublish: function () {
-			this.bindDateLink(this.lnkPublish, PiLot.Utils.Loader.pages.logbook.publish);
+			this.bindDateLink(this.lnkPublish, PiLot.Utils.Loader.pages.publish);
 		},
 
 		/**

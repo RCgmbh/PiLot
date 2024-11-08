@@ -534,7 +534,7 @@ PiLot.View.Nav = (function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routesPage));
 			const lnkAddRoute = contentArea.querySelector('.lnkAddRoute');
-			PiLot.Utils.Common.bindOrHideEditLink(lnkAddRoute, null, PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routeDetails))
+			PiLot.Utils.Common.bindOrHideEditLink(lnkAddRoute, null, PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routeDetails))
 			this.plhTable = contentArea.querySelector('.plhTable');
 			this.drawTable();
 		},
@@ -571,7 +571,7 @@ PiLot.View.Nav = (function () {
 			}
 			let lnkName = row.querySelector('.lnkName');
 			lnkName.innerText = pRoute.getName();
-			let detailUrl = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routeDetails);
+			let detailUrl = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routeDetails);
 			lnkName.setAttribute('href', `${detailUrl}&routeId=${routeId}`);
 			let distanceNM = PiLot.Utils.Nav.metersToNauticalMiles(pRoute.getTotalDistance());
 			row.querySelector('.tdDistance').innerText = distanceNM.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -694,7 +694,7 @@ PiLot.View.Nav = (function () {
 		lnkDeleteRoute_click: function (pEvent) {
 			if (confirm(PiLot.Utils.Language.getText('confirmDeleteRoute'))) {
 				this.route.deleteFromServerAsync().then(r => {
-					window.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.nav.routes);
+					window.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routes);
 				});
 			}
 		},
