@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
-
+using System.Runtime.InteropServices;
 using PiLot.Utils.DateAndTime;
 using PiLot.Utils.Logger;
 
@@ -16,21 +16,39 @@ namespace PiLot.Utils.OS {
 		private const String DATECOMMAND = "date -u -s \"{0:yyyy-MM-dd HH:mm:ss}\"";    // command template to set system date/time
 		private const String SHUTDOWNCOMMAND = "shutdown now";
 		private const String REBOOTCOMMAND = "reboot now";
+		private const String PINGCOMMAND = "ping";
+		private const String PINGARGSLINUX = "-c 1 {0}";
+		private const String PINGSUCCSSSLINUX = "1 received";
+		private const String PINGARGSWIN = "-n 1 {0}";
+		private const String PINGSUCCSSSWIN = "Received = 1";
+
+		private const String NOLINUXMESSAGE = "This feature is only available on Linux systems.";
 
 		private const Int32 MAXWAIT = 5000;     // the number of milliseconds to wait for an answer from the process
+
+		public SystemHelper() {
+			this.IsLinux = RuntimeInformation.IsOSPlatform(OSPlatform.Linux);
+		}
+
+		/// <summary>
+		/// Returns whether we are on a linux system
+		/// </summary>
+		public Boolean IsLinux {
+			get; private set;
+		}
 
 		/// <summary>
 		/// Shuts down the system
 		/// </summary>
 		public String Shutdown() {
-			return this.CallCommand("sudo", SHUTDOWNCOMMAND);
+			return this.IsLinux ? this.CallCommand("sudo", SHUTDOWNCOMMAND) : NOLINUXMESSAGE;
 		}
 
 		/// <summary>
 		/// Reboots the system
 		/// </summary>
 		public String Reboot() {
-			return this.CallCommand("sudo", REBOOTCOMMAND);
+			return this.IsLinux ? this.CallCommand("sudo", REBOOTCOMMAND) : NOLINUXMESSAGE;
 		}
 
 		/// <summary>
@@ -40,7 +58,18 @@ namespace PiLot.Utils.OS {
 		/// <returns>the result of the command</returns>
 		public String SetDate(Int64 pMillisUTC) {
 			DateTime time = DateTimeHelper.FromJSTime(pMillisUTC);
-			return this.CallCommand("sudo", String.Format(DATECOMMAND, time));
+			return this.IsLinux ? this.CallCommand("sudo", String.Format(DATECOMMAND, time)) : NOLINUXMESSAGE;
+		}
+
+		/// <summary>
+		/// Pings a host and returns true, if pinging was successful
+		/// </summary>
+		/// <param name="pHost">the host, such as 8.8.8.8</param>
+		/// <returns>True, if the host was reached</returns>
+		public Boolean Ping (String pHost) {
+			String args = String.Format(this.IsLinux ? PINGARGSLINUX : PINGARGSWIN, pHost);
+			String cmdResult = this.CallCommand(PINGCOMMAND, args);
+			return (cmdResult.IndexOf(this.IsLinux ? PINGSUCCSSSLINUX : PINGSUCCSSSWIN)) > -1;
 		}
 
 		/// <summary>

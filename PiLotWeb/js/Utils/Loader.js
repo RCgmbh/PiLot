@@ -73,7 +73,10 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/Utils/Common.js', priority: 5 },
 		{ url: 'js/Utils/Audio.js', priority: 5 },
 		{ url: 'js/Templates/Common.js', priority: 10 },
-		{ url: 'js/View/Common.js', priority: 10 }
+		{ url: 'js/View/Common.js', priority: 10 },
+		{ url: 'js/Model/Admin.js', priority: 10 },
+		{ url: 'js/View/Admin.js', priority: 10 },
+		{ url: 'js/Templates/Admin.js', priority: 10 }
 	];
 
 	const navScripts = [
@@ -384,6 +387,8 @@ PiLot.Utils.Loader = (function () {
 			new PiLot.View.Common.Clock();
 			new PiLot.View.Common.MainMenuHamburger();
 			new PiLot.View.Common.UserIcon();
+			new PiLot.View.Common.DayNightIcon();
+			PiLot.View.Admin.WiFiIcon.getInstance();
 		}
 	};
 
@@ -491,6 +496,11 @@ PiLot.Utils.Loader = (function () {
 		return document.getElementById('content');
 	}
 
+	/** returns the container for the header icons */
+	function getIconsArea() {
+		return document.querySelector('#headerButtons>#headerIcons');
+	}
+
 	/**
 	 * Creates a url passing the querystring that defines which page to load
 	 * @param {String} pPage - one of them Loader.pages
@@ -504,6 +514,7 @@ PiLot.Utils.Loader = (function () {
 		ScriptLoader: ScriptLoader,
 		pages: pages,
 		getContentArea: getContentArea,
+		getIconsArea: getIconsArea,
 		createPageLink: createPageLink
 	};
 

@@ -57,9 +57,9 @@ PiLot.Templates.Common = {
 	startPage: `<div class="homeContainer"></div>`,
 
 	dayNightButtons: `
-		<div id="dayNightButtons">
-			<a class="btnNightMode vCenter" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
-			<a class="btnDayMode vCenter" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
+		<div class="vCenter biggerText">
+			<a class="lnkNight yellow icon" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
+			<a class="lnkDay white icon" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
 		</div>
 	`,
 
@@ -131,7 +131,7 @@ PiLot.Templates.Common = {
 		`,
 
 	userMenuIcon: `
-		<a class="btnUserInfo vCenter" href="#" data-title="userinfo"><i class="icon-smile2"></i></a> 
+		<a class="btnUserInfo vCenter icon" href="#" data-title="userinfo"><i class="icon-smile2"></i></a>
 	`,
 
 	userMenu: `

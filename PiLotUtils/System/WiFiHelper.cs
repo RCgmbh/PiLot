@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -14,21 +15,24 @@ namespace PiLot.Utils.OS {
 	public class WiFiHelper {
 
         private SystemHelper systemHelper;
+		private Boolean isLinux;
 
         public WiFiHelper(){
             this.systemHelper = new SystemHelper();
         }
 
 		/// <summary>
-		/// Returns the list of available interfaces
+		/// Returns the list of available interfaces. Will only return results for linux
 		/// </summary>
 		/// <returns>List of Strings, can be empty</returns>
 		public List<String> GetInterfaces() {
 			List<String> result = new List<String>();
-			String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli interface");
-			String[] lines = this.GetLines(cmdResult);
-			for(Int32 i = 2; i < lines.Length; i++) {
-				result.Add(lines[i]);
+			if (this.systemHelper.IsLinux) {
+				String cmdResult = this.systemHelper.CallCommand("sudo", "wpa_cli interface");
+				String[] lines = this.GetLines(cmdResult);
+				for (Int32 i = 2; i < lines.Length; i++) {
+					result.Add(lines[i]);
+				}
 			}
 			return result;
 		}
@@ -86,12 +90,22 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
-        /// Gets the current WiFi status
+        /// Gets the current WiFi status for pInterface. 
         /// </summary>
         public String GetStatus(String pInterface){
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli status -i {pInterface}");
             return cmdResult;
         }
+
+		/// <summary>
+		/// Returns whether pInterface is currently connected to a WiFi
+		/// </summary>
+		/// <param name="pInterface">The name of the interface</param>
+		/// <returns>True, if pInterface is connected</returns>
+		public Boolean IsConnected(String pInterface) {
+			List<WiFiInfo> knownNetworks = this.ReadKnownNetworks(pInterface);
+			return knownNetworks.Any(n => n.IsConnected);
+		}
 
         /// <summary>
         /// Saves the wpa configuration

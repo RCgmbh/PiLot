@@ -3,8 +3,6 @@ PiLot.View = PiLot.View || {};
 
 PiLot.View.Common = (function () {
 
-	
-	
 	const clientErrorThresholdSeconds = 10;
 
 	/// class representing the clock which shows the current Boat Time
@@ -234,6 +232,51 @@ PiLot.View.Common = (function () {
 		}
 	};
 
+	/** An icon allowing to swap the day/night mode */
+	var DayNightIcon = function () {
+		this.nightModeHandler = null;
+		this.lnkNight = null;
+		this.lnkDay = null;
+		this.initialize();
+	}
+
+	DayNightIcon.prototype = {
+
+		initialize: function () {
+			this.nightModeHandler = new NightModeHandler();
+			this.draw();
+		},
+
+		lnkNight_click: function (pSender) {
+			this.setNightMode(true);
+		},
+
+		lnkDay_click: function (pSender) {
+			this.setNightMode(false);			
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.dayNightButtons);
+			PiLot.Utils.Loader.getIconsArea().appendChild(control);
+			this.lnkDay = control.querySelector('.lnkDay');
+			this.lnkDay.addEventListener('click', this.lnkDay_click.bind(this));
+			this.lnkNight = control.querySelector('.lnkNight');
+			this.lnkNight.addEventListener('click', this.lnkNight_click.bind(this));
+			this.setLinksVisibility();
+		},
+
+		setLinksVisibility: function () {
+			const nightMode = this.nightModeHandler.getIsNightMode();
+			this.lnkDay.hidden = !nightMode;
+			this.lnkNight.hidden = nightMode; 
+		},
+
+		setNightMode: function (pNightMode) {
+			this.nightModeHandler.setNightMode(pNightMode);
+			this.setLinksVisibility();
+		}
+	}
+
 	/** handles the day/night mode by storing and applying the current settings */
 	var NightModeHandler = function () {
 
@@ -312,6 +355,11 @@ PiLot.View.Common = (function () {
 			
 	};
 
+	/**
+	 * The main menu, showing links to each page, according to the
+	 * current user's permissions
+	 * @param {HTMLElement} pContainer
+	 */
 	var MainMenu = function(pContainer){
 
 		this.permissionsHelper = null;
@@ -331,7 +379,6 @@ PiLot.View.Common = (function () {
 			this.draw();
 		},
 
-		
 		authHelper_change: function () {
 			this.checkPermissions();
 		},
@@ -347,12 +394,18 @@ PiLot.View.Common = (function () {
 			}.bind(this));
 		},
 
+		/** Sets the visibility links according to the current user's permissions */
 		checkPermissions: function () {
 			this.processLinks(function (pLink, pPageObject) {
 				this.checkLinkPermissions(pLink, pPageObject)
 			}.bind(this));
 		},
 
+		/**
+		 * Loops throuth all links, gets the corresponding page object and does
+		 * stuffs for each link, defined by pProcessFunction 
+		 * @param {Function} pProcessFunction - function with (pLink, pPage)
+		 */
 		processLinks: function (pProcessFunction) {
 			let pageKey, pageObject;
 			const pages = PiLot.Utils.Loader.pages;
@@ -367,6 +420,11 @@ PiLot.View.Common = (function () {
 			}
 		},
 
+		/**
+		 * Sets a link's visibility depending on the user permissions
+		 * @param {HTMLAnchorElement} pLink
+		 * @param {Object} pPageObject - a page from PiLot.Utils.Loader.pages
+		 */
 		checkLinkPermissions: function (pLink, pPageObject) {
 			pLink.hidden = !this.permissionsHelper.checkPermissions(pPageObject);
 		}
@@ -491,8 +549,8 @@ PiLot.View.Common = (function () {
 
 	/**
 	 * A control used to display a login dialog, and do something
-	 * as soon as the login succeeded. Usue getLoginForm instad of
-	 * new LoginForm!
+	 * as soon as the login succeeded. Use getLoginForm() instad of
+	 * new LoginForm()!
 	 * */
 	var LoginForm = function () {
 		if (loginForm) {
@@ -585,7 +643,10 @@ PiLot.View.Common = (function () {
 		return loginForm;
 	}
 
-	/** represents an icon which, when clicked shows info about */
+	/**
+	 * Shows an icon which, when clicked shows info about the currently 
+	 * logged-in user and the option to log in/out. 
+	 */
 	var UserIcon = function () {
 		this.authHelper = null;
 		this.icon = null;
@@ -640,7 +701,7 @@ PiLot.View.Common = (function () {
 
 		draw: function () {
 			document.body.addEventListener('click', this.body_click.bind(this));
-			const container = document.getElementById('headerButtons');
+			const container = PiLot.Utils.Loader.getIconsArea();
 			this.icon = PiLot.Utils.Common.createNode(PiLot.Templates.Common.userMenuIcon);
 			this.icon.addEventListener('click', this.icon_click.bind(this));
 			this.menu = PiLot.Utils.Common.createNode(PiLot.Templates.Common.userMenu);
@@ -650,7 +711,8 @@ PiLot.View.Common = (function () {
 			this.btnLogout = this.menu.querySelector('.btnLogout');
 			this.btnLogout.addEventListener('click', this.btnLogout_click.bind(this));
 			container.appendChild(this.icon);
-			container.appendChild(this.menu);
+			//container.appendChild(this.menu);
+			document.getElementById('headerButtons').appendChild(this.menu);
 		},
 
 		hideMenu: function () {
@@ -744,6 +806,7 @@ PiLot.View.Common = (function () {
 	return {
 		Clock: Clock,
 		StartPage: StartPage,
+		DayNightIcon: DayNightIcon,
 		NightModeHandler: NightModeHandler,
 		MainMenuHamburger: MainMenuHamburger,
 		TouchButtons: TouchButtons,

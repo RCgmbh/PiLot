@@ -125,10 +125,18 @@ PiLot.Model.Admin = (function () {
 		},
 		
 		/**
-		 * Gets some status information
+		 * Gets some status information for the current interface. 
 		 * */
-		getWiFiStatus: async function(){
+		getWiFiStatusAsync: async function(){
 			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/status`);
+		},
+
+		/**
+		 * Gets overall wifi / internet information. This does not neet the interface to be set.
+		 * @returns {Object} with connected:Boolean, internetAccess:boolean, details:String
+		 */
+		getOverallStatusAsync: async function () {
+			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/status`);
 		}
 
 	};

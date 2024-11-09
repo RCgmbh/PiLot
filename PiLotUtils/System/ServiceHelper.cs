@@ -36,7 +36,7 @@ namespace PiLot.Utils.OS {
 		public String GetServiceStatus(String pServiceName) {
 			String result;
 			if (this.GetServices().Contains(pServiceName)) {
-				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+				if (this.systemHelper.IsLinux) {
 					String status = this.systemHelper.CallCommand("sudo", String.Format(SERVICESTATECOMMAND, pServiceName));
 					List<String> lines = status.Split('\n').ToList();
 					lines = lines.Select(l => l.Trim()).ToList();
@@ -107,7 +107,7 @@ namespace PiLot.Utils.OS {
 		private String CallServiceCommand(String pServiceName, String pServiceCommand) {
 			String result;
 			if (this.GetServices().Contains(pServiceName)) {
-				if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux)) {
+				if (this.systemHelper.IsLinux) {
 					this.systemHelper.CallCommand("sudo", String.Format(pServiceCommand, pServiceName));
 					result = this.GetServiceStatus(pServiceName);
 				} else {

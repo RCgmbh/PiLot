@@ -143,6 +143,13 @@ PiLot.Templates.Admin = {
 		</div>
 	`,
 
+	wifiIcon: `
+		<div class="vCenter">
+			<a class="icoWiFiInternet icon green" href="#" hidden><i class="icon-connection"></i></a>
+			<a class="icoWiFiConnected icon orange" href="#" hidden><i class="icon-smile2"></i></a>
+		</div>
+	`,
+
 	logFilePage: `
 		<div class="contentPadding marginRight">
 			<h1><a href="#" class="lnkSettings" data-text="administration"></a> : <span data-text="logfiles"></span></h1>

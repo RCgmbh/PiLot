@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
+using PiLot.Model.System;
 using PiLot.Utils.OS;
 
 namespace PiLot.API.Controllers {
@@ -36,13 +38,36 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
-		/// Gets the current wpa_cli status
+		/// Gets the current wpa_cli status for an interface
 		/// </summary>
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/status")]
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String GetStatus(String iface) {
 			return new WiFiHelper().GetStatus(iface);
+		}
+
+		/// <summary>
+		/// Gets an overall status, also including information
+		/// about whether we are online.
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/status")]
+		[HttpGet]
+		public WiFiStaus GetStatus() {
+			WiFiHelper wifiHelper = new WiFiHelper();
+			WiFiStaus result = new WiFiStaus() {
+				Connected = false,
+				InternetAccess = false
+			};
+			List<String> interfaces = wifiHelper.GetInterfaces();
+			List<String> details = new List<String>(interfaces.Count);
+			foreach(String anInterface in interfaces) {
+				result.Connected &= wifiHelper.IsConnected(anInterface);
+				details.Add($"{anInterface}: {wifiHelper.GetStatus(anInterface)}");
+			}
+			result.Details = String.Join("\n", details);
+			result.InternetAccess = new SystemHelper().Ping("8.8.8.8");
+			return result;
 		}
 
 		/// <summary>

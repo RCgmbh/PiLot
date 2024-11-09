@@ -360,6 +360,69 @@ PiLot.View.Admin = (function () {
 		},
 	};
 
+	var wifiIconInstance = null;
+
+	/** An icon showing the current wifi state */
+	var WiFiIcon = function () {
+		this.wifiHelper = null;
+		this.icoWiFiInternet = null;
+		this.icoWiFiConnected = null;
+		this.initialize();
+	}
+
+	WiFiIcon.prototype = {
+
+		initialize: function () {
+			this.wifiHelper = new PiLot.Model.Admin.WiFiHelper();
+			const authHelper = PiLot.Model.Common.AuthHelper.instance();
+			authHelper.on('login', this.authHelper_change.bind(this));
+			authHelper.on('logout', this.authHelper_change.bind(this));
+			this.draw();
+		},
+
+		authHelper_change: function () {
+			this.toggleAdminLinks();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiIcon);
+			PiLot.Utils.Loader.getIconsArea().appendChild(control);
+			this.icoWiFiInternet = control.querySelector('.icoWiFiInternet');
+			this.icoWiFiConnected = control.querySelector('.icoWiFiConnected');
+			this.toggleAdminLinks();
+			this.showWiFiStatusAsync();
+		},
+
+		showWiFiStatusAsync: async function () {
+			const wifiStatus = await this.wifiHelper.getOverallStatusAsync();
+			this.icoWiFiInternet.hidden = !wifiStatus.internetAccess;
+			this.icoWiFiConnected.hidden = wifiStatus.internetAccess || !wifiStatus.connected;
+		},
+
+		/**
+		 * Adds the links to the wifi admin page to the icons, if the user has the required permissions
+		 */
+		toggleAdminLinks: function () {
+			let url;
+			if (PiLot.Permissions.hasSystemAccess()) {
+				const url = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.wifi);
+				this.icoWiFiInternet.setAttribute('href', url);
+				this.icoWiFiConnected.setAttribute('href', url);
+			} else {
+				this.icoWiFiInternet.removeAttribute('href');
+				this.icoWiFiConnected.removeAttribute('href');
+			}
+		}
+	}
+
+	/** Singleton accessor returning the current WiFiIcon */
+	WiFiIcon.getInstance = function () {
+		if (wifiIconInstance === null) {
+			wifiIconInstance = new WiFiIcon();
+		}
+		return wifiIconInstance;
+	};
+
 	/** The page showing the list of available wireless networks and allowing to connect to them */
 	var WiFiPage = function () {
 		this.wifiHelper = null;
@@ -437,7 +500,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		lnkStatus_click: async function () {
-			const output = await this.wifiHelper.getWiFiStatus();
+			const output = await this.wifiHelper.getWiFiStatusAsync();
 			this.showOutput(output);
 		},
 
@@ -718,6 +781,7 @@ PiLot.View.Admin = (function () {
 	/// return the classes
 	return {
 		AdminOverviewPage: AdminOverviewPage,
+		WiFiIcon: WiFiIcon,
 		WiFiPage: WiFiPage,
 		BoatTimePage: BoatTimePage,
 		SystemStatusPage: SystemStatusPage,
