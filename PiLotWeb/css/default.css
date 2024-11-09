@@ -21,12 +21,6 @@ body.night input, body.night textarea, body.night select { background-color: #33
 body.night button { background-color: #333; color: #ccc; border-color: #666; }
 body.night #statusBar { color: #000; background-color: #3265AD; }
 body.night #clock { color: #ccc; }
-body.night #mainMenu > a.navItem, body.night #subMenu > a.navItem { color: #bbb; }
-body.night #mainMenu > div { border-color: #666; }
-body.night #mainMenu > a.navItem.active { color: #4992FF; }
-body.night #subMenu > a.navItem { background-color: #1e2426; }
-body.night #subMenu > a.navItem:hover { color: #4992FF; }
-body.night #subMenu > a.navItem.active { background-color: black; color: #4992FF; }
 body.night .warning { color: #A53030; }
 body.night .linkButton { background-color: #333; color: #4992FF; border-color: #999; }
 body.night a.linkButton:hover { background-color: #1e2426; }
@@ -39,8 +33,6 @@ body.night .bgLightBlue, body.night .borderLightBlue { border-color: #3265AD; ba
 body.night a.lightLink, body.night a.lightLink:active, body.night a.lightLink:visited { color: #000; }
 body.nightTransition,
 body.nightTransition #statusBar,
-body.nightTransition #mainMenu > div,
-body.nightTransition #subMenu > a,
 body.nightTransition .warning,
 body.nightTransition .dgTable td,
 body.nightTransition .dgTable th,
@@ -389,12 +381,6 @@ th.right, td.right { text-align: right !important; }
 	.rcCalendar .header > span { margin-top: 0em; }
 }
 
-/* Moon */
-.moonContainer { height: 10em; min-height: 10em; width: 64em; min-width: 64em; }
-.moonImage { width: 4em; height: 4em; margin: 3em 2em; z-index: 2; float: left; position: relative; }
-.moonImage.active { width: 8em; height: 8em; margin: 1em 0em; }
-.moonTodayBar { width: 0px; height: 10em; border-width: 1em; margin-left: -1em; border-style: solid; z-index: 1; display: block; position: relative; }
-
 /* Boat Config */
 .boatImage { display: flex; flex-direction: column; width: 20%; min-width: 8em; max-width: 20em; cursor: pointer; padding: 9px; border: 1px solid rgba(118, 142, 150, 0.7) }
 .boatImage.active { padding: 8px; border: 2px solid #214372; }
@@ -437,32 +423,12 @@ th.right, td.right { text-align: right !important; }
 #header { background-color: #214372; }
 #hamburger { text-align: center; }
 #hamburger > a { font-size: 1.5em; text-decoration: none; color: #fff; }
-#subMenu > a { text-align: center; text-decoration: none; color: black; background-color: #ddd; }
-#subMenu > a.active { background-color: white; color: #3265AD; }
-#subMenu > a:hover { color: #4992FF; transition: color 0.2s; }
-body.night #subMenu > a { color: #bbb; background-color: #1e2426; }
-body.night #subMenu > a.active { color: #4992FF; background-color: black; }
-body.night #subMenu > a:hover { color: #4992FF; }
 body.night #dayNightButtons > .btnNightMode, body:not(.night) #dayNightButtons > .btnDayMode { color: #FFBF49; }
 #dayNightButtons > a:hover, #headerButtons a.btnUserInfo:hover { color: #FFBF49; }
 a.btnUserInfo { font-size: 1.25em; }
 a.btnUserInfo { color: #ccc; }
 a.btnUserInfo.active { color: #FFBF49; }
 #clock { font-weight: 600; color: #fff; }
-#mainMenu { background-color: black; }
-#mainMenu > div { border-bottom: 1px solid white; text-align: center; }
-#mainMenu > div > a { color: white; font-size: 2em; text-decoration: none; transition: color 0.2s; }
-#mainMenu > div.active { background-color: white; color: black; }
-#mainMenu > div.active > a { color: black; }
-#mainMenu > div.active > a.active { color: #3265AD; }
-#mainMenu > div > a:hover { color: #4992FF }
-body.night #mainMenu { background-color: #1e2426; }
-body.night #mainMenu > div > a { color: #bbb; }
-body.night #mainMenu > div.active { background-color: black; color: white; }
-body.night #mainMenu > div.active > a { color: #bbb; }
-body.night #mainMenu > div.active > a.active { color: #4992FF; }
-body.night #mainMenu > div > a:hover { color: #4992FF; }
-
 
 /*****************************************/
 /*                LAYOUT                 */
@@ -472,31 +438,29 @@ body.night #mainMenu > div > a:hover { color: #4992FF; }
 body { min-width: 20em; }
 #header { width: 100%; height: 2em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index: 12000; display: flex; justify-content: space-between; box-shadow: 0px -2px 8px black; }
 #main { display: flex; flex-grow: 1; margin-top: 2em; }
-#hamburger { width: 3em; display: inline-block; }
-#hamburger > a { height: 100%; }
-#subMenu { flex-grow: 5; display: flex; justify-content: flex-start; align-items: flex-end; }
-#subMenu > a { display: inline-block; min-width: 2.25em; margin: 0em 0.25em; flex-basis: 2.25em; flex-grow: 1; max-width: 4em; }
-#subMenu > a > i { font-size: 1.5em; line-height: 1.25em; }
-#headerButtons { flex-grow: 2; max-width: 20em; display: flex; justify-content: space-evenly; gap: 0.25em; }
-#dayNightButtons { display: flex; gap: 0.125em; }
-#dayNightButtons > a { width: 1.5em; text-align: center; }
-#dayNightButtons > a > i { font-size: 1.5em; }
-body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { display: none; }
-#dayNightButtons .btnNightMode, body.night #dayNightButtons .btnDayMode { display: flex; }
-#headerButtons a.btnUserInfo { }
-#clock { min-width: 4.7em; display: flex; flex-direction: row; align-items: center; justify-content: space-between; font-size: 0.75em; }
-/*#mainMenu { display: none; min-width: 4em; width: 4em; }
-#mainMenu > div { height: 4em; display: flex; justify-content: center; }
-#mainMenu > div > a { padding: 0.5em 0.25em; flex-grow: 1; max-width: 2em; }
-#mainMenu.expanded { position: absolute; display: unset; width: 100%; z-index: 12000; border-bottom: 0.25em solid black; }*/
+#header > div { width: 33%; flex-grow: 1; padding: 0em 0.5rem;}
+#header > #hamburger { }
+#header > #hamburger > a { width:2em; height: 100%; padding:0em 0.5em; }
+#header > #headerButtons { display: flex; justify-content: space-evenly; gap: 0.25em; justify-content: end;}
+#header > #headerButtons a.btnUserInfo { }
+#header > #clock { 
+	display:flex; 
+	justify-content: center; 
+	align-items:center;
+	flex-grow:0;
+	width:4.5em; 
+}
+
+#header > #clock > span { 
+	font-size: 1.25em; 
+	
+}
+
 .mainMenu { 
-	/*z-index:15000;
-	position: absolute;*/
-	background-color:black;
+	background-color:#333;
 	width: 100%; 
 	min-height:100%;
-	/*top:0px;
-	left:0px;*/
+	padding: 0em 0.5em;
 }
 
 .mainMenu .menuSection{
@@ -514,8 +478,8 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 .mainMenu .menuSectionAdmin a {color:rgb(219, 147, 221); border-color:rgb(219, 147, 221);}
 
 .mainMenu .menuSection a { 
-	border-width:1px;
-	border-style: solid;
+	background-color:black;
+	border-width:0px;
 	border-radius: 0.25em;
 	padding: 0.25em;
 	display:flex;
@@ -527,6 +491,7 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 	max-height: 6em;
 	min-height: 4em;
 	margin: 0.25em;
+	box-shadow: 2px 2px 8px -2px;
 }
 
 .mainMenu .menuSection a i {
@@ -535,60 +500,43 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 
 #content { flex-grow: 1; display: flex; }
 
-/* show main menu, just narrow. Show both day and night buttons */
 @media (min-width:600px) and (min-height:420px) {
-	/*#hamburger { display: none; }*/
-	#subMenu { margin-left: 4.25em; }
-	#dayNightButtons > a { width: 3em; }
-	body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { display: flex; }
-	/*#mainMenu { display: unset; min-width: 4em; flex-grow: 0; }
-	#mainMenu > div > a { display: none; }
-	#mainMenu > div > a:nth-child(1) { display: inline-block; }
-	#mainMenu.expanded { position: relative; width: unset; z-index: unset; }*/
-	#clock { margin-right: 0.5em; font-size: 1em; }
 	h1 { margin-left: 0em; }
 }
 
-/* full width menu on the left, always show day and night button */
-@media (min-width:1280px) {
-	/*#subMenu { margin-left: 10.25em; }
-	#mainMenu { min-width: 10em; }
-	#mainMenu > div > a { display: unset; }*/
+@media (min-width:800px) {
+	#headerButtons {order: 3;}
+	#clock {order: 2; width:5.5em; }
+	#clock > span { 
+		width: 4em;
+		text-align: center;
+		padding: 0.5em;
+		background-color: #386cb5;
+		box-shadow: 2px 2px 8px -2px black inset;
+	}
 }
 
-/* show header full height */
+@media (min-width:1280px) {
+}
+
 @media (min-height:600px) {
 	#main { margin-top: 3em; }
 	#header { min-height: 3em; }
-	#subMenu > a { padding-top: 0.25em; border-top-left-radius: 3px; border-top-right-radius: 3px; }
-	#subMenu > a > i { font-size: 1.75em; }
-	a.btnUserInfo { font-size: 1.5em; }
 }
-/* show day night buttons as buttons, not just icons */
+
 @media (min-height:600px) and (min-width:600px) {
-	#dayNightButtons a { border: 1px solid #333; border-radius: 0.25em; margin: 0.25em 0em; color: unset; color: #333; background-color: #eee; }
 	.sideMenu { margin: 0.75em 0.25em; }
 }
 
 @media (max-width: 968px) { /* full width for dataContainerHalfNarrow*/
 	.dataContainerHalfNarrow { width: 100%; }
-}
-
-@media (max-width: 1024px) { /* smaller moons*/
-	.moonContainer { height: 5em; min-height: 5em; width: 32em; min-width: 32em; }
-	.moonImage { width: 2em; height: 2em; margin: 1.5em 1em; }
-	.moonImage.active { width: 4em; height: 4em; margin: 0.5em 0em; }
-	.moonTodayBar { height: 5em; }
+	
 }
 
 @media (max-width: 1200px) { /* compact left side main nav, switch from two content columns to one */
 	.dataContainerHalf { width: 100%; }
 	.dataContainerQuarter { width: 50%; }
 	.dataContainerThird { width: 100%; }
-	.moonContainer { height: 8em; min-height: 8em; width: 48em; min-width: 48em; }
-	.moonImage { width: 3em; height: 3em; margin: 2.5em 1.5em; }
-	.moonImage.active { width: 6em; height: 6em; margin: 1em 0em; }
-	.moonTodayBar { height: 8em; }
 }
 
 @media (max-width: 1920px) and (max-height:1500px) {
@@ -601,17 +549,10 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 
 @media (max-width: 1280px) and (max-height:1024px) {
 	.chartContainer, .chartError, .chartWait { height: 16em; }
-	.moonContainer { height: 5em; min-height: 5em; width: 32em; min-width: 32em; }
-	.moonImage { width: 2em; height: 2em; margin: 1.5em 1em; }
-	.moonImage.active { width: 4em; height: 4em; margin: 0.5em 0em; }
-	.moonTodayBar { height: 5em; }
 }
 
 @media (max-width: 1280px) and (max-height:900px) {
 	.chartContainer, .chartError, .chartWait { height: 16em; }
-	.moonContainer { height: 3em; min-height: 3em; width: 24em; min-width: 24em; }
-	.moonImage, .moonImage.active { width: 2em; height: 2em; margin: 0.5em 0.5em; }
-	.moonTodayBar { height: 3em; }
 	.bigDisplayText { font-size: 1.5em; }
 	.biggerDisplayText { font-size: 2em; }
 	.veryBigDisplayText { font-size: 2.5em; }
@@ -623,22 +564,11 @@ body.night #dayNightButtons .btnNightMode, #dayNightButtons .btnDayMode { displa
 	.chartContainer, .chartError, .chartWait { height: 12em; }
 }
 
-/* two content columns (default) */
 @media (min-width: 1281px) and (max-height:900px) {
 	.chartContainer, .chartError, .chartWait { height: 20em; }
 }
 
 @media (min-width: 1281px) and (max-height:750px) {
 	.chartContainer, .chartError, .chartWait { height: 16em; }
-	.moonContainer { height: 5em; min-height: 5em; width: 32em; min-width: 32em; }
-	.moonImage { width: 2em; height: 2em; margin: 1.5em 1em; }
-	.moonImage.active { width: 4em; height: 4em; margin: 0.5em 0em; }
-	.moonTodayBar { height: 5em; }
 }
 
-@media (max-width:800px) { /* only one moon image */
-	.moonContainer { width: 16em; min-width: 16em; }
-	.moonImage { display: none; }
-	.moonTodayBar { display: none; }
-	.moonImage.active { display: inline-block; float: none; margin: 0.5em auto; }
-}

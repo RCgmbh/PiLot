@@ -423,7 +423,6 @@ PiLot.View.Boat = (function () {
 	BoatPage.prototype = {
 
 		initialize: function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.settings);
 			this.draw();
 		},
 
@@ -437,7 +436,7 @@ PiLot.View.Boat = (function () {
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatPage);
 			const loader = PiLot.Utils.Loader;
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.system.settings.overview));
+			pageContent.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.settings));
 			this.plhBoatImages = pageContent.querySelector('.plhBoatImages');
 			this.loadBoatImagesAsync();
 		},

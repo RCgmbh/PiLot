@@ -18,8 +18,14 @@ PiLot.Utils.Loader = (function () {
 	/** the name of the application html file */
 	const HTMLFILE = 'index.html';
 
-	
-	/** the query string values for each page */
+	/**
+	 * The list of all pages, key being the query string used to load
+	 * the page. Keep in mind that this structure will be extended by
+	 * the PermissionsHelper, who will add the authorisation functions
+	 * for restricted pages. This is not done here, as the Common.Model
+	 * namespace containing the permissions logic will not be available
+	 * yet. 
+	 * */
 	const pages = {
 		empty: {key: 'empty'},
 		home: {key: 'home'},
@@ -28,27 +34,27 @@ PiLot.Utils.Loader = (function () {
 		routes: {key: 'routes'},
 		routeDetails: {key: 'routeDetails'},
 		measurements: {key: 'measurements'},
-		logbook: {key: 'logbook'},
+		logbook: { key: 'logbook'},
 		diary: {key: 'diary'},
 		publish: {key: 'publish'},
 		stats: {key: 'stats'},
 		games: {key: 'games'},
 		library: {key: 'library'},
 		settings: {key: 'settings'},
-		boat: {key: 'boat'},
-		boatTime: {key: 'boatTime'},
+		boat: { key: 'boat'},
+		boatTime: { key: 'boatTime'},
 		language: {key: 'language'},
 		tools: {key: 'tools'},
 		data: {key: 'data'},
-		tiles: {key: 'tiles'},
-		pois: {key: 'pois'},
-		admin: {key: 'admin'},
-		wifi: {key: 'wifi'},
-		services: {key: 'services'},
-		logs: {key: 'logs'},
-		systemStatus: {key: 'systemStatus'},
-		systemTime: {key: 'systemTime'},
-		shutDown: {key: 'shutDown'}
+		tiles: { key: 'tiles'},
+		pois: { key: 'pois'},
+		admin: { key: 'admin'},
+		wifi: { key: 'wifi'},
+		services: { key: 'services'},
+		logs: { key: 'logs'},
+		systemStatus: { key: 'systemStatus'},
+		systemTime: { key: 'systemTime'},
+		shutDown: { key: 'shutDown'}
 	};
 
 	/// we define arrays of scripts, each with its priority. Scripts
@@ -304,7 +310,7 @@ PiLot.Utils.Loader = (function () {
 					dependencies = [defaultScripts, adminScripts, flotScripts];
 					startAction = function () { new PiLot.View.Admin.SystemStatusPage(); }
 					break;
-				case pages.log:
+				case pages.logs:
 					dependencies = [defaultScripts, adminScripts];
 					startAction = function () { new PiLot.View.Admin.LogFilesPage(); }
 					break;
@@ -376,7 +382,6 @@ PiLot.Utils.Loader = (function () {
 		 * */
 		addDefaultControls: function() {
 			new PiLot.View.Common.Clock();
-			//new PiLot.View.Common.MainMenu(this.page);
 			new PiLot.View.Common.MainMenuHamburger();
 			new PiLot.View.Common.UserIcon();
 		}

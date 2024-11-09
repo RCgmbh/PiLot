@@ -3,77 +3,7 @@ PiLot.View = PiLot.View || {};
 
 PiLot.View.Common = (function () {
 
-	const pages = {
-		home: {
-			accessControl: null
-		},
-		map: {
-			accessControl: null
-		},
-		nav: {
-			accessControl: null
-		},
-		routes: {
-			accessControl: null
-		},
-		diary: {
-			accessControl: null
-		},
-		logbook: {
-			accessControl: PiLot.Model.Common.Permissions.canWrite
-		},
-		stats: {
-			accessControl: null
-		},
-		publish: {
-			accessControl: null
-		},
-		measurements: {
-			accessControl: null
-		},
-		games: {
-			accessControl: null
-		},
-		library: {
-			accessControl: null
-		},
-		boat: {
-			accessControl: PiLot.Permissions.canChangeSettings
-		},
-		boatTime: {
-			accessControl: PiLot.Permissions.canChangeSettings
-		},
-		language: {
-			accessControl: null
-		},
-		data: {
-			accessControl: null
-		},
-		tiles: {
-			accessControl: PiLot.Permissions.canWrite
-		},
-		pois: {
-			accessControl: PiLot.Permissions.canWrite
-		},		
-		wifi: {
-			accessControl: PiLot.Permissions.hasSystemAccess
-		},
-		services: {
-			accessControl: PiLot.Permissions.hasSystemAccess
-		},
-		logs: {
-			accessControl: PiLot.Permissions.hasSystemAccess
-		},
-		status: {
-			accessControl: PiLot.Permissions.hasSystemAccess
-		},
-		systemTime: {
-			accessControl: PiLot.Permissions.hasSystemAccess
-		},
-		shutDown: {
-			accessControl: PiLot.Permissions.hasSystemAccess
-		}
-	};
+	
 	
 	const clientErrorThresholdSeconds = 10;
 
@@ -127,7 +57,7 @@ PiLot.View.Common = (function () {
 		/// shows the current time
 		showTime: function () {
 			if (this.lblTime) {
-				this.lblTime.innerText = this.boatTime.now().toLocaleString(DateTime.TIME_24_WITH_SECONDS);
+				this.lblTime.innerText = this.boatTime.now().toLocaleString(DateTime.TIME_24_SIMPLE);
 			}
 		},
 
@@ -304,14 +234,6 @@ PiLot.View.Common = (function () {
 		}
 	};
 
-	var mainMenuCurrentPage = null;
-
-	/// sets the current page to higlight.
-	/// this must be called before the menu is rendered
-	function setCurrentMainMenuPage(pPage) {
-		mainMenuCurrentPage = pPage;
-	}
-
 	/** handles the day/night mode by storing and applying the current settings */
 	var NightModeHandler = function () {
 
@@ -368,9 +290,8 @@ PiLot.View.Common = (function () {
 			hamburger.addEventListener('click', this.hamburger_click.bind(this));
 			this.menuContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Common.flyoutMainMenu);
 			this.hideMenu();	
-			new MainMenu2(this.menuContainer.querySelector('.plhContent'));
+			new MainMenu(this.menuContainer.querySelector('.plhContent'));
 			PiLot.Utils.Loader.getContentArea().insertAdjacentElement('beforebegin', this.menuContainer);
-
 		},
 
 		showHideMenu: function(){
@@ -391,194 +312,65 @@ PiLot.View.Common = (function () {
 			
 	};
 
-	var MainMenu2 = function(pContainer){
+	var MainMenu = function(pContainer){
 
+		this.permissionsHelper = null;
 		this.container = pContainer;
+		this.control = null;
 		this.initialize();
 
-	};
-
-	MainMenu2.prototype = {
-
-		initialize: function(){
-			this.draw();
-		},
-
-		draw: function(){
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenuContent);
-			this.container.appendChild(control);
-			let pageKey;
-			const pages = PiLot.Utils.Loader.pages;
-			for(anItem of control.querySelectorAll('[data-page]')){
-				pageKey = anItem.dataset['page'];
-				if (pageKey in pages){
-					anItem.href = PiLot.Utils.Loader.createPageLink(pages[pageKey]);
-				} else{
-					console.log(`Invalid page key in MainMenu: ${pageKey}`);
-				}
-				
-			}
-		},
-	};
-
-	/// the main menu, containing sections and links. And also
-	/// containing the day/night switch
-	var MainMenu = function (pCurrentPage) {
-		mainMenuCurrentPage = mainMenuCurrentPage || pCurrentPage;
-		this.mainMenuControl = null;					// a html element containing the main menu items
-		this.subMenuControl = null;						// a html element containing the sub menu items
-		this.hamburger = null;							// a html element representing the hamburger element
-		this.headerButtons = null;						// a html element representing the container with day/night switch and login icon
-		this.nightModeHandler = null;
-		this.isExpanded = false;
-		const pages = PiLot.Utils.Loader.pages;
-		this.structure = [
-			{
-				section: pages.home,
-				links: [
-					{ page: pages.home, html: '<i class="icon-home"></i>' }
-				]
-			}, {
-				section: pages.nav,
-				links: [
-					{ page: pages.nav.map, html: '<i class="icon-map3"></i>' },
-					{ page: pages.nav.data, html: '<i class="icon-compass3"></i>' },
-					{ page: pages.nav.routes, html: '<i class="icon-linegraph"></i>' }
-				]
-			}, {
-				section: pages.logbook,
-				links: [
-					{ page: pages.logbook.diary, html: '<i class="icon-book3"></i>' },
-					{ page: pages.logbook.logbook, html: '<i class="icon-pen2"></i>', auth: PiLot.Permissions.canWrite },
-					{ page: pages.logbook.stats, html: '<i class="icon-chart4"></i>' }
-				]
-			}, {
-				section: pages.meteo,
-				links: [
-					{ page: pages.meteo.sensors, html: '<i class="icon-thermometer"></i>' }
-				]
-			}, {
-				section: pages.media,
-				links: [
-					{ page: pages.media.games, html: '<i class="icon-gamepad"></i>' },
-					{ page: pages.media.library, html: '<i class="icon-library"></i>' }
-				]
-			}, {
-				section: pages.system,
-				links: [
-					{ page: pages.system.settings.overview, html: '<i class="icon-equalizer3"></i>' },
-					{ page: pages.system.tools.overview, html: '<i class="icon-tools"></i>' },
-					{ page: pages.system.admin.overview, html: '<i class="icon-terminal"></i>', auth: PiLot.Permissions.hasSystemAccess }
-				]
-			}
-		];
-		this.initialize();
 	};
 
 	MainMenu.prototype = {
 
 		initialize: function () {
-			this.nightModeHandler = new PiLot.View.Common.NightModeHandler();
-			this.bindGlobalHandler();
-			this.draw();
+			this.permissionsHelper = PiLot.Model.Common.PermissionsHelper.instance();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			authHelper.on('login', this.authHelper_change.bind(this));
-			},
+			authHelper.on('logout', this.authHelper_change.bind(this));
+			this.draw();
+		},
 
-		/// handles clicks on the body, collapsing the menu
-		body_click: function (event) {
-			if (this.isExpanded) {
-				const eventSource = event.target;
-				if (this.hamburger !== eventSource) {
-					this.mainMenuControl.classList.toggle('expanded', false);
-					this.headerButtons.classList.toggle('expanded', false);
-					this.isExpanded = false;
+		
+		authHelper_change: function () {
+			this.checkPermissions();
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenuContent);
+			this.container.appendChild(this.control);
+			let pageKey, pageObject;
+			const pages = PiLot.Utils.Loader.pages;
+			this.processLinks(function (pLink, pPageObject) {
+				pLink.href = PiLot.Utils.Loader.createPageLink(pPageObject);
+				this.checkLinkPermissions(pLink, pPageObject)
+			}.bind(this));
+		},
+
+		checkPermissions: function () {
+			this.processLinks(function (pLink, pPageObject) {
+				this.checkLinkPermissions(pLink, pPageObject)
+			}.bind(this));
+		},
+
+		processLinks: function (pProcessFunction) {
+			let pageKey, pageObject;
+			const pages = PiLot.Utils.Loader.pages;
+			for (let aLink of this.control.querySelectorAll('[data-page]')) {
+				pageKey = aLink.dataset['page'];
+				if (pageKey in pages) {
+					pageObject = pages[pageKey];
+					pProcessFunction(aLink, pageObject);
+				} else {
+					console.log(`Invalid page key in MainMenu: ${pageKey}`);
 				}
 			}
 		},
 
-		authHelper_change: function () {
-			this.fillMenu();
-		},
-
-		/// handles clicks on the hamburger, expand/collapsing the menu
-		hamburger_click: function (e) {
-			e.stopPropagation();
-			this.isExpanded = !this.isExpanded;
-			this.mainMenuControl.classList.toggle('expanded', this.isExpanded);
-			this.headerButtons.classList.toggle('expanded', this.isExpanded);
-		},
-
-		/// handles clicks on the "day mode" button
-		btnDayMode_click: function () {
-			this.nightModeHandler.setNightMode(false);
-		},
-
-		/// handles clicks on the "night mode" button
-		btnNightMode_click: function () {
-			this.nightModeHandler.setNightMode(true);
-		},
-
-		/// binds the click handler to the body
-		bindGlobalHandler: function () {
-			document.body.addEventListener('click', this.body_click.bind(this));
-		},
-
-		/// draws the entire menu and submenu.
-		draw: function () {
-			this.hamburger = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuHamburger);
-			document.querySelector('#hamburger').appendChild(this.hamburger);
-			this.hamburger.addEventListener('click', this.hamburger_click.bind(this));
-			this.mainMenuControl = document.querySelector('#mainMenu');
-			this.subMenuControl = document.querySelector('#subMenu')
-			this.headerButtons = document.querySelector('#headerButtons');
-			this.fillMenu();
-			let dayNightButtons = RC.Utils.stringToNodes(PiLot.Templates.Common.dayNightButtons);
-			this.headerButtons.appendChildren(dayNightButtons);
-			this.headerButtons.querySelector('.btnDayMode').addEventListener('click', this.btnDayMode_click.bind(this));
-			this.headerButtons.querySelector('.btnNightMode').addEventListener('click', this.btnNightMode_click.bind(this));
-			PiLot.Utils.Language.applyTexts(this.hamburger);
-			PiLot.Utils.Language.applyTexts(this.mainMenuControl);
-			PiLot.Utils.Language.applyTexts(this.subMenuControl);
-			PiLot.Utils.Language.applyTexts(this.headerButtons);
-		},
-
-		fillMenu: function() {
-			let sectionControl;
-			let mainMenuLink;
-			let subMenuLink;
-			let isCurrentSection;
-			let isCurrentPage;
-			this.mainMenuControl.clear();
-			this.subMenuControl.clear();
-			this.structure.forEach(function (pElement) {
-				if (typeof pElement.auth === 'undefined' || pElement.auth()) {
-					sectionControl = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuSection);
-					this.mainMenuControl.appendChild(sectionControl);
-					isCurrentSection = (mainMenuCurrentPage === pElement.section);
-					isCurrentPage = false;
-					pElement.links.forEach(function (pLink, pIndex, pLinks) {
-						if (typeof pLink.auth === 'undefined' || pLink.auth()) {
-							mainMenuLink = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuLink);
-							sectionControl.appendChild(mainMenuLink);
-							mainMenuLink.innerHTML = (pLink.html);
-							mainMenuLink.setAttribute('href', PiLot.Utils.Loader.createPageLink(pLink.page));
-							isCurrentPage = pLink.page === mainMenuCurrentPage;
-							isCurrentSection = isCurrentSection || isCurrentPage;
-							mainMenuLink.classList.toggle('active', isCurrentPage);
-						}
-					}.bind(this));
-					if (isCurrentSection && (pElement.links.length > 1)) { // create the sub menu links by simply cloning the main menu links
-						sectionControl.childNodes.forEach(function (aNode) {
-							subMenuLink = aNode.cloneNode(true);
-							this.subMenuControl.appendChild(subMenuLink);
-						}.bind(this));
-					}
-					sectionControl.classList.toggle('active', isCurrentSection);
-				}
-			}.bind(this));
-
+		checkLinkPermissions: function (pLink, pPageObject) {
+			pLink.hidden = !this.permissionsHelper.checkPermissions(pPageObject);
 		}
+
 	};
 
 	/// a control consisting of four buttons with arrow keys, used to play
@@ -744,7 +536,7 @@ PiLot.View.Common = (function () {
 		/** draws the form and inserts it as first element in the content area */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.loginForm);
-			PiLot.Utils.Loader.getContentArea().insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Loader.getContentArea().insertAdjacentElement('beforebegin', this.control);
 			this.pnlLoginFailed = this.control.querySelector('.pnlLoginFailed');
 			this.pnlLoginForm = this.control.querySelector('.pnlLoginForm');
 			this.tbUsername = this.control.querySelector('.tbUsername');
@@ -950,12 +742,9 @@ PiLot.View.Common = (function () {
 	};
 
 	return {
-		pages: pages,
 		Clock: Clock,
 		StartPage: StartPage,
-		setCurrentMainMenuPage: setCurrentMainMenuPage,
 		NightModeHandler: NightModeHandler,
-		MainMenu: MainMenu,
 		MainMenuHamburger: MainMenuHamburger,
 		TouchButtons: TouchButtons,
 		LoginForm: LoginForm,

@@ -190,7 +190,7 @@ PiLot.View.Diary = (function () {
 
 		/** Updates the href attribute of the editTrack link */
 		bindLnkEditTrack: function () {
-			this.bindDateLink(this.lnkEditTrack, PiLot.Utils.Loader.pages.gpsData);
+			this.bindDateLink(this.lnkEditTrack, PiLot.Utils.Loader.pages.data);
 		},
 
 		/** Updates the href attribute of the publish link */
@@ -868,7 +868,6 @@ PiLot.View.Diary = (function () {
 		draw: function () {
 			let x = PublishDiaryPage.MAXIMAGESIZE;
 			let loader = PiLot.Utils.Loader;
-			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.logbook.logbook);
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.publishDiaryPage);
 			loader.getContentArea().appendChild(pageContent);
 			this.ddlPublishTarget = pageContent.querySelector('.ddlPublishTarget');

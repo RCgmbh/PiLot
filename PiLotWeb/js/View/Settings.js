@@ -19,7 +19,6 @@ PiLot.View.Settings = (function () {
 		/** Draws the page and sets the link urls based on the Loader logic */
 		draw: function () {
 			let loader = PiLot.Utils.Loader;
-			PiLot.View.Common.setCurrentMainMenuPage(loader.pages.settings.overview);
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.settingsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			const lnkTime = pageContent.querySelector('.lnkTime');
@@ -53,7 +52,6 @@ PiLot.View.Settings = (function () {
 	BoatTimePage.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.settings);
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.draw();
 			this.showTime();

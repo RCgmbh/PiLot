@@ -6,12 +6,6 @@ PiLot.Templates.Admin = {
 
 	adminOverviewPage: `<div class="contentPadding">
 		<h1 data-text="administration"></h1>
-		<a href="" class="lnkTime tile big">
-			<div>
-				<span class="symbol"><i class="icon-time2"></i></span>
-				<span class="label" data-text="time"></span>
-			</div>
-		</a>
 		<a href="" class="lnkWiFi tile big">
 			<div>
 				<span class="symbol"><i class="icon-connection"></i></span>
@@ -22,6 +16,12 @@ PiLot.Templates.Admin = {
 			<div>
 				<span class="symbol"><i class="icon-cogs"></i></span>
 				<span class="label" data-text="services"></span>
+			</div>
+		</a>
+		<a href="" class="lnkTime tile big">
+			<div>
+				<span class="symbol"><i class="icon-time2"></i></span>
+				<span class="label" data-text="time"></span>
 			</div>
 		</a>
 		<a href="" class="lnkSystemStatus tile big">

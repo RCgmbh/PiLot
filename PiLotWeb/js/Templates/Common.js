@@ -44,9 +44,9 @@ PiLot.Templates.Common = {
 			<div class="menuSection menuSectionAdmin">
 				<a data-page="wifi"><i class="icon-connection"></i><span data-text="wifi"></span></a>
 				<a data-page="services"><i class="icon-cogs"></i><span data-text="services"></span></a>
-				<a data-page="logs"><i class="icon-stack"></i><span data-text="logfiles"></span></a>
-				<a data-page="systemStatus"><i class="icon-thermometer"></i><span data-text="temperature"></span></a>
 				<a data-page="systemTime"><i class="icon-time2"></i><span data-text="systemTime"></span></a>
+				<a data-page="systemStatus"><i class="icon-thermometer"></i><span data-text="temperature"></span></a>
+				<a data-page="logs"><i class="icon-stack"></i><span data-text="logfiles"></span></a>
 				<a data-page="shutDown"><i class="icon-switch"></i><span data-text="shutDown"></span></a>
 			</div>
 		</div>

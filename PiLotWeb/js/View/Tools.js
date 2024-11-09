@@ -61,7 +61,6 @@ PiLot.View.Tools = (function () {
 	GpsImportExportForm.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.tools);
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			await this.drawFormAsync();
 			this.setDefaultDates();
@@ -563,7 +562,6 @@ PiLot.View.Tools = (function () {
 		/// checks the container, initializes the tileSourcesControls Array,
 		/// reads all TileSources from the server and and calls draw() when done
 		initializeAsync: async function () {
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.tools);
 			this.tilesDownloadHelpers = new Map();
 			this.tileSourcesControls = new Map();
 			this.tileSources = await PiLot.Model.Nav.readAllTileSourcesAsync();
@@ -642,7 +640,7 @@ PiLot.View.Tools = (function () {
 			const loader = PiLot.Utils.Loader;
 			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.tilesDownloadForm);
 			loader.getContentArea().appendChild(this.pageContent);
-			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
+			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.tools));
 			const divTileSources = this.pageContent.querySelector('.divTileSources');
 			const divTileSourceTemplate = divTileSources.querySelector('.divTileSourceTemplate');
 			for (const [tileSourceName, tileSource] of this.tileSources) {
@@ -730,14 +728,13 @@ PiLot.View.Tools = (function () {
 
 		initialize: function () {
 			this.draw();
-			PiLot.View.Common.setCurrentMainMenuPage(PiLot.Utils.Loader.pages.tools);
 		},
 
 		draw: function () {
 			const loader = PiLot.Utils.Loader;
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisManagementPage);
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.system.tools.overview));
+			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.tools));
 			new PoisOsmImportControl(pageContent);
 			new PoisJsonImportForm(pageContent);
 			new PoisJsonExportForm(pageContent);
