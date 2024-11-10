@@ -492,6 +492,7 @@ PiLot.View.Admin = (function () {
 			const key = this.pnlNetworkKey.querySelector('.tbWifiKey').value;
 			const output = await this.wifiHelper.addWiFiAsync(pSSID, key);
 			this.showOutput(output.data);
+			WiFiIcon.getInstance().showWiFiStatusAsync();
 			this.loadNetworksAsync();
 		},
 

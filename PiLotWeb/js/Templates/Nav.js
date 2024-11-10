@@ -4,7 +4,7 @@ PiLot.Templates.Nav = {
 
 	navPage: `
 		<div class="navPage hCenter fullWidth">
-			<div class="divData navData">
+			<div class="divData navData easyShadow marginBottomSmall">
 				<div class="divDirection"></div>
 				<div class="divSpeed"></div>
 				<div class="divPosition hidden"></div>
@@ -13,6 +13,12 @@ PiLot.Templates.Nav = {
 		`,
 
 	outdatedGpsWarning: `<div class="feedbackBad navOutdatedDataWarning hidden" data-text="noGpsData"></div>`,
+
+	gpsIcon: `
+		<div class="vCenter">
+			<span class="icoGpsConnected icon green" hidden><i class="icon-satellite"></i></span>
+		</div>
+	`,
 
 	routesPage: `
 		<div class="contentPadding">
@@ -23,7 +29,7 @@ PiLot.Templates.Nav = {
 		`,
 
 	routesTable: `
-		<table class="dgTable tblRoutes"><tbody>
+		<table class="dgTable tblRoutes easyShadow"><tbody>
 			<tr class="dgHeader">
 				<th class="headerActive col2" data-text="active"></th>
 				<th class="headerName"><a href="#" class="lnkHeaderName" data-text="name"></a></th>
@@ -49,7 +55,7 @@ PiLot.Templates.Nav = {
 				<div id="divRoute"></div>
 			</div>
 			<div class="dataContainerHalf paddingRight marginBottom">
-				<div id="divMap" class="map navMap borderDark"></div>
+				<div id="divMap" class="map navMap easyShadow"></div>
 			</div>
 		</div>`,
 
@@ -103,7 +109,7 @@ PiLot.Templates.Nav = {
 		/>\' <input type="text" class="inlineBlock tbPrefix inlineTextbox" style="width:1.3em;" placeholder="-" />`,
 
 	liveRoute: `
-		<div class="navLiveRoute">
+		<div class="navLiveRoute easyShadow paddingTop">
 			<span class="lblRouteName" hidden></span>
 			<div class="divWaypoints"></div>
 		</div>`,

@@ -283,6 +283,48 @@ PiLot.View.Nav = (function () {
 
 	};
 
+	var GPSIcon = function () {
+		this.icoGpsConnected = null;
+		this.gpsObserver = null;
+		this.initialize();
+	};
+
+	GPSIcon.prototype = {
+
+		initialize: function () {
+			this.draw();
+			this.startObservingDelayed();
+		},
+
+		gpsObserver_recieveGpsData: function () {
+			this.icoGpsConnected.hidden = false;
+		},
+
+		gpsObserver_outdatedGpsData: function () {
+			this.icoGpsConnected.hidden = true;
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.gpsIcon);
+			PiLot.Utils.Loader.getIconsArea().appendChild(control);
+			this.icoGpsConnected = control.querySelector('.icoGpsConnected');
+		},
+
+		startObservingDelayed: function () {
+			setTimeout(this.startObserving.bind(this), 100);
+		},
+
+		startObserving: function () {
+			if (PiLot.Model.Nav.GPSObserver.hasInstance()) {
+				this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			} else {
+				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({ intervalMs: 5000, autoStart: true });
+			}
+			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		}
+	};
+
 	/// The page where motion data and live waypoint data is displayed.
 	var NavPage = function () {
 		this.gpsObserver = null;
@@ -2595,6 +2637,7 @@ PiLot.View.Nav = (function () {
 		CoordinateForm: CoordinateForm,
 		MotionDisplay: MotionDisplay,
 		XTEIndicator: XTEIndicator,
+		GPSIcon: GPSIcon,
 		NavPage: NavPage,
 		NavOptions: NavOptions,
 		RoutesList: RoutesList,

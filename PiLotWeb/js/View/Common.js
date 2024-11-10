@@ -11,6 +11,7 @@ PiLot.View.Common = (function () {
 		this.lnkWarning = null;			/// the icon which shows an invalid offset
 		this.interval = null;
 		this.boatTime = null;
+		this.warningIcons = null;
 		this.initialize();
 	};
 
@@ -67,7 +68,7 @@ PiLot.View.Common = (function () {
 		/// Checks the client error offset and shows a warning if is to big
 		checkClientErrorOffset: function () {
 			var clientError = this.boatTime.getClientErrorOffsetSeconds();
-			RC.Utils.showHide(this.lnkWarning, Math.abs(clientError) > clientErrorThresholdSeconds);
+			//RC.Utils.showHide(this.lnkWarning, Math.abs(clientError) > clientErrorThresholdSeconds);
 			this.lnkWarning.title = `Client offset: ${clientError.toFixed(0)}s`;
 		}
 	};

@@ -2427,6 +2427,11 @@ PiLot.Model.Nav = (function () {
 		return gpsObserverInstance;
 	};
 
+	/** Returns whether there is a GPSObserver instance, without creating one */
+	GPSObserver.hasInstance = function () {
+		return !!gpsObserverInstance;
+	}
+
 	/**
 	 * TileSource class, containing data about a tile source, having
 	 * a local url, but also a remote url, from where the original 

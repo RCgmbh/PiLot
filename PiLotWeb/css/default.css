@@ -31,6 +31,7 @@ body.night a.tile:hover { background-color: #1e2426; }
 body.night .bgLight { background-color: #1e2426; }
 body.night .bgLightBlue, body.night .borderLightBlue { border-color: #3265AD; background-color: #3265AD; }
 body.night a.lightLink, body.night a.lightLink:active, body.night a.lightLink:visited { color: #000; }
+body.night .easyShadow { box-shadow: 0px 0px 6px -1px white; }
 body.nightTransition,
 body.nightTransition #statusBar,
 body.nightTransition .warning,
@@ -273,6 +274,7 @@ textarea.big { height: 20em; }
 .borderLightBlue { border-color: #B2D3FF; }
 .borderDark { border: 1px solid #999; }
 .bw { filter: grayscale(80%); }
+.easyShadow { box-shadow: 0px 0px 6px -2px black;}
 .inlineTextbox { border: none; }
 .pointer { cursor: pointer; }
 .move { cursor: move; }
@@ -329,6 +331,7 @@ a.blockLink:hover { background-color: #eee; }
 
 /* TABLES */
 table.dgTable { border-width: 1px 0px 1px 0px; border-style: solid; border-color: #4992FF; border-spacing: 0px; width: 100%; clear: both; }
+table.dgTable.easyShadow { border:none; }
 table.dgTable.fixedWidth { width: 58em; }
 table.dgTable.noBorder { border-style: none; }
 table.dgTable th { text-align: left; }
@@ -447,7 +450,7 @@ body { min-width: 20em; }
 #header > #hamburger > a { width:2em; height: 100%; padding:0em 0.5em; box-shadow: 0px 0px 8px black; }
 #header > #hamburger > a:active {box-shadow: 0px 0px 1px black; } 
 #header > #headerButtons { justify-content: flex-end; padding-top:0.25em; padding-bottom:0.25em; }
-#header > #headerButtons > #headerIcons { display:flex; padding: 0em 0.25em; border-radius:1.25em; box-shadow: 2px 2px 8px -2px black inset; }
+#header > #headerButtons > #headerIcons { display:flex; padding: 0em 0.25em; border-radius:1.25em; box-shadow: 0px 0px 8px -2px black inset; }
 #header > #headerButtons .icon {padding: 0rem 0.5rem; font-size: 1.25em;}
 #header > #clock { 
 	justify-content: center; 

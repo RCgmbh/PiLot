@@ -76,7 +76,14 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/View/Common.js', priority: 10 },
 		{ url: 'js/Model/Admin.js', priority: 10 },
 		{ url: 'js/View/Admin.js', priority: 10 },
-		{ url: 'js/Templates/Admin.js', priority: 10 }
+		{ url: 'js/Templates/Admin.js', priority: 10 },
+		{ url: 'js/Model/Nav.js', priority: 10 },
+		{ url: 'js/View/Nav.js', priority: 10 },
+		{ url: 'js/Templates/Nav.js', priority: 10 },
+		{ url: 'js/3rdParty/geodesy/vector3d.js', priority: 1 },
+		{ url: 'js/3rdParty/geodesy/latlon-ellipsoidal.js', priority: 5 },
+		{ url: 'js/3rdParty/geodesy/latlon-vincenty.js', priority: 10 },
+		{ url: 'js/3rdParty/leaflet/leaflet.js', priority: 1 }
 	];
 
 	const navScripts = [
@@ -389,6 +396,7 @@ PiLot.Utils.Loader = (function () {
 			new PiLot.View.Common.UserIcon();
 			new PiLot.View.Common.DayNightIcon();
 			PiLot.View.Admin.WiFiIcon.getInstance();
+			new PiLot.View.Nav.GPSIcon();
 		}
 	};
 
