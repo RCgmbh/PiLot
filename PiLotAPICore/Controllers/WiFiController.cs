@@ -62,7 +62,7 @@ namespace PiLot.API.Controllers {
 			List<String> interfaces = wifiHelper.GetInterfaces();
 			List<String> details = new List<String>(interfaces.Count);
 			foreach(String anInterface in interfaces) {
-				result.Connected &= wifiHelper.IsConnected(anInterface);
+				result.Connected = result.Connected || wifiHelper.IsConnected(anInterface);
 				details.Add($"{anInterface}: {wifiHelper.GetStatus(anInterface)}");
 			}
 			result.Details = String.Join("\n", details);
