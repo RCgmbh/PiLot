@@ -282,8 +282,11 @@ textarea.big { height: 20em; }
 .green, a.green, a.green:hover, a.green:visited { color: #23B223; }
 body.night .green, body.night a.green, body.night a.green:hover, body.night a.green:visited { color: #23B223; }
 .red, a.red, a.red:hover, a.red:visited { color: #FF4949; }
-.orange, a.orange, a.orange:hover, a.orange:visited { color: #FFBF49; }
+body.night .red, body.night a.red, body.night a.red:hover, body.night a.red:visited { color: #FF4949; }
+.orange, a.orange, a.orange:hover, a.orange:visited { color: #FF8549; }
+body.night .orange, body.night a.orange, body.night a.orange:hover, body.night a.orange:visited { color: #FF8549; }
 .yellow, a.yellow, a.yellow:hover, a.yellow:visited { color: #FFBF49; }
+body.night .yellow, body.night a.yellow, body.night a.yellow:hover, body.night a.yellow:visited { color: #FFBF49; }
 .white, a.white, a.white:hover, a.white:visited { color: white;}
 body.night .white, body.night a.white, body.night a.white:hover, body.night a.white:visited { color: #eee;}
 

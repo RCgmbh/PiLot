@@ -146,7 +146,7 @@ PiLot.Templates.Admin = {
 	wifiIcon: `
 		<div class="vCenter">
 			<a class="icoWiFiInternet icon green" href="#" hidden><i class="icon-connection"></i></a>
-			<a class="icoWiFiConnected icon orange" href="#" hidden><i class="icon-smile2"></i></a>
+			<a class="icoWiFiConnected icon orange" href="#" hidden><i class="icon-connection"></i></a>
 		</div>
 	`,
 
