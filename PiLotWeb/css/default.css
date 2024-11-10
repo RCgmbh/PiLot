@@ -502,6 +502,8 @@ body { min-width: 20em; }
 	box-shadow: 2px 2px 8px -2px;
 }
 
+.mainMenu .menuSection a:active{ box-shadow: 0px 0px 3px -1px; }
+
 .mainMenu .menuSection a i {
 	font-size: 2em;
 }

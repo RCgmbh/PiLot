@@ -378,6 +378,8 @@ PiLot.View.Admin = (function () {
 			authHelper.on('login', this.authHelper_change.bind(this));
 			authHelper.on('logout', this.authHelper_change.bind(this));
 			this.draw();
+			this.showWiFiStatusAsync();
+			this.startUpdateInterval();
 		},
 
 		authHelper_change: function () {
@@ -390,13 +392,16 @@ PiLot.View.Admin = (function () {
 			this.icoWiFiInternet = control.querySelector('.icoWiFiInternet');
 			this.icoWiFiConnected = control.querySelector('.icoWiFiConnected');
 			this.toggleAdminLinks();
-			this.showWiFiStatusAsync();
 		},
 
 		showWiFiStatusAsync: async function () {
 			const wifiStatus = await this.wifiHelper.getOverallStatusAsync();
 			this.icoWiFiInternet.hidden = !wifiStatus.internetAccess;
 			this.icoWiFiConnected.hidden = wifiStatus.internetAccess || !wifiStatus.connected;
+		},
+
+		startUpdateInterval: function () {
+			window.setInterval(this.showWiFiStatusAsync.bind(this), 10000);
 		},
 
 		/**
