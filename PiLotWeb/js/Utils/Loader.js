@@ -392,6 +392,7 @@ PiLot.Utils.Loader = (function () {
 		 * */
 		addDefaultControls: function() {
 			new PiLot.View.Common.Clock();
+			PiLot.View.Common.ClockOffsetIcon.getInstance();
 			new PiLot.View.Common.MainMenuHamburger();
 			new PiLot.View.Common.UserIcon();
 			new PiLot.View.Common.DayNightIcon();

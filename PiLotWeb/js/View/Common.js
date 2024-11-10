@@ -8,10 +8,8 @@ PiLot.View.Common = (function () {
 	/// class representing the clock which shows the current Boat Time
 	var Clock = function () {
 		this.lblTime = null;			/// the html element showing the time
-		this.lnkWarning = null;			/// the icon which shows an invalid offset
 		this.interval = null;
 		this.boatTime = null;
-		this.warningIcons = null;
 		this.initialize();
 	};
 
@@ -28,15 +26,12 @@ PiLot.View.Common = (function () {
 			container.innerHTML = PiLot.Templates.Common.clock;
 			this.lblTime = container.querySelector('.lblTime');
 			this.lblTime.addEventListener('mouseover', this.showTimezone.bind(this));
-			this.lnkWarning = container.querySelector('.lnkWarning');
-			this.lnkWarning.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.systemTime);
 		},
 
 		/// loads the boatTime and starts the timer
 		loadBoatTimeAsync: async function () {
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.startTimer();
-			this.checkClientErrorOffset();
 		},
 
 		/// this starts a timer with an interval of 1 second, and first
@@ -64,13 +59,47 @@ PiLot.View.Common = (function () {
 		showTimezone: function () {
 			this.lblTime.title = 'Boat Time: ' + this.boatTime.getTimezoneName();
 		},
+	};
 
-		/// Checks the client error offset and shows a warning if is to big
-		checkClientErrorOffset: function () {
-			var clientError = this.boatTime.getClientErrorOffsetSeconds();
-			//RC.Utils.showHide(this.lnkWarning, Math.abs(clientError) > clientErrorThresholdSeconds);
-			this.lnkWarning.title = `Client offset: ${clientError.toFixed(0)}s`;
+	var clockOffsetIconInstance = null;
+
+	var ClockOffsetIcon = function () {
+		this.icoTimezoneOffset = null;
+		this.icoTimeOffset = null;
+		this.initialize();
+	};
+
+	ClockOffsetIcon.prototype = {
+
+		initialize: function () {
+			this.draw();
+			this.showStatusAsync();
+		},
+
+		draw: function () {
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.clockOffsetIcon);
+			PiLot.Utils.Loader.getIconsArea().appendChild(control);
+			this.icoTimezoneOffset = control.querySelector('.icoTimezoneOffset');
+			this.icoTimezoneOffset.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.boatTime);
+			this.icoTimeOffset = control.querySelector('.icoTimeOffset');
+			this.icoTimeOffset.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.systemTime);
+		},
+
+		showStatusAsync: async function (pReloadBoatTime = false) {
+			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync(pReloadBoatTime);
+			const isTimeError = Math.abs(boatTime.getClientErrorOffsetSeconds()) > clientErrorThresholdSeconds;
+			const isTimezoneDifferent = DateTime.now().offset !== boatTime.getUtcOffsetMinutes();
+			this.icoTimezoneOffset.hidden = !isTimezoneDifferent || isTimeError;
+			this.icoTimeOffset.hidden = !isTimeError;				
 		}
+	};
+
+	/** Singleton accessor returning the current ClockOffsetIcon */
+	ClockOffsetIcon.getInstance = function () {
+		if (clockOffsetIconInstance === null) {
+			clockOffsetIconInstance = new ClockOffsetIcon();
+		}
+		return clockOffsetIconInstance;
 	};
 
 	/// the start page, containing tiles / quick access items, handling the
@@ -806,6 +835,7 @@ PiLot.View.Common = (function () {
 
 	return {
 		Clock: Clock,
+		ClockOffsetIcon: ClockOffsetIcon,
 		StartPage: StartPage,
 		DayNightIcon: DayNightIcon,
 		NightModeHandler: NightModeHandler,

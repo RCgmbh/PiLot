@@ -93,6 +93,7 @@ PiLot.View.Settings = (function () {
 			this.boatTime.setUtcOffset(this.boatTime.getUtcOffsetMinutes() + (pHours * 60));
 			this.showBoatTime();
 			this.analogClock.getClockOpts().hoursOffset = this.boatTime.getUtcOffsetHours();
+			PiLot.View.Common.ClockOffsetIcon.getInstance().showStatusAsync(true);
 		},
 
 		showTime: function () {

@@ -52,7 +52,14 @@ PiLot.Templates.Common = {
 		</div>
 	`,
 
-	clock: `<span class="lblTime"></span><a class="lnkWarning hidden marginLeftSmaller red"><i class="icon-notice"></i></a>`,
+	clock: `<span class="lblTime"></span>`,
+
+	clockOffsetIcon: `
+		<div class="vCenter biggerText">
+			<a class="icoTimezoneOffset icon orange" href="#" hidden><i class="icon-time2"></i></a>
+			<a class="icoTimeOffset icon red" href="#" hidden><i class="icon-time2"></i></a>
+		</div>
+	`,
 
 	startPage: `<div class="homeContainer"></div>`,
 
