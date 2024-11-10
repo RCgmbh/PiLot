@@ -17,7 +17,7 @@ namespace PiLot.Utils.OS {
 		private const String SHUTDOWNCOMMAND = "shutdown now";
 		private const String REBOOTCOMMAND = "reboot now";
 		private const String PINGCOMMAND = "ping";
-		private const String PINGARGSLINUX = "-c 1 {0}";
+		private const String PINGARGSLINUX = "-W 2 -c 1 {0}";
 		private const String PINGSUCCSSSLINUX = "1 received";
 		private const String PINGARGSWIN = "-n 1 {0}";
 		private const String PINGSUCCSSSWIN = "Received = 1";
