@@ -593,7 +593,7 @@ PiLot.Service.Nav = (function () {
 	};
 
 	OsmPoiLoader.apiUrls = [
-		'https://lz4.overpass-api.de/api/interpreter',
+		'http://lz4.overpass-api.de/api/interpreter',
 		'https://z.overpass-api.de/api/interpreter',
 		'https://overpass.kumi.systems/api/interpreter',
 		'https://overpass.openstreetmap.ru/api/interpreter',
