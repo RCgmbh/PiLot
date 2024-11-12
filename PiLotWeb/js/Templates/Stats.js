@@ -14,7 +14,7 @@ PiLot.Templates.Stats = {
 	`,
 
 	totalDistanceChart: `
-		<div>
+		<div class="easyShadow">
 			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
 				<div class="pnlSettings flexRowWrap grow" hidden>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
@@ -42,6 +42,7 @@ PiLot.Templates.Stats = {
 				</div>
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
 			</div>
+			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
 			<div class="pnlChart fullWidth borderLight" style="min-height: 200px; max-height: 1000px; height:50vh;"></div>
 		</div>
 	`,
@@ -51,7 +52,7 @@ PiLot.Templates.Stats = {
 	`,
 
 	fastestSegmentsChart: `
-		<div>
+		<div class="easyShadow">
 			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
 				<div class="pnlSettings flexRowWrap" hidden>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">

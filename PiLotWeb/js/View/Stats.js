@@ -105,6 +105,7 @@ PiLot.View.Stats = (function () {
 		this.cblBoats = null;						// NodeList of checkboxes
 		this.tblUnit = null;						// NodeList of checkboxes
 		this.pnlChart = null;
+		this.pnlNoData = null;
 		this.chart = null;							//echart object
 		
 		this.initialize();
@@ -181,7 +182,8 @@ PiLot.View.Stats = (function () {
 				rbUnit.addEventListener('change', this.rblUnit_change.bind(this, rbUnit));
 			}
 			this.fillBoatsListAsync(control.querySelector('.plhBoats')).then(this.applyUserSettings.bind(this));
-			this.pnlChart = control.querySelector('.pnlChart');	
+			this.pnlChart = control.querySelector('.pnlChart');
+			this.pnlNoData = control.querySelector('.pnlNoData');
 		},
 
 		setDefaultValues: function(){
@@ -267,7 +269,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		/** Processes the track data and assigns it to the chart */
-		showDataAsync: async function(){
+		showDataAsync: async function () {
 			switch (this.userSettings.timeframe) {
 				case 0:	// current month
 					this.showLabels = this.userSettings.interval > 0;
@@ -280,38 +282,45 @@ PiLot.View.Stats = (function () {
 					break;
 			}
 			let chartData = await this.processDataAsync();
-			const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
-			const colorIndex = new Map();
-			for(let i = 0; i < this.allBoats.length; i++){
-				colorIndex.set(this.allBoats[i].name, colors[i % colors.length]); 
-			}
-			let series = [];
-			let seriesName;
-			for(let i = 0; i < chartData[0].length - 1; i++){
-				seriesName = chartData[0][i + 1];
-				series.push({
-					name: seriesName,
-					type: 'bar',
-					stack: 'total',
-					label: { show: this.showLabels, position: 'inside', formatter: this.formatBarLabel.bind(this) },
-					itemStyle: { color: colorIndex.get(seriesName) }
-					
-				});
-			}
-			let option = {
-				grid: {left: 20, right:30, bottom: 10, top:50, containLabel: true},
-				animation: false,
-				legend: { formatter: this.formatLegend.bind(this) },
-				tooltip: { formatter: this.getTooltip.bind(this), triggerOn: 'click', enterable: true },
-				dataset: { source: chartData },
-				xAxis: { type: 'category', axisLabel: { formatter: this.formatXAxisLabel.bind(this)} },
-				yAxis: {},
-				series: series
-			  };
+			if (chartData.hasData) {
+				this.pnlChart.hidden = false;
+				this.pnlNoData.hidden = true;
+				const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
+				const colorIndex = new Map();
+				for (let i = 0; i < this.allBoats.length; i++) {
+					colorIndex.set(this.allBoats[i].name, colors[i % colors.length]);
+				}
+				let series = [];
+				let seriesName;
+				for (let i = 0; i < chartData.data[0].length - 1; i++) {
+					seriesName = chartData.data[0][i + 1];
+					series.push({
+						name: seriesName,
+						type: 'bar',
+						stack: 'total',
+						label: { show: this.showLabels, position: 'inside', formatter: this.formatBarLabel.bind(this) },
+						itemStyle: { color: colorIndex.get(seriesName) }
 
-			this.chart && echarts.dispose(this.pnlChart); // without this, it messed up the chart when changing boats. Probably my fault :-)
-			this.chart = echarts.init(this.pnlChart, null);
-			this.chart.setOption(option);
+					});
+				}
+				let option = {
+					grid: { left: 20, right: 30, bottom: 10, top: 50, containLabel: true },
+					animation: false,
+					legend: { formatter: this.formatLegend.bind(this) },
+					tooltip: { formatter: this.getTooltip.bind(this), triggerOn: 'click', enterable: true },
+					dataset: { source: chartData.data },
+					xAxis: { type: 'category', axisLabel: { formatter: this.formatXAxisLabel.bind(this) } },
+					yAxis: {},
+					series: series
+				};
+
+				this.chart && echarts.dispose(this.pnlChart); // without this, it messed up the chart when changing boats. Probably my fault :-)
+				this.chart = echarts.init(this.pnlChart, null);
+				this.chart.setOption(option);
+			} else {
+				this.pnlChart.hidden = true;
+				this.pnlNoData.hidden = false;
+			}
 		},
 
 		/** shows the distance per bar in a readable form */
@@ -354,9 +363,10 @@ PiLot.View.Stats = (function () {
 		 * Takes the current tracks, and creates an array of arrays, first having the list of boats, and
 		 * then for each timespan having an array starting with the name of the timespan, and then the
 		 * total distance for each boat. This can then be passed to the chart as dataset.source.
+		 * @returns {Object} with hasData:Boolean, data:Array
 		 * */
 		processDataAsync: async function () {
-			let result = [];
+			let result = { hasData: false, data: [] };
 			if(this.tracks && this.tracks.length){
 				switch(this.userSettings.interval){
 					case 0:		// per day
@@ -412,15 +422,15 @@ PiLot.View.Stats = (function () {
 					for(aBoatName of boats){
 						boatsIndex.set(aBoatName, boatsArray.push(aBoatName) - 1);
 					}
-					result.push(boatsArray);
+					result.data.push(boatsArray);
 					const periodsIndex = new Map();
 					let loopDate = startDate;
 					let loopDateMillis;
 					while(loopDate.isBefore(endDate)){
 						loopDateMillis = loopDate.toMillis();
 						let datesArray = [loopDateMillis];
-						result.push(datesArray);
-						periodsIndex.set(loopDateMillis, result.length - 1);
+						result.data.push(datesArray);
+						periodsIndex.set(loopDateMillis, result.data.length - 1);
 						for(let i = 0; i < boats.length; i++){
 							datesArray.push('');
 						}
@@ -428,10 +438,11 @@ PiLot.View.Stats = (function () {
 					}
 					let boatIndex, periodIndex, distanceRounded;
 					for(let aTrack of this.tracks){
-						if((boats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)){
+						if ((boats.indexOf(aTrack.getBoat()) >= 0) && (aTrack.getDistance() > 0)) {
+							result.hasData = true;
 							boatIndex = boatsIndex.get(aTrack.getBoat());
 							periodIndex = periodsIndex.get(this.dateMappingFunction(RC.Date.DateHelper.millisToLuxon(aTrack.getStartBoatTime())).toMillis());
-							result[periodIndex][boatIndex] = (result[periodIndex][boatIndex] || 0) + convertDistanceFunction(aTrack.getDistance());
+							result.data[periodIndex][boatIndex] = (result.data[periodIndex][boatIndex] || 0) + convertDistanceFunction(aTrack.getDistance());
 						}
 					}
 				}
@@ -805,7 +816,6 @@ PiLot.View.Stats = (function () {
 				boats,
 				20
 			);
-			console.log(this.trackSegments);
 		},
 
 		/** Processes the track segments data and assigns it to the chart */
@@ -858,7 +868,7 @@ PiLot.View.Stats = (function () {
 				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsDataItem);
 				lnkBarText = node.querySelector('.lnkBarText');
 				lnkBarText.innerText = startTime.toLocaleString(DateTime.DATE_SHORT);
-				lnkBarText.href = `${loader.createPageLink(loader.pages.logbook.diary)}&d=${utils.getQsDateValue(RC.Date.DateOnly.fromObject(startTime))}`;
+				lnkBarText.href = `${loader.createPageLink(loader.pages.diary)}&d=${utils.getQsDateValue(RC.Date.DateOnly.fromObject(startTime))}`;
 				node.querySelector('.lblBarLabel').innerText = Math.round(convertSpeedFunction(trackSegment.getSpeed()) * 100) / 100;
 				bar = node.querySelector('.divBar');
 				bar.style.width = `${Math.round(factor * trackSegment.getSpeed())}%`;
