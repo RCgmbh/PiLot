@@ -16,7 +16,7 @@ PiLot.Templates.Nav = {
 
 	gpsIcon: `
 		<div class="vCenter">
-			<span class="icoGpsConnected icon green" hidden><i class="icon-satellite"></i></span>
+			<span data-title="gpsStatusOk" class="icoGpsConnected icon green" hidden><i class="icon-satellite"></i></span>
 		</div>
 	`,
 

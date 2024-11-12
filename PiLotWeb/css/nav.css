@@ -9,6 +9,7 @@
 .navData .display .deg { font-size: 3em;  }
 .navData .xteDisplay .lblIcon { font-size: 2rem; margin: -1em 0em 0em 0.5em; display:inline-block; min-width: 1em; }
 .startPageNav .navLiveRoute { font-size: 1.25em; width: 100%; box-shadow: none; }
+body.night .startPageNav .navLiveRoute { box-shadow: none; }
 .navPage .navLiveRoute {  }
 .navPage .navData .display { min-width:8em; margin-left:1em; margin-right: 1em; }
 

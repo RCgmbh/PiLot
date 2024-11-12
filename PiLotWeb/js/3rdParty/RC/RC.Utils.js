@@ -225,9 +225,6 @@ RC.Utils = {
 			const eventObservers = pObservers.get(pEvent);
 			if (!eventObservers.includes(pCallback)) {
 				eventObservers.push(pCallback);
-				PiLot.log(`observer added: ${pEvent}`, 3);
-			} else {
-				PiLot.log(`observer not added as it already existed: ${pEvent}`, 3);
 			}			
 		} else {
 			console.log('invalid event name: ' + pEvent);

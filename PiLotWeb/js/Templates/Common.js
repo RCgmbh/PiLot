@@ -66,7 +66,7 @@ PiLot.Templates.Common = {
 	dayNightButtons: `
 		<div class="vCenter biggerText">
 			<a class="lnkNight yellow icon" href="#" data-title="nightMode"><i class="icon-moon"></i></a>
-			<a class="lnkDay white icon" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
+			<a class="lnkDay yellow icon" href="#" data-title="dayMode"><i class="icon-sun2"></i></a>
 		</div>
 	`,
 
