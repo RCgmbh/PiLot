@@ -106,8 +106,8 @@ PiLot.Templates.Tools = {
 	`,
 
 	speedDiagram: `
-		<div class="borderLight" style="padding: 0.5em 0.25em 0.25em 0.25em;">
-			<div style="display:flex; gap:1em;" class="marginBottomSmall paddingRight">
+		<div class="paddingAllSmall">
+			<div style="display:flex; gap:1em;" class="marginBottomSmall">
 				<span class="semiBold" style="flex-grow:1;" data-text="speedDiagram"></span>
 				<div class="pnlUnit" hidden>
 					<span data-text="unit"></span>: <select class="ddlUnit">

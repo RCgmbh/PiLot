@@ -25,10 +25,15 @@ PiLot.View.Diary = (function () {
 		this.lnkAddLogbookEntry = null;					// The link to add a new logbook entry
 		this.map = null;								// PiLot.View.Nav.Seamap showing the track of the day
 		this.mapTrack = null;							// the PiLot.View.Map.MapTrack for the daily track
-		this.pnlDiary = null;							// The panel containing diary text and distance
+		this.lnkCollapseDiary = null;
+		this.lnkExpandDiary = null;
+		this.pnlDiary = null;							// The panel containing the diary text
 		this.tbDiary = null;							// The textbox for editing diary content
 		this.lblDiary = null;							// The label for showing diary content readonly 
 		this.diaryFontSize = null;						// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
+		this.lnkCollapseMap = null;
+		this.lnkExpandMap = null;
+		this.pnlMap = null;
 		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;					// placeholder where the speed diagram will be added
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics control to show track statistics
@@ -56,6 +61,22 @@ PiLot.View.Diary = (function () {
 		calendar_dateSelected: function () {
 			let date = RC.Date.DateOnly.fromObject(this.calendar.date());
 			this.setDate(date);
+		},
+
+		lnkCollapseDiary_click: function () {
+			this.expandCollapse(false, this.pnlDiary, this.lnkExpandDiary, this.lnkCollapseDiary);
+		},
+
+		lnkExpandDiary_click: function () {
+			this.expandCollapse(true, this.pnlDiary, this.lnkExpandDiary, this.lnkCollapseDiary);
+		},
+
+		lnkCollapseMap_click: function () {
+			this.expandCollapse(false, this.pnlMap, this.lnkExpandMap, this.lnkCollapseMap);
+		},
+
+		lnkExpandMap_click: function () {
+			this.expandCollapse(true, this.pnlMap, this.lnkExpandMap, this.lnkCollapseMap);
 		},
 
 		/** Handler for the new item link click. Shows the form for a new entry with the latest boat setup */
@@ -115,6 +136,10 @@ PiLot.View.Diary = (function () {
 			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(diaryPage.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
 			this.lnkAddLogbookEntry = diaryPage.querySelector('.lnkAddLogbookEntry');
 			this.lnkAddLogbookEntry.addEventListener('click', this.lnkAddLogbookEntry_click.bind(this));
+			this.lnkCollapseDiary = diaryPage.querySelector('.lnkCollapseDiary');
+			this.lnkCollapseDiary.addEventListener('click', this.lnkCollapseDiary_click.bind(this));
+			this.lnkExpandDiary = diaryPage.querySelector('.lnkExpandDiary');
+			this.lnkExpandDiary.addEventListener('click', this.lnkExpandDiary_click.bind(this));
 			this.pnlDiary = diaryPage.querySelector('.pnlDiary');
 			diaryPage.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			diaryPage.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
@@ -123,6 +148,11 @@ PiLot.View.Diary = (function () {
 			this.tbDiary = diaryPage.querySelector('.tbDiary');
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.applyDiaryFontSize();
+			this.lnkCollapseMap = diaryPage.querySelector('.lnkCollapseMap');
+			this.lnkCollapseMap.addEventListener('click', this.lnkCollapseMap_click.bind(this));
+			this.lnkExpandMap = diaryPage.querySelector('.lnkExpandMap');
+			this.lnkExpandMap.addEventListener('click', this.lnkExpandMap_click.bind(this));
+			this.pnlMap = diaryPage.querySelector('.pnlMap');
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
 			this.tracksList = new PiLot.View.Nav.TracksList(diaryPage.querySelector('.plhTracks'));
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
@@ -142,6 +172,12 @@ PiLot.View.Diary = (function () {
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
 			diaryPage.querySelector('.pnlEdit').hidden = !PiLot.Permissions.canWrite();
 			this.toggleReadOnly(true);
+		},
+
+		expandCollapse: function (pIsExpanded, pPanel, pIconExpand, pIconCollapse) {
+			pPanel.hidden = !pIsExpanded;
+			pIconExpand.hidden = pIsExpanded;
+			pIconCollapse.hidden = !pIsExpanded;
 		},
 
 		/** sets the date based on the user settings, the value from the url or now */

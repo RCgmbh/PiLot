@@ -74,6 +74,11 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 
 .boatSetupForm { max-width: 21.5em; }
 
+.diaryContent {width: 20em; flex-grow:10;}
+.diaryText { text-align:justify; line-height:1.4em; hyphens:auto; }
+.diaryContext {width: 20em; max-width:40em; flex-grow:1;}
+.diaryContext .navMap { height:20em; max-height: 80vh; }
+
 .tbDiary { padding: 0.25em 0.5em; }
 .diaryPhotos { width:100%; display:flex; gap:2em; flex-direction:row; flex-wrap:wrap; justify-content:center; padding:0.125em 0.125em 1em 0.125em; }
 

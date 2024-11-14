@@ -108,7 +108,7 @@ body.night .navLiveRoute .divWaypoints .navWaypoint.past { color: #666; }
 a.mapLayersIcon, a.mapLayersIcon:visited  {color:#eee; }
 a.mapLayersIcon:hover { color:#FFBF49; }
 
-.mapSliderContainer {position: relative; display:flex; width:100%; height: 2em; bottom: 3.75em; margin-bottom:-2em; padding:0em 0.5em; z-index: 11050; }
+.mapSliderContainer {position: relative; display:flex; width:100%; height:0em; bottom: 3.75em; padding:0em 0.5em; z-index: 11050; }
 @media (max-height:400px){ .mapSliderContainer { padding-left: 4em; bottom:2.5em; } }
 .mapSliderContainer .slider { width:3em; flex-grow:1; height: 0.75em; margin-top: 0.5em; background: rgba(125, 125, 125, 0.5);  outline: none;  -webkit-appearance: none; }
 .mapSliderContainer .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 1.25em; height: 2em; border-radius:3px; background: #666; cursor: pointer; }
@@ -120,7 +120,6 @@ a.mapLayersIcon:hover { color:#FFBF49; }
 .trackInfo.selected {border-color: #333;}
 .trackInfo:not(.selected){ cursor: pointer;}
 
-.trackStatistics {padding: 0.5em 0.25em 0.25em 0.25em;}
 .trackStatistics .segments { gap: 0em 1em;}
 .trackStatistics .segmentsContainer {max-width: 32em; min-width:12em;}
 

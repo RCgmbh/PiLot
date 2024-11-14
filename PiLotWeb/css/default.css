@@ -78,6 +78,9 @@ body.night .rcCalendar .yearsPager { background-color: #666; }
 .chartContainer, .chartWait { width: 100%; height: 25em; }
 .chartWait { display: flex; justify-content: center; align-items: end; }
 
+.boxHeader { display:flex; justify-content: space-between; align-items:center; font-size: 1.125rem; }
+.boxHeader .boxTitle { font-weight: 600; }
+.boxHeader .boxIcons { flex-grow: 0; }
 
 div.feedbackGood, div.feedbackBad, div.feedbackInfo, div.feedbackWarning, div.feedbackNeutral, span.feedbackGood, span.feedbackBad, span.feedbackInfo, span.feedbackWarning { display: block; clear: both; padding: 0.5em 0.75em; border-width: 1px 1px 1px 0.5em; border-style: solid; text-align: left; }
 div.feedbackGood.hidden, div.feedbackBad.hidden, div.feedbackWarning.hidden, div.feedbackInfo.hidden, div.feedbackNeutral.hidden { display: none; }
@@ -208,6 +211,7 @@ textarea.big { height: 20em; }
 .paddingBottomSmall { padding-bottom: 0.5em; }
 .paddingLeft { padding-left: 1em; }
 .paddingRight { padding-right: 1em; }
+.paddingRightSmall { padding-right: 0.5em; }
 /* well that might be a bit crazy, but we save some pixels on very small screens... */
 .marginAll { margin: min(1em, 4vh) min(1em, 4vw) min(1em, 4vh) min(1em, 4vw); }
 .marginAllSmall { margin: min(0.5em, 2vh) min(0.5em, 2vw) min(0.5em, 2vh) min(0.5em, 2vw); }
@@ -235,6 +239,7 @@ textarea.big { height: 20em; }
 .paddingBottomSmall { padding-bottom: min(0.5em, 2vh); }
 .paddingLeft { padding-left: min(1em, 4vw); }
 .paddingRight { padding-right: min(1em, 4vw); }
+.paddingRightSmall { padding-right: min(0.5em, 2vw); }
 .absolute { position: absolute }
 .fixed { position: fixed; }
 .floatLeft { float: left; }
@@ -267,6 +272,7 @@ textarea.big { height: 20em; }
 .preWrap { white-space: pre-wrap; }
 .noWrap { white-space: nowrap; }
 .breakWord { word-break: break-word; overflow-wrap: break-word; }
+.textColumns {columns: auto 25em;}
 .bgLight { background-color: #eee; }
 .bgLightBlue { background-color: #B2D3FF; }
 .borderLight { border: 1px solid #ccc; }
@@ -434,8 +440,7 @@ body.night .homeContainer > div { box-shadow: 0px 0px 6px -1px white; }
 #header { background-color: #214372; }
 #hamburger { text-align: center; }
 #hamburger > a { font-size: 1.5em; text-decoration: none; color: #fff; }
-body.night #dayNightButtons > .btnNightMode, body:not(.night) #dayNightButtons > .btnDayMode { color: #FFBF49; }
-/*#dayNightButtons > a:hover, #headerButtons a.btnUserInfo:hover { color: #FFBF49; }*/
+
 a.btnUserInfo { color: #ccc; }
 a.btnUserInfo.active { color: #FFBF49; }
 #clock { font-weight: 600; color: #fff; }

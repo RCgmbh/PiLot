@@ -1464,15 +1464,16 @@ PiLot.View.Nav = (function () {
 				this.plhDistanceSegments.appendChild(control);
 				this.plhDistanceSegments.hidden = false;
 			} else {
-				let distance = speed * segmentType.getDuration();
-				let friendlyDistance = PiLot.Utils.Nav.metersToNauticalMiles(distance).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 3 });
-				control.querySelector('.lblDistance').innerHTML = friendlyDistance;
+				//let distance = speed * segmentType.getDuration();
+				//let friendlyDistance = PiLot.Utils.Nav.metersToNauticalMiles(distance).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 3 });
+				//control.querySelector('.lblDistance').innerHTML = friendlyDistance;
+				control.querySelector('.lblSpeed').innerHTML = PiLot.Utils.Nav.mpsToKnots(speed).toFixed(2);
 				this.plhDurationSegments.appendChild(control);
 				this.plhDurationSegments.hidden = false;
 			}
-			control.querySelector('.lblSpeed').innerHTML = PiLot.Utils.Nav.mpsToKnots(speed).toFixed(2);
-			control.querySelector('.lblStartTime').innerHTML = pSegment.getStartBoatTime().toLocaleString(DateTime.TIME_WITH_SECONDS);
-			control.querySelector('.lblEndTime').innerHTML = pSegment.getEndBoatTime().toLocaleString(DateTime.TIME_WITH_SECONDS);
+			
+			control.querySelector('.lblStartTime').innerHTML = pSegment.getStartBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
+			control.querySelector('.lblEndTime').innerHTML = pSegment.getEndBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
 		},
 
 		durationToHHMMSS: function (pDuration) {

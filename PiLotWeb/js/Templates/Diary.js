@@ -4,8 +4,8 @@ PiLot.Templates = PiLot.Templates || {};
 PiLot.Templates.Diary = {
 
 	diaryPage: `
-		<div class="contentPadding fullHeight">
-			<div class="dataContainerFull logbookHeader">
+		<div class="fullHeight fullWidth">
+			<div class="logbookHeader fullWidth paddingAllSmall">
 				<h1 class="inlineBlock lblFriendlyDate"></h1>
 				<div class="inlineBlock marginRight dateContainer">
 					<a href="#" class="lnkPreviousDay biggerText"><i class="icon-arrow-left2"></i></a><i
@@ -14,41 +14,71 @@ PiLot.Templates.Diary = {
 					<div class="logbookCalendar diaryCalendar" hidden></div>
 				</div>
 			</div>
-			<div class="dataContainerHalf paddingRight marginBottom">
-				<div class="pnlDiary marginBottom" style="text-align:justify; line-height:1.4em;">
-					<div class="plhTextSize" style="text-align:right;">
-						<a href="#" class="lnkBiggerText" data-title="fontsizeIncrease"><span style="font-size:1.5em;">A&uarr;</span></a>
-						<a href="#" class="lnkSmallerText" data-title="fontsizeDecrease"><span>A&darr;</span></a>
+			<div class="flexRowWrap reverse">
+				<div class="diaryContent marginBottom marginLeftSmall marginRightSmall">
+					<div class="easyShadow marginBottom">
+						<div class="boxHeader">
+							<span class="boxTitle paddingAllSmall" data-text="diary"></span>
+							<div class="boxIcons">
+								<a href="#" class="lnkBiggerText" data-title="fontsizeIncrease"><span style="font-size:1.5em;">A&uarr;</span></a>
+								<a href="#" class="lnkSmallerText" data-title="fontsizeDecrease"><span>A&darr;</span></a>
+								<a href="#" class="lnkCollapseDiary paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
+								<a href="#" class="lnkExpandDiary paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
+							</div>
+						</div>
+						<div class="pnlDiary diaryText paddingAllSmall">
+							<span class="lblDiary preLine block textColumns" ></span>
+						</div>
+						<div class="pnlEditDiary marginBottom" hidden>
+						<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
 					</div>
-					<span class="lblDiary preLine" style="hyphens:auto;"></span>
+					</div>
+					
+					<div class="plhLogbookEntries logbookEntries"></div>
+					<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 				</div>
-				<div class="pnlEditDiary marginBottom" hidden>
-					<span class="block semiBold marginBottom" data-text="diary"></span>
-					<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+				<div class="diaryContext marginLeftSmall marginRightSmall marginBottom">
+					<div class="easyShadow  marginBottom">
+						<div class="boxHeader">
+							<span class="boxTitle paddingAllSmall" data-text="map"></span>
+							<div class="boxIcons">
+								<a href="#" class="lnkEnlargeMap paddingAllSmall" data-title="enlarge"><i class="icon-enlarge"></i></a>
+								<a href="#" class="lnkEditTrack paddingAllSmall" data-title="editTrack"><i class="icon-pencil"></i></a>
+								<a href="#" class="lnkCollapseMap paddingAllSmall" data-title="hide"><i class="icon-circle-up"></i></a>
+								<a href="#" class="lnkExpandMap paddingAllSmall" data-title="show" hidden><i class="icon-circle-down"></i></a>
+							</div>
+						</div>
+						<div class="pnlMap">
+							<div class="plhMap navMap borderDark"></div>
+						</div>
+					</div>
+					<div class="easyShadow  marginBottom">
+						<div class="boxHeader">
+							<span class="boxTitle paddingAllSmall" data-text="tracks"></span>
+							<div class="boxIcons">
+								<a href="#" class="paddingAllSmall lnkCollapse" data-title="hide"><i class="icon-circle-up"></i></a>
+								<a href="#" class="paddingAllSmall lnkExpand" data-title="show" hidden><i class="icon-circle-down"></i></a>
+							</div>
+						</div>
+						<div class="plhTracks"></div>
+						<div class="plhSpeedDiagram"></div>
+						<div class="plhTrackStatistics marginBottom"></div>
+					</div>
 				</div>
-				<div class="plhLogbookEntries logbookEntries"></div>
-				<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
-			</div>
-			<div class="dataContainerHalf paddingRight marginTop marginBottom">
-				<div class="plhMap navMap borderDark marginBottom"></div>
-				<div class="plhTracks marginBottom"></div>
-				<div class="plhSpeedDiagram marginBottom"></div>
-				<div class="plhTrackStatistics marginBottom"></div>
 			</div>
 			<div class="dataContainerFull paddingRight marginBottom">
 				<div class="plhPhotoGallery marginBottom"></div>
 				<div class="plhPhotoUpload marginBottom"></div>
 			</div>
-			
 			<div class="flexRowWrap dataContainerFull paddingRight" style="justify-content:space-between; flex-wrap:wrap-reverse;">
 				<div class="pnlEdit marginRight marginBottom flexRowWrap" style="justify-content:center;">
 					<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> 
-					<a href="#" class="lnkEditTrack marginLeft marginRight" data-text="editTrack"></a> 
 					<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
 				</div>
 				<a href="#" class="lnkTop marginBottom"><i class="biggerText icon-circle-up"></i></a>
 				
 			</div>
+			
 		</div>`,
 
 	publishDiaryPage: `
