@@ -76,10 +76,10 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 
 .diaryContent {width: 20em; flex-grow:10;}
 .diaryText { text-align:justify; line-height:1.4em; hyphens:auto; }
+textarea.diaryText { text-align: left; hyphens: none; }
 .diaryContext {width: 20em; max-width:40em; flex-grow:1;}
 .diaryContext .navMap { height:20em; max-height: 80vh; }
 
-.tbDiary { padding: 0.25em 0.5em; }
 .diaryPhotos { width:100%; display:flex; gap:2em; flex-direction:row; flex-wrap:wrap; justify-content:center; padding:0.125em 0.125em 1em 0.125em; }
 
 .thumbnailContainer {
@@ -87,9 +87,8 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 	min-height: 15em; height:25vw; max-height:24em; 
 	display:flex; flex-direction:column; justify-content:center;
 }
-.thumbnail { max-height:100%; max-width:100%; margin: 0.5em auto 0em auto; box-shadow: 0.5em 0.5em 1em 0 #666; }
-.thumbnail:hover { box-shadow: 0.5em 0.5em 1em 0 #214372; cursor:pointer;}
-.thumbnail { transition: box-shadow 0.5s }
+.thumbnail { max-height:100%; max-width:100%; margin: 0.5em auto 0em auto; box-shadow: 0em 0em 1em -0.25em #000; transition: box-shadow 0.5s}
+.thumbnail:hover { box-shadow: 0em 0em 1em -0em #000; cursor:pointer;}
 .photoScreen {
 	display:flex;
 	position: fixed;

@@ -25,15 +25,23 @@ PiLot.View.Diary = (function () {
 		this.lnkAddLogbookEntry = null;					// The link to add a new logbook entry
 		this.map = null;								// PiLot.View.Nav.Seamap showing the track of the day
 		this.mapTrack = null;							// the PiLot.View.Map.MapTrack for the daily track
+		this.lnkEditDiary = null;
 		this.lnkCollapseDiary = null;
 		this.lnkExpandDiary = null;
 		this.pnlDiary = null;							// The panel containing the diary text
+		this.pnlShowDiary = null;
+		this.pnlEditDiary = null;
 		this.tbDiary = null;							// The textbox for editing diary content
 		this.lblDiary = null;							// The label for showing diary content readonly 
 		this.diaryFontSize = null;						// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
+		this.lnkCollapsePhotos = null;
+		this.lnkExpandPhotos = null;
 		this.lnkCollapseMap = null;
 		this.lnkExpandMap = null;
 		this.pnlMap = null;
+		this.lnkCollapseTracks = null;
+		this.lnkExpandTracks = null;
+		this.pnlTracks = null;
 		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;					// placeholder where the speed diagram will be added
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics control to show track statistics
@@ -55,6 +63,11 @@ PiLot.View.Diary = (function () {
 			this.diaryInfoCache = new PiLot.Model.Logbook.DiaryInfoCache();
 			this.draw();
 			this.initializeDate();
+			this.applyBoxesStatus();
+		},
+
+		document_scrollEnd: function () {
+			this.showTopLink();
 		},
 
 		/** handler for selecting a date in the calendar */
@@ -63,20 +76,49 @@ PiLot.View.Diary = (function () {
 			this.setDate(date);
 		},
 
-		lnkCollapseDiary_click: function () {
-			this.expandCollapse(false, this.pnlDiary, this.lnkExpandDiary, this.lnkCollapseDiary);
+		lnkEditDiary_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.toggleEditDiary();
 		},
 
-		lnkExpandDiary_click: function () {
-			this.expandCollapse(true, this.pnlDiary, this.lnkExpandDiary, this.lnkCollapseDiary);
+		lnkCollapseDiary_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapseDiary(false);
 		},
 
-		lnkCollapseMap_click: function () {
-			this.expandCollapse(false, this.pnlMap, this.lnkExpandMap, this.lnkCollapseMap);
+		lnkExpandDiary_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapseDiary(true);
 		},
 
-		lnkExpandMap_click: function () {
-			this.expandCollapse(true, this.pnlMap, this.lnkExpandMap, this.lnkCollapseMap);
+		lnkCollapsePhotos_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapsePhotos(false);
+		},
+
+		lnkExpandPhotos_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapsePhotos(true);
+		},
+
+		lnkCollapseMap_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapseMap(false);
+		},
+
+		lnkExpandMap_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapseMap(true);
+		},
+
+		lnkCollapseTracks_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapseTracks(false);
+		},
+
+		lnkExpandTracks_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapseTracks(true);
 		},
 
 		/** Handler for the new item link click. Shows the form for a new entry with the latest boat setup */
@@ -120,6 +162,7 @@ PiLot.View.Diary = (function () {
 
 		/** draws the page and finds the controls and binds handlers */
 		draw: function () {
+			document.addEventListener('scrollend', this.document_scrollEnd.bind(this));
 			const diaryPage = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(diaryPage);
 			this.lblFriendlyDate = diaryPage.querySelector('.lblFriendlyDate');
@@ -136,6 +179,8 @@ PiLot.View.Diary = (function () {
 			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(diaryPage.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
 			this.lnkAddLogbookEntry = diaryPage.querySelector('.lnkAddLogbookEntry');
 			this.lnkAddLogbookEntry.addEventListener('click', this.lnkAddLogbookEntry_click.bind(this));
+			this.lnkEditDiary = diaryPage.querySelector('.lnkEditDiary');
+			this.lnkEditDiary.addEventListener('click', this.lnkEditDiary_click.bind(this));
 			this.lnkCollapseDiary = diaryPage.querySelector('.lnkCollapseDiary');
 			this.lnkCollapseDiary.addEventListener('click', this.lnkCollapseDiary_click.bind(this));
 			this.lnkExpandDiary = diaryPage.querySelector('.lnkExpandDiary');
@@ -143,17 +188,28 @@ PiLot.View.Diary = (function () {
 			this.pnlDiary = diaryPage.querySelector('.pnlDiary');
 			diaryPage.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			diaryPage.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
+			this.pnlShowDiary = diaryPage.querySelector('.pnlShowDiary');
 			this.lblDiary = diaryPage.querySelector('.lblDiary');
 			this.pnlEditDiary = diaryPage.querySelector('.pnlEditDiary');
 			this.tbDiary = diaryPage.querySelector('.tbDiary');
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.applyDiaryFontSize();
+			this.lnkCollapsePhotos = diaryPage.querySelector('.lnkCollapsePhotos');
+			this.lnkCollapsePhotos.addEventListener('click', this.lnkCollapsePhotos_click.bind(this));
+			this.lnkExpandPhotos = diaryPage.querySelector('.lnkExpandPhotos');
+			this.lnkExpandPhotos.addEventListener('click', this.lnkExpandPhotos_click.bind(this));
+			this.pnlPhotos = diaryPage.querySelector('.pnlPhotos');
 			this.lnkCollapseMap = diaryPage.querySelector('.lnkCollapseMap');
 			this.lnkCollapseMap.addEventListener('click', this.lnkCollapseMap_click.bind(this));
 			this.lnkExpandMap = diaryPage.querySelector('.lnkExpandMap');
 			this.lnkExpandMap.addEventListener('click', this.lnkExpandMap_click.bind(this));
 			this.pnlMap = diaryPage.querySelector('.pnlMap');
 			this.map = new PiLot.View.Map.Seamap(diaryPage.querySelector('.plhMap'), { persistMapState: false });
+			this.lnkCollapseTracks = diaryPage.querySelector('.lnkCollapseTracks');
+			this.lnkCollapseTracks.addEventListener('click', this.lnkCollapseTracks_click.bind(this));
+			this.lnkExpandTracks = diaryPage.querySelector('.lnkExpandTracks');
+			this.lnkExpandTracks.addEventListener('click', this.lnkExpandTracks_click.bind(this));
+			this.pnlTracks = diaryPage.querySelector('.pnlTracks');
 			this.tracksList = new PiLot.View.Nav.TracksList(diaryPage.querySelector('.plhTracks'));
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
 			this.plhSpeedDiagram = diaryPage.querySelector('.plhSpeedDiagram');
@@ -174,22 +230,56 @@ PiLot.View.Diary = (function () {
 			this.toggleReadOnly(true);
 		},
 
-		expandCollapse: function (pIsExpanded, pPanel, pIconExpand, pIconCollapse) {
+		expandCollapse: function (pIsExpanded, pPanel, pIconExpand, pIconCollapse, pSettingsKey) {
 			pPanel.hidden = !pIsExpanded;
 			pIconExpand.hidden = pIsExpanded;
 			pIconCollapse.hidden = !pIsExpanded;
+			if (pSettingsKey) {
+				PiLot.Utils.Common.saveUserSetting(pSettingsKey, pIsExpanded);
+			}
+			this.showTopLink();
+		},
+
+		expandCollapseDiary: function (pExpanded, pSaveState = true) {
+			this.expandCollapse(pExpanded, this.pnlDiary, this.lnkExpandDiary, this.lnkCollapseDiary, pSaveState ? 'PiLot.View.Diary.DiaryPage.diaryBoxExpanded' : null);
+		},
+
+		expandCollapseLogbook: function (pExpanded, pSaveState = true) {
+			this.expandCollapse(pExpanded, this.pnlLogbook, this.lnkExpandLogbook, this.lnkCollapseLogbook, pSaveState ? 'PiLot.View.Diary.DiaryPage.logbookBoxExpanded' : null);
+		},
+
+		expandCollapsePhotos: function (pExpanded, pSaveState = true) {
+			this.expandCollapse(pExpanded, this.pnlPhotos, this.lnkExpandPhotos, this.lnkCollapsePhotos, pSaveState ? 'PiLot.View.Diary.DiaryPage.photosBoxExpanded' : null);
+		},
+
+		expandCollapseMap: function (pExpanded, pSaveState = true) {
+			this.expandCollapse(pExpanded, this.pnlMap, this.lnkExpandMap, this.lnkCollapseMap, pSaveState ? 'PiLot.View.Diary.DiaryPage.mapBoxExpanded' : null);
+			if (pExpanded) {
+				const leafletMap = this.map && this.map.getLeafletMap();
+				if (leafletMap) {
+					this.map.getLeafletMap().invalidateSize(false);
+					this.mapTrack && this.mapTrack.zoomToTracks()
+				}
+			}
+		},
+
+		expandCollapseTracks: function (pExpanded, pSaveState = true) {
+			this.expandCollapse(pExpanded, this.pnlTracks, this.lnkExpandTracks, this.lnkCollapseTracks, pSaveState ? 'PiLot.View.Diary.DiaryPage.tracksBoxExpanded' : null);
 		},
 
 		/** sets the date based on the user settings, the value from the url or now */
 		initializeDate: function () {
+			let updateHistory = true;
 			let date = PiLot.Utils.Common.parseQsDate(this.currentBoatTime);
 			if (date === null) {
 				date = this.loadDateFromSetting();
+			} else {
+				updateHistory = false;
 			}
 			if (date === null) {
 				date = RC.Date.DateOnly.fromObject(this.currentBoatTime.now());
 			}
-			this.setDate(date);
+			this.setDate(date, updateHistory);
 		},
 
 		/** Loads the date from the user settings, if there is any  */
@@ -203,6 +293,13 @@ PiLot.View.Diary = (function () {
 				}
 			}
 			return result;
+		},
+
+		applyBoxesStatus: function () {
+			this.expandCollapseDiary(PiLot.Utils.Common.loadUserSetting('PiLot.View.Diary.DiaryPage.diaryBoxExpanded'), false); 
+			this.expandCollapsePhotos(PiLot.Utils.Common.loadUserSetting('PiLot.View.Diary.DiaryPage.photosBoxExpanded'), false); 
+			this.expandCollapseMap(PiLot.Utils.Common.loadUserSetting('PiLot.View.Diary.DiaryPage.mapBoxExpanded'), false); 
+			this.expandCollapseTracks(PiLot.Utils.Common.loadUserSetting('PiLot.View.Diary.DiaryPage.tracksBoxExpanded'), false); 
 		},
 
 		/**
@@ -283,6 +380,11 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
+		toggleEditDiary: function () {
+			this.pnlEditDiary.hidden = !this.pnlEditDiary.hidden;
+			this.pnlShowDiary.hidden = !this.pnlShowDiary.hidden;
+		},
+
 		/** shows the currently selected date in friendly form */
 		showFriendlyDate: function () {
 			const locale = PiLot.Utils.Language.getLanguage();
@@ -290,7 +392,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		showTopLink: function () {
-			this.lnkTop.hidden = document.body.scrollHeight <= window.innerHeight;
+			this.lnkTop.hidden = (document.body.scrollHeight <= window.innerHeight) || (window.scrollY <= 0);
 		},
 
 		/** changes the current day by pDays and re-loads the data. Also saves the currently selected day to the user settings */
@@ -319,12 +421,12 @@ PiLot.View.Diary = (function () {
 					this.diaryFontSize = DiaryPage.diaryFontSizes.indexOf(1);
 				}
 			}
-            this.pnlDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
+            this.lblDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
             this.tbDiary.style.fontSize = DiaryPage.diaryFontSizes[this.diaryFontSize] + 'em';
 		},
 
 		/** sets the current date, re-loads the data and saves the currently selected day to the user settings */
-		setDate: function (pDate) {
+		setDate: function (pDate, pUpdateHistory = true) {
 			this.date = pDate;
 			this.calendar.date(this.date.toLuxon().setLocale(PiLot.Utils.Language.getLanguage()));
 			this.calendar.showDate();
@@ -332,8 +434,10 @@ PiLot.View.Diary = (function () {
 			this.bindLnkEditTrack();
 			this.bindLnkPublish();
 			this.saveDate();
-			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
-			window.history.pushState({}, '', url);
+			if (pUpdateHistory) {
+				const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
+				window.history.pushState({}, '', url);
+			}
 			this.loadLogbookDayAsync();
 		},
 

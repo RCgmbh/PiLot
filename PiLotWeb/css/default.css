@@ -29,7 +29,6 @@ body.night a, body.night a:visited, body.night a:active { color: #4992FF; }
 body.night a.tile { color: #4992FF; }
 body.night a.tile:hover { background-color: #1e2426; }
 body.night .bgLight { background-color: #1e2426; }
-body.night .bgLightBlue, body.night .borderLightBlue { border-color: #3265AD; background-color: #3265AD; }
 body.night a.lightLink, body.night a.lightLink:active, body.night a.lightLink:visited { color: #000; }
 body.night .easyShadow { box-shadow: 0px 0px 6px -1px white; }
 body.nightTransition,
@@ -43,7 +42,6 @@ body.nightTransition .inlineTextbox,
 body.nightTransition input,
 body.nightTransition textarea { transition: background-color 1s, color 1s, border-color 1s; }
 a.tile { transition: background-color 0.2s, color 0.2s; }
-.borderLightBlue { transition: border-color 1s; }
 
 body.night .rcCalendar { color: #ccc; background-color: #070613; border-color: #999; }
 body.night .rcCalendar .header { background-color: unset; }
@@ -274,10 +272,9 @@ textarea.big { height: 20em; }
 .breakWord { word-break: break-word; overflow-wrap: break-word; }
 .textColumns {columns: auto 25em;}
 .bgLight { background-color: #eee; }
-.bgLightBlue { background-color: #B2D3FF; }
 .borderLight { border: 1px solid #ccc; }
+.borderLighter { border: 1px solid #e8e8e8; }
 .borderBottom { border-style: none; border-bottom-style: solid; }
-.borderLightBlue { border-color: #B2D3FF; }
 .borderDark { border: 1px solid #999; }
 .bw { filter: grayscale(80%); }
 .easyShadow { box-shadow: 0px 0px 6px -2px black;}
@@ -374,7 +371,7 @@ th.right, td.right { text-align: right !important; }
 /* SPECIFIC ELEMENTS */
 
 .pnlUserInfo { text-align: left; width: 15em; padding: 0.5em; margin-top: 3em; border: 1px solid #aaa; border-radius: 0.25em; z-index: 13000; }
-
+.topLink { position: fixed; bottom:0; right:0;}
 .timeLabel { display: inline-block; width: 12em; }
 #clockCanvas { max-width: 90vw; max-height: 90vh; }
 .logfile { max-height: calc(100vh - 200px); overflow: auto; overflow-wrap: anywhere; }

@@ -22,20 +22,37 @@ PiLot.Templates.Diary = {
 							<div class="boxIcons">
 								<a href="#" class="lnkBiggerText" data-title="fontsizeIncrease"><span style="font-size:1.5em;">A&uarr;</span></a>
 								<a href="#" class="lnkSmallerText" data-title="fontsizeDecrease"><span>A&darr;</span></a>
+								<a href="#" class="lnkEditDiary paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
 								<a href="#" class="lnkCollapseDiary paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
 								<a href="#" class="lnkExpandDiary paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
 							</div>
 						</div>
-						<div class="pnlDiary diaryText paddingAllSmall">
-							<span class="lblDiary preLine block textColumns" ></span>
+						<div class="pnlDiary paddingAllSmall">
+							<div class="pnlShowDiary"> 
+								<span class="lblDiary diaryText preLine block textColumns" ></span>
+							</div>
+							<div class="pnlEditDiary marginBottom" hidden>
+								<textarea class="tbDiary diaryText borderLight fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+							</div>
 						</div>
-						<div class="pnlEditDiary marginBottom" hidden>
-						<textarea class="tbDiary fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-					</div>
 					</div>
 					
 					<div class="plhLogbookEntries logbookEntries"></div>
 					<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
+					<div class="marginBottom">
+						<div class="boxHeader bgLight">
+							<span class="boxTitle paddingAllSmall" data-text="photos"></span>
+							<div class="boxIcons">
+								<a href="#" class="lnkEditPhotos paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
+								<a href="#" class="lnkCollapsePhotos paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
+								<a href="#" class="lnkExpandPhotos paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
+							</div>
+						</div>
+						<div class="pnlPhotos borderLighter">
+							<div class="plhPhotoGallery marginBottom"></div>
+							<div class="plhPhotoUpload marginBottom"></div>
+						</div>
+					</div>
 				</div>
 				<div class="diaryContext marginLeftSmall marginRightSmall marginBottom">
 					<div class="easyShadow  marginBottom">
@@ -56,29 +73,25 @@ PiLot.Templates.Diary = {
 						<div class="boxHeader">
 							<span class="boxTitle paddingAllSmall" data-text="tracks"></span>
 							<div class="boxIcons">
-								<a href="#" class="paddingAllSmall lnkCollapse" data-title="hide"><i class="icon-circle-up"></i></a>
-								<a href="#" class="paddingAllSmall lnkExpand" data-title="show" hidden><i class="icon-circle-down"></i></a>
+								<a href="#" class="paddingAllSmall lnkCollapseTracks" data-title="hide"><i class="icon-circle-up"></i></a>
+								<a href="#" class="paddingAllSmall lnkExpandTracks" data-title="show" hidden><i class="icon-circle-down"></i></a>
 							</div>
 						</div>
-						<div class="plhTracks"></div>
-						<div class="plhSpeedDiagram"></div>
-						<div class="plhTrackStatistics marginBottom"></div>
+						<div class="pnlTracks">
+							<div class="plhTracks"></div>
+							<div class="plhSpeedDiagram"></div>
+							<div class="plhTrackStatistics marginBottom"></div>
+						</div>
 					</div>
 				</div>
-			</div>
-			<div class="dataContainerFull paddingRight marginBottom">
-				<div class="plhPhotoGallery marginBottom"></div>
-				<div class="plhPhotoUpload marginBottom"></div>
 			</div>
 			<div class="flexRowWrap dataContainerFull paddingRight" style="justify-content:space-between; flex-wrap:wrap-reverse;">
 				<div class="pnlEdit marginRight marginBottom flexRowWrap" style="justify-content:center;">
 					<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> 
 					<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
 				</div>
-				<a href="#" class="lnkTop marginBottom"><i class="biggerText icon-circle-up"></i></a>
-				
+				<a href="#" class="lnkTop topLink marginBottomSmall marginRightSmall"><i class="biggerText icon-arrow-up"></i></a>
 			</div>
-			
 		</div>`,
 
 	publishDiaryPage: `
