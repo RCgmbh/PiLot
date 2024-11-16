@@ -34,14 +34,17 @@ RC.Utils = {
 			isUrl = true;
 		} else if (pUrl instanceof Location) {
 			url = new URL(pUrl.href);
-		} else if(URL.canParse(pUrl)) {
+		} else if (pUrl.indexOf('http://') == 0 || pUrl.indexOf('https://') == 0) {
 			url = new URL(pUrl);
-		}
+		} 
 		if (url) {
 			const params = new URLSearchParams(url.search);
 			params.set(pKey, pValue);
 			url.search = params;
 			result = isUrl ? url : url.toString();
+		} else {
+			const separator = pUrl.indexOf('?') < 0 ? '?' : '&';
+			result = `${pUrl}${separator}${pKey}=${pValue}`;
 		}
 		return result;
 	},
