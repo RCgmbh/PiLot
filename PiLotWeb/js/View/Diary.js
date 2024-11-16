@@ -199,7 +199,7 @@ PiLot.View.Diary = (function () {
 			this.bindLnkPublish();
 			this.saveDate();
 			if (pUpdateHistory) {
-				const url = PiLot.Utils.Common.setQsDate(window.location.href, this.date);
+				const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 				window.history.pushState({}, '', url);
 			}
 			this.loadLogbookDayAsync();
@@ -227,8 +227,9 @@ PiLot.View.Diary = (function () {
 		this.lnkEditDiary = null;
 		this.pnlShowDiary = null;
 		this.pnlEditDiary = null;
-		this.tbDiary = null;							// The textbox for editing diary content
-		this.lblDiary = null;							// The label for showing diary content readonly 
+		this.lblDiary = null;
+		this.pnlNoData = null;
+		this.tbDiary = null;
 		this.diaryFontSize = null;						// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
 		this.observers = null;
 		this.initialize();
@@ -303,6 +304,7 @@ PiLot.View.Diary = (function () {
 			control.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
 			this.pnlShowDiary = control.querySelector('.pnlShowDiary');
 			this.lblDiary = control.querySelector('.lblDiary');
+			this.pnlNoData = control.querySelector('.pnlNoData');
 			this.pnlEditDiary = control.querySelector('.pnlEditDiary');
 			this.tbDiary = control.querySelector('.tbDiary');
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
@@ -324,7 +326,10 @@ PiLot.View.Diary = (function () {
 		},
 
 		showDiaryText: function(){
-			this.lblDiary.innerText = this.logbookDay.getDiaryText();
+			const diaryText = this.logbookDay.getDiaryText();
+			this.lblDiary.innerText = diaryText;
+			this.lblDiary.hidden = diaryText.length == 0;
+			this.pnlNoData.hidden = diaryText.length > 0;
 		},
 
 		saveDiaryText: function () {
@@ -368,6 +373,7 @@ PiLot.View.Diary = (function () {
 		this.lnkEditLogbook = null;
 		this.pnlLogbook = null;
 		this.logbookEntriesControl = null;				// PiLot.View.Logbook.LogbookEntries
+		this.pnlNoData = null;
 		this.lnkAddLogbookEntry = null;
 		this.readOnly = true;
 		this.observers = null;
@@ -433,6 +439,7 @@ PiLot.View.Diary = (function () {
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
 			const options = { isReadOnly: this.readOnly, sortDescending: false, autoFillNewItems: false };
 			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(control.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
+			this.pnlNoData = control.querySelector('.pnlNoData');
 			this.lnkAddLogbookEntry = control.querySelector('.lnkAddLogbookEntry');
 			this.lnkAddLogbookEntry.addEventListener('click', this.lnkAddLogbookEntry_click.bind(this));
 			
@@ -457,6 +464,7 @@ PiLot.View.Diary = (function () {
 		showData: function (pLogbookDay) {
 			this.logbookDay = pLogbookDay;
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
+			this.pnlNoData.hidden = this.logbookDay.hasEntries();
 		}
 	};
 
@@ -571,6 +579,7 @@ PiLot.View.Diary = (function () {
 		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics
+		this.plhNoData = null;
 		this.observers = null;
 		this.initialize();
 	}
@@ -659,6 +668,7 @@ PiLot.View.Diary = (function () {
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
 			this.plhSpeedDiagram = control.querySelector('.plhSpeedDiagram');
 			this.trackStatistics = new PiLot.View.Nav.TrackStatistics(control.querySelector('.plhTrackStatistics'));
+			this.pnlNoData = control.querySelector('.pnlNoData');
 		},
 
 		applyPermissions: function () {
@@ -694,6 +704,7 @@ PiLot.View.Diary = (function () {
 			const endMS = pDate.addDays(1).toLuxon().toMillis();
 			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
 			this.tracksList.showTracks(tracks);
+			this.pnlNoData.hidden = tracks.length > 0;
 			await this.showMapTracksAsync(tracks);
 		},
 
@@ -706,7 +717,7 @@ PiLot.View.Diary = (function () {
 				}
 				this.mapTrack.setTracks(pTracks);
 			} else {
-				this.map.hide();
+				//this.map.hide();
 				if (this.mapTrack !== null) {
 					this.mapTrack.setTracks([]);
 				}

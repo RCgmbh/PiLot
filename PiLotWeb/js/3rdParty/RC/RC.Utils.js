@@ -19,18 +19,31 @@ RC.Utils = {
 
 	/**
 	 * sets a query string to an url and returns the resulting url. The url
-	 * can be passed either as String or as URL object
+	 * can be passed either as String, Location or as URL object
 	 * @param {string or URL} pUrl
 	 * @param {string} pKey
 	 * @param {string} pValue
+	 * @returns {any} URL, if pUrl is URL, a string if pUrl is Location or a valid String, null else
 	 */
 	setUrlParameter: function (pUrl, pKey, pValue) {
-		const isUrl = pUrl instanceof URL;
-		let url = isUrl ? pUrl : new URL(pUrl);
-		const params = new URLSearchParams(url.search);
-		params.set(pKey, pValue);
-		url.search = params;
-		return isUrl ? url : url.toString();
+		let url = null;
+		let isUrl = false;
+		let result = null;
+		if (pUrl instanceof URL) {
+			url = pUrl;
+			isUrl = true;
+		} else if (pUrl instanceof Location) {
+			url = new URL(pUrl.href);
+		} else if(URL.canParse(pUrl)) {
+			url = new URL(pUrl);
+		}
+		if (url) {
+			const params = new URLSearchParams(url.search);
+			params.set(pKey, pValue);
+			url.search = params;
+			result = isUrl ? url : url.toString();
+		}
+		return result;
 	},
 
 	/**

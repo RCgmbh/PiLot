@@ -72,9 +72,8 @@ PiLot.Utils.Common = {
 		let result;
 		const key = 'd';
 		const val = PiLot.Utils.Common.getQsDateValue(pDate);
-		if(pUrl instanceof URL){
-			result = RC.Utils.setUrlParameter(pUrl, key, val);
-		} else {
+		result = RC.Utils.setUrlParameter(pUrl, key, val);
+		if(result == null) {
 			const separator = pUrl.indexOf('?') < 0 ? '?' : '&';
 			result = `${pUrl}${separator}${key}=${val}`;
 		}
