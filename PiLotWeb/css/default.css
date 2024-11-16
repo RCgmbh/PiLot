@@ -296,6 +296,8 @@ body.night .orange, body.night a.orange, body.night a.orange:hover, body.night a
 body.night .yellow, body.night a.yellow, body.night a.yellow:hover, body.night a.yellow:visited { color: #FFBF49; }
 .white, a.white, a.white:hover, a.white:visited { color: white;}
 body.night .white, body.night a.white, body.night a.white:hover, body.night a.white:visited { color: #eee;}
+.grey, a.grey, a.grey:hover, a.grey:visited {color: #bbb;}
+body.night .grey, body.night a.grey, body.night a.grey:hover, body.night a.grey:visited {color: #444;}
 
 /* LINKS, BUTTONS */
 a, a:visited, a:active { color: #3265AD; }

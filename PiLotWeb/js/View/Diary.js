@@ -15,6 +15,7 @@ PiLot.View.Diary = (function () {
 		this.date = null;								// RC.Date.DateOnly
 		this.diaryInfoCache = null;						// PiLot.Model.Logbook.DiaryInfoCache
 		this.lblFriendlyDate = null;
+		this.icoLoading = null;
 		this.calendar = null;							// PiLot.View.Logbook.DiaryCalendar
 		this.lnkPreviousDay = null;
 		this.lnkNextDay = null;
@@ -68,9 +69,11 @@ PiLot.View.Diary = (function () {
 
 		draw: function () {
 			document.addEventListener('scrollend', this.document_scrollEnd.bind(this));
+			document.addEventListener('touchend', this.document_scrollEnd.bind(this));
 			const diaryPage = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(diaryPage);
 			this.lblFriendlyDate = diaryPage.querySelector('.lblFriendlyDate');
+			this.icoLoading = diaryPage.querySelector('.icoLoading');
 			const divCalendar = diaryPage.querySelector('.logbookCalendar');
 			const calendarLink = diaryPage.querySelector('.lblCalendarLink');
 			const calendarDate = diaryPage.querySelector('.lblCalendarDate');
@@ -163,12 +166,14 @@ PiLot.View.Diary = (function () {
 
 		showDataAsync: async function () {
 			this.showFriendlyDate();
+			this.icoLoading.hidden = false;
 			this.diaryText.showData(this.logbookDay);
 			this.diaryLogbook.showData(this.logbookDay);
 			await Promise.all([
 				this.diaryTracksData.showDataAsync(this.date),
 				this.diaryPhotos.showDataAsync(this.date)
 			]);
+			this.icoLoading.hidden = true;
 			this.showTopLink();
 		},
 
@@ -709,8 +714,8 @@ PiLot.View.Diary = (function () {
 
 		/** @param {PiLot.Model.Nav.Track[]} pTracks */
 		showMapTracksAsync: async function (pTracks) {
+			await this.map.showAsync();
 			if (pTracks.some(t => t.hasTrackPoints())) {
-				await this.map.showAsync();
 				if (this.mapTrack === null) {
 					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
 				}

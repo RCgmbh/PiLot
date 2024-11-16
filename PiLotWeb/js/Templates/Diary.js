@@ -8,6 +8,7 @@ PiLot.Templates.Diary = {
 			<div class="logbookHeader fullWidth paddingLeftSmall paddingTopSmall paddingRightSmall">
 				<h1 class="inlineBlock lblFriendlyDate"></h1>
 				<div class="inlineBlock marginRight dateContainer">
+					<span class="icoLoading grey marginRight biggerText" hidden><i class="icon-hour-glass"></i></span>
 					<a href="#" class="lnkPreviousDay biggerText"><i class="icon-arrow-left2"></i></a><i
 						class="icon-calendar2 lblCalendarLink inlineBlock marginLeftSmall marginRightSmall pointer biggerText"></i><a
 						href="#" class="lnkNextDay biggerText"><i class="icon-arrow-right2"></i></a>

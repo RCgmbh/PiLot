@@ -46,8 +46,8 @@ PiLot.View.Map = (function () {
 		this.allowSetView = true;
 		this.mapLayers = null;			// map with key = tileSoureName, value = L.tileLayer
 		this.mapPois = null;			// PiLot.View.Map.MapPois
-		this.defaultLat = 54.38;
-		this.defaultLng = 18.62;
+		this.defaultLat = 53.75;
+		this.defaultLng = 19.5;
 		this.defaultZoom = 9;
 		this.minZoom = 3;  // default minZoom
 		this.maxZoom = 17; // default maxZoom
