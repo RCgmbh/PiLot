@@ -19,19 +19,19 @@
 
 .newEntryImage { width: 6em; height: 6em; position: relative; margin: 0em 1em 1em 0em;}
 
-@media (max-width:470px){
+@media (max-width:800px){
 	.logbookBoxes .data { flex-direction: column; gap:0em;}
 	.logbookBoxes .data .logbookBox { border: none; padding: 0em; background-color:unset; min-height:unset; min-width: unset; flex-basis: unset;}
 	.logbookBoxes .data .logbookBox .semiBold {display: none; }
 }
 
-@media (max-width:534px){
+/*@media (max-width:534px){
 	.logbookBoxes.editable .plhBoatSetup {width:7em;}
 	.logbookBoxes { flex-wrap:wrap; }
 	.logbookBoxes.editable .data { flex-direction: column; gap:0em;}
 	.logbookBoxes.editable .data .logbookBox { border: none; padding: 0em; background-color:unset; min-height:unset; flex-basis: unset;}
 	.logbookBoxes.editable .data .logbookBox .semiBold {display: none; }
-}
+}*/
 
 .logbookBox>span,  .logbookBox>div { flex-grow:0; min-width: 7.5em; } 
 .logbookBox>span.semiBold, .logbookBox>div.semiBold { width: 100%; }

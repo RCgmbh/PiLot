@@ -66,7 +66,6 @@ PiLot.View.Diary = (function () {
 			this.showTopLink();
 		},
 
-		/** draws the page and finds the controls and binds handlers */
 		draw: function () {
 			document.addEventListener('scrollend', this.document_scrollEnd.bind(this));
 			const diaryPage = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPage);
@@ -717,7 +716,6 @@ PiLot.View.Diary = (function () {
 				}
 				this.mapTrack.setTracks(pTracks);
 			} else {
-				//this.map.hide();
 				if (this.mapTrack !== null) {
 					this.mapTrack.setTracks([]);
 				}
@@ -786,44 +784,35 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
-		/** Closes the currently displayed photo */
 		lnkClose_click: function (pEvent) {
 			this.hidePhoto();
 			pEvent.preventDefault();
 		},
 
-		/**
-		 * Opens the photo
-		 * @param {String} pArg - the image name
-		 */
+		/** @param {String} pArg - the image name */
 		thumbnail_click: function (pArg) {
 			this.showPhoto(pArg);
 		},
 
-		/** Shows the previous photo (looping through) */
 		lnkPrevious_click: function (pEvent) {
 			this.changePhoto(-1);
 			pEvent.preventDefault();
 		},
 
-		/** Shows the next photo (looping through) */
 		lnkNext_click: function (pEvent) {
 			this.changePhoto(1);
 			pEvent.preventDefault();
 		},
 
-		/** Shows the photo as soon as it has been loaded, and triggers preloading the next one */
 		image_load: function () {
 			this.imgFullSize.hidden = false;
 			this.preloadNextPhoto();
 		},
 
-		/** Handles clicks on the photo by showing/hiding the navigation */
 		imgFullSize_click: function () {
 			this.toggleNavigation(!this.navigationVisible);
 		},
 
-		/** Handles some keys. This is only bound to the document while a full photo is being displayed */
 		document_keydown: function (e) {
 			switch (e.key) {
 				case "Escape":
@@ -861,10 +850,7 @@ PiLot.View.Diary = (function () {
 			this.lblPhotoTotal = this.control.querySelector('.lblPhotoTotal');
 		},
 
-		/**
-		 * Loads and shows the photos for a certain date
-		 * @param {RC.Date.DateOnly} pDate
-		 */
+		/** @param {RC.Date.DateOnly} pDate */
         loadPhotosAsync: async function (pDate) {
             if (this.updateInterval) {
                 window.clearInterval(this.updateInterval);
@@ -876,7 +862,6 @@ PiLot.View.Diary = (function () {
 			this.showThumbnails();
         },
 
-        /** Reloads the photos from the server, and if the number of photos changed, refreshes the view. */
         reloadPhotosAsync: async function () {
             const imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
             if (imageCollection.getImagesCount() !== this.imageCollection.getImagesCount()) {
@@ -886,7 +871,6 @@ PiLot.View.Diary = (function () {
             }
         },
 		
-		/** Shows the photos based on the current imageCollection */
 		showThumbnails: function(){
 			this.plhPhotos.clear();
 			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
@@ -897,21 +881,11 @@ PiLot.View.Diary = (function () {
 			this.lblPhotoTotal.innerText = this.imageCollection.getImagesCount();
 		},
 
-        /**
-         * Makes sure we have an interval that automatically reloads the images every 
-         * five seconds. This will make sure that newly uploades images will be displayed
-         * automatically.
-         * */
         ensureAutoUpdate: function () {
             this.updateInterval |= window.setInterval(this.reloadPhotosAsync.bind(this), 5000);
         },
 
-		/**
-		 * Sends the delete request for a photo to the server, and removes it from
-		 * the currently displayed collection (as reloading the collection might
-		 * still bring the photo, not having completed the delete I/O Operation)
-		 * @param {String} pFileName - The filename without any path prefix
-		 */
+		/** @param {String} pFileName - The filename without any path prefix */
 		deletePhoto: function (pFileName) {
 			PiLot.Model.Logbook.deletePhotoAsync(this.date, pFileName);
 			this.imageCollection.removeImageName(pFileName);
@@ -919,19 +893,12 @@ PiLot.View.Diary = (function () {
 			this.showThumbnails();
 		},
 
-		/**
-		 * Shows or hides the entire control. The control is automatically hidden
-		 * if there are no images for the selected date.
-		 * @param {Boolean} pVisible
-		 */
+		/** @param {Boolean} pVisible */
 		toggleVisible: function (pVisible) {
 			this.control.hidden = !pVisible;
 		},
 
-		/**
-		 * Opens a photo in full size view
-		 * @param {String} pImageName - the image name, without any path prefix
-		 */
+		/** @param {String} pImageName - the image name, without any path prefix */
 		showPhoto: function (pImageName) {
 			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
 			this.setPhotoUrl(pImageName);
@@ -940,26 +907,12 @@ PiLot.View.Diary = (function () {
 			document.addEventListener('keydown', this.keyHandler);
 		},
 
-		/** Hides the full-size photo screen */
 		hidePhoto: function () {
 			document.removeEventListener('keydown', this.keyHandler);
 			this.pnlPhotoScreen.hidden = true;
 		},
 
-		/**
-		 * Shows the navigation for a few seconds, and makes sure it will be hidden automatically
-		 * @param {Number} pForSeconds - The duration to show the navigation in seconds
-		 */
-		showNavigation: function (pForSeconds) {
-			this.toggleNavigation(true);
-			window.clearTimeout(this.hideNavTimeout);
-			this.hideNavTimeout = window.setTimeout(this.toggleNavigation.bind(this, false), pForSeconds * 1000);
-		},
-
-		/**
-		 * Shows or hides the navigation and kills the timeout that would automatically hide it.
-		 * @param {any} pVisible
-		 */
+		/** @param {Boolean} pVisible */
 		toggleNavigation: function (pVisible) {
 			this.navigationVisible = pVisible;
 			this.pnlPhotoScreen.classList.toggle('fullscreen', !pVisible);
@@ -967,28 +920,19 @@ PiLot.View.Diary = (function () {
 			this.hideNavTimeout = null;
 		},
 
-		/**
-		 * Changes the photo shown in full size by changing its index
-		 * @param {Number} pChangeBy
-		 */
+		/** @param {Number} pChangeBy */
 		changePhoto: function (pChangeBy) {
 			const imageNames = this.imageCollection.getImageNames();
 			this.setPhotoIndex((this.imageIndex + pChangeBy + imageNames.length) % imageNames.length);
 		},
 
-		/**
-		 * Sets the photo shown in full size identified by its index in the collection
-		 * @param {Number} pIndex
-		 */
+		/** @param {Number} pIndex */
 		setPhotoIndex: function (pIndex) {
 			this.imageIndex = pIndex;
 			this.setPhotoUrl(this.imageCollection.getImageNames()[this.imageIndex]);
 		},
 
-		/**
-		 * Sets the url of the photo shown in full size, and sets the link urls for download and blank
-		 * @param {String} pImageName - The image name, without any path prefix
-		 */
+		/** @param {String} pImageName - The image name, without any path prefix */
 		setPhotoUrl: function (pImageName) {
 			this.imgFullSize.src = this.getPhotoUrl(pImageName);
 			this.imgFullSize.hidden = true;
@@ -998,7 +942,6 @@ PiLot.View.Diary = (function () {
 			this.lblPhotoIndex.innerText = this.imageIndex + 1;
 		},
 
-		/** Requests the next photo of the collection from the server, so that it will be displayed quickly */
 		preloadNextPhoto: function () {
 			const imageNames = this.imageCollection.getImageNames();
 			const imageUrl = this.getPhotoUrl(imageNames[(this.imageIndex + 1) % imageNames.length]);
@@ -1006,28 +949,20 @@ PiLot.View.Diary = (function () {
 			image.src = imageUrl;
 		},
 
-		/**
-		 * Calculates the url of the photo to show in full size based on the available space. Because I didn't
-		 * really grasp the srcset thing.
-		 * @param {String} pImageName - the image name, without any path prefix.
-		 */
+		/** @param {String} pImageName - the image name, without any path prefix. */
 		getPhotoUrl: function (pImageName) {
 			const imageSize = Math.max(this.pnlPhotoScreen.clientHeight, this.pnlPhotoScreen.clientWidth);
 			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + pImageName;
 			return imageUrl;
 		},
 
-		/**
-		 * Gets the url of an image in its original size
-		 * @param {String} pImageName - the image name, without any path prefix.
-		 */
+		/** @param {String} pImageName - the image name, without any path prefix. */
 		getOriginalImageUrl: function (pImageName) {
 			return this.imageCollection.getRootUrl() + pImageName;
 		}
 	};
 
 	/**
-	 * Represents a single thumbnail image. 
 	 * @param {HTMLElement} pContainer - the container where the images should be added
 	 * @param {String} pImageName - the name of the image, without any path prefix
 	 * @param {RC.ImageGallery.ImageCollection} pImageCollection - the image collection for the day
@@ -1054,7 +989,6 @@ PiLot.View.Diary = (function () {
 			this.ensureReloadInterval();
 		},
 
-		/** If whe had an interval to re-load this thumbnail, we can now clear it */
 		image_load: function(pEvent){
 			if(this.reloadInterval){
 				window.clearInterval(this.reloadInterval);
@@ -1074,14 +1008,12 @@ PiLot.View.Diary = (function () {
 			this.image.addEventListener('error', this.image_error.bind(this));
 		},
 
-		/** Starts on single interval to reload the image after a while */
 		ensureReloadInterval: function(){
 			if(!this.reloadInterval){
 				this.reloadInterval = window.setInterval(this.reloadImage.bind(this), 5000);
 			}
 		},
 
-		/** Tries to reload the image by just resetting the src */
 		reloadImage: function(){
 			this.image.src = this.image.src;
 		}
@@ -1121,7 +1053,6 @@ PiLot.View.Diary = (function () {
 		},
 
 		/**
-		 * Registers an observer that will be called when pEvent happens.
 		 * @param {String} pEvent - 'upload'
 		 * @param {Function} pCallback - The method to call 
 		 * */
@@ -1175,11 +1106,7 @@ PiLot.View.Diary = (function () {
 			this.pnlInvalidType = this.control.querySelector('.pnlInvalidType');
 		},
 
-		/** 
-		 * Shows or hides the entire control. When showing, resets the state
-		 * by hiding some controls
-		 * @param {Boolean} pVisible
-		 * */
+		/**  @param {Boolean} pVisible */
 		toggleVisible: function(pVisible){
 			if(pVisible === undefined){
 				pVisible = this.control.hidden;
@@ -1225,7 +1152,6 @@ PiLot.View.Diary = (function () {
 			this.date = PiLot.Utils.Common.parseQsDate(null);
 		},
 
-		/** Draws the page */
 		draw: function () {
 			let x = PublishDiaryPage.MAXIMAGESIZE;
 			let loader = PiLot.Utils.Loader;
@@ -1268,7 +1194,6 @@ PiLot.View.Diary = (function () {
 			this.pnlPublish.querySelector('.btnStatus').addEventListener('click', this.btnStatus_click.bind(this));
 		},
 
-		/** Handler when a publish target from the dropdown-list is selected */
 		ddlPublishTarget_select: async function (pEvent) {
 			this.targetName = pEvent.target.value;
 			this.targetData = null;
@@ -1303,7 +1228,6 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
-		/** loads the publish targets, and fills the dropdown when done */
 		loadPublishTargetsAsync: async function () {
 			const targets = await PiLot.Model.Logbook.loadPublishTargetsAsync();
 			const ddlArray = targets.map(t => [t.name, t.displayName]);
@@ -1311,7 +1235,6 @@ PiLot.View.Diary = (function () {
 			PiLot.Utils.Common.fillDropdown(this.ddlPublishTarget, ddlArray);
 		},
 
-		/** loads the local data to show in the publish form ("left side") */
 		loadLocalDataAsync: async function () {
 			const startMS = this.date.toLuxon().toMillis();
 			const endMS = this.date.addDays(1).toLuxon().toMillis();
@@ -1323,7 +1246,6 @@ PiLot.View.Diary = (function () {
 			this.showThumbnails(dailyPhotos, this.divLocalPhotos, this.lblLocalPhotosCount, true);
 		},
 
-		/** loads the target data to show in the publish form ("right side") */
 		loadTargetDataAsync: async function () {
 			this.icoWait.hidden = false;
 			this.showTracksAsync([], this.targetTrackMap, this.targetTrack, this.lblTargetPositionsCount);
@@ -1343,7 +1265,6 @@ PiLot.View.Diary = (function () {
 		},
 
 		/**
-		 * Shows the track within a map in a control. 
 		 * @param {PiLot.Model.Nav.Track[]} pTracks - the tracks to show
 		 * @param {HTMLElement} pControl - the control containing the map
 		 * @param {PiLot.View.MapTrack} pTrackControl - a MapTrack used to show the tracks on the map
@@ -1449,21 +1370,12 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
-		/**
-		 * Shows a panel with data about the current publishJob. The data is automatically
-		 * loaded and updated, by magic!
-		 */
 		showPublishJob: function () {
 			this.pnlJobInfo.hidden = false;
 			this.refreshPublishJobAsync();
 			this.jobStatusInterval = window.setInterval(this.refreshPublishJobAsync.bind(this), 1000);
 		},
 
-		/**
-		 * This first checks whether we have an active PublishJob for this target and date.
-		 * If so, it will just show the job status. If not, it will send the publish Job
-		 * and then show the Job Status.
-		 * */
 		publishDataAsync: async function () {
 			const jobStatus = await PiLot.Model.Logbook.loadJobStatusAsync(this.targetName, this.date);
 			if (!jobStatus || jobStatus.isFinished) {
@@ -1516,17 +1428,10 @@ PiLot.View.Diary = (function () {
 
 	DiaryCalendar.prototype = {
 
-		/// initializes the DiaryCalender, binds to the calendar_dayRendered event
-		/// of the calendar
 		initialize: function () {
 			this.calendar.setOnMonthRendered(this.calendar_monthRendered.bind(this));
 		},
 
-		/**
-		 * handler for the month_rendered event. Here we want to add the icons for each day 
-		 * showing what kind of data we have. If also days of the previous and/or next
-		 * month are visible, we load this data separately (for the whole months, being lazy)
-		 * */
 		calendar_monthRendered: function (pYear, pMonth) {
 			this.showMonthInfoAsync(pYear, pMonth);
 			const firstDay = this.calendar.getFirstDay();
@@ -1540,10 +1445,8 @@ PiLot.View.Diary = (function () {
 		},
 
 		/**
-		 * Loads the month info from the cache or the server and shows the icons within the 
-		 * calendar as soon as we have a result
-		 * @param {any} pYear
-		 * @param {any} pMonth
+		 * @param {Number} pYear
+		 * @param {Number} pMonth
 		 */
 		showMonthInfoAsync: async function (pYear, pMonth) {
 			const monthInfo = await this.diaryInfoCache.getMonthInfoAsync(pYear, pMonth);
@@ -1562,8 +1465,6 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
-		/// adds the icons for the data available for one day. Expects the data and the
-		/// control (the table cell or whatever container contains the day link)
 		addCalendarIcons: function (pDayInfo, pCell) {
 			const link = pCell.querySelector('a');
 			link.querySelectorAll('.icons').forEach(e => e.parentNode.removeChild(e));
@@ -1573,7 +1474,6 @@ PiLot.View.Diary = (function () {
 			if (pDayInfo.hasPhotos) this.addIcon(iconsDiv, 'icon-pictures');
 		},
 
-		/// appends an icon to a control
 		addIcon: function (pControl, pIcon) {
 			RC.Utils.addDomObject('i', pControl, pIcon);
 		}
