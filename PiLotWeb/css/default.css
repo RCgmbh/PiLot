@@ -29,6 +29,7 @@ body.night a, body.night a:visited, body.night a:active { color: #4992FF; }
 body.night a.tile { color: #4992FF; }
 body.night a.tile:hover { background-color: #1e2426; }
 body.night .bgLight { background-color: #1e2426; }
+body.night .borderLighter { border-color: #181818; }
 body.night a.lightLink, body.night a.lightLink:active, body.night a.lightLink:visited { color: #000; }
 body.night .easyShadow { box-shadow: 0px 0px 6px -1px white; }
 body.nightTransition,
@@ -37,6 +38,7 @@ body.nightTransition .warning,
 body.nightTransition .dgTable td,
 body.nightTransition .dgTable th,
 body.nightTransition .bgLight,
+body.nightTransition .borderLighter,
 body.nightTransition a.lightLink,
 body.nightTransition .inlineTextbox,
 body.nightTransition input,
@@ -208,6 +210,7 @@ textarea.big { height: 20em; }
 .paddingBottomBig { padding-bottom: 2em; }
 .paddingBottomSmall { padding-bottom: 0.5em; }
 .paddingLeft { padding-left: 1em; }
+.paddingLeftSmall { padding-left: 0.5em; }
 .paddingRight { padding-right: 1em; }
 .paddingRightSmall { padding-right: 0.5em; }
 /* well that might be a bit crazy, but we save some pixels on very small screens... */
@@ -236,6 +239,7 @@ textarea.big { height: 20em; }
 .paddingBottomBig { padding-bottom: min(2em, 8vh); }
 .paddingBottomSmall { padding-bottom: min(0.5em, 2vh); }
 .paddingLeft { padding-left: min(1em, 4vw); }
+.paddingLeftSmall { padding-left: min(0.5em, 2vw); }
 .paddingRight { padding-right: min(1em, 4vw); }
 .paddingRightSmall { padding-right: min(0.5em, 2vw); }
 .absolute { position: absolute }

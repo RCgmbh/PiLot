@@ -44,7 +44,7 @@ PiLot.Utils.Common = {
 
 	/**
 	 * Tries to read the date in the format yyyyMMdd or as "today" from the querystring "d",
-	 * and if done so successfully, returns the date as RC.Date.DateOnly	;
+	 * and if done so successfully, returns the date as RC.Date.DateOnly
 	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - the current BoatTime, needed for "today"
 	 * */
 	parseQsDate: function (pBoatTime) {
@@ -69,7 +69,16 @@ PiLot.Utils.Common = {
 	 * @param {RC.Date.DateOnly} pDate - the date to add
 	 */
 	setQsDate: function (pUrl, pDate) {
-		return RC.Utils.setUrlParameter(pUrl, 'd', PiLot.Utils.Common.getQsDateValue(pDate));
+		let result;
+		const key = 'd';
+		const val = PiLot.Utils.Common.getQsDateValue(pDate);
+		if(pUrl instanceof URL){
+			result = RC.Utils.setUrlParameter(pUrl, key, val);
+		} else {
+			const separator = pUrl.indexOf('?') < 0 ? '?' : '&';
+			result = `${pUrl}${separator}${key}=${val}`;
+		}
+		return result;
 	},
 
 	/**

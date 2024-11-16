@@ -277,11 +277,13 @@ PiLot.View.Common = (function () {
 			this.draw();
 		},
 
-		lnkNight_click: function (pSender) {
+		lnkNight_click: function (pEvent) {
+			pEvent.preventDefault()
 			this.setNightMode(true);
 		},
 
-		lnkDay_click: function (pSender) {
+		lnkDay_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.setNightMode(false);			
 		},
 
@@ -770,6 +772,13 @@ PiLot.View.Common = (function () {
 		}
 	};
 
+	/** 
+	 * Adds an icon into a header, which allows to expand / collapse the content.
+	 * Use this to quickly add simple expand/collapse functionality using default
+	 * icons. For more complex designs, use the ExpandCollapseBox
+	 * @param {HTMLElement} pHeader
+	 * @param {HTMLElement} pcontent
+	 * */
 	var ExpandCollapse = function (pHeader, pContent) {
 		this.header = pHeader;
 		this.content = pContent;
@@ -833,6 +842,76 @@ PiLot.View.Common = (function () {
 
 	};
 
+	/**
+	 * This binds handlers to expand/collapse icons, that allow to expand or collapse a content area.
+	 * Compared to the ExpandCollapse, the icons must have been created by the control, and will not
+	 * be created dynamically. It also allows to set a settings key, so that the state will be saved
+	 * and applied automatically.
+	 * @param {HTMLElement} pBox - The box to show or hide
+	 * @param {HTMLElement} pExpandIcon
+	 * @param {HTMLElement} pCollapseIcon
+	 * @param {String} pSettingsKey - The key for saving the state
+	 * @param {Boolean} pDefaultExpanded - The state if there is no settings key, defaults to true
+	 * */
+	var ExpandCollapseBox = function (pBox, pExpandIcon, pCollapseIcon, pSettingsKey, pDefaultExpanded = true) {
+		this.box = pBox;
+		this.expandIcon = pExpandIcon;
+		this.collapseIcon = pCollapseIcon;
+		this.settingsKey = pSettingsKey;
+		this.defaultExpanded = pDefaultExpanded;
+		this.observers = null;
+		this.initialize();
+	};
+
+	ExpandCollapseBox.prototype = {
+
+		initialize: function () {
+			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.bindEvents();
+			this.initializeState();
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Function} pCallback
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		expandIcon_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapse(true);
+		},
+
+		collapseIcon_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.expandCollapse(false);
+		},
+
+		bindEvents: function () {
+			this.expandIcon.addEventListener('click', this.expandIcon_click.bind(this));
+			this.collapseIcon.addEventListener('click', this.collapseIcon_click.bind(this));
+		},
+
+		initializeState: function () {
+			const setting = PiLot.Utils.Common.loadUserSetting(this.settingsKey);
+			const expand = (setting === null) ? this.defaultExpanded : setting;
+			this.expandCollapse(expand);
+		},
+
+		expandCollapse: function (pExpanded) {
+			this.box.hidden = !pExpanded;
+			this.expandIcon.hidden = pExpanded;
+			this.collapseIcon.hidden = !pExpanded;
+			if (this.settingsKey) {
+				PiLot.Utils.Common.saveUserSetting(this.settingsKey, pExpanded);
+			}
+			RC.Utils.notifyObservers(this, this.observers, pExpanded ? 'expand' : 'collapse', null);
+		}
+	};
+
 	return {
 		Clock: Clock,
 		ClockOffsetIcon: ClockOffsetIcon,
@@ -844,7 +923,8 @@ PiLot.View.Common = (function () {
 		LoginForm: LoginForm,
 		getLoginForm: getLoginForm,
 		UserIcon: UserIcon,
-		ExpandCollapse: ExpandCollapse
+		ExpandCollapse: ExpandCollapse,
+		ExpandCollapseBox: ExpandCollapseBox
 	};
 
 })();

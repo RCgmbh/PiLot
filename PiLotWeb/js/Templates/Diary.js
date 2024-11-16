@@ -5,7 +5,7 @@ PiLot.Templates.Diary = {
 
 	diaryPage: `
 		<div class="fullHeight fullWidth">
-			<div class="logbookHeader fullWidth paddingAllSmall">
+			<div class="logbookHeader fullWidth paddingLeftSmall paddingTopSmall paddingRightSmall">
 				<h1 class="inlineBlock lblFriendlyDate"></h1>
 				<div class="inlineBlock marginRight dateContainer">
 					<a href="#" class="lnkPreviousDay biggerText"><i class="icon-arrow-left2"></i></a><i
@@ -15,84 +15,106 @@ PiLot.Templates.Diary = {
 				</div>
 			</div>
 			<div class="flexRowWrap reverse">
-				<div class="diaryContent marginBottom marginLeftSmall marginRightSmall">
-					<div class="easyShadow marginBottom">
-						<div class="boxHeader">
-							<span class="boxTitle paddingAllSmall" data-text="diary"></span>
-							<div class="boxIcons">
-								<a href="#" class="lnkBiggerText" data-title="fontsizeIncrease"><span style="font-size:1.5em;">A&uarr;</span></a>
-								<a href="#" class="lnkSmallerText" data-title="fontsizeDecrease"><span>A&darr;</span></a>
-								<a href="#" class="lnkEditDiary paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
-								<a href="#" class="lnkCollapseDiary paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
-								<a href="#" class="lnkExpandDiary paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
-							</div>
-						</div>
-						<div class="pnlDiary paddingAllSmall">
-							<div class="pnlShowDiary"> 
-								<span class="lblDiary diaryText preLine block textColumns" ></span>
-							</div>
-							<div class="pnlEditDiary marginBottom" hidden>
-								<textarea class="tbDiary diaryText borderLight fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
-							</div>
-						</div>
-					</div>
-					
-					<div class="plhLogbookEntries logbookEntries"></div>
-					<a href="#" class="lnkAddLogbookEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
-					<div class="marginBottom">
-						<div class="boxHeader bgLight">
-							<span class="boxTitle paddingAllSmall" data-text="photos"></span>
-							<div class="boxIcons">
-								<a href="#" class="lnkEditPhotos paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
-								<a href="#" class="lnkCollapsePhotos paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
-								<a href="#" class="lnkExpandPhotos paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
-							</div>
-						</div>
-						<div class="pnlPhotos borderLighter">
-							<div class="plhPhotoGallery marginBottom"></div>
-							<div class="plhPhotoUpload marginBottom"></div>
-						</div>
-					</div>
-				</div>
-				<div class="diaryContext marginLeftSmall marginRightSmall marginBottom">
-					<div class="easyShadow  marginBottom">
-						<div class="boxHeader">
-							<span class="boxTitle paddingAllSmall" data-text="map"></span>
-							<div class="boxIcons">
-								<a href="#" class="lnkEnlargeMap paddingAllSmall" data-title="enlarge"><i class="icon-enlarge"></i></a>
-								<a href="#" class="lnkEditTrack paddingAllSmall" data-title="editTrack"><i class="icon-pencil"></i></a>
-								<a href="#" class="lnkCollapseMap paddingAllSmall" data-title="hide"><i class="icon-circle-up"></i></a>
-								<a href="#" class="lnkExpandMap paddingAllSmall" data-title="show" hidden><i class="icon-circle-down"></i></a>
-							</div>
-						</div>
-						<div class="pnlMap">
-							<div class="plhMap navMap borderDark"></div>
-						</div>
-					</div>
-					<div class="easyShadow  marginBottom">
-						<div class="boxHeader">
-							<span class="boxTitle paddingAllSmall" data-text="tracks"></span>
-							<div class="boxIcons">
-								<a href="#" class="paddingAllSmall lnkCollapseTracks" data-title="hide"><i class="icon-circle-up"></i></a>
-								<a href="#" class="paddingAllSmall lnkExpandTracks" data-title="show" hidden><i class="icon-circle-down"></i></a>
-							</div>
-						</div>
-						<div class="pnlTracks">
-							<div class="plhTracks"></div>
-							<div class="plhSpeedDiagram"></div>
-							<div class="plhTrackStatistics marginBottom"></div>
-						</div>
-					</div>
-				</div>
+				<div class="plhMainContent diaryContent marginLeftSmall marginRightSmall"></div>
+				<div class="pnlContext diaryContext marginLeftSmall marginRightSmall"></div>
 			</div>
-			<div class="flexRowWrap dataContainerFull paddingRight" style="justify-content:space-between; flex-wrap:wrap-reverse;">
-				<div class="pnlEdit marginRight marginBottom flexRowWrap" style="justify-content:center;">
-					<label class="marginRight"><input type="checkbox" class="cbEditMode" /><span data-text="editMode"></span></label> 
-					<a href="#" class="lnkPublish marginLeft marginRight" data-text="publish"></a>
-				</div>
-				<a href="#" class="lnkTop topLink marginBottomSmall marginRightSmall"><i class="biggerText icon-arrow-up"></i></a>
+			<div class="marginLeftSmall marginBottom">
+				<a href="#" class="lnkPublish" data-text="publish"></a>
 			</div>
+			<a href="#" class="lnkTop topLink paddingAllSmall"><i class="biggerText icon-arrow-up"></i></a>
+			
 		</div>`,
+
+	diaryText: `
+		<div class="easyShadow marginBottom">
+			<div class="boxHeader">
+				<span class="boxTitle paddingAllSmall" data-text="diary"></span>
+				<div class="boxIcons">
+					<a href="#" class="lnkBiggerText" data-title="fontsizeIncrease"><span style="font-size:1.5em;">A&uarr;</span></a>
+					<a href="#" class="lnkSmallerText" data-title="fontsizeDecrease"><span>A&darr;</span></a>
+					<a href="#" class="lnkEditDiary paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
+					<a href="#" class="lnkCollapseDiary paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
+					<a href="#" class="lnkExpandDiary paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
+				</div>
+			</div>
+			<div class="pnlDiary paddingAllSmall">
+				<div class="pnlShowDiary">
+					<span class="lblDiary diaryText preLine block textColumns" ></span>
+				</div>
+				<div class="pnlEditDiary marginBottom" hidden>
+					<textarea class="tbDiary diaryText borderLight fullWidth" rows="10" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+				</div>
+			</div>
+		</div>
+	`,
+
+	diaryLogbook: `
+		<div class="easyShadow marginBottom">
+			<div class="boxHeader">
+				<span class="boxTitle paddingAllSmall" data-text="logbook"></span>
+				<div class="boxIcons">
+					<a href="#" class="lnkEditLogbook paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
+					<a href="#" class="lnkCollapseLogbook paddingAllSmall " data-title="hide"><i class="icon-circle-up"></i></a>
+					<a href="#" class="lnkExpandLogbook paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
+				</div>
+			</div>
+			<div class="pnlLogbook paddingAllSmall">
+				<div class="plhLogbookEntries logbookEntries"></div>
+				<a href="#" class="lnkAddLogbookEntry block semiBold"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
+			</div>
+		</div>
+	`,
+
+	diaryPhotos: `
+		<div class="marginBottom">
+			<div class="boxHeader bgLight">
+				<span class="boxTitle paddingAllSmall" data-text="photos"></span>
+				<div class="boxIcons">
+					<a href="#" class="lnkEditPhotos paddingAllSmall" data-title="edit"><i class="icon-pencil"></i></a>
+					<a href="#" class="lnkCollapsePhotos paddingAllSmall" data-title="hide"><i class="icon-circle-up"></i></a>
+					<a href="#" class="lnkExpandPhotos paddingAllSmall" data-title="show" hidden><i class="icon-circle-down"></i></a>
+				</div>
+			</div>
+			<div class="pnlPhotos borderLighter">
+				<div class="plhPhotoUpload"></div>
+				<div class="plhPhotoGallery"></div>
+			</div>
+		</div>
+	`,
+
+	diaryTrackData: `
+		<div>
+			<div class="easyShadow  marginBottom">
+				<div class="boxHeader">
+					<span class="boxTitle paddingAllSmall" data-text="map"></span>
+					<div class="boxIcons">
+						<a href="#" class="lnkEditTrack paddingAllSmall" data-title="editTrack"><i class="icon-pencil"></i></a>	
+						<a href="#" class="lnkEnlargeMap paddingAllSmall" data-title="enlarge"><i class="icon-enlarge"></i></a>
+						<a href="#" class="lnkMinimizeMap paddingAllSmall" data-title="minimize" hidden><i class="icon-shrink2"></i></a>
+						<a href="#" class="lnkCollapseMap paddingAllSmall" data-title="hide"><i class="icon-circle-up"></i></a>
+						<a href="#" class="lnkExpandMap paddingAllSmall" data-title="show" hidden><i class="icon-circle-down"></i></a>
+					</div>
+				</div>
+				<div class="pnlMap">
+					<div class="plhMap navMap borderDark"></div>
+				</div>
+			</div>
+			<div class="easyShadow  marginBottom">
+				<div class="boxHeader">
+					<span class="boxTitle paddingAllSmall" data-text="tracks"></span>
+					<div class="boxIcons">
+						<a href="#" class="paddingAllSmall lnkCollapseTracks" data-title="hide"><i class="icon-circle-up"></i></a>
+						<a href="#" class="paddingAllSmall lnkExpandTracks" data-title="show" hidden><i class="icon-circle-down"></i></a>
+					</div>
+				</div>
+				<div class="pnlTracks">
+					<div class="plhTracks"></div>
+					<div class="plhSpeedDiagram"></div>
+					<div class="plhTrackStatistics marginBottom"></div>
+				</div>
+			</div>
+		</div>
+	`,
 
 	publishDiaryPage: `
 		<div class="contentPadding">
@@ -177,7 +199,7 @@ PiLot.Templates.Diary = {
 	publishPagePhoto: `<div><img class="imgPhoto" /><div class="label"><input type="checkbox" class="cbSelectPhoto"><label class="lblName"></label></div></div>`,
 
 	diaryPhotoUpload: `
-		<div class="marginBottom hCenter borderLight paddingAllSmall">
+		<div class="hCenter bgLight paddingAllSmall">
 			<span class="semiBold block marginBottom" data-text="photoUpload"></span>
 			<div class="logbookImageUpload hCenter">
 				<input type="file" class="fileImageUpload" accept="image/jpeg" />
@@ -190,7 +212,7 @@ PiLot.Templates.Diary = {
 		</div>
 	`,
 
-	diaryPhotos: `
+	diaryPhotoGallery: `
 		<div>
 			<div class="pnlPhotoScreen photoScreen" hidden>
 				<div class="pnlOptions">
