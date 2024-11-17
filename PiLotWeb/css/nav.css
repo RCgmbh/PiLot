@@ -117,7 +117,7 @@ a.mapLayersIcon:hover { color:#FFBF49; }
 
 .trackInfo .trackData { align-items:center; justify-content:space-around; }
 .trackInfo .trackBoat { height:4em; }
-.trackInfo.selected {border-color: #333;}
+.trackInfo.selected { border-color: #aaa; }
 .trackInfo:not(.selected){ cursor: pointer;}
 
 .trackStatistics .segments { gap: 0em 1em;}
