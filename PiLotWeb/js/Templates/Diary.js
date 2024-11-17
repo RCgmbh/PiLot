@@ -63,7 +63,7 @@ PiLot.Templates.Diary = {
 			<div class="pnlLogbook paddingAllSmall">
 				<div class="plhLogbookEntries logbookEntries"></div>
 				<div class="pnlNoData feedbackInfo" data-text="noData" hidden></div>
-				<a href="#" class="lnkAddLogbookEntry block semiBold"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
+				<a href="#" class="lnkAddLogbookEntry block semiBold marginTop"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>
 		</div>
 	`,
@@ -91,7 +91,6 @@ PiLot.Templates.Diary = {
 				<div class="boxHeader">
 					<span class="boxTitle paddingAllSmall" data-text="map"></span>
 					<div class="boxIcons">
-						<a href="#" class="lnkEditTrack paddingAllSmall" data-title="editTrack"><i class="icon-pencil"></i></a>	
 						<a href="#" class="lnkEnlargeMap paddingAllSmall" data-title="enlarge"><i class="icon-enlarge"></i></a>
 						<a href="#" class="lnkMinimizeMap paddingAllSmall" data-title="minimize" hidden><i class="icon-shrink2"></i></a>
 						<a href="#" class="lnkCollapseMap paddingAllSmall" data-title="hide"><i class="icon-circle-up"></i></a>
@@ -106,6 +105,7 @@ PiLot.Templates.Diary = {
 				<div class="boxHeader">
 					<span class="boxTitle paddingAllSmall" data-text="tracks"></span>
 					<div class="boxIcons">
+						<a href="#" class="lnkEditTrack paddingAllSmall" data-title="editTrack"><i class="icon-pencil"></i></a>
 						<a href="#" class="paddingAllSmall lnkCollapseTracks" data-title="hide"><i class="icon-circle-up"></i></a>
 						<a href="#" class="paddingAllSmall lnkExpandTracks" data-title="show" hidden><i class="icon-circle-down"></i></a>
 					</div>
