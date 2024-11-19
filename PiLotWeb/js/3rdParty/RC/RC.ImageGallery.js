@@ -679,6 +679,10 @@ RC.ImageGallery = (function () {
 			if (index > -1) {
 				this.imageNames.remove(index, index);
 			}
+		},
+
+		hasImages: function () {
+			return this.imageNames && this.imageNames.length > 0;
 		}
 	};
 

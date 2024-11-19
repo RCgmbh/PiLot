@@ -228,6 +228,8 @@ PiLot.View.Diary = (function () {
 	var DiaryText = function (pContainer) {
 		this.container = pContainer;
 		this.logbookDay = null;
+		this.control = null;
+		this.pnlDiary = null;
 		this.lnkEditDiary = null;
 		this.pnlShowDiary = null;
 		this.pnlEditDiary = null;
@@ -279,10 +281,12 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.applyEmptyStyle();
 		},
 
 		expandCollapseBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.applyEmptyStyle();
 		},
 
 		tbDiary_change: async function () {
@@ -292,25 +296,26 @@ PiLot.View.Diary = (function () {
 		},
 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryText);
-			this.container.appendChild(control);
-			this.lnkEditDiary = control.querySelector('.lnkEditDiary');
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryText);
+			this.container.appendChild(this.control);
+			this.pnlDiary = this.control.querySelector('.pnlDiary');
+			this.lnkEditDiary = this.control.querySelector('.lnkEditDiary');
 			this.lnkEditDiary.addEventListener('click', this.lnkEditDiary_click.bind(this));
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
-				control.querySelector('.pnlDiary'),
-				control.querySelector('.lnkExpandDiary'),
-				control.querySelector('.lnkCollapseDiary'),
+				this.pnlDiary,
+				this.control.querySelector('.lnkExpandDiary'),
+				this.control.querySelector('.lnkCollapseDiary'),
 				'PiLot.View.Diary.diaryBoxExpanded'
 			);
 			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
-			control.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
-			control.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
-			this.pnlShowDiary = control.querySelector('.pnlShowDiary');
-			this.lblDiary = control.querySelector('.lblDiary');
-			this.pnlNoData = control.querySelector('.pnlNoData');
-			this.pnlEditDiary = control.querySelector('.pnlEditDiary');
-			this.tbDiary = control.querySelector('.tbDiary');
+			this.control.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
+			this.control.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
+			this.pnlShowDiary = this.control.querySelector('.pnlShowDiary');
+			this.lblDiary = this.control.querySelector('.lblDiary');
+			this.pnlNoData = this.control.querySelector('.pnlNoData');
+			this.pnlEditDiary = this.control.querySelector('.pnlEditDiary');
+			this.tbDiary = this.control.querySelector('.tbDiary');
 			this.tbDiary.addEventListener('change', this.tbDiary_change.bind(this));
 			this.applyDiaryFontSize();
 		},
@@ -319,14 +324,15 @@ PiLot.View.Diary = (function () {
 			this.lnkEditDiary.hidden = !PiLot.Permissions.canWrite();
 		},
 
-		setLoading: function () {
-			
-		},
-
 		showData: function (pLogbookDay) {
 			this.logbookDay = pLogbookDay;
+			this.applyEmptyStyle();
 			this.tbDiary.value = this.logbookDay.getDiaryText();
 			this.showDiaryText();
+		},
+
+		applyEmptyStyle: function () {
+			this.control.classList.toggle('empty', this.pnlDiary.hidden && this.logbookDay.getDiaryText().length === 0);
 		},
 
 		showDiaryText: function(){
@@ -371,6 +377,7 @@ PiLot.View.Diary = (function () {
 	 * */
 	var DiaryLogbook = function (pContainer, pCurrentBoatTime) {
 		this.container = pContainer;
+		this.control = null;
 		this.currentBoatTime = pCurrentBoatTime;
 		this.logbookDay = null;
 		this.editForm = null;							// PiLot.View.Logbook.LogbokEntryForm
@@ -415,10 +422,12 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.applyEmptyStyle();
 		},
 
 		expandCollapseBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.applyEmptyStyle();
 		},
 
 		lnkAddLogbookEntry_click: function (pEvent) {
@@ -428,29 +437,33 @@ PiLot.View.Diary = (function () {
 		},
 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryLogbook);
-			this.container.appendChild(control);
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryLogbook);
+			this.container.appendChild(this.control);
 			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(null);
-			this.lnkEditLogbook = control.querySelector('.lnkEditLogbook');
+			this.lnkEditLogbook = this.control.querySelector('.lnkEditLogbook');
 			this.lnkEditLogbook.addEventListener('click', this.lnkEditLogbook_click.bind(this));
+			this.pnlLogbook = this.control.querySelector('.pnlLogbook');
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
-				control.querySelector('.pnlLogbook'),
-				control.querySelector('.lnkExpandLogbook'),
-				control.querySelector('.lnkCollapseLogbook'),				
+				this.pnlLogbook,
+				this.control.querySelector('.lnkExpandLogbook'),
+				this.control.querySelector('.lnkCollapseLogbook'),				
 				'PiLot.View.Diary.logbookBoxExpanded'
 			);
 			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
 			const options = { isReadOnly: this.readOnly, sortDescending: false, autoFillNewItems: false };
-			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(control.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
-			this.pnlNoData = control.querySelector('.pnlNoData');
-			this.lnkAddLogbookEntry = control.querySelector('.lnkAddLogbookEntry');
+			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(this.control.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
+			this.pnlNoData = this.control.querySelector('.pnlNoData');
+			this.lnkAddLogbookEntry = this.control.querySelector('.lnkAddLogbookEntry');
 			this.lnkAddLogbookEntry.addEventListener('click', this.lnkAddLogbookEntry_click.bind(this));
-			
 		},
 
 		applyPermissions: function () {
 			this.lnkEditLogbook.hidden = !PiLot.Permissions.canWrite();
+		},
+
+		applyEmptyStyle: function () {
+			this.control.classList.toggle('empty', this.pnlLogbook.hidden && !this.logbookDay.hasEntries());
 		},
 
 		toggleEditLogbook: function(pReadOnly){
@@ -467,6 +480,7 @@ PiLot.View.Diary = (function () {
 
 		showData: function (pLogbookDay) {
 			this.logbookDay = pLogbookDay;
+			this.applyEmptyStyle();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
 			this.pnlNoData.hidden = this.logbookDay.hasEntries();
 		}
@@ -477,6 +491,8 @@ PiLot.View.Diary = (function () {
 	 * */
 	var DiaryPhotos = function (pContainer) {
 		this.container = pContainer;
+		this.control = null;
+		this.pnlPhotos = null;
 		this.lnkEditPhotos = null;
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery
 		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
@@ -510,10 +526,12 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.applyEmptyStyle();
 		},
 
 		expandCollapseBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.applyEmptyStyle();
 		},
 
 		photoUpload_upload: function(pSender, pArg){
@@ -525,39 +543,43 @@ PiLot.View.Diary = (function () {
 		},
 
 		draw: function () { 
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhotos);
-			this.container.appendChild(control);
-			this.lnkEditPhotos = control.querySelector('.lnkEditPhotos');
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhotos);
+			this.container.appendChild(this.control);
+			this.lnkEditPhotos = this.control.querySelector('.lnkEditPhotos');
 			this.lnkEditPhotos.addEventListener('click', this.lnkEditPhotos_click.bind(this));
+			this.pnlPhotos = this.control.querySelector('.pnlPhotos');
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
-				control.querySelector('.pnlPhotos'),
-				control.querySelector('.lnkExpandPhotos'),
-				control.querySelector('.lnkCollapsePhotos'),				
+				this.pnlPhotos,
+				this.control.querySelector('.lnkExpandPhotos'),
+				this.control.querySelector('.lnkCollapsePhotos'),				
 				'PiLot.View.Diary.photosBoxExpanded'
 			);
 			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
-			const plhPhotoUpload = control.querySelector('.plhPhotoUpload');
+			const plhPhotoUpload = this.control.querySelector('.plhPhotoUpload');
 			this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this);
 			this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
 			this.photoUpload.toggleVisible(false);
-			this.photoGallery = new DiaryPhotoGallery(control.querySelector('.plhPhotoGallery'));
+			this.photoGallery = new DiaryPhotoGallery(this.control.querySelector('.plhPhotoGallery'));
 		},
 
 		applyPermissions: function () {
 			const canWrite = PiLot.Permissions.canWrite();
 			this.lnkEditPhotos.hidden = !canWrite;
 			!canWrite && this.toggleEditPhotos(false);
+		},
+
+		applyEmptyStyle: function () {
+			this.control.classList.toggle('empty', this.pnlPhotos.hidden && !this.photoGallery.hasPhotos());
 		},		
 
 		toggleEditPhotos: function(pVisible){
 			this.photoUpload.toggleVisible(pVisible);
 		},
 
-		setLoading: function () { },
-
 		showDataAsync: async function (pDate) { 
 			await this.photoGallery.loadPhotosAsync(pDate);
+			this.applyEmptyStyle();
 		}
 	};
 
@@ -569,7 +591,8 @@ PiLot.View.Diary = (function () {
 	var DiaryTracksData = function (pContainer, pDiaryPage) {
 		this.container = pContainer;
 		this.diaryPage = pDiaryPage;
-		this.lnkEditTrack = null;
+		this.tracks = null;
+		this.pnlMapBox = null;
 		this.lnkEnlargeMap = null;
 		this.lnkMinimizeMap = null;
 		this.lnkCollapseMap = null;
@@ -577,6 +600,8 @@ PiLot.View.Diary = (function () {
 		this.pnlMap = null;
 		this.map = null;								// PiLot.View.Nav.Seamap
 		this.mapTrack = null;							// PiLot.View.Map.MapTrack
+		this.pnlTracksBox = null;
+		this.lnkEditTrack = null;
 		this.lnkCollapseTracks = null;
 		this.lnkExpandTracks = null;
 		this.pnlTracks = null;
@@ -614,10 +639,12 @@ PiLot.View.Diary = (function () {
 		expandCollapseMapBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
 			this.invalidateMap();
+			this.applyMapBoxEmptyStyle();
 		},
 
 		expandCollapseMapBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.applyMapBoxEmptyStyle();
 		},
 
 		lnkEnlargeMap_click: function (pEvent) {
@@ -636,23 +663,27 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseTracksBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.applyTracksBoxEmptyStyle();
 		},
 
 		tracksList_trackSelected: function (pSender, pTrack) {
 			this.showSpeedDiagram(pTrack);
 			this.showTrackStatistics(pTrack);
+			this.applyTracksBoxEmptyStyle();
 		},
 
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryTrackData);
 			this.container.appendChild(control);
+			this.pnlMapBox = this.container.querySelector('.pnlMapBox');
 			this.lnkEditTrack = control.querySelector('.lnkEditTrack');
 			this.lnkEnlargeMap = control.querySelector('.lnkEnlargeMap');
 			this.lnkEnlargeMap.addEventListener('click', this.lnkEnlargeMap_click.bind(this));
 			this.lnkMinimizeMap = control.querySelector('.lnkMinimizeMap');
 			this.lnkMinimizeMap.addEventListener('click', this.lnkMinimizeMap_click.bind(this));
+			this.pnlMap = control.querySelector('.pnlMap');
 			const expandCollapseMapBox = new PiLot.View.Common.ExpandCollapseBox(
-				control.querySelector('.pnlMap'),
+				this.pnlMap,
 				control.querySelector('.lnkExpandMap'),
 				control.querySelector('.lnkCollapseMap'),
 				'PiLot.View.Diary.mapBoxExpanded'
@@ -660,8 +691,10 @@ PiLot.View.Diary = (function () {
 			expandCollapseMapBox.on('expand', this.expandCollapseMapBox_expand.bind(this));
 			expandCollapseMapBox.on('collapse', this.expandCollapseMapBox_collapse.bind(this));
 			this.map = new PiLot.View.Map.Seamap(control.querySelector('.plhMap'), { persistMapState: false });
+			this.pnlTracksBox = this.container.querySelector('.pnlTracksBox');
+			this.pnlTracks = control.querySelector('.pnlTracks');
 			const expandCollapseTracksBox = new PiLot.View.Common.ExpandCollapseBox(
-				control.querySelector('.pnlTracks'),
+				this.pnlTracks,
 				control.querySelector('.lnkExpandTracks'),
 				control.querySelector('.lnkCollapseTracks'),
 				'PiLot.View.Diary.tracksBoxExpanded'
@@ -677,6 +710,14 @@ PiLot.View.Diary = (function () {
 
 		applyPermissions: function () {
 			this.lnkEditTrack.hidden = !PiLot.Permissions.canWrite();
+		},
+
+		applyMapBoxEmptyStyle: function () {
+			this.pnlMapBox.classList.toggle('empty', this.pnlMap.hidden && (!this.tracks || !this.tracks.length));
+		},
+
+		applyTracksBoxEmptyStyle: function () {
+			this.pnlTracksBox.classList.toggle('empty', this.pnlTracks.hidden && (!this.tracks || !this.tracks.length));
 		},
 
 		showDataAsync: async function (pDate) {
@@ -706,20 +747,21 @@ PiLot.View.Diary = (function () {
 		loadTracksAsync: async function (pDate) {
 			const startMS = pDate.toLuxon().toMillis();
 			const endMS = pDate.addDays(1).toLuxon().toMillis();
-			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
-			this.tracksList.showTracks(tracks);
-			this.pnlNoData.hidden = tracks.length > 0;
-			await this.showMapTracksAsync(tracks);
+			this.tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
+			this.applyMapBoxEmptyStyle();
+			this.applyTracksBoxEmptyStyle();
+			this.tracksList.showTracks(this.tracks);
+			this.pnlNoData.hidden = this.tracks.length > 0;
+			await this.showMapTracksAsync();
 		},
 
-		/** @param {PiLot.Model.Nav.Track[]} pTracks */
-		showMapTracksAsync: async function (pTracks) {
+		showMapTracksAsync: async function () {
 			await this.map.showAsync();
-			if (pTracks.some(t => t.hasTrackPoints())) {
+			if (this.tracks.some(t => t.hasTrackPoints())) {
 				if (this.mapTrack === null) {
 					this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
 				}
-				this.mapTrack.setTracks(pTracks);
+				this.mapTrack.setTracks(this.tracks);
 			} else {
 				if (this.mapTrack !== null) {
 					this.mapTrack.setTracks([]);
@@ -965,6 +1007,10 @@ PiLot.View.Diary = (function () {
 		/** @param {String} pImageName - the image name, without any path prefix. */
 		getOriginalImageUrl: function (pImageName) {
 			return this.imageCollection.getRootUrl() + pImageName;
+		},
+
+		hasPhotos: function () {
+			return this.imageCollection && this.imageCollection.hasImages();
 		}
 	};
 

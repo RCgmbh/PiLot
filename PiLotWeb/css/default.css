@@ -81,6 +81,8 @@ body.night .rcCalendar .yearsPager { background-color: #666; }
 .boxHeader { display:flex; justify-content: space-between; align-items:center; font-size: 1.125rem; }
 .boxHeader .boxTitle { font-weight: 600; }
 .boxHeader .boxIcons { flex-grow: 0; }
+.empty .boxHeader {color: #999; }
+body.night .empty .boxHeader {color: #777; }
 
 div.feedbackGood, div.feedbackBad, div.feedbackInfo, div.feedbackWarning, div.feedbackNeutral, span.feedbackGood, span.feedbackBad, span.feedbackInfo, span.feedbackWarning { display: block; clear: both; padding: 0.5em 0.75em; border-width: 1px 1px 1px 0.5em; border-style: solid; text-align: left; }
 div.feedbackGood.hidden, div.feedbackBad.hidden, div.feedbackWarning.hidden, div.feedbackInfo.hidden, div.feedbackNeutral.hidden { display: none; }
@@ -484,7 +486,6 @@ body { min-width: 20em; }
 
 .mainMenu .menuSection{
 	display:flex; flex-direction: row; flex-wrap: wrap;
-	margin: 0.5em 0em;
 }
 
 .mainMenu .menuSectionHome a {color:rgb(221, 147, 147); border-color:rgb(221, 147, 147);}
@@ -509,7 +510,7 @@ body { min-width: 20em; }
 	height: 9vh;
 	max-height: 6em;
 	min-height: 4em;
-	margin: 0.25em;
+	margin: 0.5em 0.25em;
 	box-shadow: 2px 2px 8px -2px;
 }
 

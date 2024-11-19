@@ -87,7 +87,7 @@ PiLot.Templates.Diary = {
 
 	diaryTrackData: `
 		<div>
-			<div class="easyShadow  marginBottom">
+			<div class="pnlMapBox easyShadow  marginBottom">
 				<div class="boxHeader">
 					<span class="boxTitle paddingAllSmall" data-text="map"></span>
 					<div class="boxIcons">
@@ -101,7 +101,7 @@ PiLot.Templates.Diary = {
 					<div class="plhMap navMap borderDark"></div>
 				</div>
 			</div>
-			<div class="easyShadow  marginBottom">
+			<div class="pnlTracksBox easyShadow  marginBottom">
 				<div class="boxHeader">
 					<span class="boxTitle paddingAllSmall" data-text="tracks"></span>
 					<div class="boxIcons">
