@@ -739,7 +739,8 @@ PiLot.View.Diary = (function () {
 
 		/** @param {PiLot.Model.Nav.Track} pTrack */
 		showTrackStatistics: function (pTrack) {
-			if (pTrack && pTrack.getTrackPointsCount() > 0) {
+			const disabled = PiLot.Config.Disable && PiLot.Config.Disable.trackSections;
+			if (!disabled && pTrack && pTrack.getTrackPointsCount() > 0) {
 				this.trackStatistics.showTrackStatisticsAsync(pTrack);
 			} else {
 				this.trackStatistics.hide();

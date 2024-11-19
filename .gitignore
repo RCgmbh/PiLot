@@ -361,3 +361,4 @@ healthchecksdb
 /PiLotBackupAPI/config/config.*.json
 /PiLotTilesDownloader/Properties/launchSettings.json
 /.gitignore
+/PiLotWeb/js/Config.pilotLive.js

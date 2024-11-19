@@ -419,17 +419,18 @@ PiLot.View.Common = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenuContent);
 			this.container.appendChild(this.control);
 			let pageKey, pageObject;
-			const pages = PiLot.Utils.Loader.pages;
-			this.processLinks(function (pLink, pPageObject) {
+			this.processLinks(function (pLink, pPageObject, pPageKey) {
 				pLink.href = PiLot.Utils.Loader.createPageLink(pPageObject);
 				this.checkLinkPermissions(pLink, pPageObject)
+				this.hideDisabledPages(pLink, pPageKey); 
 			}.bind(this));
 		},
 
 		/** Sets the visibility links according to the current user's permissions */
 		checkPermissions: function () {
-			this.processLinks(function (pLink, pPageObject) {
+			this.processLinks(function (pLink, pPageObject, pPageKey) {
 				this.checkLinkPermissions(pLink, pPageObject)
+				this.hideDisabledPages(pLink, pPageKey);
 			}.bind(this));
 		},
 
@@ -445,7 +446,7 @@ PiLot.View.Common = (function () {
 				pageKey = aLink.dataset['page'];
 				if (pageKey in pages) {
 					pageObject = pages[pageKey];
-					pProcessFunction(aLink, pageObject);
+					pProcessFunction(aLink, pageObject, pageKey);
 				} else {
 					console.log(`Invalid page key in MainMenu: ${pageKey}`);
 				}
@@ -459,6 +460,10 @@ PiLot.View.Common = (function () {
 		 */
 		checkLinkPermissions: function (pLink, pPageObject) {
 			pLink.hidden = !this.permissionsHelper.checkPermissions(pPageObject);
+		},
+
+		hideDisabledPages: function (pLink, pPageKey) {
+			pLink.hidden = pLink.hidden || (PiLot.Config.Disable && PiLot.Config.Disable.pages && PiLot.Config.Disable.pages.includes(pPageKey));
 		}
 
 	};
