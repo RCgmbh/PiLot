@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 
 using PiLot.API.ActionFilters;
@@ -33,11 +34,11 @@ namespace PiLot.API{
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			}
+			app.UseFileServer();
 			app.UseRouting();
 			app.UseForwardedHeaders(new ForwardedHeadersOptions {
 				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 			});
-			//?app.UseAuthorization();
 			app.UseEndpoints(endpoints => {
 				endpoints.MapControllers();
 			});
