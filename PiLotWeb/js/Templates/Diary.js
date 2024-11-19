@@ -79,6 +79,7 @@ PiLot.Templates.Diary = {
 				</div>
 			</div>
 			<div class="pnlPhotos borderLighter">
+				<div class="pnlNoData paddingAllSmall" hidden><div class="feedbackInfo" data-text="noData"></div></div>
 				<div class="plhPhotoUpload"></div>
 				<div class="plhPhotoGallery"></div>
 			</div>

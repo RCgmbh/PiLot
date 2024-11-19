@@ -157,23 +157,23 @@ PiLot.View.Diary = (function () {
 		},
 
 		loadLogbookDayAsync: async function () {
+			this.icoLoading.hidden = false;
 			this.logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.date);
 			if (this.logbookDay === null){
 				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(this.date);
 			}
 			this.showDataAsync();
+			this.icoLoading.hidden = true;
 		},
 
 		showDataAsync: async function () {
 			this.showFriendlyDate();
-			this.icoLoading.hidden = false;
 			this.diaryText.showData(this.logbookDay);
 			this.diaryLogbook.showData(this.logbookDay);
 			await Promise.all([
 				this.diaryTracksData.showDataAsync(this.date),
 				this.diaryPhotos.showDataAsync(this.date)
 			]);
-			this.icoLoading.hidden = true;
 			this.showTopLink();
 		},
 
@@ -266,11 +266,13 @@ PiLot.View.Diary = (function () {
 			this.applyPermissions();
 		},
 
-		lnkBiggerText_click: function () {
+		lnkBiggerText_click: function (pSender) {
+			pSender.preventDefault();
 			this.changeDiaryFontSize(1);
 		},
 
-		lnkSmallerText_click: function () {
+		lnkSmallerText_click: function (pSender) {
+			pSender.preventDefault();
 			this.changeDiaryFontSize(-1);
 		},
 
@@ -494,6 +496,7 @@ PiLot.View.Diary = (function () {
 		this.control = null;
 		this.pnlPhotos = null;
 		this.lnkEditPhotos = null;
+		this.pnlNoData = null;
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery
 		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
 		this.observers = null;
@@ -556,6 +559,7 @@ PiLot.View.Diary = (function () {
 			);
 			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
+			this.pnlNoData = this.control.querySelector('.pnlNoData');
 			const plhPhotoUpload = this.control.querySelector('.plhPhotoUpload');
 			this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this);
 			this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
@@ -579,6 +583,7 @@ PiLot.View.Diary = (function () {
 
 		showDataAsync: async function (pDate) { 
 			await this.photoGallery.loadPhotosAsync(pDate);
+			this.pnlNoData.hidden = this.photoGallery.hasPhotos();
 			this.applyEmptyStyle();
 		}
 	};
