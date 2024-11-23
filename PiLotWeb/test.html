@@ -18,39 +18,105 @@
 	<title>PiLOT</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<meta name="mobile-web-app-capable" content="yes">
-	<link rel="manifest" href="manifest.json">
-	<link rel="icon" href="favicon.png">
-	<link rel="shortcut icon" href="favicon.png" type="image/png">
-	<link rel="icon" sizes="48x48" href="favicon48.png">
-	<link rel="icon" sizes="96x96" href="favicon96.png">
-	<link rel="icon" sizes="144x144" href="favicon144.png">
-	<link rel="icon" sizes="192x192" href="favicon192.png">
-	<link rel="icon" sizes="256x256" href="favicon256.png">
-	<link href="css/RC.Controls.css" rel="stylesheet" type="text/css">
-	<link href="css/defaultV002.css" rel="stylesheet" type="text/css">
-	<link href="css/jquery-ui.min.css" rel="stylesheet" type="text/css">
-	<link href="css/fonts.css" rel="stylesheet" type="text/css">
-	<link href="css/leaflet.css" rel="stylesheet" type="text/css">
-	<link href="css/leafletCustom.css" rel="stylesheet" type="text/css">
-	<link href="css/logbookV002.css" rel="stylesheet" type="text/css">
-	<link href="css/meteo.css" rel="stylesheet" type="text/css">
-	<link href="css/navV002.css" rel="stylesheet" type="text/css">
-	<script src="js/3rdParty/RC/RC.Utils.js" type="text/javascript"></script>
-	<script src="js/Utils/Language.js" type="text/javascript"></script>
-	<script src="js/Utils/Loader.js" type="text/javascript"></script>
+	<style>
+		body {box-sizing: border-box;}
+		.list {border: 1px solid blue; display:flex; flex-direction: column;}
+		.row{border: 1px solid red;}
+		.l2{border: 1px solid purple;}
+		.l3 {border: 1px solid orange;}
+		.cell {border:1px solid green;}
+		.list, .row, .l2, .l3 { padding:8px;}
+		.row, .l2, .l3 { display: flex; flex-direction: row; flex-wrap: wrap; }
+		.l2, .l3, .cell { flex-grow: 1; }
+		.l2 { flex-basis: 10%; }
+		.l2.general { flex-basis: 10%; flex-wrap:wrap-reverse;}
+		.l2.nav { flex-basis: 5%; }
+		.l2.meteo { flex-basis: 20%; }
+		.l3 { flex-basis: 10%; }
+		.l3.weather{flex-basis:20%;}
+		.l3.air { flex-basis: 10%; }
+		.l3.wind { flex-basis: 10%; }
+		.l3.coordinates { flex-basis: 160px; }
+		.cell { flex-basis: 10%; }
+		.cell.time { flex-basis: 5%; }
+		.cell.text { flex-basis: 50%; }
+		.text{ min-width: 100px; }
+		.time {min-width: 40px;}
+		.number {min-width: 50px; width:50px; flex-grow:0;}
+		.cell.coordinates { min-width: 80px; }
+		.l3.image{flex-grow:0;}
+		.cell.image { width:50px; min-width: 50px; height: 60px; background-color: #bbb; flex-grow:0;}
+	</style>
 </head>
 <body>
-	<div id="header">
-		<div id="hamburger"></div>
-		<div id="subMenu"></div>
-		<div id="headerButtons"></div>
-		<div id="clock"></div>
-	</div>
-	<div id="main">
-		<div id="mainMenu"></div>
-		<div id="content">
-			<div></div>
-
+	<div class="list">
+		<div class="row">
+			<div class="l2 general">
+				<div class="l3">
+					<div class="cell time">08:00</div>
+					<div class="cell text">Leinen los! Die Freude ist gross!</div>
+				</div>
+				<div class="l3 image">
+					<div class="cell image">...</div>
+				</div>
+			</div>
+			<div class="l2 nav">
+				<div class="l3 coordinates">
+					<div class="cell coordinates">45° 7.31'</div>
+					<div class="cell coordinates">008° 2.33'</div>
+				</div>
+				<div class="l3">
+					<div class="cell number">031°</div>
+					<div class="cell number">4.3</div>
+				</div>
+			</div>
+			<div class="l2 meteo">
+				<div class="l3 weather">
+					<div class="cell text">Sonnig</div>
+				</div>
+				<div class="l3 air">
+					<div class="cell number">23°C</div>
+					<div class="cell number">1013.1</div>
+				</div>
+				<div class="l3 wind">
+					<div class="cell number">3 SSE</div>
+					<div class="cell number">0.2</div>
+				</div>
+			</div>
+		</div>
+		<div class="row">
+			<div class="l2 general">
+				<div class="l3">
+					<div class="cell time">08:00</div>
+					<div class="cell text">Hoch die Segel</div>
+				</div>
+				<div class="l3 image">
+					<div class="cell image">...</div>
+				</div>
+			</div>
+			<div class="l2 nav">
+				<div class="l3 coordinates">
+					<div class="cell coordinates">45° 7.41'</div>
+					<div class="cell coordinates">008° 2.11'</div>
+				</div>
+				<div class="l3">
+					<div class="cell number ">031°</div>
+					<div class="cell number ">4.3</div>
+				</div>
+			</div>
+			<div class="l2 meteo">
+				<div class="l3 weather">
+					<div class="cell text">Sonnig</div>
+				</div>
+				<div class="l3 air">
+					<div class="cell number">23°C</div>
+					<div class="cell number">1013.1</div>
+				</div>
+				<div class="l3 wind">
+					<div class="cell number">3 SSE</div>
+					<div class="cell number">0.2</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </body>

@@ -222,6 +222,7 @@ PiLot.View.Logbook = (function () {
 		/** Clears and re-draws the entries  */
 		showData: function () {
 			this.container.clear();
+			this.container.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookHeaderRow));
 			this.logbookEntryControls = [];
 			this.logbookDay.sortEntries(this.sortDescending);
 			const logbookEntries = this.logbookDay.getLogbookEntries();
@@ -303,7 +304,7 @@ PiLot.View.Logbook = (function () {
 	
 		/** creates the display form */ 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryControl);
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryControl2);
 			this.entriesContainer.appendChild(control);
 			this.lblTime = control.querySelector('.lblTime');
 			this.lblTitle = control.querySelector('.lblTitle');
@@ -368,7 +369,7 @@ PiLot.View.Logbook = (function () {
 		 * If the value is null, the entire control is hidden.
 		 * */ 
 		showLabeledText: function (pControl, pText, pNumberFixed) {
-			if ((typeof pText !== 'undefined') && (pText !== null) && (pText !== '')) {
+			/*if ((typeof pText !== 'undefined') && (pText !== null) && (pText !== '')) {
 				const inner = Array.from(pControl.querySelectorAll('span')).last();
 				if ((typeof pNumberFixed !== 'undefined') && (pNumberFixed !== null)) {
 					RC.Utils.showNumericValue(inner, pText, '', pNumberFixed);
@@ -377,6 +378,11 @@ PiLot.View.Logbook = (function () {
 				}
 			} else {
 				RC.Utils.showHide(pControl, false);
+			}*/
+			if ((typeof pNumberFixed !== 'undefined') && (pNumberFixed !== null)) {
+				RC.Utils.showNumericValue(pControl, pText, '', pNumberFixed);
+			} else {
+				pControl.innerText = pText;
 			}
 		},
 

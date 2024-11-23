@@ -3,7 +3,7 @@
 .logbookHeader .lblFriendlyDate { margin-right:1em; }
 .logbookHeader .dateContainer { flex-grow:1; text-align:right;  }
 
-.logbookEntries { max-width: 41em; }
+/*.logbookEntries { max-width: 41em; }*/
 .logbookEntry { }
 .dialogPanel.logbookEntry{ width:100vw; max-width:36em; max-height:100vh; overflow:auto; }
 .logbookEntry .titleContainer { display: flex; width: 100%; gap:1em; }
@@ -17,9 +17,41 @@
 .logbookBoxes .data.editable .logbookBox { flex-basis:10em; flex-grow:1; max-width: 15em; min-width: 10em;}
 .logbookBox { min-height: 11em; padding: 0.125em 0.25em; border: 1px solid #ccc; }
 
+.logbookRow.header { font-style: italic; border-bottom: 1px solid #666; }
+.logbookRow.header .cell.boat {height: 1em; }
+.logbookRow:nth-child(odd) {background-color:#eee;}
+.logbookRow .outer, .logbookRow .inner {display: flex; flex-direction: row; flex-wrap: wrap; align-content:start; flex-grow: 1; flex-basis:10%;}
+.logbookRow .inner { display:flex; padding:2px; }
+.logbookRow .cell { display:block; flex-grow: 1; flex-basis:0px;}
+.logbookRow .outer.general {flex-basis: 5%;}
+.logbookRow .inner.general {flex-basis: 7em;}
+.logbookRow .inner.image {flex-grow: 0;}
+.logbookRow .cell.time {min-width: 3em;}
+.logbookRow .cell.title {min-width: 8em; flex-basis:70%; max-height:3em;}
+.logbookRow .cell.boat {width: 3em; height: 4em; position: relative;}
+.logbookRow .inner.notes {flex-basis: 100%;}
+.logbookRow .outer.data {flex-basis: 50%;}
+.logbookRow .outer.nav {flex-basis: 10%; flex-wrap:wrap-reverse; }
+.logbookRow .outer.nav .inner {justify-content:right;}
+.logbookRow .inner.coordinates { min-width: 7em; flex-basis: 7em; flex-grow:0.2; text-align: right;}
+.logbookRow .coordinate { min-width: 7em;}
+.logbookRow .inner.cogSogLog {}
+.logbookRow .cell.numberS {min-width: 2em; text-align: right;}
+.logbookRow .cell.numberM {min-width: 3em; text-align: right;}
+.logbookRow .cell.numberL {min-width: 4em; text-align: right;}
+.logbookRow .outer.meteo {flex-basis: 20%; padding-left: 1em;}
+.logbookRow .inner.weather { }
+/*.logbookRow .inner.air {justify-content: right;}
+.logbookRow .inner.wind {justify-content: right;}
+.logbookRow .cell.wind {text-align: left;}*/
+.logbookRow .cell.weather {min-width: 8em;}
+.logbookRow .icons { display: flex; flex-wrap: wrap; flex-direction: row; flex-basis: 3%; align-content:start; justify-content:end; min-width: 1.5em; }
+.logbookRow .icons a { padding: 0em 0.25em;}
+
 .newEntryImage { width: 6em; height: 6em; position: relative; margin: 0em 1em 1em 0em;}
 
 @media (max-width:800px){
+	.logbookBoxes { flex-wrap:wrap; }
 	.logbookBoxes .data { flex-direction: column; gap:0em;}
 	.logbookBoxes .data .logbookBox { border: none; padding: 0em; background-color:unset; min-height:unset; min-width: unset; flex-basis: unset;}
 	.logbookBoxes .data .logbookBox .semiBold {display: none; }

@@ -3,7 +3,7 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Logbook = {
 
-	logbookEntry: `<div class="logbookEntry"></div>`,
+	/*logbookEntry: `<div class="logbookEntry"></div>`,*/
 
 	weatherTypes: [
 		['', ''],
@@ -194,5 +194,97 @@ PiLot.Templates.Logbook = {
 				</div>
 			</div>
 		</div>`,
+
+	logbookHeaderRow: `
+		<div class="logbookRow flexRowWrap header">
+			<div class="outer general">
+				<div class="inner image">
+					<div class="cell boat"></div>
+				</div>
+				<div class="inner general">
+
+					<span class="cell time semiBold"></span>
+					<span class="cell title"></span>
+				</div>
+			</div>
+			<div class="outer data">
+				<div class="outer nav">
+					<div class="inner coordinates">
+					</div>
+					<div class="inner cogSogLog">
+						<div class="cell numberM" data-text="cog"></div>
+						<div class="cell numberM" data-text="sog"></div>
+						<div class="cell numberM" data-text="log"></div>
+					</div>
+				</div>
+				<div class="outer meteo">
+					<div class="inner weather">
+						<div class="cell weather" data-text="weather"></div>
+					</div>
+					<div class="flexRowWrap">
+						<div class="inner air">
+							<div class="cell numberM">°C</div>
+							<div class="cell numberL" data-text="hPa"></div>
+						</div>
+						<div class="inner wind">
+							<div class="cell numberL wind" data-text="wind"></div>
+							<div class="cell numberM">~</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="icons"></div>
+		</div>
+	`,
+
+	logbookEntryControl2:
+		`<div class="logbookRow flexRowWrap">
+			<div class="outer general">
+				<div class="inner image">
+					<div class="plhBoatSetup cell boat"></div>
+				</div>
+				<div class="inner general">
+					<div class="flexRowWrap">
+						<span class="lblTime cell time semiBold"></span>
+						<span class="lblTitle cell title"></span>
+					</div>
+				</div>
+				<div class="lblNotes italic inner notes"></div>
+			</div>
+			<div class="outer data">
+				<div class="outer nav">
+					<div class="inner coordinates">
+						<div class="lblLat cell coordinate"></div>
+						<div class="lblLon cell coordinate"></div>
+					</div>
+					<div class="inner cogSogLog">
+						<div class="lblCOG cell numberM"></div>
+						<div class="lblSOG cell numberM"></div>
+						<div class="lblLog cell numberM"></div>
+					</div>
+				</div>
+				<div class="outer meteo">
+					<div class="inner weather">
+						<div class="lblWeather cell weather"></div>
+					</div>
+					<div class="flexRowWrap">
+						<div class="inner air">
+							<div class="lblTemperature cell numberM"></div>
+							<div class="lblPressure cell numberL"></div>
+						</div>
+						<div class="inner wind">
+							<div class="cell numberL wind">
+								<span class="lblWindForce"></span>&nbsp;<span class="lblWindDirection"></span>
+							</div>
+							<div class="lblWaveHeight cell numberM"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="icons">
+				<a href="#" class="btnEditEntry" data-title="edit"><i class="icon-pencil"></i></a>
+				<a href="#" class="btnDeleteEntry" data-title="delete"><i class="icon-bin"></i></a>
+			</div>
+		</div>`
 
 };

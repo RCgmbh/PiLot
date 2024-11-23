@@ -22,8 +22,7 @@ PiLot.Templates.Diary = {
 			<div class="marginLeft marginBottom">
 				<a href="#" class="lnkPublish"><i class="icon-podcast marginRightSmall"></i><span data-text="publish"></span></a>
 			</div>
-			<a href="#" class="lnkTop topLink paddingAllSmall"><i class="biggerText icon-arrow-up"></i></a>
-			
+			<a href="#" class="lnkTop topLink paddingAllSmall" hidden><i class="biggerText icon-arrow-up"></i></a>
 		</div>`,
 
 	diaryText: `
@@ -60,8 +59,8 @@ PiLot.Templates.Diary = {
 					<a href="#" class="lnkExpandLogbook paddingAllSmall " data-title="show" hidden><i class="icon-circle-down"></i></a>
 				</div>
 			</div>
-			<div class="pnlLogbook paddingAllSmall">
-				<div class="plhLogbookEntries logbookEntries"></div>
+			<div class="pnlLogbook fullWidth paddingAllSmall">
+				<div class="plhLogbookEntries logbookEntries flexColumn grow"></div>
 				<div class="pnlNoData feedbackInfo" data-text="noData" hidden></div>
 				<a href="#" class="lnkAddLogbookEntry block semiBold marginTop"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 			</div>

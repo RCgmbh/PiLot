@@ -168,13 +168,12 @@ PiLot.View.Diary = (function () {
 
 		showDataAsync: async function () {
 			this.showFriendlyDate();
-			this.diaryText.showData(this.logbookDay);
-			this.diaryLogbook.showData(this.logbookDay);
 			await Promise.all([
 				this.diaryTracksData.showDataAsync(this.date),
-				this.diaryPhotos.showDataAsync(this.date)
+				this.diaryText.showData(this.logbookDay),
+				this.diaryLogbook.showData(this.logbookDay)
 			]);
-			this.showTopLink();
+			this.diaryPhotos.showDataAsync(this.date);			
 		},
 
 		showFriendlyDate: function () {
@@ -229,7 +228,6 @@ PiLot.View.Diary = (function () {
 		this.container = pContainer;
 		this.logbookDay = null;
 		this.control = null;
-		this.pnlDiary = null;
 		this.lnkEditDiary = null;
 		this.pnlShowDiary = null;
 		this.pnlEditDiary = null;
@@ -283,12 +281,10 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
-			this.applyEmptyStyle();
 		},
 
 		expandCollapseBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
-			this.applyEmptyStyle();
 		},
 
 		tbDiary_change: async function () {
@@ -300,11 +296,10 @@ PiLot.View.Diary = (function () {
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryText);
 			this.container.appendChild(this.control);
-			this.pnlDiary = this.control.querySelector('.pnlDiary');
 			this.lnkEditDiary = this.control.querySelector('.lnkEditDiary');
 			this.lnkEditDiary.addEventListener('click', this.lnkEditDiary_click.bind(this));
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
-				this.pnlDiary,
+				this.control.querySelector('.pnlDiary'),
 				this.control.querySelector('.lnkExpandDiary'),
 				this.control.querySelector('.lnkCollapseDiary'),
 				'PiLot.View.Diary.diaryBoxExpanded'
@@ -334,7 +329,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		applyEmptyStyle: function () {
-			this.control.classList.toggle('empty', this.pnlDiary.hidden && this.logbookDay.getDiaryText().length === 0);
+			this.control.classList.toggle('empty', this.logbookDay.getDiaryText().length === 0);
 		},
 
 		showDiaryText: function(){
@@ -384,7 +379,6 @@ PiLot.View.Diary = (function () {
 		this.logbookDay = null;
 		this.editForm = null;							// PiLot.View.Logbook.LogbokEntryForm
 		this.lnkEditLogbook = null;
-		this.pnlLogbook = null;
 		this.logbookEntriesControl = null;				// PiLot.View.Logbook.LogbookEntries
 		this.pnlNoData = null;
 		this.lnkAddLogbookEntry = null;
@@ -424,12 +418,10 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
-			this.applyEmptyStyle();
 		},
 
 		expandCollapseBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
-			this.applyEmptyStyle();
 		},
 
 		lnkAddLogbookEntry_click: function (pEvent) {
@@ -444,9 +436,8 @@ PiLot.View.Diary = (function () {
 			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(null);
 			this.lnkEditLogbook = this.control.querySelector('.lnkEditLogbook');
 			this.lnkEditLogbook.addEventListener('click', this.lnkEditLogbook_click.bind(this));
-			this.pnlLogbook = this.control.querySelector('.pnlLogbook');
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
-				this.pnlLogbook,
+				this.control.querySelector('.pnlLogbook'),
 				this.control.querySelector('.lnkExpandLogbook'),
 				this.control.querySelector('.lnkCollapseLogbook'),				
 				'PiLot.View.Diary.logbookBoxExpanded'
@@ -465,7 +456,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		applyEmptyStyle: function () {
-			this.control.classList.toggle('empty', this.pnlLogbook.hidden && !this.logbookDay.hasEntries());
+			this.control.classList.toggle('empty', !this.logbookDay.hasEntries());
 		},
 
 		toggleEditLogbook: function(pReadOnly){
@@ -494,7 +485,6 @@ PiLot.View.Diary = (function () {
 	var DiaryPhotos = function (pContainer) {
 		this.container = pContainer;
 		this.control = null;
-		this.pnlPhotos = null;
 		this.lnkEditPhotos = null;
 		this.pnlNoData = null;
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery
@@ -529,12 +519,10 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
-			this.applyEmptyStyle();
 		},
 
 		expandCollapseBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
-			this.applyEmptyStyle();
 		},
 
 		photoUpload_upload: function(pSender, pArg){
@@ -550,9 +538,8 @@ PiLot.View.Diary = (function () {
 			this.container.appendChild(this.control);
 			this.lnkEditPhotos = this.control.querySelector('.lnkEditPhotos');
 			this.lnkEditPhotos.addEventListener('click', this.lnkEditPhotos_click.bind(this));
-			this.pnlPhotos = this.control.querySelector('.pnlPhotos');
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
-				this.pnlPhotos,
+				this.control.querySelector('.pnlPhotos'),
 				this.control.querySelector('.lnkExpandPhotos'),
 				this.control.querySelector('.lnkCollapsePhotos'),				
 				'PiLot.View.Diary.photosBoxExpanded'
@@ -574,7 +561,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		applyEmptyStyle: function () {
-			this.control.classList.toggle('empty', this.pnlPhotos.hidden && !this.photoGallery.hasPhotos());
+			this.control.classList.toggle('empty', !this.photoGallery.hasPhotos());
 		},		
 
 		toggleEditPhotos: function(pVisible){
@@ -602,14 +589,12 @@ PiLot.View.Diary = (function () {
 		this.lnkMinimizeMap = null;
 		this.lnkCollapseMap = null;
 		this.lnkExpandMap = null;
-		this.pnlMap = null;
 		this.map = null;								// PiLot.View.Nav.Seamap
 		this.mapTrack = null;							// PiLot.View.Map.MapTrack
 		this.pnlTracksBox = null;
 		this.lnkEditTrack = null;
 		this.lnkCollapseTracks = null;
 		this.lnkExpandTracks = null;
-		this.pnlTracks = null;
 		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics
@@ -644,12 +629,10 @@ PiLot.View.Diary = (function () {
 		expandCollapseMapBox_expand: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
 			this.invalidateMap();
-			this.applyMapBoxEmptyStyle();
 		},
 
 		expandCollapseMapBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
-			this.applyMapBoxEmptyStyle();
 		},
 
 		lnkEnlargeMap_click: function (pEvent) {
@@ -668,13 +651,11 @@ PiLot.View.Diary = (function () {
 
 		expandCollapseTracksBox_collapse: function () {
 			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
-			this.applyTracksBoxEmptyStyle();
 		},
 
 		tracksList_trackSelected: function (pSender, pTrack) {
 			this.showSpeedDiagram(pTrack);
 			this.showTrackStatistics(pTrack);
-			this.applyTracksBoxEmptyStyle();
 		},
 
 		draw: function () {
@@ -686,9 +667,8 @@ PiLot.View.Diary = (function () {
 			this.lnkEnlargeMap.addEventListener('click', this.lnkEnlargeMap_click.bind(this));
 			this.lnkMinimizeMap = control.querySelector('.lnkMinimizeMap');
 			this.lnkMinimizeMap.addEventListener('click', this.lnkMinimizeMap_click.bind(this));
-			this.pnlMap = control.querySelector('.pnlMap');
 			const expandCollapseMapBox = new PiLot.View.Common.ExpandCollapseBox(
-				this.pnlMap,
+				control.querySelector('.pnlMap'),
 				control.querySelector('.lnkExpandMap'),
 				control.querySelector('.lnkCollapseMap'),
 				'PiLot.View.Diary.mapBoxExpanded'
@@ -697,9 +677,8 @@ PiLot.View.Diary = (function () {
 			expandCollapseMapBox.on('collapse', this.expandCollapseMapBox_collapse.bind(this));
 			this.map = new PiLot.View.Map.Seamap(control.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlTracksBox = this.container.querySelector('.pnlTracksBox');
-			this.pnlTracks = control.querySelector('.pnlTracks');
 			const expandCollapseTracksBox = new PiLot.View.Common.ExpandCollapseBox(
-				this.pnlTracks,
+				control.querySelector('.pnlTracks'),
 				control.querySelector('.lnkExpandTracks'),
 				control.querySelector('.lnkCollapseTracks'),
 				'PiLot.View.Diary.tracksBoxExpanded'
@@ -718,11 +697,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		applyMapBoxEmptyStyle: function () {
-			this.pnlMapBox.classList.toggle('empty', this.pnlMap.hidden && (!this.tracks || !this.tracks.length));
+			this.pnlMapBox.classList.toggle('empty', !this.tracks || !this.tracks.length);
 		},
 
 		applyTracksBoxEmptyStyle: function () {
-			this.pnlTracksBox.classList.toggle('empty', this.pnlTracks.hidden && (!this.tracks || !this.tracks.length));
+			this.pnlTracksBox.classList.toggle('empty', !this.tracks || !this.tracks.length);
 		},
 
 		showDataAsync: async function (pDate) {
