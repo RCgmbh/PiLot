@@ -87,7 +87,7 @@ PiLot.View.Diary = (function () {
 			this.diaryText.on('expand', this.diaryText_expandCollapse.bind(this));
 			this.diaryText.on('collapse', this.diaryText_expandCollapse.bind(this));
 			this.diaryLogbook = new DiaryLogbook(mainContent, this.currentBoatTime);
-			this.diaryPhotos = new DiaryPhotos(mainContent);
+			this.diaryPhotos = new DiaryPhotos(mainContent, this);
 			this.diaryPhotos.on('expand', this.diaryPhotos_expandCollapse.bind(this));
 			this.diaryPhotos.on('collapse', this.diaryPhotos_expandCollapse.bind(this));
 			this.pnlContext = diaryPage.querySelector('.pnlContext');
@@ -481,9 +481,12 @@ PiLot.View.Diary = (function () {
 
 	/** 
 	 * Control containing photos for a day and the upload function in a collapsable box 
+	 * @param {HTMLElement} pContainer
+	 * @param {PiLot.View.Diary.DiaryPage} pDiaryPage
 	 * */
-	var DiaryPhotos = function (pContainer) {
+	var DiaryPhotos = function (pContainer, pDiaryPage) {
 		this.container = pContainer;
+		this.diaryPage = pDiaryPage;
 		this.control = null;
 		this.lnkEditPhotos = null;
 		this.pnlNoData = null;
@@ -548,7 +551,7 @@ PiLot.View.Diary = (function () {
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
 			const plhPhotoUpload = this.control.querySelector('.plhPhotoUpload');
-			this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this);
+			this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this.diaryPage);
 			this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
 			this.photoUpload.toggleVisible(false);
 			this.photoGallery = new DiaryPhotoGallery(this.control.querySelector('.plhPhotoGallery'));
