@@ -59,7 +59,7 @@ PiLot.Templates.Logbook = {
 		<div class="contentPadding fullHeight logbookPage">
 			<h1 class="fullWidth" data-text="logbook"></h1>
 			<div style="display:flex; flex-direction:row; flex-wrap: wrap-reverse; justify-content:flex-start;">
-				<div class="marginRightBig marginBottom" style="flex-grow:2; max-width: 56em;">
+				<div class="marginRightBig marginBottom" style="flex-grow:2;">
 					<div class="pnlNoEntries feedbackInfo" data-text="noLogbookEntries" hidden></div>
 					<div class="plhLogbookEntries logbookEntries"></div>
 				</div>
@@ -144,139 +144,36 @@ PiLot.Templates.Logbook = {
 		</div>`,
 
 	logbookEntryControl:
-		`<div class="logbookEntry marginBottom">
-			<div class="titleContainer">
-				<span class="lblTime inlineBlock semiBold"></span> <span class="lblTitle inlineBlock semiBold"></span>
-				<a href="#" class="btnEditEntry inlineBlock" data-title="edit"><i class="icon-pencil"></i></a>
-				<a href="#" class="btnDeleteEntry inlineBlock" data-title="delete"><i class="icon-bin"></i></a>
-			</div>
-			<div class="marginBottomSmall block lblNotes"></div>
-			<div class="logbookBoxes marginBottomSmall">
-				<div class="plhBoatSetup logbookBox logbookBoat"></div>
-				<div class="data">
-					<div class="logbookBox logbookMeteo">
-						<span class="semiBold inlineBlock marginBottomSmall" data-text="meteo"></span>
-						<span class="lblWeather block"></span>
-						<span class="lblTemperature block">
-							<span class="labelIcon"><i class="icon-thermometer-half"></i></span><span></span> °C
-						</span>
-						<span class="lblPressure block">
-							<span class="labelIcon"><i class="icon-barometer"></i></span><span></span> <span data-text="hPa"></span>
-						</span>
-						<div class="block">
-							<span class="lblWindForce">
-								<span class="labelIcon"><i class="icon-wind2"></i></span><span></span> <span data-text="bft"></span> <div class="inlineBlock" data-text="bft"></div>
-							</span>
-							<span class="lblWindDirection"></span>
-						</div>
-						<span class="lblWaveHeight block">
-							<span class="labelIcon"><i class="icon-sailing-boat-water1"></i></span><span></span> m
-						</span>
-					</div>
-					<div class="logbookBox logbookNav">
-						<div class="semiBold inlineBlock marginBottomSmall" data-text="nav"></div>
-						<div class="lblLat block">
-							<span class="labelSmall" data-text="latitudeShort"></span><span></span>
-						</div>
-						<div class="lblLon block">
-							<span class="labelSmall" data-text="longitudeShort"></span><span></span>
-						</div>
-						<div class="lblCOG block">
-							<span class="labelSmall" data-text="cog"></span><span></span>°
-						</div>
-						<div class="lblSOG block">
-							<span class="labelSmall" data-text="sog"></span><span></span> <span data-text="kn"></span>
-						</div>
-						<div class="lblLog block">
-							<span class="labelSmall" data-text="log"></span><span></span> <span data-text="nm"></span>
-						</div>
-					</div>
-				</div>
-			</div>
-		</div>`,
-
-	logbookHeaderRow: `
-		<div class="logbookRow flexRowWrap header">
-			<div class="outer general">
-				<div class="inner image">
-					<div class="cell boat"></div>
-				</div>
-				<div class="inner general">
-
-					<span class="cell time semiBold"></span>
-					<span class="cell title"></span>
-				</div>
-			</div>
-			<div class="outer data">
-				<div class="outer nav">
-					<div class="inner coordinates">
-					</div>
-					<div class="inner cogSogLog">
-						<div class="cell numberM" data-text="cog"></div>
-						<div class="cell numberM" data-text="sog"></div>
-						<div class="cell numberM" data-text="log"></div>
-					</div>
-				</div>
-				<div class="outer meteo">
-					<div class="inner weather">
-						<div class="cell weather" data-text="weather"></div>
-					</div>
-					<div class="flexRowWrap">
-						<div class="inner air">
-							<div class="cell numberM">°C</div>
-							<div class="cell numberL" data-text="hPa"></div>
-						</div>
-						<div class="inner wind">
-							<div class="cell numberL wind" data-text="wind"></div>
-							<div class="cell numberM">~</div>
-						</div>
-					</div>
-				</div>
-			</div>
-			<div class="icons"></div>
-		</div>
-	`,
-
-	logbookEntryControl2:
 		`<div class="logbookRow flexRowWrap">
 			<div class="outer general">
 				<div class="inner image">
 					<div class="plhBoatSetup cell boat"></div>
 				</div>
 				<div class="inner general">
-					<div class="flexRowWrap">
-						<span class="lblTime cell time semiBold"></span>
-						<span class="lblTitle cell title"></span>
-					</div>
+					<span class="lblTime cell time semiBold"></span>
+					<span class="lblTitle cell title"></span>
 				</div>
-				<div class="lblNotes italic inner notes"></div>
 			</div>
 			<div class="outer data">
 				<div class="outer nav">
 					<div class="inner coordinates">
-						<div class="lblLat cell coordinate"></div>
-						<div class="lblLon cell coordinate"></div>
+						<span class="lblLat coordinate">--°</span>
+						<span class="lblLon coordinate">---°</span>
 					</div>
 					<div class="inner cogSogLog">
-						<div class="lblCOG cell numberM"></div>
-						<div class="lblSOG cell numberM"></div>
-						<div class="lblLog cell numberM"></div>
+						<span class="lblCOG">---</span>° / <span class="lblSOG">-</span> <span data-text="kn"></span> / <span class="lblLog">-</span> <span data-text="nm"></span>
 					</div>
 				</div>
 				<div class="outer meteo">
 					<div class="inner weather">
 						<div class="lblWeather cell weather"></div>
 					</div>
-					<div class="flexRowWrap">
+					<div class="inner airWind">
 						<div class="inner air">
-							<div class="lblTemperature cell numberM"></div>
-							<div class="lblPressure cell numberL"></div>
+							<span class="lblTemperature">-</span>°C / <span class="lblPressure">----</span> <span data-text="hPa"></span>
 						</div>
 						<div class="inner wind">
-							<div class="cell numberL wind">
-								<span class="lblWindForce"></span>&nbsp;<span class="lblWindDirection"></span>
-							</div>
-							<div class="lblWaveHeight cell numberM"></div>
+							<span class="lblWindForce">-</span> <span data-text="bft"></span> <span class="lblWindDirection"></span> / <span class="lblWaveHeight">-</span> m
 						</div>
 					</div>
 				</div>
@@ -285,6 +182,7 @@ PiLot.Templates.Logbook = {
 				<a href="#" class="btnEditEntry" data-title="edit"><i class="icon-pencil"></i></a>
 				<a href="#" class="btnDeleteEntry" data-title="delete"><i class="icon-bin"></i></a>
 			</div>
+			<div class="lblNotes italic darkGrey notes"></div>
 		</div>`
 
 };

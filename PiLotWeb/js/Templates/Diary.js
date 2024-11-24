@@ -5,7 +5,7 @@ PiLot.Templates.Diary = {
 
 	diaryPage: `
 		<div class="fullHeight fullWidth">
-			<div class="logbookHeader fullWidth paddingLeftSmall paddingTopSmall paddingRightSmall">
+			<div class="diaryHeader fullWidth paddingLeftSmall paddingTopSmall paddingRightSmall">
 				<h1 class="inlineBlock lblFriendlyDate"></h1>
 				<div class="inlineBlock marginRight dateContainer">
 					<span class="icoLoading grey marginRight biggerText" hidden><i class="icon-hour-glass"></i></span>

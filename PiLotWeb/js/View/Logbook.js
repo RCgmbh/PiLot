@@ -222,7 +222,6 @@ PiLot.View.Logbook = (function () {
 		/** Clears and re-draws the entries  */
 		showData: function () {
 			this.container.clear();
-			this.container.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookHeaderRow));
 			this.logbookEntryControls = [];
 			this.logbookDay.sortEntries(this.sortDescending);
 			const logbookEntries = this.logbookDay.getLogbookEntries();
@@ -304,7 +303,7 @@ PiLot.View.Logbook = (function () {
 	
 		/** creates the display form */ 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryControl2);
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryControl);
 			this.entriesContainer.appendChild(control);
 			this.lblTime = control.querySelector('.lblTime');
 			this.lblTitle = control.querySelector('.lblTitle');
@@ -338,55 +337,33 @@ PiLot.View.Logbook = (function () {
 				let key = PiLot.Templates.Logbook.weatherTypes.find(e => e[0] == meteo.weather)[1];
 				this.lblWeather.innerText = PiLot.Utils.Language.getText(key);
 			}
-			this.showLabeledText(this.lblTemperature, meteo.temperature, 1);
-			this.showLabeledText(this.lblPressure, meteo.pressure, 1);
-			this.showLabeledText(this.lblWindForce, meteo.windForce, 0);
+			this.showText(this.lblTemperature, meteo.temperature);
+			this.showText(this.lblPressure, meteo.pressure);
+			this.showText(this.lblWindForce, meteo.windForce);
 			if (meteo.windDirection) {
 				let key = PiLot.Templates.Logbook.windDirections.find(e => e[0] == meteo.windDirection)[1];
 				this.lblWindDirection.innerText = PiLot.Utils.Language.getText(key);
 			}
-			this.showLabeledText(this.lblWaveHeight, meteo.waveHeight, 1);
-			this.showLabeledText(this.lblLat, PiLot.Utils.Nav.toCoordinateString(this.logbookEntry.getLatitude(), true, true));
-			this.showLabeledText(this.lblLon, PiLot.Utils.Nav.toCoordinateString(this.logbookEntry.getLongitude(), false, true));
-			this.showLabeledText(this.lblCOG, this.logbookEntry.getCOG(), 1);
-			this.showLabeledText(this.lblSOG, this.logbookEntry.getSOG(), 1);
-			this.showLabeledText(this.lblLog, this.logbookEntry.getLog(), 1);
+			this.showText(this.lblWaveHeight, meteo.waveHeight);
+			this.showText(this.lblLat, PiLot.Utils.Nav.toCoordinateString(this.logbookEntry.getLatitude(), true, true));
+			this.showText(this.lblLon, PiLot.Utils.Nav.toCoordinateString(this.logbookEntry.getLongitude(), false, true));
+			this.showText(this.lblCOG, this.logbookEntry.getCOG());
+			this.showText(this.lblSOG, this.logbookEntry.getSOG());
+			this.showText(this.lblLog, this.logbookEntry.getLog());
 			this.showBoatSetupImage.showBoatSetup(this.logbookEntry.getBoatSetup());
 		},
 
-		/**
-		 * Sets the form readonly or not, by hiding/showing the edit- and delete icon
-		 * @param {Boolean} pReadOnly
-		 */
 		toggleReadOnly: function (pReadOnly) {
 			this.btnDeleteEntry.hidden = pReadOnly;
 			this.btnEditEntry.hidden = pReadOnly;
 		},
 
-		/** 
-		 * shows the value inside a control which also contains a label. The value
-		 * is inserted (prepended to be precise) to the last span within pControl
-		 * If the value is null, the entire control is hidden.
-		 * */ 
-		showLabeledText: function (pControl, pText, pNumberFixed) {
-			/*if ((typeof pText !== 'undefined') && (pText !== null) && (pText !== '')) {
-				const inner = Array.from(pControl.querySelectorAll('span')).last();
-				if ((typeof pNumberFixed !== 'undefined') && (pNumberFixed !== null)) {
-					RC.Utils.showNumericValue(inner, pText, '', pNumberFixed);
-				} else {
-					RC.Utils.setText(pControl, pText);
-				}
-			} else {
-				RC.Utils.showHide(pControl, false);
-			}*/
-			if ((typeof pNumberFixed !== 'undefined') && (pNumberFixed !== null)) {
-				RC.Utils.showNumericValue(pControl, pText, '', pNumberFixed);
-			} else {
+		showText: function (pControl, pText) {
+			if (pText !== undefined && pText !== null && pText !== '') {
 				pControl.innerText = pText;
 			}
 		},
 
-		/** shows the time of the entry. */
 		showTime: function () {
 			let text = '';
 			const time = this.logbookEntry.getDateTime();
@@ -396,7 +373,6 @@ PiLot.View.Logbook = (function () {
 			this.lblTime.innerText = text;
 		},
 
-		/** deletes a logbook entry and notifies the observers */
 		deleteEntryAsync: async function () {
 			const success = await this.logbookEntry.deleteAsync();
 			RC.Utils.notifyObservers(this, this.observers, 'delete', null);
