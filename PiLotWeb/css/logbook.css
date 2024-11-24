@@ -31,7 +31,7 @@ body.night .logbookRow:nth-child(odd) {background-color:#222;}
 .logbookRow .outer.nav {flex-basis: 20%; flex-grow: 0.8; padding-right:1em; }
 .logbookRow .inner.coordinates { min-width: 9em; flex-direction:column;}
 .logbookRow .inner.cogSogLog { display:block; min-width: 12em; flex-basis:20%;  }
-.logbookRow .outer.meteo {flex-basis: 20%; padding-right: 1em;}
+.logbookRow .outer.meteo {flex-basis: 30%; padding-right: 1em;}
 .logbookRow .inner.weather {min-width: 9em; flex-basis:20%; }
 .logbookRow .inner.airWind { flex-basis: 60%; }
 .logbookRow .inner.air { display:block; min-width: 10em; }

@@ -59,11 +59,15 @@ PiLot.Templates.Logbook = {
 		<div class="contentPadding fullHeight logbookPage">
 			<h1 class="fullWidth" data-text="logbook"></h1>
 			<div style="display:flex; flex-direction:row; flex-wrap: wrap-reverse; justify-content:flex-start;">
-				<div class="marginRightBig marginBottom" style="flex-grow:2;">
-					<div class="pnlNoEntries feedbackInfo" data-text="noLogbookEntries" hidden></div>
-					<div class="plhLogbookEntries logbookEntries"></div>
+				<div class="marginRight marginBottom" style="flex-grow:2;">
+					<div class="easyShadow">
+						<div class="pnlNoEntries paddingAllSmall" hidden>
+							<div class="feedbackInfo" data-text="noLogbookEntries"></div>
+						</div>
+						<div class="plhLogbookEntries logbookEntries"></div>
+					</div>
 				</div>
-				<div class="marginBottom paddingRight addEntryLinks" style="flex-grow:1; flex-basis: 25vw;">
+				<div class="marginBottom marginRight paddingAllSmall easyShadow addEntryLinks" style="flex-grow:1; flex-basis: 25vw;">
 					<a href="#" class="lnkAddEntry block semiBold marginBottom"><i class="icon-plus marginRight"></i><span data-text="newLogbookEntry"></span></a>
 					<div style="display:flex; flex-direction:column; gap:0.5em;">
 						<div class="pnlRecentSetups" hidden>
