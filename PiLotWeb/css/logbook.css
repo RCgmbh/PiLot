@@ -96,6 +96,8 @@ body.night .logbookBox{border-color:#999}
 body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 
 .boatSetupForm { max-width: 21.5em; }
+.boatSetupDetails { width: 100vw; max-width: 34em; }
+.boatSetupDetails .image { position: relative; height: 18em; width:16em; }
 
 .diaryContent {width: 20em; flex-grow:10;}
 .diaryText { text-align:justify; line-height:1.4em; hyphens:auto; }

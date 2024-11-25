@@ -275,8 +275,8 @@ PiLot.View.Logbook = (function () {
 		this.lblCOG = null;
 		this.lblSOG = null;
 		this.lblLog = null;
-		this.showBoatSetupImage = null;				// PiLot.View.Boat.BoatImageLink
-
+		this.boatSetupImage = null;				// PiLot.View.Boat.BoatImageLink
+		this.boatSetupDetails = null;			// PiLot.View.Boat.BoatSetupDetails
 		this.initialize();
 	};
 
@@ -300,6 +300,9 @@ PiLot.View.Logbook = (function () {
 			this.editForm.showLogbookEntryAsync(this.logbookEntry);
 		},
 
+		boatSetupImage_click: function (e) {
+			this.boatSetupDetails.showBoatSetup(this.logbookEntry.getBoatSetup());
+		},
 	
 		/** creates the display form */ 
 		draw: function () {
@@ -323,7 +326,8 @@ PiLot.View.Logbook = (function () {
 			this.lblCOG = control.querySelector('.lblCOG');
 			this.lblSOG = control.querySelector('.lblSOG');
 			this.lblLog = control.querySelector('.lblLog');
-			this.showBoatSetupImage = new PiLot.View.Boat.BoatImageLink(null, control.querySelector('.plhBoatSetup'), null);
+			this.boatSetupImage = new PiLot.View.Boat.BoatImageLink(null, control.querySelector('.plhBoatSetup'), this.boatSetupImage_click.bind(this));
+			this.boatSetupDetails = new PiLot.View.Boat.BoatSetupDetails();
 			this.toggleReadOnly(this.isReadOnly);
 		},
 
@@ -350,7 +354,7 @@ PiLot.View.Logbook = (function () {
 			this.showText(this.lblCOG, this.logbookEntry.getCOG());
 			this.showText(this.lblSOG, this.logbookEntry.getSOG());
 			this.showText(this.lblLog, this.logbookEntry.getLog());
-			this.showBoatSetupImage.showBoatSetup(this.logbookEntry.getBoatSetup());
+			this.boatSetupImage.showBoatSetup(this.logbookEntry.getBoatSetup());
 		},
 
 		toggleReadOnly: function (pReadOnly) {

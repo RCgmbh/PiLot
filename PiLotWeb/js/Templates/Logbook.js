@@ -60,8 +60,8 @@ PiLot.Templates.Logbook = {
 			<h1 class="fullWidth" data-text="logbook"></h1>
 			<div style="display:flex; flex-direction:row; flex-wrap: wrap-reverse; justify-content:flex-start;">
 				<div class="marginRight marginBottom" style="flex-grow:2;">
-					<div class="easyShadow">
-						<div class="pnlNoEntries paddingAllSmall" hidden>
+					<div class="easyShadow paddingAllSmall">
+						<div class="pnlNoEntries" hidden>
 							<div class="feedbackInfo" data-text="noLogbookEntries"></div>
 						</div>
 						<div class="plhLogbookEntries logbookEntries"></div>

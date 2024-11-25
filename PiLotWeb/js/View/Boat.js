@@ -293,7 +293,6 @@ PiLot.View.Boat = (function () {
 		},
 
 		/**
-		 * Registers an observer that will be called when pEvent happens.
 		 * @param {String} pEvent - 'show', 'hide', 'apply'
 		 * @param {Function} pCallback - The method to call 
 		 * */
@@ -301,12 +300,11 @@ PiLot.View.Boat = (function () {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		/** Removes all registered observers for a certain event */
+		/** @param {String} pEvent - 'show', 'hide', 'apply' */
 		off: function (pEvent) {
 			RC.Utils.removeObservers(this.observers, pEvent);
 		},
 
-		/** Draws the form */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
 			document.body.insertAdjacentElement('afterbegin', this.control);
@@ -321,20 +319,17 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/** Reads the data and applies it to the BoatSetup, then hides the form */
 		apply: function () {
 			this.readInput();
 			this.hide();
 			RC.Utils.notifyObservers(this, this.observers, 'apply', this);
 		},
 
-		/** Hides the form */
 		cancel: function () {
 			this.showBoatSetup(this.boatSetup);
 			this.hide();
 		},
 
-		/** Shows the form and focuses on the first field */
 		show: function () {
 			this.control.hidden = false;
 			const firstSelector = this.plhFeatures.querySelector('select');
@@ -344,13 +339,11 @@ PiLot.View.Boat = (function () {
 			RC.Utils.notifyObservers(this, this.observers, 'show', this);
 		},
 
-		/** Hides the form */
 		hide: function () {
 			this.control.hidden = true;
 			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
 		},
 
-		/** sets the boatConfig and draws the feature selectors if necessary */
 		setBoatConfig: function (pBoatConfig) {
 			if ((this.boatConfig === null) || (pBoatConfig !== this.boatConfig)) {
 				this.boatConfig = pBoatConfig;
@@ -358,7 +351,6 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/** Adds the dropdowns with the states for each feature */
 		drawSelectors: function () {
 			while (this.plhFeatures.firstChild) {
 				this.plhFeatures.removeChild(this.plhFeatures.lastChild);
@@ -376,10 +368,7 @@ PiLot.View.Boat = (function () {
 			}.bind(this));
 		},
 
-		/**
-		 * sets and shows a boat setup, if the setup matches the current boat config
-		 * @param {PiLot.Model.Boat.BoatSetup} pSetup
-		 * */
+		/** @param {PiLot.Model.Boat.BoatSetup} pSetup */
 		showBoatSetup: function (pSetup) {
 			if (pSetup) {
 				if (this.boatConfig === null) {
@@ -398,7 +387,6 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/** Reads the selected feature states from the selectors and applies them to the boatSetup */
 		readInput: function () {
 			this.selectors.forEach(function (v, k, m) {
 				const stateId = Number(v.value);
@@ -410,7 +398,68 @@ PiLot.View.Boat = (function () {
 		getBoatSetup: function () {
 			return this.boatSetup;
 		}
+	};
 
+	/** Shows a BoatSetup (image and featureStates) in a read-only way */
+	var BoatSetupDetails = function () {
+		this.control = null;
+		this.boatImage = null;
+		this.plhFeatures = null;
+		this.initialize();
+	}
+
+	BoatSetupDetails.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		/** handles clicks on the dark background by closing the dialog */
+		pnlOverlay_click: function () {
+			this.hide();
+		},
+
+		/** makes sure that clicks are not bubbled to the background, which would close the window */
+		pnlDialog_click: function (pEvent) {
+			pEvent.stopPropagation();
+		},
+
+		lnkClose_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.hide();
+		},
+
+		draw: function () {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupDetails);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
+			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
+			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
+			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
+			this.boatImage = new BoatImageLink(null, this.control.querySelector('.plhImage'), null);
+			this.plhFeatures = this.control.querySelector('.plhFeatures');
+		},
+
+		showBoatSetup(pSetup) {
+			this.boatImage.showBoatSetup(pSetup);
+			this.plhFeatures.clear();
+			const boatConfig = pSetup.getBoatConfig();
+			let feature;
+			pSetup.getFeatureStates().forEach(function (pValue, pKey) {
+				const control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatFeatureInfo);
+				feature = boatConfig.getFeatures().get(pKey);
+				control.querySelector('.lblFeatureName').innerText = feature.getName();
+				control.querySelector('.lblFeatureState').innerText = feature.getStates().get(pValue).getName();
+				this.plhFeatures.appendChild(control);
+			}.bind(this));
+			document.body.classList.toggle('overflowHidden', true);
+			this.control.hidden = false;
+		},
+
+		hide: function () {
+			document.body.classList.toggle('overflowHidden', false);
+			this.control.hidden = true;
+		}
 	};
 
 	/** Page containing all available boat images allowing to select the current boat */
@@ -686,6 +735,7 @@ PiLot.View.Boat = (function () {
 		BoatImageConfig: BoatImageConfig,
 		BoatImageLink: BoatImageLink,
 		BoatSetupForm: BoatSetupForm,
+		BoatSetupDetails: BoatSetupDetails,
 		BoatPage: BoatPage,
 		StartPageBoatImage: StartPageBoatImage
 	};

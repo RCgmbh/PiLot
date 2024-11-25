@@ -24,6 +24,24 @@ PiLot.Templates.Boat = {
 			<select class="fullWidth marginBottomSmall selFeatureStates"></select>
 		</div>`,
 
+	boatSetupDetails:
+		`<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="pnlDialog boatSetupDetails dialogPanel hCenter">
+				<div class="flexRow bgLight paddingAllSmall" style="justify-content:right;">
+					<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
+				</div>
+				<div class="flexRowWrap paddingAllSmall" style="justify-content:center">
+					<div class="plhImage image marginRight"></div>
+					<div class="plhFeatures"></div>
+				</div>
+			</div>
+		</div>`,
+
+	boatFeatureInfo:
+		`<div class="flexRowWrap">
+			<span class="lblFeatureName col5"></span> <span class="lblFeatureState"></span>
+		</div>`,
+
 	boatPage:
 		`<div>
 			<div class="contentPadding marginRight">
@@ -38,9 +56,6 @@ PiLot.Templates.Boat = {
 			<span class="lblConfigName center"></span>
 		</div>`,
 
-	/*configSliderImageLeft: '<img style="height:100%;margin-left:-100%;" />',
-
-	configSliderImageRight: '<img style="height:100%;" />',*/
 
 	startPageBoatImage: `
 		<div class="border startPageBoat">
