@@ -432,7 +432,6 @@ PiLot.View.Boat = (function () {
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupDetails);
 			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
 			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
 			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));

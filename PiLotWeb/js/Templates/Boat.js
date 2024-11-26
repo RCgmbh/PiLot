@@ -27,18 +27,18 @@ PiLot.Templates.Boat = {
 	boatSetupDetails:
 		`<div class="pnlOverlay vCenter overlay" hidden>
 			<div class="pnlDialog boatSetupDetails dialogPanel hCenter">
-				<div class="flexRow bgLight paddingAllSmall" style="justify-content:right;">
+				<div class="flexRow bgLight paddingAllSmall" style="justify-content:flex-end;">
 					<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
 				</div>
 				<div class="flexRowWrap paddingAllSmall" style="justify-content:center">
 					<div class="plhImage image marginRight"></div>
-					<div class="plhFeatures"></div>
+					<div class="plhFeatures features"></div>
 				</div>
 			</div>
 		</div>`,
 
 	boatFeatureInfo:
-		`<div class="flexRowWrap">
+		`<div class="flexRowWrap" style="border-bottom:1px dotted;">
 			<span class="lblFeatureName col5"></span> <span class="lblFeatureState"></span>
 		</div>`,
 
