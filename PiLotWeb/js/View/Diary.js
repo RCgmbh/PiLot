@@ -162,23 +162,13 @@ PiLot.View.Diary = (function () {
 			if (this.logbookDay === null){
 				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(this.date);
 			}
-			this.showDataAsync();
-			this.icoLoading.hidden = true;
-		},
-
-		showDataAsync: async function () {
-			this.showFriendlyDate();
 			await Promise.all([
 				this.diaryTracksData.showDataAsync(this.date),
 				this.diaryText.showData(this.logbookDay),
 				this.diaryLogbook.showData(this.logbookDay)
 			]);
-			this.diaryPhotos.showDataAsync(this.date);			
-		},
-
-		showFriendlyDate: function () {
-			const locale = PiLot.Utils.Language.getLanguage();
-			this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale(locale).toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
+			this.icoLoading.hidden = true;
+			this.diaryPhotos.showDataAsync(this.date);	
 		},
 
 		showTopLink: function () {
@@ -198,6 +188,7 @@ PiLot.View.Diary = (function () {
 			this.date = pDate;
 			this.calendar.date(this.date.toLuxon().setLocale(PiLot.Utils.Language.getLanguage()));
 			this.calendar.showDate();
+			this.showFriendlyDate();
 			this.bindPreviousNextButtons();
 			this.bindLnkPublish();
 			this.saveDate();
@@ -206,6 +197,11 @@ PiLot.View.Diary = (function () {
 				window.history.pushState({}, '', url);
 			}
 			this.loadLogbookDayAsync();
+		},
+
+		showFriendlyDate: function () {
+			const locale = PiLot.Utils.Language.getLanguage();
+			this.lblFriendlyDate.innerText = this.date.toLuxon().setLocale(locale).toLocaleString({ weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' });
 		},
 
 		getDate: function () {
