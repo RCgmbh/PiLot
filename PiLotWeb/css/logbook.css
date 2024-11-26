@@ -18,9 +18,9 @@
 .logbookRow:nth-child(odd) {background-color:#eee;}
 body.night .logbookRow:nth-child(odd) {background-color:#222;}
 .logbookRow .outer, .logbookRow .inner {display: flex; flex-direction: row; flex-wrap: wrap; align-content:start; flex-grow: 1; flex-basis:10%;}
-.logbookRow .inner { } 
+.logbookRow .outer { padding-left:0.25em; padding-right: 0.75em; } 
 .logbookRow .cell { display:block; flex-grow: 1; }
-.logbookRow .outer.general {flex-basis: 10%; padding-right: 1em;}
+.logbookRow .outer.general {flex-basis: 10%; flex-wrap: wrap-reverse; }
 .logbookRow .inner.general {flex-basis: 7em;}
 .logbookRow .inner.image {flex-grow: 0; padding-right: 0.5em;}
 .logbookRow .cell.time {min-width: 3em;}
@@ -28,10 +28,10 @@ body.night .logbookRow:nth-child(odd) {background-color:#222;}
 .logbookRow .cell.boat {width: 3em; height: 4em; position: relative;}
 .logbookRow .notes {flex-basis: 100%; padding:2px;}
 .logbookRow .outer.data {flex-basis: 50%;}
-.logbookRow .outer.nav {flex-basis: 20%; flex-grow: 0.8; padding-right:1em; }
+.logbookRow .outer.nav {flex-basis: 20%; flex-grow: 0.8; }
 .logbookRow .inner.coordinates { min-width: 9em; flex-direction:column;}
 .logbookRow .inner.cogSogLog { display:block; min-width: 12em; flex-basis:20%;  }
-.logbookRow .outer.meteo {flex-basis: 30%; padding-right: 1em;}
+.logbookRow .outer.meteo {flex-basis: 30%; }
 .logbookRow .inner.weather {min-width: 9em; flex-basis:20%; }
 .logbookRow .inner.airWind { flex-basis: 60%; }
 .logbookRow .inner.air { display:block; min-width: 10em; }
