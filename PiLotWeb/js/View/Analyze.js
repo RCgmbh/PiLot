@@ -13,11 +13,10 @@ PiLot.View.Analyze = (function () {
 		initialize: function(){
 			PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(1728345600000, 1728432000000, true, true).then(
 				function(pTracks){
-					new PiLot.Model.Analyze.TackAnalyzer(pTracks[0], 10);
+					const analyzer = new PiLot.Model.Analyze.TackAnalyzer(pTracks[0], 1);
+					console.log(analyzer.findTacks(50, 15, 30, 80));
 				}				
 			);
-			new PiLot.Model.Analyze.TackAnalyzer
-
 		},
 		
 		draw: function () {}
