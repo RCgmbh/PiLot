@@ -15,6 +15,7 @@
 .logbookBoxes .data.editable .logbookBox { flex-basis:10em; flex-grow:1; max-width: 15em; min-width: 10em;}
 .logbookBox { min-height: 11em; padding: 0.125em 0.25em; border: 1px solid #ccc; }
 
+.logbookRow { hyphens: auto;}
 .logbookRow:nth-child(odd) {background-color:#eee;}
 body.night .logbookRow:nth-child(odd) {background-color:#222;}
 .logbookRow .outer, .logbookRow .inner {display: flex; flex-direction: row; flex-wrap: wrap; align-content:start; flex-grow: 1; flex-basis:10%;}
