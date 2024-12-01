@@ -15,7 +15,6 @@ namespace PiLot.Utils.OS {
 	public class WiFiHelper {
 
         private SystemHelper systemHelper;
-		private Boolean isLinux;
 
         public WiFiHelper(){
             this.systemHelper = new SystemHelper();

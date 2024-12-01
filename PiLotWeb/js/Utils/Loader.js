@@ -45,6 +45,7 @@ PiLot.Utils.Loader = (function () {
 		boatTime: { key: 'boatTime'},
 		language: {key: 'language'},
 		tools: {key: 'tools'},
+		analyze: {key: 'analyze'},
 		data: {key: 'data'},
 		tiles: { key: 'tiles'},
 		pois: { key: 'pois'},
@@ -178,6 +179,12 @@ PiLot.Utils.Loader = (function () {
 		{ url: 'js/3rdParty/divers/analogclock.js', priority: 10 }
 	];
 
+	const analyzeScripts = [
+		{ url: 'js/Model/Analyze.js', priority: 10 },
+		{ url: 'js/View/Analyze.js', priority: 10 },
+		{ url: 'js/Templates/Analyze.js', priority: 10 }
+	];
+
 	/**
 	 * Main entry point to dynamically load script files and load the
 	 * right page content based on a querystring.
@@ -275,6 +282,10 @@ PiLot.Utils.Loader = (function () {
 				case pages.tools:
 					dependencies = [defaultScripts, toolsScripts];
 					startAction = function () { new PiLot.View.Tools.ToolsOverviewPage(); };
+					break;
+				case pages.analyze:
+					dependencies = [defaultScripts, navScripts, logbookScripts, logbookScripts, analyzeScripts];
+					startAction = () => new PiLot.View.Analyze.AnalyzePage(); 
 					break;
 				case pages.data:
 					dependencies = [defaultScripts, navScripts, flotScripts, toolsScripts, boatScripts];
