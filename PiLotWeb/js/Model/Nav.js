@@ -1693,14 +1693,19 @@ PiLot.Model.Nav = (function () {
 			}
 		},
 
-		/** @returns {Boolean} - whether the track has any points */
+		/** @returns {Boolean} */
 		hasTrackPoints: function () {
 			return this.trackPoints.length > 0;
 		},
 
-		/** @returns {TrackPoint[]} - all track points */
+		/** @returns {TrackPoint[]} */
 		getTrackPoints: function () {
 			return this.trackPoints;
+		},
+
+		/** @returns {Number} */
+		getTrackPointsCount: function(){
+			return this.track.length;
 		},
 
 		/** @returns {Number[][]} - an array containing arrays with lat, lng */
