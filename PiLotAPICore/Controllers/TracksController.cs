@@ -33,9 +33,25 @@ namespace PiLot.API.Controllers {
 		}
 
 		/// <summary>
+		/// Gets the track by its id.
+		/// </summary>
+		/// <param name="id">The track id</param>
+		[Route(Program.APIROOT + "[controller]/{id}")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public Track GetTrack(Int32 id) {
+			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
+			if (dataConnector.SupportsTrackIDs) {
+				return DataConnectionHelper.TrackDataConnector.ReadTrack(id);
+			} else {
+				return null;
+			}
+		}
+
+		/// <summary>
 		/// Gets the track segments for a track defined by its id.
 		/// </summary>
-		/// <param name="pTrackId">The track id</param>
+		/// <param name="id">The track id</param>
 		[Route(Program.APIROOT + "[controller]/{id}/Segments")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]

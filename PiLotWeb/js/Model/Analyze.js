@@ -47,7 +47,7 @@ PiLot.Model.Analyze = (function () {
 			console.log(this.samples);
 		},
 
-		findTacks: function (pMinLegLength, pMaxSampleAngle, pMaxTurnDistance, pMinTurnAngle) {
+		findTacks: function (pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle) {
 			let result = [];
 			if (this.samples.length > 0) {
 				let leg1 = { distance: 0, samples: [] };
@@ -55,12 +55,12 @@ PiLot.Model.Analyze = (function () {
 				let leg;
 				let currentSample = this.samples[0];
 				let nextSample;
-				let leg1Bearing, leg2Bearing;
+				let leg1Bearing, leg2Bearing, angle;
 				for (let i = 1; i < this.samples.length; i++) {
 					nextSample = this.samples[i];
 					if (Math.abs(this.getAngle(this.getSampleBearing(currentSample), this.getSampleBearing(nextSample))) > pMaxSampleAngle) {	// it's not straight, don't continue the leg
 						if (!leg2) {
-							if (leg1.distance >= pMinLegLength) {
+							if (leg1.distance >= pMinLeg1Length) {
 								leg2 = this.createLeg(nextSample);								// start leg2 with the sample, if leg1 is long enough
 							} else {
 								leg1 = this.createLeg(nextSample);								// reset leg1, restart it with the sample
@@ -76,21 +76,26 @@ PiLot.Model.Analyze = (function () {
 					} else {
 						if (!leg2) {
 							this.addSampleToLeg(leg1, nextSample);
-							this.cropLeg(leg1, pMinLegLength);
+							this.cropLeg(leg1, pMinLeg1Length);
 						} else {
 							this.addSampleToLeg(leg2, nextSample);
-							this.cropLeg(leg2, pMinLegLength);
+							this.cropLeg(leg2, pMinLeg2Length);
 						}
 					}
 					if (leg2) {
-						if (leg2.distance >= pMinLegLength) {
-							if (Math.abs(this.getAngle(this.getLegBearing(leg1), this.getLegBearing(leg2))) > pMinTurnAngle) {
-								result.push({leg1: leg1, leg2: leg2});
+						if (leg2.distance >= pMinLeg2Length) {
+							leg1Bearing = this.getLegBearing(leg1);
+							leg2Bearing = this.getLegBearing(leg2);
+							angle = this.getAngle(leg1Bearing, leg2Bearing);
+							if (Math.abs(angle) > pMinTurnAngle) {
+								result.push({ leg1: this.legToLatLngArray(leg1), leg2: this.legToLatLngArray(leg2), angle: angle });
 								const tackStart = RC.Date.DateHelper.millisToLuxon(leg1.samples.last()[1].getBoatTime());
 								const tackEnd = RC.Date.DateHelper.millisToLuxon(leg2.samples[0][1].getBoatTime());
-								console.log(`Tack found: ${tackStart.toLocaleString(DateTime.TIME_WITH_SECONDS)}-${tackEnd.toLocaleString(DateTime.TIME_WITH_SECONDS)}`);
+								console.log(`Tack found: ${tackStart.toLocaleString(DateTime.TIME_WITH_SECONDS)}-${tackEnd.toLocaleString(DateTime.TIME_WITH_SECONDS)}, angle: ${angle}`);
+								console.log(result.last());
 								leg1 = leg2;
 								leg2 = null;
+								console.log(result.last());
 							}
 						}
 					}
@@ -102,6 +107,10 @@ PiLot.Model.Analyze = (function () {
 
 		createLeg: function (pSample) {
 			return { distance: pSample[2], samples: [pSample] }
+		},
+
+		legToLatLngArray: function(pLeg){
+			return [pLeg.samples[0][0].getLatLng(), pLeg.samples.last()[1].getLatLng()]
 		},
 
 		addSampleToLeg: function(pLeg, pSample){
@@ -125,7 +134,9 @@ PiLot.Model.Analyze = (function () {
 		},
 
 		getAngle: function (pBearing1, pBearing2) {
-			const angle = ((pBearing1 - pBearing2 - 540) % 360) + 180;
+			const angle = ((pBearing2 - pBearing1  + 540) % 360) - 180;
+			console.log(`angle ${pBearing1} to ${pBearing2} = ${angle}`);
+			//console.log(`${pBearing2} - ${pBearing1} -180 mod -360 = ${(pBearing2 - pBearing1  - 180) % -360}`);
 			return angle;
 		}
 	};
