@@ -44,7 +44,6 @@ PiLot.Model.Analyze = (function () {
 					}					
 				}
 			}
-			console.log(this.samples);
 		},
 
 		findTacks: function (pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle) {
@@ -66,21 +65,21 @@ PiLot.Model.Analyze = (function () {
 								leg1 = this.createLeg(nextSample);								// reset leg1, restart it with the sample
 							}
 						} else {
-							if (leg1.samples.last()[1].getLatLon().distanceTo(nextSample[0].getLatLon()) > pMaxTurnDistance) {
-								leg2 = null;													// restart, leg 2 would be too far from leg 2
-								leg1 = this.createLeg(nextSample);
-							} else {
-								leg2 = this.createLeg(nextSample);								// restart leg2 with the next sample
-							}
+							leg2 = this.createLeg(nextSample);									// restart leg2 with the next sample
 						}
-					} else {
-						if (!leg2) {
-							this.addSampleToLeg(leg1, nextSample);
-							this.cropLeg(leg1, pMinLeg1Length);
-						} else {
-							this.addSampleToLeg(leg2, nextSample);
+					} else {																	// it's going straight, continue the current leg
+						if (leg2) {
+							this.addSampleToLeg(leg2, nextSample);								
 							this.cropLeg(leg2, pMinLeg2Length);
-						}
+						} else {
+							this.addSampleToLeg(leg1, nextSample);								
+							this.cropLeg(leg1, pMinLeg1Length);
+						}						
+					}
+					if (leg2 &&  (leg1.samples.last()[1].getLatLon().distanceTo(leg2.samples[0][0].getLatLon()) > pMaxTurnDistance)) { // leg 2 is too far from leg1, set leg2 as leg1
+						leg1 = leg2;
+						leg2 = null;
+						this.cropLeg(leg1, pMinLeg1Length);
 					}
 					if (leg2) {
 						if (leg2.distance >= pMinLeg2Length) {
@@ -89,13 +88,8 @@ PiLot.Model.Analyze = (function () {
 							angle = this.getAngle(leg1Bearing, leg2Bearing);
 							if (Math.abs(angle) > pMinTurnAngle) {
 								result.push({ leg1: this.legToLatLngArray(leg1), leg2: this.legToLatLngArray(leg2), angle: angle });
-								const tackStart = RC.Date.DateHelper.millisToLuxon(leg1.samples.last()[1].getBoatTime());
-								const tackEnd = RC.Date.DateHelper.millisToLuxon(leg2.samples[0][1].getBoatTime());
-								console.log(`Tack found: ${tackStart.toLocaleString(DateTime.TIME_WITH_SECONDS)}-${tackEnd.toLocaleString(DateTime.TIME_WITH_SECONDS)}, angle: ${angle}`);
-								console.log(result.last());
 								leg1 = leg2;
 								leg2 = null;
-								console.log(result.last());
 							}
 						}
 					}
@@ -135,8 +129,7 @@ PiLot.Model.Analyze = (function () {
 
 		getAngle: function (pBearing1, pBearing2) {
 			const angle = ((pBearing2 - pBearing1  + 540) % 360) - 180;
-			console.log(`angle ${pBearing1} to ${pBearing2} = ${angle}`);
-			//console.log(`${pBearing2} - ${pBearing1} -180 mod -360 = ${(pBearing2 - pBearing1  - 180) % -360}`);
+			//console.log(`angle ${pBearing1} to ${pBearing2} = ${angle}`);
 			return angle;
 		}
 	};

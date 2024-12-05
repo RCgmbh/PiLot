@@ -74,22 +74,22 @@ PiLot.View.Analyze = (function () {
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.analyzePage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
 			this.rngMinSampleLength = pageContent.querySelector('.rngMinSampleLength');
-			this.rngMinSampleLength.addEventListener('click', this.rngMinSampleLength_change.bind(this));
+			this.rngMinSampleLength.addEventListener('input', this.rngMinSampleLength_change.bind(this));
 			this.lblMinSampleLength = pageContent.querySelector('.lblMinSampleLength');
 			this.rngMaxSampleAngle = pageContent.querySelector('.rngMaxSampleAngle');
-			this.rngMaxSampleAngle.addEventListener('click', this.rngMaxSampleAngle_change.bind(this));
+			this.rngMaxSampleAngle.addEventListener('input', this.rngMaxSampleAngle_change.bind(this));
 			this.lblMaxSampleAngle = pageContent.querySelector('.lblMaxSampleAngle');
 			this.rngMinTurnAngle = pageContent.querySelector('.rngMinTurnAngle');
-			this.rngMinTurnAngle.addEventListener('click', this.rngMinTurnAngle_change.bind(this));
+			this.rngMinTurnAngle.addEventListener('input', this.rngMinTurnAngle_change.bind(this));
 			this.lblMinTurnAngle = pageContent.querySelector('.lblMinTurnAngle');
 			this.rngMaxTurnDistance = pageContent.querySelector('.rngMaxTurnDistance');
-			this.rngMaxTurnDistance.addEventListener('click', this.rngMaxTurnDistance_change.bind(this));
+			this.rngMaxTurnDistance.addEventListener('input', this.rngMaxTurnDistance_change.bind(this));
 			this.lblMaxTurnDistance = pageContent.querySelector('.lblMaxTurnDistance');
 			this.rngMinLeg1Length = pageContent.querySelector('.rngMinLeg1Length');
-			this.rngMinLeg1Length.addEventListener('click', this.rngMinLeg1Length_change.bind(this));
+			this.rngMinLeg1Length.addEventListener('input', this.rngMinLeg1Length_change.bind(this));
 			this.lblMinLeg1Length = pageContent.querySelector('.lblMinLeg1Length');
 			this.rngMinLeg2Length = pageContent.querySelector('.rngMinLeg2Length');
-			this.rngMinLeg2Length.addEventListener('click', this.rngMinLeg2Length_change.bind(this));
+			this.rngMinLeg2Length.addEventListener('input', this.rngMinLeg2Length_change.bind(this));
 			this.lblMinLeg2Length = pageContent.querySelector('.lblMinLeg2Length');
 			this.pnlNoData = pageContent.querySelector('.pnlNoData');
 			const map = new PiLot.View.Map.Seamap(pageContent.querySelector('.pnlMap'));
@@ -166,6 +166,14 @@ PiLot.View.Analyze = (function () {
 		showTack: function (pTack) {
 			this.showLeg(pTack.leg1);
 			this.showLeg(pTack.leg2);
+			const html = `<div>${Math.round(pTack.angle)}°</div>`
+			const icon = L.divIcon({
+				className: `tackMarker`, iconSize: [null, null], html: html
+			});
+			const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 1000 };
+			const position = L.LineUtil.polylineCenter([pTack.leg1[0], pTack.leg2[1]], L.CRS.EPSG3857);
+			const marker = L.marker(position, options);
+			marker.addTo(this.tacksLayerGroup);
 		},
 
 		showLeg: function (pLeg) {
