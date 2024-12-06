@@ -109,6 +109,7 @@ PiLot.View.Settings = (function () {
 
 	/** The page where the user can change the UI language */
 	var LanguagePage = function () {
+		this.pnlSuccess = null;
 		this.initialize();
 	};
 
@@ -116,6 +117,7 @@ PiLot.View.Settings = (function () {
 
 		initialize: function () {
 			this.draw();
+			this.showFeedback();
 		},
 
 		draw: function () {
@@ -129,11 +131,19 @@ PiLot.View.Settings = (function () {
 			RC.Utils.fillDropdown(ddlLanguages, languages, null);
 			ddlLanguages.value = PiLot.Utils.Language.getLanguage();
 			ddlLanguages.addEventListener('change', this.ddlLanguages_change.bind(this));
+			this.pnlSuccess = languagePage.querySelector('.pnlSuccess');
+		},
+
+		showFeedback: function(){
+			if(RC.Utils.getUrlParameter('ok') == 'ok'){
+				this.pnlSuccess.hidden = false;
+			}
 		},
 
 		ddlLanguages_change: function (pEvent) {
 			PiLot.Utils.Language.setLanguage(pEvent.target.value);
-			document.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.settings);
+			const url = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.language);
+			document.location = RC.Utils.setUrlParameter(document.location, 'ok', 'ok');
 		}
 	};
 

@@ -6,7 +6,7 @@ PiLot.Templates.Analyze = {
 	analyzePage: `
 		<div class="fullHeight fullWidth">
 			<div class="fullWidth paddingLeftSmall paddingTopSmall paddingRightSmall">
-				<h1>Tack Angles</h1>
+				<h1 data-text="tackAngles"></h1>
 			</div>
 			<div class="flexRowWrap reverse">
 				<div class="contentColumn marginLeftSmall marginRightSmall">
@@ -19,7 +19,7 @@ PiLot.Templates.Analyze = {
 					<div class="pnlSettings flexRowWrap easyShadow bgLight paddingAllSmall">
 						<h3 data-text="settings"></h3>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Scale</span>
+							<span class="col6 marginRight" data-text="scale"></span>
 							<div class="col10 flex">
 								<select class="ddlSliderScale input8">
 									<option value="1">1</option>
@@ -29,42 +29,42 @@ PiLot.Templates.Analyze = {
 							</div>
 						</div>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Sample</span>
+							<span class="col6 marginRight" data-text="sample"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinSampleLength input8 marginRightSmall" min="0" max="50" step="1" />
 								<span class="lblMinSampleLength"></span>&nbsp;m
 							</div>
 						</div>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Max. Abweichung</span>
+							<span class="col6 marginRight" data-text="maximalDeviation"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMaxSampleAngle input8" min="0" max="180" step="1" />
 								<span class="lblMaxSampleAngle"></span>°
 							</div>
 						</div>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Min. Wendewinkel</span>
+							<span class="col6 marginRight" data-text="minimalTackAngle"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinTurnAngle input8" min="0" max="180" step="1" />
 								<span class="lblMinTurnAngle"></span>°
 							</div>
 						</div>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Max Wendedistanz</span>
+							<span class="col6 marginRight" data-text="maximalTackDistance"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMaxTurnDistance input8" min="0" max="100" step="1" />
 								<span class="lblMaxTurnDistance"></span>&nbsp;m
 							</div>
 						</div>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Min. Leg 1</span>
+							<span class="col6 marginRight" data-text="minimalLeg1"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinLeg1Length input8" min="0" max="100" step="1" />
 								<span class="lblMinLeg1Length"></span>&nbsp;m
 							</div>
 						</div>
 						<div class="flexRowWrap paddingRight paddingBottom">
-							<span class="col6 marginRight">Min. Leg 2</span>
+							<span class="col6 marginRight" data-text="minimalLeg2"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinLeg2Length input8" min="0" max="100" step="1" />
 								<span class="lblMinLeg2Length"></span>&nbsp;m

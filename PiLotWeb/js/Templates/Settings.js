@@ -44,6 +44,7 @@ PiLot.Templates.Settings = {
 		<div class="contentPadding">
 			<h1><a href="#" class="lnkSettings" data-text="settings"></a> : <span data-text="language"></span></h1>
 			<select class="input6 ddlLanguages"></select>
+			<div class="pnlSuccess feedbackGood marginTop marginRight" data-text="languageChanged" hidden>
 		</div>
 	`
 }
