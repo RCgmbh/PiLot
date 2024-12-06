@@ -129,6 +129,11 @@ body.night .dialogPanel { background-color: black; }
 .sideMenu.expanded > .expandCollapse > .expand { display: none; }
 .sideMenu.expanded > .expandCollapse > .collapse { display: inline-block; }
 
+.contentColumn {width: 20em; flex-grow:10;}
+.contextColumn {width: 20em; max-width:40em; flex-grow:1;}
+.contextColumn .navMap { height:20em; max-height: 80vh; }
+.contextColumn.expanded {width: 100%; max-width:100%; }
+.contextColumn.expanded .navMap { height:80vh; max-height: 80vh; }
 
 div.hr { display: inline-block; border-top: 0.125em solid #3265AD; height: 0.125em; }
 

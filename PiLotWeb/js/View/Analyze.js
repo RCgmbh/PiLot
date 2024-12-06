@@ -5,6 +5,8 @@ PiLot.View = PiLot.View || {};
 PiLot.View.Analyze = (function () {
 	
 	var AnalyzePage = function () {
+		this.ddlSliderScale = null;
+		this.sliderScale = null;
 		this.rngMinSampleLength = null;
 		this.lblMinSampleLength = null;
 		this.rngMaxSampleAngle = null;
@@ -30,13 +32,18 @@ PiLot.View.Analyze = (function () {
 
 		initializeAsync: async function(){
 			await this.drawAsync();
+			this.loadSliderScale();
 			await this.loadTrackAsync();
 			
 		},
+
+		ddlSliderScale_change: function (pSender){
+			this.adjustSliderScale(pSender.target.value);
+		}, 
 		
 		rngMinSampleLength_change: function(pSender){
-			this.analyzerOptions.minSampleLength = pSender.target.value;
-			this.lblMinSampleLength.innerText = pSender.target.value;
+			this.analyzerOptions.minSampleLength = this.getScaledRangeValue(pSender.target);
+			this.lblMinSampleLength.innerText = this.analyzerOptions.minSampleLength;
 			this.analyzeAndShowTrack(false);
 		},
 
@@ -53,26 +60,28 @@ PiLot.View.Analyze = (function () {
 		},
 
 		rngMaxTurnDistance_change: function(pSender){
-			this.analyzerOptions.maxTurnDistance = pSender.target.value;
-			this.lblMaxTurnDistance.innerText = pSender.target.value;
+			this.analyzerOptions.maxTurnDistance = this.getScaledRangeValue(pSender.target);
+			this.lblMaxTurnDistance.innerText = this.analyzerOptions.maxTurnDistance;
 			this.analyzeAndShowTrack(false);
 		},
 
 		rngMinLeg1Length_change: function(pSender){
-			this.analyzerOptions.minLeg1Length = pSender.target.value;
-			this.lblMinLeg1Length.innerText = pSender.target.value;
+			this.analyzerOptions.minLeg1Length = this.getScaledRangeValue(pSender.target);
+			this.lblMinLeg1Length.innerText = this.analyzerOptions.minLeg1Length;
 			this.analyzeAndShowTrack(false);
 		},
 
 		rngMinLeg2Length_change: function(pSender){
-			this.analyzerOptions.minLeg2Length = pSender.target.value;
-			this.lblMinLeg2Length.innerText = pSender.target.value;
+			this.analyzerOptions.minLeg2Length = this.getScaledRangeValue(pSender.target);
+			this.lblMinLeg2Length.innerText = this.analyzerOptions.minLeg2Length;
 			this.analyzeAndShowTrack(false);
 		},
 
 		drawAsync: async function () {
 			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.analyzePage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
+			this.ddlSliderScale = pageContent.querySelector('.ddlSliderScale');
+			this.ddlSliderScale.addEventListener('change', this.ddlSliderScale_change.bind(this));
 			this.rngMinSampleLength = pageContent.querySelector('.rngMinSampleLength');
 			this.rngMinSampleLength.addEventListener('input', this.rngMinSampleLength_change.bind(this));
 			this.lblMinSampleLength = pageContent.querySelector('.lblMinSampleLength');
@@ -138,18 +147,27 @@ PiLot.View.Analyze = (function () {
 		},
 
 		showOptions: function(){
-			this.rngMinSampleLength.value = this.analyzerOptions.minSampleLength;
+			this.ddlSliderScale.value = this.sliderScale;
+			this.setScaledRangeValue(this.rngMinSampleLength, this.analyzerOptions.minSampleLength);
 			this.lblMinSampleLength.innerText = this.analyzerOptions.minSampleLength;
 			this.rngMaxSampleAngle.value = this.analyzerOptions.maxSampleAngle;
 			this.lblMaxSampleAngle.innerText = this.analyzerOptions.maxSampleAngle;
 			this.rngMinTurnAngle.value = this.analyzerOptions.minTurnAngle;
 			this.lblMinTurnAngle.innerText = this.analyzerOptions.minTurnAngle;
-			this.rngMaxTurnDistance.value = this.analyzerOptions.maxTurnDistance;
+			this.setScaledRangeValue(this.rngMaxTurnDistance, this.analyzerOptions.maxTurnDistance);
 			this.lblMaxTurnDistance.innerText = this.analyzerOptions.maxTurnDistance;
-			this.rngMinLeg1Length.value = this.analyzerOptions.minLeg1Length;
+			this.setScaledRangeValue(this.rngMinLeg1Length, this.analyzerOptions.minLeg1Length);
 			this.lblMinLeg1Length.innerText = this.analyzerOptions.minLeg1Length;
-			this.rngMinLeg2Length.value = this.analyzerOptions.minLeg2Length;
+			this.setScaledRangeValue(this.rngMinLeg2Length,  this.analyzerOptions.minLeg2Length);
 			this.lblMinLeg2Length.innerText = this.analyzerOptions.minLeg2Length;
+		},
+
+		setScaledRangeValue: function(pRange, pValue){
+			pRange.value = Math.ceil(pValue / this.sliderScale);
+		},
+
+		getScaledRangeValue: function(pRange){
+			return pRange.value * this.sliderScale;
 		},
 
 		initializeDefaultOptions: function () {
@@ -180,6 +198,19 @@ PiLot.View.Analyze = (function () {
 			const polyline = L.polyline(
 				pLeg, PiLot.Templates.Analyze.tackLineOptions
 			).addTo(this.tacksLayerGroup);
+		},
+
+		loadSliderScale: function(){
+			this.sliderScale = PiLot.Utils.Common.loadUserSetting('PiLot.View.Analyze.sliderScale') || 10;
+		},
+
+		adjustSliderScale: function(pScale){
+			this.sliderScale = Number(pScale);
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.sliderScale', this.sliderScale);
+			this.setScaledRangeValue(this.rngMinSampleLength, this.analyzerOptions.minSampleLength);
+			this.setScaledRangeValue(this.rngMaxTurnDistance, this.analyzerOptions.maxTurnDistance);
+			this.setScaledRangeValue(this.rngMinLeg1Length, this.analyzerOptions.minLeg1Length);
+			this.setScaledRangeValue(this.rngMinLeg2Length,  this.analyzerOptions.minLeg2Length);
 		}
 
 	};

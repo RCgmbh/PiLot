@@ -16,8 +16,8 @@ PiLot.Templates.Diary = {
 				</div>
 			</div>
 			<div class="flexRowWrap reverse">
-				<div class="plhMainContent diaryContent marginLeftSmall marginRightSmall"></div>
-				<div class="pnlContext diaryContext marginLeftSmall marginRightSmall"></div>
+				<div class="plhMainContent contentColumn marginLeftSmall marginRightSmall"></div>
+				<div class="pnlContext contextColumn marginLeftSmall marginRightSmall"></div>
 			</div>
 			<div class="marginLeft marginBottom">
 				<a href="#" class="lnkPublish"><i class="icon-podcast marginRightSmall"></i><span data-text="publish"></span></a>

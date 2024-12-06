@@ -101,13 +101,8 @@ body.night .logbookMeteo, body.night .logbookNav { background-color: #000; }
 .boatSetupDetails .image { position: relative; height: 18em; width:16em; }
 .boatSetupDetails .features { width:17em; }
 
-.diaryContent {width: 20em; flex-grow:10;}
 .diaryText { text-align:justify; line-height:1.4em; hyphens:auto; }
 textarea.diaryText { text-align: left; hyphens: none; }
-.diaryContext {width: 20em; max-width:40em; flex-grow:1;}
-.diaryContext .navMap { height:20em; max-height: 80vh; }
-.diaryContext.expanded {width: 100%; max-width:100%; }
-.diaryContext.expanded .navMap { height:80vh; max-height: 80vh; }
 
 .diaryPhotos { width:100%; display:flex; flex-direction:row; flex-wrap:wrap; justify-content:center; }
 

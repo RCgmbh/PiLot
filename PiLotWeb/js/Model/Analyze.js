@@ -59,7 +59,7 @@ PiLot.Model.Analyze = (function () {
 					nextSample = this.samples[i];
 					if (Math.abs(this.getAngle(this.getSampleBearing(currentSample), this.getSampleBearing(nextSample))) > pMaxSampleAngle) {	// it's not straight, don't continue the leg
 						if (!leg2) {
-							if (leg1.distance >= pMinLeg1Length) {
+							if (leg1.samples.length && (leg1.distance >= pMinLeg1Length)) {
 								leg2 = this.createLeg(nextSample);								// start leg2 with the sample, if leg1 is long enough
 							} else {
 								leg1 = this.createLeg(nextSample);								// reset leg1, restart it with the sample
@@ -76,12 +76,12 @@ PiLot.Model.Analyze = (function () {
 							this.cropLeg(leg1, pMinLeg1Length);
 						}						
 					}
-					if (leg2 &&  (leg1.samples.last()[1].getLatLon().distanceTo(leg2.samples[0][0].getLatLon()) > pMaxTurnDistance)) { // leg 2 is too far from leg1, set leg2 as leg1
+					if (leg2 && leg2.samples.length && (leg1.samples.last()[1].getLatLon().distanceTo(leg2.samples[0][0].getLatLon()) > pMaxTurnDistance)) { // leg 2 is too far from leg1, set leg2 as leg1
 						leg1 = leg2;
 						leg2 = null;
 						this.cropLeg(leg1, pMinLeg1Length);
 					}
-					if (leg2) {
+					if (leg2 && leg2.samples.length) {
 						if (leg2.distance >= pMinLeg2Length) {
 							leg1Bearing = this.getLegBearing(leg1);
 							leg2Bearing = this.getLegBearing(leg2);
@@ -113,7 +113,7 @@ PiLot.Model.Analyze = (function () {
 		},
 
 		cropLeg: function (pLeg, pMinLegLength) {
-			while(pLeg.distance - pLeg.samples[0][2] > pMinLegLength){
+			while(pLeg.samples.length && (pLeg.distance - pLeg.samples[0][2] > pMinLegLength)){
 				const sample = pLeg.samples.shift();
 				pLeg.distance -= sample[2]
 			}
