@@ -597,6 +597,8 @@ PiLot.View.Diary = (function () {
 		this.tracksList = null;							// PiLot.View.Nav.TracksList
 		this.plhSpeedDiagram = null;
 		this.trackStatistics = null;					// PiLot.View.Nav.TrackStatistics
+		this.pnlAnalyzeTrack = null;
+		this.lnkAnalyzeTrack = null;
 		this.plhNoData = null;
 		this.observers = null;
 		this.initialize();
@@ -655,6 +657,7 @@ PiLot.View.Diary = (function () {
 		tracksList_trackSelected: function (pSender, pTrack) {
 			this.showSpeedDiagram(pTrack);
 			this.showTrackStatistics(pTrack);
+			this.showAnalyzeTrackLink(pTrack);
 		},
 
 		draw: function () {
@@ -688,6 +691,8 @@ PiLot.View.Diary = (function () {
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
 			this.plhSpeedDiagram = control.querySelector('.plhSpeedDiagram');
 			this.trackStatistics = new PiLot.View.Nav.TrackStatistics(control.querySelector('.plhTrackStatistics'));
+			this.pnlAnalyzeTrack = control.querySelector('.pnlAnalyzeTrack');
+			this.lnkAnalyzeTrack = control.querySelector('.lnkAnalyzeTrack');
 			this.pnlNoData = control.querySelector('.pnlNoData');
 		},
 
@@ -728,6 +733,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		loadTracksAsync: async function (pDate) {
+			this.pnlAnalyzeTrack.hidden = true;
 			const startMS = pDate.toLuxon().toMillis();
 			const endMS = pDate.addDays(1).toLuxon().toMillis();
 			this.tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
@@ -770,6 +776,12 @@ PiLot.View.Diary = (function () {
 			} else {
 				this.trackStatistics.hide();
 			}
+		},
+
+		showAnalyzeTrackLink: function (pTrack) {
+			this.pnlAnalyzeTrack.hidden = false;
+			const url = RC.Utils.setUrlParameter(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.analyze), 'track', pTrack.getId());
+			this.lnkAnalyzeTrack.href = url;
 		}
 	};
 
