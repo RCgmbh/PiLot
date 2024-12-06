@@ -4,21 +4,21 @@ PiLot.Templates = PiLot.Templates || {};
 PiLot.Templates.Analyze = {
 
 	analyzePage: `
-		<div class="fullHeight fullWidth">
+		<div class="fullHeight fullWidth flexColumn">
 			<div class="fullWidth paddingLeftSmall paddingTopSmall paddingRightSmall">
 				<h1 data-text="tackAngles"></h1>
 			</div>
-			<div class="flexRowWrap reverse">
-				<div class="contentColumn marginLeftSmall marginRightSmall">
+			<div class="flexRowWrap reverse grow">
+				<div class="contentColumn marginLeftSmall marginRightSmall flex">
 					<div class="pnlNoData feedbackWarning marginAll" data-text="noData" hidden></div>
-					<div class="easyShadow">
-						<div class="pnlMap" style="height: 80vh;"></div>
+					<div class="easyShadow grow marginBottom">
+						<div class="pnlMap" style="height: 100%; min-height: 70vh;"></div>
 					</div>
 				</div>
 				<div class="contextColumn marginLeftSmall marginRightSmall">
-					<div class="pnlSettings flexRowWrap easyShadow bgLight paddingAllSmall">
+					<div class="pnlSettings flexRowWrap easyShadow bgLight paddingAllSmall marginBottomSmall">
 						<h3 data-text="settings"></h3>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="scale"></span>
 							<div class="col10 flex">
 								<select class="ddlSliderScale input8">
@@ -28,42 +28,42 @@ PiLot.Templates.Analyze = {
 								</select>
 							</div>
 						</div>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="sample"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinSampleLength input8 marginRightSmall" min="0" max="50" step="1" />
 								<span class="lblMinSampleLength"></span>&nbsp;m
 							</div>
 						</div>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="maximalDeviation"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMaxSampleAngle input8" min="0" max="180" step="1" />
 								<span class="lblMaxSampleAngle"></span>°
 							</div>
 						</div>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="minimalTackAngle"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinTurnAngle input8" min="0" max="180" step="1" />
 								<span class="lblMinTurnAngle"></span>°
 							</div>
 						</div>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="maximalTackDistance"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMaxTurnDistance input8" min="0" max="100" step="1" />
 								<span class="lblMaxTurnDistance"></span>&nbsp;m
 							</div>
 						</div>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="minimalLeg1"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinLeg1Length input8" min="0" max="100" step="1" />
 								<span class="lblMinLeg1Length"></span>&nbsp;m
 							</div>
 						</div>
-						<div class="flexRowWrap paddingRight paddingBottom">
+						<div class="flexRowWrap paddingRight paddingBottomSmall">
 							<span class="col6 marginRight" data-text="minimalLeg2"></span>
 							<div class="col10 flex">
 								<input type="range" class="rngMinLeg2Length input8" min="0" max="100" step="1" />
