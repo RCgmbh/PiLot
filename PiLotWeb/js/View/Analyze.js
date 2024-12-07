@@ -23,6 +23,7 @@ PiLot.View.Analyze = (function () {
 		this.mapTrack = null;			// PiLot.View.Map.MapTrack
 		this.tacksLayerGroup = null;	
 		this.track = null;
+		this.tackAnalyzer = null;		// PiLot.Model.Analyze.TackAnalyzer
 		this.analyzerOptions = null;
 		this.pnlNoData = null;
 		this.initializeAsync();
@@ -115,6 +116,7 @@ PiLot.View.Analyze = (function () {
 			if (trackId) {
 				this.track = await PiLot.Service.Nav.TrackService.getInstance().loadTrackAsync(trackId);
 				await this.loadAnalyzerOptionsAsync();
+				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
 			}
 			this.analyzeAndShowTrack();
 		},
@@ -123,8 +125,8 @@ PiLot.View.Analyze = (function () {
 			if (this.track) {
 				this.pnlNoData.hidden = true;
 				this.mapTrack.setTracks([this.track], pZoomToTrack);
-				const analyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track, this.analyzerOptions.minSampleLength);
-				const tacks = analyzer.findTacks(
+				const tacks = this.tackAnalyzer.findTacks(
+					this.analyzerOptions.minSampleLength,
 					this.analyzerOptions.maxSampleAngle,
 					this.analyzerOptions.minLeg1Length,
 					this.analyzerOptions.minLeg2Length,
@@ -141,7 +143,7 @@ PiLot.View.Analyze = (function () {
 		},
 
 		loadAnalyzerOptionsAsync: async function () {
-			// load the options for the boat of the current track, if they exist
+			// todo: load the options for the boat of the current track, if they exist
 			this.initializeDefaultOptions();
 			this.showOptions();
 		},
@@ -189,7 +191,7 @@ PiLot.View.Analyze = (function () {
 				className: `tackMarker`, iconSize: [null, null], html: html
 			});
 			const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 1000 };
-			const position = L.LineUtil.polylineCenter([pTack.leg1[0], pTack.leg2[1]], L.CRS.EPSG3857);
+			const position = L.PolyUtil.polygonCenter([pTack.leg1[0], pTack.leg1[1], pTack.leg2[0], pTack.leg2[1]], L.CRS.EPSG3857);
 			const marker = L.marker(position, options);
 			marker.addTo(this.tacksLayerGroup);
 		},

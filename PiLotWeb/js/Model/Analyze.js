@@ -6,22 +6,19 @@ PiLot.Model.Analyze = (function () {
 	/**
 	 * Finds tacks in a track and calculates tack angles 
 	 * @param {PiLot.Model.Nav.Track} pTrack
-	 * @param {Number} pMinSampleLength - minimal sample length in meters
 	 * */
-	var TackAnalyzer = function(pTrack, pMinSampleLength){
+	var TackAnalyzer = function(pTrack, ){
 		this.track = pTrack;
-		this.minSampleLength = pMinSampleLength;
+		this.minSampleLength = null;
 		this.samples;								// array of arrays with point1, point2, distance, total distance, bearing
 		this.initialize();
 	};
 
 	TackAnalyzer.prototype = {
 
-		initialize: function(){
-			this.preprocessTrack();
-		},
+		initialize: function(){ },
 
-		preprocessTrack: function(){
+		sampleTrack: function(){
 			this.samples = [];
 			if(this.track && this.track.getTrackPointsCount() > 1){
 				const trackPoints = this.track.getTrackPoints();
@@ -46,7 +43,11 @@ PiLot.Model.Analyze = (function () {
 			}
 		},
 
-		findTacks: function (pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle) {
+		findTacks: function (pMinSampleLength, pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle) {
+			if (this.minSampleLength !== pMinSampleLength) {
+				this.minSampleLength = pMinSampleLength;
+				this.sampleTrack();
+			}
 			let result = [];
 			if (this.samples.length > 0) {
 				let leg1 = { distance: 0, samples: [] };
@@ -129,7 +130,6 @@ PiLot.Model.Analyze = (function () {
 
 		getAngle: function (pBearing1, pBearing2) {
 			const angle = ((pBearing2 - pBearing1  + 540) % 360) - 180;
-			//console.log(`angle ${pBearing1} to ${pBearing2} = ${angle}`);
 			return angle;
 		}
 	};
