@@ -180,6 +180,7 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	const analyzeScripts = [
+		{ url: 'js/Service/Analyze.js', priority: 10 },
 		{ url: 'js/Model/Analyze.js', priority: 10 },
 		{ url: 'js/View/Analyze.js', priority: 10 },
 		{ url: 'js/Templates/Analyze.js', priority: 10 }

@@ -608,6 +608,7 @@ PiLot.View.Diary = (function () {
 
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.track = null;
 			this.draw();
 			this.applyPermissions()
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
@@ -655,9 +656,10 @@ PiLot.View.Diary = (function () {
 		},
 
 		tracksList_trackSelected: function (pSender, pTrack) {
-			this.showSpeedDiagram(pTrack);
-			this.showTrackStatistics(pTrack);
-			this.showAnalyzeTrackLink(pTrack);
+			this.track = pTrack;
+			this.showSpeedDiagram();
+			this.showTrackStatistics();
+			this.showAnalyzeTrackLink();
 		},
 
 		draw: function () {
@@ -698,6 +700,7 @@ PiLot.View.Diary = (function () {
 
 		applyPermissions: function () {
 			this.lnkEditTrack.hidden = !PiLot.Permissions.canWrite();
+			this.pnlAnalyzeTrack.hidden = !PiLot.Permissions.canWrite() || this.track === null;
 		},
 
 		applyMapBoxEmptyStyle: function () {
@@ -758,31 +761,31 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
-		/** @param {PiLot.Model.Nav.Track} pTrack */
-		showSpeedDiagram: function (pTrack) {
-			if (pTrack && pTrack.getTrackPointsCount() > 0) {
+		showSpeedDiagram: function () {
+			if (this.track && this.track.getTrackPointsCount() > 0) {
 				this.plhSpeedDiagram.hidden = false;
-				new PiLot.View.Tools.SpeedDiagram(this.plhSpeedDiagram, pTrack);
+				new PiLot.View.Tools.SpeedDiagram(this.plhSpeedDiagram, this.track);
 			} else {
 				this.plhSpeedDiagram.hidden = true;
 			}
 		},
 
-		/** @param {PiLot.Model.Nav.Track} pTrack */
-		showTrackStatistics: function (pTrack) {
+		showTrackStatistics: function () {
 			const disabled = PiLot.Config.Disable && PiLot.Config.Disable.trackSections;
-			if (!disabled && pTrack && pTrack.getTrackPointsCount() > 0) {
-				this.trackStatistics.showTrackStatisticsAsync(pTrack);
+			if (!disabled && this.track && this.track.getTrackPointsCount() > 0) {
+				this.trackStatistics.showTrackStatisticsAsync(this.track);
 			} else {
 				this.trackStatistics.hide();
 			}
 		},
 
-		showAnalyzeTrackLink: function (pTrack) {
-			if (pTrack) {
+		showAnalyzeTrackLink: function () {
+			if (this.track && PiLot.Permissions.canWrite()) {
 				this.pnlAnalyzeTrack.hidden = false;
-				const url = RC.Utils.setUrlParameter(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.analyze), 'track', pTrack.getId());
+				const url = RC.Utils.setUrlParameter(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.analyze), 'track', this.track.getId());
 				this.lnkAnalyzeTrack.href = url;
+			} else {
+				this.pnlAnalyzeTrack.hidden = true;
 			}
 		}
 	};

@@ -8,7 +8,7 @@ using PiLot.Utils.Logger;
 namespace PiLot.Data.Files {
 
 	/// <summary>
-	/// Reads and saves Routes inlcuding Waypoints 
+	/// Reads and saves the current AnchorWatch
 	/// </summary>
 	public class AnchorWatchDataConnector {
 
@@ -88,7 +88,7 @@ namespace PiLot.Data.Files {
 		/// <summary>
 		/// Returns the path for the anchorWatch file, usually /global/anchorWatch.json. The file
 		/// will not be created, if it does not exist, so this can theoretically return an
-		/// inexistand path.
+		/// inexistant path.
 		/// </summary>
 		private String GetFilePath() {
 			return Path.Combine(this.GetDirectoryPath(), DATAFILE);

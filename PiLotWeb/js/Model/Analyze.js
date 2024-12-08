@@ -117,8 +117,8 @@ PiLot.Model.Analyze = (function () {
 
 		createTackInfo: function(pLeg1, pLeg2, pBearing1, pBearing2, pAngle){
 			return { 
-				leg1: this.legToLatLngArray(pLeg1), 
-				leg2: this.legToLatLngArray(pLeg2), 
+				leg1: {start: pLeg1.samples[0][0], end: pLeg1.samples.last()[1]},
+				leg2: {start: pLeg2.samples[0][0], end: pLeg2.samples.last()[1]},
 				angle: pAngle, 
 				windDirection: this.getWindDirection(pBearing2, pAngle)
 			};

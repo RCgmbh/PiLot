@@ -192,8 +192,10 @@ PiLot.View.Analyze = (function () {
 			const icon = L.divIcon({
 				className: `tackMarker`, iconSize: [null, null], html: html
 			});
-			const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 1000 };
-			const position = L.PolyUtil.polygonCenter([pTack.leg1[1], pTack.leg2[0]], L.CRS.EPSG3857);
+			const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 2000 };
+			const latLng1 = pTack.leg1.end.getLatLng();
+			const latLng2 = pTack.leg2.start.getLatLng();
+			const position = [(latLng1[0] + latLng2[0]) / 2, (latLng1[1] + latLng2[1]) / 2];
 			const marker = L.marker(position, options);
 			marker.addTo(this.tacksLayerGroup);
 			console.log(`Wind direction: ${pTack.windDirection}`);
@@ -201,7 +203,7 @@ PiLot.View.Analyze = (function () {
 
 		showLeg: function (pLeg) {
 			const polyline = L.polyline(
-				pLeg, PiLot.Templates.Analyze.tackLineOptions
+				[pLeg.start.getLatLng(), pLeg.end.getLatLng()], PiLot.Templates.Analyze.tackLineOptions
 			).addTo(this.tacksLayerGroup);
 		},
 
