@@ -19,6 +19,8 @@ PiLot.View.Analyze = (function () {
 		this.lblMinLeg1Length = null;
 		this.rngMinLeg2Length = null;
 		this.lblMinLeg2Length = null;
+		this.lnkSaveSettings = null;
+		this.pnlSaveSuccess = null;
 		this.leafletMap = null;
 		this.mapTrack = null;			// PiLot.View.Map.MapTrack
 		this.tacksLayerGroup = null;	
@@ -191,9 +193,10 @@ PiLot.View.Analyze = (function () {
 				className: `tackMarker`, iconSize: [null, null], html: html
 			});
 			const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 1000 };
-			const position = L.PolyUtil.polygonCenter([pTack.leg1[0], pTack.leg1[1], pTack.leg2[0], pTack.leg2[1]], L.CRS.EPSG3857);
+			const position = L.PolyUtil.polygonCenter([pTack.leg1[1], pTack.leg2[0]], L.CRS.EPSG3857);
 			const marker = L.marker(position, options);
 			marker.addTo(this.tacksLayerGroup);
+			console.log(`Wind direction: ${pTack.windDirection}`);
 		},
 
 		showLeg: function (pLeg) {

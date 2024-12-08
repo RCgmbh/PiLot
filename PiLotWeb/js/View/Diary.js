@@ -779,9 +779,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		showAnalyzeTrackLink: function (pTrack) {
-			this.pnlAnalyzeTrack.hidden = false;
-			const url = RC.Utils.setUrlParameter(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.analyze), 'track', pTrack.getId());
-			this.lnkAnalyzeTrack.href = url;
+			if (pTrack) {
+				this.pnlAnalyzeTrack.hidden = false;
+				const url = RC.Utils.setUrlParameter(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.analyze), 'track', pTrack.getId());
+				this.lnkAnalyzeTrack.href = url;
+			}
 		}
 	};
 

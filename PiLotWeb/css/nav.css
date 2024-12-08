@@ -50,7 +50,7 @@ body.night .poiMarker { filter: brightness(50%); }
 .osmPoiMarker { border-bottom-left-radius:0; background-color: rgba(170, 170, 170, 0.8); }
 .osmPoiMarker.active {background-color: rgba(178, 211, 255, 0.8);} 
 
-.tackMarker {left:-1em; top: -0.75em; background-color: rgba(238, 102, 102, 0.5); border: 1px solid rgb(238, 102, 102); border-radius: 0.25em; padding:0em 0.25em;}
+.tackMarker {left:-1.5em; top: -0.75em; background-color: rgba(250, 200, 88, 0.9); border: 1px solid rgb(238, 102, 102); border-radius: 0.25em; padding:0em 0.25em;}
 
 .osmPoiDetails { padding: 1px 2px; border: 2px solid #eee; border-width: 1px 0px;}
 .osmPoiDetails.active{ border: 2px solid #4992FF; padding: 0px;}
@@ -73,7 +73,6 @@ body.night .poiMarker { filter: brightness(50%); }
 
 .anchorWatchWarning,
 .navOutdatedDataWarning { z-index:11100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
-
 
 .navLiveRoute { padding: 0em 0em 0em 2em; font-size:2em; max-width:60em; }
 .navLiveRoute .lblRouteName { font-size: 1.25em; padding:0.5rem 0rem 0.25rem 0rem; display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width: 100%; text-align: center;}

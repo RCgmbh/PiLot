@@ -70,6 +70,10 @@ PiLot.Templates.Analyze = {
 								<span class="lblMinLeg2Length"></span>&nbsp;m
 							</div>
 						</div>
+						<div class="flexRowWrap marginTop paddingRight paddingBottomSmall">
+							<a href="#" class="lnkSaveSettings block"><i class="icon-floppy-disk marginRightSmall"></i><span data-text="saveSettings"></span></a>
+							<div data-text="saveSettingsSuccess" class="pnlSaveSuccess feedbackGood marginTopSmall" hidden></div>
+						</div>
 					</div>
 				</div>
 			</div>
