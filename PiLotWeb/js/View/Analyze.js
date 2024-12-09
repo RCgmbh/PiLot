@@ -5,6 +5,7 @@ PiLot.View = PiLot.View || {};
 PiLot.View.Analyze = (function () {
 	
 	var AnalyzePage = function () {
+		this.tackAnalyzeService = null;
 		this.ddlSliderScale = null;
 		this.sliderScale = null;
 		this.rngMinSampleLength = null;
@@ -33,51 +34,50 @@ PiLot.View.Analyze = (function () {
 
 	AnalyzePage.prototype = {
 
-		initializeAsync: async function(){
+		initializeAsync: async function () {
+			this.tackAnalyzeService = new PiLot.Service.Analyze.TackAnalyzeService();
 			await this.drawAsync();
 			this.loadSliderScale();
+			const authHelper = PiLot.Model.Common.AuthHelper.instance();
+			authHelper.on('login', this.authHelper_change.bind(this));
+			authHelper.on('logout', this.authHelper_change.bind(this));
 			await this.loadTrackAsync();
-			
 		},
 
-		ddlSliderScale_change: function (pSender){
-			this.adjustSliderScale(pSender.target.value);
+		authHelper_change: function () {
+			this.applyPermissions();
+		},
+
+		ddlSliderScale_change: function (pEvent){
+			this.adjustSliderScale(pEvent.target.value);
 		}, 
 		
-		rngMinSampleLength_change: function(pSender){
-			this.analyzerOptions.minSampleLength = this.getScaledRangeValue(pSender.target);
-			this.lblMinSampleLength.innerText = this.analyzerOptions.minSampleLength;
-			this.analyzeAndShowTrack(false);
+		rngMinSampleLength_change: function(pEvent){
+			this.changeOption('minSampleLength', pEvent.target.value, this.lblMinSampleLength, true);
 		},
 
-		rngMaxSampleAngle_change: function(pSender){
-			this.analyzerOptions.maxSampleAngle = pSender.target.value;
-			this.lblMaxSampleAngle.innerText = pSender.target.value;
-			this.analyzeAndShowTrack(false);
+		rngMaxSampleAngle_change: function(pEvent){
+			this.changeOption('maxSampleAngle', pEvent.target.value, this.lblMaxSampleAngle, false);
 		},
 
-		rngMinTurnAngle_change: function(pSender){
-			this.analyzerOptions.minTurnAngle = pSender.target.value;
-			this.lblMinTurnAngle.innerText = pSender.target.value;
-			this.analyzeAndShowTrack(false);
+		rngMinTurnAngle_change: function(pEvent){
+			this.changeOption('minTurnAngle', pEvent.target.value, this.lblMinTurnAngle, false);
 		},
 
-		rngMaxTurnDistance_change: function(pSender){
-			this.analyzerOptions.maxTurnDistance = this.getScaledRangeValue(pSender.target);
-			this.lblMaxTurnDistance.innerText = this.analyzerOptions.maxTurnDistance;
-			this.analyzeAndShowTrack(false);
+		rngMaxTurnDistance_change: function(pEvent){
+			this.changeOption('maxTurnDistance', pEvent.target.value, this.lblMaxTurnDistance, true);
 		},
 
-		rngMinLeg1Length_change: function(pSender){
-			this.analyzerOptions.minLeg1Length = this.getScaledRangeValue(pSender.target);
-			this.lblMinLeg1Length.innerText = this.analyzerOptions.minLeg1Length;
-			this.analyzeAndShowTrack(false);
+		rngMinLeg1Length_change: function(pEvent){
+			this.changeOption('minLeg1Length', pEvent.target.value, this.lblMinLeg1Length, true);
 		},
 
-		rngMinLeg2Length_change: function(pSender){
-			this.analyzerOptions.minLeg2Length = this.getScaledRangeValue(pSender.target);
-			this.lblMinLeg2Length.innerText = this.analyzerOptions.minLeg2Length;
-			this.analyzeAndShowTrack(false);
+		rngMinLeg2Length_change: function(pEvent){
+			this.changeOption('minLeg2Length', pEvent.target.value, this.lblMinLeg2Length, true);
+		},
+
+		lnkSaveSettings_click: function (pEvent) {
+			this.saveAnalyzerOptionsAsync();
 		},
 
 		drawAsync: async function () {
@@ -103,12 +103,19 @@ PiLot.View.Analyze = (function () {
 			this.rngMinLeg2Length = pageContent.querySelector('.rngMinLeg2Length');
 			this.rngMinLeg2Length.addEventListener('input', this.rngMinLeg2Length_change.bind(this));
 			this.lblMinLeg2Length = pageContent.querySelector('.lblMinLeg2Length');
+			this.lnkSaveSettings = pageContent.querySelector('.lnkSaveSettings');
+			this.lnkSaveSettings.addEventListener('click', this.lnkSaveSettings_click.bind(this));
+			this.pnlSaveSuccess = pageContent.querySelector('.pnlSaveSuccess');
 			this.pnlNoData = pageContent.querySelector('.pnlNoData');
 			const map = new PiLot.View.Map.Seamap(pageContent.querySelector('.pnlMap'));
 			await map.showAsync();
 			this.leafletMap = map.getLeafletMap();
 			this.mapTrack = new PiLot.View.Map.MapTrack(map);
 			this.tacksLayerGroup = L.layerGroup().addTo(this.leafletMap);
+		},
+
+		applyPermissions: function () {
+			this.lnkSaveSettings.hidden = !PiLot.Permissions.canWrite();
 		},
 
 		loadTrackAsync: async function () {
@@ -125,7 +132,6 @@ PiLot.View.Analyze = (function () {
 
 		analyzeAndShowTrack: function (pZoomToTrack = true) {
 			if (this.track) {
-				this.pnlNoData.hidden = true;
 				this.mapTrack.setTracks([this.track], pZoomToTrack);
 				const tacks = this.tackAnalyzer.findTacks(
 					this.analyzerOptions.minSampleLength,
@@ -140,14 +146,27 @@ PiLot.View.Analyze = (function () {
 					this.showTack(aTack);
 				}
 			} else {
-				this.pnlNoData.hidden = false;
+				this.lnkSaveSettings.hidden = true;
 			}
+			this.pnlNoData.hidden = this.tack !== null;
 		},
 
 		loadAnalyzerOptionsAsync: async function () {
-			// todo: load the options for the boat of the current track, if they exist
-			this.initializeDefaultOptions();
+			if (this.track) {
+				this.analyzerOptions = await this.tackAnalyzeService.loadTackAnalyzerOptionsAsync(this.track.getBoat());
+			}
+			if (!this.analyzerOptions) {
+				this.initializeDefaultOptions();
+			}
 			this.showOptions();
+			this.pnlSaveSuccess.hidden = true;
+		},
+
+		saveAnalyzerOptionsAsync: async function () {
+			if (this.track) {
+				await this.tackAnalyzeService.saveTackAnalyzerOptionsAsync(this.track.getBoat(), this.analyzerOptions);
+				this.pnlSaveSuccess.hidden = false;
+			}
 		},
 
 		showOptions: function(){
@@ -166,12 +185,21 @@ PiLot.View.Analyze = (function () {
 			this.lblMinLeg2Length.innerText = this.analyzerOptions.minLeg2Length;
 		},
 
+		changeOption: function (pOptionsKey, pValue, pLabel, pIsScaled) {
+			const value = pIsScaled ? this.getScaledRangeValue(pValue) : pValue;
+			this.analyzerOptions[pOptionsKey] = value;
+			pLabel.innerText = value;
+			this.pnlSaveSuccess.hidden = true;
+			this.lnkSaveSettings.hidden = !PiLot.Permissions.canWrite();
+			this.analyzeAndShowTrack(false);
+		},
+
 		setScaledRangeValue: function(pRange, pValue){
 			pRange.value = Math.ceil(pValue / this.sliderScale);
 		},
 
-		getScaledRangeValue: function(pRange){
-			return pRange.value * this.sliderScale;
+		getScaledRangeValue: function(pValue){
+			return pValue * this.sliderScale;
 		},
 
 		initializeDefaultOptions: function () {
@@ -219,7 +247,6 @@ PiLot.View.Analyze = (function () {
 			this.setScaledRangeValue(this.rngMinLeg1Length, this.analyzerOptions.minLeg1Length);
 			this.setScaledRangeValue(this.rngMinLeg2Length,  this.analyzerOptions.minLeg2Length);
 		}
-
 	};
 
 	/// return the classes

@@ -610,7 +610,7 @@ PiLot.View.Diary = (function () {
 			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
 			this.track = null;
 			this.draw();
-			this.applyPermissions()
+			this.applyPermissions();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			authHelper.on('login', this.authHelper_change.bind(this));
 			authHelper.on('logout', this.authHelper_change.bind(this));

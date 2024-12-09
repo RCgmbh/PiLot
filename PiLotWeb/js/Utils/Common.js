@@ -197,7 +197,7 @@ PiLot.Utils.Common = {
 				}
 			}
 		}
-		else  {
+		else if (result.status !== 204) {
 			try {
 				const responseType = response.headers.get('Content-Type');
 				if (responseType !== null) {
