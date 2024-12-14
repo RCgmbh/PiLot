@@ -469,10 +469,13 @@ body { min-width: 20em; }
 #main { display: flex; flex-grow: 1; margin-top: 3em; }
 #header > div { width: 33%; flex-grow: 1; padding: 0em 0.75rem; display:flex; }
 #header > #hamburger { padding-top: 0.25em; padding-bottom: 0.25em; }
-#header > #hamburger > a { width:2em; height: 100%; padding:0em 0.5em; box-shadow: 0px 0px 8px black; }
+#header > #hamburger > a { width:2em; height: 100%; padding:0em 0.5em; box-shadow: 0px 0px 8px black; border: 1px solid #668; }
 #header > #hamburger > a:active {box-shadow: 0px 0px 1px black; } 
 #header > #headerButtons { justify-content: flex-end; padding-top:0.25em; padding-bottom:0.25em; }
-#header > #headerButtons > #headerIcons { display:flex; padding: 0em 0.25em; border-radius:1.25em; box-shadow: 0px 0px 8px -2px black inset; }
+#header > #headerButtons > #headerIcons {
+	display:flex; padding: 0em 0.25em; border-radius:1.25em; box-shadow: 0px 0px 8px -2px black inset;
+	border: 1px solid #668;
+}
 #header > #headerButtons .icon {padding: 0rem 0.5rem; font-size: 1.25em;}
 #header > #clock { 
 	display:none;
@@ -550,10 +553,7 @@ body { min-width: 20em; }
 		padding: 0.4em;
 		background-color: #386cb5;
 		box-shadow: 0px 2px 8px -2px black inset;
-		border-top: 1px solid #446;
-		border-right: 1px solid #aab;
-		border-bottom: 1px solid #bbc;
-		border-left: 1px solid #668;
+		border: 1px solid #668;
 	}
 }
 

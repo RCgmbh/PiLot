@@ -338,7 +338,7 @@ PiLot.Service.Nav = (function () {
 
 		/** @returns {PiLot.Model.Nav.Track} the track with id = pTrackId or null */
 		loadTrackAsync: async function (pTrackId) {
-			let resul = null;
+			let result = null;
 			const url = `/Tracks/${pTrackId}`;
 			const json = await PiLot.Utils.Common.getFromServerAsync(url);
 			if (json) {
@@ -367,6 +367,14 @@ PiLot.Service.Nav = (function () {
 				return x.compareTo(y);
 			});
 			return result;
+		},
+
+		/**
+		 * Loads all tracks for a day, based on BoatTime
+		 * @param {RC.Date.DateOnly} pDate
+		 **/
+		loadTracksByDateAsync: async function(pDate){
+			return await this.loadTracksAsync(pDate.toMillis(), pDate.addDays(1).toMillis(), true, true);
 		},
 
 		/**

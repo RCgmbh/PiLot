@@ -1282,8 +1282,8 @@ PiLot.View.Nav = (function () {
 	 * */
 	var TracksList = function (pContainer) {
 		this.container = pContainer;
+		this.control = null;
 		this.trackInfos = null;
-		this.plhTracks = null;
 		this.observers = null;
 		this.initialize();
 	};
@@ -1315,17 +1315,16 @@ PiLot.View.Nav = (function () {
 		},
 
 		draw: function () {
-			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.tracksList);
-			this.container.appendChild(control);
-			this.plhTracks = control.querySelector('.plhTracks');
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.tracksList);
+			this.container.appendChild(this.control);
 		},
 
 		showTracks: function (pTracks) {
-			this.plhTracks.clear();
+			this.control.clear();
 			this.trackInfos = [];
 			let selectedTrack = null;
 			for (let i = 0; i < pTracks.length; i++) {
-				let trackInfo = new TrackInfo(this.plhTracks, pTracks[i]).on("selected", this.trackInfo_selected.bind(this));
+				let trackInfo = new TrackInfo(this.control, pTracks[i]).on("selected", this.trackInfo_selected.bind(this));
 				this.trackInfos.push(trackInfo);
 				if (i == 0) {
 					trackInfo.select();

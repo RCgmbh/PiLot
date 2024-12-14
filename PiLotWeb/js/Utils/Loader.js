@@ -285,7 +285,7 @@ PiLot.Utils.Loader = (function () {
 					startAction = function () { new PiLot.View.Tools.ToolsOverviewPage(); };
 					break;
 				case pages.analyze:
-					dependencies = [defaultScripts, navScripts, logbookScripts, logbookScripts, analyzeScripts];
+					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts, analyzeScripts];
 					startAction = () => new PiLot.View.Analyze.AnalyzePage(); 
 					break;
 				case pages.data:

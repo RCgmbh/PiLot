@@ -780,7 +780,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		showAnalyzeTrackLink: function () {
-			if (this.track && PiLot.Permissions.canWrite()) {
+			if (this.track) {
 				this.pnlAnalyzeTrack.hidden = false;
 				const url = RC.Utils.setUrlParameter(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.analyze), 'track', this.track.getId());
 				this.lnkAnalyzeTrack.href = url;
