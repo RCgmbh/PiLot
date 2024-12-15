@@ -18,43 +18,47 @@ PiLot.Templates.Analyze = {
 							<label class="marginRight"><input type="radio" name="rblMode" value="0" class="rblMode" /><span data-text="live"></span></label>
 							<label><input type="radio" name="rblMode" value="1" class="rblMode" /><span data-text="historic"></span></label>
 						</div>
-						<div class="pnlLiveTacks"></div>
-						<div class="pnlHistoricTacks marginBottom grow">
-							<div class="marginTopSmall marginBottomSmall">
-								<input type="text" class="tbDate input4 marginRightSmall" />
-								<div class="divCalDate" hidden></div>
-								<button class="btnLoadData" data-text="loadData"></button>
-							</div>
-							<div class="plhTracksList"></div>
-						</div>
-						<div class="pnlNoData feedbackWarning marginBottom" data-text="noData" hidden></div>
+						<div class="plhLiveTacks"></div>
+						<div class="plhHistoricTacks"></div>
 						<div class="plhSettings"></div>
 					</div>
 				</div>
 			</div>
 		</div>`,
 
-	liveTackInfo: `
+	historicTacksInfo: `
 		<div class="flexColumn">
+			<div class="marginTopSmall marginBottomSmall">
+				<input type="text" class="tbDate input4 marginRightSmall" />
+				<div class="divCalDate" hidden></div>
+				<button class="btnLoadData" data-text="loadData"></button>
+			</div>
+			<div class="plhTracksList"></div>
+			<div class="pnlNoData feedbackWarning marginBottom" data-text="noData" hidden></div>
+		</div>
+	`,
+
+	liveTackInfo: `
+		<div class="flexColumn borderLight paddingAllSmall">
 			<div class="pnlNoData feedbackWarning marginBottom" data-text="noGpsData" hidden></div>
 			<div>
-				<span data-text="lastTack">: <span class="lblLastTackTime"></span> / <span class="lblLastTackDistance"></span>
+				<span data-text="lastTack"></span>: <span class="lblLastTackTime"></span> / <span class="lblLastTackDistance"></span>
 			</div>
-			<div class="paddingBottomSmall">
+			<div>
 				<div class="marginBottom flexRow" style="align-items:baseline; justify-content:space-between;">
 					<span class="semiBold" data-text="tackAngle"></span>
 					<span class="biggerDisplayText"><span class="lblTackAngle">99</span>°</span>
 				</div>
-				<div class="marginBottom flexRow" style="align-items:baseline; justify-content:space-between;">
+				<div class="flexRow" style="align-items:baseline; justify-content:space-between;">
 					<span class="semiBold" data-text="vmg"></span>
-					<div><span class="lblTackAngle biggerDisplayText">3.5</span> <span data-text="kn"></span></div>
+					<div><span class="lblVMG biggerDisplayText">3.5</span> <span data-text="kn"></span></div>
 				</div>
 			</div>
 		</div>
 	`,
 
 	tackAnalyzerOptions: `
-		<div>
+		<div class="marginTop">
 			<span class="lblSettings block fullWidth semiBold marginBottomSmall" data-text="settings"></span>
 			<div class="pnlSettings" hidden>
 				<div class="flexRowWrap paddingRight paddingBottomSmall">
@@ -111,7 +115,7 @@ PiLot.Templates.Analyze = {
 				</div>
 				<div class="flexRowWrap marginTop paddingBottomSmall">
 					<a href="#" class="lnkSaveSettings block" hidden><i class="icon-floppy-disk marginRightSmall"></i><span data-text="saveSettings"></span></a>
-					<div data-text="saveSettingsSuccess" class="pnlSaveSuccess feedbackGood marginTopSmall" hidden></div>
+					<div data-text="saveSettingsSuccess" class="pnlSaveSuccess feedbackGood marginTopSmall grow" hidden></div>
 				</div>
 			</div>
 		</div>

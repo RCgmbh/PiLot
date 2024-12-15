@@ -8,35 +8,107 @@ PiLot.View.Analyze = (function () {
 		this.tackAnalyzeService = null;
 		this.tackAnalyzerOptions = null;
 		this.rblMode = null;
-		this.pnlHistoricTacks = null;
-		this.calData = null;
-		this.tracksList = null;
-		this.pnlLiveTacks = null;
+		//this.pnlHistoricTacks = null;
+		this.historicTacksInfo = null;
+		//this.pnlLiveTacks = null;
 		this.liveTackInfo = null;
 		this.mapTrack = null;			// PiLot.View.Map.MapTrack
 		this.mapTacks = null;			// PiLot.View.Analyze.MapTacks
 		this.track = null;
 		this.tackAnalyzer = null;		// PiLot.Model.Analyze.TackAnalyzer
 		this.analyzerOptions = null;
-		this.pnlNoData = null;
 		this.initializeAsync();
 	};
 
 	AnalyzePage.prototype = {
 
 		initializeAsync: async function () {
-			this.tackAnalyzeService = new PiLot.Service.Analyze.TackAnalyzeService();
 			await this.drawAsync();
-			await this.initializeTracksAsync();
+			await this.initializeMode();
 		},
 		
 		rblMode_change: function (pEvent) {
 			const mode = Number(pEvent.target.value);
-			this.setModeAsync(mode);
+			this.setMode(mode);
 		},
 
-		calDate_dateSelected: async function(pSender, pDate){
+		drawAsync: async function () {
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.analyzePage);
+			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
+			this.rblMode = pageContent.querySelectorAll('.rblMode');
+			for (let rbMode of this.rblMode) {
+				rbMode.addEventListener('change', this.rblMode_change.bind(this));
+			}
 			
+			const tackAnalyzerOptions = new TackAnalyzerOptions(pageContent.querySelector('.plhSettings'));
+			//this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
+
+			const map = new PiLot.View.Map.Seamap(pageContent.querySelector('.pnlMap'));
+			await map.showAsync();
+			const mapTrack = new PiLot.View.Map.MapTrack(map);
+			const mapTacks = new MapTacks(map);
+
+			const plhHistoricTacks = pageContent.querySelector('.plhHistoricTacks');
+			this.historicTacksInfo = new HistoricTacksInfo(plhHistoricTacks, tackAnalyzerOptions, mapTacks, mapTrack);
+			this.historicTacksInfo.hide();
+			const plhLiveTacks = pageContent.querySelector('.plhLiveTacks');
+			this.liveTackInfo = new LiveTackInfo(plhLiveTacks);
+			this.liveTackInfo.hide();
+		},
+
+		initializeMode: function () {
+			let mode;
+			if(this.historicTacksInfo.isDirectUrl()){
+				mode = 1;
+			}
+			else {
+				mode = this.loadMode();
+			}
+			this.showMode(mode);
+			this.applyMode(mode);
+		},
+
+		loadMode: function(){
+			return PiLot.Utils.Common.loadUserSetting('PiLot.View.Analyze.AnalyzePage.mode') || 0;
+		},
+
+		setMode: function (pMode) {
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.AnalyzePage.mode', pMode);
+			this.applyMode(pMode);
+		},
+
+		showMode: function(pMode){
+			for (let rbMode of this.rblMode) {
+				rbMode.checked = pMode === Number(rbMode.value);
+			}
+		},
+
+		applyMode: function(pMode){
+			this.liveTackInfo.toggle(pMode === 0);
+			this.historicTacksInfo.toggle(pMode === 1);
+		}		
+	};
+
+	var HistoricTacksInfo = function(pContainer, pTackAnalyzerOptions, pMapTacks, pMapTrack){
+		this.container = pContainer;
+		this.tackAnalyzerOptions = pTackAnalyzerOptions;
+		this.mapTacks = pMapTacks;
+		this.mapTrack = pMapTrack;
+		this.track = null;
+		this.urlTrackId = null;
+		this.urlDate = null;
+		this.control = null;
+		this.calDate = null;
+		this.tracksList = null;
+		this.pnlNoData = null;
+		this.initialize();
+	};
+
+	HistoricTacksInfo.prototype = {
+		
+		initialize: function(){
+			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
+			this.draw();
 		},
 
 		btnLoadData_click: async function () {
@@ -54,73 +126,63 @@ PiLot.View.Analyze = (function () {
 			this.showTrackAnalysis(false);
 		},
 
-		drawAsync: async function () {
-			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.analyzePage);
-			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
-			this.rblMode = pageContent.querySelectorAll('.rblMode');
-			for (let rbMode of this.rblMode) {
-				rbMode.addEventListener('change', this.rblMode_change.bind(this));
-			}
-			this.pnlHistoricTacks = pageContent.querySelector('.pnlHistoricTacks');
-			const tbDate = pageContent.querySelector('.tbDate');
-			const divCalDate = pageContent.querySelector('.divCalDate');
-			this.calDate = new RC.Controls.Calendar(divCalDate, tbDate, null, this.calDate_dateSelected.bind(this), null, PiLot.Utils.Language.getLanguage());
-			pageContent.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
-			this.tracksList = new PiLot.View.Nav.TracksList(pageContent.querySelector('.plhTracksList'));
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.historicTacksInfo);
+			this.container.appendChild(this.control);
+			const tbDate = this.control.querySelector('.tbDate');
+			const divCalDate = this.control.querySelector('.divCalDate');
+			this.calDate = new RC.Controls.Calendar(divCalDate, tbDate, null, null, null, PiLot.Utils.Language.getLanguage());
+			this.control.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
+			this.tracksList = new PiLot.View.Nav.TracksList(this.control.querySelector('.plhTracksList'));
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
-			this.pnlLiveTacks = pageContent.querySelector('.pnlLiveTacks');
-			this.liveTackInfo = new LiveTackInfo(this.pnlLiveTacks);
-			this.tackAnalyzerOptions = new TackAnalyzerOptions(pageContent.querySelector('.plhSettings'));
-			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
-			this.pnlNoData = pageContent.querySelector('.pnlNoData');
-			const map = new PiLot.View.Map.Seamap(pageContent.querySelector('.pnlMap'));
-			await map.showAsync();
-			this.mapTrack = new PiLot.View.Map.MapTrack(map);
-			this.mapTacks = new MapTacks(map);
+			this.pnlNoData = this.control.querySelector('.pnlNoData');
 		},
 
-		initializeTracksAsync: async function () {
-			let mode;
-			let tracks = (
-				   await this.loadTrackByUrlTrackIdAsync() 
-				|| await this.loadTracksByUrlDateAsync() 
-			);
-			if (tracks) {
-				mode = 1;
+		isDirectUrl: function(){
+			this.urlTrackId = RC.Utils.getUrlParameter('track');
+			if(!this.urlTrackId){
+				this.urlDate = PiLot.Utils.Common.parseQsDate();
+			}
+			return this.urlTrackId || this.urlDate;
+		},
+
+		toggle: function(pDoShow){
+			pDoShow ? this.showAsync() : this.hide();
+		},
+
+		showAsync: async function(){
+			this.control.hidden = false;
+			if(this.track === null){
+				const tracks = (
+					(this.urlTrackId && await this.loadTrackByIdAsync(this.urlTrackId)) 
+					|| (this.urlDate && await this.loadTracksByUrlDateAsync())
+					|| await this.loadTracksBySavedDateAsync()
+				);
+				this.tracksList.showTracks(tracks || []);
+				this.pnlNoData.hidden = !!(tracks && tracks.length);
 			} else {
-				mode = this.loadMode();
-				if(mode){
-					tracks = await this.loadTracksBySavedDateAsync();
-				}
+				await this.showTrackAsync();
 			}
-			this.tracksList.showTracks(tracks || []);
-			this.showMode(mode);
-			this.applyMode(mode);
 		},
 
-		loadTrackByUrlTrackIdAsync: async function(){
-			let result = null;
-			const trackId = RC.Utils.getUrlParameter('track');
-			if (trackId) {
-				const track = await PiLot.Service.Nav.TrackService.getInstance().loadTrackAsync(trackId);
-				if (track){
-					result = [track];
-					if(track.hasTrackPoints()){
-						const date = RC.Date.DateHelper.millisToLuxon(track.getTrackPoints()[0].getBoatTime());
-						this.showDate(date);
-					}
-				} 
+		hide: function(){
+			this.control.hidden = true;
+		},
+
+		loadTrackByIdAsync: async function(pTrackId){
+			const result = await PiLot.Service.Nav.TrackService.getInstance().loadTrackAsync(pTrackId);
+			if (result && result.hasTrackPoints()){
+				const date = RC.Date.DateHelper.millisToLuxon(result.getTrackPoints()[0].getBoatTime());
+				this.showDate(date);
 			}
-			return result;
+			this.urlTrackId = null;
+			return result ? [result] : [];
 		},
 
 		loadTracksByUrlDateAsync: async function () {
-			let result = null;
-			const date = PiLot.Utils.Common.parseQsDate();
-			if (date) {
-				result = await this.loadTracksByDateAsync(date);
-			}
-			return result;		
+			const result = await this.loadTracksByDateAsync(this.urlDate);
+			this.urlDate = null;
+			return result;
 		},
 
 		loadTracksBySavedDateAsync: async function (){
@@ -186,58 +248,125 @@ PiLot.View.Analyze = (function () {
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.AnalyzePage.date', pDate);
 		},
 
-		loadMode: function(){
-			return PiLot.Utils.Common.loadUserSetting('PiLot.View.Analyze.AnalyzePage.mode') || 0;
-		},
-
-		setModeAsync: async function (pMode) {
-			this.applyMode(pMode);
-			if (pMode === 0) { // live
-				
-			}
-			else if (pMode === 1) { 
-				const tracks = await this.loadTracksBySavedDateAsync();
-				this.tracksList.showTracks(tracks || []);
-			}
-			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.AnalyzePage.mode', pMode);
-		},
-
-		showMode: function(pMode){
-			for (let rbMode of this.rblMode) {
-				rbMode.checked = pMode === Number(rbMode.value);
-			}
-		},
-
-		applyMode: function(pMode){
-			this.pnlLiveTacks.hidden = pMode !== 0;
-			this.pnlHistoricTacks.hidden = pMode !== 1;		
-		}		
 	};
 
-	var LiveTackInfo = function(pContainer){
+	var LiveTackInfo = function(pContainer, pTackAnalyzerOptions, pMapTacks, pMapTrack){
 		this.container = pContainer;
+		this.tackAnalyzerOptions = pTackAnalyzerOptions;
+		this.mapTacks = pMapTacks;
+		this.mapTrack = pMapTrack;
+		this.track = null;
 		this.control = null;
 		this.gpsObserver = null;
+		this.trackObserver = null;
+		this.maxLengthSeconds = 3600;
+		this.pnlNoData = null;
+		this.lblLastTackTime = null;
+		this.lblLastTackDistance = null;
+		this.lblTackAngle = null;
+		this.lblVMG = null;
 		this.initialize();
 	};
 
 	LiveTackInfo.prototype = {
 	
 		initialize: function(){
+			this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
+			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.trackObserver = new PiLot.Model.Nav.TrackObserver(null, this.gpsObserver);
+			this.trackObserver.setTrackSeconds(this.maxLengthSeconds);
 			this.draw();
+		},
+
+		track_change: function(){
+			this.showTackInfo();
+		},
+
+		gpsObserver_recieveGpsData: function(){
+			if(this.track === null){
+				this.loadCurrentTrackAsync();
+			}
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			this.setTrackAsync(null);
 		},
 
 		draw: function(){
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.liveTackInfo);
 			this.container.appendChild(this.control);
+			this.pnlNoData = this.control.querySelector('.pnlNoData');
+			this.lblLastTackTime = this.control.querySelector('.lblLastTackTime');
+			this.lblLastTackDistance = this.control.querySelector('.lblLastTackDistance');
+			this.lblTackAngle = this.control.querySelector('.lblTackAngle');
+			this.lblVMG = this.control.querySelector('.lblVMG');
 		},
 
-		start: function(){
+		toggle: function(pDoShow){
+			pDoShow ? this.show() : this.hide();
 		},
 
-		stop: function(){
+		show: async function(){
+			this.control.hidden = false;
+			this.gpsObserver.start();
+			await this.loadCurrentTrackAsync();
+			this.showTackInfo();
+		},
+
+		hide: function(){
+			this.control.hidden = true;
+			this.gpsObserver.stop();
+		},
+
+		loadCurrentTrackAsync: async function(){
+			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			const endMs = currentBoatTime.now().toMillis();
+			const startMs = endMs - (this.maxLengthSeconds * -1000);
+			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMs, endMs, true);
+			if (tracks.length > 0) {
+				tracks.sort((t1, t2) => t2.compareTo(t1));
+				this.setTrack(tracks[0]);
+			} else {
+				this.setTrackAsync(null);
+			}
+		},
+		
+		setTrackAsync: async function(pTrack){
+			if(this.track){
+				this.track.off('addTrackPoint');
+				this.track.off('changeLastTrackPoint');
+			}
+			this.track = pTrack;
+			if(this.track){
+				this.track.on('addTrackPoint', this.track_change.bind(this));
+				this.track.on('changeLastTrackPoint', this.track_change.bind(this));
+				this.trackObserver.setTrack(track);
+				this.gpsObserver.start();
+				await this.tackAnalyzerOptions.setBoatAsync(this.track.getBoat());
+			}
+			this.pnlNoData.hidden = !!this.track;
+		},
+
+		showTackInfo: function(){
+			let lastTack = this.findLastTack();
+			if (lastTack){
+				// show stuffs
+			} else{
+				this.lblLastTackDistance.innerText = '-';
+				this.lblLastTackTime = '-';
+				this.lblTackAngle.innerText = '-';
+				this.lblVMG.innerText = '-';
+			}
+		},
+
+		findLastTack: function(){
+			let result = null;
+			if(this.track){
+				//find tacks
+			}
+			return result;
 		}
-	
 	};
 
 	var MapTacks = function(pMap){

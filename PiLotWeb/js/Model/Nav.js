@@ -1588,6 +1588,14 @@ PiLot.Model.Nav = (function () {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
+		/** 
+		 * Removes all observers for pEvent 
+		 * @param {String} pEvent - one of ['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint']
+		 * */
+		off: function(pEvent){
+			RC.Utils.removeObservers(this.observers, pEvent);
+		},
+
 		getId: function () {
 			return this.id;
 		},
@@ -2083,10 +2091,11 @@ PiLot.Model.Nav = (function () {
 	 * will add callbacks to the GPSObserver instance (that unfortunately can't be
 	 * removed).
 	 * @param {PiLot.Model.Nav.Track} pTrack - The track to update. Can be set later. 
+	 * @param {PiLot.Model.Nav.GPSObserver} pGpsObserver - A custom GPSObserver, if not the default instance should be used
 	 *  */
-	var TrackObserver = function (pTrack) {
+	var TrackObserver = function (pTrack, pGPSObserver = null) {
 		this.track = pTrack;
-		this.gpsObserver = null;
+		this.gpsObserver = pGPSObserver;
 		this.boatTime = null;
 		this.trackSeconds = null;
 		this.addPositionThreshold = { seconds: 9.5, meters: 5 };		// the threshold to add new positions to the track
@@ -2100,7 +2109,7 @@ PiLot.Model.Nav = (function () {
 	TrackObserver.prototype = {
 
 		initializeAsync: async function () {
-			this.gpsObserver = GPSObserver.getInstance();
+			this.gpsObserver = this.gpsObserver || GPSObserver.getInstance();
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.cropInterval = setInterval(this.cropTimer_interval.bind(this), this.cropIntervalMS);
@@ -2240,6 +2249,15 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/**
+		 * Stops fetching data.
+		 */
+		stop: function(){
+			if (this.interval !== null) {
+				window.clearInterval(this.interval);
+			}
+		},
+
+		/**
 		 * makes sure we have an interval for fetching the data. The Interval is not
 		 * started immediately in order to avoid too many requests against a service
 		 * which might need some time to wake up
@@ -2286,7 +2304,8 @@ PiLot.Model.Nav = (function () {
 			if (pTrackPoints !== null && pTrackPoints.length > 0) {
 				for (let i = 0; i < pTrackPoints.length; i++) {
 					this.latestPositions.unshift(pTrackPoints[i]);
-				} this.cropTrackPoints();
+				}
+				this.cropTrackPoints();
 				this.calculateSpeedAndCourse();
 				if (!this.checkOutdatedData()) {
 					this.notifyObservers('recieveGpsData', pTrackPoints);
