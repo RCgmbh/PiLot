@@ -7,10 +7,10 @@ PiLot.Model.Analyze = (function () {
 	 * Finds tacks in a track and calculates tack angles 
 	 * @param {PiLot.Model.Nav.Track} pTrack
 	 * */
-	var TackAnalyzer = function(pTrack, ){
+	var TackAnalyzer = function(pTrack){
 		this.track = pTrack;
 		this.minSampleLength = null;
-		this.samples;								// array of arrays with point1, point2, distance, total distance, bearing
+		this.samples = null;								// array of arrays with point1, point2, distance, bearing
 		this.initialize();
 	};
 
@@ -18,20 +18,25 @@ PiLot.Model.Analyze = (function () {
 
 		initialize: function(){ },
 
-		sampleTrack: function(){
+		/** @param {Boolean} pReverse: creates samples from end to sart, useful to search for the last tack */
+		sampleTrack: function(pReverse = false){
 			this.samples = [];
 			if(this.track && this.track.getTrackPointsCount() > 1){
 				const trackPoints = this.track.getTrackPoints();
-				let point1 = trackPoints[0];
+				let point1 = pReverse ? trackPoints.last() : trackPoints[0];
 				let latLon1 = point1.getLatLon();
 				let latLon2, distance;
-				for(let i = 1; i < trackPoints.length; i++){
+				let startIndex = pReverse ? trackPoints.length -2 : 1;
+				let condition = pReverse ? (i)=> {return i >=0} : (i)=> {return i < trackPoints.length};
+				let afterthought = pReverse ? (i)=> {return i-1 } : (i)=> {return i+1 };
+				//for(let i = 1; i < trackPoints.length; i++){
+				for(let i = startIndex; condition(i); i = afterthought(i)){
 					point2 = trackPoints[i];
 					latLon2 = point2.getLatLon();
 					distance = latLon1.distanceTo(latLon2);
 					if (distance >= this.minSampleLength) {
 						this.samples.push(
-							[point1, point2, distance, latLon1.initialBearingTo(latLon2)]
+							[point1.clone(), point2.clone(), distance, latLon1.initialBearingTo(latLon2)]
 						);
 						point1 = point2;
 						latLon1 = latLon2;
@@ -41,10 +46,10 @@ PiLot.Model.Analyze = (function () {
 			}
 		},
 
-		findTacks: function (pMinSampleLength, pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle) {
+		findTacks: function (pMinSampleLength, pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle, pFindLastTack = false) {
 			if (this.minSampleLength !== pMinSampleLength) {
 				this.minSampleLength = pMinSampleLength;
-				this.sampleTrack();
+				this.sampleTrack(pFindLastTack);
 			}
 			let result = [];
 			if (this.samples.length > 0) {
@@ -84,7 +89,10 @@ PiLot.Model.Analyze = (function () {
 						leg2Bearing = this.getLegBearing(leg2);
 						angle = this.getAngle(leg1Bearing, leg2Bearing);
 						if (Math.abs(angle) > pMinTurnAngle) {
-							result.push(this.createTackInfo(leg1, leg2, leg1Bearing, leg2Bearing, angle));
+							result.push(this.createTackInfo(leg1, leg2, leg1Bearing, leg2Bearing, angle, pFindLastTack));
+							if(pFindLastTack){
+								break;
+							}
 							leg1 = leg2;
 							leg2 = null;
 						}
@@ -115,12 +123,18 @@ PiLot.Model.Analyze = (function () {
 			return [pLeg.samples[0][0].getLatLng(), pLeg.samples.last()[1].getLatLng()]
 		},
 
-		createTackInfo: function(pLeg1, pLeg2, pBearing1, pBearing2, pAngle){
-			return { 
+		createTackInfo: function(pLeg1, pLeg2, pBearing1, pBearing2, pAngle, pIsReverse){
+			const windDirection = this.getWindDirection(pBearing2, pAngle);
+			return !pIsReverse ? { 
 				leg1: {start: pLeg1.samples[0][0], end: pLeg1.samples.last()[1]},
 				leg2: {start: pLeg2.samples[0][0], end: pLeg2.samples.last()[1]},
 				angle: pAngle, 
-				windDirection: this.getWindDirection(pBearing2, pAngle)
+				windDirection: windDirection
+			} : { 
+				leg1: {start: pLeg2.samples.last()[1], end: pLeg2.samples[0][0]},
+				leg2: {start: pLeg1.samples.last()[1], end: pLeg1.samples[0][0]},
+				angle: pAngle * -1, 
+				windDirection: windDirection * -1
 			};
 		},
 

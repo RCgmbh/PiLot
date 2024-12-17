@@ -1511,6 +1511,11 @@ PiLot.Model.Nav = (function () {
 		/** @returns {Number[]} an array of utc, boatTime, lat, lng */
 		toArray: function () {
 			return [this.utc, this.boatTime, this.latitude, this.longitude];
+		},
+
+		/** @returns {TrackPoint} - a copy of the TrackPoint */
+		clone: function(){
+			return new TrackPoint(this.utc, this.boatTime, this.latitude, this.longitude);
 		}
 	};
 
