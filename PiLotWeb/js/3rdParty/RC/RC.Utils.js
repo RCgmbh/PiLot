@@ -143,7 +143,7 @@ RC.Utils = {
 		if (pNumber != null) {
 			var totalLength = pPreComma + pPostComma + (pPostComma > 0 ? 1 : 0);
 			result = '000' + pNumber.toFixed(pPostComma);
-			result = result.substr(result.length - (totalLength));
+			result = result.substring(result.length - (totalLength));
 		}
 		return result;
 	},

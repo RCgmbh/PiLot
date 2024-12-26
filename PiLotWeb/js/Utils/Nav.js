@@ -30,6 +30,24 @@ PiLot.Utils.Nav = {
 		}
 		return { distance: distance, direction: direction };
 	},
+	
+	/**
+	 * @param {Number} pBearing1 - the first bearing in deg
+	 * @param {Number} pBearing2 - the second bearing in deg
+	 * @returns {Number} the angle between two bearings, -180 to 180
+	 * */
+	getAngle: function (pBearing1, pBearing2) {
+		const angle = ((pBearing2 - pBearing1  + 540) % 360) - 180;
+		return angle;
+	},
+
+	/** 
+	 * @param {Number} pBearing - the bearing in deg
+	 * @returns {Number} the bearing in the opposite direction of pBearing
+	 * */
+	getReverseBearing: function (pBearing){
+		return (pBearing + 180) % 360;
+	},
 
 	/// converts a LatLon object from the geodesy scripts into a LatLng object for Leaflet
 	latLonToLatLng: function (pLatLon) {

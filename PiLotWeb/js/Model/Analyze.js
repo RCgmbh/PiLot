@@ -71,7 +71,7 @@ PiLot.Model.Analyze = (function () {
 					if (leg2 && leg2.samples.length && leg2.distance >= pMinLeg1Length) {
 						leg1Bearing = this.getLegBearing(leg1);
 						leg2Bearing = this.getLegBearing(leg2);
-						angle = this.getAngle(leg1Bearing, leg2Bearing);
+						angle = PiLot.Utils.Nav.getAngle(leg1Bearing, leg2Bearing);
 						if (Math.abs(angle) > pMinTurnAngle) {
 							result.push(this.createTackInfo(leg1, leg2, leg1Bearing, leg2Bearing, angle));
 							if(pFindLastTack){
@@ -117,7 +117,7 @@ PiLot.Model.Analyze = (function () {
 
 		/** Checks whether the angle between two samples is small enough to consider them straight */
 		isSampleAngleWithinRange: function (pSample1, pSample2, pMaxSampleAngle) {
-			return Math.abs(this.getAngle(pSample1[3], pSample2[3])) <= pMaxSampleAngle;
+			return Math.abs(PiLot.Utils.Nav.getAngle(pSample1[3], pSample2[3])) <= pMaxSampleAngle;
 		},
 
 		/** Checks whether the end of leg 1 and the start of leg 2 are not furhter than pMaxTurnDistance apart */
@@ -141,13 +141,25 @@ PiLot.Model.Analyze = (function () {
 			return [pLeg.samples[0][0].getLatLng(), pLeg.samples.last()[1].getLatLng()]
 		},
 
+		/**
+		 * Creates a tack info, taking into consideration that the track has been
+		 * sampled backwards, so this turns everything around.
+		 * @param {Object} pLeg1 - the first leg, having samples as array of TrackPoints
+		 * @param {Object} pLeg2 - the second leg, having samples as array of TrackPoints
+		 * @param {Number} pBearing1 - Bearing of leg 1 in deg 
+		 * @param {Number} pBearing2 - Bearing of leg2 in deg
+		 * @param {Number} pAngle - the tack angle 
+		 * @returns {Object} with leg1: start, end, bearing and leg2: start, end, bearing
+		 */
 		createTackInfo: function(pLeg1, pLeg2, pBearing1, pBearing2, pAngle){
-			const windDirection = this.getWindDirection(pBearing2, pAngle);
+			const bearing1 = PiLot.Utils.Nav.getReverseBearing(pBearing2);
+			const bearing2 = PiLot.Utils.Nav.getReverseBearing(pBearing1);
+			const windDirection = this.getWindDirection(bearing2, pAngle);
 			return { 
-				leg1: {start: pLeg2.samples.last()[1], end: pLeg2.samples[0][0]},
-				leg2: {start: pLeg1.samples.last()[1], end: pLeg1.samples[0][0]},
+				leg1: {start: pLeg2.samples.last()[1], end: pLeg2.samples[0][0], bearing: bearing1},
+				leg2: {start: pLeg1.samples.last()[1], end: pLeg1.samples[0][0], bearing: bearing2},
 				angle: pAngle * -1, 
-				windDirection: windDirection * -1
+				windDirection: windDirection
 			};
 		},
 
@@ -165,11 +177,6 @@ PiLot.Model.Analyze = (function () {
 
 		getLegBearing: function(pLeg){
 			return pLeg.samples[0][0].getLatLon().initialBearingTo(pLeg.samples.last()[1].getLatLon());	
-		},
-
-		getAngle: function (pBearing1, pBearing2) {
-			const angle = ((pBearing2 - pBearing1  + 540) % 360) - 180;
-			return angle;
 		},
 
 		getWindDirection: function(pBearing2, pAngle){

@@ -1459,13 +1459,10 @@ PiLot.View.Nav = (function () {
 			const speed = pSegment.getSpeed(); // speed in m/s
 			if (isDistance) {
 				let duration = luxon.Duration.fromObject({ seconds: segmentType.getDistance() / speed });
-				control.querySelector('.lblDuration').innerHTML = this.durationToHHMMSS(duration);
+				control.querySelector('.lblDuration').innerHTML = PiLot.Utils.Common.durationToHHMMSS(duration);
 				this.plhDistanceSegments.appendChild(control);
 				this.plhDistanceSegments.hidden = false;
 			} else {
-				//let distance = speed * segmentType.getDuration();
-				//let friendlyDistance = PiLot.Utils.Nav.metersToNauticalMiles(distance).toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 3 });
-				//control.querySelector('.lblDistance').innerHTML = friendlyDistance;
 				control.querySelector('.lblSpeed').innerHTML = PiLot.Utils.Nav.mpsToKnots(speed).toFixed(2);
 				this.plhDurationSegments.appendChild(control);
 				this.plhDurationSegments.hidden = false;
@@ -1473,21 +1470,6 @@ PiLot.View.Nav = (function () {
 			
 			control.querySelector('.lblStartTime').innerHTML = pSegment.getStartBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
 			control.querySelector('.lblEndTime').innerHTML = pSegment.getEndBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
-		},
-
-		durationToHHMMSS: function (pDuration) {
-			const duration = pDuration.rescale();
-			const hours = Math.floor(duration.toMillis() / 3600000);
-			let result = "";
-			if (hours) {
-				result = hours + ' h';
-			}
-			if (hours || duration.minutes) {
-				result += ' ' + duration.minutes + "'";
-			}
-			const seconds = duration.seconds + Math.round(duration.milliseconds / 1000);
-			result += seconds + "''";
-			return result.trim();
 		},
 
 		hide: function () {

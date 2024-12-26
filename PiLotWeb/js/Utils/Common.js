@@ -291,6 +291,26 @@ PiLot.Utils.Common = {
 	},
 
 	/**
+	 * Converts a luxon duration to a string in the for x h y' z''
+	 * @param {luxon.Diration} pDuration 
+	 * @returns {String}
+	 */
+	durationToHHMMSS: function (pDuration) {
+		const duration = pDuration.rescale();
+		const hours = Math.floor(duration.toMillis() / 3600000);
+		let result = "";
+		if (hours) {
+			result = hours + ' h';
+		}
+		if (hours || duration.minutes) {
+			result += ' ' + duration.minutes + "'";
+		}
+		const seconds = duration.seconds + Math.round(duration.milliseconds / 1000);
+		result += seconds + "''";
+		return result.trim();
+	},
+
+	/**
 	 * Creates an HTML Element based on a template string, and
 	 * makes sure the content of the element is translated.
 	 * @param {any} pTemplate

@@ -42,16 +42,13 @@ PiLot.Templates.Analyze = {
 		<div class="flexColumn borderLight paddingAllSmall">
 			<div class="pnlNoData feedbackWarning marginBottom" data-text="noGpsData" hidden></div>
 			<div>
-				<span data-text="lastTack"></span>: <span class="lblLastTackTime"></span> / <span class="lblLastTackDistance"></span>
-			</div>
-			<div>
 				<div class="marginBottom flexRow" style="align-items:baseline; justify-content:space-between;">
 					<span class="semiBold" data-text="tackAngle"></span>
-					<span class="biggerDisplayText"><span class="lblTackAngle">99</span>°</span>
+					<span class="biggerDisplayText"><span class="lblTackAngle">-</span>°</span>
 				</div>
 				<div class="flexRow" style="align-items:baseline; justify-content:space-between;">
 					<span class="semiBold" data-text="vmg"></span>
-					<div><span class="lblVMG biggerDisplayText">3.5</span> <span data-text="kn"></span></div>
+					<div><span class="lblVMG biggerDisplayText">-</span> <span data-text="kn"></span></div>
 				</div>
 			</div>
 		</div>

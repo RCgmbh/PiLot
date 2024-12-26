@@ -35,9 +35,9 @@ PiLot.View.Analyze = (function () {
 				rbMode.addEventListener('change', this.rblMode_change.bind(this));
 			}
 			const tackAnalyzerOptions = new TackAnalyzerOptions(pageContent.querySelector('.plhSettings'));
-			const map = new PiLot.View.Map.Seamap(pageContent.querySelector('.pnlMap'));
+			const map = new PiLot.View.Map.Seamap(pageContent.querySelector('.pnlMap'), {positionMarker: true});
 			await map.showAsync();
-			const mapTrack = new PiLot.View.Map.MapTrack(map);
+			const mapTrack = new PiLot.View.Map.MapTrack(map, false);
 			const mapTacks = new MapTacks(map);
 			const plhHistoricTacks = pageContent.querySelector('.plhHistoricTacks');
 			this.historicTacksInfo = new HistoricTacksInfo(plhHistoricTacks, tackAnalyzerOptions, mapTacks, mapTrack);
@@ -142,6 +142,7 @@ PiLot.View.Analyze = (function () {
 		},
 
 		showAsync: async function(){
+			this.mapTacks.setShowValues(true);
 			this.control.hidden = false;
 			if(this.track === null){
 				const tracks = (
@@ -191,7 +192,7 @@ PiLot.View.Analyze = (function () {
 		loadTracksByDateAsync: async function (pDate){
 			const result = await PiLot.Service.Nav.TrackService.getInstance().loadTracksByDateAsync(pDate);
 			this.showDate(pDate.toLuxon());
-			this.saveDate(pDate);
+			await this.saveDateAsync(pDate);
 			return result;
 		},
 
@@ -234,9 +235,16 @@ PiLot.View.Analyze = (function () {
 			);
 		},
 
-		/** @param {RC.Date.DateOnly} pDate - a simple date */
-		saveDate: function(pDate){
-			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.AnalyzePage.date', pDate);
+		/**
+		 * Saves the selected date to user settings. If today's date is selected,
+		 * null will be saved so that next time we will fall back to the current
+		 * date again. 
+		 * @param {RC.Date.DateOnly} pDate - a simple date
+		 * */
+		saveDateAsync: async function(pDate){
+			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			let saveDate = currentBoatTime.today().equals(pDate) ? null : pDate;
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.AnalyzePage.date', saveDate);
 		},
 
 	};
@@ -253,8 +261,6 @@ PiLot.View.Analyze = (function () {
 		this.trackObserver = null;
 		this.maxLengthSeconds = 3600;
 		this.pnlNoData = null;
-		this.lblLastTackTime = null;
-		this.lblLastTackDistance = null;
 		this.lblTackAngle = null;
 		this.lblVMG = null;
 		this.initialize();
@@ -272,28 +278,24 @@ PiLot.View.Analyze = (function () {
 		},
 
 		track_change: function(){
-			this.showTackInfo();
+			this.showTackInfoAsync();
 		},
 
 		gpsObserver_recieveGpsData: function(){
 			if(this.track === null){
 				this.loadCurrentTrackAsync();
-				this.showTackInfo();
+				this.showTackInfoAsync();
 			}
-			this.pnlNoData.hidden = true;
 		},
 
 		gpsObserver_outdatedGpsData: function(){
 			this.setTrackAsync(null);
-			this.pnlNoData.hidden = false;
 		},
 
 		draw: function(){
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Analyze.liveTackInfo);
 			this.container.appendChild(this.control);
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
-			this.lblLastTackTime = this.control.querySelector('.lblLastTackTime');
-			this.lblLastTackDistance = this.control.querySelector('.lblLastTackDistance');
 			this.lblTackAngle = this.control.querySelector('.lblTackAngle');
 			this.lblVMG = this.control.querySelector('.lblVMG');
 		},
@@ -303,10 +305,11 @@ PiLot.View.Analyze = (function () {
 		},
 
 		show: async function(){
+			this.mapTacks.setShowValues(false);
 			this.control.hidden = false;
 			this.gpsObserver.start();
 			await this.loadCurrentTrackAsync();
-			this.showTackInfo();
+			await this.showTackInfoAsync();
 		},
 
 		hide: function(){
@@ -317,13 +320,13 @@ PiLot.View.Analyze = (function () {
 		loadCurrentTrackAsync: async function(){
 			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			const endMs = currentBoatTime.now().toMillis();
-			const startMs = endMs - (this.maxLengthSeconds * -1000);
-			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMs, endMs, true);
+			const startMs = endMs - (this.maxLengthSeconds * 1000);
+			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMs, endMs, false);
 			if (tracks.length > 0) {
 				tracks.sort((t1, t2) => t2.compareTo(t1));
-				this.setTrackAsync(tracks[0]);
+				await this.setTrackAsync(tracks[0]);
 			} else {
-				this.setTrackAsync(null);
+				await this.setTrackAsync(null);
 			}
 		},
 		
@@ -334,23 +337,27 @@ PiLot.View.Analyze = (function () {
 			}
 			this.track = pTrack;
 			if(this.track){
-				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
+				await this.tackAnalyzerOptions.setBoatAsync(this.track.getBoat());
 				this.track.on('addTrackPoint', this.track_change.bind(this));
 				this.track.on('changeLastTrackPoint', this.track_change.bind(this));
 				this.trackObserver.setTrack(this.track);
-				await this.tackAnalyzerOptions.setBoatAsync(this.track.getBoat());
+				this.mapTrack.setTracks([this.track], true);
 			}
 			this.pnlNoData.hidden = !!this.track;
 		},
 
-		showTackInfo: function(){
+		showTackInfoAsync: async function(){
 			let lastTack = this.findLastTack();
 			if (lastTack){
-				this.mapTacks.showTacks(tacks);
+				this.mapTacks.showTacks([lastTack]);
+				const cog = this.gpsObserver.getCOG();
+				const angle = PiLot.Utils.Nav.getAngle(lastTack.leg1.bearing, cog);
+				this.lblTackAngle.innerText = Math.round(angle);
+				const sog = this.gpsObserver.getSOG();
+				const vmg = Math.cos(angle / 360 * Math.PI) * sog;
+				this.lblVMG.innerText = vmg.toFixed(1);
 			} else{
 				this.mapTacks.clear();
-				this.lblLastTackDistance.innerText = '-';
-				this.lblLastTackTime = '-';
 				this.lblTackAngle.innerText = '-';
 				this.lblVMG.innerText = '-';
 			}
@@ -359,13 +366,13 @@ PiLot.View.Analyze = (function () {
 		findLastTack: function(){
 			let result = null;
 			if(this.track){
-				this.mapTrack.setTracks([this.track], true);
+				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
 				const options = this.tackAnalyzerOptions.getOptions();
 				const tacks = this.tackAnalyzer.findTacks(
 					options.minSampleLength,
 					options.maxSampleAngle,
 					options.minLeg1Length,
-					options.minLeg2Length,
+					options.minSampleLength,//options.minLeg2Length,
 					options.maxTurnDistance,
 					options.minTurnAngle,
 					true
@@ -380,6 +387,7 @@ PiLot.View.Analyze = (function () {
 
 	var MapTacks = function(pMap){
 		this.map = pMap;
+		this.showValues = true;
 		this.layer = null;
 		this.initialize();
 	};
@@ -388,6 +396,10 @@ PiLot.View.Analyze = (function () {
 	
 		initialize: function(){
 			this.layer = L.layerGroup().addTo(this.map.getLeafletMap());
+		},
+
+		setShowValues: function(pShow){
+			this.showValues = pShow;
 		},
 
 		showTacks: function(pTacks){
@@ -404,17 +416,18 @@ PiLot.View.Analyze = (function () {
 		showTack: function (pTack) {
 			this.showLeg(pTack.leg1);
 			this.showLeg(pTack.leg2);
-			const html = `<div>${Math.round(pTack.angle)}°</div>`
-			const icon = L.divIcon({
-				className: `tackMarker`, iconSize: [null, null], html: html
-			});
-			const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 2000 };
-			const latLng1 = pTack.leg1.end.getLatLng();
-			const latLng2 = pTack.leg2.start.getLatLng();
-			const position = [(latLng1[0] + latLng2[0]) / 2, (latLng1[1] + latLng2[1]) / 2];
-			const marker = L.marker(position, options);
-			marker.addTo(this.layer);
-			//console.log(`Wind direction: ${pTack.windDirection}`);
+			if(this.showValues){
+				const html = `<div>${Math.round(pTack.angle)}°</div>`
+				const icon = L.divIcon({
+					className: `tackMarker`, iconSize: [null, null], html: html
+				});
+				const options = { icon: icon, draggable: false, autoPan: true, zIndexOffset: 2000 };
+				const latLng1 = pTack.leg1.end.getLatLng();
+				const latLng2 = pTack.leg2.start.getLatLng();
+				const position = [(latLng1[0] + latLng2[0]) / 2, (latLng1[1] + latLng2[1]) / 2];
+				const marker = L.marker(position, options);
+				marker.addTo(this.layer);
+			}
 		},
 
 		showLeg: function (pLeg) {
