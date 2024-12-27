@@ -869,9 +869,9 @@ PiLot.View.Stats = (function () {
 				lnkBarText = node.querySelector('.lnkBarText');
 				lnkBarText.innerText = startTime.toLocaleString(DateTime.DATE_SHORT);
 				lnkBarText.href = `${loader.createPageLink(loader.pages.diary)}&d=${utils.getQsDateValue(RC.Date.DateOnly.fromObject(startTime))}`;
-				node.querySelector('.lblBarLabel').innerText = Math.round(convertSpeedFunction(trackSegment.getSpeed()) * 100) / 100;
+				node.querySelector('.lblBarLabel').innerText = convertSpeedFunction(trackSegment.getSpeed()).toFixed(2);
 				bar = node.querySelector('.divBar');
-				bar.style.width = `${Math.round(factor * trackSegment.getSpeed())}%`;
+				bar.style.width = `${(factor * trackSegment.getSpeed()).toFixed(2)}%`;
 				bar.style.backgroundColor = pColorIndex.get(trackSegment.getBoat());
 				this.plhData.appendChild(node);
 			}
