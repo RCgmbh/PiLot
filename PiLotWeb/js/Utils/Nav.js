@@ -49,6 +49,18 @@ PiLot.Utils.Nav = {
 		return (pBearing + 180) % 360;
 	},
 
+	/**
+	 * 
+	 * @param {Number} pWindDirection - the wind direction in deg 
+	 * @param {Number} pCog - course over ground in deg
+	 * @param {Number} pSog - speed over ground in m/s
+	 * @returns {Number} - the velocity made good in m/s
+	 */
+	getVmg: function(pWindDirection, pCog, pSog){
+		const angle = Math.abs(this.getAngle(pWindDirection, pCog));
+		return Math.cos(angle / 180 * Math.PI) * pSog;
+	},
+
 	/// converts a LatLon object from the geodesy scripts into a LatLng object for Leaflet
 	latLonToLatLng: function (pLatLon) {
 		return new L.LatLng(pLatLon.lat, pLatLon.lon);

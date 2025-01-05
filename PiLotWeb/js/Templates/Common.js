@@ -17,6 +17,7 @@ PiLot.Templates.Common = {
 			<div class="menuSection menuSectionNav">
 				<a data-page="map"><i class="icon-map3"></i><span data-text="map"></span></a>
 				<a data-page="nav"><i class="icon-compass3"></i><span data-text="navigation"></span></a>
+				<a data-page="analyze"><i class="icon-ruler2"></i><span data-text="tackAngles"></span></a>
 				<a data-page="routes"><i class="icon-linegraph"></i><span data-text="routes"></span></a>
 			</div>
 			<div class="menuSection menuSectionLog">

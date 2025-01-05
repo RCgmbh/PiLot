@@ -154,11 +154,12 @@ PiLot.Model.Analyze = (function () {
 		createTackInfo: function(pLeg1, pLeg2, pBearing1, pBearing2, pAngle){
 			const bearing1 = PiLot.Utils.Nav.getReverseBearing(pBearing2);
 			const bearing2 = PiLot.Utils.Nav.getReverseBearing(pBearing1);
-			const windDirection = this.getWindDirection(bearing2, pAngle);
+			const angle = pAngle * -1;
+			const windDirection = this.getWindDirection(bearing1, angle);
 			return { 
 				leg1: {start: pLeg2.samples.last()[1], end: pLeg2.samples[0][0], bearing: bearing1},
 				leg2: {start: pLeg1.samples.last()[1], end: pLeg1.samples[0][0], bearing: bearing2},
-				angle: pAngle * -1, 
+				angle: angle, 
 				windDirection: windDirection
 			};
 		},
@@ -179,8 +180,8 @@ PiLot.Model.Analyze = (function () {
 			return pLeg.samples[0][0].getLatLon().initialBearingTo(pLeg.samples.last()[1].getLatLon());	
 		},
 
-		getWindDirection: function(pBearing2, pAngle){
-			return (pBearing2 - pAngle/2 + 360) % 360;
+		getWindDirection: function(pBearing1, pAngle){
+			return (pBearing1 + pAngle/2 + 360) % 360;
 		}
 	};
 

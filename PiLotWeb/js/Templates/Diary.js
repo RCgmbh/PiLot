@@ -115,7 +115,7 @@ PiLot.Templates.Diary = {
 					<div class="plhSpeedDiagram"></div>
 					<div class="plhTrackStatistics marginBottom"></div>
 					<div class="pnlAnalyzeTrack paddingAllSmall">
-						<a class="lnkAnalyzeTrack" href="#"><i class="icon-magnifier marginRightSmall"></i><span data-text="analyzeTrack"></span></a>
+						<a class="lnkAnalyzeTrack" href="#"><i class="icon-ruler2 marginRightSmall"></i><span data-text="analyzeTrack"></span></a>
 					</div>
 					<div class="pnlNoData paddingAllSmall" hidden><div class="feedbackInfo" data-text="noData"></div></div>
 				</div>

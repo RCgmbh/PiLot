@@ -354,7 +354,7 @@ PiLot.View.Analyze = (function () {
 				const angle = PiLot.Utils.Nav.getAngle(lastTack.leg1.bearing, cog);
 				this.lblTackAngle.innerText = Math.round(angle);
 				const sog = this.gpsObserver.getSOG();
-				const vmg = Math.cos(angle / 360 * Math.PI) * sog;
+				const vmg = PiLot.Utils.Nav.getVmg(lastTack.windDirection, cog, sog);
 				this.lblVMG.innerText = vmg.toFixed(1);
 			} else{
 				this.mapTacks.clear();
@@ -372,7 +372,7 @@ PiLot.View.Analyze = (function () {
 					options.minSampleLength,
 					options.maxSampleAngle,
 					options.minLeg1Length,
-					options.minSampleLength,//options.minLeg2Length,
+					options.minLeg2Length,
 					options.maxTurnDistance,
 					options.minTurnAngle,
 					true
