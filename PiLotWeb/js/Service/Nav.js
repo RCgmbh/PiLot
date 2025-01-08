@@ -440,7 +440,7 @@ PiLot.Service.Nav = (function () {
 		 * @param {Number} pTrackId
 		 * @returns {PiLot.Model.Nav.TrackSegment[]}
 		 * */
-		getTrackSegmentsByTrackIdAsync: async function(pTrackId){
+		loadTrackSegmentsByTrackIdAsync: async function(pTrackId){
 			let result = null;
 			await this.ensureTrackSegmentTypesLoadedAsync();
 			const json = await PiLot.Utils.Common.getFromServerAsync(`/Tracks/${pTrackId}/Segments`);
@@ -505,7 +505,9 @@ PiLot.Service.Nav = (function () {
 				RC.Date.DateHelper.millisToLuxon(pData.endBoatTime, pLanguage),
 				pData.distance,
 				pData.speed,
-				pData.boat
+				pData.boat,
+				pData.yearRank,
+				pData.overallRank
 			);
 		},
 

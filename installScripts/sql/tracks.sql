@@ -134,7 +134,8 @@ CREATE VIEW public.all_track_segments AS (
 		ts.end_boattime,
 		ts.distance_mm,
 		ts.distance_mm::DOUBLE PRECISION/(ts.end_utc - ts.start_utc) as speed,
-		tr.boat
+		tr.boat,
+		EXTRACT(YEAR FROM to_timestamp(ts.start_boattime / 1000)) AS year
 	FROM
 		track_segments ts INNER JOIN tracks tr ON ts.track_id = tr.id
 );
@@ -350,22 +351,32 @@ RETURNS TABLE (
 	end_boattime bigint,
 	distance_mm integer,
 	speed double precision,
-	boat text
+	boat text,
+	year_rank bigint,
+	overall_rank bigint
 )
 LANGUAGE 'sql'
 AS $BODY$
 	SELECT
-		type_id,
-		track_id,
-		start_utc,
-		end_utc,
-		start_boattime,
-		end_boattime,
-		distance_mm,
-		speed,
-		boat
-	FROM
-		all_track_segments
+		*
+	FROM (
+		SELECT 
+			type_id,
+			track_id,
+			start_utc,
+			end_utc,
+			start_boattime,
+			end_boattime,
+			distance_mm,
+			speed,
+			boat,
+			row_number() over (PARTITION BY type_id, year ORDER BY speed DESC) as year_rank,
+			row_number() over (PARTITION BY type_id ORDER BY speed DESC) as overall_rank
+		FROM
+			all_track_segments
+		WHERE
+			boat IN (SELECT boat FROM tracks WHERE id = p_track_id)
+	)
 	WHERE
 		track_id = p_track_id
 $BODY$;
@@ -393,7 +404,9 @@ RETURNS TABLE (
 	end_boattime bigint,
 	distance_mm integer,
 	speed double precision,
-	boat text
+	boat text,
+	year_rank bigint,
+	overall_rank bigint
 )
 LANGUAGE 'sql'
 AS $BODY$
@@ -406,7 +419,8 @@ AS $BODY$
 		end_boattime,
 		distance_mm,
 		speed,
-		boat
+		boat,
+		0, 0
 	FROM
 		all_track_segments
 	WHERE

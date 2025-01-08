@@ -443,7 +443,9 @@ namespace PiLot.Data.Postgres.Nav {
 				EndBoatTime = pReader.GetInt64("end_boattime"),
 				Distance_mm = pReader.GetInt32("distance_mm"),
 				Speed = pReader.GetDouble("speed"),
-				Boat = pReader.GetString("boat")
+				Boat = pReader.GetString("boat"),
+				YearRank = pReader.GetInt32("year_rank"),
+				OverallRank = pReader.GetInt32("overall_rank")
 			};
 			return result;
 		}

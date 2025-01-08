@@ -1931,7 +1931,7 @@ PiLot.Model.Nav = (function () {
 	 * @param {DateTime} pEndBoatTime - the end of the segment in BoatTime
 	 * @param {Number} pDistance - the distance covered in meters
 	 */
-	var TrackSegment = function (pTrackId, pType, pStartUtc, pEndUtc, pStartBoatTime, pEndBoatTime, pDistance, pSpeed, pBoat) {
+	var TrackSegment = function (pTrackId, pType, pStartUtc, pEndUtc, pStartBoatTime, pEndBoatTime, pDistance, pSpeed, pBoat, pYearRank, pOverallRank) {
 		this.trackId = pTrackId;
 		this.type = pType;
 		this.startUtc = pStartUtc;
@@ -1941,6 +1941,8 @@ PiLot.Model.Nav = (function () {
 		this.distance = pDistance;
 		this.speed = pSpeed;
 		this.boat = pBoat;
+		this.yearRank = pYearRank;
+		this.overallRank = pOverallRank;
 		this.initialize();
 	};
 
@@ -1987,14 +1989,24 @@ PiLot.Model.Nav = (function () {
 			return this.distance;
 		},
 
-		/** @returns the average speed for the segment in m/s */
+		/** @returns {Number} the average speed for the segment in m/s */
 		getSpeed: function () {
 			return this.speed;
 		},
 
-		/** @returns the name of the boat */
+		/** @returns {String} the name of the boat */
 		getBoat: function () {
 			return this.boat;
+		},
+
+		/** @returns {Number} the rank of this section per type, boat and year */
+		getYearRank: function(){
+			return this.yearRank;
+		},
+
+		/** @returns {Number} the rank of this section per type and boat */
+		getOverallRank: function(){
+			return this.overallRank;
 		}
 	};
 

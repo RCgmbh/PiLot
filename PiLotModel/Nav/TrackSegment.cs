@@ -90,6 +90,19 @@ namespace PiLot.Model.Nav {
 		/// <summary>
 		/// The boat name
 		/// </summary>
+		[JsonPropertyName("boat")]
 		public String Boat { get; set; }
+
+		/// <summary>
+		/// The rank of this section per section type, boat and year
+		/// </summary>
+		[JsonPropertyName("yearRank")]
+		public Int32 YearRank {get;set;}
+
+		/// <summary>
+		/// The rank of this section per section type and boat
+		/// </summary>
+		[JsonPropertyName("overallRank")]
+		public Int32 OverallRank {get;set;}
 	}
 }

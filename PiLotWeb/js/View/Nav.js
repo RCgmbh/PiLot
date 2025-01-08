@@ -1437,7 +1437,7 @@ PiLot.View.Nav = (function () {
 
 		loadAndShowDataAsync: async function (pTrackId) {
 			this.container.hidden = false;
-			const trackSegments = await this.trackService.getTrackSegmentsByTrackIdAsync(pTrackId);
+			const trackSegments = await this.trackService.loadTrackSegmentsByTrackIdAsync(pTrackId);
 			trackSegments.sort((a, b) => a.getType().compareTo(b.getType()));
 			const currentLanguage = PiLot.Utils.Language.getLanguage();
 			this.plhDistanceSegments.hidden = true;
@@ -1456,6 +1456,11 @@ PiLot.View.Nav = (function () {
 			const segmentType = pSegment.getType();
 			const label = segmentType.getLabel(pLanguage);
 			control.querySelector('.lblLabel').innerHTML = label;
+			if(pSegment.getOverallRank() == 1){
+				control.querySelector('.lblLabel').insertAdjacentElement('afterbegin', PiLot.Utils.Common.createNode(PiLot.Templates.Nav.topSegmentOverall));
+			} else if (pSegment.getYearRank() == 1){
+				control.querySelector('.lblLabel').insertAdjacentElement('afterbegin', PiLot.Utils.Common.createNode(PiLot.Templates.Nav.topSegmentYear));
+			}
 			const speed = pSegment.getSpeed(); // speed in m/s
 			if (isDistance) {
 				let duration = luxon.Duration.fromObject({ seconds: segmentType.getDistance() / speed });

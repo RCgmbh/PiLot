@@ -390,5 +390,9 @@ PiLot.Templates.Nav = {
 			<div><span class="lblLabel"></span>:&nbsp;</div>
 			<div class="semiBold"><span class="lblSpeed"></span> <span data-text="kn"></span></div>&nbsp;
 			<div><span class="lblStartTime"></span>-<span class="lblEndTime"></span></div>
-		</div>`
+		</div>`,
+
+	topSegmentOverall: '<i class="icon-trophy gold marginRightSmall" data-title="topSegmentOverall"></i>',
+	
+	topSegmentYear: '<i class="icon-trophy silver marginRightSmall" data-title="topSegmentYear"></i>'
 };

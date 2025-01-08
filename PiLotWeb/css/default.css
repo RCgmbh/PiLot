@@ -309,6 +309,8 @@ body.night .white, body.night a.white, body.night a.white:hover, body.night a.wh
 body.night .grey, body.night a.grey, body.night a.grey:hover, body.night a.grey:visited {color: #444;}
 .darkGrey, a.darkGrey, a.darkGrey:hover, a.darkGrey:visited {color: #666;}
 body.night .darkGrey, body.night a.darkGrey, body.night a.darkGrey:hover, body.night a.darkGrey:visited {color: #999;}
+.gold {color: #ffc400;}
+.silver {color: #d3d3d3;}
 
 /* LINKS, BUTTONS */
 a, a:visited, a:active { color: #3265AD; }
