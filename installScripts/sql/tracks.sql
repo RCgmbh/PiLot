@@ -376,7 +376,7 @@ AS $BODY$
 			all_track_segments
 		WHERE
 			boat IN (SELECT boat FROM tracks WHERE id = p_track_id)
-	)
+	) AS ranked_segments
 	WHERE
 		track_id = p_track_id
 $BODY$;
@@ -420,7 +420,7 @@ AS $BODY$
 		distance_mm,
 		speed,
 		boat,
-		0, 0
+		0::bigint, 0::bigint
 	FROM
 		all_track_segments
 	WHERE
