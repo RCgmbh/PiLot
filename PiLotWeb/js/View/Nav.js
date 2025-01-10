@@ -1456,11 +1456,6 @@ PiLot.View.Nav = (function () {
 			const segmentType = pSegment.getType();
 			const label = segmentType.getLabel(pLanguage);
 			control.querySelector('.lblLabel').innerHTML = label;
-			if(pSegment.getOverallRank() == 1){
-				control.querySelector('.lblLabel').insertAdjacentElement('afterbegin', PiLot.Utils.Common.createNode(PiLot.Templates.Nav.topSegmentOverall));
-			} else if (pSegment.getYearRank() == 1){
-				control.querySelector('.lblLabel').insertAdjacentElement('afterbegin', PiLot.Utils.Common.createNode(PiLot.Templates.Nav.topSegmentYear));
-			}
 			const speed = pSegment.getSpeed(); // speed in m/s
 			if (isDistance) {
 				let duration = luxon.Duration.fromObject({ seconds: segmentType.getDistance() / speed });
@@ -1475,6 +1470,11 @@ PiLot.View.Nav = (function () {
 			
 			control.querySelector('.lblStartTime').innerHTML = pSegment.getStartBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
 			control.querySelector('.lblEndTime').innerHTML = pSegment.getEndBoatTime().toLocaleString(DateTime.TIME_SIMPLE);
+			if(pSegment.getOverallRank() == 1){
+				control.querySelector('.plhTrophy').appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.topSegmentOverall));
+			} else if (pSegment.getYearRank() == 1){
+				control.querySelector('.plhTrophy').appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.topSegmentYear));
+			}
 		},
 
 		hide: function () {

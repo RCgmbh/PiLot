@@ -383,6 +383,7 @@ PiLot.Templates.Nav = {
 			<div><span class="lblLabel"></span>:&nbsp;</div>
 			<span class="lblDuration semiBold"></span>&nbsp;
 			<div><span class="lblStartTime"></span>-<span class="lblEndTime"></span></div>
+			<div class="plhTrophy"></div>
 		</div>`,
 
 	trackStatisticsDurationSegment: `
@@ -390,9 +391,10 @@ PiLot.Templates.Nav = {
 			<div><span class="lblLabel"></span>:&nbsp;</div>
 			<div class="semiBold"><span class="lblSpeed"></span> <span data-text="kn"></span></div>&nbsp;
 			<div><span class="lblStartTime"></span>-<span class="lblEndTime"></span></div>
+			<div class="plhTrophy"></div>
 		</div>`,
 
-	topSegmentOverall: '<i class="icon-trophy gold marginRightSmall" data-title="topSegmentOverall"></i>',
+	topSegmentOverall: '<i class="icon-trophy gold marginLeftSmall" data-title="topSegmentOverall"></i>',
 	
-	topSegmentYear: '<i class="icon-trophy silver marginRightSmall" data-title="topSegmentYear"></i>'
+	topSegmentYear: '<i class="icon-trophy silver marginLeftSmall" data-title="topSegmentYear"></i>'
 };
