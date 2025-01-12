@@ -1,5 +1,5 @@
 /**
- * (c) 2021 Röthenmund Consulting GmbH
+ * (c) 2021 Rï¿½thenmund Consulting GmbH
  * 
  * This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or any later version.
@@ -66,7 +66,8 @@ namespace PiLot.API {
 			LogLevels logLevel = LogLevels.ERROR;
 			Enum.TryParse<LogLevels>(configLogLevel, out logLevel);
 			String logfilePath = ConfigurationManager.AppSettings["logfilePath"];
-			Logger.SetupLogging(logfilePath, logLevel);
+			String logStackTrace = ConfigurationManager.AppSettings["logStackTrace"];
+			Logger.SetupLogging(logfilePath, logLevel, logStackTrace == Boolean.TrueString);
 			Logger.Log("PiLot.API is starting", LogLevels.INFO);
 		}
 	}
