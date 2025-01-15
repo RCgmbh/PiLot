@@ -64,8 +64,7 @@ PiLot.Utils.Loader = (function () {
 
 	const defaultScripts = [
 		{ url: 'js/3rdParty/luxon/polyfill.js', priority: 1 },
-		{ url: 'js/3rdParty/luxon/luxon.js', priority: 1 },
-		{ url: 'js/3rdParty/divers/moment.min.js', priority: 1 },
+		{ url: 'js/3rdParty/luxon/luxon.min.js', priority: 1 },
 		{ url: 'js/3rdParty/RC/RC.Utils.js', priority: 1 },
 		{ url: 'js/3rdParty/RC/RC.Date.js', priority: 5 },
 		{ url: 'js/3rdParty/RC/RC.Controls.js', priority: 10 },
