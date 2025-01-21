@@ -8,23 +8,36 @@ using PiLot.Model.Photos;
 using PiLot.Utils.Logger;
 using PiLot.API.ActionFilters;
 using PiLot.API.Workers;
+using System.Collections.Generic;
 
 namespace PiLot.API.Controllers {
 
-	[Route(Program.APIROOT + "[controller]")]
 	[ApiController]
 	public class PhotosController : ControllerBase {
 
 		private const String QSDATEFORMAT = "yyyy-MM-dd";
 
-		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		[Route(Program.APIROOT + "[controller]/{year}/{month}/{day}")]
 		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public ImageCollection GetDailyPhotoGallery(Int32 year, Int32 month, Int32 day) {
 			try {
 				Date date = new Date(year, month, day);
 				return new PhotoDataConnector().ReadDailyPhotoGallery(date);
 			} catch (Exception ex) {
 				Logger.Log(ex, "PhotosController.GetDailyPhotoGallery");
+				throw;
+			}
+		}
+
+		[Route(Program.APIROOT + "[controller]")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<ImageCollection> GetAllPhotoGalleries() {
+			try {
+				return new PhotoDataConnector().ReadAllPhotoGalleries();
+			} catch (Exception ex) {
+				Logger.Log(ex, "PhotosController.GetAllPhotoGalleries");
 				throw;
 			}
 		}
@@ -36,8 +49,9 @@ namespace PiLot.API.Controllers {
 		/// <param name="day">The day as string in format yyyy-mm-dd</param>
 		/// <param name="fileName">the original Name of the image</param>
 		/// <returns></returns>
-		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpPut]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public async Task<ActionResult> Put(String day, String fileName) {
 			Stream requestStream = this.Request.Body;
 			if (requestStream != null) {
@@ -66,8 +80,9 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		/// <param name="day">The day as string in format yyyy-mm-dd</param>
 		/// <param name="fileName">the original Name of the image</param>
-		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		[Route(Program.APIROOT + "[controller]")]
 		[HttpDelete]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public ActionResult Delete(String day, String fileName) {
 			ActionResult result;
 			try {

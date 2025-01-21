@@ -38,6 +38,7 @@ PiLot.Utils.Loader = (function () {
 		diary: {key: 'diary'},
 		publish: {key: 'publish'},
 		stats: {key: 'stats'},
+		photos: {key: 'photos'},
 		games: {key: 'games'},
 		library: {key: 'library'},
 		settings: {key: 'settings'},
@@ -270,6 +271,10 @@ PiLot.Utils.Loader = (function () {
 				case pages.stats:
 					dependencies = [defaultScripts, navScripts, boatScripts, echartsScripts, statsScripts];
 					startAction = function () { new PiLot.View.Stats.TrackStatsPage(); };
+					break;
+				case pages.photos:
+					dependencies = [defaultScripts, logbookScripts];
+					startAction = function () { new PiLot.View.Diary.PhotosPage(); };
 					break;
 				case pages.games:
 					dependencies = [defaultScripts, mediaScripts];

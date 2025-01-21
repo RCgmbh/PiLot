@@ -80,16 +80,23 @@ namespace PiLot.Data.Files {
 		/// <param name="pDay">The day for which the photos should be loaded</param>
 		/// <returns>ImageCollection for RC.ImageGallery.ImageCollection, never null</returns>
 		public ImageCollection ReadDailyPhotoGallery(Date pDay) {
-			List<String> imageNames = new List<String>();
 			DirectoryInfo photosDirectory = new DirectoryInfo(this.GetPhotosFilePath(pDay, false));
-			if (photosDirectory.Exists) {
-				imageNames = photosDirectory.GetFiles().OrderBy(f => f.Name).Select(f => f.Name).ToList();
+			return this.ReadImageCollection(photosDirectory);
+		}
+
+		/// <summary>
+		/// Returns all image collections, one for each day having images.
+		/// </summary>
+		/// <returns>List of ImageCollection for RC.ImageGallery.ImageCollection, never null</returns>
+		public List<ImageCollection> ReadAllPhotoGalleries(){
+			List<ImageCollection> result = new List<ImageCollection>();
+			DirectoryInfo rootDirectory = new DirectoryInfo(this.GetPhotosRootPath(false));
+			if(rootDirectory.Exists){
+				foreach(DirectoryInfo aDirectory in rootDirectory.GetDirectories()){
+					result.Add(this.ReadImageCollection(aDirectory));
+				}
 			}
-			return new ImageCollection() {
-				RootURL = this.GetPhotosRelativePath(pDay),
-				ZoomFolders = this.GetImageFolders(),
-				ImageNames = imageNames
-			};
+			return result;
 		}
 
 		/// <summary>
@@ -173,11 +180,23 @@ namespace PiLot.Data.Files {
 			}
 		}
 
+		private ImageCollection ReadImageCollection(DirectoryInfo pDirectory){
+			List<String> imageNames = new List<String>();
+			if (pDirectory.Exists) {
+				imageNames = pDirectory.GetFiles().OrderBy(f => f.Name).Select(f => f.Name).ToList();
+			}
+			return new ImageCollection() {
+				RootURL = this.GetPhotosRelativePath(pDirectory),
+				ZoomFolders = this.GetImageFolders(),
+				ImageNames = imageNames
+			};
+		}
+
 		/// <summary>
 		/// returns a relative path in the form /photos/date/ for the photos folder of a certain date
 		/// </summary>
-		private String GetPhotosRelativePath(Date pDay) {
-			return String.Concat(PHOTOSROOTDIR, "/", pDay.ToString(PHOTODIRFORMAT));
+		private String GetPhotosRelativePath(DirectoryInfo pDirectory) {
+			return String.Concat(PHOTOSROOTDIR, "/", pDirectory.Name);
 		}
 
 		/// <summary>
@@ -187,12 +206,20 @@ namespace PiLot.Data.Files {
 		/// <param name="pDay">the Day</param>
 		/// <param name="pCreateMissingFolder">If true, missing folders will be created automagically</param>
 		private String GetPhotosFilePath(Date pDay, Boolean pCreateMissingFolder) {
-			String photoRootPath = this.helper.GetDataPath(PHOTOSROOTDIR, pCreateMissingFolder);
+			String photoRootPath = this.GetPhotosRootPath(pCreateMissingFolder);
 			String photoDayPath = Path.Combine(photoRootPath, pDay.ToString(PHOTODIRFORMAT));
 			if (pCreateMissingFolder && !Directory.Exists(photoDayPath)) {
 				Directory.CreateDirectory(photoDayPath);
 			}
 			return photoDayPath;
+		}
+
+		/// <summary>
+		/// Returns the photos root path
+		/// </summary>
+		/// <param name="pCreateMissingFolder">If true, the folder will be created if it's missing</param>
+		private String GetPhotosRootPath(Boolean pCreateMissingFolder){
+			return this.helper.GetDataPath(PHOTOSROOTDIR, pCreateMissingFolder);
 		}
 
 		/// <summary>

@@ -11,7 +11,7 @@ var RC = RC || {};
 
 RC.ImageGallery = (function () {
 
-	/// Class ImageGallery. Expects some stuff:
+	/// Class Gallery. Expects some stuff:
 	/// pContainer: The HTML within which the gallery will be added. This should have position: relative to work well.
 	/// pImagesCollections: an array of ImageCollection, providing the images
 	/// pOptions: {
@@ -25,9 +25,9 @@ RC.ImageGallery = (function () {
 	///		autoFocus			if true, the gallery will get focus automatically enabling key interaction
 	///	}
 
-	var Gallery = function (pContainer, pImageCollection, pOptions) {
+	var Gallery = function (pContainer, pImageCollections, pOptions) {
 		this.gallery = null;						/// the div containing all the images etc.
-		this.imageCollection = pImageCollection;	/// the image collection with all required data
+		this.imageCollections = pImageCollections;	/// the image collections with all required data
 		this.defaultZoomLevel = 0;					/// the zoom level initially used
 		this.zoomLevel = null;						/// images will have a size of 2^zoom * imageBaseWidth by 2^zoom * imageBaseHeight
 		this.offset = { x: 0, y: 0 };				/// the left and top offset of the gallery. Changed when zooming or panning
@@ -58,9 +58,11 @@ RC.ImageGallery = (function () {
 		initialize: function (pContainer, pOptions) {
 			this.readOptions(pOptions);
 			this.draw(pContainer);
-			this.calculateDimensions();
-			this.createImages();
-			this.placeImages(true);
+			if(this.imageCollections && this.imageCollections.length){
+				this.calculateDimensions();
+				this.createImages();
+				this.placeImages(true);
+			}
 			this.bindHandlers();
 		},
 
@@ -101,26 +103,26 @@ RC.ImageGallery = (function () {
 			this.gallery.addEventListener('keydown', this.gallery_keydown.bind(this));
 			document.addEventListener('scroll', this.document_scroll.bind(this));
 			// ZingTouch events
-			var zt = new ZingTouch.Region(this.gallery);
-			var panEvent = new ZingTouch.Pan();
-			var tapEvent = new ZingTouch.Tap();
+			const zt = new ZingTouch.Region(this.gallery);
+			const panEvent = new ZingTouch.Pan();
+			const tapEvent = new ZingTouch.Tap();
 			tapEvent.tolerance = 5;
 			zt.bind(this.gallery, tapEvent, this.gallery_tap.bind(this));
 			panEvent.threshold = 5;
 			zt.bind(this.gallery, panEvent, this.gallery_pan.bind(this));
-			var expandEvent = new ZingTouch.Expand();
+			const expandEvent = new ZingTouch.Expand();
 			expandEvent.threshold = (this.galleryWidth + this.galleryHeight) / 100;
 			zt.bind(this.gallery, expandEvent, this.gallery_expand.bind(this));
-			var pinchEvent = new ZingTouch.Pinch();
+			const pinchEvent = new ZingTouch.Pinch();
 			pinchEvent.threshold = 20;
 			zt.bind(this.gallery, pinchEvent, this.gallery_pinch.bind(this));
-			var swipeEvent = new ZingTouch.Swipe();
+			const swipeEvent = new ZingTouch.Swipe();
 			zt.bind(this.gallery, swipeEvent, this.gallery_swipe.bind(this));
 		},
 
 		/// handles resizes of the body
 		body_resize: function () {
-			var columnsOld = this.columns;
+			const columnsOld = this.columns;
 			this.calculateDimensions();
 			if (columnsOld !== this.columns) {
 				this.rebuildImageArray();
@@ -133,7 +135,6 @@ RC.ImageGallery = (function () {
 
 		/// handles key downs on the gallery.  
 		gallery_keydown: function (event) {
-			//console.log(event.key);
 			switch (event.key) {
 				case "ArrowLeft":
 					this.handleArrowKey(event, -1, 0);
@@ -214,7 +215,7 @@ RC.ImageGallery = (function () {
 		/// handler for the scroll wheel, triggering a zoom. Handles different types of WheelEvents
 		gallery_onWheel: function (event) {
 			event.preventDefault();
-			var amount = 0;
+			let amount = 0;
 			if ('wheelDelta' in event) {
 				amount = event.wheelDelta;
 			} else {
@@ -237,9 +238,9 @@ RC.ImageGallery = (function () {
 
 		/// ZingTouch tap/click handler, zooms to the image
 		gallery_tap: function (event) {
-			var eventDetail = event.detail.events[0];
-			var clickPosition = this.normalizePosition(this.adjustPosition(eventDetail.clientX, eventDetail.clientY));
-			var imageItem = this.getImageAt(clickPosition);
+			const eventDetail = event.detail.events[0];
+			const clickPosition = this.normalizePosition(this.adjustPosition(eventDetail.clientX, eventDetail.clientY));
+			const imageItem = this.getImageAt(clickPosition);
 			if (imageItem) {
 				this.zoomToImage(imageItem.image);
 			}
@@ -247,8 +248,8 @@ RC.ImageGallery = (function () {
 
 		/// ZingTouch pan / drag handler, moves the gallery canvas
 		gallery_pan: function (event) {
-			var eventDetail = event.detail.events[0];
-			var eventPosition = this.adjustPosition(eventDetail.clientX, eventDetail.clientY);
+			const eventDetail = event.detail.events[0];
+			const eventPosition = this.adjustPosition(eventDetail.clientX, eventDetail.clientY);
 			if (this.mouseDownPosition) {
 				this.moveOffset(this.mouseDownPosition.x - eventPosition.x, this.mouseDownPosition.y - eventPosition.y);
 				this.mouseDownPosition = eventPosition;
@@ -269,8 +270,8 @@ RC.ImageGallery = (function () {
 		/// ZingTouch swipe handler, jumping to the next image if we have a current image, 
 		/// or doing other stuffs
 		gallery_swipe: function (event) {
-			var detail = event.detail.data[0];
-			var direction = [[-1, 0], [0, 1], [1, 0], [0, -1]][Math.round((detail.currentDirection) / 90) % 4];
+			const detail = event.detail.data[0];
+			const direction = [[-1, 0], [0, 1], [1, 0], [0, -1]][Math.round((detail.currentDirection) / 90) % 4];
 			this.showNextImage(direction[0], direction[1], 0.5, 10);
 		},
 
@@ -279,7 +280,7 @@ RC.ImageGallery = (function () {
 		/// into consideration the container not beginning at 0:0, and
 		/// the window being scrolled
 		adjustPosition: function (pX, pY) {
-			var offset = this.getGalleryOffset();
+			const offset = this.getGalleryOffset();
 			return {
 				x: pX - offset.left + window.scrollX,
 				y: pY - offset.top + window.scrollY
@@ -289,9 +290,9 @@ RC.ImageGallery = (function () {
 		/// gets an object {left, top} representing the left and top offset
 		/// of the gallery
 		getGalleryOffset: function () {
-			var galleryOffsetLeft = 0;
-			var galleryOffsetTop = 0;
-			var element = this.gallery;
+			let galleryOffsetLeft = 0;
+			let galleryOffsetTop = 0;
+			let element = this.gallery;
 			do {
 				galleryOffsetLeft += element.offsetLeft;
 				galleryOffsetTop += element.offsetTop;
@@ -304,20 +305,20 @@ RC.ImageGallery = (function () {
 		/// gets the image at position pPosition. pPosition is in gallery coordinates, meaning it needs
 		/// to be adjusted and normalized from clientx/y
 		getImageAt: function (pPosition) {
-			var col = Math.floor((pPosition.x - this.paddingLeft) / (this.imageBaseWidth + this.imageSpaceH));
-			var row = Math.floor((pPosition.y - this.paddingTop) / (this.imageBaseHeight + this.imageSpaceV));
+			const col = Math.floor((pPosition.x - this.paddingLeft) / (this.imageBaseWidth + this.imageSpaceH));
+			const row = Math.floor((pPosition.y - this.paddingTop) / (this.imageBaseHeight + this.imageSpaceV));
 			return this.images.find(function (element) { return element.row === row && element.col === col });
 		},
 
 		/// Gets the image at the current center of the screen, but only if we have a zoom level that show the
 		/// image at at least half the height or width of the screen
 		getCurrentImage: function (pMinOverzoom, pMaxOverzoom) {
-			var result = null;
-			var imageItem = this.getImageAt(this.normalizePosition(this.adjustPosition(this.galleryWidth / 2, this.galleryHeight / 2)));
+			let result = null;
+			const imageItem = this.getImageAt(this.normalizePosition(this.adjustPosition(this.galleryWidth / 2, this.galleryHeight / 2)));
 			if (imageItem) {
-				var rect = imageItem.image.getImageRectangle();
-				var vZoom = rect.height / this.galleryHeight;
-				var hZoom = rect.width / this.galleryWidth;
+				const rect = imageItem.image.getImageRectangle();
+				const vZoom = rect.height / this.galleryHeight;
+				const hZoom = rect.width / this.galleryWidth;
 				if (
 					((vZoom >= pMinOverzoom) || (hZoom >= pMinOverzoom))
 					&& (vZoom <= pMaxOverzoom)
@@ -329,14 +330,14 @@ RC.ImageGallery = (function () {
 			return result;
 		},
 
-		/// removes the current image collection and sets a new one
-		setImageCollection: function (pImageCollection) {
+		/// removes the current image collections and sets new ones
+		setImageCollections: function (pImageCollections) {
 			if (this.images !== null) {
 				this.images.forEach(function(element){
 					element.image.remove();
 				}.bind(this));
 			}
-			this.imageCollection = pImageCollection;
+			this.imageCollections = pImageCollections;
 			this.calculateDimensions();
 			this.createImages();
 			this.placeImages();
@@ -346,10 +347,10 @@ RC.ImageGallery = (function () {
 		/// moves to the next, handling end of row / columns. Returns true, if we have moved, false otherwise
 		/// returns the newly centered image, if anything happened
 		showNextImage: function (pDeltaX, pDeltaY, pMinOverzoom, pMaxOverzoom) {
-			var currentImage = this.getCurrentImage(pMinOverzoom, pMaxOverzoom);
+			const currentImage = this.getCurrentImage(pMinOverzoom, pMaxOverzoom);
 			if (currentImage) {
-				var col = currentImage.col + pDeltaX;
-				var row = currentImage.row + pDeltaY;
+				let col = currentImage.col + pDeltaX;
+				let row = currentImage.row + pDeltaY;
 				if (col >= this.columns) {
 					col = 0;
 					row += 1;
@@ -370,9 +371,9 @@ RC.ImageGallery = (function () {
 
 		/// centers the image at pCol/pRow, not changing the zoom
 		centerImage: function (pCol, pRow) {
-			var image = this.images.find(function (element) { return element.row === pRow && element.col === pCol });
+			const image = this.images.find(function (element) { return element.row === pRow && element.col === pCol });
 			if (image) {
-				var zoomFactor = Math.pow(2, this.zoomLevel);
+				const zoomFactor = Math.pow(2, this.zoomLevel);
 				this.calculateOffset(this.normalizePosition(
 					{
 						x: zoomFactor * (this.paddingLeft + (pCol * (this.imageBaseWidth + this.imageSpaceV)) + (this.imageBaseWidth / 2)) - this.offset.x,
@@ -390,7 +391,7 @@ RC.ImageGallery = (function () {
 
 		centerLastImage: function () {
 			if (this.images.length > 0) {
-				var lastImageItem = this.images[this.images.length - 1];
+				const lastImageItem = this.images[this.images.length - 1];
 				this.centerImage(lastImageItem.col, lastImageItem.row);
 			}
 		},
@@ -398,18 +399,18 @@ RC.ImageGallery = (function () {
 		/// changes the zoom. When zooming, the center is re-set so that the image at the
 		/// zoom center remains (more or less) stationary.
 		changeZoom: function (pZoomChange, pCenter, pNoSmooth) {
-			var newCenter;
+			let newCenter;
 			if ((pCenter === null)) {
 				newCenter = this.normalizePosition({ x: this.galleryWidth / 2, y: this.galleryHeight / 2 });
 			}
 			else {
-				var stretchFactor = Math.pow(2, pZoomChange);
-				var galleryCenter = {
+				const stretchFactor = Math.pow(2, pZoomChange);
+				const galleryCenter = {
 					x: this.galleryWidth / 2,
 					y: this.galleryHeight / 2
 				};
-				var distX = galleryCenter.x - pCenter.x;
-				var distY = galleryCenter.y - pCenter.y;
+				const distX = galleryCenter.x - pCenter.x;
+				const distY = galleryCenter.y - pCenter.y;
 				newCenter = this.normalizePosition({
 					x: pCenter.x + (distX / stretchFactor),
 					y: pCenter.y + (distY / stretchFactor)
@@ -423,15 +424,15 @@ RC.ImageGallery = (function () {
 		/// adjust center and zoom in a way that pImage is displayed with a zoom
 		/// level that fits to the gallery size.
 		zoomToImage: function (pImage) {
-			var rect = pImage.getImageRectangle();
-			var adjustedImagePosition = this.adjustPosition(rect.left, rect.top);
-			var center = {
+			const rect = pImage.getImageRectangle();
+			const adjustedImagePosition = this.adjustPosition(rect.left, rect.top);
+			const center = {
 				x: adjustedImagePosition.x + (rect.width / 2),
 				y: adjustedImagePosition.y + (rect.height / 2)
 			};
-			var imageAspectRatio = rect.width / rect.height;
-			var containerAspectRatio = this.imageBaseWidth / this.imageBaseHeight;
-			var imageWidth, imageHeight;
+			const imageAspectRatio = rect.width / rect.height;
+			const containerAspectRatio = this.imageBaseWidth / this.imageBaseHeight;
+			let imageWidth, imageHeight;
 			if (imageAspectRatio > containerAspectRatio) {
 				imageWidth = this.imageBaseWidth;
 				imageHeight = this.imageBaseWidth / imageAspectRatio;
@@ -439,10 +440,10 @@ RC.ImageGallery = (function () {
 				imageWidth = this.imageBaseHeight * imageAspectRatio;
 				imageHeight = this.imageBaseHeight;
 			}
-			var zoomH = Math.log2(this.galleryHeight / imageHeight);
-			var zoomV = Math.log2(this.galleryWidth / imageWidth);
-			var newZoom = Math.round(Math.min(zoomH, zoomV) / 0.25) * 0.25;
-			var newCenter = this.normalizePosition(center);
+			const zoomH = Math.log2(this.galleryHeight / imageHeight);
+			const zoomV = Math.log2(this.galleryWidth / imageWidth);
+			const newZoom = Math.round(Math.min(zoomH, zoomV) / 0.25) * 0.25;
+			const newCenter = this.normalizePosition(center);
 			this.zoomLevel = newZoom;
 			this.calculateOffset(newCenter);
 			this.placeImages();
@@ -451,7 +452,7 @@ RC.ImageGallery = (function () {
 		/// this takes a position on the screen and converts it to the position within the
 		/// full gallery, projected to zoom level 0.
 		normalizePosition: function (pPosition) {
-			var scaleFactor = Math.pow(2, this.zoomLevel);
+			const scaleFactor = Math.pow(2, this.zoomLevel);
 			return {
 				x: (this.offset.x + pPosition.x) / scaleFactor,
 				y: (this.offset.y + pPosition.y) / scaleFactor
@@ -462,8 +463,8 @@ RC.ImageGallery = (function () {
 		/// not visible to the left and to the top). This needs to be called
 		/// whenever the viewport changes (zoom, center)
 		calculateOffset: function(pCenter) {
-			var scaleFactor = Math.pow(2, this.zoomLevel);
-			var center = pCenter || {
+			const scaleFactor = Math.pow(2, this.zoomLevel);
+			const center = pCenter || {
 				x: this.galleryWidth / 2,
 				y: this.galleryHeight / 2
 			};
@@ -478,13 +479,15 @@ RC.ImageGallery = (function () {
 
 		/// creates the image objects
 		createImages: function () {
-			var imagesList = new Array();
-			this.imageCollection.getImageNames().forEach(function (item) {
-				var image = new RC.ImageGallery.Image(item, this.imageCollection);
-				this.gallery.appendChild(image.draw());
-				image.setSize(this.imageBaseWidth, this.imageBaseHeight);
-				imagesList.push(image);
-			}.bind(this));
+			const imagesList = new Array();
+			for(let aCollection of this.imageCollections){
+				for(let anImage of aCollection.getImageNames()){
+					const image = new RC.ImageGallery.Image(anImage, aCollection);
+					this.gallery.appendChild(image.draw());
+					image.setSize(this.imageBaseWidth, this.imageBaseHeight);
+					imagesList.push(image);
+				}
+			}
 			this.buildImageArray(imagesList);
 		},
 
@@ -492,26 +495,26 @@ RC.ImageGallery = (function () {
 		/// images outside the current view are hidden in order to save rendering power. Images that
 		/// could come into view soon are placed as placehoder in order to avoid lat appearance
 		placeImages: function (pNoSmooth) {
-			var scaleFactor = Math.pow(2, this.zoomLevel);
-			var left, top;
-			var imageSize = Math.max(this.imageBaseWidth * scaleFactor, this.imageBaseHeight * scaleFactor);
-			var rowHeight = (this.imageBaseHeight + this.imageSpaceV) * scaleFactor;
-			var visibleRows = Math.ceil(this.galleryHeight / rowHeight);
-			var visibleMinRow = Math.floor((this.offset.y - (this.paddingTop * scaleFactor)) / rowHeight);
-			var visibleMaxRow = visibleMinRow + visibleRows;
-			var colWidth = (this.imageBaseWidth + this.imageSpaceH) * scaleFactor;
-			var visibleColumns = Math.ceil(this.galleryWidth / colWidth);
-			var visibleMinCol = Math.floor((this.offset.x - (this.paddingLeft * scaleFactor)) / colWidth);
-			var visibleMaxCol = visibleMinCol + visibleColumns;
-			var partylVisible = {
+			const scaleFactor = Math.pow(2, this.zoomLevel);
+			let left, top;
+			const imageSize = Math.max(this.imageBaseWidth * scaleFactor, this.imageBaseHeight * scaleFactor);
+			const rowHeight = (this.imageBaseHeight + this.imageSpaceV) * scaleFactor;
+			const visibleRows = Math.ceil(this.galleryHeight / rowHeight);
+			const visibleMinRow = Math.floor((this.offset.y - (this.paddingTop * scaleFactor)) / rowHeight);
+			const visibleMaxRow = visibleMinRow + visibleRows;
+			const colWidth = (this.imageBaseWidth + this.imageSpaceH) * scaleFactor;
+			const visibleColumns = Math.ceil(this.galleryWidth / colWidth);
+			const visibleMinCol = Math.floor((this.offset.x - (this.paddingLeft * scaleFactor)) / colWidth);
+			const visibleMaxCol = visibleMinCol + visibleColumns;
+			const partylVisible = {
 				minRow: Math.floor(visibleMinRow - visibleRows / 2),
 				maxRow: Math.ceil(visibleMaxRow + visibleRows / 2),
 				minCol: Math.floor(visibleMinCol - visibleColumns / 2),
 				maxCol: Math.ceil(visibleMaxCol + visibleColumns / 2)
 			};
-			var noSmooth = pNoSmooth || (visibleRows * visibleColumns > 500);
+			const noSmooth = pNoSmooth || (visibleRows * visibleColumns > 500);
 			this.images.forEach(function (element) {
-				var visibility = 0;
+				let visibility = 0;
 				if (
 					(element.row >= visibleMinRow) && (element.row <= visibleMaxRow)
 					&& (element.col >= visibleMinCol) && (element.col <= visibleMaxCol)
@@ -533,8 +536,8 @@ RC.ImageGallery = (function () {
 		/// image objects
 		buildImageArray: function (pImages) {
 			this.images = new Array();
-			var row = 0;
-			var col = 0;
+			let col = 0;
+			let row = 0;
 			pImages.forEach(function (element) {
 				if (col >= this.columns) {
 					col = 0;
@@ -555,14 +558,17 @@ RC.ImageGallery = (function () {
 		/// space and the number of images to show. The goal is to best fit the images into the available space.
 		/// Also calculates the gallery dimensions and defaults the viewport to the center of the gallery.
 		calculateDimensions: function () {
-			var imagesCount = this.imageCollection.getImageNames().length;
+			let imagesCount = 0;
+			for(let anImageCollection of this.imageCollections){
+				imagesCount +=  anImageCollection.getImageNames().length;
+			}
 			if (imagesCount > 0) {
 				this.galleryWidth = this.gallery.clientWidth;
 				this.galleryHeight = this.gallery.clientHeight;
-				var zoomLevel = 0;
-				var zoomIncrement = 0.25;
-				var zoomFactor = Math.pow(2, zoomLevel);
-				var grid = this.calculateGrid(zoomFactor, imagesCount);
+				let zoomLevel = 0;
+				const zoomIncrement = 0.25;
+				let zoomFactor = Math.pow(2, zoomLevel);
+				let grid = this.calculateGrid(zoomFactor, imagesCount);
 				while ((zoomFactor * (this.paddingTop + this.paddingBottom + (this.imageBaseHeight * grid.rows) + (this.imageSpaceV * (grid.rows - 1))) < this.galleryHeight * this.minHeightUsed)) {
 					zoomLevel += zoomIncrement;
 					zoomFactor = Math.pow(2, zoomLevel);
@@ -583,8 +589,8 @@ RC.ImageGallery = (function () {
 		/// calculates the number of columns and rows needed to show pImageCount images
 		/// at a certain zoomLevel. Returns an object with {columns, rows}.
 		calculateGrid: function (pZoomFactor, pImagesCount) {
-			var columns = Math.max(1, Math.floor((this.galleryWidth - pZoomFactor * (this.paddingLeft + this.paddingRight - this.imageSpaceH)) / (pZoomFactor * (this.imageBaseWidth + this.imageSpaceH))));
-			var rows = Math.ceil(pImagesCount / columns);
+			const columns = Math.max(1, Math.floor((this.galleryWidth - pZoomFactor * (this.paddingLeft + this.paddingRight - this.imageSpaceH)) / (pZoomFactor * (this.imageBaseWidth + this.imageSpaceH))));
+			const rows = Math.ceil(pImagesCount / columns);
 			return {
 				columns: columns,
 				rows: rows
@@ -618,7 +624,7 @@ RC.ImageGallery = (function () {
 		/// returns the folder url for images no wider nor higher than pImageSize.
 		/// The results are cached, using pImageSize as key
 		calculateFolderUrl: function (pImageSize) {
-			var result = this.zoomFolders.find(function (element) {
+			let result = this.zoomFolders.find(function (element) {
 				return element.maxSize >= pImageSize;
 			});
 			if (!(result != null)) {
@@ -633,14 +639,14 @@ RC.ImageGallery = (function () {
 		/// the maximum of width and height (pImageSize)
 		getFolderUrl: function (pImageSize) {
 			pImageSize = Math.round(pImageSize);
-			var zoomFolder = null;
+			let zoomFolder = null;
 			if (this.zoomFolderMap.has(pImageSize)) {
 				zoomFolder = this.zoomFolderMap.get(pImageSize);
 			} else {
 				zoomFolder = this.calculateFolderUrl(pImageSize);
 				this.zoomFolderMap.set(pImageSize, zoomFolder);
 			}
-			var result = this.rootUrl;
+			let result = this.rootUrl;
 			if (zoomFolder) {
 				result = result + zoomFolder + '/';
 			} 
@@ -709,7 +715,7 @@ RC.ImageGallery = (function () {
 		/// adding to the gallery
 		draw: function () {
 			this.imageContainer = document.createElement('div');
-			var div = document.createElement('div');
+			const div = document.createElement('div');
 			this.imageContainer.appendChild(div);
 			this.imageElement = document.createElement('img');
 			div.appendChild(this.imageElement);
@@ -723,9 +729,8 @@ RC.ImageGallery = (function () {
 
 		/// makes sure we have the correct imageUrl for the current zoom level
 		ensureImageUrl: function (pImageSize) {
-			var imageSize = pImageSize;
-			if(imageSize){
-				var imageUrl = this.collection.getFolderUrl(imageSize) + this.imageName;
+			if(pImageSize){
+				const imageUrl = this.collection.getFolderUrl(pImageSize) + this.imageName;
 				if ((this.imageElement.src !== imageUrl)) {
 					this.imageElement.src = imageUrl;
 				}
@@ -744,8 +749,8 @@ RC.ImageGallery = (function () {
 			if (this.isHidden && pVisibility === 2) {
 				this.unHideImage();
 			}
-			var doHide = !this.isHidden && (pVisibility < 2);
-			var smooth = (pVisibility > 0) && !pNoSmooth;
+			const doHide = !this.isHidden && (pVisibility < 2);
+			const smooth = (pVisibility > 0) && !pNoSmooth;
 			if (doHide) {
 				if (smooth) {
 					this.imageContainer.addEventListener('transitionend', function () {
@@ -766,9 +771,9 @@ RC.ImageGallery = (function () {
 						this.ensureImageUrl(pImageSize);
 					}
 				}
-				var cssTransformValue = '';
-				var x = pX + (pScaleFactor - 1) * this.imageContainer.clientWidth / 2;
-				var y = pY + (pScaleFactor - 1) * this.imageContainer.clientHeight / 2;
+				let cssTransformValue = '';
+				const x = pX + (pScaleFactor - 1) * this.imageContainer.clientWidth / 2;
+				const y = pY + (pScaleFactor - 1) * this.imageContainer.clientHeight / 2;
 				if ((x !== this.imageContainer.x) || (y !== this.imageContainer.y)) {
 					cssTransformValue += `translate(${x}px, ${y}px) `;
 				}

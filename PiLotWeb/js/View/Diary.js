@@ -1531,10 +1531,38 @@ PiLot.View.Diary = (function () {
 		}
 	}
 
+	/** A page showing all photos in a zoomable gallery */
+	var PhotosPage = function(){
+		this.imageGallery = null;	// RC. ImageGallery.Gallery
+
+		this.initialize();
+	};
+
+	PhotosPage.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.loadImagesAsync();
+		},
+
+		draw: function(){
+			const page = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.photosPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(page);
+			this.imageGallery = new RC.ImageGallery.Gallery(page.querySelector('.plhGallery'), null, null);
+		},
+
+		loadImagesAsync: async function(){
+			const imageCollections = await PiLot.Model.Logbook.loadAllImageCollectionsAsync();
+			this.imageGallery.setImageCollections(imageCollections);
+		}
+
+	};
+
 	return {
 		DiaryPage: DiaryPage,
 		PublishDiaryPage: PublishDiaryPage,
-		DiaryCalendar: DiaryCalendar
+		DiaryCalendar: DiaryCalendar,
+		PhotosPage: PhotosPage
 	};
 
 })();

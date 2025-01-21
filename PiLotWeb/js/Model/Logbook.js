@@ -605,9 +605,23 @@ PiLot.Model.Logbook = (function () {
 	 */
 	var loadDailyImageCollectionAsync = async function (pDate) {
 		PiLot.log('PiLot.Logbook.Model.loadDailyImageCollectionAsync', 3);
-		const url = `/Photos?year=${pDate.year}&month=${pDate.month}&day=${pDate.day}`;
+		const url = `/Photos/${pDate.year}/${pDate.month}/${pDate.day}`;
 		const json = await PiLot.Utils.Common.getFromServerAsync(url);
 		return new RC.ImageGallery.ImageCollection(json.rootUrl, json.zoomFolders, json.imageNames);
+	};
+
+	/**
+	 * Gets the image collections for all days
+	 * @returns {RC.ImageGallery.ImageCollection[]} 
+	 * */
+	var loadAllImageCollectionsAsync = async function(){
+		PiLot.log('PiLot.Logbook.Model.loadAllImageCollectionsAsync', 3);
+		const json = await PiLot.Utils.Common.getFromServerAsync('/Photos');
+		const result = [];
+		for(let aCollection of json){
+			result.push(new RC.ImageGallery.ImageCollection(aCollection.rootUrl, aCollection.zoomFolders, aCollection.imageNames));
+		}
+		return result;
 	};
 
 	/**
@@ -709,6 +723,7 @@ PiLot.Model.Logbook = (function () {
 		loadLogbookDayAsync: loadLogbookDayAsync,
 		loadCurrentBoatSetupAsync: loadCurrentBoatSetupAsync,
 		loadDailyImageCollectionAsync: loadDailyImageCollectionAsync,
+		loadAllImageCollectionsAsync: loadAllImageCollectionsAsync,
 		uploadPhotoAsync: uploadPhotoAsync,
 		deletePhotoAsync: deletePhotoAsync,
 		loadPublishTargetsAsync: loadPublishTargetsAsync,
