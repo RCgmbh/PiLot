@@ -1548,7 +1548,17 @@ PiLot.View.Diary = (function () {
 		draw: function(){
 			const page = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.photosPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(page);
-			this.imageGallery = new RC.ImageGallery.Gallery(page.querySelector('.plhGallery'), null, null);
+			const options = {
+				paddingTop: 2,
+				paddingRight:2,
+				paddingBottom: 2,
+				paddingLeft: 2,
+				imageSpaceH: 1,
+				imageSpaceV: 1,
+				imageBaseWidth: 8,
+				imageBaseHeight: 8
+			};
+			this.imageGallery = new RC.ImageGallery.Gallery(page.querySelector('.plhGallery'), null, options);
 		},
 
 		loadImagesAsync: async function(){
