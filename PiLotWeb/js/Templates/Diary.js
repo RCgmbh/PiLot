@@ -244,13 +244,14 @@ PiLot.Templates.Diary = {
 			</div>
 		</div>`,
 
-	diaryPhoto: `<div class="thumbnailContainer">
+	diaryPhoto: `
+		<div class="thumbnailContainer">
 			<img class="imgPhoto thumbnail" src="" />
 		</div>`,
 
 	photosPage: `
 		<div class="fullHeight fullWidth flex">
-			<div class="plhGallery grow" style="position: relative"></div>
+			<div class="plhGallery marginTop grow" style="position: relative"></div>
 		</div>
 	`
 };

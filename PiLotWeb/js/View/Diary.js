@@ -794,9 +794,11 @@ PiLot.View.Diary = (function () {
 	 * The photo gallery for the Diary, showing thumbnails of all photos of the day, and allows to
 	 * open them. In edit-mode (read-only=false), the photos can also be deleted.
 	 * @param {HTMLElement} pContainer - the container where the gallery will be created
+	 * @param {Boolean} pTinyThumbnails - set this to true to show tiny thumbnails
 	 */
-	var DiaryPhotoGallery = function (pContainer) {
+	var DiaryPhotoGallery = function (pContainer, pTinyThumbnails = false) {
 		this.container = pContainer;
+		this.tinyThumbnails = pTinyThumbnails;
 		this.date = null;
 		this.control = null;
 		this.lnkDownload = null;
@@ -885,6 +887,7 @@ PiLot.View.Diary = (function () {
 			this.lnkDelete = this.control.querySelector('.lnkDelete');
 			PiLot.Utils.Common.bindOrHideEditLink(this.lnkDelete, this.lnkDelete_click.bind(this));
 			this.plhPhotos = this.container.querySelector('.plhPhotos');
+			this.plhPhotos.classList.toggle('tiny', this.tinyThumbnails);
 			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
 			this.imgFullSize = this.container.querySelector('.imgFullSize');
 			this.imgFullSize.addEventListener('load', this.image_load.bind(this));
@@ -934,10 +937,14 @@ PiLot.View.Diary = (function () {
 		showThumbnails: function(){
 			this.plhPhotos.clear();
 			let image;
+			let imageSize = null;
 			for(let i = 0; i < this.imageData.length; i++) {
 				const onclick = this.thumbnail_click.bind(this, i);
 				image = this.imageData[i];
-				const thumbnail = new Thumbnail(this.plhPhotos, image.fileName, image.imageCollection, onclick);
+				const thumbnail = new Thumbnail(this.plhPhotos, image.fileName, image.imageCollection, onclick, imageSize);
+				if(i === 0){
+					imageSize = thumbnail.getImageSize();
+				}
 			};
 			this.toggleVisible(this.imageData.length > 0);
 			this.lblPhotoTotal.innerText = this.imageData.length;
@@ -1035,14 +1042,16 @@ PiLot.View.Diary = (function () {
 	/**
 	 * @param {HTMLElement} pContainer - the container where the images should be added
 	 * @param {String} pImageName - the name of the image, without any path prefix
-	 * @param {RC.ImageGallery.ImageCollection} pImageCollection - the image collection for the day
+	 * @param {PiLot.Model.Logbook.ImageCollection} pImageCollection - the collection this belongs to
 	 * @param {Function} pOnClick - the handler for the click on the image
+	 * @param {Number} pImageSize - pass the image size if you know it to save a lot of time
 	 */
-	var Thumbnail = function (pContainer, pImageName, pImageCollection, pOnClick) {
+	var Thumbnail = function (pContainer, pImageName, pImageCollection, pOnClick, pImageSize = null) {
 		this.container = pContainer;					// HTMLElement
 		this.imageName = pImageName;					// String (the original image name)
-		this.imageCollection = pImageCollection;		// RC.ImageGallery.ImageCollection
+		this.imageCollection = pImageCollection;		// PiLot.Model.Logbook.ImageCollection
 		this.onclick = pOnClick;						// Function
+		this.imageSize = pImageSize;
 		this.image = null;
 		this.reloadInterval = null;
 		this.initialize();
@@ -1070,8 +1079,8 @@ PiLot.View.Diary = (function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhoto);
 			this.container.appendChild(control);
 			this.image = control.querySelector('.imgPhoto');
-			const imageSize = Math.max(control.clientHeight, control.clientWidth);
-			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + this.imageName;
+			this.imageSize = this.imageSize || Math.max(control.clientHeight, control.clientWidth);
+			const imageUrl = this.imageCollection.getFolderUrl(this.imageSize) + this.imageName;
 			this.image.src = imageUrl;
 			this.image.addEventListener('click', this.onclick);
 			this.image.addEventListener('load', this.image_load.bind(this));
@@ -1086,6 +1095,10 @@ PiLot.View.Diary = (function () {
 
 		reloadImage: function(){
 			this.image.src = this.image.src;
+		},
+
+		getImageSize: function(){
+			return this.imageSize;
 		}
 	};
 
@@ -1565,7 +1578,7 @@ PiLot.View.Diary = (function () {
 		draw: function(){
 			const page = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.photosPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(page);
-			this.imageGallery = new DiaryPhotoGallery(page.querySelector('.plhGallery'));
+			this.imageGallery = new DiaryPhotoGallery(page.querySelector('.plhGallery'), true);
 		},
 
 		loadImagesAsync: async function(){
