@@ -922,6 +922,7 @@ PiLot.View.Diary = (function () {
 			else{
 				imageCollections = await PiLot.Model.Logbook.loadAllImageCollectionsAsync();
 			}
+			imageCollections.sort((x, y) => x.getName().localeCompare(y.getName()));
 			this.imageData = [];
 			for(let aCollection of imageCollections){
 				for(let anImageName of aCollection.getImageNames()){
