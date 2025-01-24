@@ -162,14 +162,14 @@ namespace PiLot.Data.Files {
 		/// Deletes an image and all its thumbnails
 		/// </summary>
 		/// <param name="pImageName">The image name, without any path prefix</param>
-		/// <param name="pDay">The day of the image</param>
-		public void DeleteImageWithThumbnails(Date pDay, String pImageName) {
-			String imagePath = this.GetImageFilePath(pDay, pImageName);
+		/// <param name="pCollection">The name of the image collection</param>
+		public void DeleteImageWithThumbnails(String pCollection, String pImageName) {
+			String imagePath = this.GetImageFilePath(pCollection, pImageName);
 			if (File.Exists(imagePath)) {
 				File.Delete(imagePath);
 				Logger.Log($"Deleted photo at {imagePath}", LogLevels.DEBUG);
 			}
-			String directoryPath = this.GetPhotosFilePath(pDay, false);
+			String directoryPath = this.GetPhotosFilePath(pCollection, false);
 			String thumbnailPath;
 			foreach (String aDirectory in Directory.GetDirectories(directoryPath)) {
 				thumbnailPath = Path.Combine(aDirectory, pImageName);
@@ -187,6 +187,7 @@ namespace PiLot.Data.Files {
 			}
 			return new ImageCollection() {
 				RootURL = this.GetPhotosRelativePath(pDirectory),
+				Name = pDirectory.Name,
 				ZoomFolders = this.GetImageFolders(),
 				ImageNames = imageNames
 			};
@@ -206,12 +207,20 @@ namespace PiLot.Data.Files {
 		/// <param name="pDay">the Day</param>
 		/// <param name="pCreateMissingFolder">If true, missing folders will be created automagically</param>
 		private String GetPhotosFilePath(Date pDay, Boolean pCreateMissingFolder) {
-			String photoRootPath = this.GetPhotosRootPath(pCreateMissingFolder);
-			String photoDayPath = Path.Combine(photoRootPath, pDay.ToString(PHOTODIRFORMAT));
-			if (pCreateMissingFolder && !Directory.Exists(photoDayPath)) {
-				Directory.CreateDirectory(photoDayPath);
+			return this.GetPhotosFilePath(pDay.ToString(PHOTODIRFORMAT), pCreateMissingFolder);
+		}
+
+		/// <summary>
+		/// Gets the path to a certain photos folder. Optionally creates the folder, if it does not exist yet.
+		/// </summary>
+		/// <param name="pCollection">the name of the collection, e.g. 2025-01-01</param>
+		/// <param name="pCreateMissingFolder">If true, missing folders will be created automagically</param>
+		private String GetPhotosFilePath(String pCollection, Boolean pCreateMissingFolder) {
+			String collectionPath = Path.Combine(this.GetPhotosRootPath(pCreateMissingFolder), pCollection);
+			if (pCreateMissingFolder && !Directory.Exists(collectionPath)) {
+				Directory.CreateDirectory(collectionPath);
 			}
-			return photoDayPath;
+			return collectionPath;
 		}
 
 		/// <summary>
@@ -250,6 +259,18 @@ namespace PiLot.Data.Files {
 		private String GetImageFilePath(Date pDay, String pImageName) {
 			return Path.Combine(this.GetPhotosFilePath(pDay, false), pImageName);
 		}
+
+		/// <summary>
+		/// Returns the path for one specific image file, without checking, whether the 
+		/// folder or the image does exist.
+		/// </summary>
+		/// <param name="pCollection">The name of the collection, e.g 2025-01-01</param>
+		/// <param name="pImageName">The image name, like P1234.jpg</param>
+		/// <returns>The full absolute path (where an image might or might not be found)</returns>
+		private String GetImageFilePath(String pCollection, String pImageName) {
+			return Path.Combine(this.GetPhotosFilePath(pCollection, false), pImageName);
+		}
+
 
 		/// <summary>
 		/// This returns a list of ImageFolders, defining the folder names

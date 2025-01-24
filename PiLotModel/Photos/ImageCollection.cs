@@ -19,6 +19,12 @@ namespace PiLot.Model.Photos {
 		public String RootURL { get; set; }
 
 		/// <summary>
+		/// The name of the collection
+		/// </summary>
+		[JsonPropertyName("name")]
+		public String Name { get; set; }
+
+		/// <summary>
 		/// The names and image sizes of the folders containing different 
 		/// sizes of the images
 		/// </summary>

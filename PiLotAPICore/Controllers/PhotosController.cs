@@ -78,22 +78,16 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Deletes a photo from the server. 
 		/// </summary>
-		/// <param name="day">The day as string in format yyyy-mm-dd</param>
+		/// <param name="collection">The name of the collection, e.g. 2025-01-01</param>
 		/// <param name="fileName">the original Name of the image</param>
 		[Route(Program.APIROOT + "[controller]")]
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public ActionResult Delete(String day, String fileName) {
+		public ActionResult Delete(String collection, String fileName) {
 			ActionResult result;
 			try {
-				Date? date = null;
-				if (!String.IsNullOrEmpty(day)) {
-					date = new Date(DateTime.ParseExact(day, QSDATEFORMAT, null));
-					new PhotoDataConnector().DeleteImageWithThumbnails(date.Value, fileName);
-					result = this.Ok();
-				} else {
-					result = this.BadRequest("day missing");
-				}
+				new PhotoDataConnector().DeleteImageWithThumbnails(collection, fileName);
+				result = this.Ok();
 			} catch (Exception ex) {
 				Logger.Log(ex, "PhotosController.Delete");
 				throw;

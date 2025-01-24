@@ -568,7 +568,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		showDataAsync: async function (pDate) { 
-			await this.photoGallery.loadPhotosAsync(pDate);
+			await this.photoGallery.showPhotosAsync(pDate);
 			this.pnlNoData.hidden = this.photoGallery.hasPhotos();
 			this.applyEmptyStyle();
 		}
@@ -809,10 +809,9 @@ PiLot.View.Diary = (function () {
 		this.lblPhotoIndex = null;			// HTMLElement
 		this.lblPhotoTotal = null;			// HTMLElement
 		this.keyHandler = null;
-		this.imageCollection = null;
+		this.imageData = null;				// Array of {fileName, imageCollection}
 		this.imageIndex = -1;
 		this.navigationVisible = false;
-        this.hideNavTimeout = null;
         this.updateInterval = null;
 		this.initialize();
 	};
@@ -826,9 +825,8 @@ PiLot.View.Diary = (function () {
 
 		lnkDelete_click: function (pEvent) {
 			pEvent.preventDefault();
-			const fileName = this.imageCollection.getImageNames()[this.imageIndex]
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePhoto'))) {
-				this.deletePhoto(fileName);
+				this.deletePhoto();
 			}
 		},
 
@@ -837,7 +835,7 @@ PiLot.View.Diary = (function () {
 			pEvent.preventDefault();
 		},
 
-		/** @param {String} pArg - the image name */
+		/** @param {String} pArg - the image index */
 		thumbnail_click: function (pArg) {
 			this.showPhoto(pArg);
 		},
@@ -873,7 +871,7 @@ PiLot.View.Diary = (function () {
 					this.changePhoto(1);
 					break;
 				case "Home":
-					this.setPhotoIndex(0);
+					this.setImageIndex(0);
 					break;
 			}
 		},
@@ -899,44 +897,60 @@ PiLot.View.Diary = (function () {
 		},
 
 		/** @param {RC.Date.DateOnly} pDate */
-        loadPhotosAsync: async function (pDate) {
+        showPhotosAsync: async function (pDate = null) {
             if (this.updateInterval) {
                 window.clearInterval(this.updateInterval);
                 this.updateInterval = null;
             }
 			this.date = pDate;
-			this.plhPhotos.clear();
-			this.imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
+			await this.loadPhotosAsync();
 			this.showThumbnails();
         },
 
         reloadPhotosAsync: async function () {
-            const imageCollection = await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date);
-            if (imageCollection.getImagesCount() !== this.imageCollection.getImagesCount()) {
-                this.plhPhotos.clear();
-                this.imageCollection = imageCollection;
+            const previousImagesCount = this.imageData.length;
+			await this.loadPhotosAsync();
+            if (previousImagesCount !== this.imageData.length) {
                 this.showThumbnails();
             }
         },
-		
+
+		loadPhotosAsync: async function(){
+			let imageCollections;
+			if(this.date)
+				imageCollections = [await PiLot.Model.Logbook.loadDailyImageCollectionAsync(this.date)];
+			else{
+				imageCollections = await PiLot.Model.Logbook.loadAllImageCollectionsAsync();
+			}
+			this.imageData = [];
+			for(let aCollection of imageCollections){
+				for(let anImageName of aCollection.getImageNames()){
+					this.imageData.push({fileName: anImageName, imageCollection: aCollection});
+				}
+			}
+		},
+
 		showThumbnails: function(){
 			this.plhPhotos.clear();
-			this.toggleVisible(this.imageCollection.getImagesCount() > 0);
-			this.imageCollection.getImageNames().forEach(function (anImage) {
-				const onclick = this.thumbnail_click.bind(this, anImage);
-				const thumbnail = new Thumbnail(this.plhPhotos, anImage, this.imageCollection, onclick);
-			}.bind(this));
-			this.lblPhotoTotal.innerText = this.imageCollection.getImagesCount();
+			let image;
+			for(let i = 0; i < this.imageData.length; i++) {
+				const onclick = this.thumbnail_click.bind(this, i);
+				image = this.imageData[i];
+				const thumbnail = new Thumbnail(this.plhPhotos, image.fileName, image.imageCollection, onclick);
+			};
+			this.toggleVisible(this.imageData.length > 0);
+			this.lblPhotoTotal.innerText = this.imageData.length;
 		},
 
         ensureAutoUpdate: function () {
             this.updateInterval |= window.setInterval(this.reloadPhotosAsync.bind(this), 5000);
         },
 
-		/** @param {String} pFileName - The filename without any path prefix */
-		deletePhoto: function (pFileName) {
-			PiLot.Model.Logbook.deletePhotoAsync(this.date, pFileName);
-			this.imageCollection.removeImageName(pFileName);
+		deletePhoto: function () {
+			const image = this.imageData[this.imageIndex];
+			PiLot.Model.Logbook.deletePhotoAsync(image.imageCollection.getName(), image.fileName);
+			image.imageCollection.removeImageName(image.fileName);
+			this.imageData.remove(this.imageIndex);
 			this.hidePhoto();
 			this.showThumbnails();
 		},
@@ -946,10 +960,10 @@ PiLot.View.Diary = (function () {
 			this.control.hidden = !pVisible;
 		},
 
-		/** @param {String} pImageName - the image name, without any path prefix */
-		showPhoto: function (pImageName) {
-			this.imageIndex = this.imageCollection.getImageNames().indexOf(pImageName);
-			this.setPhotoUrl(pImageName);
+		/** @param {Number} pImageIndex - the index of the image in this.imageData */
+		showPhoto: function (pImageIndex) {
+			this.imageIndex = pImageIndex;
+			this.setPhotoUrl();
             this.pnlPhotoScreen.hidden = false;
             this.toggleNavigation(true);
 			document.addEventListener('keydown', this.keyHandler);
@@ -964,53 +978,56 @@ PiLot.View.Diary = (function () {
 		toggleNavigation: function (pVisible) {
 			this.navigationVisible = pVisible;
 			this.pnlPhotoScreen.classList.toggle('fullscreen', !pVisible);
-			window.clearTimeout(this.hideNavTimeout);
-			this.hideNavTimeout = null;
 		},
 
 		/** @param {Number} pChangeBy */
 		changePhoto: function (pChangeBy) {
-			const imageNames = this.imageCollection.getImageNames();
-			this.setPhotoIndex((this.imageIndex + pChangeBy + imageNames.length) % imageNames.length);
+			this.setImageIndex((this.imageIndex + pChangeBy + this.imageData.length) % this.imageData.length);
 		},
 
 		/** @param {Number} pIndex */
-		setPhotoIndex: function (pIndex) {
+		setImageIndex: function (pIndex) {
 			this.imageIndex = pIndex;
-			this.setPhotoUrl(this.imageCollection.getImageNames()[this.imageIndex]);
+			this.setPhotoUrl();
 		},
 
-		/** @param {String} pImageName - The image name, without any path prefix */
-		setPhotoUrl: function (pImageName) {
-			this.imgFullSize.src = this.getPhotoUrl(pImageName);
+		setPhotoUrl: function () {
+			const image = this.imageData[this.imageIndex];
+			this.imgFullSize.src = this.getPhotoUrl(image.imageCollection, image.fileName);
 			this.imgFullSize.hidden = true;
-			this.lnkDownload.href = this.getOriginalImageUrl(pImageName);
-            this.lnkOpenBlank.href = this.getOriginalImageUrl(pImageName);
-            this.lblFileName.innerText = pImageName;
+			this.lnkDownload.href = this.getOriginalImageUrl(image.imageCollection, image.fileName);
+            this.lnkOpenBlank.href = this.getOriginalImageUrl(image.imageCollection, image.fileName);
+            this.lblFileName.innerText = image.fileName;
 			this.lblPhotoIndex.innerText = this.imageIndex + 1;
 		},
 
 		preloadNextPhoto: function () {
-			const imageNames = this.imageCollection.getImageNames();
-			const imageUrl = this.getPhotoUrl(imageNames[(this.imageIndex + 1) % imageNames.length]);
-			const image = new Image();
-			image.src = imageUrl;
+			const nextImage = this.imageData[(this.imageIndex + 1) % this.imageData.length];
+			const imageUrl = this.getPhotoUrl(nextImage.imageCollection, nextImage.fileName);
+			const preoloadImage = new Image();
+			preoloadImage.src = imageUrl;
 		},
 
-		/** @param {String} pImageName - the image name, without any path prefix. */
-		getPhotoUrl: function (pImageName) {
+		/** 
+		 * @param {PiLot.Model.Logbook.ImageCollection} pImageCollection - the collection the image belongs to
+		 * @param {String} pImageName - the image name, without any path prefix. 
+		 * */
+		getPhotoUrl: function (pImageCollection, pImageName) {
 			const imageSize = Math.max(this.pnlPhotoScreen.clientHeight, this.pnlPhotoScreen.clientWidth);
-			const imageUrl = this.imageCollection.getFolderUrl(imageSize) + pImageName;
+			const imageUrl = pImageCollection.getFolderUrl(imageSize) + pImageName;
 			return imageUrl;
 		},
 
-		/** @param {String} pImageName - the image name, without any path prefix. */
-		getOriginalImageUrl: function (pImageName) {
-			return this.imageCollection.getRootUrl() + pImageName;
+		/** 
+		 * @param {PiLot.Model.Logbook.ImageCollection} pImageCollection - the collection the image belongs to
+		 * @param {String} pImageName - the image name, without any path prefix. 
+		 * */
+		getOriginalImageUrl: function (pImageCollection, pImageName) {
+			return pImageCollection.getRootUrl() + pImageName;
 		},
 
 		hasPhotos: function () {
-			return this.imageCollection && this.imageCollection.hasImages();
+			return this.imageData.length > 0;
 		}
 	};
 
@@ -1533,8 +1550,7 @@ PiLot.View.Diary = (function () {
 
 	/** A page showing all photos in a zoomable gallery */
 	var PhotosPage = function(){
-		this.imageGallery = null;	// RC. ImageGallery.Gallery
-
+		this.imageGallery = null;
 		this.initialize();
 	};
 
@@ -1548,22 +1564,11 @@ PiLot.View.Diary = (function () {
 		draw: function(){
 			const page = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.photosPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(page);
-			const options = {
-				paddingTop: 2,
-				paddingRight:2,
-				paddingBottom: 2,
-				paddingLeft: 2,
-				imageSpaceH: 1,
-				imageSpaceV: 1,
-				imageBaseWidth: 8,
-				imageBaseHeight: 8
-			};
-			this.imageGallery = new RC.ImageGallery.Gallery(page.querySelector('.plhGallery'), null, options);
+			this.imageGallery = new DiaryPhotoGallery(page.querySelector('.plhGallery'));
 		},
 
 		loadImagesAsync: async function(){
-			const imageCollections = await PiLot.Model.Logbook.loadAllImageCollectionsAsync();
-			this.imageGallery.setImageCollections(imageCollections);
+			this.imageGallery.showPhotosAsync();
 		}
 
 	};
@@ -1572,7 +1577,7 @@ PiLot.View.Diary = (function () {
 		DiaryPage: DiaryPage,
 		PublishDiaryPage: PublishDiaryPage,
 		DiaryCalendar: DiaryCalendar,
-		PhotosPage: PhotosPage
+		PhotosPage: PhotosPage,
 	};
 
 })();

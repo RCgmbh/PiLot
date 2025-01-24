@@ -141,7 +141,7 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	const logbookScripts = [
-		{ url: 'js/3rdParty/RC/RC.ImageGallery.js', priority: 10 },
+		//{ url: 'js/3rdParty/RC/RC.ImageGallery.js', priority: 10 },
 		{ url: 'js/Model/Logbook.js', priority: 10 },
 		{ url: 'js/Templates/Logbook.js', priority: 10 },
 		{ url: 'js/Templates/Diary.js', priority: 10 },

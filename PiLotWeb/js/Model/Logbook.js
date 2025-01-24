@@ -598,6 +598,113 @@ PiLot.Model.Logbook = (function () {
 	};
 
 	/**
+	 * A collection of images, e.g. the images for one day 
+	 * @param {String} pRootUrl - the url where the images and the zoom folders are located
+	 * @param {String} pName - the name of the collection, usually the date
+	 * @param {Object[]} pZoomFolders - an array of objects {maxSize: Number, folder: String}
+	 * @param {String[]} pImageNames - an array with the filenames
+	 */
+	var ImageCollection = function (pRootUrl, pName, pZoomFolders, pImageNames) {
+		this.rootUrl = pRootUrl;
+		this.name = pName;
+		this.zoomFolders = pZoomFolders;
+		this.imageNames = pImageNames;
+		this.zoomFolderMap = null;			/// a map giving quick access to the appropriate folder for a given maxWidth
+		this.initialize();
+	};
+
+	ImageCollection.prototype = {
+
+		initialize: function () {
+			if (!this.rootUrl.endsWith('/')) {
+				this.rootUrl += '/';
+			}
+			this.zoomFolderMap = new Map();
+			this.zoomFolders.sort(function (x, y) { return x.maxSize - y.maxSize; });
+		},
+
+		/**
+		 * @param {Number} pImageSize
+		 * @returns {String} the folder url for images no wider nor higher than pImageSize.
+		 * */
+		calculateFolderUrl: function (pImageSize) {
+			let result = this.zoomFolders.find(function (element) {
+				return element.maxSize >= pImageSize;
+			});
+			if (!(result != null)) {
+				result = this.zoomFolders.find(function (element) {
+					return ((element.maxSize === null) || (element.maxSize === ''));
+				});
+			}
+			return result.folder;
+		},
+
+		/**
+		 * @returns {String} the folder url for images up to a certain size
+		 * @param {Number} pImageSize - the maximum width and height of the image
+		 * */
+		getFolderUrl: function (pImageSize) {
+			pImageSize = Math.round(pImageSize);
+			let zoomFolder = null;
+			if (this.zoomFolderMap.has(pImageSize)) {
+				zoomFolder = this.zoomFolderMap.get(pImageSize);
+			} else {
+				zoomFolder = this.calculateFolderUrl(pImageSize);
+				this.zoomFolderMap.set(pImageSize, zoomFolder);
+			}
+			let result = this.rootUrl;
+			if (zoomFolder) {
+				result = result + zoomFolder + '/';
+			} 
+			return result;
+		},
+
+		/** @returns {String} the root url, where the original images can be found */
+		getRootUrl: function () {
+			return this.rootUrl;
+		},
+
+		/** @returns {String} the name of the collection */
+		getName: function(){
+			return this.name;
+		},
+
+		/** @returns {String} the image names within the collection */
+		getImageNames: function(){
+			return this.imageNames;
+		},
+
+		/** @returns {Number} the number of images in this collection */
+		getImagesCount: function () {
+			return this.imageNames.length;
+		},
+
+		/**
+		 * Adds a single image to the collection
+		 * @param {String} pImageName - the filename without path prefix
+		 */
+		addImageName: function(pImageName){
+			this.imageNames.push(pImageName);
+		},
+
+		/**
+		 * Removes an image from the collection, if it's present.
+		 * @param {String} pImageName - the filename without any path prefix
+		 */
+		removeImageName: function (pImageName) {
+			const index = this.imageNames.indexOf(pImageName);
+			if (index > -1) {
+				this.imageNames.remove(index, index);
+			}
+		},
+
+		/** @returns {Boolean} true, if the collection has any images */
+		hasImages: function () {
+			return this.imageNames && this.imageNames.length > 0;
+		}
+	};
+
+	/**
 	 * Loads the photos for one day, returning info about the photos root, the
 	 * thumbnail folders and the image names. This can be passed to an image
 	 * gallery control.
@@ -607,7 +714,7 @@ PiLot.Model.Logbook = (function () {
 		PiLot.log('PiLot.Logbook.Model.loadDailyImageCollectionAsync', 3);
 		const url = `/Photos/${pDate.year}/${pDate.month}/${pDate.day}`;
 		const json = await PiLot.Utils.Common.getFromServerAsync(url);
-		return new RC.ImageGallery.ImageCollection(json.rootUrl, json.zoomFolders, json.imageNames);
+		return new ImageCollection(json.rootUrl, json.name, json.zoomFolders, json.imageNames);
 	};
 
 	/**
@@ -619,7 +726,7 @@ PiLot.Model.Logbook = (function () {
 		const json = await PiLot.Utils.Common.getFromServerAsync('/Photos');
 		const result = [];
 		for(let aCollection of json){
-			result.push(new RC.ImageGallery.ImageCollection(aCollection.rootUrl, aCollection.zoomFolders, aCollection.imageNames));
+			result.push(new ImageCollection(aCollection.rootUrl, aCollection.name, aCollection.zoomFolders, aCollection.imageNames));
 		}
 		return result;
 	};
@@ -637,9 +744,9 @@ PiLot.Model.Logbook = (function () {
 		return result;
 	};
 
-	var deletePhotoAsync = async function (pDate, pFilename) {
+	var deletePhotoAsync = async function (pCollection, pFilename) {
 		PiLot.log('PiLot.Logbook.Model.deletePhotoAsync', 3);
-		const url = `/Photos?day=${pDate.toLuxon().toFormat('yyyy-MM-dd')}&fileName=${pFilename}`;
+		const url = `/Photos?collection=${pCollection}&fileName=${pFilename}`;
 		const result = await PiLot.Utils.Common.deleteFromServerAsync(url);
 		return result;
 	}
@@ -720,6 +827,7 @@ PiLot.Model.Logbook = (function () {
 		LogbookDay: LogbookDay,
 		LogbookEntry: LogbookEntry,
 		DiaryInfoCache: DiaryInfoCache,
+		ImageCollection: ImageCollection,
 		loadLogbookDayAsync: loadLogbookDayAsync,
 		loadCurrentBoatSetupAsync: loadCurrentBoatSetupAsync,
 		loadDailyImageCollectionAsync: loadDailyImageCollectionAsync,
