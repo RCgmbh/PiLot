@@ -29,6 +29,7 @@ PiLot.Templates.Common = {
 				<a data-page="measurements"><i class="icon-thermometer"></i><span data-text="measurements"></span></a>
 			</div>
 			<div class="menuSection menuSectionEntertainment">
+				<a data-page="photos"><i class="icon-pictures"></i><span data-text="photos"></span></a>
 				<a data-page="games"><i class="icon-gamepad"></i><span data-text="games"></span></a>
 				<a data-page="library"><i class="icon-library"></i><span data-text="library"></span></a>
 			</div>
