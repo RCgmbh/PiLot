@@ -207,9 +207,11 @@ PiLot.View.Analyze = (function () {
 				await this.tackAnalyzerOptions.setBoatAsync(this.track.getBoat());
 				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
 				this.showTrackAnalysis(true);
-			} 
+			} else {
+				const boatConfig = await PiLot.Model.Boat.loadCurrentConfigAsync();
+				await this.tackAnalyzerOptions.setBoatAsync(boatConfig.getName());
+			}
 			this.pnlNoData.hidden = !!this.track;
-			this.tackAnalyzerOptions.toggle(!!this.track);
 		},
 
 		showTrackAnalysis: function (pZoomToTrack = true) {
@@ -342,6 +344,9 @@ PiLot.View.Analyze = (function () {
 				this.track.on('changeLastTrackPoint', this.track_change.bind(this));
 				this.trackObserver.setTrack(this.track);
 				this.mapTrack.setTracks([this.track], true);
+			} else {
+				const boatConfig = await PiLot.Model.Boat.loadCurrentConfigAsync();
+				await this.tackAnalyzerOptions.setBoatAsync(boatConfig.getName());
 			}
 			this.pnlNoData.hidden = !!this.track;
 		},
