@@ -50,6 +50,16 @@ PiLot.Utils.Nav = {
 	},
 
 	/**
+	 * @param {Number} pBearing1 - the first bearing, 0-360
+	 * @param {Number} pBearing2 - the second bearing, 0-360
+	 * @returns {Number} the middle between the two bearings 
+	 * */
+	getAverageBearing: function(pBearing1, pBearing2){
+		const angle = this.getAngle(pBearing1, pBearing2);
+		return (pBearing1 + angle/2 + 360) % 360;
+	},
+
+	/**
 	 * 
 	 * @param {Number} pWindDirection - the wind direction in deg 
 	 * @param {Number} pCog - course over ground in deg

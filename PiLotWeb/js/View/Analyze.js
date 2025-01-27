@@ -346,15 +346,26 @@ PiLot.View.Analyze = (function () {
 			this.pnlNoData.hidden = !!this.track;
 		},
 
+		/**
+		 * Shows the tack angle, which is the angle between last tack's first leg, and the
+		 * current cog. Also shows the VMG, which is based on the wind direction taken
+		 * from the last two (if available) or one tack.
+		 */
 		showTackInfoAsync: async function(){
-			let lastTack = this.findLastTack();
-			if (lastTack){
-				this.mapTacks.showTacks([lastTack]);
+			let lastTacks = this.findLastTacks();
+			if (lastTacks.length > 0){
+				let windDirection;
+				if(lastTacks.length === 2){
+					windDirection = PiLot.Utils.Nav.getAverageBearing(lastTacks[0].windDirection, lastTacks[1].windDirection);
+				} else {
+					windDirection = lastTacks[0].windDirection;
+				}
+				this.mapTacks.showTacks(lastTacks);
 				const cog = this.gpsObserver.getCOG();
-				const angle = PiLot.Utils.Nav.getAngle(lastTack.leg1.bearing, cog);
+				const angle = PiLot.Utils.Nav.getAngle(lastTacks[0].leg1.bearing, cog);
 				this.lblTackAngle.innerText = Math.round(angle);
 				const sog = this.gpsObserver.getSOG();
-				const vmg = PiLot.Utils.Nav.getVmg(lastTack.windDirection, cog, sog);
+				const vmg = PiLot.Utils.Nav.getVmg(windDirection, cog, sog);
 				this.lblVMG.innerText = vmg.toFixed(1);
 			} else{
 				this.mapTacks.clear();
@@ -363,23 +374,23 @@ PiLot.View.Analyze = (function () {
 			}
 		},
 
-		findLastTack: function(){
-			let result = null;
+		/** @returns {Object[]} - the last 0-2 tacks */
+		findLastTacks: function(){
+			let result;
 			if(this.track){
 				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
 				const options = this.tackAnalyzerOptions.getOptions();
-				const tacks = this.tackAnalyzer.findTacks(
+				result = this.tackAnalyzer.findTacks(
 					options.minSampleLength,
 					options.maxSampleAngle,
 					options.minLeg1Length,
 					options.minLeg2Length,
 					options.maxTurnDistance,
 					options.minTurnAngle,
-					true
+					2
 				);
-				if(tacks.length){
-					result = tacks[0];
-				}
+			} else {
+				result = [];
 			}
 			return result;
 		}
