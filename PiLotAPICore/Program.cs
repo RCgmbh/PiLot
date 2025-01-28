@@ -66,9 +66,9 @@ namespace PiLot.API {
 			LogLevels logLevel = LogLevels.ERROR;
 			Enum.TryParse<LogLevels>(configLogLevel, out logLevel);
 			String logfilePath = ConfigurationManager.AppSettings["logfilePath"];
-			String logStackTrace = ConfigurationManager.AppSettings["logStackTrace"];
-			Logger.SetupLogging(logfilePath, logLevel, logStackTrace == Boolean.TrueString);
-			Logger.Log("PiLot.API is starting", LogLevels.INFO);
+			Boolean.TryParse(ConfigurationManager.AppSettings["logStackTrace"], out Boolean logStackTrace);
+			Logger.SetupLogging(logfilePath, logLevel, logStackTrace);
+			Logger.Log($"PiLot.API is starting. LogLevel: {logLevel}, log stack trace: {logStackTrace}", LogLevels.INFO);
 		}
 	}
 }

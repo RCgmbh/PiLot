@@ -32,7 +32,7 @@ namespace PiLot.APIProxy {
 		/// <param name="pDate">The date for which we want the photos</param>
 		/// <returns>An image collection or null</returns>
 		public async Task<ProxyResult<ImageCollection>> GetDailyPhotos(Date pDate) {
-			String url = ($"{this.apiControllerUrl}?year={pDate.Year}&month={pDate.Month}&day={pDate.Day}");
+			String url = ($"{this.apiControllerUrl}/{pDate.Year}/{pDate.Month}/{pDate.Day}");
 			return  await this.httpClient.GetAsync<ImageCollection>(url);
 		}
 

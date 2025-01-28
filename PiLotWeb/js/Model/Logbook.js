@@ -787,7 +787,7 @@ PiLot.Model.Logbook = (function () {
 			}
 			result.data.tracks = tracks;
 			result.data.logbookDay = await PiLot.Model.Logbook.LogbookDay.fromDataAsync(result.data.logbookDay);
-			result.data.photoInfos = new RC.ImageGallery.ImageCollection(result.data.photoInfos.rootUrl, result.data.photoInfos.zoomFolders, result.data.photoInfos.imageNames);
+			result.data.photoInfos = new ImageCollection(result.data.photoInfos.rootUrl, result.data.photoInfos.name, result.data.photoInfos.zoomFolders, result.data.photoInfos.imageNames);
 		}
 		return result;
 	};
