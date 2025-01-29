@@ -44,11 +44,11 @@ PiLot.Templates.Analyze = {
 			<div>
 				<div class="marginBottom flexRow" style="align-items:baseline; justify-content:space-between;">
 					<span class="semiBold" data-text="tackAngle"></span>
-					<span class="biggerDisplayText"><span class="lblTackAngle">-</span>°</span>
+					<span class="veryBigDisplayText"><span class="lblTackAngle">-</span>°</span>
 				</div>
 				<div class="flexRow" style="align-items:baseline; justify-content:space-between;">
 					<span class="semiBold" data-text="vmg"></span>
-					<div><span class="lblVMG biggerDisplayText">-</span> <span data-text="kn"></span></div>
+					<div><span class="lblVMG veryBigDisplayText">-</span> <span data-text="kn"></span></div>
 				</div>
 			</div>
 		</div>
@@ -110,7 +110,7 @@ PiLot.Templates.Analyze = {
 						<span class="lblMinLeg2Length"></span>&nbsp;m
 					</div>
 				</div>
-				<div class="flexRowWrap marginTop paddingBottomSmall">
+				<div class="flexColumn marginTop paddingBottomSmall">
 					<a href="#" class="lnkSaveSettings block" hidden><i class="icon-floppy-disk marginRightSmall"></i><span data-text="saveSettings"></span></a>
 					<div data-text="saveSettingsSuccess" class="pnlSaveSuccess feedbackGood marginTopSmall grow" hidden></div>
 				</div>
