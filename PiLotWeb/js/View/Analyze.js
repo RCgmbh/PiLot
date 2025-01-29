@@ -577,8 +577,10 @@ PiLot.View.Analyze = (function () {
 		},
 
 		setBoatAsync: async function (pBoat) {
-			this.boat = pBoat;
-			await this.loadOptionsAsync();
+			if(pBoat !== this.boat){
+				this.boat = pBoat;
+				await this.loadOptionsAsync();
+			}
 		},
 
 		loadSliderScale: function () {
