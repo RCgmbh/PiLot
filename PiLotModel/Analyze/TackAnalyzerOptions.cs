@@ -22,5 +22,8 @@ namespace PiLot.Model.Analyze {
 
 		[JsonPropertyName("minTurnAngle")]
 		public Int32 MinTurnAngle { get; set; }
+
+		[JsonPropertyName("maxTurnAngle")]
+		public Int32 MaxTurnAngle { get; set; }
 	}
 }

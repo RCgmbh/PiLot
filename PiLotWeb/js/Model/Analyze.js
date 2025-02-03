@@ -27,10 +27,11 @@ PiLot.Model.Analyze = (function () {
 		 * @param {Number} pMinLeg2Length - minimal length of the outgoing leg in meters
 		 * @param {Number} pMaxTurnDistance - maximal distance of the two legs in meters
 		 * @param {Number} pMinTurnAngle - minimal angle between lets in deg to be considered a turn
+		 * @param {Number} pMaxTurnAngle - maximal angle between lets in deg to be considered a turn
 		 * @param {Boolen} pMaxTacks - if not null, only the last x tacks will be returned
 		 * @returns {Object[]} - Array of objects with {leg1, leg2, angle, windDirection}
 		 */
-		findTacks: function (pMinSampleLength, pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle, pMaxTacks = null) {
+		findTacks: function (pMinSampleLength, pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle, pMaxTurnAngle, pMaxTacks = null) {
 			if (this.minSampleLength !== pMinSampleLength) {
 				this.minSampleLength = pMinSampleLength;
 				this.sampleTrack();
@@ -72,10 +73,12 @@ PiLot.Model.Analyze = (function () {
 						leg1Bearing = this.getLegBearing(leg1);
 						leg2Bearing = this.getLegBearing(leg2);
 						angle = PiLot.Utils.Nav.getAngle(leg1Bearing, leg2Bearing);
-						if (Math.abs(angle) > pMinTurnAngle) {
-							result.push(this.createTackInfo(leg1, leg2, leg1Bearing, leg2Bearing, angle));
-							if(pMaxTacks !== null && pMaxTacks === result.length){
-								break;
+						if (Math.abs(angle) >= pMinTurnAngle) {
+							if(Math.abs(angle) <= pMaxTurnAngle){
+								result.push(this.createTackInfo(leg1, leg2, leg1Bearing, leg2Bearing, angle));
+								if(pMaxTacks !== null && pMaxTacks === result.length){
+									break;
+								}
 							}
 							leg1 = leg2;
 							leg2 = null;

@@ -114,7 +114,9 @@ PiLot.View.Analyze = (function () {
 		},
 
 		tackAnalyzerOptions_change: function (pSender, pOptions) {
-			this.showTrackAnalysis(false);
+			if(!this.control.hidden){
+				this.showTrackAnalysis(false);
+			}
 		},
 
 		draw: function(){
@@ -225,6 +227,7 @@ PiLot.View.Analyze = (function () {
 					options.minLeg2Length,
 					options.maxTurnDistance,
 					options.minTurnAngle,
+					options.maxTurnAngle,
 				);
 				this.mapTacks.showTacks(tacks);
 			}
@@ -274,6 +277,7 @@ PiLot.View.Analyze = (function () {
 			this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
 			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
 			this.trackObserver = new PiLot.Model.Nav.TrackObserver(null, this.gpsObserver);
 			this.trackObserver.setTrackSeconds(this.maxLengthSeconds);
 			this.draw();
@@ -292,6 +296,10 @@ PiLot.View.Analyze = (function () {
 
 		gpsObserver_outdatedGpsData: function(){
 			this.setTrackAsync(null);
+		},
+		
+		tackAnalyzerOptions_change: function (pSender, pOptions) {
+			this.showTackInfoAsync()
 		},
 
 		draw: function(){
@@ -392,6 +400,7 @@ PiLot.View.Analyze = (function () {
 					options.minLeg2Length,
 					options.maxTurnDistance,
 					options.minTurnAngle,
+					options.maxTurnAngle,
 					2
 				);
 			} else {
@@ -464,6 +473,8 @@ PiLot.View.Analyze = (function () {
 		this.lblMaxSampleAngle = null;
 		this.rngMinTurnAngle = null;
 		this.lblMinTurnAngle = null;
+		this.rngMaxTurnAngle = null;
+		this.lblMaxTurnAngle = null;
 		this.rngMaxTurnDistance = null;
 		this.lblMaxTurnDistance = null;
 		this.rngMinLeg1Length = null;
@@ -519,6 +530,10 @@ PiLot.View.Analyze = (function () {
 			this.changeOption('minTurnAngle', pEvent.target.value, this.lblMinTurnAngle, false);
 		},
 
+		rngMaxTurnAngle_change: function (pEvent) {
+			this.changeOption('maxTurnAngle', pEvent.target.value, this.lblMaxTurnAngle, false);
+		},
+
 		rngMaxTurnDistance_change: function (pEvent) {
 			this.changeOption('maxTurnDistance', pEvent.target.value, this.lblMaxTurnDistance, true);
 		},
@@ -550,6 +565,9 @@ PiLot.View.Analyze = (function () {
 			this.rngMinTurnAngle = this.control.querySelector('.rngMinTurnAngle');
 			this.rngMinTurnAngle.addEventListener('input', this.rngMinTurnAngle_change.bind(this));
 			this.lblMinTurnAngle = this.control.querySelector('.lblMinTurnAngle');
+			this.rngMaxTurnAngle = this.control.querySelector('.rngMaxTurnAngle');
+			this.rngMaxTurnAngle.addEventListener('input', this.rngMaxTurnAngle_change.bind(this));
+			this.lblMaxTurnAngle = this.control.querySelector('.lblMaxTurnAngle');
 			this.rngMaxTurnDistance = this.control.querySelector('.rngMaxTurnDistance');
 			this.rngMaxTurnDistance.addEventListener('input', this.rngMaxTurnDistance_change.bind(this));
 			this.lblMaxTurnDistance = this.control.querySelector('.lblMaxTurnDistance');
@@ -622,6 +640,8 @@ PiLot.View.Analyze = (function () {
 			this.lblMaxSampleAngle.innerText = this.options.maxSampleAngle;
 			this.rngMinTurnAngle.value = this.options.minTurnAngle;
 			this.lblMinTurnAngle.innerText = this.options.minTurnAngle;
+			this.rngMaxTurnAngle.value = this.options.maxTurnAngle;
+			this.lblMaxTurnAngle.innerText = this.options.maxTurnAngle;
 			this.setScaledRangeValue(this.rngMaxTurnDistance, this.options.maxTurnDistance);
 			this.lblMaxTurnDistance.innerText = this.options.maxTurnDistance;
 			this.setScaledRangeValue(this.rngMinLeg1Length, this.options.minLeg1Length);
@@ -654,7 +674,8 @@ PiLot.View.Analyze = (function () {
 				minLeg1Length: 100,
 				minLeg2Length: 100,
 				maxTurnDistance: 30,
-				minTurnAngle: 70
+				minTurnAngle: 70,
+				maxTurnAngle: 140
 			};
 		},
 

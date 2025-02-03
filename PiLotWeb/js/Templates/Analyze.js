@@ -88,6 +88,13 @@ PiLot.Templates.Analyze = {
 						<input type="range" class="rngMinTurnAngle input8 marginRightSmall" min="0" max="180" step="1" />
 						<span class="lblMinTurnAngle"></span>°
 					</div>
+				</div>				
+				<div class="flexRowWrap paddingBottomSmall">
+					<span class="col6 marginRight" data-text="maximalTackAngle"></span>
+					<div class="col10 flex">
+						<input type="range" class="rngMaxTurnAngle input8 marginRightSmall" min="0" max="180" step="1" />
+						<span class="lblMaxTurnAngle"></span>°
+					</div>
 				</div>
 				<div class="flexRowWrap paddingBottomSmall">
 					<span class="col6 marginRight" data-text="maximalTackDistance"></span>
