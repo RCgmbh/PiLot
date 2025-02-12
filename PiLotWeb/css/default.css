@@ -339,6 +339,7 @@ button.linkButton { padding-top: 0em; }
 .buttons .linkButton { flex-grow: 1; flex-basis: 8em; }
 
 a.tile { display: block; float: left; display: table; text-align: center; text-decoration: none; color: #000; border: 1px solid #666; border-radius: 0.5em; }
+a.tile.noBorder {border-style: none;}
 a.tile.big { margin: 1em; height: 12em; width: 12em; }
 a.tile.big { transition: color 0.2s, background-color 0.2s; }
 a.tile > div { display: table-cell; vertical-align: middle; padding-top: 0.5em; }

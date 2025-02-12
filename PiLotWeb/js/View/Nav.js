@@ -153,7 +153,7 @@ PiLot.View.Nav = (function () {
 
 		/// shows or hides the control, returning itself to facilitate chaining
 		showHide: function (pVisible) {
-			this.container.classList.toggle('hidden', !pVisible);
+			this.container.hidden = !pVisible;
 			return this;
 		},
 
@@ -225,11 +225,56 @@ PiLot.View.Nav = (function () {
 
 		/// shows or hides the control, returning the control for easy chaining
 		showHide: function (pVisible) {
-			this.container.classList.toggle('hidden', !pVisible);
+			this.container.hidden = !pVisible;
+			return this;
+		},
+	};
+
+	var LogIndicator = function(pParent){
+		this.parent = pParent;
+		this.trackObserver = null;
+		this.motionDisplay = null;
+		this.initialize();
+	};
+
+	LogIndicator.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.ensureTrackObserverAsync();
+		 },
+
+		draw: function(){
+			this.motionDisplay = new MotionDisplay(this.parent, PiLot.Templates.Nav.logIndicator, null, 1);
+		},
+
+		showValue: function(){
+			this.ensureTrackObserverAsync().then(function(){
+				if(this.trackObserver){
+					this.motionDisplay.showValue(PiLot.Utils.Nav.metersToNauticalMiles(this.trackObserver.getTrack().getDistance()));
+				} else {
+					this.motionDisplay.showValue(null);
+				}
+			}.bind(this));
+		},
+
+		ensureTrackObserverAsync: async function(){
+			if(this.trackObserver === null){
+				const track = await (new PiLot.Service.Nav.TrackService().loadCurrentTrackAsync());
+				if(track){
+					this.trackObserver = new PiLot.Model.Nav.TrackObserver(track);
+				} else {
+					this.trackObserver = null;
+				}
+			}
+		},
+
+		showHide: function (pVisible) {
+			this.motionDisplay.showHide(pVisible);
 			return this;
 		},
 
-	};
+	}
 
 	var PositionIndicator = function (pParent) {
 		this.parent = pParent;
@@ -278,7 +323,8 @@ PiLot.View.Nav = (function () {
 
 		/// shows or hides the control
 		showHide: function (pVisible) {
-			this.control.classList.toggle('hidden', !pVisible);
+			this.control.hidden = !pVisible;
+			return this;
 		},
 
 	};
@@ -335,6 +381,7 @@ PiLot.View.Nav = (function () {
 		this.cogIndicator = null;
 		this.vmgIndicator = null;
 		this.xteIndicator = null;
+		this.logIndicator = null;
 		this.divPosition = null;
 		this.positionIndicator = null;
 		this.liveRoute = null;
@@ -361,7 +408,7 @@ PiLot.View.Nav = (function () {
 			});
 		},
 
-		gpsObserver_recieveGpsData: function () {
+		gpsObserver_recieveGpsData: async function () {
 			this.outdatedGpsWarning.classList.toggle('hidden', true);
 			this.cogIndicator.showValue(this.gpsObserver.getCOG());
 			this.xteIndicator.showValue(this.routeObserver);
@@ -370,6 +417,7 @@ PiLot.View.Nav = (function () {
 				this.vmgIndicator.showValue(this.routeObserver.getVMG());
 			}
 			this.positionIndicator.showValue(this.gpsObserver.getLatestPosition(null).latLon);
+			this.logIndicator.showValue();
 		},
 
 		gpsObserver_outdatedGpsData: function () {
@@ -394,6 +442,7 @@ PiLot.View.Nav = (function () {
 			this.xteIndicator = new PiLot.View.Nav.XTEIndicator(divDirection).showHide(true);
 			this.sogIndicator = new PiLot.View.Nav.MotionDisplay(divSpeed, PiLot.Templates.Nav.sogIndicator, null, 1).showHide(true);
 			this.vmgIndicator = new PiLot.View.Nav.MotionDisplay(divSpeed, PiLot.Templates.Nav.vmgIndicator, null, 1).showHide(true);
+			this.logIndicator = new PiLot.View.Nav.LogIndicator(divSpeed).showHide(true); 
 			this.positionIndicator = new PositionIndicator(this.divPosition);
 			if (this.routeObserver !== null) {
 				this.liveRoute = new LiveRoute(navPage, this.routeObserver);
@@ -2477,6 +2526,15 @@ PiLot.View.Nav = (function () {
 				updateData: sogIndicator.showValue.bind(sogIndicator, this.gpsObserver.getSOG.bind(this.gpsObserver)),
 				showHide: sogIndicator.showHide.bind(sogIndicator)
 			});
+			const logIndicator = new PiLot.View.Nav.LogIndicator(mainContainer);
+			this.controls.push({
+				control: logIndicator,
+				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 8000, false),
+				isVisible: null,
+				needsRoute: false,
+				updateData: logIndicator.showValue.bind(logIndicator),
+				showHide: logIndicator.showHide.bind(logIndicator)
+			});
 			const vmgIndicator = new PiLot.View.Nav.MotionDisplay(mainContainer, PiLot.Templates.Nav.vmgIndicator, null, 1);
 			this.controls.push({
 				control: vmgIndicator,
@@ -2624,6 +2682,7 @@ PiLot.View.Nav = (function () {
 		CoordinateForm: CoordinateForm,
 		MotionDisplay: MotionDisplay,
 		XTEIndicator: XTEIndicator,
+		LogIndicator: LogIndicator,
 		GPSIcon: GPSIcon,
 		NavPage: NavPage,
 		NavOptions: NavOptions,

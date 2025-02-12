@@ -178,7 +178,7 @@ PiLot.Templates.Map = {
 
 	startPageMap: `
 		<div class="divMap navMap border fullHeight hidden" style="flex-grow:1;"></div>
-		<a href="#" class="tile stretch hidden">
+		<a href="#" class="tile noBorder stretch hidden">
 			<div>
 				<span class="symbol"><i class="icon-map3"></i></span>
 			</div>

@@ -299,7 +299,7 @@ PiLot.View.Analyze = (function () {
 		},
 		
 		tackAnalyzerOptions_change: function (pSender, pOptions) {
-			this.showTackInfoAsync()
+			this.showTackInfoAsync();
 		},
 
 		draw: function(){

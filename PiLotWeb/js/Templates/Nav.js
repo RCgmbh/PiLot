@@ -167,25 +167,31 @@ PiLot.Templates.Nav = {
 	`,
 
 	sogIndicator: `
-		<div class="divSOG hidden display motionDisplay">
+		<div class="divSOG display motionDisplay" hidden>
 			<span data-text="sog"></span><span class="lblSOG lblValue">---</span><span data-text="kn"></span>
 		</div>
 	`,
 
 	cogIndicator: `
-		<div class="divCOG hidden display motionDisplay">
+		<div class="divCOG display motionDisplay" hidden>
 			<span data-text="cog"></span><span class="lblCOG lblValue">---</span><span class="deg">°</span>
 		</div>
 	`,
 
 	vmgIndicator: `
-		<div class="divVMG hidden display motionDisplay">
+		<div class="divVMG display motionDisplay" hidden>
 			<span data-text="vmc"></span><span class="lblVMG lblValue">---</span><span data-text="kn"></span>
 		</div>
 	`,
 
+	logIndicator: `
+		<div class="divLog display motionDisplay" hidden>
+			<span data-text="log"></span><span class="lblLog lblValue">---</span><span data-text="nm"></span>
+		</div>
+	`,
+
 	xteIndicator: `
-		<div class="divXTE hidden display xteDisplay">
+		<div class="divXTE display xteDisplay" hidden>
 			<span data-text="xte"></span>
 			<span class="lblIcon">
 				<i class="icon-arrow-left2 lblXTELeft hidden"></i>

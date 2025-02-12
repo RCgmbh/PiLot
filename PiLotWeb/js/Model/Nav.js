@@ -1660,8 +1660,13 @@ PiLot.Model.Nav = (function () {
 		addTrackPoint: function (pTrackPoint, pSuppressNotification) {
 			if (pTrackPoint !== null) {
 				this.trackPoints.push(pTrackPoint);
+				if(this.trackPoints.length > 1){
+					this.distance = this.getDistance() + this.trackPoints[this.trackPoints.length - 2].getLatLon().distanceTo(pTrackPoint.getLatLon());
+				} else{
+					this.distance = 0;
+				}
 				if (!pSuppressNotification) {
-					this.notifyObservers('addTrackPoint', this.trackPoints[this.trackPoints.length - 1]);
+					this.notifyObservers('addTrackPoint', this.trackPoints.last());
 				}
 			}
 		},
@@ -1675,10 +1680,22 @@ PiLot.Model.Nav = (function () {
 		 * */
 		updateLastTrackPoint: function (pUTC, pBoatTime, pLatitude, pLongitude) {
 			if (this.trackPoints.length > 0) {
-				const lastTrackPoint = this.trackPoints[this.trackPoints.length - 1];
+				const lastTrackPoint = this.getLastTrackPoint();
+				let previousLastSegmentLength = null;
+				let beforeLastTrackPoint = null;
+				if(this.trackPoints.length > 1){
+					beforeLastTrackPoint = this.getTrackPointAt(this.trackPoints.length - 2);
+					previousLastSegmentLength = lastTrackPoint.getLatLon().distanceTo(beforeLastTrackPoint.getLatLon());
+				}
 				lastTrackPoint.updateValues(pUTC, pBoatTime, pLatitude, pLongitude);
+				if(beforeLastTrackPoint){
+					this.distance = this.getDistance() - previousLastSegmentLength + lastTrackPoint.getLatLon().distanceTo(beforeLastTrackPoint.getLatLon());
+				} else{
+					this.distance = 0;
+				}
 			} else {
 				this.addTrackPoint(TrackPoint.fromData([pUTC, pBoatTime, pLatitude, pLongitude]));
+				this.distance = 0;
 			}
 			this.notifyObservers('changeLastTrackPoint', this.trackPoints[this.trackPoints.length - 1]);
 		},
@@ -1797,7 +1814,7 @@ PiLot.Model.Nav = (function () {
 	/**
 	 * Creates a track object based on a serialized track object. Returns null, if the 
 	 * pData is invalid. Start/end date and distance will only be set explicitly, if
-	 * there are is no trackPointsArray delivered.
+	 * there is no trackPointsArray delivered.
 	 * @param {Object} pData - an object with id, boat, distance, startUtc, endUtc, startBoatTime, endBoatTime, trackPointsArray
 	 */
 	Track.fromData = function (pData) {
@@ -2148,11 +2165,11 @@ PiLot.Model.Nav = (function () {
 			if (this.track != null) {
 				for (let i = 0; i < pTrackPoints.length; i++) {
 					if ((pTrackPoints[i].latitude !== null) && (pTrackPoints[i].longitude !== null)) {
-						var deltaTMs = null;
+						let deltaTMs = null;
 						if (this.lastPosition !== null && this.lastPosition.utc !== null && pTrackPoints[i].utc !== null) {
 							deltaTMs = pTrackPoints[i].utc - this.lastPosition.utc;
 						}
-						var deltaX = null;
+						let deltaX = null;
 						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pTrackPoints[i].getLatLon() !== null) {
 							deltaX = pTrackPoints[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
 						}
@@ -2163,26 +2180,28 @@ PiLot.Model.Nav = (function () {
 							this.track.addTrackPoint(pTrackPoints[i].clone());
 							this.lastPosition = pTrackPoints[i];
 						} else {
-							PiLot.log('Did not add position to Track. deltaT is ' + deltaTMs.toFixed(1) + ', deltaX is ' + deltaX.toFixed(1), 3);
 							if ((deltaTMs > this.updatePositionThreshold.seconds) && (deltaX > this.updatePositionThreshold.meters)) {
 								this.track.updateLastTrackPoint(pTrackPoints[i].utc, pTrackPoints[i].boatTime, pTrackPoints[i].latitude, pTrackPoints[i].longitude);
-							} else {
-								PiLot.log('Did not update latest track position. deltaT is ' + deltaTMs.toFixed(1) + ', deltaX is ' + deltaX.toFixed(1), 3);
-							}
+							} 
 						}
 					}
 				}
 			} 
 		},
 
-		/// sets the duration in seconds of the track
+		/** @param {Number} pTrackSeconds - the maximal duration in seconds of the track to keep when cropping old positions  */
 		setTrackSeconds: function (pTrackSeconds) {
 			this.trackSeconds = pTrackSeconds;
 		},
 
-		/// sets the track to update with live data
+		/** @param {PiLot.Model.Nav.Track} pTrack - the track to update with live data */ 
 		setTrack: function (pTrack) {
 			this.track = pTrack;
+		},
+
+		/** @returns {PiLot.Model.Nav.Track} */
+		getTrack: function(){
+			return this.track;
 		}
 	}
 

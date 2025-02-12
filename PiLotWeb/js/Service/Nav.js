@@ -377,6 +377,13 @@ PiLot.Service.Nav = (function () {
 			return await this.loadTracksAsync(pDate.toMillis(), pDate.addDays(1).toMillis(), true, true);
 		},
 
+		/** @returns {PiLot.Model.Nav.Track} the latest track for today */
+		loadCurrentTrackAsync: async function(){
+			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			const tracks = await this.loadTracksByDateAsync(currentBoatTime.today());
+			return tracks.length ? tracks.last() : null;
+		},
+
 		/**
 		 * Saves a track to the server, including all track points and the
 		 * boat name.
