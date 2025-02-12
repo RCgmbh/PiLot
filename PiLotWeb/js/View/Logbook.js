@@ -536,7 +536,10 @@ PiLot.View.Logbook = (function () {
 				
 			}
 			this.showNavData(lat, lon, this.gpsObserver.getCOG(), this.gpsObserver.getSOG());
-			this.tbLog.value = '';
+			const track = await ( new PiLot.Service.Nav.TrackService().loadCurrentTrackAsync());
+			if(track !== null){
+				RC.Utils.showNumericValue(this.tbLog, PiLot.Utils.Nav.metersToNauticalMiles(track.getDistance()), '', 2);
+			}
 			if (pBoatSetup !== null) {
 				this.showBoatSetup(pBoatSetup);
 			} else {
