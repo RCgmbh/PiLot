@@ -316,72 +316,11 @@ PiLot.Model.Common = (function () {
 
 	PiLot.Permissions = Permissions;
 
-	/** singleton instance for PermissionsHelper */
-	var currentPermissionsHelper = null;
-
-	/**
-	 * The PermissionsHelper helps checking Permissions within the application.
-	 * He knows for each page, which permissions are required to view it, and
-	 * offerst methods to check wheter the current user can view a certain
-	 * page.
-	 */
-	var PermissionsHelper = function () {
-
-		this.initialize();
-
-	};
-
-	PermissionsHelper.prototype = {
-
-		initialize: function () {
-			this.assignPagePermissions();
-		},
-
-		/** 
-		 * This creates the actual configuration defining which permissions are needed
-		 * for which page. So changing page permissions will mean changing this 
-		 * function.
-		 */
-		assignPagePermissions: function () {
-			const pages = PiLot.Utils.Loader.pages;
-			pages.logbook.accessControl = Permissions.canWrite;
-			pages.boat.accessControl = Permissions.canChangeSettings;
-			pages.boatTime.accessControl = Permissions.canChangeSettings;
-			pages.tiles.accessControl = Permissions.canWrite;
-			pages.pois.accessControl = Permissions.canWrite;
-			pages.admin.accessControl = Permissions.hasSystemAccess;
-			pages.wifi.accessControl = Permissions.hasSystemAccess;
-			pages.services.accessControl = Permissions.hasSystemAccess;
-			pages.logs.accessControl = Permissions.hasSystemAccess;
-			pages.systemStatus.accessControl = Permissions.hasSystemAccess;
-			pages.systemTime.accessControl = Permissions.hasSystemAccess;
-			pages.shutDown.accessControl = Permissions.hasSystemAccess;
-		},
-
-		/**
-		 * Checks whether the current user has permissions to see pPage
-		 * @param {Object} pPage - Object from PiLot.Utils.Loader.pages
-		 * @returns {Boolean} - True, if the user has access.
-		 */
-		checkPermissions: function (pPage) {
-			return pPage.accessControl === undefined || pPage.accessControl();
-		}
-	};
-
-	/** Pseudo singleton accessor, gets the current PermissionsHelper */
-	PermissionsHelper.instance = function () {
-		if (currentPermissionsHelper === null) {
-			currentPermissionsHelper = new PermissionsHelper();
-		}
-		return currentPermissionsHelper;
-	};
-
 	return {
 		getCurrentBoatTimeAsync: getCurrentBoatTimeAsync,
 		BoatTime: BoatTime,
 		AuthHelper: AuthHelper,
-		Permissions: Permissions,
-		PermissionsHelper: PermissionsHelper
+		Permissions: Permissions
 	};
 
 })();

@@ -394,7 +394,6 @@ PiLot.View.Common = (function () {
 	 */
 	var MainMenu = function(pContainer){
 
-		this.permissionsHelper = null;
 		this.container = pContainer;
 		this.control = null;
 		this.initialize();
@@ -404,7 +403,6 @@ PiLot.View.Common = (function () {
 	MainMenu.prototype = {
 
 		initialize: function () {
-			this.permissionsHelper = PiLot.Model.Common.PermissionsHelper.instance();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			authHelper.on('login', this.authHelper_change.bind(this));
 			authHelper.on('logout', this.authHelper_change.bind(this));
@@ -459,7 +457,8 @@ PiLot.View.Common = (function () {
 		 * @param {Object} pPageObject - a page from PiLot.Utils.Loader.pages
 		 */
 		checkLinkPermissions: function (pLink, pPageObject) {
-			pLink.hidden = !this.permissionsHelper.checkPermissions(pPageObject);
+			pLink.hidden = pPageObject.accessControl !== undefined && !pPageObject.accessControl();
+			
 		},
 
 		hideDisabledPages: function (pLink, pPageKey) {

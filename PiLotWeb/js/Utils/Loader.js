@@ -18,47 +18,6 @@ PiLot.Utils.Loader = (function () {
 	/** the name of the application html file */
 	const HTMLFILE = 'index.html';
 
-	/**
-	 * The list of all pages, key being the query string used to load
-	 * the page. Keep in mind that this structure will be extended by
-	 * the PermissionsHelper, who will add the authorisation functions
-	 * for restricted pages. This is not done here, as the Common.Model
-	 * namespace containing the permissions logic will not be available
-	 * yet. 
-	 * */
-	const pages = {
-		empty: {key: 'empty'},
-		home: {key: 'home'},
-		map: {key: 'map'},
-		nav: {key: 'nav'},
-		routes: {key: 'routes'},
-		routeDetails: {key: 'routeDetails'},
-		measurements: {key: 'measurements'},
-		logbook: { key: 'logbook'},
-		diary: {key: 'diary'},
-		publish: {key: 'publish'},
-		stats: {key: 'stats'},
-		photos: {key: 'photos'},
-		games: {key: 'games'},
-		library: {key: 'library'},
-		settings: {key: 'settings'},
-		boat: { key: 'boat'},
-		boatTime: { key: 'boatTime'},
-		language: {key: 'language'},
-		tools: {key: 'tools'},
-		analyze: {key: 'analyze'},
-		data: {key: 'data'},
-		tiles: { key: 'tiles'},
-		pois: { key: 'pois'},
-		admin: { key: 'admin'},
-		wifi: { key: 'wifi'},
-		services: { key: 'services'},
-		logs: { key: 'logs'},
-		systemStatus: { key: 'systemStatus'},
-		systemTime: { key: 'systemTime'},
-		shutDown: { key: 'shutDown'}
-	};
-
 	/// we define arrays of scripts, each with its priority. Scripts
 	/// with a lower number for priority will be loaded before scripts
 	/// with a higher number. 
@@ -141,7 +100,6 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	const logbookScripts = [
-		//{ url: 'js/3rdParty/RC/RC.ImageGallery.js', priority: 10 },
 		{ url: 'js/Model/Logbook.js', priority: 10 },
 		{ url: 'js/Templates/Logbook.js', priority: 10 },
 		{ url: 'js/Templates/Diary.js', priority: 10 },
@@ -187,6 +145,175 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	/**
+	 * The list of all pages, key being the query string used to load
+	 * the page.
+	 * */
+	const pages = {
+		empty: {
+			key: 'empty',
+			dependencies: [defaultScripts],
+			startAction: function () { }
+		},
+		home: {
+			key: 'home',
+			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, flotScripts],
+			startAction: function () { new PiLot.View.Common.StartPage(); }
+		},
+		map: {
+			key: 'map',
+			dependencies: [defaultScripts, navScripts],
+			startAction: function () { new PiLot.View.Map.MapPage(); }
+		},
+		nav: {
+			key: 'nav',
+			dependencies: [defaultScripts, navScripts],
+			startAction: function () { new PiLot.View.Nav.NavPage(); }
+		},
+		routes: {
+			key: 'routes',
+			dependencies: [defaultScripts, navScripts],
+			startAction: function () { new PiLot.View.Nav.RoutesList(); }
+		},
+		routeDetails: {
+			key: 'routeDetails',
+			dependencies: [defaultScripts, navScripts],
+			startAction: function () { new PiLot.View.Nav.RouteDetail(); }
+		},
+		measurements: {
+			key: 'measurements',
+			dependencies: [defaultScripts, meteoScripts, flotScripts, navScripts],
+			startAction: function () { new PiLot.View.Meteo.SensorsPage(); }
+		},
+		logbook: {
+			key: 'logbook',
+			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts],
+			startAction: function () { new PiLot.View.Logbook.LogbookPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
+		},
+		diary: {
+			key: 'diary',
+			dependencies: [defaultScripts, navScripts, boatScripts, logbookScripts, toolsScripts, flotScripts],
+			startAction: function () { new PiLot.View.Diary.DiaryPage(); }
+		},
+		publish: {
+			key: 'publish',
+			dependencies: [defaultScripts, navScripts, boatScripts, logbookScripts],
+			startAction: function () { new PiLot.View.Diary.PublishDiaryPage(); }
+		},
+		stats: {
+			key: 'stats',
+			dependencies: [defaultScripts, navScripts, boatScripts, echartsScripts, statsScripts],
+			startAction: function () { new PiLot.View.Stats.TrackStatsPage(); }
+		},
+		photos: {
+			key: 'photos',
+			dependencies: [defaultScripts, logbookScripts],
+			startAction: function () { new PiLot.View.Diary.PhotosPage(); }
+		},
+		games: {
+			key: 'games',
+			dependencies: [defaultScripts, mediaScripts],
+			startAction: function () { new PiLot.View.Media.GamesOverviewPage(); }
+		},
+		library: {
+			key: 'library',
+			dependencies: [defaultScripts, mediaScripts],
+			startAction: function () { new PiLot.View.Media.LibraryPage(); }
+		},
+		settings: {
+			key: 'settings',
+			dependencies: [defaultScripts, settingsScripts],
+			startAction: function () { new PiLot.View.Settings.SettingsOverviewPage(); }
+		},
+		boat: { 
+			key: 'boat',
+			dependencies: [defaultScripts, boatScripts],
+			startAction: function () { new PiLot.View.Boat.BoatPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanChangeSettings(); }
+		},
+		boatTime: {
+			key: 'boatTime',
+			dependencies: [defaultScripts, settingsScripts],
+			startAction: function () { new PiLot.View.Settings.BoatTimePage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanChangeSettings(); }
+		},
+		language: {
+			key: 'language',
+			dependencies: [defaultScripts, settingsScripts],
+			startAction: function () { new PiLot.View.Settings.LanguagePage(); }
+		},
+		tools: {
+			key: 'tools',
+			dependencies: [defaultScripts, toolsScripts],
+			startAction: function () { new PiLot.View.Tools.ToolsOverviewPage(); }
+		},
+		analyze: {
+			key: 'analyze',
+			dependencies: [defaultScripts, navScripts, boatScripts, logbookScripts, analyzeScripts],
+			startAction: () => new PiLot.View.Analyze.AnalyzePage()
+		},
+		data: {
+			key: 'data',
+			dependencies: [defaultScripts, navScripts, flotScripts, toolsScripts, boatScripts],
+			startAction: function () { new PiLot.View.Tools.GpsImportExportForm(); }
+		},
+		tiles: {
+			key: 'tiles',
+			dependencies: [defaultScripts, navScripts, toolsScripts],
+			startAction: function () { new PiLot.View.Tools.TilesDownloadForm(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
+		},
+		pois: {
+			key: 'pois',
+			dependencies: [defaultScripts, navScripts, toolsScripts],
+			startAction: function () { new PiLot.View.Tools.PoisManagementPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
+		},
+		admin: {
+			key: 'admin',
+			dependencies: [defaultScripts, adminScripts],
+			startAction: function () { new PiLot.View.Admin.AdminOverviewPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		},
+		wifi: {
+			key: 'wifi',
+			dependencies: [defaultScripts, adminScripts],
+			startAction: function () { new PiLot.View.Admin.WiFiPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		},
+		services: {
+			key: 'services',
+			dependencies: [defaultScripts, adminScripts],
+			startAction: function () { new PiLot.View.Admin.ServicesPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		},
+		logs: {
+			key: 'logs',
+			dependencies: [defaultScripts, adminScripts],
+			startAction: function () { new PiLot.View.Admin.LogFilesPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		},
+		systemStatus: {
+			key: 'systemStatus',
+			dependencies: [defaultScripts, adminScripts, flotScripts],
+			startAction: function () { new PiLot.View.Admin.SystemStatusPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		},
+		systemTime: {
+			key: 'systemTime',
+			dependencies: [defaultScripts, adminScripts],
+			startAction: function () { new PiLot.View.Admin.BoatTimePage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		},
+		shutDown: {
+			key: 'shutDown',
+			dependencies: [defaultScripts, adminScripts],
+			startAction: function () { new PiLot.View.Admin.ShutdownPage(); },
+			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+		}
+	};
+
+	/**
 	 * Main entry point to dynamically load script files and load the
 	 * right page content based on a querystring.
 	 */
@@ -221,147 +348,17 @@ PiLot.Utils.Loader = (function () {
 		/**
 		* Defines the scripts needed for each page, and the action to be called when all scripts
 	    * have loaded. It will return both of them in one object {dependencies, startAction};
-	    * I would have found a configuration-based approach somehow nicer than the code-based
-	    * one, but this is way cheaper. 
 		* */
 		getPageScripts: function() {
-			let dependencies;
-			let startAction;
-			switch (this.page) {
-				case pages.empty:
-					dependencies = [defaultScripts];
-					startAction = function () { };
-					break;
-				case pages.home:
-					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, flotScripts];
-					startAction = function () { new PiLot.View.Common.StartPage(); };
-					break;
-				case pages.map:
-					dependencies = [defaultScripts, navScripts];
-					startAction = function () { new PiLot.View.Map.MapPage(); };
-					break;
-				case pages.nav:
-					dependencies = [defaultScripts, navScripts];
-					startAction = function () { new PiLot.View.Nav.NavPage(); };
-					break;
-				case pages.routes:
-					dependencies = [defaultScripts, navScripts];
-					startAction = function () { new PiLot.View.Nav.RoutesList(); };
-					break;
-				case pages.routeDetails:
-					dependencies = [defaultScripts, navScripts];
-					startAction = function () { new PiLot.View.Nav.RouteDetail(); };
-					break;
-				case pages.measurements:
-					dependencies = [defaultScripts, meteoScripts, flotScripts, navScripts];
-					startAction = function () { new PiLot.View.Meteo.SensorsPage(); };
-					break;
-				case pages.logbook:
-					dependencies = [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts];
-					startAction = function () { new PiLot.View.Logbook.LogbookPage(); };
-					break;
-				case pages.diary:
-					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts, toolsScripts, flotScripts];
-					startAction = function () { new PiLot.View.Diary.DiaryPage(); };
-					break;
-				case pages.publish:
-					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts];
-					startAction = function () { new PiLot.View.Diary.PublishDiaryPage(); };
-					break;
-				case pages.stats:
-					dependencies = [defaultScripts, navScripts, boatScripts, echartsScripts, statsScripts];
-					startAction = function () { new PiLot.View.Stats.TrackStatsPage(); };
-					break;
-				case pages.photos:
-					dependencies = [defaultScripts, logbookScripts];
-					startAction = function () { new PiLot.View.Diary.PhotosPage(); };
-					break;
-				case pages.games:
-					dependencies = [defaultScripts, mediaScripts];
-					startAction = function () { new PiLot.View.Media.GamesOverviewPage(); }
-					break;
-				case pages.library:
-					dependencies = [defaultScripts, mediaScripts];
-					startAction = function () { new PiLot.View.Media.LibraryPage(); }
-					break;
-				case pages.tools:
-					dependencies = [defaultScripts, toolsScripts];
-					startAction = function () { new PiLot.View.Tools.ToolsOverviewPage(); };
-					break;
-				case pages.analyze:
-					dependencies = [defaultScripts, navScripts, boatScripts, logbookScripts, analyzeScripts];
-					startAction = () => new PiLot.View.Analyze.AnalyzePage(); 
-					break;
-				case pages.data:
-					dependencies = [defaultScripts, navScripts, flotScripts, toolsScripts, boatScripts];
-					startAction = function () { new PiLot.View.Tools.GpsImportExportForm(); };
-					break;
-				case pages.tiles:
-					dependencies = [defaultScripts, navScripts, toolsScripts];
-					startAction = function () { new PiLot.View.Tools.TilesDownloadForm(); };
-					break;
-				case pages.pois:
-					dependencies = [defaultScripts, navScripts, toolsScripts];
-					startAction = function () { new PiLot.View.Tools.PoisManagementPage(); };
-					break;
-				case pages.settings:
-					dependencies = [defaultScripts, settingsScripts];
-					startAction = function () { new PiLot.View.Settings.SettingsOverviewPage(); };
-					break;
-				case pages.boatTime:
-					dependencies = [defaultScripts, settingsScripts];
-					startAction = function () { new PiLot.View.Settings.BoatTimePage(); };
-					break;
-				case pages.boat:
-					dependencies = [defaultScripts, boatScripts];
-					startAction = function () { new PiLot.View.Boat.BoatPage(); };
-					break;
-				case pages.language:
-					dependencies = [defaultScripts, settingsScripts];
-					startAction = function () { new PiLot.View.Settings.LanguagePage(); };
-					break;
-				case pages.admin:
-					dependencies = [defaultScripts, adminScripts];
-					startAction = function () { new PiLot.View.Admin.AdminOverviewPage(); };
-					break;
-				case pages.wifi:
-					dependencies = [defaultScripts, adminScripts];
-					startAction = function () { new PiLot.View.Admin.WiFiPage(); };
-					break;
-				case pages.services:
-					dependencies = [defaultScripts, adminScripts];
-					startAction = function () { new PiLot.View.Admin.ServicesPage(); };
-					break;
-				case pages.systemStatus:
-					dependencies = [defaultScripts, adminScripts, flotScripts];
-					startAction = function () { new PiLot.View.Admin.SystemStatusPage(); }
-					break;
-				case pages.logs:
-					dependencies = [defaultScripts, adminScripts];
-					startAction = function () { new PiLot.View.Admin.LogFilesPage(); }
-					break;
-				case pages.systemTime:
-					dependencies = [defaultScripts, adminScripts];
-					startAction = function () { new PiLot.View.Admin.BoatTimePage(); };
-					break;
-				case pages.shutDown:
-					dependencies = [defaultScripts, adminScripts];
-					startAction = function () { new PiLot.View.Admin.ShutdownPage(); };
-					break;
-				default:
-					startAction = function () { alert(`Unknown page: ${page}`); };
-					break;
-
-			}
 			let dependenciesFlat = new Array();
-			dependencies.forEach(function (item) {
+			this.page.dependencies.forEach(function (item) {
 				item.forEach(function (innerItem) {
 					if (!dependenciesFlat.includes(innerItem)) {
 						dependenciesFlat.push(innerItem);
 					}
 				});				
 			});
-			return { dependencies: dependenciesFlat, startAction: startAction };
+			return { dependencies: dependenciesFlat, startAction: this.page.startAction };
 		},
 
 		/**
