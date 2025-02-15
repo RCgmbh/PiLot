@@ -13,6 +13,7 @@ PiLot.Templates.Common = {
 		<div>
 			<div class="menuSection menuSectionHome">
 				<a data-page="home"><i class="icon-home"></i><span data-text="home"></span></a>
+				<a data-page="display"><i class="icon-display"></i><span data-text="genericDisplay"></span></a>
 			</div>
 			<div class="menuSection menuSectionNav">
 				<a data-page="map"><i class="icon-map3"></i><span data-text="map"></span></a>
@@ -64,6 +65,40 @@ PiLot.Templates.Common = {
 	`,
 
 	startPage: `<div class="homeContainer"></div>`,
+
+	genericDisplayPage: `
+		<div class="flexColumn fullWidth">
+			<div class="pnlHeader flexRow paddingAllSmall" style="justify-content:space-between" hidden>
+				<a href="#" class="lnkHome"><i class="icon-arrow-left2"></i></a>
+				<a href="#" class="lnkAddDisplay"><i class="icon-plus"></i></a>
+			</div>
+			<div class="plhDisplays flexRowWrap"></div>
+		</div>
+	`,
+
+	addGenericDisplayDialog: `
+		<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="pnlDialog dialogPanel hCenter paddingAllSmall">
+				<div class="buttons reverse paddingBottomBig">
+					<a href="#" class="btnAdd linkButton semiBold" data-text="add"></a>
+					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				</div>
+			</div>
+		</div>	
+	`,
+
+	genericDisplay: `
+		<div class="flexColumn marginAllSmall">
+			<div class="pnlHeader flexRow" style="position:relative; justify-content:end;" hidden>
+				<div class="absolute paddingAllSmall">
+					<a href="#" class="lnkBiggerText marginRightSmall"><span style="font-size:1.25em;">A<i class="icon-arrow-up2"></i></span></a>
+					<a href="#" class="lnkSmallerText marginRight"><span style="font-size:0.85em;">A<i class="icon-arrow-down2"></i></span></a>
+					<a href="#" class="lnkClose"><i class="icon-cross"></i></a>
+				</div>
+			</div>
+			<div class="genericDisplay plhDisplay"></div>
+		</div>
+	`,
 
 	dayNightButtons: `
 		<div class="vCenter biggerText">

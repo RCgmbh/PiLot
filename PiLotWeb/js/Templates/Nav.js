@@ -185,7 +185,7 @@ PiLot.Templates.Nav = {
 	`,
 
 	logIndicator: `
-		<div class="divLog display motionDisplay" hidden>
+		<div class="divLog display motionDisplay">
 			<span data-text="log"></span><span class="lblLog lblValue">---</span><span data-text="nm"></span>
 		</div>
 	`,

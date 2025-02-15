@@ -241,21 +241,23 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			this.ensureTrackObserverAsync();
-		 },
+			this.ensureTrackObserverAsync().then(()=> this.showValue());
+		},
+
+		track_change: function(){
+			this.showValue();
+		},
 
 		draw: function(){
 			this.motionDisplay = new MotionDisplay(this.parent, PiLot.Templates.Nav.logIndicator, null, 1);
 		},
 
 		showValue: function(){
-			this.ensureTrackObserverAsync().then(function(){
-				if(this.trackObserver){
-					this.motionDisplay.showValue(PiLot.Utils.Nav.metersToNauticalMiles(this.trackObserver.getTrack().getDistance()));
-				} else {
-					this.motionDisplay.showValue(null);
-				}
-			}.bind(this));
+			if(this.trackObserver){
+				this.motionDisplay.showValue(PiLot.Utils.Nav.metersToNauticalMiles(this.trackObserver.getTrack().getDistance()));
+			} else {
+				this.motionDisplay.showValue(null);
+			}
 		},
 
 		ensureTrackObserverAsync: async function(){
@@ -263,6 +265,8 @@ PiLot.View.Nav = (function () {
 				const track = await (new PiLot.Service.Nav.TrackService().loadCurrentTrackAsync());
 				if(track){
 					this.trackObserver = new PiLot.Model.Nav.TrackObserver(track);
+					track.on('addTrackPoint', this.track_change.bind(this));
+					track.on('changeLastTrackPoint', this.track_change.bind(this));
 				} else {
 					this.trackObserver = null;
 				}
@@ -327,6 +331,60 @@ PiLot.View.Nav = (function () {
 			return this;
 		},
 
+	};
+
+	var GenericCOGDisplay = function(pContainer){
+		this.container = pContainer;
+		this.motionDisplay = null;
+		this.initialize();
+	};
+
+	GenericCOGDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		gpsObserver_recieveGpsData: function(){
+			this.motionDisplay.showValue(PiLot.Model.Nav.GPSObserver.getInstance().getCOG());
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			this.motionDisplay.showValue(null);
+		},
+
+		draw: function(){
+			this.motionDisplay = new MotionDisplay(this.container, PiLot.Templates.Nav.cogIndicator, 3, 0).showHide(true);
+		}
+	};
+
+	var GenericSOGDisplay = function(pContainer){
+		this.container = pContainer;
+		this.motionDisplay = null;
+		this.initialize();
+	};
+
+	GenericSOGDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		gpsObserver_recieveGpsData: function(){
+			this.motionDisplay.showValue(PiLot.Model.Nav.GPSObserver.getInstance().getSOG());
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			this.motionDisplay.showValue(null);
+		},
+
+		draw: function(){
+			this.motionDisplay = new MotionDisplay(this.container, PiLot.Templates.Nav.sogIndicator, null, 1).showHide(true);
+		}
 	};
 
 	var GPSIcon = function () {
@@ -417,7 +475,6 @@ PiLot.View.Nav = (function () {
 				this.vmgIndicator.showValue(this.routeObserver.getVMG());
 			}
 			this.positionIndicator.showValue(this.gpsObserver.getLatestPosition(null).latLon);
-			this.logIndicator.showValue();
 		},
 
 		gpsObserver_outdatedGpsData: function () {
@@ -2532,7 +2589,7 @@ PiLot.View.Nav = (function () {
 				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 8000, false),
 				isVisible: null,
 				needsRoute: false,
-				updateData: logIndicator.showValue.bind(logIndicator),
+				updateData: null,
 				showHide: logIndicator.showHide.bind(logIndicator)
 			});
 			const vmgIndicator = new PiLot.View.Nav.MotionDisplay(mainContainer, PiLot.Templates.Nav.vmgIndicator, null, 1);
@@ -2683,6 +2740,8 @@ PiLot.View.Nav = (function () {
 		MotionDisplay: MotionDisplay,
 		XTEIndicator: XTEIndicator,
 		LogIndicator: LogIndicator,
+		GenericCOGDisplay: GenericCOGDisplay,
+		GenericSOGDisplay: GenericSOGDisplay,
 		GPSIcon: GPSIcon,
 		NavPage: NavPage,
 		NavOptions: NavOptions,

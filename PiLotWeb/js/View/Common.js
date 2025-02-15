@@ -262,6 +262,204 @@ PiLot.View.Common = (function () {
 		}
 	};
 
+	/** A page containing a user-defined collection of displays, each one showing a single information */
+	var GenericDisplayPage = function(){
+
+		this.control = null;
+		this.displays = [];
+		this.pnlHeader = null;
+		this.plhDisplays = null;
+		this.addDisplayDialog = null;
+		this.initialize();
+	};
+
+	GenericDisplayPage.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.applyUserSettings();
+		},
+
+		control_click: function(pEvent){
+			if(pEvent.target === this.control){
+				this.toggleControls();
+			}
+		},
+
+		display_click: function(pEvent){
+			this.toggleControls();
+		},
+
+		display_close: function(pEvent, pIndex){
+			this.removeDisplay(pIndex);
+			this.saveUserSettings();
+		},
+
+		lnkAddDisplay_click: function(pEvent){
+			pEvent.preventDefault();
+			this.showAddDisplayDialog();
+		},
+
+		addDisplayDialog_click: function(pEvent){
+			pEvent.stopPropagation();
+		},
+
+		btnAddDisplay_click: function(){},
+
+		btnCancelAddDisplay_click: function(){},
+
+		draw: function() {
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.genericDisplayPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(this.control);
+			this.control.addEventListener('click', this.control_click.bind(this));
+			this.pnlHeader = this.control.querySelector('.pnlHeader');
+			this.control.querySelector('.lnkHome').href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.home);
+			this.control.querySelector('.lnkAddDisplay').addEventListener('click', this.lnkAddDisplay_click.bind(this));
+			this.plhDisplays = this.control.querySelector('.plhDisplays');
+			this.addDisplayDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.addGenericDisplayDialog);
+			document.body.insertAdjacentElement('afterbegin', this.addDisplayDialog);
+			const btnAdd = this.addDisplayDialog.querySelector('.btnAdd');
+			const btnCancel = this.addDisplayDialog.querySelector('.btnCancel');
+			PiLot.Utils.Common.bindKeyHandlers(this.addDisplayDialog, this.hideAddDisplayDialog.bind(this), this.showAddDisplayDialog.bind(this));
+			btnAdd.addEventListener('click', this.btnAddDisplay_click.bind(this));
+			btnCancel.addEventListener('click', this.btnCancelAddDisplay_click.bind(this));
+		},
+
+		applyUserSettings: function(){
+			this.addDisplay('cog', this.plhDisplays);
+			this.addDisplay('sog', this.plhDisplays);
+			this.addDisplay('log', this.plhDisplays);
+		},
+
+		loadUserSettings: function(){
+			return PiLot.Utils.Common.loadUserSetting('PiLot.View.Common.GenericDisplayPage.displays');
+		},
+
+		saveUserSettings: function(){
+			const typeNames = this.displays.map((v, i, a) => v.typeName);
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Common.GenericDisplayPage.displays', typeNames);
+		},
+
+		addDisplay: function(pTypeName, pTextSize){
+			if(pTypeName in GenericDisplay.types){
+				const display = new GenericDisplay(pTypeName, pTextSize || 1, this.plhDisplays);
+				this.displays.push({typeName: pTypeName, display: display});
+				display.on('click', this.display_click.bind(this));
+				display.on('close', this.display_close.bind(this, this.displays.length - 1));
+			}
+		},
+
+		removeDisplay: function(pIndex){
+			const display = this.displays[pIndex].display;
+			display.off('click');
+			display.off('close');
+			this.displays.remove(pIndex);
+
+		},
+
+		toggleControls: function(){
+			this.pnlHeader.hidden = !this.pnlHeader.hidden;
+			for(let aDisplay of this.displays){
+				aDisplay.display.toggleControls(!this.pnlHeader.hidden);
+			}
+		},
+
+		showAddDisplayDialog: function(){
+			this.addDisplayDialog.hidden = false;
+		},
+
+		hideAddDisplayDialog: function(){
+			this.addDisplayDialog.hidden = true;
+		}
+
+	};
+
+	/**
+	 * A display showing a single information, that can be added to the GenericDisplayPage 
+	 * @param {String} pTypeName - The name of the type of the control to display, form GenericDisplay.types
+	 * @param {Number} pTextSize - The text size to apply to the control (1 = normal)
+	 * @param {HTMLElement} pContainer - the container to add the control to
+	 * */
+	var GenericDisplay = function(pTypeName, pTextSize, pContainer){
+		this.typeName = pTypeName;
+		this.textSize = pTextSize;
+		this.container = pContainer;
+		this.control = null;
+		this.observers = null;
+		this.pnlHeader = null;
+		this.plhDisplay = null;
+		this.initialize();
+	};
+
+	GenericDisplay.prototype = {
+
+		initialize: function(){
+			this.observers = RC.Utils.initializeObservers(['click', 'close']);
+			this.draw();
+		},
+
+		/**
+		 * @param {String} pEvent: click, close
+		 * @param {Function} pCallback: The callback function
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		/** @param {String} pEvent: click, close */
+		off: function(pEvent){
+			RC.Utils.removeObservers(this.observers, pEvent);
+		},
+
+		display_click: function(pEvent){
+			RC.Utils.notifyObservers(this, this.observers, 'click', null);
+		},
+
+		lnkBiggerText_click: function(pEvent){
+			pEvent.stopPropagation();
+
+		},
+		
+		lnkSmallerText_click: function(pEvent){
+			pEvent.stopPropagation();
+		},
+
+		lnkClose_click: function(pEvent){
+			pEvent.stopPropagation();
+			this.control.parentNode.removeChild(this.control);
+			RC.Utils.notifyObservers(this, this.observers, 'close', null);
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.genericDisplay);
+			this.container.appendChild(this.control);
+			this.pnlHeader = this.control.querySelector('.pnlHeader');
+			this.pnlHeader.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
+			this.pnlHeader.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
+			this.pnlHeader.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
+			this.plhDisplay = this.control.querySelector('.plhDisplay');
+			this.plhDisplay.addEventListener('click', this.display_click.bind(this));
+			const display = new(GenericDisplay.types[this.typeName]())(this.plhDisplay);
+		},
+
+		toggleControls: function(pVisible){
+			this.pnlHeader.hidden = !pVisible;
+		}
+	};
+
+	/** 
+	 * A list of functions to get the different types of displays. Simply using the
+	 * types does not work, as they might not be known yet when this is loaded.
+	 * Creating a new instance of the display simply goes like...
+	 * new (GenericDisplay.types[foo]())(pars)
+	 */
+	GenericDisplay.types = {
+		cog: () => {return PiLot.View.Nav.GenericCOGDisplay},
+		sog: () => {return PiLot.View.Nav.GenericSOGDisplay},
+		vmg: () => {return PiLot.View.Nav.GenericVMGDisplay},
+		log: () => {return PiLot.View.Nav.LogIndicator}
+	};
+
 	/** An icon allowing to swap the day/night mode */
 	var DayNightIcon = function () {
 		this.nightModeHandler = null;
@@ -920,6 +1118,8 @@ PiLot.View.Common = (function () {
 		Clock: Clock,
 		ClockOffsetIcon: ClockOffsetIcon,
 		StartPage: StartPage,
+		GenericDisplayPage: GenericDisplayPage,
+		GenericDisplay: GenericDisplay,
 		DayNightIcon: DayNightIcon,
 		NightModeHandler: NightModeHandler,
 		MainMenuHamburger: MainMenuHamburger,

@@ -159,6 +159,12 @@ PiLot.Utils.Loader = (function () {
 			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, flotScripts],
 			startAction: function () { new PiLot.View.Common.StartPage(); }
 		},
+		display: {
+			key: 'display',
+			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts],
+			startAction: function () { new PiLot.View.Common.GenericDisplayPage(); },
+			noHeader: true
+		},
 		map: {
 			key: 'map',
 			dependencies: [defaultScripts, navScripts],
@@ -329,9 +335,9 @@ PiLot.Utils.Loader = (function () {
 			PiLot.Utils.Language.applyHTMLLanguage();
 			const urlKey = RC.Utils.getUrlParameter(PAGEKEY);
 			this.page = this.getPage(urlKey) || pages.home;
-			let pageScripts = this.getPageScripts();
-			this.addLanguageReference(pageScripts.dependencies);
-			new PiLot.Utils.Loader.ScriptLoader(pageScripts.dependencies, this.onScriptsLoaded.bind(this, pageScripts.startAction));
+			let dependencies = this.getDependencies();
+			this.addLanguageReference(dependencies);
+			new PiLot.Utils.Loader.ScriptLoader(dependencies, this.onScriptsLoaded.bind(this));
 		},
 
 		getPage: function(pKey){
@@ -349,7 +355,7 @@ PiLot.Utils.Loader = (function () {
 		* Defines the scripts needed for each page, and the action to be called when all scripts
 	    * have loaded. It will return both of them in one object {dependencies, startAction};
 		* */
-		getPageScripts: function() {
+		getDependencies: function() {
 			let dependenciesFlat = new Array();
 			this.page.dependencies.forEach(function (item) {
 				item.forEach(function (innerItem) {
@@ -358,7 +364,7 @@ PiLot.Utils.Loader = (function () {
 					}
 				});				
 			});
-			return { dependencies: dependenciesFlat, startAction: this.page.startAction };
+			return dependenciesFlat;
 		},
 
 		/**
@@ -375,28 +381,31 @@ PiLot.Utils.Loader = (function () {
 		 * some preparation work, calls the start function of the page, and adds
 		 * the menu and clock (this is done at the end so that the start action
 		 * can set the active menu item manually if it wants to do so)
-		 * @param {Function} pStartAction - the action to call to initialize the current page
 		 */
-		onScriptsLoaded: async function (pStartAction) {
+		onScriptsLoaded: async function () {
 			PiLot.log = PiLot.Utils.Common.log;
 			PiLot.Utils.Common.getLogLevel(); // todo: can we do this on demand? why here??
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			await authHelper.loadPermissionsAsync()
 			if (authHelper.getPermissions().getCanRead()) {
-				this.showPage(pStartAction);
+				this.showPage();
 			} else {
 				const loginForm = PiLot.View.Common.getLoginForm();
-				loginForm.on('loginSuccess', this.showPage.bind(this, pStartAction));
+				loginForm.on('loginSuccess', this.showPage.bind(this, this.page.startAction));
 			}
 		},
 
 		/**
 		 * Calls the start Action, draws the default controls and does stuff that needs be done
-		 * @param {any} pStartAction
 		 */
-		showPage: function (pStartAction) {
-			pStartAction();
-			this.addDefaultControls();
+		showPage: function () {
+			const noHeader = !!this.page.noHeader;
+			if(!noHeader){
+				this.addDefaultControls();
+			} 
+			document.getElementById('header').hidden = noHeader;
+			document.getElementById('main').classList.toggle('noHeader', noHeader);
+			this.page.startAction();
 			RC.Utils.handleActiveStyles();
 		},
 

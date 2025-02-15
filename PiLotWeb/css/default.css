@@ -470,6 +470,7 @@ a.btnUserInfo.active { color: #FFBF49; }
 body { min-width: 20em; }
 #header { width: 100%; height: 3em; min-height: 2em; padding: 0em; flex-grow: 0; top: 0px; position: fixed; z-index: 12000; display: flex; justify-content: space-between; box-shadow: 0px -2px 8px black; }
 #main { display: flex; flex-grow: 1; margin-top: 3em; }
+#main.noHeader {margin-top: 0em; }
 #header > div { width: 33%; flex-grow: 1; padding: 0em 0.75rem; display:flex; }
 #header > #hamburger { padding-top: 0.25em; padding-bottom: 0.25em; }
 #header > #hamburger > a { width:2em; height: 100%; padding:0em 0.5em; box-shadow: 0px 0px 8px black; border: 1px solid #668; }
