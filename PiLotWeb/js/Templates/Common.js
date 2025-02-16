@@ -72,14 +72,15 @@ PiLot.Templates.Common = {
 				<a href="#" class="lnkHome"><i class="icon-arrow-left2"></i></a>
 				<a href="#" class="lnkAddDisplay"><i class="icon-plus"></i></a>
 			</div>
-			<div class="plhDisplays flexRowWrap"></div>
+			<div class="plhDisplays flexRowWrap" style="justify-content:center;"></div>
 		</div>
 	`,
 
 	addGenericDisplayDialog: `
 		<div class="pnlOverlay vCenter overlay" hidden>
 			<div class="pnlDialog dialogPanel hCenter paddingAllSmall">
-				<div class="buttons reverse paddingBottomBig">
+				<select class="ddlDisplayName marginBottom"></select>
+				<div class="buttons reverse">
 					<a href="#" class="btnAdd linkButton semiBold" data-text="add"></a>
 					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 				</div>
@@ -88,15 +89,15 @@ PiLot.Templates.Common = {
 	`,
 
 	genericDisplay: `
-		<div class="flexColumn marginAllSmall">
-			<div class="pnlHeader flexRow" style="position:relative; justify-content:end;" hidden>
-				<div class="absolute paddingAllSmall">
+		<div class="flexColumn marginAllSmall easyShadow grow" style="justify-content:space-between;">
+			<div class="pnlHeader flexRow" style="position:relative;" hidden>
+				<div class="absolute paddingAllSmall right bgLightTrans" style="left:0px; right: 0px">
 					<a href="#" class="lnkBiggerText marginRightSmall"><span style="font-size:1.25em;">A<i class="icon-arrow-up2"></i></span></a>
 					<a href="#" class="lnkSmallerText marginRight"><span style="font-size:0.85em;">A<i class="icon-arrow-down2"></i></span></a>
 					<a href="#" class="lnkClose"><i class="icon-cross"></i></a>
 				</div>
 			</div>
-			<div class="genericDisplay plhDisplay"></div>
+			<div class="genericDisplay plhDisplay paddingAllSmall flexRowWrap grow"></div>
 		</div>
 	`,
 

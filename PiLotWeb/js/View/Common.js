@@ -270,6 +270,7 @@ PiLot.View.Common = (function () {
 		this.pnlHeader = null;
 		this.plhDisplays = null;
 		this.addDisplayDialog = null;
+		this.ddlDisplayName = null;
 		this.initialize();
 	};
 
@@ -277,6 +278,7 @@ PiLot.View.Common = (function () {
 
 		initialize: function(){
 			this.draw();
+			new NightModeHandler();
 			this.applyUserSettings();
 		},
 
@@ -286,12 +288,16 @@ PiLot.View.Common = (function () {
 			}
 		},
 
-		display_click: function(pEvent){
+		display_click: function(pSender){
 			this.toggleControls();
 		},
 
-		display_close: function(pEvent, pIndex){
+		display_close: function(pIndex, pSender){
 			this.removeDisplay(pIndex);
+			this.saveUserSettings();
+		},
+
+		display_changeTextSize: function(pSender){
 			this.saveUserSettings();
 		},
 
@@ -304,9 +310,16 @@ PiLot.View.Common = (function () {
 			pEvent.stopPropagation();
 		},
 
-		btnAddDisplay_click: function(){},
+		btnAddDisplay_click: function(pEvent){
+			this.addDisplay(this.ddlDisplayName.value, 1);
+			this.saveUserSettings();
+			this.hideAddDisplayDialog();
+			this.toggleControls(true);
+		},
 
-		btnCancelAddDisplay_click: function(){},
+		btnCancelAddDisplay_click: function(){
+			this.hideAddDisplayDialog();
+		},
 
 		draw: function() {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.genericDisplayPage);
@@ -318,6 +331,8 @@ PiLot.View.Common = (function () {
 			this.plhDisplays = this.control.querySelector('.plhDisplays');
 			this.addDisplayDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.addGenericDisplayDialog);
 			document.body.insertAdjacentElement('afterbegin', this.addDisplayDialog);
+			this.ddlDisplayName = this.addDisplayDialog.querySelector('.ddlDisplayName');
+			PiLot.Utils.Common.fillDropdown(this.ddlDisplayName, Object.keys(GenericDisplay.types).map((v) => [v, v]));
 			const btnAdd = this.addDisplayDialog.querySelector('.btnAdd');
 			const btnCancel = this.addDisplayDialog.querySelector('.btnCancel');
 			PiLot.Utils.Common.bindKeyHandlers(this.addDisplayDialog, this.hideAddDisplayDialog.bind(this), this.showAddDisplayDialog.bind(this));
@@ -326,41 +341,42 @@ PiLot.View.Common = (function () {
 		},
 
 		applyUserSettings: function(){
-			this.addDisplay('cog', this.plhDisplays);
-			this.addDisplay('sog', this.plhDisplays);
-			this.addDisplay('log', this.plhDisplays);
-		},
-
-		loadUserSettings: function(){
-			return PiLot.Utils.Common.loadUserSetting('PiLot.View.Common.GenericDisplayPage.displays');
+			const settingsObj = PiLot.Utils.Common.loadUserSetting('PiLot.View.Common.GenericDisplayPage.displays');
+			if(settingsObj){
+				for (let aDisplay of settingsObj){
+					this.addDisplay(aDisplay.typeName, aDisplay.textSize);
+				}
+			}
 		},
 
 		saveUserSettings: function(){
-			const typeNames = this.displays.map((v, i, a) => v.typeName);
-			PiLot.Utils.Common.saveUserSetting('PiLot.View.Common.GenericDisplayPage.displays', typeNames);
+			const settingsObj = this.displays.map((v, i, a) => {return {typeName: v.getTypeName(), textSize: v.getTextSize()}});
+			PiLot.Utils.Common.saveUserSetting('PiLot.View.Common.GenericDisplayPage.displays', settingsObj);
 		},
 
-		addDisplay: function(pTypeName, pTextSize){
+		addDisplay: function(pTypeName, pTextSize = 1){
 			if(pTypeName in GenericDisplay.types){
-				const display = new GenericDisplay(pTypeName, pTextSize || 1, this.plhDisplays);
-				this.displays.push({typeName: pTypeName, display: display});
+				const display = new GenericDisplay(pTypeName, pTextSize, this.plhDisplays);
+				this.displays.push(display);
 				display.on('click', this.display_click.bind(this));
 				display.on('close', this.display_close.bind(this, this.displays.length - 1));
+				display.on('changeTextSize', this.display_changeTextSize.bind(this));
 			}
 		},
 
 		removeDisplay: function(pIndex){
-			const display = this.displays[pIndex].display;
+			const display = this.displays[pIndex];
 			display.off('click');
 			display.off('close');
 			this.displays.remove(pIndex);
 
 		},
 
-		toggleControls: function(){
-			this.pnlHeader.hidden = !this.pnlHeader.hidden;
+		toggleControls: function(pShow){
+			const doShow = pShow === undefined ? this.pnlHeader.hidden : pShow;
+			this.pnlHeader.hidden = !doShow;
 			for(let aDisplay of this.displays){
-				aDisplay.display.toggleControls(!this.pnlHeader.hidden);
+				aDisplay.toggleControls(doShow);
 			}
 		},
 
@@ -394,7 +410,7 @@ PiLot.View.Common = (function () {
 	GenericDisplay.prototype = {
 
 		initialize: function(){
-			this.observers = RC.Utils.initializeObservers(['click', 'close']);
+			this.observers = RC.Utils.initializeObservers(['click', 'close', 'changeTextSize']);
 			this.draw();
 		},
 
@@ -417,11 +433,12 @@ PiLot.View.Common = (function () {
 
 		lnkBiggerText_click: function(pEvent){
 			pEvent.stopPropagation();
-
+			this.changeTextSize(+1);
 		},
 		
 		lnkSmallerText_click: function(pEvent){
 			pEvent.stopPropagation();
+			this.changeTextSize(-1);
 		},
 
 		lnkClose_click: function(pEvent){
@@ -439,13 +456,34 @@ PiLot.View.Common = (function () {
 			this.pnlHeader.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.plhDisplay = this.control.querySelector('.plhDisplay');
 			this.plhDisplay.addEventListener('click', this.display_click.bind(this));
+			this.applyTextSize();
 			const display = new(GenericDisplay.types[this.typeName]())(this.plhDisplay);
 		},
 
 		toggleControls: function(pVisible){
 			this.pnlHeader.hidden = !pVisible;
+		},
+
+		changeTextSize: function(pSign){
+			this.textSize = Math.max(GenericDisplay.textSizes.min, Math.max(GenericDisplay.textSizes.min, this.textSize + pSign * GenericDisplay.textSizes.step));
+			this.applyTextSize();
+			RC.Utils.notifyObservers(this, this.observers, 'changeTextSize', null);
+		},
+
+		applyTextSize: function(){
+			this.plhDisplay.style.setProperty("font-size", `${this.textSize * GenericDisplay.textSizes.factor}em`);
+		},
+
+		getTypeName: function(){
+			return this.typeName;
+		},
+
+		getTextSize: function(){
+			return this.textSize;
 		}
 	};
+
+	GenericDisplay.textSizes = {min: 0.4, max:2, step:0.2, factor: 2};
 
 	/** 
 	 * A list of functions to get the different types of displays. Simply using the

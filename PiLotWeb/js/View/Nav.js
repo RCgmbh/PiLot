@@ -242,10 +242,15 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			this.ensureTrackObserverAsync().then(()=> this.showValue());
+			PiLot.Model.Nav.GPSObserver.getInstance().on("recieveGpsData", this.gpsObserver_recieveGpsData.bind(this));
 		},
 
 		track_change: function(){
 			this.showValue();
+		},
+
+		gpsObserver_recieveGpsData: function(){
+			this.ensureTrackObserverAsync();
 		},
 
 		draw: function(){

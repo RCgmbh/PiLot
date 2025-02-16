@@ -29,6 +29,7 @@ body.night a, body.night a:active { color: #4992FF; }
 body.night a.tile { color: #4992FF; }
 body.night a.tile:hover { background-color: #1e2426; }
 body.night .bgLight { background-color: #1e2426; }
+body.night .bgLightTrans { background-color: rgba(33, 33, 33, 0.7); }
 body.night .borderLighter { border-color: #181818; }
 body.night a.lightLink, body.night a.lightLink:active, body.night a.lightLink:visited { color: #000; }
 body.night .easyShadow { box-shadow: 0px 0px 6px -1px white; }
@@ -38,6 +39,7 @@ body.nightTransition .warning,
 body.nightTransition .dgTable td,
 body.nightTransition .dgTable th,
 body.nightTransition .bgLight,
+body.nightTransition .bgLightTrans,
 body.nightTransition .borderLighter,
 body.nightTransition a.lightLink,
 body.nightTransition .inlineTextbox,
@@ -285,6 +287,7 @@ textarea.big { height: 20em; }
 .breakWord { word-break: break-word; overflow-wrap: break-word; }
 .textColumns {columns: auto 25em;}
 .bgLight { background-color: #eee; }
+.bgLightTrans { background-color: rgba(222, 222, 222, 0.7); }
 .borderLight { border: 1px solid #ccc; }
 .borderLighter { border: 1px solid #e8e8e8; }
 .borderBottom { border-style: none; border-bottom-style: solid; }
@@ -404,6 +407,11 @@ th.right, td.right { text-align: right !important; }
 .chart .bar {height:2.4em; margin-bottom: 1em; border-radius: 0px 2px 2px 0px; overflow:hidden; min-width:2px; align-items:start; }
 .chart .bar .link { overflow:hidden; text-overflow:ellipsis; margin-left:0.25em; margin-right:0.25em; }
 .chart .barLabel {height:2.4em;}
+
+.genericDisplay { justify-content: center; align-content:end;}
+.genericDisplay .iconsContainer {left:0px; right: 0px; background-color: rgba(200, 200, 200, 0.5);}
+.genericDisplay .display { line-height: 2em; padding-top: 2rem; }
+.genericDisplay .display .value { font-size:4em; margin: 0em 0.25em;}
 
 @media (max-width:400px) {
 	.rcCalendar { left: 0px; right: 0px; width: 100vw; }
