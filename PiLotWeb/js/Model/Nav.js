@@ -1011,6 +1011,8 @@ PiLot.Model.Nav = (function () {
 		return result;
 	};
 
+	var routeObserverInstance = null;
+
 	/// RouteObserver Class
 	/// keeps track of the current leg, ETA, distance and bearings
 	/// for waypoints. Options: autoCalculate: set to true, if vmg
@@ -1045,16 +1047,8 @@ PiLot.Model.Nav = (function () {
 		/// value = WaypointLiveData, and subscribes to the gps observer
 		initialize: function(){
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			const waypoints = this.route.getWaypoints()
-			for(let i = 0; i < waypoints.length; i++){
-				this.waypointsLiveData.set(waypoints[i], new WaypointLiveData());
-			}
-			if (this.gpsObserver !== null) {
-				this.gpsObserver.on('recieveGpsData', this.gpsObserver_changed.bind(this));
-			}
 			this.observers = RC.Utils.initializeObservers(['recieveGpsData', 'changeLeg']);
-			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
-			this.route.on('moveWaypoint', this.route_moveWaypoint.bind(this));
+			this.ensureRouteAsync();
 		},
 
 		/// calls all observers that registered for pEvent. Passes this
@@ -1084,11 +1078,28 @@ PiLot.Model.Nav = (function () {
 				this.calculate();
 			}
 			this.notifyObservers('recieveGpsData', null);
+		},		
+
+		ensureRouteAsync: async function(){
+			this.route = this.route || await loadActiveRouteAsync();
+			this.boatTime = this.boatTime || await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			if(this.route){
+				const waypoints = this.route.getWaypoints()
+				for(let i = 0; i < waypoints.length; i++){
+					this.waypointsLiveData.set(waypoints[i], new WaypointLiveData());
+				}
+				if (this.gpsObserver !== null) {
+					this.gpsObserver.on('recieveGpsData', this.gpsObserver_changed.bind(this));
+				}
+				
+				this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
+				this.route.on('moveWaypoint', this.route_moveWaypoint.bind(this));
+			}
 		},
 
 		/// re-calculates all data
 		calculate: function () {
-			if (this.gpsObserver !== null) {
+			if (this.gpsObserver !== null && this.route !== null) {
 				this.latestPosition = this.gpsObserver.getLatestPosition(null);
 				this.ensureNextWPEvaluated();
 				this.calculateVMG();
@@ -1226,10 +1237,30 @@ PiLot.Model.Nav = (function () {
 			return this.xte;
 		},
 
-		/// gets the current VMG or null.
+		/// gets the current VMG (which actually is the VMC) or null.
 		getVMG: function () {
 			return this.vmg;
+		},
+
+		/** @returns {WaypointLiveData} - the live data of the last waypoint */
+		getLastWaypointLiveData: function(){
+			let result = null;
+			if(this.route){
+				const waypoints = this.route.getWaypoints();
+				if(waypoints.length > 0){
+					result = this.waypointsLiveData.get(waypoints.last());
+				}
+			}
+			return result;
 		}
+	};
+
+	/** Singleton accessor returning the current instance of the RouteObserver object with auto calculate being true */
+	RouteObserver.getInstance = function () {
+		if (routeObserverInstance === null) {
+			routeObserverInstance = new RouteObserver(null, null, {autoCalculate:true});
+		}
+		return routeObserverInstance;
 	};
 
 	/// WaypointLiveData class, containing dynamically changing data about a
@@ -2290,6 +2321,7 @@ PiLot.Model.Nav = (function () {
 		stop: function(){
 			if (this.interval !== null) {
 				window.clearInterval(this.interval);
+				this.interval = null;
 			}
 		},
 

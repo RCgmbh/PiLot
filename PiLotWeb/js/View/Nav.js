@@ -172,7 +172,7 @@ PiLot.View.Nav = (function () {
 					text = pValue.toFixed(this.fixedPostComma);
 				}
 			} else {
-				text = '---';
+				text = '‒‒‒'; // magic figure dash, having the same width as a figure
 			}
 			this.lblValue.innerText = text;
 		}
@@ -212,13 +212,13 @@ PiLot.View.Nav = (function () {
 						distanceText = xteDistanceMiles.toFixed(2);
 					}
 				} else {
-					distanceText = '---';
+					distanceText = '‒‒‒';
 				}
 
 				this.lblXTELeft.classList.toggle('hidden', xte.direction !== 'L');
 				this.lblXTERight.classList.toggle('hidden', xte.direction !== 'R');
 			} else {
-				distanceText = '---';
+				distanceText = '‒‒‒';
 			}
 			this.lblXTE.innerText = distanceText;
 		},
@@ -389,6 +389,114 @@ PiLot.View.Nav = (function () {
 
 		draw: function(){
 			this.motionDisplay = new MotionDisplay(this.container, PiLot.Templates.Nav.sogIndicator, null, 1).showHide(true);
+		}
+	};
+
+	var GenericXTEDisplay = function(pContainer){
+		this.container = pContainer;
+		this.xteIndicator = null;
+		this.initialize();
+	};
+
+	GenericXTEDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.createRouteObserverAsync();
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		routeObserver_recieveGpsData: function(pSender){
+			this.xteIndicator.showValue(pSender);
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			this.xteIndicator.showValue(null);
+		},
+
+		draw: function(){
+			this.xteIndicator = new XTEIndicator(this.container).showHide(true);
+		},
+
+		createRouteObserverAsync: async function(){
+			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));		
+		}
+	};
+
+	var GenericVMCDisplay = function(pContainer){
+		this.container = pContainer;
+		this.motionDisplay = null;
+		this.initialize();
+	};
+
+	GenericVMCDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.createRouteObserverAsync();
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		routeObserver_recieveGpsData: function(pSender){
+			this.motionDisplay.showValue(pSender.getVMG());
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			this.motionDisplay.showValue(null);
+		},
+
+		draw: function(){
+			this.motionDisplay = new MotionDisplay(this.container, PiLot.Templates.Nav.vmgIndicator, null, 1).showHide(true);
+		},
+
+		createRouteObserverAsync: async function(){
+			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));
+		}
+	};
+
+	var GenericETADisplay = function(pContainer){
+		this.container = pContainer;
+		this.lblETA = null;
+		this.initialize();
+	};
+
+	GenericETADisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.createRouteObserverAsync();
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		routeObserver_recieveGpsData: function(pSender){
+			this.showData(pSender);
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			this.showNoData();
+		},
+
+		draw: function(){
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.etaIndicator);
+			this.container.appendChild(control);
+			this.lblETA = control.querySelector('.lblETA');
+		},
+
+		createRouteObserverAsync: async function(){
+			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));		
+		},
+
+		showData: function(pRouteObserver){
+			const wp = pRouteObserver.getLastWaypointLiveData();
+			if(wp && wp.eta){
+				this.lblETA.innerText = wp.eta.setLocale(PiLot.Utils.Language.getLanguage()).toLocaleString(DateTime.TIME_SIMPLE);
+			} else {
+				this.showNoData();
+			}
+		},
+
+		showNoData: function(){
+			this.lblETA.innerText = '‒‒:‒‒';
 		}
 	};
 
@@ -1361,7 +1469,7 @@ PiLot.View.Nav = (function () {
 				if (liveData !== null) {
 					this.lblETA.innerText = ((liveData.eta !== null) ? liveData.eta.toFormat('HH:mm') : '--:--');
 					this.lblDist.innerText = ((liveData.miles !== null) ? liveData.miles.toFixed(1) : '--');
-					this.lblBearing.innerText = ((liveData.bearing !== null) ? RC.Utils.toFixedLength(liveData.bearing, 3, 0) : '---');
+					this.lblBearing.innerText = ((liveData.bearing !== null) ? RC.Utils.toFixedLength(liveData.bearing, 3, 0) : '‒‒‒');
 					this.divWaypoint.classList.toggle('active', liveData.isNextWaypoint);
 					this.divWaypoint.classList.toggle('past', liveData.isPastWaypoint);
 					this.iconPastWP.hidden = (!liveData.isPastWaypoint);
@@ -2747,6 +2855,9 @@ PiLot.View.Nav = (function () {
 		LogIndicator: LogIndicator,
 		GenericCOGDisplay: GenericCOGDisplay,
 		GenericSOGDisplay: GenericSOGDisplay,
+		GenericXTEDisplay: GenericXTEDisplay,
+		GenericVMCDisplay: GenericVMCDisplay,
+		GenericETADisplay: GenericETADisplay,
 		GPSIcon: GPSIcon,
 		NavPage: NavPage,
 		NavOptions: NavOptions,

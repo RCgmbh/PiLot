@@ -168,47 +168,50 @@ PiLot.Templates.Nav = {
 
 	sogIndicator: `
 		<div class="divSOG display motionDisplay" hidden>
-			<span data-text="sog"></span><span class="lblSOG lblValue value">---</span><span data-text="kn"></span>
+			<span data-text="sog"></span><span class="lblSOG lblValue value">‒‒‒</span><span data-text="kn"></span>
 		</div>
 	`,
 
 	cogIndicator: `
 		<div class="divCOG display motionDisplay" hidden>
-			<span data-text="cog"></span><span class="value"><span class="lblCOG lblValue">---</span><span class="deg">°</span></span>
+			<span data-text="cog"></span><span class="value"><span class="lblCOG lblValue">‒‒‒</span><span class="deg">°</span></span>
 		</div>
 	`,
 
 	vmgIndicator: `
 		<div class="divVMG display motionDisplay" hidden>
-			<span data-text="vmc"></span><span class="lblVMG lblValue value">---</span><span data-text="kn"></span>
+			<span data-text="vmc"></span><span class="lblVMG lblValue value">‒‒‒</span><span data-text="kn"></span>
 		</div>
 	`,
 
 	logIndicator: `
 		<div class="divLog display motionDisplay">
-			<span data-text="log"></span><span class="lblLog lblValue value">---</span><span data-text="nm"></span>
+			<span data-text="log"></span><span class="lblLog lblValue value">‒‒‒</span><span data-text="nm"></span>
 		</div>
 	`,
 
 	xteIndicator: `
 		<div class="divXTE display xteDisplay" hidden>
-			<span data-text="xte"></span>
-			<span class="lblIcon">
-				<i class="icon-arrow-left2 lblXTELeft hidden"></i>
-				<i class="icon-arrow-right2 lblXTERight hidden"></i>
-			</span>
-			<span class="lblXTE lblValue value">---</span>
-			<span data-text="nm"></span>
+			<span data-text="xte"></span><span class="value"><span class="lblIcon" style="font-size: 0.75em"><i
+				 class="icon-arrow-left2 lblXTELeft hidden"></i><i class="icon-arrow-right2 lblXTERight hidden"></i></span>
+			<span class="lblXTE lblValue">‒‒‒</span></span><span data-text="nm"></span>
+		</div>
+	`,
+
+	etaIndicator: `
+		<div class="display">
+			<span data-text="eta"></span>
+			<span class="lblETA value">‒‒:‒‒</span>
 		</div>
 	`,
 
 	positionIndicator: `
 		<div class="pnlCoordinates">
 			<div class="divLat display">
-				<span class="lblLatPrefix prefix"></span> <span class="lblLatDegrees value">--</span><span>°</span> <span class="lblLatMinutes value">--.---</span><span>'</span>
+				<span class="lblLatPrefix prefix"></span> <span class="lblLatDegrees value">‒‒</span><span>°</span> <span class="lblLatMinutes value">‒‒.‒‒‒</span><span>'</span>
 			</div>
 			<div class="divLon display">
-				<span class="lblLonPrefix prefix"></span> <span class="lblLonDegrees value">---</span><span>°</span> <span class="lblLonMinutes value">--.---</span><span>'</span>
+				<span class="lblLonPrefix prefix"></span> <span class="lblLonDegrees value">‒‒‒</span><span>°</span> <span class="lblLonMinutes value">‒‒.‒‒‒</span><span>'</span>
 			</div>
 		</div>
 	`,
@@ -232,7 +235,6 @@ PiLot.Templates.Nav = {
 						<div>
 							<div class="label">
 								<span class="label" data-text="eta"></span>
-
 							</div>
 							<div class="value">
 								<span class="pnlLiveData marginRightSmall" hidden>

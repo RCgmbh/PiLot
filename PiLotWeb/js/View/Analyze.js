@@ -220,15 +220,7 @@ PiLot.View.Analyze = (function () {
 			if (this.track) {
 				this.mapTrack.setTracks([this.track], pZoomToTrack);
 				const options = this.tackAnalyzerOptions.getOptions();
-				const tacks = this.tackAnalyzer.findTacks(
-					options.minSampleLength,
-					options.maxSampleAngle,
-					options.minLeg1Length,
-					options.minLeg2Length,
-					options.maxTurnDistance,
-					options.minTurnAngle,
-					options.maxTurnAngle,
-				);
+				const tacks = this.tackAnalyzer.findTacks(options);
 				this.mapTacks.showTacks(tacks);
 			}
 		},
@@ -259,12 +251,8 @@ PiLot.View.Analyze = (function () {
 		this.tackAnalyzerOptions = pTackAnalyzerOptions;
 		this.mapTacks = pMapTacks;
 		this.mapTrack = pMapTrack;
-		this.track = null;									// PiLot.Model.Nav.Track
-		this.tackAnalyzer = null;							// PiLot.Model.Analyze.TackAnalyzer
 		this.control = null;
-		this.gpsObserver = null;
-		this.trackObserver = null;
-		this.maxLengthSeconds = 3600;
+		this.tackObserver = null;
 		this.pnlNoData = null;
 		this.lblTackAngle = null;
 		this.lblVMG = null;
@@ -274,32 +262,32 @@ PiLot.View.Analyze = (function () {
 	LiveTackInfo.prototype = {
 	
 		initialize: function(){
-			this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
-			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
 			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
-			this.trackObserver = new PiLot.Model.Nav.TrackObserver(null, this.gpsObserver);
-			this.trackObserver.setTrackSeconds(this.maxLengthSeconds);
+			this.tackObserver = new PiLot.Model.Analyze.TackObserver();
+			this.tackObserver.on('loadTrack', this.tackObserver_loadTrack.bind(this));
+			this.tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
+			this.tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
 			this.draw();
-		},
-
-		track_change: function(){
-			this.showTackInfoAsync();
-		},
-
-		gpsObserver_recieveGpsData: function(){
-			if(this.track === null){
-				this.loadCurrentTrackAsync();
-				this.showTackInfoAsync();
-			}
-		},
-
-		gpsObserver_outdatedGpsData: function(){
-			this.setTrackAsync(null);
 		},
 		
 		tackAnalyzerOptions_change: function (pSender, pOptions) {
-			this.showTackInfoAsync();
+			this.tackObserver.setAnalyzerOptions(pOptions);
+			if(!this.control.hidden){
+				this.tackObserver.findTacks();
+			}
+		},
+
+		tackObserver_analyzeTrack: function(pSender, pTackData){
+			if(!this.control.hidden){
+				this.showTackInfo(pTackData);
+			}
+		},
+
+		tackObserver_noGpsData: function(pSender){ },
+
+		tackObserver_loadTrack: function(pSender, pTrack){
+			this.tackAnalyzerOptions.showOptions(this.tackObserver.getAnalyzerOptions());
+			this.mapTrack.setTracks([pTrack], true);
 		},
 
 		draw: function(){
@@ -317,96 +305,19 @@ PiLot.View.Analyze = (function () {
 		show: async function(){
 			this.mapTacks.setShowValues(false);
 			this.control.hidden = false;
-			this.gpsObserver.start();
-			await this.loadCurrentTrackAsync();
-			await this.showTackInfoAsync();
+			this.tackObserver.start();
+			this.tackObserver.findTacks();
 		},
 
 		hide: function(){
 			this.control.hidden = true;
-			this.gpsObserver.stop();
+			this.tackObserver.stop();
 		},
 
-		loadCurrentTrackAsync: async function(){
-			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-			const endMs = currentBoatTime.now().toMillis();
-			const startMs = endMs - (this.maxLengthSeconds * 1000);
-			const tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMs, endMs, false);
-			if (tracks.length > 0) {
-				tracks.sort((t1, t2) => t2.compareTo(t1));
-				await this.setTrackAsync(tracks[0]);
-			} else {
-				await this.setTrackAsync(null);
-			}
-		},
-		
-		setTrackAsync: async function(pTrack){
-			if(this.track){
-				this.track.off('addTrackPoint');
-				this.track.off('changeLastTrackPoint');
-			}
-			this.track = pTrack;
-			if(this.track){
-				await this.tackAnalyzerOptions.setBoatAsync(this.track.getBoat());
-				this.track.on('addTrackPoint', this.track_change.bind(this));
-				this.track.on('changeLastTrackPoint', this.track_change.bind(this));
-				this.trackObserver.setTrack(this.track);
-				this.mapTrack.setTracks([this.track], true);
-			} else {
-				const boatConfig = await PiLot.Model.Boat.loadCurrentConfigAsync();
-				await this.tackAnalyzerOptions.setBoatAsync(boatConfig.getName());
-			}
-			this.pnlNoData.hidden = !!this.track;
-		},
-
-		/**
-		 * Shows the tack angle, which is the angle between last tack's first leg, and the
-		 * current cog. Also shows the VMG, which is based on the wind direction taken
-		 * from the last two (if available) or one tack.
-		 */
-		showTackInfoAsync: async function(){
-			let lastTacks = this.findLastTacks();
-			if (lastTacks.length > 0){
-				let windDirection;
-				if(lastTacks.length === 2){
-					windDirection = PiLot.Utils.Nav.getAverageBearing(lastTacks[0].windDirection, lastTacks[1].windDirection);
-				} else {
-					windDirection = lastTacks[0].windDirection;
-				}
-				this.mapTacks.showTacks(lastTacks);
-				const cog = this.gpsObserver.getCOG();
-				const angle = PiLot.Utils.Nav.getAngle(lastTacks[0].leg1.bearing, cog);
-				this.lblTackAngle.innerText = Math.round(angle);
-				const sog = this.gpsObserver.getSOG();
-				const vmg = PiLot.Utils.Nav.getVmg(windDirection, cog, sog);
-				this.lblVMG.innerText = vmg.toFixed(1);
-			} else{
-				this.mapTacks.clear();
-				this.lblTackAngle.innerText = '-';
-				this.lblVMG.innerText = '-';
-			}
-		},
-
-		/** @returns {Object[]} - the last 0-2 tacks */
-		findLastTacks: function(){
-			let result;
-			if(this.track){
-				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
-				const options = this.tackAnalyzerOptions.getOptions();
-				result = this.tackAnalyzer.findTacks(
-					options.minSampleLength,
-					options.maxSampleAngle,
-					options.minLeg1Length,
-					options.minLeg2Length,
-					options.maxTurnDistance,
-					options.minTurnAngle,
-					options.maxTurnAngle,
-					2
-				);
-			} else {
-				result = [];
-			}
-			return result;
+		showTackInfo: function(pTackInfo){
+			this.mapTacks.showTacks(pTackInfo ? pTackInfo.tacks : []);
+			this.lblTackAngle.innerText = (pTackInfo && pTackInfo.currentAngle !== null) ? Math.round(pTackInfo.currentAngle) : '-';
+			this.lblVMG.innerText = (pTackInfo && pTackInfo.vmg !== null) ? pTackInfo.vmg.toFixed(1) : '-';
 		}
 	};
 
@@ -632,7 +543,8 @@ PiLot.View.Analyze = (function () {
 			}
 		},
 
-		showOptions: function () {
+		showOptions: function (pOptions) {
+			this.options = pOptions || this.options;
 			this.ddlSliderScale.value = this.sliderScale;
 			this.setScaledRangeValue(this.rngMinSampleLength, this.options.minSampleLength);
 			this.lblMinSampleLength.innerText = this.options.minSampleLength;
@@ -668,15 +580,7 @@ PiLot.View.Analyze = (function () {
 		},
 
 		initializeDefaultOptions: function () {
-			this.options = {
-				minSampleLength: 9,
-				maxSampleAngle: 20,
-				minLeg1Length: 100,
-				minLeg2Length: 100,
-				maxTurnDistance: 30,
-				minTurnAngle: 70,
-				maxTurnAngle: 140
-			};
+			this.options = TackAnalyzer.defaultOptions;
 		},
 
 	};

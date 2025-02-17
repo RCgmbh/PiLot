@@ -6,7 +6,7 @@
 .navData .display > span { font-size: 1.5em; line-height:1;}
 .navData .display > span.value { font-size: 3em; margin: 0em 0.125em; min-width: 1.8em; text-align:center;}
 .navData .display.divCOG > span.value { margin-right: 0em; }
-.navData .xteDisplay .lblIcon { font-size: 2rem; margin: -1em 0em 0em 0.5em; display:inline-block; min-width: 1em; }
+.navData .xteDisplay .lblIcon { margin: -1em 0em 0em 0.5em; display:inline-block; min-width: 1em; }
 .startPageNav .navLiveRoute { font-size: 1.25em; width: 100%; box-shadow: none; }
 body.night .startPageNav .navLiveRoute { box-shadow: none; }
 .navPage .navLiveRoute {  }

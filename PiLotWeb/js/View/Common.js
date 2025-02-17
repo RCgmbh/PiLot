@@ -494,8 +494,14 @@ PiLot.View.Common = (function () {
 	GenericDisplay.types = {
 		cog: () => {return PiLot.View.Nav.GenericCOGDisplay},
 		sog: () => {return PiLot.View.Nav.GenericSOGDisplay},
-		vmg: () => {return PiLot.View.Nav.GenericVMGDisplay},
-		log: () => {return PiLot.View.Nav.LogIndicator}
+		vmc: () => {return PiLot.View.Nav.GenericVMCDisplay},
+		xte: () => {return PiLot.View.Nav.GenericXTEDisplay},
+		log: () => {return PiLot.View.Nav.LogIndicator},
+		eta: () => {return PiLot.View.Nav.GenericETADisplay},
+		vmg: () => {return PiLot.View.Analyze.GenericVMGDisplay},
+		tackingAngle: () => {return PiLot.View.Analyze.GenericTackingAngleDisplay},
+		randomPhoto: () => {return PiLot.View.Diary.GenericRandomPhotoDisplay},
+		dailyPhoto: () => {return PiLot.View.Diary.GenericDailyPhotoDisplay}
 	};
 
 	/** An icon allowing to swap the day/night mode */

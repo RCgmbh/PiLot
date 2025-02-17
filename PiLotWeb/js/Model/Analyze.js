@@ -18,22 +18,29 @@ PiLot.Model.Analyze = (function () {
 
 		initialize: function(){ },
 
+		setTrack: function(pTrack){
+			this.track = pTrack;
+			this.samples = null;
+		},
+
 		/**
 		 * Finds the tack on the track. As the sampling is done backwards, pMinLeg1Length and pMinLeg2Length
 		 * need to be used reversed (pMinLeg1Length is used for leg2 and vice versa).
-		 * @param {Number} pMinSampleLength - minimal length of a sample in meters
-		 * @param {Number} pMaxSampleAngle - maximal angle in deg between samples to still be considered straight
-		 * @param {Number} pMinLeg1Length - minimal length of the incoming leg in meters
-		 * @param {Number} pMinLeg2Length - minimal length of the outgoing leg in meters
-		 * @param {Number} pMaxTurnDistance - maximal distance of the two legs in meters
-		 * @param {Number} pMinTurnAngle - minimal angle between lets in deg to be considered a turn
-		 * @param {Number} pMaxTurnAngle - maximal angle between lets in deg to be considered a turn
+		 * @param {Object} pOptions: object with the following options:
+		 * 		- minSampleLength - minimal length of a sample in meters
+		 * 		- maxSampleAngle - maximal angle in deg between samples to still be considered straight
+		 * 		- minLeg1Length - minimal length of the incoming leg in meters
+		 * 		- minLeg2Length - minimal length of the outgoing leg in meters
+		 * 		- maxTurnDistance - maximal distance of the two legs in meters
+		 * 		- minTurnAngle - minimal angle between lets in deg to be considered a turn
+		 * 		- maxTurnAngle - maximal angle between lets in deg to be considered a turn
 		 * @param {Boolen} pMaxTacks - if not null, only the last x tacks will be returned
-		 * @returns {Object[]} - Array of objects with {leg1, leg2, angle, windDirection}
+		 * @returns {Object[]} - Array of objects with {leg1, leg2, angle, windDirection}, starting with the most recent tack
 		 */
-		findTacks: function (pMinSampleLength, pMaxSampleAngle, pMinLeg1Length, pMinLeg2Length, pMaxTurnDistance, pMinTurnAngle, pMaxTurnAngle, pMaxTacks = null) {
-			if (this.minSampleLength !== pMinSampleLength) {
-				this.minSampleLength = pMinSampleLength;
+		findTacks: function (pOptions, pMaxTacks = null) {
+			const options = pOptions || defaultOptions;
+			if ((this.samples === null) || (this.minSampleLength !== options.minSampleLength)) {
+				this.minSampleLength = options.minSampleLength;
 				this.sampleTrack();
 			}
 			let result = [];
@@ -45,36 +52,36 @@ PiLot.Model.Analyze = (function () {
 				let leg1Bearing, leg2Bearing, angle;
 				for (let i = 1; i < this.samples.length; i++) {
 					nextSample = this.samples[i];
-					if (this.isSampleAngleWithinRange(currentSample, nextSample, pMaxSampleAngle)) {				// it's going straight, continue the current leg
+					if (this.isSampleAngleWithinRange(currentSample, nextSample, options.maxSampleAngle)) {				// it's going straight, continue the current leg
 						if (leg2) {
 							this.addSampleToLeg(leg2, nextSample);								
-							this.cropLeg(leg2, pMinLeg1Length);
+							this.cropLeg(leg2, options.minLeg1Length);
 						} else {
 							this.addSampleToLeg(leg1, nextSample);								
-							this.cropLeg(leg1, pMinLeg2Length);
+							this.cropLeg(leg1, options.minLeg2Length);
 						}						
 					} else {																	// it's not straight, don't continue the leg	
 						if (leg2) {
 							leg2 = this.createLeg(nextSample);									// restart leg2 with the next sample
 						} else {
-							if (leg1.samples.length && (leg1.distance >= pMinLeg2Length)) {	
+							if (leg1.samples.length && (leg1.distance >= options.minLeg2Length)) {	
 								leg2 = this.createLeg(nextSample);								// start leg2 with the sample, if leg1 is long enough
 							} else {
 								leg1 = this.createLeg(nextSample);								// reset leg1, restart it with the sample
 							}
 						}				
 					}
-					if (!this.isTurnDistanceWithinRange(leg1, leg2, pMaxTurnDistance)) {		// leg 2 is too far from leg1, set leg2 as leg1
+					if (!this.isTurnDistanceWithinRange(leg1, leg2, options.maxTurnDistance)) {		// leg 2 is too far from leg1, set leg2 as leg1
 						leg1 = leg2;
 						leg2 = null;
-						this.cropLeg(leg1, pMinLeg2Length);
+						this.cropLeg(leg1, options.minLeg2Length);
 					}
-					if (leg2 && leg2.samples.length && leg2.distance >= pMinLeg1Length) {
+					if (leg2 && leg2.samples.length && leg2.distance >= options.minLeg1Length) {
 						leg1Bearing = this.getLegBearing(leg1);
 						leg2Bearing = this.getLegBearing(leg2);
 						angle = PiLot.Utils.Nav.getAngle(leg1Bearing, leg2Bearing);
-						if (Math.abs(angle) >= pMinTurnAngle) {
-							if(Math.abs(angle) <= pMaxTurnAngle){
+						if (Math.abs(angle) >= options.minTurnAngle) {
+							if(Math.abs(angle) <= options.maxTurnAngle){
 								result.push(this.createTackInfo(leg1, leg2, leg1Bearing, leg2Bearing, angle));
 								if(pMaxTacks !== null && pMaxTacks === result.length){
 									break;
@@ -188,8 +195,158 @@ PiLot.Model.Analyze = (function () {
 		}
 	};
 
+	TackAnalyzer.defaultOptions = {
+		minSampleLength: 9,
+		maxSampleAngle: 20,
+		minLeg1Length: 100,
+		minLeg2Length: 100,
+		maxTurnDistance: 30,
+		minTurnAngle: 70,
+		maxTurnAngle: 140
+	};
+
+	/** Observes the current track and continously analyzes it for tacks */
+	var TackObserver = function(){
+
+		this.gpsObserver = null;
+		this.trackAnalyzer = null;
+		this.analyzerOptions = null;
+		this.observers = null;
+		this.initialize();
+
+	};
+
+	TackObserver.prototype = {
+
+		initialize: function(){
+			this.observers = RC.Utils.initializeObservers(['analyzeTrack', 'noGpsData', 'loadTrack']);
+			if(!PiLot.Model.Nav.GPSObserver.hasInstance()){
+				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
+			}			
+			this.loadTrackAsync().then(()=> {
+				this.getGpsObserver().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+				this.getGpsObserver().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			});			
+		},
+
+		gpsObserver_recieveGpsData: function(){
+			if(!this.tackAnalyzer){
+				this.loadTrackAsync();
+			}
+		},
+
+		gpsObserver_outdatedGpsData: function(){
+			RC.Utils.notifyObservers(this, this.observers, 'noGpsData', null);
+		},
+
+		track_change: function(pTrack){
+			this.tackAnalyzer.setTrack(pTrack);
+			this.findTacks();
+		},
+
+		/** @param {String} pEvent - 'analyzeTrack', 'noGpsData', 'loadTrack' */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		},
+
+		loadTrackAsync: async function(){
+			const track = await PiLot.Service.Nav.TrackService.getInstance().loadCurrentTrackAsync();
+			if(track){
+				this.analyzerOptions = await (new PiLot.Service.Analyze.TackAnalyzeService().loadTackAnalyzerOptionsAsync(track.getBoat()));
+				this.analyzerOptions = this.analyzerOptions || TackAnalyzer.defaultOptions;
+				RC.Utils.notifyObservers(this, this.observers, 'loadTrack', track);
+				this.tackAnalyzer = new TackAnalyzer(track);
+				this.findTacks();
+				track.on('addTrackPoint', this.track_change.bind(this));
+				track.on('cropTrackPoints', this.track_change.bind(this));
+				track.on('changeLastTrackPoint', this.track_change.bind(this));
+				new PiLot.Model.Nav.TrackObserver(track, this.getGpsObserver());
+			} 
+		},
+
+		findTacks: function(){
+			if(this.tackAnalyzer){
+				const tacks = this.tackAnalyzer.findTacks(this.analyzerOptions, 2);
+				const windDirection = this.calculateWindDirection(tacks);
+				const currentAngle = this.caculateCurrentAngle(tacks);
+				const vmg = this.calculateVMG(windDirection);
+				RC.Utils.notifyObservers(this, this.observers, 'analyzeTrack', {tacks: tacks, windDirection: windDirection, currentAngle: currentAngle, vmg: vmg});
+			}
+		},
+
+		calculateWindDirection: function(pTacks){
+			let result = null;
+			if(pTacks.length > 0){
+				if(pTacks.length === 2){
+					result = PiLot.Utils.Nav.getAverageBearing(pTacks[0].windDirection, pTacks[1].windDirection);
+				} else {
+					result = pTacks[0].windDirection;
+				}
+			}
+			return result;
+		},
+
+		caculateCurrentAngle: function(pTacks){
+			let result = null;
+			if(pTacks.length > 0){
+				const cog = this.getGpsObserver().getCOG();
+				if(cog !== null){
+					result = PiLot.Utils.Nav.getAngle(pTacks[0].leg1.bearing, cog);
+				}
+			}
+			return result;
+		},
+
+		calculateVMG: function(pWindDirection){
+			let result = null;
+			if(pWindDirection !== null){
+				const cog = this.getGpsObserver().getCOG();
+				const sog = this.getGpsObserver().getSOG();
+				if(cog !== null && sog !== null)
+				result = PiLot.Utils.Nav.getVmg(pWindDirection, cog, sog);
+			}
+			return result;
+		},
+
+		getAnalyzerOptions: function(){
+			return this.analyzerOptions;
+		},
+
+		setAnalyzerOptions: function(pOptions){
+			this.analyzerOptions = pOptions;
+		},
+
+		start: function(){
+			this.gpsObserver && this.gpsObserver.start();
+		},
+
+		stop: function(){
+			this.gpsObserver && this.gpsObserver.stop();
+		},
+
+		/**
+		 * The class uses either the current GPS Observer instance, or a custom one,
+		 * if there is no instance yet. The latter allows to stop the GPS Observer
+		 * as soon as it's not being used. See the initialize() function.
+		 * @returns {PiLot.Model.Nav.GPSObserver} The gps observer being used		 * 
+		 */
+		getGpsObserver: function(){
+			return this.gpsObserver || PiLot.Model.Nav.GPSObserver.getInstance();
+		}
+
+	};
+
+	var currentTackObserver = null;
+
+	/** @returns {TackObserver} - single instance of the tack observer */
+	TackObserver.getInstance = function(){
+		currentTackObserver = currentTackObserver || new TackObserver();
+		return currentTackObserver;
+	}
+	
 	return {
-		TackAnalyzer: TackAnalyzer
+		TackAnalyzer: TackAnalyzer,
+		TackObserver: TackObserver
 	};
 
 })();
