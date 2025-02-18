@@ -1164,7 +1164,7 @@ PiLot.View.Nav = (function () {
 
 		/// click handler for the delete waypoint link
 		lnkDeleteWaypoint_click: function (pEvent) {
-			pEevent.preventDefault();
+			pEvent.preventDefault();
 			const message = PiLot.Utils.Language.getText('confirmDeleteWaypoint').replace("{{waypointName}}", this.waypoint.getName());
 			if (confirm(message)) {
 				this.routeDetail.getRoute().deleteWaypoint(this.waypoint, this);
