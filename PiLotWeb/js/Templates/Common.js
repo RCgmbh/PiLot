@@ -66,9 +66,9 @@ PiLot.Templates.Common = {
 
 	genericDisplayPage: `
 		<div class="flexColumn fullWidth">
-			<div class="pnlHeader flexRow paddingAllSmall" style="justify-content:space-between" hidden>
-				<a href="#" class="lnkMainMenu"><i class="icon-menu"></i></a>
-				<a href="#" class="lnkAddDisplay"><i class="icon-plus"></i></a>
+			<div class="pnlHeader flexRow" style="justify-content:space-between" hidden>
+				<a href="#" class="lnkMainMenu biggerText paddingAllSmall"><i class="icon-menu"></i></a>
+				<a href="#" class="lnkAddDisplay biggerText paddingAllSmall"><i class="icon-plus"></i></a>
 			</div>
 			<div class="plhMainMenu grow"></div>
 			<div class="plhDisplays flexRowWrap grow" style="justify-content:center;"></div>
