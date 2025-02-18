@@ -263,7 +263,7 @@ PiLot.View.Analyze = (function () {
 	
 		initialize: function(){
 			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
-			this.tackObserver = new PiLot.Model.Analyze.TackObserver();
+			this.tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
 			this.tackObserver.on('loadTrack', this.tackObserver_loadTrack.bind(this));
 			this.tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
 			this.tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
@@ -585,9 +585,93 @@ PiLot.View.Analyze = (function () {
 
 	};
 
+	var GenericVMGDisplay = function(pContainer){
+		this.container = pContainer;
+		this.motionDisplay = null;
+		this.initialize();
+	};
+
+	GenericVMGDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.createTackObserver();
+		},
+
+		tackObserver_analyzeTrack: function(pSender, pTackInfo){
+			this.showData(pTackInfo);
+		},
+
+		tackObserver_noGpsData: function(){
+			this.showData(null);
+		},
+
+		draw: function(){
+			this.motionDisplay = new PiLot.View.Nav.MotionDisplay(this.container, PiLot.Templates.Analyze.genericVMGDisplay, null, 1);
+		},
+
+		createTackObserver: function(){
+			const tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
+			tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
+			tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
+			tackObserver.start();
+		},
+
+		showData: function(pTackInfo){
+			if(pTackInfo && pTackInfo.vmg !== null){
+				this.motionDisplay.showValue(pTackInfo.vmg);
+			} else {
+				this.motionDisplay.showValue(null);
+			}
+		}
+	};
+
+	var GenericTackingAngleDisplay = function(pContainer){
+		this.container = pContainer;
+		this.motionDisplay = null;
+		this.initialize();
+	};
+
+	GenericTackingAngleDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			this.createTackObserver();
+		},
+
+		tackObserver_analyzeTrack: function(pSender, pTackInfo){
+			this.showData(pTackInfo);
+		},
+
+		tackObserver_noGpsData: function(){
+			this.showData(null);
+		},
+
+		draw: function(){
+			this.motionDisplay = new PiLot.View.Nav.MotionDisplay(this.container, PiLot.Templates.Analyze.genericTackingAngleDisplay, null, 0);
+		},
+
+		createTackObserver: function(){
+			const tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
+			tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
+			tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
+			tackObserver.start();
+		},
+
+		showData: function(pTackInfo){
+			if(pTackInfo && pTackInfo.currentAngle !== null){
+				this.motionDisplay.showValue(pTackInfo.currentAngle);
+			} else {
+				this.motionDisplay.showValue(null);
+			}
+		}
+	};
+
 	/// return the classes
 	return {
-		AnalyzePage: AnalyzePage
+		AnalyzePage: AnalyzePage,
+		GenericVMGDisplay: GenericVMGDisplay,
+		GenericTackingAngleDisplay: GenericTackingAngleDisplay
 	};
 
 })();

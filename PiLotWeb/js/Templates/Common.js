@@ -78,7 +78,8 @@ PiLot.Templates.Common = {
 
 	addGenericDisplayDialog: `
 		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog dialogPanel hCenter paddingAllSmall">
+			<div class="pnlDialog dialogPanel hCenter paddingAllSmall" style="width:30em; max-width:95%;">
+				<span class="block marginBottomSmall semiBold" data-text="addDisplay"></span>
 				<select class="ddlDisplayName marginBottom"></select>
 				<div class="buttons reverse">
 					<a href="#" class="btnAdd linkButton semiBold" data-text="add"></a>

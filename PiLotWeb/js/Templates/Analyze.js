@@ -125,5 +125,17 @@ PiLot.Templates.Analyze = {
 		</div>
 	`,
 
-	tackLineOptions: { color: 'rgb(238, 102, 102)', weight: 4 }
+	tackLineOptions: { color: 'rgb(238, 102, 102)', weight: 4 },
+
+	genericVMGDisplay: `
+		<div class="display motionDisplay">
+			<span data-text="vmg"></span><span class="lblValue value">‒‒‒</span><span data-text="kn"></span>
+		</div>
+	`,
+
+	genericTackingAngleDisplay: `
+		<div class="display motionDisplay">
+			<span data-text="tackAngle"></span><span class="value"><span class="lblValue">‒‒‒</span>°</span>
+		</div>
+	`
 };

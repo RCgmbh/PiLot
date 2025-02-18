@@ -332,12 +332,16 @@ PiLot.View.Common = (function () {
 			this.addDisplayDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.addGenericDisplayDialog);
 			document.body.insertAdjacentElement('afterbegin', this.addDisplayDialog);
 			this.ddlDisplayName = this.addDisplayDialog.querySelector('.ddlDisplayName');
-			PiLot.Utils.Common.fillDropdown(this.ddlDisplayName, Object.keys(GenericDisplay.types).map((v) => [v, v]));
 			const btnAdd = this.addDisplayDialog.querySelector('.btnAdd');
 			const btnCancel = this.addDisplayDialog.querySelector('.btnCancel');
 			PiLot.Utils.Common.bindKeyHandlers(this.addDisplayDialog, this.hideAddDisplayDialog.bind(this), this.showAddDisplayDialog.bind(this));
 			btnAdd.addEventListener('click', this.btnAddDisplay_click.bind(this));
 			btnCancel.addEventListener('click', this.btnCancelAddDisplay_click.bind(this));
+		},
+
+		fillDisplaysList: function(){
+			const displayTypes = Object.keys(GenericDisplay.types).filter((x) => !this.displays.some((y) => y.typeName === x)).map((v) => [v, v]);
+			PiLot.Utils.Common.fillDropdown(this.ddlDisplayName, displayTypes);
 		},
 
 		applyUserSettings: function(){
@@ -347,6 +351,7 @@ PiLot.View.Common = (function () {
 					this.addDisplay(aDisplay.typeName, aDisplay.textSize);
 				}
 			}
+			this.fillDisplaysList();
 		},
 
 		saveUserSettings: function(){
@@ -359,17 +364,17 @@ PiLot.View.Common = (function () {
 				const display = new GenericDisplay(pTypeName, pTextSize, this.plhDisplays);
 				this.displays.push(display);
 				display.on('click', this.display_click.bind(this));
-				display.on('close', this.display_close.bind(this, this.displays.length - 1));
+				display.on('close', this.display_close.bind(this, display));
 				display.on('changeTextSize', this.display_changeTextSize.bind(this));
+				this.fillDisplaysList();
 			}
 		},
 
-		removeDisplay: function(pIndex){
-			const display = this.displays[pIndex];
-			display.off('click');
-			display.off('close');
-			this.displays.remove(pIndex);
-
+		removeDisplay: function(pDisplay){
+			pDisplay.off('click');
+			pDisplay.off('close');
+			this.displays = this.displays.filter((d) => d !== pDisplay);
+			this.fillDisplaysList();
 		},
 
 		toggleControls: function(pShow){
@@ -499,7 +504,7 @@ PiLot.View.Common = (function () {
 		log: () => {return PiLot.View.Nav.LogIndicator},
 		eta: () => {return PiLot.View.Nav.GenericETADisplay},
 		vmg: () => {return PiLot.View.Analyze.GenericVMGDisplay},
-		tackingAngle: () => {return PiLot.View.Analyze.GenericTackingAngleDisplay},
+		tackAngle: () => {return PiLot.View.Analyze.GenericTackingAngleDisplay},
 		randomPhoto: () => {return PiLot.View.Diary.GenericRandomPhotoDisplay},
 		dailyPhoto: () => {return PiLot.View.Diary.GenericDailyPhotoDisplay}
 	};
