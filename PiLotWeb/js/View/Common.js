@@ -555,8 +555,8 @@ PiLot.View.Common = (function () {
 		eta: () => {return PiLot.View.Nav.GenericETADisplay},
 		vmg: () => {return PiLot.View.Analyze.GenericVMGDisplay},
 		tackAngle: () => {return PiLot.View.Analyze.GenericTackingAngleDisplay},
-		boatTimeAnalog: () => {return PiLot.View.Common.GenericDigitalClock},
-		boatTimeDigital: () => {return PiLot.View.Common.GenericAnalogClock}
+		boatTimeAnalog: () => {return PiLot.View.Common.GenericAnalogClock},
+		boatTimeDigital: () => {return PiLot.View.Common.GenericDigitalClock}
 	};
 
 	/** An icon allowing to swap the day/night mode */
