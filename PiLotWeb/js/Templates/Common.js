@@ -4,13 +4,9 @@ PiLot.Templates = PiLot.Templates || {};
 PiLot.Templates.Common = {
 
 	mainMenuHamburger: '<a href="#" class="vCenter"><i class="icon-menu"></i></a>',
-	mainMenuSection: '<div></div>',
-	mainMenuLink: '<a></a>',
-
-	flyoutMainMenu: `<div class="mainMenu"><div class="plhContent"></div></div>`,
 	
-	mainMenuContent: `
-		<div>
+	mainMenu: `
+		<div class="mainMenu">
 			<div class="menuSection menuSectionHome">
 				<a data-page="home"><i class="icon-home"></i><span data-text="home"></span></a>
 				<a data-page="display"><i class="icon-display"></i><span data-text="genericDisplay"></span></a>
@@ -71,10 +67,11 @@ PiLot.Templates.Common = {
 	genericDisplayPage: `
 		<div class="flexColumn fullWidth">
 			<div class="pnlHeader flexRow paddingAllSmall" style="justify-content:space-between" hidden>
-				<a href="#" class="lnkHome"><i class="icon-arrow-left2"></i></a>
+				<a href="#" class="lnkMainMenu"><i class="icon-menu"></i></a>
 				<a href="#" class="lnkAddDisplay"><i class="icon-plus"></i></a>
 			</div>
-			<div class="plhDisplays flexRowWrap" style="justify-content:center;"></div>
+			<div class="plhMainMenu grow"></div>
+			<div class="plhDisplays flexRowWrap grow" style="justify-content:center;"></div>
 		</div>
 	`,
 

@@ -301,6 +301,8 @@ PiLot.View.Common = (function () {
 		this.control = null;
 		this.displays = [];
 		this.pnlHeader = null;
+		this.lnkHamburger = null;
+		this.plhMainMenu = null;
 		this.plhDisplays = null;
 		this.addDisplayDialog = null;
 		this.ddlDisplayName = null;
@@ -313,6 +315,10 @@ PiLot.View.Common = (function () {
 			this.draw();
 			new NightModeHandler();
 			this.applyUserSettings();
+		},
+
+		lnkHamburger_click: function(){
+			this.toggleMenu();
 		},
 
 		control_click: function(pEvent){
@@ -359,7 +365,10 @@ PiLot.View.Common = (function () {
 			PiLot.Utils.Loader.getContentArea().appendChild(this.control);
 			this.control.addEventListener('click', this.control_click.bind(this));
 			this.pnlHeader = this.control.querySelector('.pnlHeader');
-			this.control.querySelector('.lnkHome').href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.home);
+			this.pnlHeader.querySelector('.lnkMainMenu').addEventListener('click', this.lnkHamburger_click.bind(this));
+			this.plhMainMenu = this.control.querySelector('.plhMainMenu');
+			this.plhMainMenu.hidden = true;
+			new MainMenu(this.plhMainMenu).toggle(true);
 			this.control.querySelector('.lnkAddDisplay').addEventListener('click', this.lnkAddDisplay_click.bind(this));
 			this.plhDisplays = this.control.querySelector('.plhDisplays');
 			this.addDisplayDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.addGenericDisplayDialog);
@@ -411,6 +420,11 @@ PiLot.View.Common = (function () {
 			pDisplay.off('close');
 			this.displays = this.displays.filter((d) => d !== pDisplay);
 			this.fillDisplaysList();
+		},
+
+		toggleMenu:function(){
+			this.plhMainMenu.hidden = !this.plhMainMenu.hidden
+			this.plhDisplays.hidden = !this.plhDisplays.hidden;
 		},
 
 		toggleControls: function(pShow){
@@ -625,10 +639,8 @@ PiLot.View.Common = (function () {
 	};
 
 	/** Renders a hamburger icon, which will, when clicked, show the main menu */
-	var MainMenuHamburger = function(pContainer){
-		this.container = pContainer;
-		this.lnkHamburger = null;
-		this.menuContainer = null;
+	var MainMenuHamburger = function(){
+		this.mainMenu = null;
 		this.initialize();
 	};
 
@@ -643,31 +655,18 @@ PiLot.View.Common = (function () {
 		},
 
 		draw: function(){
-			this.lnkHamburger = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuHamburger);
-			const hamburgerContainer = this.container || document.querySelector('#hamburger');
-			hamburgerContainer.appendChild(this.lnkHamburger);
-			this.lnkHamburger.addEventListener('click', this.hamburger_click.bind(this));
-			this.menuContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Common.flyoutMainMenu);
-			this.hideMenu();	
-			new MainMenu(this.menuContainer.querySelector('.plhContent'));
-			PiLot.Utils.Loader.getContentArea().insertAdjacentElement('beforebegin', this.menuContainer);
+			const lnkHamburger = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuHamburger);
+			document.querySelector('#hamburger').appendChild(lnkHamburger);
+			lnkHamburger.addEventListener('click', this.hamburger_click.bind(this));
+			this.mainMenu = new MainMenu(this.menuContainer);
+			
 		},
 
 		showHideMenu: function(){
-			this.menuContainer.hidden = !this.menuContainer.hidden;
+			const menuVisible = this.mainMenu.toggle();
 			const contentArea = PiLot.Utils.Loader.getContentArea();
-			contentArea.hidden = !contentArea.hidden;
-		},
-		
-		showMenu: function(){
-			this.menuContainer.hidden = false;
-			PiLot.Utils.Loader.getContentArea().hidden = true;
-		},
-		
-		hideMenu: function(){
-			this.menuContainer.hidden = true;
-			PiLot.Utils.Loader.getContentArea().hidden = false;
-		},
+			contentArea.hidden = menuVisible;
+		}
 			
 	};
 
@@ -698,9 +697,13 @@ PiLot.View.Common = (function () {
 		},
 
 		draw: function(){
-			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenuContent);
-			this.container.appendChild(this.control);
-			let pageKey, pageObject;
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenu);
+			this.control.hidden = true;
+			if(this.container){
+				this.container.appendChild(this.control);
+			} else {
+				PiLot.Utils.Loader.getContentArea().insertAdjacentElement('beforebegin', this.control);
+			}
 			this.processLinks(function (pLink, pPageObject, pPageKey) {
 				pLink.href = PiLot.Utils.Loader.createPageLink(pPageObject);
 				this.checkLinkPermissions(pLink, pPageObject)
@@ -747,8 +750,14 @@ PiLot.View.Common = (function () {
 
 		hideDisabledPages: function (pLink, pPageKey) {
 			pLink.hidden = pLink.hidden || (PiLot.Config.Disable && PiLot.Config.Disable.pages && PiLot.Config.Disable.pages.includes(pPageKey));
+		},
+		
+		toggle: function(pForce){
+			const doShow = pForce !== undefined ? pForce : this.control.hidden;
+			this.control.hidden = !doShow;
+			return doShow;
 		}
-
+		
 	};
 
 	/// a control consisting of four buttons with arrow keys, used to play
