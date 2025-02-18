@@ -42,6 +42,18 @@ namespace PiLot.API.Controllers {
 			}
 		}
 
+		[Route(Program.APIROOT + "[controller]/random")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public ImageCollection GetRandomPhoto() {
+			try {
+				return new PhotoDataConnector().ReadRandomImage();
+			} catch (Exception ex) {
+				Logger.Log(ex, "PhotosController.GetRandomPhoto");
+				throw;
+			}
+		}
+
 		/// <summary>
 		/// Puts a photo to the server. The content must be nothing but the
 		/// pure bytes. No multipart data.

@@ -161,7 +161,7 @@ PiLot.Utils.Loader = (function () {
 		},
 		display: {
 			key: 'display',
-			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, analyzeScripts],
+			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, analyzeScripts, settingsScripts],
 			startAction: function () { new PiLot.View.Common.GenericDisplayPage(); },
 			noHeader: true
 		},

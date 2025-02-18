@@ -55,7 +55,7 @@ PiLot.Templates.Common = {
 		</div>
 	`,
 
-	clock: `<span class="lblTime"></span>`,
+	clock: `<div class="display"><span class="lblTime value"></span></div>`,
 
 	clockOffsetIcon: `
 		<div class="vCenter biggerText">
@@ -63,6 +63,8 @@ PiLot.Templates.Common = {
 			<a class="icoTimeOffset icon red" href="#" hidden><i class="icon-time2"></i></a>
 		</div>
 	`,
+
+	genericAnalogClock: `<canvas id="clockCanvas"></canvas>`,
 
 	startPage: `<div class="homeContainer"></div>`,
 

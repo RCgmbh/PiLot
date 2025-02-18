@@ -1584,6 +1584,27 @@ PiLot.View.Diary = (function () {
 		loadImagesAsync: async function(){
 			this.imageGallery.showPhotosAsync();
 		}
+	};
+
+	var RandomPhotoDisplay = function(pContainer){
+		this.container = pContainer;
+		this.initialize();
+	};
+
+	RandomPhotoDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		draw: function(){
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.randomPhotoDisplay);
+			this.container.appendChild(control);
+			const imgPhoto = control.querySelector('.imgPhoto');
+			PiLot.Model.Logbook.loadRandomImageAsync().then((i) => {
+				imgPhoto.src = i.getRootUrl() + i.getImageNames()[0];
+			});
+		}
 
 	};
 
@@ -1592,6 +1613,7 @@ PiLot.View.Diary = (function () {
 		PublishDiaryPage: PublishDiaryPage,
 		DiaryCalendar: DiaryCalendar,
 		PhotosPage: PhotosPage,
+		RandomPhotoDisplay: RandomPhotoDisplay
 	};
 
 })();

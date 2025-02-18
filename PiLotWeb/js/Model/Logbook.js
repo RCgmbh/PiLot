@@ -718,6 +718,14 @@ PiLot.Model.Logbook = (function () {
 	};
 
 	/**
+	 * Loads a random image, embedded in an image collection
+	 */
+	var loadRandomImageAsync = async function () {
+		const json = await PiLot.Utils.Common.getFromServerAsync('/Photos/random');
+		return new ImageCollection(json.rootUrl, json.name, json.zoomFolders, json.imageNames);
+	};
+
+	/**
 	 * Gets the image collections for all days
 	 * @returns {RC.ImageGallery.ImageCollection[]} 
 	 * */
@@ -831,6 +839,7 @@ PiLot.Model.Logbook = (function () {
 		loadLogbookDayAsync: loadLogbookDayAsync,
 		loadCurrentBoatSetupAsync: loadCurrentBoatSetupAsync,
 		loadDailyImageCollectionAsync: loadDailyImageCollectionAsync,
+		loadRandomImageAsync: loadRandomImageAsync,
 		loadAllImageCollectionsAsync: loadAllImageCollectionsAsync,
 		uploadPhotoAsync: uploadPhotoAsync,
 		deletePhotoAsync: deletePhotoAsync,

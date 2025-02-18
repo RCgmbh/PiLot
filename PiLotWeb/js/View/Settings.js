@@ -43,7 +43,6 @@ PiLot.View.Settings = (function () {
 		this.lblBoatTimeOffset = null;			// label showing the UTC offset of the BoatTime
 		this.btnMinus = null;					// button to reduce the BoatTime by 1 hour
 		this.btnPlus = null;					// button to increase the BoatTime by 1 hour
-		this.clockCanvas = null;				// the canvas where the clock will be drawn
 		this.analogClock = null;				// the AnalogClock object representing the clock
 
 		this.initializeAsync();
@@ -77,7 +76,6 @@ PiLot.View.Settings = (function () {
 			this.btnMinus.onclick = this.btnMinus_click.bind(this);
 			this.btnPlus = contentArea.querySelector('#btnPlus');
 			this.btnPlus.onclick = this.btnPlus_click.bind(this);
-			this.clockCanvas = contentArea.querySelector('#lblClientTime');
 			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours(), this.boatTime.getClientErrorOffsetSeconds() * -1);
 		},
 

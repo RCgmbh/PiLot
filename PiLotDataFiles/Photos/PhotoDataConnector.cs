@@ -73,6 +73,28 @@ namespace PiLot.Data.Files {
 			return result;
 		}
 
+		public ImageCollection ReadRandomImage(){
+			ImageCollection result = null;
+			DirectoryInfo photosDirectory = new DirectoryInfo(this.GetPhotosRootPath(false));
+			if(photosDirectory.Exists){
+				DirectoryInfo[] directories = photosDirectory.GetDirectories();
+				directories = directories.Where(d => d.EnumerateFiles().FirstOrDefault() != null).ToArray();
+				if(directories.Length > 0) {
+					Random random = new Random();
+					DirectoryInfo directory = directories[random.Next(directories.Length)];
+					FileInfo[] files = directory.GetFiles();
+					FileInfo file = files[random.Next(files.Length)];
+					result = new ImageCollection(){
+						RootURL = this.GetPhotosRelativePath(directory),
+						Name = directory.Name,
+						ZoomFolders = this.GetImageFolders(),
+						ImageNames = new List<String>(){file.Name}
+					};
+				}
+			}
+			return result;
+		}
+
 		/// <summary>
 		/// Returns an object to be used by the RC.ImageGallery as ImageCollection,
 		/// representing the photos of one day

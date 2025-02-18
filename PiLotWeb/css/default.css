@@ -413,6 +413,8 @@ th.right, td.right { text-align: right !important; }
 .genericDisplay .display { line-height: 2em; padding-top: 2rem; }
 .genericDisplay .display .value { font-size:4em; margin: 0em 0.25em;}
 
+.genericDisplay #clockCanvas{width:10em; height: 10em;}
+
 @media (max-width:400px) {
 	.rcCalendar { left: 0px; right: 0px; width: 100vw; }
 }
@@ -497,7 +499,7 @@ body { min-width: 20em; }
 	width:5em; 
 }
 
-#header > #clock > span { 
+#header > #clock > div { 
 	font-size: 1.25em; 
 }
 
@@ -559,7 +561,7 @@ body { min-width: 20em; }
 @media (min-width:800px) {
 	#headerButtons {order: 3;}
 	#clock {order: 2; width:5.5em; }
-	#clock > span { 
+	#clock > div { 
 		width: 4.5em;
 		text-align: center;
 		padding: 0.4em;

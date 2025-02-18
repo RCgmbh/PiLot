@@ -253,5 +253,9 @@ PiLot.Templates.Diary = {
 		<div class="fullHeight fullWidth flex">
 			<div class="plhGallery marginTop grow" style="position: relative"></div>
 		</div>
+	`,
+
+	randomPhotoDisplay: `
+		<div style="width:20em;"><img class="imgPhoto" style="width:100%;"></img></div>
 	`
 };

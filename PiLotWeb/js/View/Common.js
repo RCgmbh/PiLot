@@ -6,25 +6,30 @@ PiLot.View.Common = (function () {
 	const clientErrorThresholdSeconds = 10;
 
 	/// class representing the clock which shows the current Boat Time
-	var Clock = function () {
+	var Clock = function (pContainer = null, pTimeFormat = null) {
+		this.container = pContainer;
+		this.timeFormat = pTimeFormat;
 		this.lblTime = null;			/// the html element showing the time
 		this.interval = null;
 		this.boatTime = null;
+		this.locale = null;
 		this.initialize();
 	};
 
 	Clock.prototype = {
 
 		initialize: function () {
+			this.locale = PiLot.Utils.Language.getLanguage();
 			this.draw();
 			this.loadBoatTimeAsync();
 		},
 
 		/// draws the clock based on a template
 		draw: function () {
-			const container = document.getElementById('clock');
+			const container = this.container || document.getElementById('clock');
 			container.innerHTML = PiLot.Templates.Common.clock;
 			this.lblTime = container.querySelector('.lblTime');
+			this.timeFormat = this.timeFormat || DateTime.TIME_24_SIMPLE;
 			this.lblTime.addEventListener('mouseover', this.showTimezone.bind(this));
 		},
 
@@ -51,13 +56,41 @@ PiLot.View.Common = (function () {
 		/// shows the current time
 		showTime: function () {
 			if (this.lblTime) {
-				this.lblTime.innerText = this.boatTime.now().toLocaleString(DateTime.TIME_24_SIMPLE);
+				this.lblTime.innerText = this.boatTime.now(this.locale).toLocaleString(this.timeFormat);
 			}
 		},
 
 		/// shows the BoatTime timezone name as tooltip
 		showTimezone: function () {
 			this.lblTime.title = 'Boat Time: ' + this.boatTime.getTimezoneName();
+		},
+	};
+
+	var GenericDigitalClock = function(pContainer){
+		return new Clock(pContainer, DateTime.TIME_WITH_SECONDS);
+	};
+
+	var GenericAnalogClock = function(pContainer){
+
+		this.container = pContainer;
+		this.boatTime = null;
+		this.initialize();
+
+	};
+
+	GenericAnalogClock.prototype = {
+
+		initialize: function(){
+			PiLot.Model.Common.getCurrentBoatTimeAsync().then((bt) => {
+				this.boatTime = bt;
+				this.draw();
+			});
+		},
+
+		draw: function(){
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.genericAnalogClock);
+			this.container.appendChild(control);
+			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours(), this.boatTime.getClientErrorOffsetSeconds() * -1);
 		},
 	};
 
@@ -352,6 +385,9 @@ PiLot.View.Common = (function () {
 				}
 			}
 			this.fillDisplaysList();
+			if(this.displays.length === 0){
+				this.toggleControls(true);
+			}
 		},
 
 		saveUserSettings: function(){
@@ -505,8 +541,8 @@ PiLot.View.Common = (function () {
 		eta: () => {return PiLot.View.Nav.GenericETADisplay},
 		vmg: () => {return PiLot.View.Analyze.GenericVMGDisplay},
 		tackAngle: () => {return PiLot.View.Analyze.GenericTackingAngleDisplay},
-		randomPhoto: () => {return PiLot.View.Diary.GenericRandomPhotoDisplay},
-		dailyPhoto: () => {return PiLot.View.Diary.GenericDailyPhotoDisplay}
+		boatTimeAnalog: () => {return PiLot.View.Common.GenericDigitalClock},
+		boatTimeDigital: () => {return PiLot.View.Common.GenericAnalogClock}
 	};
 
 	/** An icon allowing to swap the day/night mode */
@@ -589,7 +625,8 @@ PiLot.View.Common = (function () {
 	};
 
 	/** Renders a hamburger icon, which will, when clicked, show the main menu */
-	var MainMenuHamburger = function(){
+	var MainMenuHamburger = function(pContainer){
+		this.container = pContainer;
 		this.lnkHamburger = null;
 		this.menuContainer = null;
 		this.initialize();
@@ -607,9 +644,9 @@ PiLot.View.Common = (function () {
 
 		draw: function(){
 			this.lnkHamburger = RC.Utils.stringToNode(PiLot.Templates.Common.mainMenuHamburger);
-			const hamburgerContainer = document.querySelector('#hamburger');
+			const hamburgerContainer = this.container || document.querySelector('#hamburger');
 			hamburgerContainer.appendChild(this.lnkHamburger);
-			hamburger.addEventListener('click', this.hamburger_click.bind(this));
+			this.lnkHamburger.addEventListener('click', this.hamburger_click.bind(this));
 			this.menuContainer = PiLot.Utils.Common.createNode(PiLot.Templates.Common.flyoutMainMenu);
 			this.hideMenu();	
 			new MainMenu(this.menuContainer.querySelector('.plhContent'));
@@ -1165,6 +1202,8 @@ PiLot.View.Common = (function () {
 
 	return {
 		Clock: Clock,
+		GenericDigitalClock: GenericDigitalClock,
+		GenericAnalogClock: GenericAnalogClock,
 		ClockOffsetIcon: ClockOffsetIcon,
 		StartPage: StartPage,
 		GenericDisplayPage: GenericDisplayPage,
