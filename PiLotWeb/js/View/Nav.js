@@ -267,9 +267,10 @@ PiLot.View.Nav = (function () {
 
 		ensureTrackObserverAsync: async function(){
 			if(this.trackObserver === null){
+				this.trackObserver = new PiLot.Model.Nav.TrackObserver(null);
 				const track = await (new PiLot.Service.Nav.TrackService().loadCurrentTrackAsync());
 				if(track){
-					this.trackObserver = new PiLot.Model.Nav.TrackObserver(track);
+					this.trackObserver.setTrack(track);
 					track.on('addTrackPoint', this.track_change.bind(this));
 					track.on('changeLastTrackPoint', this.track_change.bind(this));
 				} else {
@@ -497,6 +498,50 @@ PiLot.View.Nav = (function () {
 
 		showNoData: function(){
 			this.lblETA.innerText = '‒‒:‒‒';
+		}
+	};
+
+	var GenericRecordsDisplay = function(pContainer){
+
+		var minUpdateInterval = 10;
+
+		this.container = pContainer;
+		this.plhLatestTrophy = null;
+		this.lblLatestRecord = null;
+		this.plhPreviousTrophies = null;
+		this.lastUpdate = null;
+		this.initialize();
+	};
+
+	GenericRecordsDisplay.prototype = {
+
+		initialize: function(){
+			this.draw();
+			//PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+		},
+
+		gpsObserver_recieveGpsData: function(pSender){
+			this.loadRecords();
+		},
+
+		draw: function(){
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.recordsDisplay);
+			this.container.appendChild(control);
+			this.plhLatestTrophy = control.querySelector('.plhLatestTrophy');
+			this.lblLatestRecord = control.querySelector('.plhLatestRecord');
+			this.plhPreviousTrophies = control.querySelector('.plhPreviousTrophies');
+		},
+
+		
+
+		showData: function(){
+			
+		},
+
+		showNoData: function(){
+			this.plhLatestTrophy.innerText = '‒';
+			this.lblLatestRecord.innerText = '';
+			this.plhLatestTrophy.clear();
 		}
 	};
 

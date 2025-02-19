@@ -1033,6 +1033,8 @@ PiLot.View.Map = (function () {
 		this.timeScaleFactor = 1;
 		this.maxTimeSteps = 1000;
 		this.historicPosition = null;  // TrackPoint
+		this.trackObserver = null;
+		this.enableLiveUpdate = false;
 
 		// controls
 		this.timeSliderContainer = null;
@@ -1055,6 +1057,30 @@ PiLot.View.Map = (function () {
 			this.polylines = new Map();
 		},
 
+		trackObserver_addPosition: function(pTrackObserver, pTrackPoint){
+			if(this.enableLiveUpdate && pTrackObserver.hasTrack()){
+				this.addTrackPosition(pTrackObserver.getTrack(), pTrackPoint);
+			}
+		},
+
+		trackObserver_changeLastPosition: function(pTrackObserver, pTrackPoint){
+			if(this.enableLiveUpdate && pTrackObserver.hasTrack()){
+				this.changeLastTrackPosition(pTrackObserver.getTrack(), pTrackPoint);
+			}
+		},
+
+		trackObserver_cropPositions: function(pTrackObserver){
+			if(this.enableLiveUpdate && pTrackObserver.hasTrack()){
+				this.cropTrackPositions(pTrackObserver.getTrack());
+			}
+		},
+
+		trackObserver_loadTrack: function(pTrackObserver, pTrack){
+			if(this.enableLiveUpdate && pTrack !== null){
+				this.addTrack(pTrack);
+			}
+		},
+
 		/**
 		 * Handles sliding the slider. Finds the position on any of the tracks and 
 		 * if there is one, makes sure it is drawn / moved on the map.
@@ -1073,55 +1099,6 @@ PiLot.View.Map = (function () {
 			}
 			if (this.historicPosition !== null) {
 				this.drawHistoricPosition();
-			}
-		},
-
-		/**
-		 * Handles adding a new position to a track.
-		 * @param {PiLot.Model.Nav.Track} pTrack
-		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The TrackPoint that was added
-		 */
-		track_addPosition: function (pTrack, pTrackPoint) {
-			this.updateTimeScale();
-			const polyline = this.polylines.get(pTrack);
-			if (polyline) {
-				polyline.addLatLng(pTrackPoint.getLatLng());
-			} else {
-				this.drawTrack(pTrack);
-			}			
-		},
-
-		/**
-		 * Handles changing the latest position of a track.
-		 * @param {PiLot.Model.Nav.Track} pTrack
-		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The position that was updated
-		 */
-		track_changeLastPosition: function (pTrack, pTrackPoint) {
-			this.updateTimeScale();
-			const polyline = this.polylines.get(pTrack);
-			if (polyline) {
-				const latLngs = polyline.getLatLngs();
-				if (latLngs.length > 0) {
-					latLngs[latLngs.length - 1] = pTrackPoint.getLatLng();
-				}
-				else {
-					latLngs.push(pTrackPoint.getLatLng());
-				}
-				polyline.setLatLngs(latLngs);
-			} else {
-				this.drawTrack(pTrack);
-			}
-		},
-
-		/**
-		 * Handles cropping positions of the track
-		 * @param {PiLot.Model.Nav.Track} pTrack
-		 * */
-		track_cropPositions: function (pTrack) {
-			this.updateTimeScale();
-			this.drawTrack(pTrack);
-			if(this.includeTimeSlider) {
-				this.fixHistoricPosition();
 			}
 		},
 
@@ -1182,10 +1159,56 @@ PiLot.View.Map = (function () {
 				if (pSortTracks){
 					this.sortTracks();
 				}
-				pTrack.on('addTrackPoint', this.track_addPosition.bind(this));
-				pTrack.on('changeLastTrackPoint', this.track_changeLastPosition.bind(this));
-				pTrack.on('cropTrackPoints', this.track_cropPositions.bind(this));
 				this.drawTrack(pTrack);
+			}
+		},
+
+		/**
+		 * Shows a new position added to a track.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The TrackPoint that was added
+		 */
+		addTrackPosition: function (pTrack, pTrackPoint) {
+			this.updateTimeScale();
+			const polyline = this.polylines.get(pTrack);
+			if (polyline) {
+				polyline.addLatLng(pTrackPoint.getLatLng());
+			} else {
+				this.drawTrack(pTrack);
+			}			
+		},
+
+		/**
+		 * Shows changes to the latest position of a track.
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The position that was updated
+		 */
+		changeLastTrackPosition: function (pTrack, pTrackPoint) {
+			this.updateTimeScale();
+			const polyline = this.polylines.get(pTrack);
+			if (polyline) {
+				const latLngs = polyline.getLatLngs();
+				if (latLngs.length > 0) {
+					latLngs[latLngs.length - 1] = pTrackPoint.getLatLng();
+				}
+				else {
+					latLngs.push(pTrackPoint.getLatLng());
+				}
+				polyline.setLatLngs(latLngs);
+			} else {
+				this.drawTrack(pTrack);
+			}
+		},
+
+		/**
+		 * Removes cropped positions from a track polyline
+		 * @param {PiLot.Model.Nav.Track} pTrack
+		 * */
+		cropTrackPositions: function (pTrack) {
+			this.updateTimeScale();
+			this.drawTrack(pTrack);
+			if(this.includeTimeSlider) {
+				this.fixHistoricPosition();
 			}
 		},
 
@@ -1321,6 +1344,17 @@ PiLot.View.Map = (function () {
 		 * */
 		getHistoricPosition: function () {
 			return this.historicPosition;
+		},
+
+		setEnableLiveUpdate: function(pEnable){
+			this.enableLiveUpdate = pEnable;
+			if(this.enableLiveUpdate && this.trackObserver === null){
+				this.trackObserver = new PiLot.Model.Nav.TrackObserver(this.tracks.last());
+				this.trackObserver.on('addTrackPoint', this.trackObserver_addPosition.bind(this));
+				this.trackObserver.on('changeLastTrackPoint', this.trackObserver_changeLastPosition.bind(this));
+				this.trackObserver.on('cropTrackPoints', this.trackObserver_cropPositions.bind(this));
+				this.trackObserver.on('loadTrack', this.trackObserver_loadTrack.bind(this));
+			}
 		}
 	};
 
@@ -1354,7 +1388,6 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
-			this.trackObserver = new PiLot.Model.Nav.TrackObserver(null);
 			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.mapTrack = new MapTrack(this.map);
 			this.draw();
@@ -1503,11 +1536,7 @@ PiLot.View.Map = (function () {
 			if (start && end) {
 				tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(start * 1000, end * 1000, isBoatTime);
 				this.mapTrack.setTracks(tracks, pZoomToTracks);
-				if ((tracks.length > 0) && this.seconds) {
-					this.trackObserver.setTrack(tracks.last());
-				} else {
-					this.trackObserver.setTrack(null);
-				}
+				this.mapTrack.setEnableLiveUpdate(!!this.seconds);
 			}
 		},
 

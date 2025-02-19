@@ -38,7 +38,7 @@ PiLot.Model.Analyze = (function () {
 		 * @returns {Object[]} - Array of objects with {leg1, leg2, angle, windDirection}, starting with the most recent tack
 		 */
 		findTacks: function (pOptions, pMaxTacks = null) {
-			const options = pOptions || defaultOptions;
+			const options = pOptions || TackAnalyzer.defaultOptions;
 			if ((this.samples === null) || (this.minSampleLength !== options.minSampleLength)) {
 				this.minSampleLength = options.minSampleLength;
 				this.sampleTrack();
@@ -220,58 +220,51 @@ PiLot.Model.Analyze = (function () {
 
 		initialize: function(){
 			this.observers = RC.Utils.initializeObservers(['analyzeTrack', 'noGpsData', 'loadTrack']);
+			this.tackAnalyzer = new TackAnalyzer();
 			if(!PiLot.Model.Nav.GPSObserver.hasInstance()){
 				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
-			}			
-			this.loadTrackAsync().then(()=> {
-				this.getGpsObserver().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-				this.getGpsObserver().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
-			});			
-		},
-
-		gpsObserver_recieveGpsData: function(){
-			if(!this.tackAnalyzer){
-				this.loadTrackAsync();
-			}
+			}	
+			this.getGpsObserver().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			const trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
+			trackObserver.on('addTrackPoint', this.trackObserver_changeTrackPoints.bind(this));
+			trackObserver.on('changeLastTrackPoint', this.trackObserver_changeTrackPoints.bind(this));
+			trackObserver.on('loadTrack', this.trackObserver_loadTrack.bind(this));
 		},
 
 		gpsObserver_outdatedGpsData: function(){
 			RC.Utils.notifyObservers(this, this.observers, 'noGpsData', null);
 		},
 
-		track_change: function(pTrack){
-			this.tackAnalyzer.setTrack(pTrack);
-			this.findTacks();
+		trackObserver_changeTrackPoints: function(pTrackObserver){
+			if(pTrackObserver.hasTrack()){
+				this.tackAnalyzer.setTrack(pTrackObserver.getTrack());
+				this.findTacks();
+			}
 		},
 
-		/** @param {String} pEvent - 'analyzeTrack', 'noGpsData', 'loadTrack' */
+		trackObserver_loadTrack: async function(pTrackObserver){
+			if(pTrackObserver.hasTrack()){
+				const track = pTrackObserver.getTrack();
+				this.analyzerOptions = await (new PiLot.Service.Analyze.TackAnalyzeService().loadTackAnalyzerOptionsAsync(track.getBoat()));
+				this.analyzerOptions = this.analyzerOptions || TackAnalyzer.defaultOptions;
+				RC.Utils.notifyObservers(this, this.observers, 'loadTrack', track);
+				this.tackAnalyzer.setTrack(track);
+				this.findTacks();
+			}
+			
+		},
+
+		/** @param {String} pEvent - 'analyzeTrack', 'noGpsData' */
 		on: function (pEvent, pCallback) {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		loadTrackAsync: async function(){
-			const track = await PiLot.Service.Nav.TrackService.getInstance().loadCurrentTrackAsync();
-			if(track){
-				this.analyzerOptions = await (new PiLot.Service.Analyze.TackAnalyzeService().loadTackAnalyzerOptionsAsync(track.getBoat()));
-				this.analyzerOptions = this.analyzerOptions || TackAnalyzer.defaultOptions;
-				RC.Utils.notifyObservers(this, this.observers, 'loadTrack', track);
-				this.tackAnalyzer = new TackAnalyzer(track);
-				this.findTacks();
-				track.on('addTrackPoint', this.track_change.bind(this));
-				track.on('cropTrackPoints', this.track_change.bind(this));
-				track.on('changeLastTrackPoint', this.track_change.bind(this));
-				new PiLot.Model.Nav.TrackObserver(track, this.getGpsObserver());
-			} 
-		},
-
 		findTacks: function(){
-			if(this.tackAnalyzer){
-				const tacks = this.tackAnalyzer.findTacks(this.analyzerOptions, 2);
-				const windDirection = this.calculateWindDirection(tacks);
-				const currentAngle = this.caculateCurrentAngle(tacks);
-				const vmg = this.calculateVMG(windDirection);
-				RC.Utils.notifyObservers(this, this.observers, 'analyzeTrack', {tacks: tacks, windDirection: windDirection, currentAngle: currentAngle, vmg: vmg});
-			}
+			const tacks = this.tackAnalyzer.findTacks(this.analyzerOptions, 2);
+			const windDirection = this.calculateWindDirection(tacks);
+			const currentAngle = this.caculateCurrentAngle(tacks);
+			const vmg = this.calculateVMG(windDirection);
+			RC.Utils.notifyObservers(this, this.observers, 'analyzeTrack', {tacks: tacks, windDirection: windDirection, currentAngle: currentAngle, vmg: vmg});
 		},
 
 		calculateWindDirection: function(pTacks){

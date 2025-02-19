@@ -99,6 +99,7 @@ PiLot.View.Analyze = (function () {
 		
 		initialize: function(){
 			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
+			this.mapTrack.setEnableLiveUpdate(false);
 			this.draw();
 		},
 
@@ -267,6 +268,7 @@ PiLot.View.Analyze = (function () {
 			this.tackObserver.on('loadTrack', this.tackObserver_loadTrack.bind(this));
 			this.tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
 			this.tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
+			this.mapTrack.setEnableLiveUpdate(true);
 			this.draw();
 		},
 		

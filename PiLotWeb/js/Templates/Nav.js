@@ -205,6 +205,14 @@ PiLot.Templates.Nav = {
 		</div>
 	`,
 
+	recordsDisplay: `
+		<div class="display flexRowWrap">
+			<div><label class="lblLatestRecord"></label></div>
+			<div class="plhLatestTrophy value"></div>
+			<div class="plhPreviousTrophies flexColumn"></div>
+		</div>
+	`,
+
 	positionIndicator: `
 		<div class="pnlCoordinates">
 			<div class="divLat display">

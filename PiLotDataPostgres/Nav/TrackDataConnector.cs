@@ -465,7 +465,9 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_start", this.dbHelper.GetNullableParameterValue(pStart)));
 			pars.Add(("@p_end", this.dbHelper.GetNullableParameterValue(pEnd)));
 			pars.Add(("@p_is_boattime", this.dbHelper.GetNullableParameterValue(pIsBoatTime)));
-			return this.dbHelper.ReadData<TrackPoint>(query, new Func<NpgsqlDataReader, TrackPoint>(this.ReadTrackPoint), pars);
+			List<TrackPoint> trackPoints = this.dbHelper.ReadData<TrackPoint>(query, new Func<NpgsqlDataReader, TrackPoint>(this.ReadTrackPoint), pars);
+			trackPoints.ForEach((tp) => tp.TrackID = pTrackId);
+			return trackPoints;
 		}
 
 		/// <summary>
@@ -516,6 +518,7 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_longitude", pTrackPoint.Longitude));
 			pars.Add(("@p_update_track_data", pUpdateTrack));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
+			pTrackPoint.TrackID = pTrackId;
 		}
 
 		#endregion

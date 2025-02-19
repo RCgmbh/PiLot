@@ -106,6 +106,14 @@ namespace PiLot.Model.Nav {
 		#region public properties
 
 		/// <summary>
+		/// The id of the track this belongs to. This might not be set in all cases.
+		/// </summary>
+		[JsonPropertyName("trackId")]
+		public Int32? TrackID{
+			get;set;
+		}
+
+		/// <summary>
 		/// The utc timestamp in milliseconds from epoc
 		/// </summary>
 		[JsonPropertyName("utc")]
