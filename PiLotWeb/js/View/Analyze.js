@@ -288,7 +288,7 @@ PiLot.View.Analyze = (function () {
 		tackObserver_noGpsData: function(pSender){ },
 
 		tackObserver_loadTrack: function(pSender, pTrack){
-			this.tackAnalyzerOptions.showOptions(this.tackObserver.getAnalyzerOptions());
+			this.tackAnalyzerOptions.showOptions(this.tackObserver.getAnalyzerOptions(), pTrack.getBoat());
 			this.mapTrack.setTracks([pTrack], true);
 		},
 
@@ -545,8 +545,9 @@ PiLot.View.Analyze = (function () {
 			}
 		},
 
-		showOptions: function (pOptions) {
+		showOptions: function (pOptions, pBoat) {
 			this.options = pOptions || this.options;
+			this.boat = pBoat || this.boat;
 			this.ddlSliderScale.value = this.sliderScale;
 			this.setScaledRangeValue(this.rngMinSampleLength, this.options.minSampleLength);
 			this.lblMinSampleLength.innerText = this.options.minSampleLength;
@@ -582,7 +583,7 @@ PiLot.View.Analyze = (function () {
 		},
 
 		initializeDefaultOptions: function () {
-			this.options = TackAnalyzer.defaultOptions;
+			this.options = PiLot.Model.Analyze.TackAnalyzer.defaultOptions;
 		},
 
 	};

@@ -1794,12 +1794,16 @@ PiLot.Model.Nav = (function () {
 			return result;
 		},
 
-		/** Compares two tracks for sorting, having the track that begins earlier first */
+		/**
+		 * Compares two tracks for sorting, having the track that ends earlier first
+		 * (we need to look at the end, so that we can find the current track by taking
+		 * the last one)
+		 */
 		compareTo: function (pOther) {
 			let result;
 			if (this.hasTrackPoints()) {
 				if (pOther.hasTrackPoints()) {
-					result = this.getFirstTrackPoint().getUTC() - pOther.getFirstTrackPoint().getUTC();
+					result = this.getLastTrackPoint().getUTC() - pOther.getLastTrackPoint().getUTC();
 				} else {
 					result = 1;
 				}

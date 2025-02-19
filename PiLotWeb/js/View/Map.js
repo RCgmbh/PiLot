@@ -1041,6 +1041,7 @@ PiLot.View.Map = (function () {
 		this.timeSlider = null;
 		this.timeField = null;
 		this.historicPositionMarker = null;
+		this.tracksLayer = null;
 		this.polylines = null; // a Map with key=Track, value=leaflet L.polyLine
 
 		this.initialize();
@@ -1055,6 +1056,7 @@ PiLot.View.Map = (function () {
 			}
 			this.tracks = [];
 			this.polylines = new Map();
+			this.tracksLayer = L.layerGroup().addTo(this.map.getLeafletMap());
 		},
 
 		trackObserver_addPosition: function(pTrackObserver, pTrackPoint){
@@ -1225,8 +1227,8 @@ PiLot.View.Map = (function () {
 				let positions = pTrack.getRawPositions();
 				let polyline = this.polylines.get(pTrack);
 				if (!polyline) {
-					const leafletMap = this.map.getLeafletMap();
-					polyline = L.polyline(positions, PiLot.Templates.Map.mapTrackOptions).addTo(leafletMap);
+					polyline = L.polyline(positions, PiLot.Templates.Map.mapTrackOptions).addTo(this.tracksLayer);
+					polyline.bringToBack();
 					this.polylines.set(pTrack, polyline);
 				} else {
 					polyline.setLatLngs(positions);
@@ -1300,9 +1302,7 @@ PiLot.View.Map = (function () {
 
 		/** Removes all tracks from the map */
 		deleteFromMap: function () {
-			for (let aPolyline of this.polylines.values()) {
-				aPolyline.remove();
-			}
+			this.tracksLayer.clearLayers();
 			this.polylines = new Map();
 			this.tracks = [];
 			this.hideTimeSlider();
@@ -1543,7 +1543,7 @@ PiLot.View.Map = (function () {
 		/** Removes the tracks from the map */
 		hideTracks: function () {
 			this.mapTrack.deleteFromMap();
-			this.trackObserver.setTrack(null);
+			this.mapTrack.setEnableLiveUpdate(false);
 		},
 
 		/**
