@@ -241,16 +241,14 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			this.ensureTrackObserverAsync().then(()=> this.showValue());
-			PiLot.Model.Nav.GPSObserver.getInstance().on("recieveGpsData", this.gpsObserver_recieveGpsData.bind(this));
+			this.trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
+			this.trackObserver.on('addTrackPoint', this.track_change.bind(this));
+			this.trackObserver.on('changeLastTrackPoint', this.track_change.bind(this));
+			this.trackObserver.on('loadTrack', this.track_change.bind(this));
 		},
 
 		track_change: function(){
 			this.showValue();
-		},
-
-		gpsObserver_recieveGpsData: function(){
-			this.ensureTrackObserverAsync();
 		},
 
 		draw: function(){
@@ -258,24 +256,10 @@ PiLot.View.Nav = (function () {
 		},
 
 		showValue: function(){
-			if(this.trackObserver){
+			if(this.trackObserver.hasTrack()){
 				this.motionDisplay.showValue(PiLot.Utils.Nav.metersToNauticalMiles(this.trackObserver.getTrack().getDistance()));
 			} else {
 				this.motionDisplay.showValue(null);
-			}
-		},
-
-		ensureTrackObserverAsync: async function(){
-			if(this.trackObserver === null){
-				this.trackObserver = new PiLot.Model.Nav.TrackObserver(null);
-				const track = await (new PiLot.Service.Nav.TrackService().loadCurrentTrackAsync());
-				if(track){
-					this.trackObserver.setTrack(track);
-					track.on('addTrackPoint', this.track_change.bind(this));
-					track.on('changeLastTrackPoint', this.track_change.bind(this));
-				} else {
-					this.trackObserver = null;
-				}
 			}
 		},
 
