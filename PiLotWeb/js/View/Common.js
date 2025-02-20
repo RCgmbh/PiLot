@@ -336,6 +336,10 @@ PiLot.View.Common = (function () {
 			this.saveUserSettings();
 		},
 
+		display_changeEnlarged: function(pSender){
+			this.saveUserSettings();
+		},
+
 		display_changeTextSize: function(pSender){
 			this.saveUserSettings();
 		},
@@ -390,7 +394,7 @@ PiLot.View.Common = (function () {
 			const settingsObj = PiLot.Utils.Common.loadUserSetting('PiLot.View.Common.GenericDisplayPage.displays');
 			if(settingsObj){
 				for (let aDisplay of settingsObj){
-					this.addDisplay(aDisplay.typeName, aDisplay.textSize);
+					this.addDisplay(aDisplay.typeName, aDisplay.textSize, aDisplay.enlarged);
 				}
 			}
 			this.fillDisplaysList();
@@ -400,17 +404,18 @@ PiLot.View.Common = (function () {
 		},
 
 		saveUserSettings: function(){
-			const settingsObj = this.displays.map((v, i, a) => {return {typeName: v.getTypeName(), textSize: v.getTextSize()}});
+			const settingsObj = this.displays.map((v, i, a) => {return {typeName: v.getTypeName(), textSize: v.getTextSize(), enlarged: v.getEnlarged()}});
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Common.GenericDisplayPage.displays', settingsObj);
 		},
 
-		addDisplay: function(pTypeName, pTextSize = 1){
+		addDisplay: function(pTypeName, pTextSize = 1, pEnlarged = false){
 			if(pTypeName in GenericDisplay.types){
-				const display = new GenericDisplay(pTypeName, pTextSize, this.plhDisplays);
+				const display = new GenericDisplay(pTypeName, pTextSize, pEnlarged, this.plhDisplays);
 				this.displays.push(display);
 				display.on('click', this.display_click.bind(this));
 				display.on('close', this.display_close.bind(this, display));
 				display.on('changeTextSize', this.display_changeTextSize.bind(this));
+				display.on('changeEnlarged', this.display_changeEnlarged.bind(this));
 				this.fillDisplaysList();
 			}
 		},
@@ -451,13 +456,16 @@ PiLot.View.Common = (function () {
 	 * @param {Number} pTextSize - The text size to apply to the control (1 = normal)
 	 * @param {HTMLElement} pContainer - the container to add the control to
 	 * */
-	var GenericDisplay = function(pTypeName, pTextSize, pContainer){
+	var GenericDisplay = function(pTypeName, pTextSize, pEnlarged, pContainer){
 		this.typeName = pTypeName;
 		this.textSize = pTextSize;
+		this.enlarged = pEnlarged;
 		this.container = pContainer;
 		this.control = null;
 		this.observers = null;
 		this.pnlHeader = null;
+		this.lnkEnlarge = null;
+		this.lnkShrink = null;
 		this.plhDisplay = null;
 		this.initialize();
 	};
@@ -465,7 +473,7 @@ PiLot.View.Common = (function () {
 	GenericDisplay.prototype = {
 
 		initialize: function(){
-			this.observers = RC.Utils.initializeObservers(['click', 'close', 'changeTextSize']);
+			this.observers = RC.Utils.initializeObservers(['click', 'close', 'changeTextSize', 'changeEnlarged']);
 			this.draw();
 		},
 
@@ -484,6 +492,16 @@ PiLot.View.Common = (function () {
 
 		display_click: function(pEvent){
 			RC.Utils.notifyObservers(this, this.observers, 'click', null);
+		},
+
+		lnkEnlarge_click: function(pEvent){
+			pEvent.stopPropagation();
+			this.changeEnlarged(true);
+		},
+
+		lnkShrink_click: function(pEvent){
+			pEvent.stopPropagation();
+			this.changeEnlarged(false);
 		},
 
 		lnkBiggerText_click: function(pEvent){
@@ -506,17 +524,34 @@ PiLot.View.Common = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.genericDisplay);
 			this.container.appendChild(this.control);
 			this.pnlHeader = this.control.querySelector('.pnlHeader');
+			this.lnkEnlarge = this.pnlHeader.querySelector('.lnkEnlarge');
+			this.lnkEnlarge.addEventListener('click', this.lnkEnlarge_click.bind(this));
+			this.lnkShrink = this.pnlHeader.querySelector('.lnkShrink');
+			this.lnkShrink.addEventListener('click', this.lnkShrink_click.bind(this));
 			this.pnlHeader.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			this.pnlHeader.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
 			this.pnlHeader.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.plhDisplay = this.control.querySelector('.plhDisplay');
 			this.plhDisplay.addEventListener('click', this.display_click.bind(this));
+			this.applyEnlarged();
 			this.applyTextSize();
 			const display = new(GenericDisplay.types[this.typeName]())(this.plhDisplay);
 		},
 
 		toggleControls: function(pVisible){
 			this.pnlHeader.hidden = !pVisible;
+		},
+
+		changeEnlarged: function(pEnlarged){
+			this.enlarged = pEnlarged;
+			this.applyEnlarged();
+			RC.Utils.notifyObservers(this, this.observers, 'changeEnlarged', pEnlarged);
+		},
+
+		applyEnlarged: function(){
+			this.control.classList.toggle('enlarged', this.enlarged);
+			this.lnkEnlarge.hidden = this.enlarged;
+			this.lnkShrink.hidden = !this.enlarged;
 		},
 
 		changeTextSize: function(pSign){
@@ -531,6 +566,10 @@ PiLot.View.Common = (function () {
 
 		getTypeName: function(){
 			return this.typeName;
+		},
+
+		getEnlarged: function(){
+			return this.enlarged;
 		},
 
 		getTextSize: function(){
@@ -556,7 +595,8 @@ PiLot.View.Common = (function () {
 		vmg: () => {return PiLot.View.Analyze.GenericVMGDisplay},
 		tackAngle: () => {return PiLot.View.Analyze.GenericTackingAngleDisplay},
 		boatTimeAnalog: () => {return PiLot.View.Common.GenericAnalogClock},
-		boatTimeDigital: () => {return PiLot.View.Common.GenericDigitalClock}
+		boatTimeDigital: () => {return PiLot.View.Common.GenericDigitalClock},
+		records: () => {return PiLot.View.Nav.GenericRecordsDisplay}
 	};
 
 	/** An icon allowing to swap the day/night mode */

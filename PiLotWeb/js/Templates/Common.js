@@ -89,12 +89,14 @@ PiLot.Templates.Common = {
 	`,
 
 	genericDisplay: `
-		<div class="flexColumn marginAllSmall easyShadow grow" style="justify-content:space-between;">
+		<div class="genericDisplayContainer flexColumn marginAllSmall easyShadow grow">
 			<div class="pnlHeader flexRow" style="position:relative;" hidden>
 				<div class="absolute paddingAllSmall right bgLightTrans" style="left:0px; right: 0px">
-					<a href="#" class="lnkBiggerText marginRightSmall"><span style="font-size:1.25em;">A<i class="icon-arrow-up2"></i></span></a>
-					<a href="#" class="lnkSmallerText marginRight"><span style="font-size:0.85em;">A<i class="icon-arrow-down2"></i></span></a>
-					<a href="#" class="lnkClose"><i class="icon-cross"></i></a>
+					<a href="#" class="lnkEnlarge paddingAllSmall" hidden><i class="icon-enlarge2"></i></a>
+					<a href="#" class="lnkShrink paddingAllSmall" hidden><i class="icon-shrink2"></i></a>
+					<a href="#" class="lnkBiggerText paddingAllSmall"><span style="font-size:1.25em;">A<i class="icon-arrow-up2"></i></span></a>
+					<a href="#" class="lnkSmallerText paddingAllSmall"><span style="font-size:0.85em;">A<i class="icon-arrow-down2"></i></span></a>
+					<a href="#" class="lnkClose paddingAllSmall"><i class="icon-cross"></i></a>
 				</div>
 			</div>
 			<div class="genericDisplay plhDisplay paddingAllSmall flexRowWrap grow"></div>

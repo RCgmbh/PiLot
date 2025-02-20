@@ -1949,17 +1949,17 @@ PiLot.Model.Nav = (function () {
 	 * it can exist without the track having been loaded.
 	 * @param {Number} pTrackId - the id of the track this belongs to
 	 * @param {PiLot.Model.Nav.TrackSegmentType} pType - the type of the segment
-	 * @param {DateTime} pStartUtc - the beginning of the segment in UTC
-	 * @param {DateTime} pEndUtc - the end of the segment in UTC
+	 * @param {DateTime} pStartUTC - the beginning of the segment in UTC
+	 * @param {DateTime} pEndUTC - the end of the segment in UTC
 	 * @param {DateTime} pStartBoatTime - the beginning of the segment in BoatTime
 	 * @param {DateTime} pEndBoatTime - the end of the segment in BoatTime
 	 * @param {Number} pDistance - the distance covered in meters
 	 */
-	var TrackSegment = function (pTrackId, pType, pStartUtc, pEndUtc, pStartBoatTime, pEndBoatTime, pDistance, pSpeed, pBoat, pYearRank, pOverallRank) {
+	var TrackSegment = function (pTrackId, pType, pStartUTC, pEndUTC, pStartBoatTime, pEndBoatTime, pDistance, pSpeed, pBoat, pYearRank, pOverallRank) {
 		this.trackId = pTrackId;
 		this.type = pType;
-		this.startUtc = pStartUtc;
-		this.endUtc = pEndUtc;
+		this.startUTC = pStartUTC;
+		this.endUTC = pEndUTC;
 		this.startBoatTime = pStartBoatTime;
 		this.endBoatTime = pEndBoatTime;
 		this.distance = pDistance;
@@ -1985,13 +1985,13 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/** @returns {DateTime} */
-		getStartUtc: function () {
-			return this.startUtc;
+		getStartUTC: function () {
+			return this.startUTC;
 		},
 
 		/** @returns {DateTime} */
-		getEndUtc: function () {
-			return this.endUtc;
+		getEndUTC: function () {
+			return this.endUTC;
 		},
 
 		/** @returns {DateTime} */

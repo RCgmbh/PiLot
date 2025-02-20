@@ -32,7 +32,7 @@ body.night .bgLight { background-color: #1e2426; }
 body.night .bgLightTrans { background-color: rgba(33, 33, 33, 0.7); }
 body.night .borderLighter { border-color: #181818; }
 body.night a.lightLink, body.night a.lightLink:active, body.night a.lightLink:visited { color: #000; }
-body.night .easyShadow { box-shadow: 0px 0px 6px -1px white; }
+body.night .easyShadow { box-shadow: 0px 0px 6px -1px white; border: 1px solid #515151;}
 body.nightTransition,
 body.nightTransition #statusBar,
 body.nightTransition .warning,
@@ -293,7 +293,7 @@ textarea.big { height: 20em; }
 .borderBottom { border-style: none; border-bottom-style: solid; }
 .borderDark { border: 1px solid #999; }
 .bw { filter: grayscale(80%); }
-.easyShadow { box-shadow: 0px 0px 6px -2px black;}
+.easyShadow { box-shadow: 0px 0px 6px -2px black; border:1px solid #bbb;}
 .inlineTextbox { border: none; }
 .pointer { cursor: pointer; }
 .move { cursor: move; }
@@ -408,6 +408,8 @@ th.right, td.right { text-align: right !important; }
 .chart .bar .link { overflow:hidden; text-overflow:ellipsis; margin-left:0.25em; margin-right:0.25em; }
 .chart .barLabel {height:2.4em;}
 
+.genericDisplayContainer {justify-content:space-between;min-width:12em;}
+.genericDisplayContainer.enlarged {width: 100%;}
 .genericDisplay { justify-content: center; align-content:center;}
 .genericDisplay .iconsContainer {left:0px; right: 0px; background-color: rgba(200, 200, 200, 0.5);}
 .genericDisplay .display { line-height: 2em; padding-top: 2rem; }

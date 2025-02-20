@@ -206,10 +206,10 @@ PiLot.Templates.Nav = {
 	`,
 
 	recordsDisplay: `
-		<div class="display flexRowWrap">
+		<div class="display flexRowWrap" style="align-items:center;">
 			<div><label class="lblLatestRecord"></label></div>
 			<div class="plhLatestTrophy value"></div>
-			<div class="plhPreviousTrophies flexColumn"></div>
+			<div class="plhPreviousTrophies flexColumnWrap"></div>
 		</div>
 	`,
 
@@ -410,7 +410,7 @@ PiLot.Templates.Nav = {
 			<div class="plhTrophy"></div>
 		</div>`,
 
-	topSegmentOverall: '<i class="icon-trophy gold marginLeftSmall" data-title="topSegmentOverall"></i>',
+	topSegmentOverall: '<i class="icon-trophy gold trophy" data-title="topSegmentOverall"></i>',
 	
-	topSegmentYear: '<i class="icon-trophy silver marginLeftSmall" data-title="topSegmentYear"></i>'
+	topSegmentYear: '<i class="icon-trophy silver trophy" data-title="topSegmentYear"></i>'
 };

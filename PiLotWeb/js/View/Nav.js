@@ -487,13 +487,10 @@ PiLot.View.Nav = (function () {
 
 	var GenericRecordsDisplay = function(pContainer){
 
-		var minUpdateInterval = 10;
-
 		this.container = pContainer;
 		this.plhLatestTrophy = null;
 		this.lblLatestRecord = null;
 		this.plhPreviousTrophies = null;
-		this.lastUpdate = null;
 		this.initialize();
 	};
 
@@ -501,31 +498,88 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			//PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			this.loadCurrentTrackAsync().then(
+				() => PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this))
+			);
+			
 		},
 
-		gpsObserver_recieveGpsData: function(pSender){
-			this.loadRecords();
+		gpsObserver_recieveGpsData: function(pSender, pPositions){
+			const trackIds = pPositions
+				.filter((p) => p.getTrackId() !== null)
+				.map(p => p.getTrackId())
+				.sort((p1, p2) => p2.getUTC() - p1.getUTC());
+			if(trackIds.length > 0){
+				this.loadAndShowRecordsAsync(trackIds[0]);
+			}
 		},
 
 		draw: function(){
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.recordsDisplay);
 			this.container.appendChild(control);
 			this.plhLatestTrophy = control.querySelector('.plhLatestTrophy');
-			this.lblLatestRecord = control.querySelector('.plhLatestRecord');
+			this.lblLatestRecord = control.querySelector('.lblLatestRecord');
 			this.plhPreviousTrophies = control.querySelector('.plhPreviousTrophies');
 		},
 
-		
+		loadCurrentTrackAsync: async function(){
+			const track = await PiLot.Service.Nav.TrackService.getInstance().loadCurrentTrackAsync();
+			if(track){
+				await this.loadAndShowRecordsAsync(track.getId());
+			} else {
+				this.showNoData();
+			}
+		},
 
-		showData: function(){
-			
+		loadAndShowRecordsAsync: async function(pTrackId){
+			const trackSegments = await PiLot.Service.Nav.TrackService.getInstance().loadTrackSegmentsByTrackIdAsync(pTrackId);
+			const recordSegments = trackSegments
+				.filter(s => (s.getYearRank() === 1 || s.getOverallRank() === 1))
+				.sort((s1, s2) => s2.getEndUTC() - s1.getEndUTC());
+			if(recordSegments.length > 0){
+				this.showLatestTrophy(recordSegments[0]);
+				this.showPreviousTrophies(recordSegments);
+			} else if(trackSegments.length > 0) {
+				this.showNonRecordSegment(trackSegments);
+			} else {
+				this.showNoData();
+			}
+		},
+
+		showLatestTrophy: function(pRecordSegment){
+			this.lblLatestRecord.innerText = pRecordSegment.getType().getLabel(PiLot.Utils.Language.getLanguage());
+			this.plhLatestTrophy.innerHTML = this.getTrophyIcon(pRecordSegment);
+		},
+
+		showPreviousTrophies: function(pRecordSegments){
+			this.plhPreviousTrophies.clear();
+			for(let i = 1; i < pRecordSegments.length; i++){
+				this.plhPreviousTrophies.appendChild(RC.Utils.stringToNode(this.getTrophyIcon(pRecordSegments[i])));
+			}
+		},
+
+		showNonRecordSegment: function(pSegments){
+			pSegments.sort((s1, s2) => {
+				const rankDifference = s1.getYearRank() - s2.getYearRank();
+				if(rankDifference !== 0){
+					return rankDifference;
+				} else{
+					return s2.getEndUTC() - s1.getEndUTC();
+				}
+			});
+			this.lblLatestRecord.innerText = pSegments[0].getType().getLabel(PiLot.Utils.Language.getLanguage());
+			this.plhLatestTrophy.innerHTML = `${pSegments[0].getYearRank()}.`;
+			this.plhPreviousTrophies.clear();
+		},
+
+		getTrophyIcon: function(pRecordSegment){
+			return (pRecordSegment.getOverallRank() === 1) ? PiLot.Templates.Nav.topSegmentOverall : PiLot.Templates.Nav.topSegmentYear;
 		},
 
 		showNoData: function(){
 			this.plhLatestTrophy.innerText = '‒';
 			this.lblLatestRecord.innerText = '';
-			this.plhLatestTrophy.clear();
+			this.plhPreviousTrophies.clear();
 		}
 	};
 
@@ -2887,6 +2941,7 @@ PiLot.View.Nav = (function () {
 		GenericXTEDisplay: GenericXTEDisplay,
 		GenericVMCDisplay: GenericVMCDisplay,
 		GenericETADisplay: GenericETADisplay,
+		GenericRecordsDisplay: GenericRecordsDisplay,
 		GPSIcon: GPSIcon,
 		NavPage: NavPage,
 		NavOptions: NavOptions,
