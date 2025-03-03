@@ -7,7 +7,7 @@
 .navData .display > span.value { font-size: 3em; margin: 0em 0.125em; min-width: 1.8em; text-align:center;}
 .navData .display.divCOG > span.value { margin-right: 0em; }
 .navData .xteDisplay .lblIcon { margin: -1em 0em 0em 0.5em; display:inline-block; min-width: 1em; }
-.startPageNav .navLiveRoute { font-size: 1.25em; width: 100%; box-shadow: none; }
+.startPageNav .navLiveRoute { font-size: 1.25em; width: 100%; box-shadow: none; border:none; padding:0em; }
 body.night .startPageNav .navLiveRoute { box-shadow: none; }
 .navPage .navLiveRoute {  }
 .navPage .navData .display { min-width:8em; margin-left:1em; margin-right: 1em; }
@@ -125,7 +125,7 @@ a.mapLayersIcon:hover { color:#FFBF49; }
 .trackStatistics .trophy {margin-left:0.5em;}
 
 /* NIGHT STYLES INCL TRANSITIONS */
-body.night img.leaflet-tile{filter: brightness(40%) saturate(150%);}
+body.night .leaflet-tile-pane{filter: brightness(40%) saturate(200%);}
 body.night .leaflet-control-zoom-in, body.night .leaflet-control-zoom-out{background-color:#000;}
 body.night .navMyBoatIcon { background-color: #8E6929; }
 body.night .navWaypointMarker { background-color: rgba(50, 101, 173, 0.8); }
@@ -136,7 +136,7 @@ body.night .leaflet-popup-content-wrapper,body.night .leaflet-popup-content, bod
 body.night .mapSliderContainer .time { background-color: rgba(55, 55, 55,0.7); }
 body.night .navOutdatedDataWarning { color: #ccc; background-color: rgba(0, 0, 0, 0.8); }
 body.nightTransition .leaflet-container,
-body.nightTransition img.leaflet-tile,
+body.nightTransition .leaflet-tile-pane,
 body.nightTransition .leaflet-control-zoom-in,
 body.nightTransition .leaflet-control-zoom-out,
 body.nightTransition .leaflet-control-zoom-in,
