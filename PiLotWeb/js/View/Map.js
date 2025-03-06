@@ -1056,7 +1056,6 @@ PiLot.View.Map = (function () {
 			}
 			this.tracks = [];
 			this.polylines = new Map();
-			this.tracksLayer = L.layerGroup().addTo(this.map.getLeafletMap());
 		},
 
 		trackObserver_addPosition: function(pTrackObserver, pTrackPoint){
@@ -1224,6 +1223,7 @@ PiLot.View.Map = (function () {
 		/** @param {PiLot.Model.Nav.Track} pTrack - The track to draw onto the map */
 		drawTrack: function (pTrack) {
 			if (pTrack) {
+				this.tracksLayer = this.tracksLayer || L.layerGroup().addTo(this.map.getLeafletMap());
 				let positions = pTrack.getRawPositions();
 				let polyline = this.polylines.get(pTrack);
 				if (!polyline) {
@@ -1302,7 +1302,7 @@ PiLot.View.Map = (function () {
 
 		/** Removes all tracks from the map */
 		deleteFromMap: function () {
-			this.tracksLayer.clearLayers();
+			this.tracksLayer && this.tracksLayer.clearLayers();
 			this.polylines = new Map();
 			this.tracks = [];
 			this.hideTimeSlider();
