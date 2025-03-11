@@ -21,7 +21,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPowerAPI", "PiLotPower
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDataFiles", "PiLotDataFiles\PiLotDataFiles.csproj", "{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}"
 EndProject
-Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "PiLotWeb", "http://localhost/PiLotWeb", "{8724624A-39B4-46D4-BF5F-AD477BB33B99}"
+Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "PiLotWeb", "http:\localhost\PiLotWeb", "{8724624A-39B4-46D4-BF5F-AD477BB33B99}"
 	ProjectSection(WebsiteProperties) = preProject
 		UseIISExpress = "false"
 		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
@@ -137,6 +137,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotData", "PiLotData\PiLo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMigrator", "DataMigrator\DataMigrator.csproj", "{A1375BDF-2A07-4171-9321-156CFA1067DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotRestoreClient", "PiLotRestoreClient\PiLotRestoreClient.csproj", "{B12D32E8-24A2-455C-9749-E5137AE50D10}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -223,6 +225,10 @@ Global
 		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A1375BDF-2A07-4171-9321-156CFA1067DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B12D32E8-24A2-455C-9749-E5137AE50D10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B12D32E8-24A2-455C-9749-E5137AE50D10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B12D32E8-24A2-455C-9749-E5137AE50D10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B12D32E8-24A2-455C-9749-E5137AE50D10}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

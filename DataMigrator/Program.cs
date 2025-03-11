@@ -5,8 +5,8 @@ using PiLot.Utils.DateAndTime;
 namespace PiLot.DataMigrator {
 	
 	/// <summary>
-	/// Simple app to copy tracks from files based storage to the DB. Might come in
-	/// handy for restoring data from backup.
+	/// Simple app to copy tracks from the old files based storage to the DB.
+	/// Will probably not be used anymore.
 	/// </summary>
 	internal class Program {
 

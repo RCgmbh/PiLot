@@ -142,6 +142,20 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns an iterator that will iterate all tracks, containing metadata
+		/// and track points
+		/// </summary>
+		public IEnumerable<Track> ReadAllTracks(){
+			foreach(List<TrackMetadata> anIndex in this.EnumerateTrackIndexes()){
+				foreach(TrackMetadata aMetadata in anIndex){
+					Track track = this.TrackFromMetadata(aMetadata);
+					track.AddTrackPoints(this.ReadTrackPoints(track.ID.Value));
+					yield return track;
+				}
+			}
+		}
+
+		/// <summary>
 		/// Reads for each day of a month whether we have a track.
 		/// </summary>
 		/// <param name="pYear">The year</param>
@@ -365,7 +379,7 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// Iterates through all index files, assuming that they all resid
+		/// Iterates through all index files, assuming that they all reside
 		/// in 1st-level subdirectories of the tracks root directory.
 		/// </summary>
 		/// <returns>An iterator for the content of all index files</returns>
