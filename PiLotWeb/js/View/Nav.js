@@ -255,9 +255,14 @@ PiLot.View.Nav = (function () {
 			this.motionDisplay = new MotionDisplay(this.parent, PiLot.Templates.Nav.logIndicator, null, 1);
 		},
 
+		/**
+		 * Shows the value, making sure it's not rounded but floored, so the log jumps
+		 * exactly when 0.1 miles are reached, not before.
+		 */
 		showValue: function(){
 			if(this.trackObserver.hasTrack()){
-				this.motionDisplay.showValue(PiLot.Utils.Nav.metersToNauticalMiles(this.trackObserver.getTrack().getDistance()));
+				const distanceMiles = PiLot.Utils.Nav.metersToNauticalMiles(this.trackObserver.getTrack().getDistance());
+				this.motionDisplay.showValue(Math.floor(distanceMiles * 10)/10);
 			} else {
 				this.motionDisplay.showValue(null);
 			}
