@@ -12,7 +12,7 @@ namespace PiLot.Data.Files
 {
 
     /// <summary>
-    /// Helper class to rad and save poi-related data from/to file. This is used
+    /// Helper class to read and save poi-related data from/to file. This is used
     /// for backup and for scenarios where no db is available.
     /// </summary>
     public class PoiDataConnector: IPoiDataConnector {
