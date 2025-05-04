@@ -287,6 +287,7 @@ PiLot.View.Diary = (function () {
 			this.logbookDay.setDiaryText(this.tbDiary.value);
 			await this.logbookDay.saveDiaryTextAsync();
 			this.showDiaryText();
+			this.checkHasData();
 		},
 
 		draw: function () {
@@ -319,20 +320,24 @@ PiLot.View.Diary = (function () {
 
 		showData: function (pLogbookDay) {
 			this.logbookDay = pLogbookDay;
-			this.applyEmptyStyle();
+			this.checkHasData();
 			this.tbDiary.value = this.logbookDay.getDiaryText();
 			this.showDiaryText();
 		},
 
-		applyEmptyStyle: function () {
-			this.control.classList.toggle('empty', this.logbookDay.getDiaryText().length === 0);
+		checkHasData: function () {
+			this.showHasData(this.logbookDay.getDiaryText().length > 0);
+		},
+		
+		showHasData: function (pHasData) {
+			this.control.classList.toggle('empty', !pHasData);
+			this.pnlNoData.hidden = pHasData;
 		},
 
 		showDiaryText: function(){
 			const diaryText = this.logbookDay.getDiaryText();
 			this.lblDiary.innerText = diaryText;
 			this.lblDiary.hidden = diaryText.length == 0;
-			this.pnlNoData.hidden = diaryText.length > 0;
 		},
 
 		saveDiaryText: function () {
@@ -426,10 +431,15 @@ PiLot.View.Diary = (function () {
 			this.editForm.showEmptyFormAsync(this.logbookDay, latestBoatSetup);
 		},
 
+		editForm_save: function(){
+			this.checkHasData();
+		},
+
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryLogbook);
 			this.container.appendChild(this.control);
 			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(null);
+			this.editForm.on('save', this.editForm_save.bind(this));
 			this.lnkEditLogbook = this.control.querySelector('.lnkEditLogbook');
 			this.lnkEditLogbook.addEventListener('click', this.lnkEditLogbook_click.bind(this));
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
@@ -451,8 +461,13 @@ PiLot.View.Diary = (function () {
 			this.lnkEditLogbook.hidden = !PiLot.Permissions.canWrite();
 		},
 
-		applyEmptyStyle: function () {
-			this.control.classList.toggle('empty', !this.logbookDay.hasEntries());
+		checkHasData: function () {
+			this.showHasData(this.logbookDay.hasEntries());
+		},
+		
+		showHasData: function (pHasData) {
+			this.control.classList.toggle('empty', !pHasData);
+			this.pnlNoData.hidden = pHasData;
 		},
 
 		toggleEditLogbook: function(pReadOnly){
@@ -469,7 +484,7 @@ PiLot.View.Diary = (function () {
 
 		showData: function (pLogbookDay) {
 			this.logbookDay = pLogbookDay;
-			this.applyEmptyStyle();
+			this.checkHasData();
 			this.logbookEntriesControl.showLogbookDay(this.logbookDay);
 			this.pnlNoData.hidden = this.logbookDay.hasEntries();
 		}
