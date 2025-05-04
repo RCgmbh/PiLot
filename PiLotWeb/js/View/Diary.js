@@ -526,6 +526,11 @@ PiLot.View.Diary = (function () {
 
 		photoUpload_upload: function(pSender, pArg){
 			this.photoGallery.ensureAutoUpdate();
+			this.showHasData(true);
+		},
+
+		photoGallery_delete: function(pSender, pArg){
+			this.checkHasData();
 		},
 
 		authHelper_change: function () {
@@ -551,6 +556,7 @@ PiLot.View.Diary = (function () {
 			this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
 			this.photoUpload.toggleVisible(false);
 			this.photoGallery = new DiaryPhotoGallery(this.control.querySelector('.plhPhotoGallery'));
+			this.photoGallery.on('delete', this.photoGallery_delete.bind(this));
 		},
 
 		applyPermissions: function () {
@@ -559,9 +565,14 @@ PiLot.View.Diary = (function () {
 			!canWrite && this.toggleEditPhotos(false);
 		},
 
-		applyEmptyStyle: function () {
-			this.control.classList.toggle('empty', !this.photoGallery.hasPhotos());
-		},		
+		checkHasData: function () {
+			this.showHasData(this.photoGallery.hasPhotos());
+		},
+		
+		showHasData: function (pHasData) {
+			this.control.classList.toggle('empty', !pHasData);
+			this.pnlNoData.hidden = pHasData;
+		},
 
 		toggleEditPhotos: function(pVisible){
 			this.photoUpload.toggleVisible(pVisible);
@@ -569,8 +580,7 @@ PiLot.View.Diary = (function () {
 
 		showDataAsync: async function (pDate) { 
 			await this.photoGallery.showPhotosAsync(pDate);
-			this.pnlNoData.hidden = this.photoGallery.hasPhotos();
-			this.applyEmptyStyle();
+			this.checkHasData();
 		}
 	};
 
@@ -815,6 +825,7 @@ PiLot.View.Diary = (function () {
 		this.imageIndex = -1;
 		this.navigationVisible = false;
         this.updateInterval = null;
+		this.observers = null;				// observers used by RC.Utils observers pattern
 		this.initialize();
 	};
 
@@ -822,7 +833,16 @@ PiLot.View.Diary = (function () {
 
 		initialize: function () {
 			this.keyHandler = this.document_keydown.bind(this);
+			this.observers = RC.Utils.initializeObservers(['delete']);
 			this.draw();
+		},
+
+		/**
+		 * @param {String} pEvent - 'delete'
+		 * @param {Function} pCallback - The method to call 
+		 * */
+		on: function (pEvent, pCallback) {
+			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
 		lnkDelete_click: function (pEvent) {
@@ -961,6 +981,7 @@ PiLot.View.Diary = (function () {
 			this.imageData.remove(this.imageIndex);
 			this.hidePhoto();
 			this.showThumbnails();
+			RC.Utils.notifyObservers(this, this.observers, 'delete', image.fileName);
 		},
 
 		/** @param {Boolean} pVisible */
@@ -1113,7 +1134,6 @@ PiLot.View.Diary = (function () {
 		this.logbookPage = pLogbookPage;
 		this.control = null;
 		this.filePreviewReader = null;
-		this.fileDataReader = null;
 		this.fileImageUpload = null;
 		this.imgPreview = null;
 		this.btnSend = null;
@@ -1130,8 +1150,6 @@ PiLot.View.Diary = (function () {
 			this.observers = RC.Utils.initializeObservers(['upload']);
 			this.filePreviewReader = new FileReader();
 			this.filePreviewReader.onload = this.filePreviewReader_load.bind(this);
-			this.fileDataReader = new FileReader();
-			this.fileDataReader.onloadend = this.fileDataReader_loadend.bind(this)
 			this.draw();
 		},
 
@@ -1162,18 +1180,17 @@ PiLot.View.Diary = (function () {
 		},
 
 		btnSend_click: function () {
-			this.fileDataReader.readAsArrayBuffer(this.fileImageUpload.files[0]);
+			for(let i = 0; i < this.fileImageUpload.files.length; i++){
+				const fileDataReader = new FileReader();
+				fileDataReader.onloadend = this.fileDataReader_loadend.bind(this, i);
+				fileDataReader.readAsArrayBuffer(this.fileImageUpload.files[i])
+			}
 			this.btnSend.hidden = true;
 			this.pnlUploading.hidden = false;
 		},
 
-		fileDataReader_loadend: async function () {
-			const file = this.fileImageUpload.files[0];
-			await PiLot.Model.Logbook.uploadPhotoAsync(this.logbookPage.getDate(), file.name, this.fileDataReader.result);
-			RC.Utils.notifyObservers(this, this.observers, 'upload', file.name);
-			this.imgPreview.hidden = true;
-			this.pnlUploading.hidden = true;
-			this.pnlUploadSuccess.hidden = false;
+		fileDataReader_loadend: function (pIndex, pEvent) {
+			this.uploadPhotoAsync(this.fileImageUpload.files[pIndex].name, pEvent.target.result);
 		},
 
 		draw: function () {
@@ -1201,6 +1218,14 @@ PiLot.View.Diary = (function () {
 				this.pnlUploadSuccess.hidden = true;
 				this.fileImageUpload.value = "";
 			}
+		},
+
+		uploadPhotoAsync: async function(pFileName, pBytes){
+			await PiLot.Model.Logbook.uploadPhotoAsync(this.logbookPage.getDate(), pFileName, pBytes);
+			RC.Utils.notifyObservers(this, this.observers, 'upload', pFileName);
+			this.imgPreview.hidden = true;
+			this.pnlUploading.hidden = true;
+			this.pnlUploadSuccess.hidden = false;
 		}
 	};
 

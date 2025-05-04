@@ -13,7 +13,7 @@ namespace PiLot.Auth{
 
 	/// <summary>
 	/// This implements some super simple authentication. Usernames and passwords are stored
-	/// clear text in a json file, and are transferred clear text across the wird. So don't
+	/// clear text in a json file, and are transferred clear text across the wire. So don't
 	/// use this for your credit card data. For the PiLot, this seems good enough (offering
 	/// the opportunity for hacking contests on long nights at the marina).
 	/// </summary>

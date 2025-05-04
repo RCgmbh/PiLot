@@ -209,7 +209,7 @@ PiLot.Templates.Diary = {
 		<div class="hCenter bgLight paddingAllSmall">
 			<span class="semiBold block marginBottom" data-text="photoUpload"></span>
 			<div class="logbookImageUpload hCenter">
-				<input type="file" class="fileImageUpload" accept="image/jpeg" />
+				<input type="file" class="fileImageUpload" accept="image/jpeg" multiple="true" />
 				<img src="#" class="imgPreview" hidden />
 				<button class="btnSend" hidden data-text="upload"></button>
 				<div class="pnlUploading feedbackNeutral" hidden data-text="uploading"></div>

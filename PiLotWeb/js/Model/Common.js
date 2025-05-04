@@ -178,7 +178,7 @@ PiLot.Model.Common = (function () {
 	/**
 	 * Auth helper giving access to login, logout, user info and permissions. Usually
 	 * you won't want to instantiate this, but instead use AuthHelper.instance() to 
-	 * get the authHelper for the current rest backend. You can hovewer manually
+	 * get the authHelper for the current rest backend. You can however manually
 	 * instantiate one for a different endpoint.
 	 * */
 	var AuthHelper = function (pEndpointUrl = null) {
