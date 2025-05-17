@@ -78,7 +78,7 @@ PiLot.View.Meteo = (function () {
 			this.moveTimeFrameAsync(1);
 		},
 
-		calendar_change: async function (pDate) {
+		calendar_change: async function (pCalendar, pDate) {
 			this.startDate = pDate;
 			this.updateEndDate();
 			this.showDates();
