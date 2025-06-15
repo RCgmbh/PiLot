@@ -84,6 +84,7 @@ PiLot.View.Tools = (function () {
 			this.calStartDate.setMaxDateCalendar(this.calEndDate);
 			this.calEndDate.setMinDateCalendar(this.calStartDate);
 			this.pageContent.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
+			this.pageContent.querySelector('.btnLoadWholeDay').addEventListener('click', this.btnLoadWholeDay_click.bind(this));
 			this.divLoadingData = this.pageContent.querySelector('.divLoadingData');
 			this.tracksList = new PiLot.View.Nav.TracksList(this.pageContent.querySelector('.divTracksList'));
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
@@ -109,7 +110,7 @@ PiLot.View.Tools = (function () {
 				new PiLot.View.Common.ExpandCollapse(lnkEdit, divEdit);
 				this.pageContent.querySelector('.btnSaveTrack').addEventListener('click', this.btnSaveTrack_click.bind(this));
 			} else {
-				lnkDelete.hidden = true;
+				lnkEdit.hidden = true;
 			}			
 			const lnkDelete = this.pageContent.querySelector('.lnkDelete');
 			const divDelete = this.pageContent.querySelector('.divDelete');
@@ -164,6 +165,11 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnLoadData_click: function () {
+			this.loadTracksAsync();
+		},
+
+		btnLoadWholeDay_click: function () {
+			this.setDefaultDates();
 			this.loadTracksAsync();
 		},
 
@@ -246,6 +252,7 @@ PiLot.View.Tools = (function () {
 			}
 			this.calStartDate.date(startDate);
 			this.calStartDate.showDate();
+			RC.Utils.setText(this.tbStartTime, startDate.toFormat('HH:mm'));
 			this.calEndDate.date(endDate);
 			this.calEndDate.showDate();
 			RC.Utils.setText(this.tbEndTime, endDate.toFormat('HH:mm'));

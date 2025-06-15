@@ -37,7 +37,13 @@ PiLot.Templates.Tools = {
 				<div class="marginBottomSmall"><span class="col4 inlineBlock" data-text="end"></span><input type="text" class="input4 tbEndDate"
 				/><div class="divCalEndDate" hidden></div><input type="text" class="input3 tbEndTime" data-title="hhmm" /><a
 				class="lnkEndTimeFromMap" href="#"><i class="icon-map2"></i></a></div>
-				<div class="marginBottomSmall"><span class="col4 inlineBlock"></span><button type="button" class="input7 btnLoadData marginBottom" data-text="loadData"></button></div>
+				<div class="marginBottomSmall flexRow">
+					<span class="col4 inlineBlock"></span>
+					<div class="flexColumn">
+						<button type="button" class="input7 btnLoadData marginBottomSmall" data-text="loadData"></button>
+						<button type="button" class="input7 btnLoadWholeDay marginBottom" data-text="loadWholeDay"></button>
+					</div>
+				</div>
 				<div class="feedbackInfo divLoadingData marginBottomSmall" hidden data-text="loadingData"></div>
 				<div class="divTracksList"></div>
 				<div class="feedbackGood divDataLoaded" hidden data-text="xPositionsFound">...</div>
