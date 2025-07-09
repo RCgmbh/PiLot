@@ -231,7 +231,7 @@ textarea.diaryText { text-align: left; hyphens: none; }
 	.rcCalendar.diaryCalendar .datesTable.days, .rcCalendar.diaryCalendar .datesTable.days .tr { display: flex; flex-direction: column; }
 	.rcCalendar.diaryCalendar .datesTable.days .th { display: none; }
 	.rcCalendar.diaryCalendar .datesTable.days .td { width: unset; flex-grow:1; height: 2em;	}
-	.rcCalendar.diaryCalendar .datesTable.days .td.empty { display: none; }
+	.rcCalendar.diaryCalendar .datesTable.days .td.empty, .rcCalendar.diaryCalendar .datesTable.days .td.oddMonth { display: none; }
 	.rcCalendar.diaryCalendar .icons { display:inline-block; }
 	.rcCalendar.diaryCalendar .datesTable .td a,
 	.rcCalendar.diaryCalendar .datesTable .td a:active,
