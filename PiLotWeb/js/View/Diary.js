@@ -826,6 +826,7 @@ PiLot.View.Diary = (function () {
 		this.tinyThumbnails = pTinyThumbnails;
 		this.date = null;
 		this.control = null;
+		this.pnlOptions = null;
 		this.lnkDownload = null;
 		this.lnkOpenBlank = null;
 		this.lnkDelete = null;
@@ -867,6 +868,10 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
+		pnlOptions_click: function (pEvent) {
+			pEvent.stopPropagation();
+		},
+
 		lnkClose_click: function (pEvent) {
 			this.hidePhoto();
 			pEvent.preventDefault();
@@ -880,11 +885,13 @@ PiLot.View.Diary = (function () {
 		lnkPrevious_click: function (pEvent) {
 			this.changePhoto(-1);
 			pEvent.preventDefault();
+			pEvent.stopPropagation();
 		},
 
 		lnkNext_click: function (pEvent) {
 			this.changePhoto(1);
 			pEvent.preventDefault();
+			pEvent.stopPropagation();
 		},
 
 		image_load: function () {
@@ -892,7 +899,7 @@ PiLot.View.Diary = (function () {
 			this.preloadNextPhoto();
 		},
 
-		imgFullSize_click: function () {
+		pnlPhotoScreen_click: function () {
 			this.toggleNavigation(!this.navigationVisible);
 		},
 
@@ -916,6 +923,7 @@ PiLot.View.Diary = (function () {
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryPhotoGallery);
 			this.container.appendChild(this.control);
+			this.control.querySelector('.pnlOptions').addEventListener('click', this.pnlOptions_click);
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.lnkDownload = this.control.querySelector('.lnkDownload');
 			this.lnkOpenBlank = this.control.querySelector('.lnkOpenBlank');
@@ -926,7 +934,7 @@ PiLot.View.Diary = (function () {
 			this.pnlPhotoScreen = this.container.querySelector('.pnlPhotoScreen');
 			this.imgFullSize = this.container.querySelector('.imgFullSize');
 			this.imgFullSize.addEventListener('load', this.image_load.bind(this));
-			this.imgFullSize.addEventListener('click', this.imgFullSize_click.bind(this));
+			this.pnlPhotoScreen.addEventListener('click', this.pnlPhotoScreen_click.bind(this));
 			this.container.querySelector('.lnkPrevious').addEventListener('click', this.lnkPrevious_click.bind(this));
 			this.container.querySelector('.lnkNext').addEventListener('click', this.lnkNext_click.bind(this));
 			this.lblFileName = this.control.querySelector('.lblFileName');
