@@ -1284,9 +1284,8 @@ PiLot.View.Diary = (function () {
 		},
 
 		draw: function () {
-			let x = PublishDiaryPage.MAXIMAGESIZE;
-			let loader = PiLot.Utils.Loader;
-			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.publishDiaryPage);
+			const loader = PiLot.Utils.Loader;
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.publishDiaryPage);
 			loader.getContentArea().appendChild(pageContent);
 			this.ddlPublishTarget = pageContent.querySelector('.ddlPublishTarget');
 			this.icoWait = pageContent.querySelector('.icoWait');

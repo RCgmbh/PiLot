@@ -14,14 +14,14 @@ PiLot.View.Map = (function () {
 	MapPage.prototype = {
 
 		initializeAsync: async function () {
-			let pageContent = this.draw();
-			let map = new PiLot.View.Map.Seamap(pageContent, { persistMapState: true, positionMarker: true, route: true, anchorWatch: true, track: true });
+			const pageContent = this.draw();
+			const map = new PiLot.View.Map.Seamap(pageContent, { persistMapState: true, positionMarker: true, route: true, anchorWatch: true, track: true });
 			await map.showAsync();
 		},
 
 		/** draws the main page content based on the template, and returns the  */
 		draw: function () {
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapPage);
+			const pageContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
 			return pageContent.querySelector('.navMap');
 		}

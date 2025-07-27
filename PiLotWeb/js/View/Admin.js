@@ -18,8 +18,8 @@ PiLot.View.Admin = (function () {
 
 		/** Draws the page and sets the link urls based on the Loader logic */
 		draw: function () {
-			let loader = PiLot.Utils.Loader;
-			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.adminOverviewPage);
+			const loader = PiLot.Utils.Loader;
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.adminOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.systemTime));
 			pageContent.querySelector('.lnkWiFi').setAttribute('href', loader.createPageLink(loader.pages.wifi));

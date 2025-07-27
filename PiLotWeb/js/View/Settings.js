@@ -18,8 +18,8 @@ PiLot.View.Settings = (function () {
 
 		/** Draws the page and sets the link urls based on the Loader logic */
 		draw: function () {
-			let loader = PiLot.Utils.Loader;
-			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.settingsOverviewPage);
+			const loader = PiLot.Utils.Loader;
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.settingsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			const lnkTime = pageContent.querySelector('.lnkTime');
 			lnkTime.setAttribute('href', loader.createPageLink(loader.pages.boatTime));

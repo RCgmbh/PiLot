@@ -333,5 +333,14 @@ PiLot.Templates.Tools = {
 			<input type="text" class="tbLabel input6" />
 			<a href="#" class="lnkDelete"><i class="icon-trashcan"></i></a>
 		</div>
-	`
+	`,
+
+	checklistsPage: `
+		<div class="contentPadding paddingRight">
+			<h1><span data-text="trackStatistics"></span></h1>
+			<h3 class="marginBottomSmall"><a class="lnkTotalDistance" data-text="totalDistance"></a></h3>
+			<div class="pnlTotalDistanceChart marginBottomBig"></div>
+			<h3 class="marginBottomSmall"><a class="lnkFastestSegments" data-text="fastestSegments"></a></h3>
+			<div class="pnlFastestSegmentsChart marginBottomBig"></div>
+		</div>`
 };

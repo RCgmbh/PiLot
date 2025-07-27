@@ -14,8 +14,8 @@ PiLot.View.Tools = (function () {
 
 		/** Draws the page */
 		draw: function () {
-			let loader = PiLot.Utils.Loader;
-			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.toolsOverviewPage);
+			const loader = PiLot.Utils.Loader;
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.toolsOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.data));
 			const lnkTiles = pageContent.querySelector('.lnkTiles');
@@ -2072,6 +2072,39 @@ PiLot.View.Tools = (function () {
 			} else {
 				return true;
 			}
+		}
+	};
+
+	var ChecklistsPage = function (){
+
+		this.plhChecklists = null;
+		this.editChecklistForm = null;
+		this.checklistDetails = null;
+
+		this.initialize();
+
+	};
+
+	ChecklistsPage.prototype = {
+		
+		initialize: function(){
+			this.draw();
+			this.loadAndShowData();
+		},
+
+		lnkChecklist_click: function (pEvent){},
+
+		lnkAddChecklist_click: function (pEvent){},
+
+		draw: function(){
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistsPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
+			this.plhChecklists = pageContent.querySelector('.plhChecklists');
+			pageContent.querySelector('.lnkAddChecklist').addEventListener('click', this.lnkAddChecklist_click.bind(this));
+		},
+
+		loadAndShowData: function(){
+			//const checklists = 
 		}
 	};
 

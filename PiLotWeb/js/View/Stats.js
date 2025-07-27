@@ -48,7 +48,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		draw: function () {
-			let pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.trackStatsPage);
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.trackStatsPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
 			const pnlTotalDistanceChart = pageContent.querySelector('.pnlTotalDistanceChart');
 			this.expandCollapseTotalDistance = new PiLot.View.Common.ExpandCollapse(
@@ -637,7 +637,6 @@ PiLot.View.Stats = (function () {
 		this.pnlChart = null;
 		this.pnlLegend = null;
 		this.plhData = null;
-		//this.chart = null;							// echart object
 
 		this.initialize();
 	}

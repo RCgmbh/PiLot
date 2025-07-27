@@ -3,8 +3,6 @@ PiLot.Model = PiLot.Model || {};
 
 PiLot.Model.Tools = (function () {
 
-
-
 	/**
 	 * Helper for downloading tiles for a certain source. It will keep track
 	 * of already downloaded tiles and some stats. Needs a tileSource when
@@ -168,10 +166,46 @@ PiLot.Model.Tools = (function () {
 		}
 	};
 
-	
+	var Checklist = function(pId, pTitle, pItems){
+
+		this.id = null;
+		this.title = null;
+		this.items = null;
+		this.initialize(pId, pTitle, pItems);
+
+	};
+
+	Checklist.prototype = {
+
+		initialize: function(pId, pTitle, pItems){
+			this.setId(pId);
+			this.setTitle(pTitle);
+			this.setItems(pItems);
+		},
+
+		/** @returns {Number} the id or null */
+		getId: function(){ return this.id; },
+
+		/** @param {Number} pId */
+		setId: function(pId){ this.id = pId || null; },
+
+		/** @returns {String} the title or null */
+		getTitle: function(){ return this.title; },
+
+		/** @param {String} pTitle */
+		setTitle: function(pTitle){ this.title = pTitle || null; },
+
+		/** @returns {Array} mutable array of objects with {title: String, checked: Boolean} */
+		getItems: function(){ return this.items; },
+
+		/** @param {Array} pItems - array of objects with {title: String, checked: Boolean} */
+		setItems: function(pItems){ this.items = pItems || {}; },
+
+	};
 
 	return {
-		TilesDownloadHelper: TilesDownloadHelper
+		TilesDownloadHelper: TilesDownloadHelper,
+		Checklist: Checklist
 	};
 
 })();

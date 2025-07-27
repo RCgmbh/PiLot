@@ -15,8 +15,8 @@ PiLot.View.Media = (function () {
 
 		/** Draws the page */
 		draw: function () {
-			let loader = PiLot.Utils.Loader;
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Media.gamesOverviewPage);
+			const loader = PiLot.Utils.Loader;
+			const pageContent = RC.Utils.stringToNode(PiLot.Templates.Media.gamesOverviewPage);
 			loader.getContentArea().appendChild(pageContent);
 		}
 	};
@@ -35,7 +35,7 @@ PiLot.View.Media = (function () {
 
 		draw: function () {
 			let loader = PiLot.Utils.Loader;
-			let pageContent = RC.Utils.stringToNode(PiLot.Templates.Media.libraryPage);
+			const pageContent = RC.Utils.stringToNode(PiLot.Templates.Media.libraryPage);
 			loader.getContentArea().appendChild(pageContent);
 			this.iframe = pageContent.querySelector('iframe');
 			this.iframe.src = PiLot.Config.Media.libraryUrl;
