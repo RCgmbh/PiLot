@@ -126,6 +126,7 @@ PiLot.Utils.Loader = (function () {
 
 	const toolsScripts = [
 		{ url: 'js/Model/Tools.js', priority: 10 },
+		{ url: 'js/Service/Tools.js', priority: 10 },
 		{ url: 'js/View/Tools.js', priority: 10 },
 		{ url: 'js/Templates/Tools.js', priority: 10 }
 	];
@@ -164,6 +165,11 @@ PiLot.Utils.Loader = (function () {
 			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, analyzeScripts, settingsScripts],
 			startAction: function () { new PiLot.View.Common.GenericDisplayPage(); },
 			noHeader: true
+		},
+		checklists: {
+			key: 'checklists',
+			dependencies: [defaultScripts, toolsScripts],
+			startAction: function() { new PiLot.View.Tools.ChecklistsPage(); }
 		},
 		map: {
 			key: 'map',

@@ -10,6 +10,7 @@ PiLot.Templates.Common = {
 			<div class="menuSection menuSectionHome">
 				<a data-page="home"><i class="icon-home"></i><span data-text="home"></span></a>
 				<a data-page="display"><i class="icon-display"></i><span data-text="genericDisplay"></span></a>
+				<a data-page="checklists"><i class="icon-checkmark5"></i><span data-text="checklists"></span></a>
 			</div>
 			<div class="menuSection menuSectionNav">
 				<a data-page="map"><i class="icon-map3"></i><span data-text="map"></span></a>

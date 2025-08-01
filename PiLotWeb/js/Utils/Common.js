@@ -410,3 +410,16 @@ PiLot.Utils.Common = {
 		} else return pText;
 	}
 };
+
+PiLot.Utils.Common.Observable = function(pEvents){
+	this.events = pEvents;
+	this.initialize();
+}
+
+PiLot.Utils.Common.Observable.prototype = {
+
+	initialize: function(){
+		console.log('initializing observable');
+	}
+
+};

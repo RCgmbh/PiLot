@@ -18,7 +18,7 @@ PiLot.Service.Tools = (function () {
 	};
 
 	return {
-		TackAnalyzeService: TackAnalyzeService
+		ChecklistsService: ChecklistsService
 	};
 
 })();

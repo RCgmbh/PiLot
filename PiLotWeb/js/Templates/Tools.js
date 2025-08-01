@@ -337,10 +337,17 @@ PiLot.Templates.Tools = {
 
 	checklistsPage: `
 		<div class="contentPadding paddingRight">
-			<h1><span data-text="trackStatistics"></span></h1>
-			<h3 class="marginBottomSmall"><a class="lnkTotalDistance" data-text="totalDistance"></a></h3>
-			<div class="pnlTotalDistanceChart marginBottomBig"></div>
-			<h3 class="marginBottomSmall"><a class="lnkFastestSegments" data-text="fastestSegments"></a></h3>
-			<div class="pnlFastestSegmentsChart marginBottomBig"></div>
-		</div>`
+			<div class="plhContent"></div>
+		</div>`,
+
+	checklistsList: `
+		<div>
+			<h1><span data-text="checklists"></span></h1>
+			<a class="lnkAddChecklist block marginBottom"><i class="icon-plus marginRightSmall"></i><span data-text="newChecklist"></span></a>
+			<a class="lnkItemTemplate" hidden></a>
+			<div class="plhItems"></div>
+		</div>
+
+	`
+
 };

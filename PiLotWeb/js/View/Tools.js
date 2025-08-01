@@ -2108,13 +2108,101 @@ PiLot.View.Tools = (function () {
 		}
 	};
 
+	var ChecklistsPage = function (){
+
+		this.plhContent = null;
+		this.checklistsList = null;
+		this.checklistDetails = null;
+		this.checklistForm = null;
+
+		this.initialize();
+
+	};
+
+	ChecklistsPage.prototype = {
+		
+		initialize: function(){
+			this.draw();
+			this.showList();
+		},
+
+		checklistList_selectItem: function (pId){ },
+		checklistList_addItem: function (){ },
+		checklistDetails_close: function(){ },
+		checklistDetails_edit: function(){ },
+		checklistDetails_delete: function(){ },
+		checklistForm_save: function(){ },
+		checklistForm_cancel: function(){ },
+
+		draw: function(){
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistsPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
+			const plhContent = pageContent.querySelector('.plhContent');
+			this.checklistsList = new ChecklistsList(plhContent);
+			//this.checklistDetails = new ChecklistDetails(plhContent);
+			//this.checklistForm = new ChecklistForm(plhContent);
+		},
+
+		showList: function(){
+			this.checklistsList.show();
+		},
+
+		showDetails: function(pId){},
+		
+		showForm: function(pId){}
+
+	};
+
+	var ChecklistsList = function (pContainer){
+
+		this.container = pContainer;
+		this.control = null;
+		this.plhChecklists = null;
+		this.observable = null;
+
+		this.initialize();
+
+	};
+
+	ChecklistsList.prototype = {
+		
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable('selectItem', 'addItem')
+			this.draw();
+		},
+
+		lnkChecklist_click: function (pEvent){},
+
+		lnkAddChecklist_click: function (pEvent){},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistsList);
+			this.container.appendChild(this.control);
+			this.plhChecklists = this.control.querySelector('.plhChecklists');
+			this.control.querySelector('.lnkAddChecklist').addEventListener('click', this.lnkAddChecklist_click.bind(this));
+		},
+
+		show: function(){
+			this.control.hidden = false;
+			this.loadAndShowDataAsync();
+		},
+
+		loadAndShowDataAsync: async function(){
+			const checklists = await new PiLot.Service.Tools.ChecklistsService().loadChecklistsAsync();
+			console.log(checklists); 
+		}
+	};
+
 	/// return the classes
 	return {
 		ToolsOverviewPage: ToolsOverviewPage,
 		GpsImportExportForm: GpsImportExportForm,
 		SpeedDiagram: SpeedDiagram,
 		TilesDownloadForm: TilesDownloadForm,
-		PoisManagementPage: PoisManagementPage
+		PoisManagementPage: PoisManagementPage,
+		ChecklistsPage: ChecklistsPage,
+		ChecklistsList: ChecklistsList
+		//ChecklistDetails: ChecklistDetails,
 	};
 
 })();
