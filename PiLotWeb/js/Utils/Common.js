@@ -412,14 +412,38 @@ PiLot.Utils.Common = {
 };
 
 PiLot.Utils.Common.Observable = function(pEvents){
-	this.events = pEvents;
-	this.initialize();
+	this.callbacks = null;
+	this.initialize(pEvents);
 }
 
 PiLot.Utils.Common.Observable.prototype = {
 
-	initialize: function(){
-		console.log('initializing observable');
+	initialize: function(pEvents){
+		this.callbacks = new Map();
+		for(const anEvent of pEvents){
+			this.callbacks.set(anEvent, []);
+		}
+	},
+
+	addObserver: function(pEvent, pObserver, pCallback){
+		if(this.callbacks.has(pEvent)){
+			this.callbacks.get(pEvent).push({
+				observer: pObserver,
+				callback: pCallback
+			})
+		} else {
+			console.warn(`Unknown event name: ${pEvent}`);
+		}
+	},
+
+	fire: function(pEvent, pArgs) {
+		if(this.callbacks.has(pEvent)){
+			for(const aCallback of this.callbacks.get(pEvent)){
+				aCallback.callback(pArgs);
+			}
+		} else {
+			console.warn(`Unknown event name: ${pEvent}`);
+		}
 	}
 
 };

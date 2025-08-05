@@ -7,6 +7,7 @@ PiLot.Service.Tools = (function () {
 
 	ChecklistsService.prototype = {
 
+		/** @returns {Object} a checklist as it comes from the server, not converted to any class instance */
 		loadChecklistsAsync: async function () {
 			return await PiLot.Utils.Common.getFromServerAsync('/Checklists/');
 		},
