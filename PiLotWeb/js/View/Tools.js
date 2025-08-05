@@ -2126,11 +2126,15 @@ PiLot.View.Tools = (function () {
 			this.showList();
 		},
 
-		checklistList_selectItem: function (pId){
-			alert(pId);
-		 },
+		checklistList_selectItem: function (pChecklist){
+			this.checklistDetails.show(pChecklist);
+			this.checklistsList.hide();
+		},
 
-		checklistList_addItem: function (){ },
+		checklistList_addItem: function (pId){
+			alert('add item');
+		},
+
 		checklistDetails_close: function(){ },
 		checklistDetails_edit: function(){ },
 		checklistDetails_delete: function(){ },
@@ -2143,7 +2147,8 @@ PiLot.View.Tools = (function () {
 			const plhContent = pageContent.querySelector('.plhContent');
 			this.checklistsList = new ChecklistsList(plhContent);
 			this.checklistsList.on('selectItem', this, this.checklistList_selectItem.bind(this));
-			//this.checklistDetails = new ChecklistDetails(plhContent);
+			this.checklistsList.on('addItem', this, this.checklistList_addItem.bind(this));
+			this.checklistDetails = new ChecklistDetails(plhContent);
 			//this.checklistForm = new ChecklistForm(plhContent);
 		},
 
@@ -2175,12 +2180,14 @@ PiLot.View.Tools = (function () {
 			this.draw();
 		},
 
-		lnkChecklist_click: function (pId, pEvent){
-			this.observable.fire('selectItem', pId);
+		lnkChecklist_click: function (pChecklist, pEvent){
+			pEvent.preventDefault();
+			this.observable.fire('selectItem', pChecklist);
 		},
 
 		lnkAddChecklist_click: function (pEvent){
-			this.observable.fire('addItem', this);
+			pEvent.preventDefault();
+			this.observable.fire('addItem', null);
 		},
 
 		on: function(pEvent, pObserver, pFunction){
@@ -2199,17 +2206,89 @@ PiLot.View.Tools = (function () {
 			this.loadAndShowDataAsync();
 		},
 
+		hide: function(){
+			this.control.hidden = true;
+		},
+
 		loadAndShowDataAsync: async function(){
 			const checklists = await new PiLot.Service.Tools.ChecklistsService().loadChecklistsAsync();
-			console.log(checklists); 
 			this.plhItems.clear();
 			const template = this.control.querySelector('.lnkItemTemplate');
 			for(let aChecklist of checklists){
 				const lnkChecklist = template.cloneNode(true);
 				lnkChecklist.hidden = false;
 				lnkChecklist.innerText = aChecklist.title;
-				lnkChecklist.addEventListener('click', this.lnkChecklist_click.bind(this, aChecklist.id));
+				lnkChecklist.addEventListener('click', this.lnkChecklist_click.bind(this, aChecklist));
 				this.plhItems.appendChild(lnkChecklist);
+			}
+		}
+	};
+
+	var ChecklistDetails = function (pContainer){
+
+		this.container = pContainer;
+		this.control = null;
+		this.lblTitle = null;
+		this.plhItems = null;
+		this.checklist = null;
+		this.observable = null;
+
+		this.initialize();
+
+	};
+
+	ChecklistDetails.prototype = {
+		
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable(['close', 'delete'])
+			this.draw();
+		},
+
+		lnkClose_click: function (pEvent){
+			pEvent.preventDefault();
+			this.observable.fire('close');
+		},
+
+		cbItem_change: function(pIndex){
+			// do stuffs
+		},
+
+		lnkDelete_click: async function (pEvent){
+			pEvent.preventDefault();
+			await this.deleteChecklist();
+			this.observable.fire('delete', this.checklist.id);
+		},
+
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistDetails);
+			this.container.appendChild(this.control);
+			this.lblTitle = this.container.querySelector('.lblTitle');
+			this.plhItems = this.control.querySelector('.plhItems');
+		},
+
+		show: function(pChecklist){
+			this.checklist = pChecklist;
+			this.showChecklist();
+			this.control.hidden = false;
+		},
+
+		hide: function(){
+			this.control.hidden = true;
+		},
+
+		showChecklist: function(){
+			this.plhItems.clear();
+			this.lblTitle.innerText = this.checklist.title;
+			for(let i = 0; i < this.checklist.items.length; i++){
+				let control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
+				let checkbox = control.querySelector('input');
+				checkbox.addEventListener('change', this.cbItem_change.bind(this, i));
+				control.querySelector('.lblLabel').innerText = this.checklist.items[i].title;
+				this.plhItems.appendChild(control);
 			}
 		}
 	};
@@ -2222,8 +2301,8 @@ PiLot.View.Tools = (function () {
 		TilesDownloadForm: TilesDownloadForm,
 		PoisManagementPage: PoisManagementPage,
 		ChecklistsPage: ChecklistsPage,
-		ChecklistsList: ChecklistsList
-		//ChecklistDetails: ChecklistDetails,
+		ChecklistsList: ChecklistsList,
+		ChecklistDetails: ChecklistDetails,
 	};
 
 })();
