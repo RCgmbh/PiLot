@@ -70,6 +70,18 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
+		/// Returns a Checklist by its id
+		/// </summary>
+		/// <param name="pId">The ID</param>
+		/// <returns>A Checklist or null</returns>
+		public Checklist ReadChecklist(Int32 pId) {
+			Checklist result = null;
+			List<Checklist> allChecklists = this.ReadChecklists();
+			result = allChecklists.FirstOrDefault(c => c.ID == pId);
+			return result;
+		}
+
+		/// <summary>
 		/// Inserts or updates a Checklist in the file and returns the ID
 		/// </summary>
 		/// <param name="pChecklist">The checklist to save, not null</param>

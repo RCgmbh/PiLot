@@ -337,13 +337,13 @@ PiLot.Templates.Tools = {
 
 	checklistsPage: `
 		<div class="contentPadding paddingRight">
+			<h1><span data-text="checklists"></span></h1>
 			<div class="plhContent"></div>
 		</div>
 	`,
 
 	checklistsList: `
 		<div>
-			<h1><span data-text="checklists"></span></h1>
 			<a href="#" class="lnkAddChecklist block marginBottom"><i class="icon-plus marginRightSmall"></i><span data-text="newChecklist"></span></a>
 			<a href="#" class="lnkItemTemplate marginBottomSmall" hidden></a>
 			<div class="plhItems flexColumn"></div>
@@ -351,8 +351,11 @@ PiLot.Templates.Tools = {
 	`,
 
 	checklistDetails: `
-		<div class="flexColumn">
-			<h1 class="lblTitle"></h1>
+		<div class="flexColumn easyShadow paddingAllSmall">
+			<div class="boxHeader marginBottom">
+				<span class="lblTitle semiBold"></span>
+				<a href="#" class="lnkClose"><i class="icon-cross"></i></a>
+			</div>
 			<div class="plhItems flexColumn">
 			</div>
 		</div>
