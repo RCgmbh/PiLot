@@ -351,13 +351,16 @@ PiLot.Templates.Tools = {
 	`,
 
 	checklistDetails: `
-		<div class="flexColumn easyShadow paddingAllSmall">
-			<div class="boxHeader marginBottom">
+		<div class="flexColumn easyShadow">
+			<div class="boxHeader paddingAllSmall">
 				<span class="lblTitle semiBold"></span>
 				<a href="#" class="lnkClose"><i class="icon-cross"></i></a>
 			</div>
-			<div class="plhItems flexColumn">
-			</div>
+			<div class="plhItems flexColumn paddingAllSmall"></div>
+			<div class="pnlButtons marginTopSmall marginBottomSmall">
+				<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
+				<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
+			<div>
 		</div>
 	`
 

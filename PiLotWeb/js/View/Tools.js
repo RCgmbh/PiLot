@@ -2173,6 +2173,7 @@ PiLot.View.Tools = (function () {
 
 		this.container = pContainer;
 		this.control = null;
+		this.lnkAddChecklist = null;
 		this.plhItems = null;
 		this.observable = null;
 
@@ -2184,7 +2185,12 @@ PiLot.View.Tools = (function () {
 		
 		initialize: function(){
 			this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem'])
+			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			this.draw();
+		},
+
+		authHelper_login: function(){
+			this.applyPermissions();
 		},
 
 		lnkChecklist_click: function (pChecklist, pEvent){
@@ -2205,7 +2211,13 @@ PiLot.View.Tools = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistsList);
 			this.container.appendChild(this.control);
 			this.plhItems = this.control.querySelector('.plhItems');
-			this.control.querySelector('.lnkAddChecklist').addEventListener('click', this.lnkAddChecklist_click.bind(this));
+			this.lnkAddChecklist = this.control.querySelector('.lnkAddChecklist');
+			this.lnkAddChecklist.addEventListener('click', this.lnkAddChecklist_click.bind(this));
+			this.applyPermissions();
+		},
+
+		applyPermissions: function(){
+			this.lnkAddChecklist.hidden = !PiLot.Permissions.canWrite();
 		},
 
 		show: function(){
@@ -2248,8 +2260,13 @@ PiLot.View.Tools = (function () {
 	ChecklistDetails.prototype = {
 		
 		initialize: function(){
-			this.observable = new PiLot.Utils.Common.Observable(['close', 'delete'])
+			this.observable = new PiLot.Utils.Common.Observable(['close', 'edit', 'delete'])
+			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			this.draw();
+		},
+
+		authHelper_login: function(){
+			this.applyPermissions();
 		},
 
 		lnkClose_click: function (pEvent){
@@ -2261,10 +2278,14 @@ PiLot.View.Tools = (function () {
 			this.saveCheckedAsync(pIndex, pEvent.target.checked);
 		},
 
-		lnkDelete_click: async function (pEvent){
+		lnkEdit_click: function(pEvent){
 			pEvent.preventDefault();
-			await this.deleteChecklist();
-			this.observable.fire('delete', this.checklist.id);
+			this.observable.fire('edit', this.checklist.id);
+		},
+		
+		lnkDelete_click: function (pEvent){
+			pEvent.preventDefault();
+			this.deleteChecklistAsync();
 		},
 
 		on: function(pEvent, pObserver, pFunction){
@@ -2277,6 +2298,13 @@ PiLot.View.Tools = (function () {
 			this.container.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.lblTitle = this.container.querySelector('.lblTitle');
 			this.plhItems = this.control.querySelector('.plhItems');
+			this.container.querySelector('.lnkEdit').addEventListener('click', this.lnkEdit_click.bind(this));
+			this.container.querySelector('.lnkDelete').addEventListener('click', this.lnkDelete_click.bind(this));
+			this.applyPermissions();
+		},
+
+		applyPermissions: function(){
+			this.container.querySelector('.pnlButtons').hidden = !PiLot.Permissions.canWrite();
 		},
 
 		show: function(pChecklist){
@@ -2304,6 +2332,10 @@ PiLot.View.Tools = (function () {
 
 		saveCheckedAsync: async function(pIndex, pChecked){ 
 			await new PiLot.Service.Tools.ChecklistsService().saveCheckedAsync(this.checklist.id, pIndex, pChecked);
+		},
+
+		deleteChecklistAsync: async function(){
+			this.observable.fire('delete', this.checklist.id);
 		}
 	};
 

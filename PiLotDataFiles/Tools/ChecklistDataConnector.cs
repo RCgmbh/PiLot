@@ -124,10 +124,10 @@ namespace PiLot.Data.Files {
 		/// Deletes a Checklist from the file
 		/// </summary>
 		/// <param name="pChecklistID">The id of the checklist, not null</param>
-		public void DeleteChecklist(Int64 pPoiID) {
+		public void DeleteChecklist(Int32 pChecklistID) {
 			lock (this.lockObject) {
 				List<Checklist> allChecklists = this.ReadChecklists();
-				allChecklists.RemoveAll(p => p.ID == pPoiID);
+				allChecklists.RemoveAll(p => p.ID == pChecklistID);
 				this.SaveAllChecklists(allChecklists);
 			}
 		}

@@ -11,8 +11,7 @@ using PiLot.Model.Tools;
 namespace PiLot.API.Controllers {
 
 	[ApiController]
-	public class ChecklistsController : ControllerBase
-	{
+	public class ChecklistsController : ControllerBase {
 
 		/// <summary>
 		/// Returns all available checklists
@@ -44,5 +43,13 @@ namespace PiLot.API.Controllers {
 			}
 			return result;
 		}
+
+		[Route(Program.APIROOT + "[controller]/{id}")]
+		[HttpDelete]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public void DeleteChecklist(Int32 id) {
+			new ChecklistDataConnector().DeleteChecklist(id);
+		}
+		
 	}
 }
