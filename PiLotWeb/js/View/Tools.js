@@ -2130,18 +2130,27 @@ PiLot.View.Tools = (function () {
 			this.showDetails(pChecklist);
 		},
 
-		checklistList_addItem: function (pId){
-			alert('add item');
+		checklistList_addItem: function (){
+			this.showForm(null);
 		},
 
 		checklistDetails_close: function(){
 			this.showList();	
 		},
 
-		checklistDetails_edit: function(){ },
+		checklistDetails_edit: function(pChecklist){
+			this.showForm(pChecklist);
+		},
+
 		checklistDetails_delete: function(){ },
-		checklistForm_save: function(){ },
-		checklistForm_cancel: function(){ },
+		
+		checklistForm_save: function(pChecklist){ 
+			this.showDetails(pChecklist);
+		},
+
+		checklistForm_cancel: function(pChecklist){ 
+				this.showList();
+		},
 
 		draw: function(){
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistsPage);
@@ -2151,21 +2160,31 @@ PiLot.View.Tools = (function () {
 			this.checklistsList.on('selectItem', this, this.checklistList_selectItem.bind(this));
 			this.checklistsList.on('addItem', this, this.checklistList_addItem.bind(this));
 			this.checklistDetails = new ChecklistDetails(plhContent);
+			this.checklistDetails.on('edit', this, this.checklistDetails_edit.bind(this));
+			this.checklistDetails.on('delete', this, this.checklistDetails_delete.bind(this));
 			this.checklistDetails.on('close', this, this.checklistDetails_close.bind(this));
-			//this.checklistForm = new ChecklistForm(plhContent);
+			this.checklistForm = new ChecklistForm(plhContent);
+			this.checklistForm.on('save', this, this.checklistForm_save.bind(this));
+			this.checklistForm.on('cancel', this, this.checklistForm_cancel.bind(this));
 		},
 
 		showList: function(){
 			this.checklistsList.show();
 			this.checklistDetails.hide();
+			this.checklistForm.hide();
 		},
 
 		showDetails: function(pChecklist){
 			this.checklistDetails.show(pChecklist);
 			this.checklistsList.hide();
+			this.checklistForm.hide();
 		},
 		
-		showForm: function(pId){}
+		showForm: function(pChecklist){
+			this.checklistForm.show(pChecklist);
+			this.checklistDetails.hide();
+			this.checklistsList.hide();
+		}
 
 	};
 
@@ -2254,7 +2273,6 @@ PiLot.View.Tools = (function () {
 		this.observable = null;
 
 		this.initialize();
-
 	};
 
 	ChecklistDetails.prototype = {
@@ -2280,7 +2298,7 @@ PiLot.View.Tools = (function () {
 
 		lnkEdit_click: function(pEvent){
 			pEvent.preventDefault();
-			this.observable.fire('edit', this.checklist.id);
+			this.observable.fire('edit', this.checklist);
 		},
 		
 		lnkDelete_click: function (pEvent){
@@ -2335,9 +2353,138 @@ PiLot.View.Tools = (function () {
 		},
 
 		deleteChecklistAsync: async function(){
+			// todo: confirm, then call the delete function
 			this.observable.fire('delete', this.checklist.id);
 		}
 	};
+
+	var ChecklistForm = function (pContainer){
+
+		this.container = pContainer;
+		this.control = null;
+		this.tbTitle = null;
+		this.pnlItemTemplate = null;
+		this.plhItems = null;
+		this.checklist = null;
+		this.observable = null;
+
+		this.initialize();
+	};
+
+	ChecklistForm.prototype = {
+		
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable(['save', 'cancel'])
+			this.draw();
+		},
+
+		tbItemTitle_change: function (pIndex, pEvent){
+			this.checklist.items[pIndex].title = pEvent.target.value;
+		},
+
+		lnkMoveDown_click: function(pIndex, pEvent){
+			pEvent.preventDefault();
+			this.swapItems(pIndex, 1);
+		},
+
+		lnkMoveUp_click: function(pIndex, pEvent){
+			pEvent.preventDefault();
+			this.swapItems(pIndex, -1);
+		},
+		
+		lnkDeleteItem_click: function (pIndex, pEvent){
+			pEvent.preventDefault();
+			this.removeItem(pIndex);
+		},
+
+		lnkAddItem_click: function(pEvent){
+			pEvent.preventDefault();
+			this.addItem();
+		},
+
+		btnSave_click: function(pEvent){
+			pEvent.preventDefault();
+			this.saveChecklistAsync();
+		},
+
+		btnCancel_click: function(pEvent){
+			pEvent.preventDefault();
+			this.observable.fire('cancel', this.checklist);
+		},
+
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistForm);
+			this.container.appendChild(this.control);
+			this.tbTitle = this.container.querySelector('.tbTitle');
+			this.pnlItemTemplate = this.container.querySelector('.pnlItemTemplate');
+			this.plhItems = this.control.querySelector('.plhItems');
+			this.container.querySelector('.lnkAddItem').addEventListener('click', this.lnkAddItem_click.bind(this));
+			this.container.querySelector('.btnSave').addEventListener('click', this.btnSave_click.bind(this));
+			this.container.querySelector('.btnCancel').addEventListener('click', this.btnCancel_click.bind(this));
+		},
+
+		show: function(pChecklist){
+			this.checklist = pChecklist || {
+				title: '', id: null, items: []
+			};
+			this.showChecklist();
+			this.control.hidden = false;
+		},
+
+		hide: function(){
+			this.control.hidden = true;
+		},
+
+		showChecklist: function(){
+			this.plhItems.clear();
+			if(this.checklist){
+				this.tbTitle.value = this.checklist.title;
+				for(let i = 0; i < this.checklist.items.length; i++){
+					let control = this.pnlItemTemplate.cloneNode(true);
+					control.hidden = false;
+					let textbox = control.querySelector('input');
+					textbox.value = this.checklist.items[i].title;
+					textbox.addEventListener('change', this.tbItemTitle_change.bind(this, i));
+					const lnkMoveDown = control.querySelector('.lnkMoveDown');
+					lnkMoveDown.addEventListener('click', this.lnkMoveDown_click.bind(this, i));
+					lnkMoveDown.hidden = i === (this.checklist.items.length - 1);
+					const lnkMoveUp = control.querySelector('.lnkMoveUp');
+					lnkMoveUp.addEventListener('click', this.lnkMoveUp_click.bind(this, i));
+					lnkMoveUp.hidden = i === 0;
+					control.querySelector('.lnkDeleteItem').addEventListener('click', this.lnkDeleteItem_click.bind(this, i));
+					this.plhItems.appendChild(control);
+				}
+			} else {
+				this.tbTitle.value = '';
+			}			
+		},
+
+		saveChecklistAsync: async function(){ 
+			this.checklist.title = this.tbTitle.value;
+			this.checklist.id = await new PiLot.Service.Tools.ChecklistsService().saveChecklistAsync(this.checklist);
+			this.observable.fire('save', this.checklist);
+		},
+
+		swapItems: function(pIndex, pAmount){
+			this.checklist.items.swap(pIndex, pIndex + pAmount);
+			this.showChecklist();
+		},
+
+		removeItem: function(pIndex){
+			this.checklist.items.remove(pIndex);
+			this.showChecklist();
+		}, 
+
+		addItem: function(){
+			this.checklist.items.push({title: '', checked: false});
+			this.showChecklist();
+		},
+	};
+
 
 	/// return the classes
 	return {

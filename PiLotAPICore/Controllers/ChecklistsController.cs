@@ -23,6 +23,23 @@ namespace PiLot.API.Controllers {
 			return new ChecklistDataConnector().ReadChecklists();
 		}
 
+		/// <summary>
+		/// Saves a checklist
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]")]
+		[HttpPut]
+		[ServiceFilter(typeof(WriteAuthorizationFilter))]
+		public Int32 Put(Checklist checklist) {
+			return new ChecklistDataConnector().SaveChecklist(checklist);
+		}
+
+		/// <summary>
+		/// Saves the checked state of a single item of a checklist
+		/// </summary>
+		/// <param name="id">The ID of the checklist</param>
+		/// <param name="index">The index of the item</param>
+		/// <param name="isChecked">Whether the item is checked or not</param>
+		/// <returns></returns>
 		[Route(Program.APIROOT + "[controller]/{id}/checked")]
 		[HttpPut]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]

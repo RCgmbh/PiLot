@@ -362,6 +362,24 @@ PiLot.Templates.Tools = {
 				<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
 			<div>
 		</div>
+	`,
+
+	checklistForm: `
+		<div class="flexColumn easyShadow paddingAll" style="max-width: 30em;">
+			<input type="text" class="tbTitle marginBottom semiBold" data-title="title" />
+			<div class="pnlItemTemplate flexRowWrap marginBottomSmall" hidden>
+				<input type="text" class="tbItemTitle marginRight grow" />
+				<div class="col1"><a href="#" class="lnkMoveDown"><i class="icon-arrow-down2"></i></a></div>
+				<div class="col1 marginRight"><a href="#" class="lnkMoveUp"><i class="icon-arrow-up2"></i></a></div>
+				<div class="col1"><a href="#" class="lnkDeleteItem"><i class="icon-trashcan"></i></a></div>
+			</div>
+			<div class="plhItems flexColumn marginBottom"></div>
+			<div class="marginBottom"><a href="#" class="lnkAddItem"><i class="icon-plus"></i></a></div>
+			<div class="buttons reverse paddingBottom">
+				<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
+				<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+			</div>
+		</div>
 	`
 
 
