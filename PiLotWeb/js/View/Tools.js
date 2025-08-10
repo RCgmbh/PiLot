@@ -2142,14 +2142,16 @@ PiLot.View.Tools = (function () {
 			this.showForm(pChecklist);
 		},
 
-		checklistDetails_delete: function(){ },
+		checklistDetails_delete: function(){ 
+			this.showList();
+		},
 		
 		checklistForm_save: function(pChecklist){ 
 			this.showDetails(pChecklist);
 		},
 
 		checklistForm_cancel: function(pChecklist){ 
-				this.showList();
+			this.showList();
 		},
 
 		draw: function(){
@@ -2353,8 +2355,10 @@ PiLot.View.Tools = (function () {
 		},
 
 		deleteChecklistAsync: async function(){
-			// todo: confirm, then call the delete function
-			this.observable.fire('delete', this.checklist.id);
+			if(window.confirm(PiLot.Utils.Language.getText('confirmDeleteElement'))){
+				await new PiLot.Service.Tools.ChecklistsService().deleteChecklistAsync(this.checklist.id);
+				this.observable.fire('delete', this.checklist.id);
+			}
 		}
 	};
 

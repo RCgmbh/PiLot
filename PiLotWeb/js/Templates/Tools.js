@@ -351,12 +351,12 @@ PiLot.Templates.Tools = {
 	`,
 
 	checklistDetails: `
-		<div class="flexColumn easyShadow">
+		<div class="flexColumn easyShadow" style="max-width: 48em;">
 			<div class="boxHeader paddingAllSmall">
 				<span class="lblTitle semiBold"></span>
 				<a href="#" class="lnkClose"><i class="icon-cross"></i></a>
 			</div>
-			<div class="plhItems flexColumn paddingAllSmall"></div>
+			<div class="plhItems flexColumn paddingAllSmall paddingBottom"></div>
 			<div class="pnlButtons marginTopSmall marginBottomSmall">
 				<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
 				<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
@@ -365,17 +365,19 @@ PiLot.Templates.Tools = {
 	`,
 
 	checklistForm: `
-		<div class="flexColumn easyShadow paddingAll" style="max-width: 30em;">
+		<div class="flexColumn easyShadow paddingAll" style="max-width: 48em;">
 			<input type="text" class="tbTitle marginBottom semiBold" data-title="title" />
 			<div class="pnlItemTemplate flexRowWrap marginBottomSmall" hidden>
 				<input type="text" class="tbItemTitle marginRight grow" />
-				<div class="col1"><a href="#" class="lnkMoveDown"><i class="icon-arrow-down2"></i></a></div>
-				<div class="col1 marginRight"><a href="#" class="lnkMoveUp"><i class="icon-arrow-up2"></i></a></div>
-				<div class="col1"><a href="#" class="lnkDeleteItem"><i class="icon-trashcan"></i></a></div>
+				<div class="flexRow">
+					<div class="col1"><a href="#" class="lnkMoveDown"><i class="icon-arrow-down2"></i></a></div>
+					<div class="col1 marginRight"><a href="#" class="lnkMoveUp"><i class="icon-arrow-up2"></i></a></div>
+					<div class="col1"><a href="#" class="lnkDeleteItem"><i class="icon-trashcan"></i></a></div>
+				</div>
 			</div>
-			<div class="plhItems flexColumn marginBottom"></div>
+			<div class="plhItems flexColumn"></div>
 			<div class="marginBottom"><a href="#" class="lnkAddItem"><i class="icon-plus"></i></a></div>
-			<div class="buttons reverse paddingBottom">
+			<div class="buttons reverse">
 				<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
 				<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
 			</div>

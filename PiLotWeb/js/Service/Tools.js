@@ -15,7 +15,8 @@ PiLot.Service.Tools = (function () {
 		/** @param {Object} pChecklist - the checklist to save back to the server */
 		saveChecklistAsync: async function (pChecklist) {
 			const path = `/Checklists/`;
-			return await PiLot.Utils.Common.putToServerAsync(path, pChecklist);
+			const result = await PiLot.Utils.Common.putToServerAsync(path, pChecklist);
+			return result.data;
 		},
 
 		/**
@@ -29,8 +30,10 @@ PiLot.Service.Tools = (function () {
 			return await PiLot.Utils.Common.putToServerAsync(path, null);
 		},
 
+		/** @param {Number} pChecklistId - the id of the checklist to delete */
 		deleteChecklistAsync: async function(pChecklistId){
-			
+			const path = `/Checklists/${pChecklistId}`;
+			return await PiLot.Utils.Common.deleteFromServerAsync(path);
 		}
 	};
 
