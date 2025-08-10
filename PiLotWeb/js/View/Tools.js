@@ -2382,6 +2382,10 @@ PiLot.View.Tools = (function () {
 			this.draw();
 		},
 
+		tbTitle_change: function(pEvent){
+			this.checklist.title = pEvent.target.value;
+		},
+
 		tbItemTitle_change: function (pIndex, pEvent){
 			this.checklist.items[pIndex].title = pEvent.target.value;
 		},
@@ -2424,6 +2428,7 @@ PiLot.View.Tools = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.checklistForm);
 			this.container.appendChild(this.control);
 			this.tbTitle = this.container.querySelector('.tbTitle');
+			this.tbTitle.addEventListener('change', this.tbTitle_change.bind(this));
 			this.pnlItemTemplate = this.container.querySelector('.pnlItemTemplate');
 			this.plhItems = this.control.querySelector('.plhItems');
 			this.container.querySelector('.lnkAddItem').addEventListener('click', this.lnkAddItem_click.bind(this));
@@ -2468,7 +2473,6 @@ PiLot.View.Tools = (function () {
 		},
 
 		saveChecklistAsync: async function(){ 
-			this.checklist.title = this.tbTitle.value;
 			this.checklist.id = await new PiLot.Service.Tools.ChecklistsService().saveChecklistAsync(this.checklist);
 			this.observable.fire('save', this.checklist);
 		},

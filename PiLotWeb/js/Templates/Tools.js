@@ -344,9 +344,9 @@ PiLot.Templates.Tools = {
 
 	checklistsList: `
 		<div>
-			<a href="#" class="lnkAddChecklist block marginBottom"><i class="icon-plus marginRightSmall"></i><span data-text="newChecklist"></span></a>
 			<a href="#" class="lnkItemTemplate marginBottomSmall" hidden></a>
-			<div class="plhItems flexColumn"></div>
+			<div class="plhItems flexColumn marginBottom"></div>
+			<a href="#" class="lnkAddChecklist block"><i class="icon-plus marginRightSmall"></i><span data-text="newChecklist"></span></a>
 		</div>
 	`,
 
