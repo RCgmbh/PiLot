@@ -2351,6 +2351,7 @@ PiLot.View.Tools = (function () {
 		},
 
 		saveCheckedAsync: async function(pIndex, pChecked){ 
+			this.checklist.items[pIndex].checked = pChecked;
 			await new PiLot.Service.Tools.ChecklistsService().saveCheckedAsync(this.checklist.id, pIndex, pChecked);
 		},
 
@@ -2440,8 +2441,8 @@ PiLot.View.Tools = (function () {
 			this.checklist = pChecklist || {
 				title: '', id: null, items: []
 			};
-			this.showChecklist();
 			this.control.hidden = false;
+			this.showChecklist();
 		},
 
 		hide: function(){
@@ -2466,6 +2467,12 @@ PiLot.View.Tools = (function () {
 					lnkMoveUp.hidden = i === 0;
 					control.querySelector('.lnkDeleteItem').addEventListener('click', this.lnkDeleteItem_click.bind(this, i));
 					this.plhItems.appendChild(control);
+					if(!this.checklist.items[i].title){
+						textbox.focus();
+					}
+				}
+				if(!this.checklist.items.length && !this.checklist.title){
+					this.tbTitle.focus();
 				}
 			} else {
 				this.tbTitle.value = '';
