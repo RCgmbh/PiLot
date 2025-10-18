@@ -1017,6 +1017,7 @@ PiLot.View.Diary = (function () {
 			this.imageIndex = pImageIndex;
 			this.setPhotoUrl();
             this.pnlPhotoScreen.hidden = false;
+			document.body.classList.toggle('overflowHidden', true);
             this.toggleNavigation(true);
 			document.addEventListener('keydown', this.keyHandler);
 		},
@@ -1024,6 +1025,7 @@ PiLot.View.Diary = (function () {
 		hidePhoto: function () {
 			document.removeEventListener('keydown', this.keyHandler);
 			this.pnlPhotoScreen.hidden = true;
+			document.body.classList.toggle('overflowHidden', false);
 		},
 
 		/** @param {Boolean} pVisible */
