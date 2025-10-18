@@ -359,6 +359,7 @@ PiLot.Templates.Tools = {
 			<div class="plhItems flexColumn paddingAllSmall paddingBottom"></div>
 			<div class="pnlButtons marginTopSmall marginBottomSmall">
 				<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
+				<a href="#" class="lnkReset marginAllSmall"><i class="icon-undo marginRightSmall"></i><span data-text="reset"></span></a>
 				<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
 			<div>
 		</div>
