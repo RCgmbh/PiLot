@@ -496,26 +496,31 @@ PiLot.View.Common = (function () {
 
 		lnkEnlarge_click: function(pEvent){
 			pEvent.stopPropagation();
+			pEvent.preventDefault();
 			this.changeEnlarged(true);
 		},
 
 		lnkShrink_click: function(pEvent){
 			pEvent.stopPropagation();
+			pEvent.preventDefault();
 			this.changeEnlarged(false);
 		},
 
 		lnkBiggerText_click: function(pEvent){
 			pEvent.stopPropagation();
+			pEvent.preventDefault();
 			this.changeTextSize(+1);
 		},
 		
 		lnkSmallerText_click: function(pEvent){
 			pEvent.stopPropagation();
+			pEvent.preventDefault();
 			this.changeTextSize(-1);
 		},
 
 		lnkClose_click: function(pEvent){
 			pEvent.stopPropagation();
+			pEvent.preventDefault();
 			this.control.parentNode.removeChild(this.control);
 			RC.Utils.notifyObservers(this, this.observers, 'close', null);
 		},
