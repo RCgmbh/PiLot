@@ -74,6 +74,7 @@ PiLot.Utils.Common = {
 
 	/**
 	 * Gets the parameter value to be used for dates in the queryString
+	 * @param {RC.Date.DateOnly} pDate - the date
 	 */
 	getQsDateValue: function (pDate) {
 		return pDate.toLuxon().toFormat('yyyyMMdd');

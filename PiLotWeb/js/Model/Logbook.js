@@ -669,6 +669,12 @@ PiLot.Model.Logbook = (function () {
 			return this.name;
 		},
 
+		/** @returns {RC.Date.DateOnly} the date of the collection, if the collection represents a date, else undefined */
+		getDate: function(){
+			let result = RC.Date.DateOnly.fromObject(DateTime.fromFormat(this.name, 'yyyy-LL-dd'));
+			return result;
+		},
+
 		/** @returns {String} the image names within the collection */
 		getImageNames: function(){
 			return this.imageNames;

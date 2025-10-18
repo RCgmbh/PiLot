@@ -226,6 +226,7 @@ PiLot.Templates.Diary = {
 					<div>
 						<a href="#" target="_blank" download class="lnkDownload marginLeft" data-title="imageDownload"><i class="icon-download2"></i></a>
 						<a href="#" target="_blank" class="lnkOpenBlank marginLeft" data-title="imageOpenOriginal"><i class="icon-popout"></i></a>
+						<a href="#" target="_blank" class="lnkDiary marginLeft" data-title="diary"><i class="icon-book3"></i></a>
 						<a href="#" class="lnkDelete marginLeft" data-title="delete"><i class="icon-trashcan"></i></a>
 					</div>
 					<a href="#" class="lnkClose" data-title="close"><i class="icon-cancel3"></i></a>

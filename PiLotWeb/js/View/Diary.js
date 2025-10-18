@@ -829,6 +829,7 @@ PiLot.View.Diary = (function () {
 		this.pnlOptions = null;
 		this.lnkDownload = null;
 		this.lnkOpenBlank = null;
+		this.lnkDiary = null;
 		this.lnkDelete = null;
 		this.plhPhotos = null;				// HTMLElement
 		this.pnlPhotoScreen = null;			// HTMLElement
@@ -927,6 +928,7 @@ PiLot.View.Diary = (function () {
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.lnkDownload = this.control.querySelector('.lnkDownload');
 			this.lnkOpenBlank = this.control.querySelector('.lnkOpenBlank');
+			this.lnkDiary = this.control.querySelector('.lnkDiary');
 			this.lnkDelete = this.control.querySelector('.lnkDelete');
 			PiLot.Utils.Common.bindOrHideEditLink(this.lnkDelete, this.lnkDelete_click.bind(this));
 			this.plhPhotos = this.container.querySelector('.plhPhotos');
@@ -1047,12 +1049,34 @@ PiLot.View.Diary = (function () {
 
 		setPhotoUrl: function () {
 			const image = this.imageData[this.imageIndex];
+			console.log(image.imageCollection.getDate());
 			this.imgFullSize.src = this.getPhotoUrl(image.imageCollection, image.fileName);
 			this.imgFullSize.hidden = true;
 			this.lnkDownload.href = this.getOriginalImageUrl(image.imageCollection, image.fileName);
             this.lnkOpenBlank.href = this.getOriginalImageUrl(image.imageCollection, image.fileName);
+			this.showDiaryLink(image.imageCollection);
             this.lblFileName.innerText = image.fileName;
 			this.lblPhotoIndex.innerText = this.imageIndex + 1;
+		},
+
+		/**
+		 * Shows a link to the diary page of the date of the photo, but only if the photo gallery
+		 * is not being shown for one certain date.
+		 * @param {PiLot.Model.Logbook.ImageCollection} pImageCollection
+		 *  */
+		showDiaryLink: function(pImageCollection){
+			if(!this.date){
+				const imageDate = pImageCollection.getDate();
+				if(imageDate) {
+					const pageUrl = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.diary);
+					this.lnkDiary.href = PiLot.Utils.Common.setQsDate(pageUrl, imageDate);
+					this.lnkDiary.hidden = false;
+				} else {
+					this.lnkDiary.hidden = true;
+				}
+			} else {
+				this.lnkDiary.hidden = true;
+			}
 		},
 
 		preloadNextPhoto: function () {
