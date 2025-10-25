@@ -22,25 +22,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDataFiles", "PiLotDataFiles\PiLotDataFiles.csproj", "{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "PiLotWeb", "http:\localhost\PiLotWeb", "{8724624A-39B4-46D4-BF5F-AD477BB33B99}"
-	ProjectSection(WebsiteProperties) = preProject
-		UseIISExpress = "false"
-		TargetFrameworkMoniker = ".NETFramework,Version%3Dv4.0"
-		Debug.AspNetCompiler.VirtualPath = "/PiLotWeb"
-		Debug.AspNetCompiler.PhysicalPath = "PiLotWeb\"
-		Debug.AspNetCompiler.TargetPath = "PrecompiledWeb\PiLotWeb\"
-		Debug.AspNetCompiler.Updateable = "true"
-		Debug.AspNetCompiler.ForceOverwrite = "true"
-		Debug.AspNetCompiler.FixedNames = "false"
-		Debug.AspNetCompiler.Debug = "True"
-		Release.AspNetCompiler.VirtualPath = "/PiLotWeb"
-		Release.AspNetCompiler.PhysicalPath = "PiLotWeb\"
-		Release.AspNetCompiler.TargetPath = "PrecompiledWeb\PiLotWeb\"
-		Release.AspNetCompiler.Updateable = "true"
-		Release.AspNetCompiler.ForceOverwrite = "true"
-		Release.AspNetCompiler.FixedNames = "false"
-		Release.AspNetCompiler.Debug = "False"
-		SlnRelativePath = "PiLotWeb\"
-	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPhotosWatcher", "PiLotPhotosWatcher\PiLotPhotosWatcher.csproj", "{ED5B51D6-3644-4733-B562-C0B7ED994067}"
 EndProject

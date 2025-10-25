@@ -1,35 +1,12 @@
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  This will create the db structure for tracks
+  This will create pr update the db structure for tracks
   
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
-/* DROP EXISTING ELEMENTS */
-DROP FUNCTION IF EXISTS insert_track_segment_type;
-DROP FUNCTION IF EXISTS update_track_segment_type;
-DROP FUNCTION IF EXISTS delete_track_segment_type;
-DROP FUNCTION IF EXISTS read_tracks;
-DROP FUNCTION IF EXISTS insert_track;
-DROP FUNCTION IF EXISTS delete_track;
-DROP FUNCTION IF EXISTS update_track_data;
-DROP FUNCTION IF EXISTS update_track_boat;
-DROP FUNCTION IF EXISTS read_track_segments_by_track;
-DROP FUNCTION IF EXISTS find_track_segments;
-DROP FUNCTION IF EXISTS save_track_segment;
-DROP FUNCTION IF EXISTS delete_track_segments;
-DROP FUNCTION IF EXISTS read_track_points;
-DROP FUNCTION IF EXISTS insert_track_point;
-DROP FUNCTION IF EXISTS delete_track_points;
-DROP VIEW IF EXISTS all_track_segments;
-/* Don't delete the data. Manually drop them if needed. */
---DROP TABLE IF EXISTS track_segments;
---DROP TABLE IF EXISTS track_segment_types;
---DROP TABLE IF EXISTS track_points;
---DROP TABLE IF EXISTS tracks;
-
 /*-----------TABLE track_segment_types -------------------------*/
 
-/*CREATE TABLE track_segment_types(
+CREATE TABLE IF NOT EXISTS track_segment_types(
 	id serial PRIMARY KEY,
 	duration integer,
 	distance integer,
@@ -43,11 +20,11 @@ GRANT INSERT ON track_segment_types TO pilotweb;
 GRANT UPDATE ON track_segment_types TO pilotweb;
 GRANT DELETE ON track_segment_types TO pilotweb;
 
-GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;*/
+GRANT USAGE, SELECT ON SEQUENCE track_segment_types_id_seq TO pilotweb;
 
 /*-----------TABLE tracks -------------------------*/
 
-/*CREATE TABLE tracks(
+CREATE TABLE IF NOT EXISTS tracks(
 	id serial PRIMARY KEY,
 	start_utc bigint,
 	end_utc bigint,
@@ -64,7 +41,7 @@ GRANT INSERT ON tracks TO pilotweb;
 GRANT UPDATE ON tracks TO pilotweb;
 GRANT DELETE ON tracks TO pilotweb;
 
-GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;*/
+GRANT USAGE, SELECT ON SEQUENCE tracks_id_seq TO pilotweb;
 
 CREATE INDEX IF NOT EXISTS track_start_utc_index ON tracks USING btree (start_utc);
 CREATE INDEX IF NOT EXISTS track_end_utc_index ON tracks USING btree (end_utc);
@@ -73,7 +50,7 @@ CREATE INDEX IF NOT EXISTS track_end_boattime_index ON tracks USING btree (end_b
 
 /*-----------TABLE track_segments -------------------------*/
 
-/*CREATE TABLE track_segments(
+CREATE TABLE IF NOT EXISTS track_segments(
 	type_id integer REFERENCES track_segment_types NOT NULL,
 	track_id integer REFERENCES tracks NOT NULL,
 	start_utc bigint NOT NULL,
@@ -86,21 +63,24 @@ CREATE INDEX IF NOT EXISTS track_end_boattime_index ON tracks USING btree (end_b
 );
 
 ALTER TABLE public.track_segments
+    DROP CONSTRAINT IF EXISTS track_segments_track_id_type_id_key;
+
+ALTER TABLE public.track_segments
     ADD CONSTRAINT track_segments_track_id_type_id_key UNIQUE (type_id, track_id);
 
-CREATE INDEX track_segments_track_id_index
+CREATE INDEX IF NOT EXISTS track_segments_track_id_index
    ON track_segments 
    USING btree (track_id);
 
 GRANT SELECT ON track_segments TO pilotweb;
 GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
-GRANT DELETE ON track_segments TO pilotweb;*/
+GRANT DELETE ON track_segments TO pilotweb;
 
 
 /*-----------TABLE track_points -------------------------*/
 
-/*CREATE TABLE track_points(
+CREATE TABLE IF NOT EXISTS track_points(
 	track_id integer REFERENCES tracks NOT NULL,
 	utc bigint NOT NULL,
 	boattime bigint NOT NULL,
@@ -114,17 +94,17 @@ GRANT INSERT ON track_points TO pilotweb;
 GRANT UPDATE ON track_points TO pilotweb;
 GRANT DELETE ON track_points TO pilotweb;
 
-CREATE INDEX track_points_coordinates_index
+CREATE INDEX IF NOT EXISTS track_points_coordinates_index
   ON track_points
   USING GIST (coordinates);
 
- CREATE INDEX track_points_track_id_index
+ CREATE INDEX IF NOT EXISTS track_points_track_id_index
    ON track_points 
-   USING btree (track_id);*/
+   USING btree (track_id);
 
 /*-----------VIEW all_track_segments-----------------*/
 
-CREATE VIEW public.all_track_segments AS (
+CREATE OR REPLACE VIEW public.all_track_segments AS (
 	SELECT
 		ts.type_id,
 		ts.track_id,

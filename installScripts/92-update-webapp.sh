@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# This will get the latest sources and update the PiLot web app and its rest APIcomponents. Git must be installed and the PiLot repository must have been created before.
+# This will get the latest sources and update the PiLot DB, the REST API and the web app.
+# Git must be installed and the PiLot repository must have been created before.
 # The dotnet SDK must have been installed before. 
 #
 # See 91-update-prerequisites.sh
@@ -12,6 +13,10 @@ fi
 
 cd /home/pi/repos/PiLot
 git pull
+
+# update DB
+su -c installscripts/sql/update-db.sh postgres
+
 echo "Copy website files"
 rsync -vr PiLotWeb/* /var/www/html/pilot/ --exclude 'js/Config*.js'
 echo "Copy website files done."

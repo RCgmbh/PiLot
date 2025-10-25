@@ -1,34 +1,12 @@
 /* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  This will create the db structure for POIs
-  ALL EXISTING POI DATA WILL BE LOST!
+  This will create or update the db structure for POIs
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
 
-/* DROP EXISTING ELEMENTS */
-
-DROP FUNCTION IF EXISTS insert_poi;
-DROP FUNCTION IF EXISTS update_poi;
-DROP FUNCTION IF EXISTS delete_poi;
-DROP FUNCTION IF EXISTS find_pois;
-DROP FUNCTION IF EXISTS read_poi;
-DROP FUNCTION IF EXISTS read_external_poi;
-DROP FUNCTION IF EXISTS insert_poi_category;
-DROP FUNCTION IF EXISTS update_poi_category;
-DROP FUNCTION IF EXISTS delete_poi_category;
-DROP FUNCTION IF EXISTS update_poi_feature;
-DROP FUNCTION IF EXISTS insert_poi_feature;
-DROP FUNCTION IF EXISTS delete_poi_feature;
-DROP VIEW IF EXISTS all_pois;
-DROP VIEW IF EXISTS poi_latest_change;
-DROP TABLE IF EXISTS poi_features__pois;
-DROP TABLE IF EXISTS pois;
-DROP TABLE IF EXISTS poi_categories;
-DROP TABLE IF EXISTS poi_features;
-
 /*-----------TABLE poi_categories-------------------------*/
 
-CREATE TABLE poi_categories(
+CREATE TABLE IF NOT EXISTS poi_categories(
 	id serial PRIMARY KEY,
 	parent_id integer REFERENCES poi_categories,
 	name text NOT NULL,
@@ -121,7 +99,7 @@ GRANT EXECUTE ON FUNCTION delete_poi_category TO pilotweb;
 
 /*---------- TABLE poi_features --------------------------*/
 
-CREATE TABLE poi_features(
+CREATE TABLE IF NOT EXISTS poi_features(
 	id serial PRIMARY KEY,
 	name text NOT NULL,
 	labels jsonb,
@@ -205,7 +183,7 @@ GRANT EXECUTE ON FUNCTION delete_poi_feature TO pilotweb;
 
 /*---------- TABLE pois ----------------------------------*/
 
-CREATE TABLE pois(
+CREATE TABLE IF NOT EXISTS pois(
 	id bigserial PRIMARY KEY,
 	title text NOT NULL,
 	description text,
@@ -220,11 +198,11 @@ CREATE TABLE pois(
 	date_changed timestamp NOT NULL
 );
 
-CREATE INDEX pois_coordinates_index
+CREATE INDEX IF NOT EXISTS pois_coordinates_index
   ON pois
   USING GIST (coordinates);
 
-CREATE INDEX pois_source_index
+CREATE INDEX IF NOT EXISTS pois_source_index
   ON pois
   USING btree (source ASC NULLS LAST, source_id ASC NULLS LAST);
 
@@ -235,7 +213,7 @@ GRANT DELETE ON pois TO pilotweb;
 
 /*---------- TABLE poi_features_pois -----------------------*/
 
-CREATE TABLE poi_features__pois(
+CREATE TABLE IF NOT EXISTS poi_features__pois(
 	feature_id integer references poi_features NOT NULL,
 	poi_id integer references pois NOT NULL
 );
@@ -247,7 +225,7 @@ GRANT DELETE ON poi_features__pois TO pilotweb;
 
 /*------------VIEW all_pois -------------------------------*/
 
-CREATE VIEW all_pois AS 
+CREATE OR REPLACE VIEW all_pois AS 
 	SELECT 
 		id,
 		title,
@@ -269,7 +247,7 @@ GRANT SELECT ON all_pois TO pilotweb;
 
 /*----------- FUNCTION insert_poi -------------------------*/
 
-CREATE FUNCTION insert_poi(
+CREATE OR REPLACE FUNCTION insert_poi(
 	p_title text,
 	p_description text,
 	p_category_id integer,
@@ -305,7 +283,7 @@ GRANT USAGE, SELECT ON SEQUENCE pois_id_seq TO pilotweb;
 
 /*----------- FUNCTION update_poi -------------------------*/
 
-CREATE FUNCTION update_poi(
+CREATE OR REPLACE FUNCTION update_poi(
 	p_id bigint,
 	p_title text,
 	p_description text,
@@ -341,7 +319,7 @@ GRANT EXECUTE ON FUNCTION update_poi TO pilotweb;
 
 /*----------- FUNCTION delete_poi -------------------------*/
 
-CREATE FUNCTION delete_poi(
+CREATE OR REPLACE FUNCTION delete_poi(
 	p_id bigint
 )
 RETURNS void AS 
@@ -357,7 +335,7 @@ GRANT EXECUTE ON FUNCTION delete_poi TO pilotweb;
 
 /*----------- FUNCTION find_pois -------------------------*/
 
-CREATE FUNCTION find_pois(
+CREATE OR REPLACE FUNCTION find_pois(
 	min_lat double precision,
 	min_lng double precision,
 	max_lat double precision,
@@ -402,7 +380,7 @@ GRANT EXECUTE ON FUNCTION find_pois TO pilotweb;
 
 /*----------- FUNCTION read_poi -------------------------------------*/
 
-CREATE FUNCTION read_poi(
+CREATE OR REPLACE FUNCTION read_poi(
 	poi_id bigint
 ) RETURNS TABLE (
 	id bigint,
@@ -441,7 +419,7 @@ GRANT EXECUTE ON FUNCTION read_poi TO pilotweb;
 
 /*----------- FUNCTION read_external_poi -------------------------------------*/
 
-CREATE FUNCTION read_external_poi(
+CREATE OR REPLACE FUNCTION read_external_poi(
 	p_source text, p_source_id text
 ) RETURNS TABLE (
 	id bigint,
@@ -480,7 +458,7 @@ GRANT EXECUTE ON FUNCTION read_external_poi TO pilotweb;
 
 /* view poi_latest_changes */
 
-CREATE VIEW poi_latest_change AS (
+CREATE OR REPLACE VIEW poi_latest_change AS (
 	SELECT MAX(date_changed) date_changed FROM (
 		SELECT MAX(date_changed) date_changed from pois
 		UNION ALL
