@@ -475,7 +475,7 @@ PiLot.View.Boat = (function () {
 		},
 
 		boatImage_click: function (pBoatConfig, pControl) {
-			PiLot.Model.Boat.saveCurrentConfigNameAsync(pBoatConfig.name);
+			PiLot.Service.Boat.BoatConfigService.getInstance().saveCurrentConfigNameAsync(pBoatConfig.name);
 			this.resetActiveStyle();
 			pControl.classList.toggle('active', true);
 		},
@@ -491,8 +491,8 @@ PiLot.View.Boat = (function () {
 
 		loadBoatImagesAsync: async function () {
 			const config = await Promise.all([
-				PiLot.Model.Boat.loadConfigInfosAsync(),
-				PiLot.Model.Boat.loadCurrentConfigNameAsync()
+				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync(),
+				PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigNameAsync()
 			]);
 			for (const boatConfig of config[0]) {
 				const imageControl = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatImage);

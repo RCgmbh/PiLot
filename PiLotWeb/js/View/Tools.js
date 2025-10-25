@@ -259,7 +259,7 @@ PiLot.View.Tools = (function () {
 		},
 
 		fillDdlBoatsAsync: async function () {
-			const boatInfos = await PiLot.Model.Boat.loadConfigInfosAsync();
+			const boatInfos = await PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync();
 			const boatNames = boatInfos.map((b) => [b.name, b.displayName]);
 			RC.Utils.fillDropdown(this.ddlEditBoats, boatNames);
 			RC.Utils.fillDropdown(this.ddlImportBoats, boatNames);
@@ -2280,7 +2280,7 @@ PiLot.View.Tools = (function () {
 	ChecklistDetails.prototype = {
 		
 		initialize: function(){
-			this.observable = new PiLot.Utils.Common.Observable(['close', 'edit', 'delete'])
+			this.observable = new PiLot.Utils.Common.Observable(['close', 'edit', 'delete']);
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			this.draw();
 		},

@@ -119,6 +119,11 @@ PiLot.Utils.Common = {
 		return result === 'OK';
 	},
 
+	/** sleeps for a defined period. Use e.g. await PiLot.Utils.Common.sleepAsync(10); */
+	sleepAsync: async function (ms) {
+  		await new Promise((resolve) => setTimeout(resolve, ms));
+	},
+
 	/**
 	 * Sends data to the api on the server using PUT, and returns the result as object. This
 	 * includes some magic, that is if the data to send is an object which has a function

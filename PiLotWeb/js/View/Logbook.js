@@ -31,7 +31,7 @@ PiLot.View.Logbook = (function () {
 
 		initializeAsync: async function () {
 			await Promise.all(
-				[PiLot.Model.Common.getCurrentBoatTimeAsync(), PiLot.Model.Boat.loadCurrentConfigAsync()]
+				[PiLot.Model.Common.getCurrentBoatTimeAsync(), PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync()]
 			).then(results => {
 				this.boatTime = results[0];
 				this.boatConfig = results[1];

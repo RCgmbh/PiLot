@@ -94,6 +94,7 @@ PiLot.Utils.Loader = (function () {
 	];
 
 	const boatScripts = [
+		{ url: 'js/Service/Boat.js', priority: 10 },
 		{ url: 'js/Model/Boat.js', priority: 10 },
 		{ url: 'js/Templates/Boat.js', priority: 10 },
 		{ url: 'js/View/Boat.js', priority: 10 }

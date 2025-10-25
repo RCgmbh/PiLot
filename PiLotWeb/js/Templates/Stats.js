@@ -65,7 +65,7 @@ PiLot.Templates.Stats = {
 						<label><input type="radio" name="rblFastestSegmentTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
 						<label><input type="radio" name="rblFastestSegmentTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
 					</div>
-					<div class="plhBoats flexColumn paddingRight paddingBottom" style="width:12em;">
+					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="boats" class="bold"></span>
 						<div class="plhBoats flexColumn"></div>
 					</div>
@@ -91,5 +91,15 @@ PiLot.Templates.Stats = {
 		<div class="flexRow">
 			<div class="divBar bar vCenter"><a class="lnkBarText link darkLink"></a></div>
 			<span class="lblBarLabel barLabel vCenter marginLeftSmall"></span>
-		</div>`
+		</div>
+	`,
+
+	timeframeSelector: `
+		<div class="flexColumn">
+			<span data-text="timeframe" class="bold"></span>
+			<label><input type="radio" name="rblFastestSegmentTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
+			<label><input type="radio" name="rblFastestSegmentTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
+			<label><input type="radio" name="rblFastestSegmentTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
+		</div>
+	`
 };

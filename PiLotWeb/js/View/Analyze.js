@@ -211,7 +211,7 @@ PiLot.View.Analyze = (function () {
 				this.tackAnalyzer = new PiLot.Model.Analyze.TackAnalyzer(this.track);
 				this.showTrackAnalysis(true);
 			} else {
-				const boatConfig = await PiLot.Model.Boat.loadCurrentConfigAsync();
+				const boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync();
 				await this.tackAnalyzerOptions.setBoatAsync(boatConfig.getName());
 			}
 			this.pnlNoData.hidden = !!this.track;

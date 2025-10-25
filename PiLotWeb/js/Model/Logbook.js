@@ -183,7 +183,7 @@ PiLot.Model.Logbook = (function () {
 	 * @return {Object} an object {currentBoatConfig, latestBoatSetup}
 	 */
 	var loadCurrentBoatSetupAsync = async function (pDate) {
-		const boatConfig = await PiLot.Model.Boat.loadCurrentConfigAsync();
+		const boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync();
 		if (boatConfig !== null) {
 			const url = `/Logbook/latestBoatSetup?year=${pDate.year}&month=${pDate.month}&day=${pDate.day}&boatConfigName=${boatConfig.getName()}`;
 			const json = await PiLot.Utils.Common.getFromServerAsync(url);
@@ -461,7 +461,7 @@ PiLot.Model.Logbook = (function () {
 			if (pBoatConfigs.has(pData.boatSetup.boatConfigName)) {
 				boatConfig = pBoatConfigs.get(pData.boatSetup.boatConfigName)
 			} else {
-				boatConfig = await PiLot.Model.Boat.loadConfigAsync(pData.boatSetup.boatConfigName);
+				boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadConfigAsync(pData.boatSetup.boatConfigName);
 				if (boatConfig) {
 					pBoatConfigs.set(pData.boatSetup.boatConfigName, boatConfig);
 				}

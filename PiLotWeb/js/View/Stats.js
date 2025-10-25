@@ -102,8 +102,8 @@ PiLot.View.Stats = (function () {
 		this.pnlSettings = null;
 		this.rblTimeframe = null;					// Array of radiobuttons
 		this.rblInterval = null;					// NodeList of radiobuttons
-		this.cblBoats = null;						// NodeList of checkboxes
-		this.tblUnit = null;						// NodeList of checkboxes
+		this.boatSelector = null;					// BoatSelector
+		this.rblUnit = null;						// NodeList of checkboxes
 		this.pnlChart = null;
 		this.pnlNoData = null;
 		this.chart = null;							//echart object
@@ -145,16 +145,10 @@ PiLot.View.Stats = (function () {
 			this.showDataAsync();
 		},
 
-		cbBoat_change: function(pSender){
-			this.userSettings.boats = this.userSettings.boats || [];
-			const index = this.userSettings.boats.indexOf(pSender.value);
-			if(pSender.checked && index < 0){
-				this.userSettings.boats.push(pSender.value);
-			} else if(!pSender.checked && index >= 0){
-				this.userSettings.boats.remove(index, index);
-			}
+		boatSelector_change: function(pData){
+			this.userSettings.boats = this.boatSelector.getSelectedBoats();
 			this.saveUserSettings();
-			this.showDataAsync();
+			this.loadAndShowDataAsync();
 		},
 
 		rblUnit_change: function(pSender){
@@ -181,7 +175,12 @@ PiLot.View.Stats = (function () {
 			for(let rbUnit of this.rblUnit){
 				rbUnit.addEventListener('change', this.rblUnit_change.bind(this, rbUnit));
 			}
-			this.fillBoatsListAsync(control.querySelector('.plhBoats')).then(this.applyUserSettings.bind(this));
+			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
+			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
+			Promise.all([
+				this.boatSelector.fillBoatsListAsync(),
+				this.loadAllBoatsAsync()
+			]).then(results => this.applyUserSettings());
 			this.pnlChart = control.querySelector('.pnlChart');
 			this.pnlNoData = control.querySelector('.pnlNoData');
 		},
@@ -195,8 +194,7 @@ PiLot.View.Stats = (function () {
 
 		loadAllBoatsAsync: async function(){
 			if(this.allBoats === null){
-				this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
-				this.allBoats.sort((a, b) => a.displayName.localeCompare(b.displayName));
+				this.allBoats = await PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync();
 			}
 		},
 
@@ -205,26 +203,11 @@ PiLot.View.Stats = (function () {
 			return boatInfo ? boatInfo.displayName : pBoatName;
 		},
 
-		fillBoatsListAsync: async function(pPlaceholder){
-			this.allBoats || await this.loadAllBoatsAsync();
-			this.cblBoats = [];
-			const boatNames = this.allBoats.map((b) => [b.name, b.displayName]); 
-			for(aBoatName of boatNames){
-				let control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
-				let checkbox = control.querySelector('input');
-				checkbox.value = aBoatName[0];
-				checkbox.addEventListener('change', this.cbBoat_change.bind(this, checkbox));
-				control.querySelector('.lblLabel').innerText = aBoatName[1];
-				pPlaceholder.appendChild(control);
-				this.cblBoats.push(checkbox);
-			}
-		},
-
 		applyUserSettings: function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.rblTimeframe.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.timeframe}.bind(this));
 			this.rblInterval.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.interval}.bind(this));
-			this.cblBoats.forEach(function(cb){cb.checked = this.userSettings.boats.indexOf(cb.value) >= 0}.bind(this));
+			this.boatSelector.setSelectedBoats(this.userSettings.boats);
 			this.rblUnit.forEach(function(rb){rb.checked = rb.value === this.userSettings.unit}.bind(this));
 		},
 
@@ -287,6 +270,7 @@ PiLot.View.Stats = (function () {
 				this.pnlNoData.hidden = true;
 				const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
 				const colorIndex = new Map();
+				this.allBoats || await this.loadAllBoatsAsync();
 				for (let i = 0; i < this.allBoats.length; i++) {
 					colorIndex.set(this.allBoats[i].name, colors[i % colors.length]);
 				}
@@ -625,14 +609,13 @@ PiLot.View.Stats = (function () {
 		this.trackSegments = null;					// Array of PiLot.Model.Nav.TrackSegment
 		this.start = null;							// RC.Date.DateOnly
 		this.end = null;							// RC.Date.DateOnly
-		this.userLanguage = null;
 		// controls
 		this.lnkToggleSettings = null;
 		this.pnlSettings = null;
 		this.ddlSegmentTypes = null;				// Dropdown with all segment types
 		this.rblTimeframe = null;					// Array of radiobuttons
-		this.cblBoats = null;						// NodeList of checkboxes
-		this.tblUnit = null;						// NodeList of checkboxes
+		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
+		this.rblUnit = null;						// NodeList of checkboxes
 		this.pnlNoData = null;
 		this.pnlChart = null;
 		this.pnlLegend = null;
@@ -646,14 +629,8 @@ PiLot.View.Stats = (function () {
 		initialize: function () {
 			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
 			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
-			this.userLanguage = PiLot.Utils.Language.getLanguage();
-			window.addEventListener('resize', this.window_resize.bind(this));
 			this.setDefaultValues();
 			this.draw();
-		},
-
-		window_resize: function () {
-			this.chart && this.chart.resize();
 		},
 
 		lnkToggleSettings_click: function (pEvent) {
@@ -675,14 +652,8 @@ PiLot.View.Stats = (function () {
 			this.loadAndShowDataAsync();
 		},
 
-		cbBoat_change: function (pSender) {
-			this.userSettings.boats = this.userSettings.boats || [];
-			const index = this.userSettings.boats.indexOf(pSender.value);
-			if (pSender.checked && index < 0) {
-				this.userSettings.boats.push(pSender.value);
-			} else if (!pSender.checked && index >= 0) {
-				this.userSettings.boats.remove(index, index);
-			}
+		boatSelector_change: function(pData){
+			this.userSettings.boats = this.boatSelector.getSelectedBoats();
 			this.saveUserSettings();
 			this.loadAndShowDataAsync();
 		},
@@ -705,12 +676,15 @@ PiLot.View.Stats = (function () {
 			for (let rbTimeframe of this.rblTimeframe) {
 				rbTimeframe.addEventListener('change', this.rblTimeframe_change.bind(this, rbTimeframe));
 			}
+			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
+			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
 			this.rblUnit = control.querySelectorAll('.rblUnit');
 			for (let rbUnit of this.rblUnit) {
 				rbUnit.addEventListener('change', this.rblUnit_change.bind(this, rbUnit));
 			}
 			Promise.all([
-				this.fillBoatsListAsync(control.querySelector('.plhBoats')),
+				this.boatSelector.fillBoatsListAsync(),
+				this.loadAllBoatsAsync(),
 				this.fillSegmentTypesAsync()
 			]).then(results => this.applyUserSettings());
 			this.pnlNoData = control.querySelector('.pnlNoData');
@@ -726,10 +700,10 @@ PiLot.View.Stats = (function () {
 			this.userSettings.unit = this.userSettings.unit || 'nm';
 		},
 
+		/** Populates this.allBoats, which is needed to get the display names  */
 		loadAllBoatsAsync: async function () {
 			if (this.allBoats === null) {
-				this.allBoats = await PiLot.Model.Boat.loadConfigInfosAsync();
-				this.allBoats.sort((a, b) => a.displayName.localeCompare(b.displayName));
+				this.allBoats = await PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync();
 			}
 		},
 
@@ -738,24 +712,9 @@ PiLot.View.Stats = (function () {
 			return boatInfo ? boatInfo.displayName : pBoatName;
 		},
 
-		fillBoatsListAsync: async function (pPlaceholder) {
-			this.allBoats || await this.loadAllBoatsAsync();
-			this.cblBoats = [];
-			const boatNames = this.allBoats.map((b) => [b.name, b.displayName]);
-			for (aBoatName of boatNames) {
-				let control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
-				let checkbox = control.querySelector('input');
-				checkbox.value = aBoatName[0];
-				checkbox.addEventListener('change', this.cbBoat_change.bind(this, checkbox));
-				control.querySelector('.lblLabel').innerText = aBoatName[1];
-				pPlaceholder.appendChild(control);
-				this.cblBoats.push(checkbox);
-			}
-		},
-
 		fillSegmentTypesAsync: async function(){
 			const allTypes = await this.trackService.getTrackSegmentTypesAsync();
-			const language = this.userLanguage;
+			const language = PiLot.Utils.Language.getLanguage();
 			const ddlData = [];
 			allTypes.forEach(function (v, k, m) { ddlData.push([v.getId(), v.getLabel(language)]); });
 			RC.Utils.fillDropdown(this.ddlSegmentTypes, ddlData, null);
@@ -765,7 +724,7 @@ PiLot.View.Stats = (function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.ddlSegmentTypes.value = this.userSettings.segmentType;
 			this.rblTimeframe.forEach(function (rb) { rb.checked = Number(rb.value) === this.userSettings.timeframe }.bind(this));
-			this.cblBoats.forEach(function (cb) { cb.checked = this.userSettings.boats.indexOf(cb.value) >= 0 }.bind(this));
+			this.boatSelector.setSelectedBoats(this.userSettings.boats);
 			this.rblUnit.forEach(function (rb) { rb.checked = rb.value === this.userSettings.unit }.bind(this));
 		},
 
@@ -821,6 +780,7 @@ PiLot.View.Stats = (function () {
 		showDataAsync: async function () {
 			const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
 			const colorIndex = new Map();
+			this.allBoats || await this.loadAllBoatsAsync();
 			for (let i = 0; i < this.allBoats.length; i++) {
 				colorIndex.set(this.allBoats[i].name, colors[i % colors.length]);
 			}
@@ -876,37 +836,6 @@ PiLot.View.Stats = (function () {
 			}
 		},
 
-		/** shows the distance per bar in a readable form */
-		formatBarLabel: function (pData) {
-			return this.roundDistance(pData.data[pData.seriesIndex + 1]);
-		},
-
-		/** Shows the boat display names in the legend */
-		formatLegend: function (pName) {
-			return this.getBoatDisplayName(pName);
-		},
-
-		/** Shows the date labels on the x axix */
-		formatXAxisLabel: function (pData) {
-			return this.dateLabelFunction(Number(pData));
-		},
-
-		/** Creates the tooltip content based on a template */
-		getTooltip: function (pData) {
-			const template = PiLot.Templates.Stats.totalDistanceChartTooltip;
-			const boatName = this.getBoatDisplayName(pData.seriesName);
-			const distance = this.roundDistance(pData.data[pData.seriesIndex + 1]);
-			const unit = PiLot.Utils.Language.getText(this.userSettings.unit);
-			const dateString = this.dateLabelFunction(Number(pData.name));
-			return (template
-				.replace('{boat}', boatName)
-				.replace('{date}', dateString)
-				.replace('{distance}', distance)
-				.replace('{unit}', unit)
-			);
-
-		},
-
 		/** Rounds a distance to two decimal places */
 		roundDistance: function (pDistance) {
 			return (pDistance && RC.Utils.isNumeric(pDistance)) ? Math.round(pDistance * 100) / 100 : pDistance;
@@ -930,6 +859,84 @@ PiLot.View.Stats = (function () {
 		convertSpeedKmh: function (pSpeed) {
 			return pSpeed * 3.6;
 		}
+	};
+
+	/*var TimeframeSelector = function(pContainer, pUniqueName){
+		this.container = pContainer;
+		this.observable = null;
+		this.initialize();
+	};
+
+	TimeframeSelector.prototype = {
+
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable(['change']);
+			this.draw();
+		},
+
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
+		},
+
+		draw: function(){
+			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.timeframeSelector);
+			this.container.appendChild(control);
+			this.fillBoatsListAsync();
+		}
+	};*/
+
+	var BoatSelector = function(pContainer){
+		this.container = pContainer;
+		this.cblBoats = null;
+		this.initialize();
+	};
+
+	BoatSelector.prototype = {
+
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable(['change']);
+			this.draw();
+		},
+
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
+		},
+
+		cbBoat_change: function(pSender){
+			this.observable.fire('change', {boat: pSender.value, checked: pSender.checked});
+		},
+
+		draw: function(){},
+
+		fillBoatsListAsync: async function () {
+			const allBoats = await PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync();
+			this.cblBoats = [];
+			const boatNames = allBoats.map((b) => [b.name, b.displayName]);
+			for (aBoatName of boatNames) {
+				let control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.checkbox);
+				let checkbox = control.querySelector('input');
+				checkbox.value = aBoatName[0];
+				checkbox.addEventListener('change', this.cbBoat_change.bind(this, checkbox));
+				control.querySelector('.lblLabel').innerText = aBoatName[1];
+				this.container.appendChild(control);
+				this.cblBoats.push(checkbox);
+			}
+		},
+
+		setSelectedBoats: function(pBoats){
+			this.cblBoats.forEach(function (cb) {
+				cb.checked = pBoats.indexOf(cb.value) >= 0;
+			}.bind(this));
+		},
+
+		getSelectedBoats: function(pBoats){
+			const result = [];
+			for(let aCheckbox of this.cblBoats){
+				aCheckbox.checked && result.push(aCheckbox.value);
+			}
+			return result;
+		}
+
 	};
 	
 	return {

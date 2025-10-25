@@ -1689,7 +1689,7 @@ PiLot.View.Nav = (function () {
 		},
 
 		loadAndShowBoatAsync: async function () {
-			const boatConfig = await PiLot.Model.Boat.loadConfigAsync(this.track.getBoat());
+			boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadConfigAsync(this.track.getBoat());
 			const boatImageConfig = new PiLot.View.Boat.BoatImageConfig(boatConfig);
 			this.control.querySelector('.imgBoat').setAttribute('data', boatImageConfig.getBoatImageUrl());
 		},

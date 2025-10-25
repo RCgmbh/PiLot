@@ -294,47 +294,11 @@ PiLot.Model.Boat = (function () {
 		}
 	};
 
-	/** Reads a list of simple object containing information about all available configs */
-	var loadConfigInfosAsync = async function () {
-		return PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs`);
-	};
-
-	/**
-	 * Loads a BoatConfig with a given name from the server and return either a BoatConfig or null
-	 * @param {string} pConfigName
-	 */
-	var loadConfigAsync = async function (pConfigName) {
-		return BoatConfig.fromData(await PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs/${pConfigName}`));
-	};
-
-	/** Loads the current BoatConfig */
-	var loadCurrentConfigAsync = async function () {
-		return BoatConfig.fromData(await PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs/current`));
-	};
-
-	/** Loads the name of the current BoatConfig */
-	var loadCurrentConfigNameAsync = async function () {
-		return PiLot.Utils.Common.getFromServerAsync('/Settings/currentBoatConfigName');
-	};
-
-	/**
-	 * Saves the name of the current BoatConfig
-	 * @param {string} pName
-	 */
-	var saveCurrentConfigNameAsync = async function (pName) {
-		return await PiLot.Utils.Common.putToServerAsync(`/Settings/currentBoatConfigName?name=${pName}`, null);
-	};
-
 	return {
 		BoatConfig: BoatConfig,
 		BoatFeature: BoatFeature,
 		FeaturesState: FeatureState,
-		BoatSetup: BoatSetup,
-		loadConfigAsync: loadConfigAsync,
-		loadConfigInfosAsync: loadConfigInfosAsync,
-		loadCurrentConfigAsync: loadCurrentConfigAsync,
-		loadCurrentConfigNameAsync: loadCurrentConfigNameAsync,
-		saveCurrentConfigNameAsync: saveCurrentConfigNameAsync
+		BoatSetup: BoatSetup
 	};
 
 })();
