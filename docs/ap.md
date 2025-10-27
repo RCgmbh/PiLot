@@ -29,14 +29,14 @@ After a minute, re-connect your ssh session. Run ifconfig once again, and now yo
 ### Scripted setup
 There is a script which will install the required packages and change some configuration files. The script isn't particularly sophisticated, but will probably work if you started from a blank setup as described in the previous chapter. If you prefer a manual configuration, scroll down a bit and follow the steps in the section [Manual setup](ap.md#manual-setup).
 
-Using the script is quite easy. You just have to set an handful of values in the script file first. First, using `ifconfig` once again, get the names of your network interfaces (like wlxSomething for wireless adapters, and enxSomething for wired adapters), and copy them somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
+Using the script is quite easy. You just have to set a few values in the script file first. First, using `ifconfig` once again, get the name of the network adapter you want to use for the accesspoint (like wlxSomething or wlxOnboardWiFi), and copy it somewhere for later use. Then, if, you haven't done yet, change into the pilotinstall directory, and start editing the install script:
 ```
 cd ~/pilotinstall
 nano 01-install-ap.sh
 ```
-You will see some empty variables, like **apAdapter=""**. There is a comment for each variable, that tells you what value to set. You have to decide which wireless adapter (if you have two) you want to use for the access point, so just enter the name of that adapter, as found in "ifconfig", between the double quotes. I usually use wlxOnboardWiFi for this, but on Raspberry Pi 3 I had some issues with that, and had to use the other wlx... Adapter. Using the onboard WiFi, you would end up with **apAdapter="wlxOnboardWiFi"**. If you have a second WiFi adapter, enter its name for "inetWiFiAdapter", and enter the name of the ethernet adapter (starting with enx...) for inetEthAdapter, if you want to share any available internet access with clients connected to the PiLot access point.
+You will see some empty variables, like **apAdapter=""**. There is a comment for each variable, that tells you what value to set. You have to decide which wireless adapter (if you have two) you want to use for the access point, so just enter the name of that adapter, as found in "ifconfig", between the double quotes. I usually use wlxOnboardWiFi for this, but on Raspberry Pi 3 I had some issues with that, and had to use the other wlx... Adapter. Using the onboard WiFi, you can keep the default **apAdapter="wlxOnboardWiFi"**.
 
-Also enter values for the next two variables, to give your wireless network an name, and set a reasonable password. The values for staticIp don't need to be changed, but if you understand enough about IP addresses, you can of course change them. Finally save the file and close it (Ctrl+X, Y, Enter).
+Also enter values for the next two variables, to give your wireless network a **name (SSID)**, and set a reasonable **password** (at least **8 characters!**). The value for staticIp does not need to be changed, but if you understand enough about IP addresses, you can of course change it, basically it will define the static IP and thus the IP range used by the accesspoint. Finally save the file and close it (Ctrl+X, Y, Enter).
 
 Now, run the script as superuser, so enter
 ``` 
@@ -48,133 +48,16 @@ After a minute, re-connect using ssh. You should see the "pilot" (or whatever yo
 
 ### Manual setup
 If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
-
-We need three services: **hostapd**, which creates the local access point, **dnsmasq** which provides IP adresses to the clients and **dhcpcd**, the dhcp client that gets dynamic IP addresses. So we just install them all like this:
+Just enter those commands, replace the SSID (pilot in the example) and the password:
 ```
-sudo apt install -y dnsmasq hostapd dhcpcd
+sudo nmcli con add con-name hotspot ifname wlxOnboardWiFi type wifi ssid "pilot"
+sudo nmcli con modify hotspot wifi-sec.key-mgmt wpa-psk
+sudo nmcli con modify hotspot wifi-sec.psk "password"
+sudo nmcli con modify hotspot 802-11-wireless.mode ap 802-11-wireless.band bg ipv4.method shared
 ```
-In order to configure the services, we need to stop them:
+Optionally, if you want to define the IP range to be used by the access point, you can do this using the following command, in this example using 192.168.80.1 for the pilot, and addresses in the 192.168.80.x range for the clients:
 ```
-sudo systemctl stop dnsmasq
-sudo systemctl stop hostapd
-```
-No we configure hostapd to set up an access point called "pilot" with the password "SECRET1234" (you will of course enter something more reasonable!), and using the onboard wlan adapter we named wlxOnboardWiFi.
-
-**Note** I did have issues with this setup on a Raspberry Pi 3. The internet access did not work for clients connected to the access point. Switching the inferfaces (using the USB Wi-Fi dongle for the access point) fixed this - no idea why. So if you run into this issue, just switch the interface names (wlxOnboardWiFi and wlxCrypticSth123) in the following steps.
-```
-sudo nano /etc/hostapd/hostapd.conf
-```
-Enter this text, and change the value for "wpa_passphrase". The passphrase must be 8-63 characters long. You can also change the name of the network (ssid), which in my example is "pilot".
-```
-interface=wlxOnboardWiFi
-driver=nl80211
-ssid=pilot
-hw_mode=g
-channel=6
-wmm_enabled=0
-macaddr_acl=0
-auth_algs=1
-ignore_broadcast_ssid=0
-wpa=2
-wpa_passphrase=SECRET1234
-wpa_key_mgmt=WPA-PSK
-wpa_pairwise=TKIP
-rsn_pairwise=CCMP
-```
-Hit Ctrl+X, Y, Enter to save and close nano.
-To tell hostapd to use the configuration we just created, we need to reference it in the daemon config file:
-```
-sudo nano /etc/default/hostapd
-```
-Find the line **#DAEMON_CONF=""** and replace it by **DAEMON_CONF="/etc/hostapd/hostapd.conf"**. By removing the #, we "uncomment" it, so that it will have an effect, and by setting the path to our previously created config file we tell the service where to find its configuration. Save and close the file.
-
-Next we configure dnsmasq by changing its config file:
-```
-sudo nano /etc/dnsmasq.conf
-```
-At the end of the file, insert the following lines, and then save and close the file. This defines the range of addresses our PiLot will give its clients. Instead of 192.168.80... you can use a different IP range. Just make sure you use a private IP address range.
-```
-#PiLot hotspot IP range
-interface=wlxOnboardWiFi
-dhcp-range=192.168.80.2,192.168.80.99,255.255.255.0,24h
-```
-We also need to enable IP forwarding, which is a small change in just another config file:
-```
-sudo nano /etc/sysctl.conf
-```
-Find those two lines, and remove the # for both lines, so that you end up with:
-```
-net.ipv4.ip_forward=1
-net.ipv6.conf.all.forwarding=1
-```
-As always, save and close. Next we define the static IP adress. This is done within the dhcpcd configuration:
-```
-sudo nano /etc/dhcpcd.conf
-```
-Go to the end of the file and insert these lines, which will make sure the access point interface does not connect to other networks, sets the static IP address and sets Googles DNS server (8.8.8.8) for the resolution of public internet addresses.:
-```
-interface wlxOnboardWiFi
-nohook wpa_supplicant
-static ip_address=192.168.80.1/24
-static domain_name_servers=8.8.8.8
-```
-We can now enable the two services. We first need to unmask hostapd, because it has been masked when we changed its daemon config.
-```
-sudo systemctl unmask hostapd
-sudo systemctl enable hostapd
-sudo systemctl start dnsmasq
-sudo systemctl start hostapd
-```
-I had an issue in the past when hostapd crashed as soon as a client tried to connect, and could resolve it by deleting a file:
-```
-sudo rm /etc/modprobe.d/blacklist-rtl*
-```
-Finally, to share the raspis internet connection with clients connected to its access point, do this (in case you have only one wireless adapter - the onboard Wi-Fi - you can skip this): First run ifconfig and copy the name of your other wlan interface (wlxSomething, not the one you used for the access point) and of the ethernet connection (enxSomething). Then run these commands:
-```
-sudo iptables -t nat -A POSTROUTING -o wlxSomething -j MASQUERADE
-sudo iptables -t nat -A POSTROUTING -o enxSomething -j MASQUERADE
-```
-In order to reload the configuration on each boot, we save the configuration to file, create a short script that reloads the configuration from that file, and a simple systemd service that will call the script on boot.
-First, save the iptables configuration to a file:
-```
-sudo sh -c "iptables-save > /etc/iptables.ipv4.nat"
-```
-Second, create a script that will reapply the configuration:
-```
-sudo nano /usr/local/bin/restoreIptables.sh
-```
-Add these lines:
-```
-#!/bin/sh
-iptables-restore < /etc/iptables.ipv4.nat
-exit 0
-```
-Save and close, and then make the file executable:
-```
-sudo chmod 744 /usr/local/bin/restoreIptables.sh
-```
-Finally, create the service definition:
-```
-sudo nano /etc/systemd/system/restoreIptables.service
-```
-And add this content:
-```
-[Unit]
-Description=restore iptables
-
-[Service]
-Type=simple
-ExecStart= /bin/sh /usr/local/bin/restoreIptables.sh
-RemainAfterExit=yes
-Restart=no
-
-[Install]
-WantedBy=default.target
-```
-Reload the service definitions, and enable the service so that it will start on each boot:
-```
-sudo systemctl daemon-reload
-sudo systemctl enable restoreIptables
+sudo nmcli con modify hotspot ipv4.addresses 192.168.80.1/24
 ```
 It's time for a sudo reboot now! After the reboot, you should see the "pilot" (or whatever you named it) network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection.
 
