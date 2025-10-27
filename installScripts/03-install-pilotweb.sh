@@ -5,7 +5,8 @@ if [ `whoami` != root ]; then
 fi
 
 # set up DB
-su -c /home/pi/pilotinstall/sql/setup-db.sh postgres
+cd /home/pi/pilotinstall
+su -c sql/setup-db.sh postgres
 
 # prepare directories
 mkdir -p /var/opt/pilot			#PiLot data directory
