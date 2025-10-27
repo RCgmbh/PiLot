@@ -5,14 +5,11 @@ In this step you install the operating system, and do some basic configuration.
 The entire installation is "headless", which means you don't need to connect a screen or keyboard to your Raspberry Pi. Instead, you access it from your computer or laptop over Wi-Fi or ethernet. If you prefer, you can of course screen and keyboard, and work directly on the raspi. The installation process will be the same (though you might want to skip step 3, if you don't need to access the PiLot from other devices).
 
 ### Prepare the SD card
-Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (32 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (32 bit)" or even "Raspberry Pi OS Full(32 bit)". As said, for the PiLot it doesn't really matter. Before writing the image, click the "options" icon in the lower right:
+Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (64 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (64 bit)" or even "Raspberry Pi OS Full (64 bit)". For the PiLot software to work, it needs to be a **64 bit** System.
 
-![image](https://user-images.githubusercontent.com/96988699/222913634-336a7d58-a88d-4929-9da8-e2f2a545eb5a.png)
+Before writing the image, check the options section. Make sure to enter a reasonable name for your PiLot (we will user "pilot" in this tutorial), and **enable SSH** with password authentication. Keep the username "pi", and enter a password for the user. Also **configure the WiFi** you will use to access your PiLot, if you don't connect it to the ethernet using a cable. Finally, set the **timezone to Etc/UTC**. 
 
-
-Enter a reasonable name for your PiLot (we will user "pilot" in this tutorial), and enable ssh with password authentication. Keep the username "pi", and enter a password for the user. Also configure the wireless LAN you will use to access your PiLot, if you don't connect it to the ethernet using a cable. Finally, set the timezone to Etc/UTC. 
-
-Be aware that writing the image to your SD card will overwrite all data, so make sure there is nothing precious there.
+Be aware that writing the image to your SD card will **overwrite all data**, so make sure there is nothing precious there.
 
 Once finished writing, remove the SD card and insert it into your Raspberry Pi. If you want to access your PiLot over ethernet, connect it to your local netork. Now power it on.
 
@@ -32,7 +29,7 @@ tar zxf pilotinstall.tar.gz
 This will create a directory called "pilotinstall", which you can examine by typing `cd pilotinstall` and then `ls`. Have a look around.
 
 ### Install Samba
-Samba gives you a convenient access to files on your PiLot from within Windows Explorer. If you install samba now, some useful shares will be created automatically  in future steps. There is a script which automates the installation. While still in the **pilotinstall** directory, enter this command to run the script (hint: after "00" hit the "tab"-key to autocomplete):
+Samba gives you a convenient access to files on your PiLot from within Windows Explorer. If you install samba now, some useful shares will be created automatically in future steps. There is a script which automates the installation. While still in the **pilotinstall** directory, enter this command to run the script (hint: after "00" hit the "tab"-key to autocomplete):
 ```
 sudo sh 00-install-samba.sh
 ```
