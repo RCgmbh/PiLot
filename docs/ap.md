@@ -42,9 +42,7 @@ Now, run the script as superuser, so enter
 ``` 
 sudo sh 01-install-ap.sh
 ```
-At the end, the PiLot will automatically reboot.
-
-After a minute, re-connect using ssh. You should see the "pilot" (or whatever you named it) wireless network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection. Scroll to the end of the page and continue.
+As soon as the script has been executed, should see the "pilot" (or whatever you named it) wireless network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection. Scroll to the end of the page and continue.
 
 ### Manual setup
 If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
