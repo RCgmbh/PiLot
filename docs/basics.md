@@ -7,7 +7,7 @@ The entire installation is "headless", which means you don't need to connect a s
 ### Prepare the SD card
 Download and install the Raspberry Pi Imager from https://www.raspberrypi.com/software/ and use it to write a Raspberry Pi OS onto your SD card. "Raspberry Pi OS Lite (64 bit)", found under "Raspberry Pi OS (other)" is a good choice for the PiLot. However, if you later want to connect a screen to your Raspberry Pi and wish to have a desktop environment, you might want to install "Raspberry Pi OS (64 bit)" or even "Raspberry Pi OS Full (64 bit)". For the PiLot software to work, it needs to be a **64 bit** System.
 
-Before writing the image, check the options section. Make sure to enter a reasonable name for your PiLot (we will user "pilot" in this tutorial), and **enable SSH** with password authentication. Keep the username "pi", and enter a password for the user. Also **configure the WiFi** you will use to access your PiLot, if you don't connect it to the ethernet using a cable. Finally, set the **timezone to Etc/UTC**. 
+Before writing the image, check the settings. Make sure to enter a reasonable name for your PiLot (we will user "pilot" in this tutorial). Keep the username "pi", and enter a password for the user. Also **configure the WiFi** you will use to access your PiLot, if you don't connect it to the ethernet using a cable. Also **enable SSH** with password authentication and finally set the **timezone to Etc/UTC**. 
 
 Be aware that writing the image to your SD card will **overwrite all data**, so make sure there is nothing precious there.
 
