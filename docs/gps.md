@@ -16,17 +16,31 @@ After having disconnected your PiLot from power, connect your UART capable GPS r
 
 That's all you need, any other wires or pins can be ignored. You can now re-connect your PiLot to the power.
 
-Now there is some software to be installed. There is a package "gpsd", which reads the data from the gps. A python script takes the data from gpsd and sends it to the pilot API, which saves it and makes it available to the PiLot web application. This needs to be set up in two steps, as a reboot must be made inbetween. Again, there are scripts that should automagically set it all up.
+Now there is some software to be installed. There is a package "gpsd", which reads the data from the gps. A python script takes the data from gpsd and sends it to the pilot API, which saves it and makes it available to the PiLot web application. First, we need a few manual steps, the rest will be done by a script.
 
-The first script installs gpsd and the python script, and it enables UART. While in the "pilotinstall" directory, start it by typing
+First, we enable UART and disable bluetooth (which will allow UART to use the better serial port). For this, we need to change a file:
+```
+sudo nano /boot/firmware/config.txt
+```
+Add these two lines to the [all] section (usually at the end):
+```
+enable_uart=1
+dtoverlay=disable-bt
+```
+Then, enable the serial port using raspi-config:
+```
+sudo raspi-config
+> 3 Interface Options
+> I6 Serial Port
+> Would you like a login shell to be accessible over serial? >> No
+> Would you like the serial port hardware to be enabled?: >> Yes
+> Finish
+> Reboot
+```
+After the reboot, start the scripted part:
 ```
 cd ~/pilotinstall
-sudo sh 04-install-gps-1.sh
-```
-When asked to do so, reboot (yes, it's still "sudo reboot now"). Then, when back connected to your raspi, and again in the pilotinstall directory, start the second part:
-```
-cd ~/pilotinstall
-sudo sh 05-install-gps-2.sh
+sudo sh 04-install-gps.sh
 ```
 Now place your PiLot close to a window, and be patient. Depending on your gps reciever and the weather, it can take some time (minutes, tens of minutes) until it has a fix. As soon as you have a fix, you will see your current position on the map in the PiLot web application. Well done! 
 
