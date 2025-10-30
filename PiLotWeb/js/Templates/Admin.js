@@ -46,7 +46,7 @@ PiLot.Templates.Admin = {
 
 	timePage: `
 		<div class="contentPadding">
-			<h1><a href="#" class="lnkSettings" data-text="administration"></a> : <span data-text="time"></span></h1>
+			<h1><span data-text="time"></span></h1>
 			<div class="dataContainerHalf paddingRight marginBottomBig">
 				<span class="timeLabel" data-text="clientTime"></span><span id="lblClientTime"></span><br />
 				<span class="timeLabel" data-text="clientTimeOffset"></span><span id="lblClientErrorOffset"></span>&nbsp;s<br />
@@ -66,7 +66,7 @@ PiLot.Templates.Admin = {
 
 	systemStatusPage: `
 		<div class="contentPadding">
-			<h1><a href="#" class="lnkSettings" data-text="administration"></a> : <span data-text="cpuTemperature"></span></h1>
+			<h1><span data-text="cpuTemperature"></span></h1>
 			<div class="dataContainerHalf">
 				<div class="chartContainer" hidden></div>
 				<div class="chartWait" data-text="pleaseWait"></div>
@@ -76,7 +76,7 @@ PiLot.Templates.Admin = {
 
 	servicesPage: `
 		<div class="contentPadding">
-			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="services"></span></h1>
+			<h1><span data-text="services"></span></h1>
 			<div class="plhServices"></div>
 		</div>
 	`,
@@ -97,16 +97,16 @@ PiLot.Templates.Admin = {
 
 	shutdownPage: `
 		<div class="contentPadding">
-			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="shutDown"></span></h1>
-			<div class="feedbackGood pnlAvailable col18 marginBottom" data-text="pilotAvailable"></div>
-			<div class="feedbackWarning pnlShuttingDown col18" data-text="pilotShuttingDown" hidden></div>
-			<div class="feedbackNeutral pnlUnavailable col18 marginBottom" data-text="pilotUnavailable" hidden></div>
+			<h1><span data-text="shutDown"></span></h1>
+			<div class="feedbackGood pnlAvailable marginRight marginBottom" data-text="pilotAvailable"></div>
+			<div class="feedbackWarning pnlShuttingDown marginRight" data-text="pilotShuttingDown" hidden></div>
+			<div class="feedbackNeutral pnlUnavailable marginRight marginBottom" data-text="pilotUnavailable" hidden></div>
 		</div>
 	`,
 
 	wifiPage: `
 		<div class="contentPadding">
-			<h1><a href="#" class="lnkAdmin" data-text="administration"></a> : <span data-text="wifi"></span></h1>
+			<h1><span data-text="wifi"></span></h1>
 			<select class="ddlInterface input8 marginBottom" hidden></select>
 			<div class="pnlOutput marginBottom marginRight" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; 
 			border:3px solid; border-color: #333 #bbb #bbb #333; overflow:auto;"></div>
@@ -152,7 +152,7 @@ PiLot.Templates.Admin = {
 
 	logFilePage: `
 		<div class="contentPadding marginRight">
-			<h1><a href="#" class="lnkSettings" data-text="administration"></a> : <span data-text="logfiles"></span></h1>
+			<h1 data-text="logfiles"></h1>
 			<div style="border:1px solid #666; font-family: Lucida Console;" class="divLogFile fullWidth marginBottom hidden">
 				<div class="fullWidth paddingAll bgLight" style="display:flex; justify-content:space-between" >
 					<span class="lblFilename"></span>

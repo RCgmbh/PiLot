@@ -83,7 +83,6 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChildren(RC.Utils.stringToNodes(PiLot.Templates.Admin.timePage));
-			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.admin));
 			this.lblClientTime = contentArea.querySelector('#lblClientTime');
 			this.lblClientErrorOffset = contentArea.querySelector('#lblClientErrorOffset');
 			this.lblClientTimezoneOffset = contentArea.querySelector('#lblClientTimezoneOffset');
@@ -157,7 +156,6 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.systemStatusPage));
-			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.admin));
 			const controls = {
 				loading: contentArea.querySelector('.chartWait'),
 				chart: contentArea.querySelector('.chartContainer')
@@ -193,7 +191,6 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.servicesPage));
-			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.admin));
 			const plhServices = contentArea.querySelector('.plhServices');
 			this.serviceInfos = new Array();
 			const services = await PiLot.Model.Admin.getServicesAsync();
@@ -299,7 +296,6 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.shutdownPage));
-			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.admin));
 			this.pnlAvailable = contentArea.querySelector('.pnlAvailable');
 			this.pnlShuttingDown = contentArea.querySelector('.pnlShuttingDown');
 			this.pnlUnavailable = contentArea.querySelector('.pnlUnavailable');
@@ -522,7 +518,6 @@ PiLot.View.Admin = (function () {
 			this.ddlInterface.addEventListener('change', this.ddlInterface_change.bind(this));
 			this.lnkRefresh = contentArea.querySelector('.lnkRefresh');
 			this.lnkRefresh.addEventListener('click', this.lnkRefresh_click.bind(this));
-			contentArea.querySelector('.lnkAdmin').setAttribute('href', loader.createPageLink(loader.pages.admin));
 			this.plhNetworks = contentArea.querySelector('.plhNetworks');
 			this.icoWait = contentArea.querySelector('.icoWait');
 			this.pnlNetworkKey = contentArea.querySelector('.pnlNetworkKey');
@@ -683,7 +678,6 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.logFilePage));
-			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.admin));
 			this.divLogFile = contentArea.querySelector('.divLogFile');
 			this.divLogFile.querySelector('.lnkCloseLogFile').addEventListener('click', this.lnkCloseLogFile_click.bind(this));
 			this.divLogFilesList = contentArea.querySelector('.divLogFilesList');
