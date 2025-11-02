@@ -27,10 +27,8 @@ PiLot.View.Map = (function () {
 		},
 
 		unload: function(){
-			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
-				PiLot.Model.Nav.GPSObserver.getInstance().stop();
-			}
-		}
+			PiLot.Model.Nav.GPSObserver.stopInstance();
+		}		
 	};
 
 	/**

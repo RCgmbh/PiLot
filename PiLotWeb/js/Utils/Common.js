@@ -42,6 +42,10 @@ PiLot.Utils.Common = {
 		}
 	},
 
+	qsDateKey: 'd',
+
+	qsDateFormat: 'yyyyMMdd',
+
 	/**
 	 * Tries to read the date in the format yyyyMMdd or as "today" from the querystring "d",
 	 * and if done so successfully, returns the date as RC.Date.DateOnly
@@ -49,12 +53,12 @@ PiLot.Utils.Common = {
 	 * */
 	parseQsDate: function (pBoatTime) {
 		let result = null;
-		let qsDate = RC.Utils.getUrlParameter('d');
+		let qsDate = RC.Utils.getUrlParameter(this.qsDateKey);
 		if (qsDate !== null) {
 			if ((qsDate === 'today') && (pBoatTime !== null)) {
 				result = RC.Date.DateOnly.fromObject(pBoatTime.now());
 			} else {
-				let date = DateTime.fromFormat(qsDate, 'yyyyMMdd');
+				let date = DateTime.fromFormat(qsDate, this.qsDateFormat);
 				if (date !== null && date.isValid) {
 					result = RC.Date.DateOnly.fromObject(date);
 				}
@@ -69,7 +73,7 @@ PiLot.Utils.Common = {
 	 * @param {RC.Date.DateOnly} pDate - the date to add
 	 */
 	setQsDate: function (pUrl, pDate) {
-		return RC.Utils.setUrlParameter(pUrl, 'd', PiLot.Utils.Common.getQsDateValue(pDate));
+		return RC.Utils.setUrlParameter(pUrl, this.qsDateKey, PiLot.Utils.Common.getQsDateValue(pDate));
 	},
 
 	/**
@@ -77,7 +81,7 @@ PiLot.Utils.Common = {
 	 * @param {RC.Date.DateOnly} pDate - the date
 	 */
 	getQsDateValue: function (pDate) {
-		return pDate.toLuxon().toFormat('yyyyMMdd');
+		return pDate.toLuxon().toFormat(this.qsDateFormat);
 	},
 
 	/// converts a relative path into an absolute url on the current host.

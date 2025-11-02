@@ -8,29 +8,6 @@ PiLot.View = PiLot.View || {};
 PiLot.View.Admin = (function () {
 
 	/**
-	 * The very basic page with just tiles
-	 * */
-	var AdminOverviewPage = function () {
-		this.draw();
-	};
-
-	AdminOverviewPage.prototype = {
-
-		/** Draws the page and sets the link urls based on the Loader logic */
-		draw: function () {
-			const loader = PiLot.Utils.Loader;
-			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.adminOverviewPage);
-			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkTime').setAttribute('href', loader.createPageLink(loader.pages.systemTime));
-			pageContent.querySelector('.lnkWiFi').setAttribute('href', loader.createPageLink(loader.pages.wifi));
-			pageContent.querySelector('.lnkServices').setAttribute('href', loader.createPageLink(loader.pages.services));
-			pageContent.querySelector('.lnkSystemStatus').setAttribute('href', loader.createPageLink(loader.pages.systemStatus));
-			pageContent.querySelector('.lnkLog').setAttribute('href', loader.createPageLink(loader.pages.logs));
-			pageContent.querySelector('.lnkShutDown').setAttribute('href', loader.createPageLink(loader.pages.shutDown));
-		}
-	};
-
-	/**
 	 * Represents a page which shows the current BoatTime and allows to change it
 	 */
 	var BoatTimePage = function () {
@@ -418,11 +395,20 @@ PiLot.View.Admin = (function () {
 			this.toggleAdminLinks();
 		},
 
+		icoWiFi_click: function(pEvent){
+			pEvent.preventDefault();
+			if(PiLot.Permissions.hasSystemAccess()){
+				PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.wifi);
+			}
+		},
+
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiIcon);
 			PiLot.Utils.Loader.getIconsArea().appendChild(control);
 			this.icoWiFiInternet = control.querySelector('.icoWiFiInternet');
+			this.icoWiFiInternet.addEventListener('click', this.icoWiFi_click.bind(this));
 			this.icoWiFiConnected = control.querySelector('.icoWiFiConnected');
+			this.icoWiFiConnected.addEventListener('click', this.icoWiFi_click.bind(this));
 			this.toggleAdminLinks();
 		},
 
@@ -440,7 +426,6 @@ PiLot.View.Admin = (function () {
 		 * Adds the links to the wifi admin page to the icons, if the user has the required permissions
 		 */
 		toggleAdminLinks: function () {
-			let url;
 			if (PiLot.Permissions.hasSystemAccess()) {
 				const url = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.wifi);
 				this.icoWiFiInternet.setAttribute('href', url);
@@ -821,7 +806,6 @@ PiLot.View.Admin = (function () {
 
 	/// return the classes
 	return {
-		AdminOverviewPage: AdminOverviewPage,
 		WiFiIcon: WiFiIcon,
 		WiFiPage: WiFiPage,
 		BoatTimePage: BoatTimePage,

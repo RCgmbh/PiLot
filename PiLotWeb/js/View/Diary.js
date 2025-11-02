@@ -117,17 +117,14 @@ PiLot.View.Diary = (function () {
 		},
 
 		initializeDate: function () {
-			let updateHistory = true;
 			let date = PiLot.Utils.Common.parseQsDate(this.currentBoatTime);
 			if (date === null) {
 				date = this.loadDateFromSetting();
-			} else {
-				updateHistory = false;
 			}
 			if (date === null) {
 				date = RC.Date.DateOnly.fromObject(this.currentBoatTime.now());
 			}
-			this.setDate(date, updateHistory);
+			this.setDate(date, true);
 		},
 
 		loadDateFromSetting: function () {
@@ -146,12 +143,18 @@ PiLot.View.Diary = (function () {
 			await this.diaryInfoCache.preloadData(this.date.year, this.date.month);
 			const previousDate = this.diaryInfoCache.getPreviousDate(this.date);
 			if (previousDate) {
-				this.lnkPreviousDay.onclick = function () { this.setDate(previousDate); }.bind(this);
+				this.lnkPreviousDay.onclick = function (pEvent) {
+					pEvent.preventDefault();
+					this.setDate(previousDate); 
+				}.bind(this);
 			}
 			RC.Utils.showHide(this.lnkPreviousDay, !!previousDate);
 			const nextDate = this.diaryInfoCache.getNextDate(this.date);
 			if (nextDate) {
-				this.lnkNextDay.onclick = function () { this.setDate(nextDate); }.bind(this);
+				this.lnkNextDay.onclick = function (pEvent) {
+					pEvent.preventDefault();
+					this.setDate(nextDate);
+				}.bind(this);
 			}
 			RC.Utils.showHide(this.lnkNextDay, !!nextDate);
 		},
@@ -186,9 +189,9 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {RC.Date.DateOnly} pDate
-		 * @param {Boolean} pUpdateHistory - set false to not add an entry with d=date to the history
+		 * @param {Boolean} pReplaceHistory - set true, if the history entry should be replaced, not added
 		 * */
-		setDate: function (pDate, pUpdateHistory = true) {
+		setDate: function (pDate, pReplaceHistory = false) {
 			this.date = pDate;
 			this.calendar.date(this.date.toLuxon().setLocale(PiLot.Utils.Language.getLanguage()));
 			this.calendar.showDate();
@@ -196,10 +199,17 @@ PiLot.View.Diary = (function () {
 			this.bindPreviousNextButtons();
 			this.bindLnkPublish();
 			this.saveDate();
-			if (pUpdateHistory) {
-				const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
-				window.history.pushState({}, '', url);
+			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
+			const state = {
+				page:PiLot.Utils.Loader.pages.diary.key,
+				params:[[PiLot.Utils.Common.qsDateKey, PiLot.Utils.Common.getQsDateValue(this.date)]]
+			};
+			if(pReplaceHistory){
+				window.history.replaceState(state, '', url);
+			} else {
+				window.history.pushState(state, '', url);
 			}
+			
 			this.loadLogbookDayAsync();
 		},
 

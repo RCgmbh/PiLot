@@ -177,11 +177,9 @@ PiLot.View.Common = (function () {
 
 		unload: function(){
 			for(let aControl of this.controls){
-				aControl.unload && aControl.unload()
+				aControl.unload && aControl.unload();
 			}
-			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
-				PiLot.Model.Nav.GPSObserver.getInstance().stop();
-			}
+			PiLot.Model.Nav.GPSObserver.stopInstance();
 		},
 
 		/// handles resize events of the window. Fires the resize event,
@@ -341,15 +339,14 @@ PiLot.View.Common = (function () {
 		},
 
 		unload: function(){
-			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
-				PiLot.Model.Nav.GPSObserver.getInstance().stop();
-			}
+			PiLot.Model.Nav.GPSObserver.stopInstance();
 			for(let aDisplay of this.displays){
 				aDisplay.getDisplay().unload && aDisplay.getDisplay().unload();
 			}
 		},
 
-		lnkHamburger_click: function(){
+		lnkHamburger_click: function(pEvent){
+			pEvent.preventDefault();
 			this.toggleMenu();
 		},
 
@@ -733,7 +730,8 @@ PiLot.View.Common = (function () {
 			this.draw();
 		},
 
-		hamburger_click: function(pSender){
+		hamburger_click: function(pEvent){
+			pEvent.preventDefault();
 			this.showHideMenu();
 		},
 
@@ -781,7 +779,7 @@ PiLot.View.Common = (function () {
 
 		menuItem_click: function(pPage, pEvent){
 			pEvent.preventDefault();
-			PiLot.Utils.Loader.PageLoader.getInstance().loadPage(pPage);
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(pPage);
 			this.toggle(false);
 			PiLot.Utils.Loader.getContentArea().hidden = false;
 		},
@@ -796,7 +794,7 @@ PiLot.View.Common = (function () {
 			}
 			this.processLinks(function (pLink, pPageObject, pPageKey) {
 				pLink.href = PiLot.Utils.Loader.createPageLink(pPageObject);
-				pLink.addEventListener('click', this.menuItem_click.bind(this, pPageKey));
+				pLink.addEventListener('click', this.menuItem_click.bind(this, pPageObject));
 				this.checkLinkPermissions(pLink, pPageObject)
 				this.hideDisabledPages(pLink, pPageKey); 
 			}.bind(this));

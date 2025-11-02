@@ -37,11 +37,14 @@ PiLot.View.Logbook = (function () {
 				this.boatConfig = results[1];
 				this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
 			});
-			//this.gpsObserver = new PiLot.Model.Nav.GPSObserver(null, this.boatTime);
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 			await this.loadLogbookDayAsync();
 			this.draw();
 			this.showLogbookDay();
+		},
+
+		unload: function(){
+			PiLot.Model.Nav.GPSObserver.stopInstance();
 		},
 
 		/** Click handler for the add entry link * */

@@ -81,31 +81,36 @@ RC.Controls = (function () {
 		},
 
 		/// click handler for the previous month link in the header
-		lnkPreviousMonth_Click: function () {
+		lnkPreviousMonth_Click: function (pEvent) {
+			pEvent.preventDefault();
 			this.switchMonth(-1);
 			this.renderCurrentView();
 		},
 
 		/// click handler for the next month link in the header
-		lnkNextMonth_Click: function () {
+		lnkNextMonth_Click: function (pEvent) {
+			pEvent.preventDefault();
 			this.switchMonth(1);
 			this.renderCurrentView();
 		},
 
 		/// click handler for the previous year link in the header
-		lnkPreviousYear_Click: function () {
+		lnkPreviousYear_Click: function (pEvent) {
+			pEvent.preventDefault();
 			this.switchYear(-1);
 			this.renderCurrentView();
 		},
 
 		/// click handler for the next year link in the header
-		lnkNextYear_Click: function () {
+		lnkNextYear_Click: function (pEvent) {
+			pEvent.preventDefault();
 			this.switchYear(1);
 			this.renderCurrentView();
 		},
 
 		/// click handler for the days in the days table
-		day_Click: function (pDate) {
+		day_Click: function (pDate, pEvent) {
+			pEvent.preventDefault();
 			this.date(pDate);
 			this.renderCurrentView();
 			this.showDate();
@@ -114,7 +119,8 @@ RC.Controls = (function () {
 		},
 
 		/// click handler for the today link
-		lnkDaysToday_Click: function () {
+		lnkDaysToday_Click: function (pEvent) {
+			pEvent.preventDefault();
 			const localNow = RC.Date.DateHelper.localNow(this.utcOffset).startOf('day');
 			this.date(DateTime.utc(localNow.year, localNow.month, localNow.day).setLocale(this.locale)); // we use utc generally
 			this.renderCurrentView();
@@ -124,35 +130,41 @@ RC.Controls = (function () {
 		},
 
 		/// click handler for the months in the months table
-		month_Click: function (pMonth) {
+		month_Click: function (pMonth, pEvent) {
+			pEvent.preventDefault();
 			this.setMonth(pMonth);
 			this.changeMode(0);
 		},
 
 		/// click handler for the month link in the header
-		headerMonth_Click: function(){
+		headerMonth_Click: function(pEvent){
+			pEvent.preventDefault();
 			this.changeMode(1);
 		},
 
 		/// click handler for the year link in the header
-		headerYear_Click: function () {
+		headerYear_Click: function (pEvent) {
+			pEvent.preventDefault();
 			this.changeMode(2);
 		},
 
 		/// click handler for the pager in the years table
-		yearsPrevious_Click: function(){
+		yearsPrevious_Click: function(pEvent){
+			pEvent.preventDefault();
 			this.switchYear(-9);
 			this.renderCurrentView();
 		},
 
 		/// click handler for the pager in the years table
-		yearsNext_Click: function () {
+		yearsNext_Click: function (pEvent) {
+			pEvent.preventDefault();
 			this.switchYear(9);
 			this.renderCurrentView();
 		},
 
 		/// click handler for the years in the years table
-		year_Click: function (pYear) {
+		year_Click: function (pYear, pEvent) {
+			pEvent.preventDefault();
 			this.setYear(pYear);
 			this.changeMode(1);
 		},

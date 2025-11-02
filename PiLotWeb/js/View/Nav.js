@@ -663,6 +663,10 @@ PiLot.View.Nav = (function () {
 			});
 		},
 
+		unload: function(){
+			PiLot.Model.Nav.GPSObserver.stopInstance();
+		},
+
 		gpsObserver_recieveGpsData: async function () {
 			this.outdatedGpsWarning.classList.toggle('hidden', true);
 			this.cogIndicator.showValue(this.gpsObserver.getCOG());
@@ -868,6 +872,10 @@ PiLot.View.Nav = (function () {
 				this.applySortOrder();
 				this.draw();
 			});
+		},
+
+		unload: function(){
+			PiLot.Model.Nav.GPSObserver.stopInstance();
 		},
 
 		lnkActivate_click: function(pRouteId, pEvent) {
