@@ -24,8 +24,13 @@ PiLot.View.Map = (function () {
 			const pageContent = RC.Utils.stringToNode(PiLot.Templates.Map.mapPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
 			return pageContent.querySelector('.navMap');
-		}
+		},
 
+		unload: function(){
+			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
+				PiLot.Model.Nav.GPSObserver.getInstance().stop();
+			}
+		}
 	};
 
 	/**

@@ -2553,6 +2553,7 @@ PiLot.Model.Nav = (function () {
 		if (gpsObserverInstance === null) {
 			gpsObserverInstance = new GPSObserver();
 		}
+		gpsObserverInstance.start();
 		return gpsObserverInstance;
 	};
 

@@ -221,9 +221,10 @@ PiLot.Model.Analyze = (function () {
 		initialize: function(){
 			this.observers = RC.Utils.initializeObservers(['analyzeTrack', 'noGpsData', 'loadTrack']);
 			this.tackAnalyzer = new TackAnalyzer();
-			if(!PiLot.Model.Nav.GPSObserver.hasInstance()){
+			/*if(!PiLot.Model.Nav.GPSObserver.hasInstance()){
 				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
-			}	
+			}*/
+			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();	
 			this.getGpsObserver().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
 			const trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
 			trackObserver.on('addTrackPoint', this.trackObserver_changeTrackPoints.bind(this));

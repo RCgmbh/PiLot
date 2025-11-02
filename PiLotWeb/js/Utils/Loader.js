@@ -159,106 +159,106 @@ PiLot.Utils.Loader = (function () {
 		home: {
 			key: 'home',
 			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, flotScripts],
-			startAction: function () { new PiLot.View.Common.StartPage(); }
+			startAction: function () { return new PiLot.View.Common.StartPage(); }
 		},
 		display: {
 			key: 'display',
 			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts, analyzeScripts, settingsScripts],
-			startAction: function () { new PiLot.View.Common.GenericDisplayPage(); },
+			startAction: function () { return new PiLot.View.Common.GenericDisplayPage(); },
 			noHeader: true
 		},
 		checklists: {
 			key: 'checklists',
 			dependencies: [defaultScripts, toolsScripts],
-			startAction: function() { new PiLot.View.Tools.ChecklistsPage(); }
+			startAction: function() { return new PiLot.View.Tools.ChecklistsPage(); }
 		},
 		map: {
 			key: 'map',
 			dependencies: [defaultScripts, navScripts],
-			startAction: function () { new PiLot.View.Map.MapPage(); }
+			startAction: function () { return new PiLot.View.Map.MapPage(); }
 		},
 		nav: {
 			key: 'nav',
 			dependencies: [defaultScripts, navScripts],
-			startAction: function () { new PiLot.View.Nav.NavPage(); }
+			startAction: function () { return new PiLot.View.Nav.NavPage(); }
 		},
 		routes: {
 			key: 'routes',
 			dependencies: [defaultScripts, navScripts],
-			startAction: function () { new PiLot.View.Nav.RoutesList(); }
+			startAction: function () { return new PiLot.View.Nav.RoutesList(); }
 		},
 		routeDetails: {
 			key: 'routeDetails',
 			dependencies: [defaultScripts, navScripts],
-			startAction: function () { new PiLot.View.Nav.RouteDetail(); }
+			startAction: function () { return new PiLot.View.Nav.RouteDetail(); }
 		},
 		measurements: {
 			key: 'measurements',
 			dependencies: [defaultScripts, meteoScripts, flotScripts, navScripts],
-			startAction: function () { new PiLot.View.Meteo.SensorsPage(); }
+			startAction: function () { return new PiLot.View.Meteo.SensorsPage(); }
 		},
 		logbook: {
 			key: 'logbook',
 			dependencies: [defaultScripts, navScripts, meteoScripts, boatScripts, logbookScripts],
-			startAction: function () { new PiLot.View.Logbook.LogbookPage(); },
+			startAction: function () { return new PiLot.View.Logbook.LogbookPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
 		},
 		diary: {
 			key: 'diary',
 			dependencies: [defaultScripts, navScripts, boatScripts, logbookScripts, toolsScripts, flotScripts],
-			startAction: function () { new PiLot.View.Diary.DiaryPage(); }
+			startAction: function () { return new PiLot.View.Diary.DiaryPage(); }
 		},
 		publish: {
 			key: 'publish',
 			dependencies: [defaultScripts, navScripts, boatScripts, logbookScripts],
-			startAction: function () { new PiLot.View.Diary.PublishDiaryPage(); }
+			startAction: function () { return new PiLot.View.Diary.PublishDiaryPage(); }
 		},
 		stats: {
 			key: 'stats',
 			dependencies: [defaultScripts, navScripts, boatScripts, echartsScripts, statsScripts],
-			startAction: function () { new PiLot.View.Stats.TrackStatsPage(); }
+			startAction: function () { return new PiLot.View.Stats.TrackStatsPage(); }
 		},
 		photos: {
 			key: 'photos',
 			dependencies: [defaultScripts, logbookScripts],
-			startAction: function () { new PiLot.View.Diary.PhotosPage(); }
+			startAction: function () { return new PiLot.View.Diary.PhotosPage(); }
 		},
 		games: {
 			key: 'games',
 			dependencies: [defaultScripts, mediaScripts],
-			startAction: function () { new PiLot.View.Media.GamesOverviewPage(); }
+			startAction: function () { return new PiLot.View.Media.GamesOverviewPage(); }
 		},
 		library: {
 			key: 'library',
 			dependencies: [defaultScripts, mediaScripts],
-			startAction: function () { new PiLot.View.Media.LibraryPage(); }
+			startAction: function () { return new PiLot.View.Media.LibraryPage(); }
 		},
 		settings: {
 			key: 'settings',
 			dependencies: [defaultScripts, settingsScripts],
-			startAction: function () { new PiLot.View.Settings.SettingsOverviewPage(); }
+			startAction: function () { return new PiLot.View.Settings.SettingsOverviewPage(); }
 		},
 		boat: { 
 			key: 'boat',
 			dependencies: [defaultScripts, boatScripts],
-			startAction: function () { new PiLot.View.Boat.BoatPage(); },
+			startAction: function () { return new PiLot.View.Boat.BoatPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanChangeSettings(); }
 		},
 		boatTime: {
 			key: 'boatTime',
 			dependencies: [defaultScripts, settingsScripts],
-			startAction: function () { new PiLot.View.Settings.BoatTimePage(); },
+			startAction: function () { return new PiLot.View.Settings.BoatTimePage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanChangeSettings(); }
 		},
 		language: {
 			key: 'language',
 			dependencies: [defaultScripts, settingsScripts],
-			startAction: function () { new PiLot.View.Settings.LanguagePage(); }
+			startAction: function () { return new PiLot.View.Settings.LanguagePage(); }
 		},
 		tools: {
 			key: 'tools',
 			dependencies: [defaultScripts, toolsScripts],
-			startAction: function () { new PiLot.View.Tools.ToolsOverviewPage(); }
+			startAction: function () { return new PiLot.View.Tools.ToolsOverviewPage(); }
 		},
 		analyze: {
 			key: 'analyze',
@@ -268,60 +268,54 @@ PiLot.Utils.Loader = (function () {
 		data: {
 			key: 'data',
 			dependencies: [defaultScripts, navScripts, flotScripts, toolsScripts, boatScripts],
-			startAction: function () { new PiLot.View.Tools.GpsImportExportForm(); }
+			startAction: function () { return new PiLot.View.Tools.GpsImportExportForm(); }
 		},
 		tiles: {
 			key: 'tiles',
 			dependencies: [defaultScripts, navScripts, toolsScripts],
-			startAction: function () { new PiLot.View.Tools.TilesDownloadForm(); },
+			startAction: function () { return new PiLot.View.Tools.TilesDownloadForm(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
 		},
 		pois: {
 			key: 'pois',
 			dependencies: [defaultScripts, navScripts, toolsScripts],
-			startAction: function () { new PiLot.View.Tools.PoisManagementPage(); },
+			startAction: function () { return new PiLot.View.Tools.PoisManagementPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
-		},
-		admin: {
-			key: 'admin',
-			dependencies: [defaultScripts, adminScripts],
-			startAction: function () { new PiLot.View.Admin.AdminOverviewPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		},
 		wifi: {
 			key: 'wifi',
 			dependencies: [defaultScripts, adminScripts],
-			startAction: function () { new PiLot.View.Admin.WiFiPage(); },
+			startAction: function () { return new PiLot.View.Admin.WiFiPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		},
 		services: {
 			key: 'services',
 			dependencies: [defaultScripts, adminScripts],
-			startAction: function () { new PiLot.View.Admin.ServicesPage(); },
+			startAction: function () { return new PiLot.View.Admin.ServicesPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		},
 		logs: {
 			key: 'logs',
 			dependencies: [defaultScripts, adminScripts],
-			startAction: function () { new PiLot.View.Admin.LogFilesPage(); },
+			startAction: function () { return new PiLot.View.Admin.LogFilesPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		},
 		systemStatus: {
 			key: 'systemStatus',
 			dependencies: [defaultScripts, adminScripts, flotScripts],
-			startAction: function () { new PiLot.View.Admin.SystemStatusPage(); },
+			startAction: function () { return new PiLot.View.Admin.SystemStatusPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		},
 		systemTime: {
 			key: 'systemTime',
 			dependencies: [defaultScripts, adminScripts],
-			startAction: function () { new PiLot.View.Admin.BoatTimePage(); },
+			startAction: function () { return new PiLot.View.Admin.BoatTimePage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		},
 		shutDown: {
 			key: 'shutDown',
 			dependencies: [defaultScripts, adminScripts],
-			startAction: function () { new PiLot.View.Admin.ShutdownPage(); },
+			startAction: function () { return new PiLot.View.Admin.ShutdownPage(); },
 			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
 		}
 	};
@@ -332,19 +326,29 @@ PiLot.Utils.Loader = (function () {
 	 */
 	var PageLoader = function () {
 		this.page = null;
+		this.pageObject = null;
+		this.isFirstRequest = null;
 		this.loadPage();
 
 	};
 
 	PageLoader.prototype = {
 
-		loadPage: function () {
-			PiLot.Utils.Language.applyHTMLLanguage();
-			const urlKey = RC.Utils.getUrlParameter(PAGEKEY);
+		loadPage: function (pKey) {
+			let urlKey;
+			if(pKey){
+				this.isFirstRequest = false;
+				urlKey = pKey;
+			} else{
+				this.isFirstRequest = true;
+				PiLot.Utils.Language.applyHTMLLanguage();
+				urlKey = RC.Utils.getUrlParameter(PAGEKEY);
+			}
 			this.page = this.getPage(urlKey) || pages.home;
-			let dependencies = this.getDependencies();
-			this.addLanguageReference(dependencies);
-			new PiLot.Utils.Loader.ScriptLoader(dependencies, this.onScriptsLoaded.bind(this));
+			this.onScriptsLoaded();
+			//let dependencies = this.getDependencies();
+			//this.addLanguageReference(dependencies);
+			//new PiLot.Utils.Loader.ScriptLoader(dependencies, this.onScriptsLoaded.bind(this));
 		},
 
 		getPage: function(pKey){
@@ -362,7 +366,7 @@ PiLot.Utils.Loader = (function () {
 		* Defines the scripts needed for each page, and the action to be called when all scripts
 	    * have loaded. It will return both of them in one object {dependencies, startAction};
 		* */
-		getDependencies: function() {
+		/*getDependencies: function() {
 			let dependenciesFlat = new Array();
 			this.page.dependencies.forEach(function (item) {
 				item.forEach(function (innerItem) {
@@ -372,16 +376,16 @@ PiLot.Utils.Loader = (function () {
 				});				
 			});
 			return dependenciesFlat;
-		},
+		},*/
 
 		/**
 		 * This adds the language-specific texts depending on the current language
 		 * @param {Array} pDependencies - The flat array with dependencies: Array of {url, priority}
 		 */
-		addLanguageReference: function (pDependencies) {
+		/*addLanguageReference: function (pDependencies) {
 			const langKey = PiLot.Utils.Language.getLanguage();
 			pDependencies.push({ url: `js/Texts/${langKey}.js`, priority: 1 });
-		},
+		},*/
 
 		/**
 		 * This is called, as soon as all script dependencies have loaded. It does
@@ -412,7 +416,9 @@ PiLot.Utils.Loader = (function () {
 			} 
 			document.getElementById('header').hidden = noHeader;
 			document.getElementById('main').classList.toggle('noHeader', noHeader);
-			this.page.startAction();
+			this.pageObject && this.pageObject.unload && this.pageObject.unload();
+			getContentArea().clear();
+			this.pageObject = this.page.startAction();
 			RC.Utils.handleActiveStyles();
 		},
 
@@ -420,15 +426,24 @@ PiLot.Utils.Loader = (function () {
 		 * Draws the menu and the clock
 		 * */
 		addDefaultControls: function() {
-			new PiLot.View.Common.Clock();
-			PiLot.View.Common.ClockOffsetIcon.getInstance();
-			new PiLot.View.Common.MainMenuHamburger();
-			new PiLot.View.Common.UserIcon();
-			new PiLot.View.Common.DayNightIcon();
-			PiLot.View.Admin.WiFiIcon.getInstance();
-			new PiLot.View.Nav.GPSIcon();
+			if(this.isFirstRequest){
+				new PiLot.View.Common.Clock();
+				PiLot.View.Common.ClockOffsetIcon.getInstance();
+				new PiLot.View.Common.MainMenuHamburger();
+				new PiLot.View.Common.UserIcon();
+				new PiLot.View.Common.DayNightIcon();
+				PiLot.View.Admin.WiFiIcon.getInstance();
+				new PiLot.View.Nav.GPSIcon();
+			}
 		}
 	};
+
+	var pageLoaderInstance = null;
+
+	PageLoader.getInstance = function(){
+		pageLoaderInstance = pageLoaderInstance || new PageLoader();
+		return pageLoaderInstance;
+	}
 
 	/** @callback onLoadedCallback - a simple parameterless function **/
 	/**
@@ -458,6 +473,9 @@ PiLot.Utils.Loader = (function () {
 		loadScripts: function (pReferences) {
 			this.groupByPriority(pReferences);
 			this.loadNextPriority();
+			if(this.pendingScripts === 0){
+				this.onLoaded();
+			}
 		},
 
 		/**

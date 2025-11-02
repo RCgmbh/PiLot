@@ -161,6 +161,15 @@ PiLot.View.Common = (function () {
 			this.draw();
 		},
 
+		unload: function(){
+			for(let aControl of this.controls){
+				aControl.unload && aControl.unload()
+			}
+			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
+				PiLot.Model.Nav.GPSObserver.getInstance().stop();
+			}
+		},
+
 		/// handles resize events of the window. Fires the resize event,
 		/// and if the layout changed, fires the  changeLayout event
 		window_resize: function () {
@@ -315,6 +324,12 @@ PiLot.View.Common = (function () {
 			this.draw();
 			new NightModeHandler();
 			this.applyUserSettings();
+		},
+
+		unload: function(){
+			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
+				PiLot.Model.Nav.GPSObserver.getInstance().stop();
+			}
 		},
 
 		lnkHamburger_click: function(){
@@ -741,6 +756,13 @@ PiLot.View.Common = (function () {
 			this.checkPermissions();
 		},
 
+		menuItem_click: function(pPage, pEvent){
+			pEvent.preventDefault();
+			PiLot.Utils.Loader.PageLoader.getInstance().loadPage(pPage);
+			this.toggle(false);
+			PiLot.Utils.Loader.getContentArea().hidden = false;
+		},
+
 		draw: function(){
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.mainMenu);
 			this.control.hidden = true;
@@ -751,6 +773,7 @@ PiLot.View.Common = (function () {
 			}
 			this.processLinks(function (pLink, pPageObject, pPageKey) {
 				pLink.href = PiLot.Utils.Loader.createPageLink(pPageObject);
+				pLink.addEventListener('click', this.menuItem_click.bind(this, pPageKey));
 				this.checkLinkPermissions(pLink, pPageObject)
 				this.hideDisabledPages(pLink, pPageKey); 
 			}.bind(this));

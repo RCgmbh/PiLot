@@ -550,6 +550,10 @@ PiLot.View.Boat = (function () {
 			});
 		},
 
+		unload: function(){
+			this.stopUpdate();
+		},
+
 		container_click: function (e) {
 			if (this.startPage.isMinimized(this)) {
 				e.stopPropagation();

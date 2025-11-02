@@ -107,6 +107,7 @@ PiLot.Templates.Admin = {
 	wifiPage: `
 		<div class="contentPadding">
 			<h1><span data-text="wifi"></span></h1>
+			<a href="#" class="lnkFullScreen">full screen</a>
 			<select class="ddlInterface input8 marginBottom" hidden></select>
 			<div class="pnlOutput marginBottom marginRight" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; 
 			border:3px solid; border-color: #333 #bbb #bbb #333; overflow:auto;"></div>

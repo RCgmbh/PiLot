@@ -620,11 +620,7 @@ PiLot.View.Nav = (function () {
 		},
 
 		startObserving: function () {
-			if (PiLot.Model.Nav.GPSObserver.hasInstance()) {
-				this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			} else {
-				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({ intervalMs: 5000, autoStart: true });
-			}
+			this.gpsObserver = new PiLot.Model.Nav.GPSObserver({ intervalMs: 5000, autoStart: true });
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
 			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
 		}
