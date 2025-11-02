@@ -221,11 +221,8 @@ PiLot.Model.Analyze = (function () {
 		initialize: function(){
 			this.observers = RC.Utils.initializeObservers(['analyzeTrack', 'noGpsData', 'loadTrack']);
 			this.tackAnalyzer = new TackAnalyzer();
-			/*if(!PiLot.Model.Nav.GPSObserver.hasInstance()){
-				this.gpsObserver = new PiLot.Model.Nav.GPSObserver({intervalMs: 1000, calculationRange: 2, autoStart: false});
-			}*/
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();	
-			this.getGpsObserver().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
 			const trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
 			trackObserver.on('addTrackPoint', this.trackObserver_changeTrackPoints.bind(this));
 			trackObserver.on('changeLastTrackPoint', this.trackObserver_changeTrackPoints.bind(this));
@@ -283,7 +280,7 @@ PiLot.Model.Analyze = (function () {
 		caculateCurrentAngle: function(pTacks){
 			let result = null;
 			if(pTacks.length > 0){
-				const cog = this.getGpsObserver().getCOG();
+				const cog = this.gpsObserver.getCOG();
 				if(cog !== null){
 					result = PiLot.Utils.Nav.getAngle(pTacks[0].leg1.bearing, cog);
 				}
@@ -294,8 +291,8 @@ PiLot.Model.Analyze = (function () {
 		calculateVMG: function(pWindDirection){
 			let result = null;
 			if(pWindDirection !== null){
-				const cog = this.getGpsObserver().getCOG();
-				const sog = this.getGpsObserver().getSOG();
+				const cog = this.gpsObserver.getCOG();
+				const sog = this.gpsObserver.getSOG();
 				if(cog !== null && sog !== null)
 				result = PiLot.Utils.Nav.getVmg(pWindDirection, cog, sog);
 			}
@@ -316,18 +313,7 @@ PiLot.Model.Analyze = (function () {
 
 		stop: function(){
 			this.gpsObserver && this.gpsObserver.stop();
-		},
-
-		/**
-		 * The class uses either the current GPS Observer instance, or a custom one,
-		 * if there is no instance yet. The latter allows to stop the GPS Observer
-		 * as soon as it's not being used. See the initialize() function.
-		 * @returns {PiLot.Model.Nav.GPSObserver} The gps observer being used		 * 
-		 */
-		getGpsObserver: function(){
-			return this.gpsObserver || PiLot.Model.Nav.GPSObserver.getInstance();
 		}
-
 	};
 
 	var currentTackObserver = null;

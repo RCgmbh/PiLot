@@ -57,6 +57,11 @@ PiLot.View.Settings = (function () {
 			this.startTimer();
 		},
 
+		unload: function(){
+			this.stopTimer();
+			this.analogClock.stop();
+		},
+
 		btnMinus_click: function () {
 			this.changeBoatTime(-1);
 		},
@@ -83,8 +88,13 @@ PiLot.View.Settings = (function () {
 			const milliseconds = DateTime.local().millisecond;
 			window.setTimeout(function () {
 				this.showTime();
-				window.setInterval(this.showTime.bind(this), 1000);
+				this.showTimeInterval = window.setInterval(this.showTime.bind(this), 1000);
 			}.bind(this), 1010 - milliseconds);
+		},
+
+		stopTimer: function(){
+			this.showTimeInterval && window.clearInterval(this.showTimeInterval);
+			this.showTimeInterval = null;
 		},
 
 		changeBoatTime: function (pHours) {

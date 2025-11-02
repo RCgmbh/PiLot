@@ -42,6 +42,10 @@ PiLot.View.Diary = (function () {
 			authHelper.on('logout', this.authHelper_change.bind(this));
 		},
 
+		unload: function(){
+			this.diaryPhotos && this.diaryPhotos.unload();
+		},
+
 		authHelper_change: function () {
 			this.applyPermissions();
 		},
@@ -516,6 +520,10 @@ PiLot.View.Diary = (function () {
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			authHelper.on('login', this.authHelper_change.bind(this));
 			authHelper.on('logout', this.authHelper_change.bind(this));
+		},
+
+		unload: function(){
+			this.photoGallery && this.photoGallery.stopAutoUpdate();
 		},
 
 		/**
@@ -996,8 +1004,13 @@ PiLot.View.Diary = (function () {
 		},
 
         ensureAutoUpdate: function () {
-            this.updateInterval |= window.setInterval(this.reloadPhotosAsync.bind(this), 5000);
+            this.updateInterval = this.updateInterval || window.setInterval(this.reloadPhotosAsync.bind(this), 5000);
         },
+
+		stopAutoUpdate: function(){
+			this.updateInterval && window.clearInterval(this.updateInterval);
+			this.updateInterval = null;
+		},
 
 		deletePhoto: function () {
 			const image = this.imageData[this.imageIndex];
@@ -1049,7 +1062,6 @@ PiLot.View.Diary = (function () {
 
 		setPhotoUrl: function () {
 			const image = this.imageData[this.imageIndex];
-			console.log(image.imageCollection.getDate());
 			this.imgFullSize.src = this.getPhotoUrl(image.imageCollection, image.fileName);
 			this.imgFullSize.hidden = true;
 			this.lnkDownload.href = this.getOriginalImageUrl(image.imageCollection, image.fileName);
@@ -1305,6 +1317,10 @@ PiLot.View.Diary = (function () {
 			this.loadLocalDataAsync();
 		},
 
+		unload: function(){
+			this.stopJobStatusInterval();
+		},
+
 		initializeDate: function () {
 			this.date = PiLot.Utils.Common.parseQsDate(null);
 		},
@@ -1359,7 +1375,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		btnCloseJobInfo_click: function () {
-			window.clearInterval(this.jobStatusInterval);
+			this.stopJobStatusInterval();
 			this.pnlJobInfo.hidden = true;
 			this.loadTargetDataAsync();
 		},
@@ -1530,6 +1546,11 @@ PiLot.View.Diary = (function () {
 			this.pnlJobInfo.hidden = false;
 			this.refreshPublishJobAsync();
 			this.jobStatusInterval = window.setInterval(this.refreshPublishJobAsync.bind(this), 1000);
+		},
+
+		stopJobStatusInterval: function(){
+			this.jobStatusInterval && window.clearInterval(this.jobStatusInterval);
+			this.jobStatusInterval = null;
 		},
 
 		publishDataAsync: async function () {

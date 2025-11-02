@@ -2723,6 +2723,12 @@ PiLot.View.Nav = (function () {
 			PiLot.Model.Nav.loadActiveRouteAsync().then(pRoute => this.activeRouteLoaded(pRoute));
 		},
 
+		unload: function(){
+			if(PiLot.Model.Nav.TrackObserver.hasInstance()){
+				PiLot.Model.Nav.TrackObserver.getInstance().stop();
+			}
+		},
+
 		/// before a layout change is applied, we hide everything because
 		/// otherwise it can break the layout
 		startPage_changingLayout: function (pSender, pEventArgs) {

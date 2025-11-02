@@ -2145,12 +2145,12 @@ PiLot.Model.Nav = (function () {
 		this.cropInterval = null;
 		this.cropIntervalMS = 10000;
 		this.observers = null;
-		this.initializeAsync();
+		this.initialize();
 	};
 
 	TrackObserver.prototype = {
 
-		initializeAsync: function () {
+		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint', 'loadTrack']);
 			this.ensureTrackAsync().then(()=>{
 				this.gpsObserver = this.gpsObserver || GPSObserver.getInstance();
@@ -2158,7 +2158,7 @@ PiLot.Model.Nav = (function () {
 			});
 			PiLot.Model.Common.getCurrentBoatTimeAsync().then((pBoatTime) => {
 				this.boatTime = pBoatTime;
-				this.cropInterval = setInterval(this.cropTimer_interval.bind(this), this.cropIntervalMS);
+				this.start();
 			});
 		},
 
@@ -2261,6 +2261,17 @@ PiLot.Model.Nav = (function () {
 		/** @returns {Boolean} whether we have a track */
 		hasTrack: function(){
 			return !!this.track;
+		},
+
+		/** starts the interval that crops the track if necessary */
+		start: function(){
+			this.cropInterval = this.cropInterval || setInterval(this.cropTimer_interval.bind(this), this.cropIntervalMS);
+		},
+
+		/** stops the crop interval. Call this, as soon as the track observer is unloaded */
+		stop: function(){
+			this.cropInterval && window.clearInterval(this.cropInterval);
+			this.cropInterval = null;
 		}
 	}
 
@@ -2270,7 +2281,13 @@ PiLot.Model.Nav = (function () {
 		if(trackObserverInstance === null){
 			trackObserverInstance =  new TrackObserver();
 		}
+		trackObserverInstance.start();
 		return trackObserverInstance;
+	}
+
+	/** Returns whether there is a TrackObserver instance, without creating one */
+	TrackObserver.hasInstance = function () {
+		return !!trackObserverInstance;
 	}
 
 	/** 
@@ -2560,7 +2577,12 @@ PiLot.Model.Nav = (function () {
 	/** Returns whether there is a GPSObserver instance, without creating one */
 	GPSObserver.hasInstance = function () {
 		return !!gpsObserverInstance;
-	}
+	};
+
+	/** Stops the current instance of the GPS Observer, if there is any */
+	GPSObserver.stopInstance = function(){
+		gpsObserverInstance && gpsObserverInstance.stop();
+	};
 
 	/**
 	 * TileSource class, containing data about a tile source, having

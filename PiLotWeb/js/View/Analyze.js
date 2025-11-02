@@ -21,6 +21,10 @@ PiLot.View.Analyze = (function () {
 			await this.drawAsync();
 			await this.initializeMode();
 		},
+
+		unload: function(){
+			PiLot.Model.Nav.GPSObserver.stopInstance();
+		},
 		
 		rblMode_change: function (pEvent) {
 			const mode = Number(pEvent.target.value);

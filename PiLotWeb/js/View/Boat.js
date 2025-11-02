@@ -669,11 +669,6 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		/** Stops the interval that updats the boatImage */
-		stopUpdate: function () {
-			window.clearInterval(this.updateInterval);
-		},
-
 		/** makes sure we have a running update interval */
 		ensureUpdate: function () {
 			if (!this.updateInterval) {
@@ -682,6 +677,12 @@ PiLot.View.Boat = (function () {
 					this.boatImageLink.showBoatSetup(this.boatSetup);
 				}.bind(this), this.updateIntervalSeconds * 1000);;
 			}
+		},
+
+		/** Stops the interval that updats the boatImage */
+		stopUpdate: function () {
+			this.updateInterval && window.clearInterval(this.updateInterval);
+			this.updateInterval = null;
 		},
 
 		/// shows or hides the alternatives setup column based on some magic

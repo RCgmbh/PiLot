@@ -24,6 +24,10 @@ PiLot.View.Common = (function () {
 			this.loadBoatTimeAsync();
 		},
 
+		unload: function(){
+			this.stopTimer();
+		},
+
 		/// draws the clock based on a template
 		draw: function () {
 			const container = this.container || document.getElementById('clock');
@@ -49,8 +53,13 @@ PiLot.View.Common = (function () {
 			var milliseconds = DateTime.local().millisecond;
 			window.setTimeout(function () {
 				this.showTime();
-				window.setInterval(this.showTime.bind(this), 1000);
+				this.interval = window.setInterval(this.showTime.bind(this), 1000);
 			}.bind(this), 1010 - milliseconds);
+		},
+
+		stopTimer: function(){
+			this.interval && window.clearInterval(this.interval);
+			this.interval = null;
 		},
 
 		/// shows the current time
@@ -74,6 +83,7 @@ PiLot.View.Common = (function () {
 
 		this.container = pContainer;
 		this.boatTime = null;
+		this.analogClock = null;
 		this.initialize();
 
 	};
@@ -85,6 +95,10 @@ PiLot.View.Common = (function () {
 				this.boatTime = bt;
 				this.draw();
 			});
+		},
+
+		unload: function(){
+			this.analogClock.stop();
 		},
 
 		draw: function(){
@@ -330,6 +344,9 @@ PiLot.View.Common = (function () {
 			if(PiLot.Model.Nav.GPSObserver.hasInstance()){
 				PiLot.Model.Nav.GPSObserver.getInstance().stop();
 			}
+			for(let aDisplay of this.displays){
+				aDisplay.getDisplay().unload && aDisplay.getDisplay().unload();
+			}
 		},
 
 		lnkHamburger_click: function(){
@@ -477,6 +494,7 @@ PiLot.View.Common = (function () {
 		this.enlarged = pEnlarged;
 		this.container = pContainer;
 		this.control = null;
+		this.display = null;
 		this.observers = null;
 		this.pnlHeader = null;
 		this.lnkEnlarge = null;
@@ -555,7 +573,7 @@ PiLot.View.Common = (function () {
 			this.plhDisplay.addEventListener('click', this.display_click.bind(this));
 			this.applyEnlarged();
 			this.applyTextSize();
-			const display = new(GenericDisplay.types[this.typeName]())(this.plhDisplay);
+			this.display = new(GenericDisplay.types[this.typeName]())(this.plhDisplay);
 		},
 
 		toggleControls: function(pVisible){
@@ -586,6 +604,11 @@ PiLot.View.Common = (function () {
 
 		getTypeName: function(){
 			return this.typeName;
+		},
+
+		/** @returns {Object} - the specific display control */
+		getDisplay: function(){
+			return this.display;
 		},
 
 		getEnlarged: function(){

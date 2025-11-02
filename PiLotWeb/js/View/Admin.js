@@ -50,6 +50,7 @@ PiLot.View.Admin = (function () {
 		this.btnPlus = null;					// button to increase the BoatTime by 1 hour
 		this.clockCanvas = null;				// the canvas where the clock will be drawn
 		this.analogClock = null;				// the AnalogClock object representing the clock
+		this.showTimeInterval = null;
 
 		this.initializeAsync();
 	};
@@ -61,6 +62,12 @@ PiLot.View.Admin = (function () {
 			this.draw();
 			this.showTime();
 			this.startTimer();
+		},
+
+		unload: function(){
+			this.showTimeInterval && window.clearInterval(this.showTimeInterval);
+			this.showTimeInterval = null;
+			this.analogClock.stop();
 		},
 
 		lnkSetServerTime_click: async function () {
@@ -103,7 +110,7 @@ PiLot.View.Admin = (function () {
 			const milliseconds = DateTime.local().millisecond;
 			window.setTimeout(function () {
 				this.showTime();
-				window.setInterval(this.showTime.bind(this), 1000);
+				this.showTimeInterval = window.setInterval(this.showTime.bind(this), 1000);
 			}.bind(this), 1010 - milliseconds);
 		},
 
@@ -140,6 +147,7 @@ PiLot.View.Admin = (function () {
 	var SystemStatusPage = function () {
 
 		this.chart = null;
+		this.interval = null;
 		this.initialize();
 
 	};
@@ -150,6 +158,10 @@ PiLot.View.Admin = (function () {
 			this.draw();
 			this.showCPUTemperature();
 			this.startCPUTempTimer();
+		},
+
+		unload: function(){
+			this.stopCPUTempTimer();
 		},
 
 		draw: function () {
@@ -168,14 +180,20 @@ PiLot.View.Admin = (function () {
 		},
 
 		startCPUTempTimer: function () {
-			window.setInterval(this.showCPUTemperature.bind(this), 10000);
+			this.interval = window.setInterval(this.showCPUTemperature.bind(this), 10000);
 		},
+
+		stopCPUTempTimer: function(){
+			this.interval && window.clearInterval(this.interval);
+			this.interval = null;
+		}
 	};
 
 	/** The page containing the status and interaction with services */
 	var ServicesPage = function () {
 
 		this.serviceInfos = null;
+		this.interval = null;
 		this.initializeAsync();
 
 	};
@@ -185,6 +203,10 @@ PiLot.View.Admin = (function () {
 		initializeAsync: async function () {
 			await this.drawAsync();
 			this.startServiceTimer();
+		},
+
+		unload: function(){
+			this.stopServiceTimer();
 		},
 
 		drawAsync: async function () {
@@ -204,7 +226,12 @@ PiLot.View.Admin = (function () {
 		},
 
 		startServiceTimer: function () {
-			window.setInterval(this.showServiceStates.bind(this), PiLot.Config.System.Admin.servicesUpdateInterval * 1000);
+			this.interval = window.setInterval(this.showServiceStates.bind(this), PiLot.Config.System.Admin.servicesUpdateInterval * 1000);
+		},
+
+		stopServiceTimer: function(){
+			this.interval && window.clearInterval(this.interval);
+			this.interval = null;
 		}
 
 	};
@@ -292,6 +319,10 @@ PiLot.View.Admin = (function () {
 			this.startPing(2000);
 		},
 
+		unload: function(){
+			this.stopPing();
+		},
+
 		draw: function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
@@ -317,9 +348,14 @@ PiLot.View.Admin = (function () {
 		 */
 		startPing: function (pInterval) {
 			if (this.pingInterval) {
-				clearInterval(this.pingInterval);
+				window.clearInterval(this.pingInterval);
 			}			
-			this.pingInterval = setInterval(this.callPing.bind(this), pInterval);
+			this.pingInterval = window.setInterval(this.callPing.bind(this), pInterval);
+		},
+
+		stopPing: function(){
+			this.pingInterval && window.clearInterval(this.pingInterval);
+			this.pingInterval = null;
 		},
 
 		/** calls the ping REST endpoint and does stuffs with the result */

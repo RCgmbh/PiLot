@@ -49,6 +49,10 @@ PiLot.View.Meteo = (function () {
 			this.startDataLoadAsync();
 		},
 
+		unload: function(){
+			this.stopDataLoad();
+		},
+
 		rblTimeMode_change: async function (pTarget) {
 			if (pTarget.value === 'historic') {
 				this.pnlSelectDate.hidden = false;
@@ -168,14 +172,6 @@ PiLot.View.Meteo = (function () {
 			this.ensureDataLoadInterval();
 		},
 
-		/** Stops the interval which automatically refreshes the data */
-		stopDataLoad: function () {
-			if (this.dataLoadInterval) {
-				window.clearInterval(this.dataLoadInterval);
-				this.dataLoadInterval = null;
-			}
-		},
-
 		/**
 		 * This starts the interval fetching data. We don't start this immediately but
 		 * only after getting the first data, in order to not flood the server
@@ -184,6 +180,14 @@ PiLot.View.Meteo = (function () {
 		ensureDataLoadInterval: function () {
 			if (this.dataLoadInterval === null) {
 				this.dataLoadInterval = window.setInterval(this.loadAllDataAsync.bind(this), SensorsPage.updateIntervalSeconds * 1000);
+			}
+		},
+
+		/** Stops the interval which automatically refreshes the data */
+		stopDataLoad: function () {
+			if (this.dataLoadInterval) {
+				window.clearInterval(this.dataLoadInterval);
+				this.dataLoadInterval = null;
 			}
 		},
 
@@ -277,6 +281,10 @@ PiLot.View.Meteo = (function () {
 			this.startDataLoadAsync();
 		},
 
+		unload: function(){
+			this.stopDataLoad();
+		},
+
 		/// before a layout change is applied, we hide everything because
 		/// otherwise it can break the layout
 		startPage_changingLayout: function (pSender, pEventArgs) {
@@ -333,6 +341,14 @@ PiLot.View.Meteo = (function () {
 		ensureDataLoadInterval: function () {
 			if (this.dataLoadInterval === null) {
 				this.dataLoadInterval = window.setInterval(this.loadAllDataAsync.bind(this), SensorsPage.updateIntervalSeconds * 1000);
+			}
+		},
+
+		/** Stops the interval which automatically refreshes the data */
+		stopDataLoad: function () {
+			if (this.dataLoadInterval) {
+				window.clearInterval(this.dataLoadInterval);
+				this.dataLoadInterval = null;
 			}
 		},
 
