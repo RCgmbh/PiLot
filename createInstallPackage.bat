@@ -82,4 +82,5 @@ del  pilotinstall\resources\pilotbackupapi\config\config.*.json
 
 7z a -r -ttar pilotinstall.tar pilotinstall
 7z a -r -tgzip -mx9 pilotinstall.tar.gz pilotinstall.tar
+rd /s /q pilotinstall
 del pilotinstall.tar

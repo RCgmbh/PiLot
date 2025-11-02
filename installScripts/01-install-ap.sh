@@ -16,9 +16,9 @@ if [ `whoami` != root ]; then
     exit
 fi
 
-if [ -z "$apAdapter" ] then
+if [ -z "$apAdapter" ]; then
 	echo "Please use 'nano install1-ap.sh', and enter the name of your network interfaces."
-elif [ -z "$passphrase" ] then
+elif [ -z "$passphrase" ]; then
 	echo "Please use 'nano install-ap.sh', and set a value for passphrase"
 else
 	nmcli con add con-name hotspot ifname $apAdapter type wifi ssid "$ssid"

@@ -5,6 +5,8 @@ if [ `whoami` != root ]; then
     exit
 fi
 
+apt install -y gpsd gpsd-clients gpsd-tools
+
 systemctl stop gpsd.socket
 systemctl disable gpsd.socket
 killall gpsd
