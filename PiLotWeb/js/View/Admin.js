@@ -470,10 +470,6 @@ PiLot.View.Admin = (function () {
 			this.loadNetworksAsync();
 		},
 
-		lnkFullScreen_click: function(){
-			document.documentElement.requestFullscreen();
-		},
-
 		ddlInterface_change: function () {
 			const value = this.ddlInterface.value;
 			if (value) {
@@ -539,7 +535,6 @@ PiLot.View.Admin = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.wifiPage));
-			contentArea.querySelector('.lnkFullScreen').addEventListener('click', this.lnkFullScreen_click.bind(this));
 			this.ddlInterface = contentArea.querySelector('.ddlInterface');
 			this.ddlInterface.addEventListener('change', this.ddlInterface_change.bind(this));
 			this.lnkRefresh = contentArea.querySelector('.lnkRefresh');

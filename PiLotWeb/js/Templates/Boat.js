@@ -45,7 +45,7 @@ PiLot.Templates.Boat = {
 	boatPage:
 		`<div>
 			<div class="contentPadding marginRight">
-				<h1><a href="#" class="lnkSettings" data-text="settings"></a> : <span data-text="boat"></span></h1>
+				<h1 data-text="boat"></h1>
 			</div>
 			<div class="plhBoatImages boatImages flexRowWrap" style="justify-content:center;"><div>
 		</div>`,

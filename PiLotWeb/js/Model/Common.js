@@ -299,6 +299,11 @@ PiLot.Model.Common = (function () {
 		return new Permissions(pData.username, pData.canRead, pData.canWrite, pData.canChangeSettings, pData.hasSystemAccess);
 	};
 
+	/** Static shortcut to get whether the current user can read */
+	Permissions.canRead = function () {
+		return AuthHelper.instance().getPermissions().getCanRead();
+	};
+	
 	/** Static shortcut to get whether the current user can write */
 	Permissions.canWrite = function () {
 		return AuthHelper.instance().getPermissions().getCanWrite();

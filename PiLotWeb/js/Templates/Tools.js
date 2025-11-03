@@ -3,33 +3,9 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Tools = {
 
-	toolsOverviewPage: `
-		<div class="contentPadding">
-			<h1 data-text="tools"></h1>
-			<a href="" class="lnkData tile big">
-				<div>
-					<span class="symbol"><i class="icon-database"></i></span>
-					<span class="label" data-text="gpsData"></span>
-				</div>
-			</a>
-			<a href="" class="lnkTiles tile big">
-				<div>
-					<span class="symbol"><i class="icon-download2"></i></span>
-					<span class="label" data-text="localTiles"></span>
-				</div>
-			</a>
-			<a href="" class="lnkPois tile big">
-				<div>
-					<span class="symbol"><i class="icon-location"></i></span>
-					<span class="label" data-text="pois"></span>
-				</div>
-			</a>
-		</div>
-	`,
-
 	gpsImportExportForm: `
 		<div class="contentPadding">
-			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="gpsData"></span></h1>
+			<h1 data-text="gpsData"></h1>
 			<div class="dataContainerHalf marginBottom paddingTop paddingRight">
 				<div class="marginBottomSmall"><span class="col4 inlineBlock" data-text="start"></span><input type="text" class="input4 tbStartDate"
 				/><div class="divCalStartDate" hidden></div><input type="text" class="input3 tbStartTime" data-title="hhmm" /><a
@@ -141,7 +117,7 @@ PiLot.Templates.Tools = {
 
 	tilesDownloadForm: `
 		<div class="contentPadding">
-			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="localTiles"></span></h1>
+			<h1 data-text="localTiles"></h1>
 			<div class="marginTop marginBottom dataContainerHalf">
 				<div class="semiBold inlineBlock marginBottomSmall" data-text="tileSets"></div>
 				<div class="divTileSources marginBottom">
@@ -188,7 +164,7 @@ PiLot.Templates.Tools = {
 
 	poisManagementPage: `
 		<div class="contentPadding marginBottom">
-			<h1><a href="" class="lnkTools" data-text="tools"></a> : <span data-text="pois"></span></h1>
+			<h1 data-text="pois"></h1>
 		</div>`,
 
 	poisOsmImportForm: `
@@ -337,7 +313,7 @@ PiLot.Templates.Tools = {
 
 	checklistsPage: `
 		<div class="contentPadding paddingRight">
-			<h1><span data-text="checklists"></span></h1>
+			<h1 data-text="checklists"></h1>
 			<div class="plhContent"></div>
 		</div>
 	`,

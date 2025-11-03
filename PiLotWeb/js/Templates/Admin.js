@@ -4,49 +4,9 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Admin = {
 
-	adminOverviewPage: `<div class="contentPadding">
-		<h1 data-text="administration"></h1>
-		<a href="" class="lnkWiFi tile big">
-			<div>
-				<span class="symbol"><i class="icon-connection"></i></span>
-				<span class="label" data-text="wifi"></span>
-			</div>
-		</a>
-		<a href="" class="lnkServices tile big">
-			<div>
-				<span class="symbol"><i class="icon-cogs"></i></span>
-				<span class="label" data-text="services"></span>
-			</div>
-		</a>
-		<a href="" class="lnkTime tile big">
-			<div>
-				<span class="symbol"><i class="icon-time2"></i></span>
-				<span class="label" data-text="time"></span>
-			</div>
-		</a>
-		<a href="" class="lnkSystemStatus tile big">
-			<div>
-				<span class="symbol"><i class="icon-thermometer"></i></span>
-				<span class="label" data-text="temperature"></span>
-			</div>
-		</a>
-		<a href="" class="lnkLog tile big">
-			<div>
-				<span class="symbol"><i class="icon-stack"></i></span>
-				<span class="label" data-text="logfiles"></span>
-			</div>
-		</a>
-		<a href="#" class="lnkShutDown tile big">
-			<div>
-				<span class="symbol"><i class="icon-switch"></i></span>
-				<span class="label" data-text="shutDown"></span>
-			</div>
-		</a>
-	</div>`,
-
 	timePage: `
 		<div class="contentPadding">
-			<h1><span data-text="time"></span></h1>
+			<h1 data-text="time"></h1>
 			<div class="dataContainerHalf paddingRight marginBottomBig">
 				<span class="timeLabel" data-text="clientTime"></span><span id="lblClientTime"></span><br />
 				<span class="timeLabel" data-text="clientTimeOffset"></span><span id="lblClientErrorOffset"></span>&nbsp;s<br />
@@ -66,7 +26,7 @@ PiLot.Templates.Admin = {
 
 	systemStatusPage: `
 		<div class="contentPadding">
-			<h1><span data-text="cpuTemperature"></span></h1>
+			<h1 data-text="cpuTemperature"></h1>
 			<div class="dataContainerHalf">
 				<div class="chartContainer" hidden></div>
 				<div class="chartWait" data-text="pleaseWait"></div>
@@ -76,7 +36,7 @@ PiLot.Templates.Admin = {
 
 	servicesPage: `
 		<div class="contentPadding">
-			<h1><span data-text="services"></span></h1>
+			<h1 data-text="services"></h1>
 			<div class="plhServices"></div>
 		</div>
 	`,
@@ -97,7 +57,7 @@ PiLot.Templates.Admin = {
 
 	shutdownPage: `
 		<div class="contentPadding">
-			<h1><span data-text="shutDown"></span></h1>
+			<h1 data-text="shutDown"></h1>
 			<div class="feedbackGood pnlAvailable marginRight marginBottom" data-text="pilotAvailable"></div>
 			<div class="feedbackWarning pnlShuttingDown marginRight" data-text="pilotShuttingDown" hidden></div>
 			<div class="feedbackNeutral pnlUnavailable marginRight marginBottom" data-text="pilotUnavailable" hidden></div>
@@ -106,8 +66,7 @@ PiLot.Templates.Admin = {
 
 	wifiPage: `
 		<div class="contentPadding">
-			<h1><span data-text="wifi"></span></h1>
-			<a href="#" class="lnkFullScreen">full screen</a>
+			<h1 data-text="wifi"></h1>
 			<select class="ddlInterface input8 marginBottom" hidden></select>
 			<div class="pnlOutput marginBottom marginRight" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; 
 			border:3px solid; border-color: #333 #bbb #bbb #333; overflow:auto;"></div>

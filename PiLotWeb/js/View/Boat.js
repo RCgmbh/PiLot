@@ -484,7 +484,6 @@ PiLot.View.Boat = (function () {
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatPage);
 			const loader = PiLot.Utils.Loader;
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.settings));
 			this.plhBoatImages = pageContent.querySelector('.plhBoatImages');
 			this.loadBoatImagesAsync();
 		},

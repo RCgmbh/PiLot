@@ -3,27 +3,6 @@ var PiLot = PiLot || {};
 PiLot.View = PiLot.View || {};
 
 PiLot.View.Tools = (function () {
-	/**
-	 * The very basic page with just tiles
-	 * */
-	var ToolsOverviewPage = function () {
-		this.draw();
-	};
-
-	ToolsOverviewPage.prototype = {
-
-		/** Draws the page */
-		draw: function () {
-			const loader = PiLot.Utils.Loader;
-			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.toolsOverviewPage);
-			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkData').setAttribute('href', loader.createPageLink(loader.pages.data));
-			const lnkTiles = pageContent.querySelector('.lnkTiles');
-			PiLot.Utils.Common.bindOrHideEditLink(lnkTiles, null, loader.createPageLink(loader.pages.tiles));
-			const lnkPois = pageContent.querySelector('.lnkPois');
-			PiLot.Utils.Common.bindOrHideEditLink(lnkPois, null, loader.createPageLink(loader.pages.pois));
-		}
-	};
 
 	/// a form which allows deleting, importing and exporting gps data
 	var GpsImportExportForm = function () {
@@ -71,7 +50,6 @@ PiLot.View.Tools = (function () {
 			const loader = PiLot.Utils.Loader;
 			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.gpsImportExportForm);
 			loader.getContentArea().appendChild(this.pageContent);
-			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.tools));
 			const locale = PiLot.Utils.Language.getLanguage();
 			let tbStartDate = this.pageContent.querySelector('.tbStartDate');
 			this.calStartDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalStartDate'), tbStartDate, null, null, null, locale);
@@ -647,7 +625,6 @@ PiLot.View.Tools = (function () {
 			const loader = PiLot.Utils.Loader;
 			this.pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.tilesDownloadForm);
 			loader.getContentArea().appendChild(this.pageContent);
-			this.pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.tools));
 			const divTileSources = this.pageContent.querySelector('.divTileSources');
 			const divTileSourceTemplate = divTileSources.querySelector('.divTileSourceTemplate');
 			for (const [tileSourceName, tileSource] of this.tileSources) {
@@ -741,7 +718,6 @@ PiLot.View.Tools = (function () {
 			const loader = PiLot.Utils.Loader;
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.poisManagementPage);
 			loader.getContentArea().appendChild(pageContent);
-			pageContent.querySelector('.lnkTools').setAttribute('href', loader.createPageLink(loader.pages.tools));
 			new PoisOsmImportControl(pageContent);
 			new PoisJsonImportForm(pageContent);
 			new PoisJsonExportForm(pageContent);
@@ -2519,7 +2495,6 @@ PiLot.View.Tools = (function () {
 
 	/// return the classes
 	return {
-		ToolsOverviewPage: ToolsOverviewPage,
 		GpsImportExportForm: GpsImportExportForm,
 		SpeedDiagram: SpeedDiagram,
 		TilesDownloadForm: TilesDownloadForm,

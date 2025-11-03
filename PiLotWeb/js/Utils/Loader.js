@@ -23,135 +23,144 @@ PiLot.Utils.Loader = (function () {
 		},
 		home: {
 			key: 'home',
-			startAction: function () { return new PiLot.View.Common.StartPage(); }
+			startAction: function () { return new PiLot.View.Common.StartPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		display: {
 			key: 'display',
 			startAction: function () { return new PiLot.View.Common.GenericDisplayPage(); },
-			noHeader: true
+			noHeader: true,
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		checklists: {
 			key: 'checklists',
-			startAction: function() { return new PiLot.View.Tools.ChecklistsPage(); }
+			startAction: function() { return new PiLot.View.Tools.ChecklistsPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		map: {
 			key: 'map',
-			startAction: function () { return new PiLot.View.Map.MapPage(); }
+			startAction: function () { return new PiLot.View.Map.MapPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		nav: {
 			key: 'nav',
-			startAction: function () { return new PiLot.View.Nav.NavPage(); }
+			startAction: function () { return new PiLot.View.Nav.NavPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		routes: {
 			key: 'routes',
-			startAction: function () { return new PiLot.View.Nav.RoutesList(); }
+			startAction: function () { return new PiLot.View.Nav.RoutesList(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		routeDetails: {
 			key: 'routeDetails',
-			startAction: function () { return new PiLot.View.Nav.RouteDetail(); }
+			startAction: function () { return new PiLot.View.Nav.RouteDetail(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		measurements: {
 			key: 'measurements',
-			startAction: function () { return new PiLot.View.Meteo.SensorsPage(); }
+			startAction: function () { return new PiLot.View.Meteo.SensorsPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		logbook: {
 			key: 'logbook',
 			startAction: function () { return new PiLot.View.Logbook.LogbookPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.canWrite(); }
 		},
 		diary: {
 			key: 'diary',
-			startAction: function () { return new PiLot.View.Diary.DiaryPage(); }
+			startAction: function () { return new PiLot.View.Diary.DiaryPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		publish: {
 			key: 'publish',
-			startAction: function () { return new PiLot.View.Diary.PublishDiaryPage(); }
+			startAction: function () { return new PiLot.View.Diary.PublishDiaryPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		stats: {
 			key: 'stats',
-			startAction: function () { return new PiLot.View.Stats.TrackStatsPage(); }
+			startAction: function () { return new PiLot.View.Stats.TrackStatsPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		photos: {
 			key: 'photos',
-			startAction: function () { return new PiLot.View.Diary.PhotosPage(); }
+			startAction: function () { return new PiLot.View.Diary.PhotosPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		games: {
 			key: 'games',
-			startAction: function () { return new PiLot.View.Media.GamesOverviewPage(); }
+			startAction: function () { return new PiLot.View.Media.GamesOverviewPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		library: {
 			key: 'library',
-			startAction: function () { return new PiLot.View.Media.LibraryPage(); }
-		},
-		settings: {
-			key: 'settings',
-			startAction: function () { return new PiLot.View.Settings.SettingsOverviewPage(); }
+			startAction: function () { return new PiLot.View.Media.LibraryPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		boat: { 
 			key: 'boat',
 			startAction: function () { return new PiLot.View.Boat.BoatPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanChangeSettings(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.canChangeSettings(); }
 		},
 		boatTime: {
 			key: 'boatTime',
 			startAction: function () { return new PiLot.View.Settings.BoatTimePage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanChangeSettings(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.canChangeSettings(); }
 		},
 		language: {
 			key: 'language',
-			startAction: function () { return new PiLot.View.Settings.LanguagePage(); }
-		},
-		tools: {
-			key: 'tools',
-			startAction: function () { return new PiLot.View.Tools.ToolsOverviewPage(); }
+			startAction: function () { return new PiLot.View.Settings.LanguagePage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		analyze: {
 			key: 'analyze',
-			startAction: () => new PiLot.View.Analyze.AnalyzePage()
+			startAction: () => new PiLot.View.Analyze.AnalyzePage(),
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		data: {
 			key: 'data',
-			startAction: function () { return new PiLot.View.Tools.GpsImportExportForm(); }
+			startAction: function () { return new PiLot.View.Tools.GpsImportExportForm(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
 		tiles: {
 			key: 'tiles',
 			startAction: function () { return new PiLot.View.Tools.TilesDownloadForm(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.canWrite(); }
 		},
 		pois: {
 			key: 'pois',
 			startAction: function () { return new PiLot.View.Tools.PoisManagementPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getCanWrite(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.canWrite(); }
 		},
 		wifi: {
 			key: 'wifi',
 			startAction: function () { return new PiLot.View.Admin.WiFiPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.hasSystemAccess(); }
 		},
 		services: {
 			key: 'services',
 			startAction: function () { return new PiLot.View.Admin.ServicesPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.hasSystemAccess(); }
 		},
 		logs: {
 			key: 'logs',
 			startAction: function () { return new PiLot.View.Admin.LogFilesPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.hasSystemAccess(); }
 		},
 		systemStatus: {
 			key: 'systemStatus',
 			startAction: function () { return new PiLot.View.Admin.SystemStatusPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.hasSystemAccess(); }
 		},
 		systemTime: {
 			key: 'systemTime',
 			startAction: function () { return new PiLot.View.Admin.BoatTimePage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.hasSystemAccess(); }
 		},
 		shutDown: {
 			key: 'shutDown',
 			startAction: function () { return new PiLot.View.Admin.ShutdownPage(); },
-			accessControl: function () { return PiLot.Model.Common.AuthHelper.instance().getPermissions().getHasSystemAccess(); }
+			accessControl: function () { return PiLot.Model.Common.Permissions.hasSystemAccess(); }
 		}
 	};
 
@@ -162,15 +171,31 @@ PiLot.Utils.Loader = (function () {
 	var PageLoader = function () {
 		this.page = null;
 		this.pageObject = null;
-		this.loadApp();
+		this.prepareAppAsync();
 
 	};
 
 	PageLoader.prototype = {
 
-		loginForm_loginSuccess: function(pPage, pParams){
-			this.addDefaultControls();
-			this.showPage(pPage, pParams);
+		loginForm_loginSuccess: function(){
+			if(this.checkPermissions()){
+				this.startApp();
+			} else if (PiLot.Model.Common.Permissions.canRead()) {
+				this.page = pages.home;
+				this.startApp();
+			} else{
+				this.showAccessDenied();
+			}
+		},
+
+		authHelper_logout: function(){
+			if(!this.checkPermissions()){
+				if(PiLot.Model.Common.Permissions.canRead()){
+					this.showPage(pages.home);
+				} else{
+					this.showAccessDenied();
+				}
+			}
 		},
 
 		window_popstate: function(pEvent){
@@ -183,10 +208,46 @@ PiLot.Utils.Loader = (function () {
 		/**
 		 * Loads the app and shows the page based on the p= query string
 		 * */
-		loadApp: function () {
-			let urlKey;
+		prepareAppAsync: async function () {
+			this.bindHandlers();
+			this.startLogging();
 			PiLot.Utils.Language.applyHTMLLanguage();
-			urlKey = RC.Utils.getUrlParameter(PAGEKEY);
+			await PiLot.Model.Common.AuthHelper.instance().loadPermissionsAsync();
+			this.decidePage();
+			if(this.checkPermissions()){
+				this.startApp();
+			} else {
+				this.showLoginForm();
+			}
+		},
+
+		startApp: function(){
+			this.addDefaultControls();
+			const params = this.processParameters();
+			this.showPage(this.page, params, false);
+		},
+
+		showLoginForm: function(){
+			const loginForm = PiLot.View.Common.getLoginForm();
+			loginForm.on('loginSuccess', this.loginForm_loginSuccess.bind(this));
+		},
+
+		bindHandlers: function(){
+			PiLot.Model.Common.AuthHelper.instance().on('logout', this.authHelper_logout.bind(this));
+			window.addEventListener('popstate', this.window_popstate.bind(this));
+		},
+
+		startLogging: function(){
+			PiLot.log = PiLot.Utils.Common.log;
+			PiLot.Utils.Common.getLogLevel();
+		},
+
+		decidePage: function(){
+			const urlKey = RC.Utils.getUrlParameter(PAGEKEY);
+			this.page = (this.getPage(urlKey) || pages.home);
+		},
+		
+		processParameters: function(){
 			const urlParams = new URLSearchParams(window.location.search);
 			const params = [];
 			for (const [aKey, aValue] of urlParams.entries()) {
@@ -194,38 +255,11 @@ PiLot.Utils.Loader = (function () {
 					params.push([aKey, aValue]);
 				}
 			}
-			this.preparePage(this.getPage(urlKey) || pages.home, params);
+			return params;
 		},
 
-		/** @returns {Object} the object from this.pages with key = pKey */
-		getPage: function(pKey){
-			let result;
-			for(let aPage in pages){
-				if(pages[aPage].key === pKey){
-					result = pages[aPage];
-					break;
-				}
-			}
-			return result;
-		},
-
-		/**
-		 * This does some preparation work, checks permissions and calls the start
-		 * function of the page
-		 */
-		preparePage: async function (pPage, pParams) {
-			PiLot.log = PiLot.Utils.Common.log;
-			PiLot.Utils.Common.getLogLevel(); // todo: can we do this on demand? why here??
-			window.addEventListener('popstate', this.window_popstate.bind(this));
-			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			await authHelper.loadPermissionsAsync()
-			if (authHelper.getPermissions().getCanRead()) {
-				this.addDefaultControls();
-				this.showPage(pPage, pParams);
-			} else {
-				const loginForm = PiLot.View.Common.getLoginForm();
-				loginForm.on('loginSuccess', this.loginForm_loginSuccess.bind(this, pPage, pParams));
-			}
+		checkPermissions: function(){
+			return !this.page.accessControl || this.page.accessControl();
 		},
 
 		/**
@@ -236,8 +270,7 @@ PiLot.Utils.Loader = (function () {
 			this.page = pPage;
 			// todo: disable header elements if no header
 			const noHeader = !!this.page.noHeader;
-			document.getElementById('header').hidden = noHeader;
-			document.getElementById('main').classList.toggle('noHeader', noHeader);
+			this.toggleHeader(!noHeader);
 			this.pageObject && this.pageObject.unload && this.pageObject.unload();
 			getContentArea().clear();
 			let url = createPageLink(this.page);
@@ -253,6 +286,18 @@ PiLot.Utils.Loader = (function () {
 			RC.Utils.handleActiveStyles();
 		},
 
+		toggleHeader: function(pVisible){
+			document.getElementById('header').hidden = !pVisible;
+			document.getElementById('main').classList.toggle('noHeader', !pVisible);
+		},
+
+		showAccessDenied: function(){
+			this.pageObject && this.pageObject.unload && this.pageObject.unload();
+			const contentArea = getContentArea();
+			contentArea.clear();
+			contentArea.innerText = "Access denied";
+		},
+
 		/**
 		 * Draws the menu and the clock
 		 * */
@@ -265,6 +310,18 @@ PiLot.Utils.Loader = (function () {
 			new PiLot.View.Common.DayNightIcon();
 			PiLot.View.Admin.WiFiIcon.getInstance();
 			new PiLot.View.Nav.GPSIcon();
+		},
+
+		/** @returns {Object} the object from this.pages with key = pKey */
+		getPage: function(pKey){
+			let result;
+			for(let aPage in pages){
+				if(pages[aPage].key === pKey){
+					result = pages[aPage];
+					break;
+				}
+			}
+			return result;
 		}
 	};
 

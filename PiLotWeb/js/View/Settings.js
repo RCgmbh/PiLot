@@ -8,30 +8,6 @@ PiLot.View = PiLot.View || {};
 PiLot.View.Settings = (function () {
 
 	/**
-	 * The very basic page with just tiles
-	 * */
-	var SettingsOverviewPage = function () {
-		this.draw();
-	};
-
-	SettingsOverviewPage.prototype = {
-
-		/** Draws the page and sets the link urls based on the Loader logic */
-		draw: function () {
-			const loader = PiLot.Utils.Loader;
-			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.settingsOverviewPage);
-			loader.getContentArea().appendChild(pageContent);
-			const lnkTime = pageContent.querySelector('.lnkTime');
-			lnkTime.setAttribute('href', loader.createPageLink(loader.pages.boatTime));
-			RC.Utils.showHide(lnkTime, PiLot.Permissions.canChangeSettings());
-			const lnkBoatConfig = pageContent.querySelector('.lnkBoatConfig');
-			lnkBoatConfig.setAttribute('href', loader.createPageLink(loader.pages.boat));
-			RC.Utils.showHide(lnkBoatConfig, PiLot.Permissions.canChangeSettings());
-			pageContent.querySelector('.lnkLanguage').setAttribute('href', loader.createPageLink(loader.pages.language));
-		}
-	};
-
-	/**
 	 * Represents a page which shows the current BoatTime and allows to change it
 	 */
 	var BoatTimePage = function () {
@@ -74,7 +50,6 @@ PiLot.View.Settings = (function () {
 			const loader = PiLot.Utils.Loader;
 			const contentArea = loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Settings.boatTimePage));
-			contentArea.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.settings));
 			this.lblBoatTime = contentArea.querySelector('#lblBoatTime');
 			this.lblBoatTimeOffset = contentArea.querySelector('#lblBoatTimeOffset');
 			this.btnMinus = contentArea.querySelector('#btnMinus');
@@ -133,7 +108,6 @@ PiLot.View.Settings = (function () {
 			const contentArea = loader.getContentArea();
 			const languagePage = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.languagePage);
 			contentArea.appendChild(languagePage);
-			languagePage.querySelector('.lnkSettings').setAttribute('href', loader.createPageLink(loader.pages.settings));
 			const ddlLanguages = contentArea.querySelector('.ddlLanguages');
 			const languages = PiLot.Config.Language.availableLanguages.map(e => [e, e]);
 			RC.Utils.fillDropdown(ddlLanguages, languages, null);
@@ -157,7 +131,6 @@ PiLot.View.Settings = (function () {
 
 	/// return the classes
 	return {
-		SettingsOverviewPage: SettingsOverviewPage,
 		BoatTimePage: BoatTimePage,
 		LanguagePage: LanguagePage
 	};

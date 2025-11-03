@@ -71,6 +71,13 @@ PiLot.View.Diary = (function () {
 			this.showTopLink();
 		},
 
+		lnkPublish_click: function(pEvent){
+			pEvent.preventDefault();
+			const page = PiLot.Utils.Loader.pages.publish;
+			const params = [[PiLot.Utils.Common.qsDateKey,PiLot.Utils.Common.getQsDateValue(this.date)]];
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(page, params);
+		},
+
 		draw: function () {
 			document.addEventListener('scrollend', this.document_scrollEnd.bind(this));
 			document.addEventListener('touchend', this.document_scrollEnd.bind(this));
@@ -100,6 +107,7 @@ PiLot.View.Diary = (function () {
 			this.diaryTracksData.on('collapse', this.diaryTracksData_expandCollapse.bind(this));
 			this.lnkTop = diaryPage.querySelector('.lnkTop');
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
+			this.lnkPublish.addEventListener('click', this.lnkPublish_click.bind(this));
 		},
 
 		applyPermissions: function(){

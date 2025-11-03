@@ -123,13 +123,25 @@ PiLot.View.Common = (function () {
 			this.showStatusAsync();
 		},
 
+		icoTimezoneOffset_click: function(pEvent){
+			pEvent.preventDefault();
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.boatTime);
+		},
+
+		icoTimeOffset_click: function(pEvent){
+			pEvent.preventDefault();
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.systemTime);
+		},
+
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.clockOffsetIcon);
 			PiLot.Utils.Loader.getIconsArea().appendChild(control);
 			this.icoTimezoneOffset = control.querySelector('.icoTimezoneOffset');
 			this.icoTimezoneOffset.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.boatTime);
+			this.icoTimezoneOffset.addEventListener('click', this.icoTimezoneOffset_click.bind(this));
 			this.icoTimeOffset = control.querySelector('.icoTimeOffset');
 			this.icoTimeOffset.href = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.systemTime);
+			this.icoTimeOffset.addEventListener('click', this.icoTimeOffset_click.bind(this));
 		},
 
 		showStatusAsync: async function (pReloadBoatTime = false) {
@@ -1104,9 +1116,8 @@ PiLot.View.Common = (function () {
 		},
 
 		btnLogout_click: function () {
-			this.authHelper.logoutAsync().then(function () {
-				document.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.home);
-			});
+			this.authHelper.logoutAsync();
+			this.hideMenu();
 		},
 
 		authHelper_login: function () {
