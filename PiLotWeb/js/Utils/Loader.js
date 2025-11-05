@@ -211,7 +211,7 @@ PiLot.Utils.Loader = (function () {
 		prepareAppAsync: async function () {
 			this.bindHandlers();
 			this.startLogging();
-			PiLot.Utils.Language.applyHTMLLanguage();
+			this.initializeLanguage();
 			await PiLot.Model.Common.AuthHelper.instance().loadPermissionsAsync();
 			this.decidePage();
 			if(this.checkPermissions()){
@@ -240,6 +240,10 @@ PiLot.Utils.Loader = (function () {
 		startLogging: function(){
 			PiLot.log = PiLot.Utils.Common.log;
 			PiLot.Utils.Common.getLogLevel();
+		},
+
+		initializeLanguage: function(){
+			PiLot.Utils.Language.initializeLanguage();
 		},
 
 		decidePage: function(){

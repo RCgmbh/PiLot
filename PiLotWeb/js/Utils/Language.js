@@ -3,34 +3,77 @@ PiLot.Utils = PiLot.Utils || {};
 
 /**
  * Simple multilingual solution. We have one file per language (Texts.xy.js). The file contains a huge object
- * PiLot.Texts, with a text per key. Each HTML Element that has a data-text or a data-title attribute will be
- * translated, which means the texts etc. will be applied, if available. The loader is responsible for making
- * sure that exactly one of the language files is loaded.
+ * PiLot.Texts.xy, with a text per key. Each HTML Element that has a data-text or a data-title attribute will
+ * be translated, which means the texts etc. will be applied, if available. 
  * */
 
 PiLot.Utils.Language = {
 
 	languageKey: "PiLot.Utils.Language.selectedLanguage",
 	defaultLanguage: "en",
+	language: null,
+	texts: null,
 
+	/**
+	 * Gets the current language, and applies it
+	 */
+	initializeLanguage: function(){
+		this.decideLanguage();
+		this.applyLanguage();
+	},
+
+	/**
+	 * Defines the current language, either from the setting or based on the
+	 * broser language, and applies it
+	 */
+	decideLanguage: function(){
+		this.language = null;
+		const savedLanguage = Storage && localStorage.getItem(this.languageKey);
+		if(savedLanguage && this.getLanguages().includes(savedLanguage)){
+			this.setLanguage(savedLanguage);
+		} 
+		if(!this.language) {
+			for(let aBrowserLanguage of navigator.languages.map(l => l.substring(0, 2).toLowerCase())){
+				if(this.getLanguages().includes(aBrowserLanguage)){
+					this.setLanguage(aBrowserLanguage);
+					break;
+				}
+			}
+		}
+		if(!this.language){
+			this.setLanguage(this.defaultLanguage);
+		}
+	},
+	
+	
 	/**
 	 * gets the currently selected language or the default language based on Config.js 
 	 * Note: We can not use PiLot.Utils.Common.loadUserSetting, as this is used very
 	 * early in the page lifecycle, when PiLot.Utils.Common won't be available yet
 	 */
 	getLanguage: function () {
-		return localStorage.getItem(this.languageKey) || this.defaultLanguage;
+		//return localStorage.getItem(this.languageKey) || this.defaultLanguage;
+		return this.language;
+	},
+
+	/** Changes the current language and saves it to the settings */
+	changeLanguage: function(pLanguage){
+		localStorage.setItem(this.languageKey, pLanguage)
+		this.setLanguage(pLanguage);
 	},
 
 	/**
-	 * Sets the current language for the user. The value is not validated, but it must
-	 * be one of the available language keys.
-	 * Note: We can not use PiLot.Utils.Common.saveUserSetting, as this would jsonify
-	 * the string, and we don't use .loadUserSetting, which would deserialize it.
+	 * Sets the current language for the user. 
 	 * @param {String} pLanguage - the language key, such as 'en'
 	 */
 	setLanguage: function (pLanguage) {
-		localStorage.setItem(this.languageKey, pLanguage)
+		if(this.getLanguages().includes(pLanguage)){
+			this.language = pLanguage;
+			this.texts = PiLot.Texts[pLanguage];
+			this.applyLanguage();
+		} else {
+			console.error(`unsupported language: ${pLanguage}`);
+		}		
 	},
 
 	/** Returns an array of all available language keys, based on Config.js */
@@ -43,7 +86,12 @@ PiLot.Utils.Language = {
 	 * @param {String} pKey - The key of the requested element 
 	 */
 	getText: function (pKey) {
-		return PiLot.Texts[pKey] || null;
+		return this.texts[pKey] || null;
+	},
+
+	applyLanguage: function(){
+		this.applyHTMLLanguage();
+		this.applyTexts(document.documentElement);
 	},
 
 	/** Sets the lang attribute of the html element to the current language */
@@ -85,7 +133,7 @@ PiLot.Utils.Language = {
 	 */
 	translateControlAttributes: function (pControl, pDataProperty) {
 		const key = pControl.dataset[pDataProperty];
-		const text = PiLot.Texts[key];
+		const text = this.getText(key);
 		if (text) {
 			switch (pDataProperty) {
 				case 'text':

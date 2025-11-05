@@ -100,12 +100,10 @@ PiLot.View.Settings = (function () {
 
 		initialize: function () {
 			this.draw();
-			this.showFeedback();
 		},
 
 		draw: function () {
-			const loader = PiLot.Utils.Loader;
-			const contentArea = loader.getContentArea();
+			const contentArea = PiLot.Utils.Loader.getContentArea();
 			const languagePage = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.languagePage);
 			contentArea.appendChild(languagePage);
 			const ddlLanguages = contentArea.querySelector('.ddlLanguages');
@@ -116,16 +114,9 @@ PiLot.View.Settings = (function () {
 			this.pnlSuccess = languagePage.querySelector('.pnlSuccess');
 		},
 
-		showFeedback: function(){
-			if(RC.Utils.getUrlParameter('ok') == 'ok'){
-				this.pnlSuccess.hidden = false;
-			}
-		},
-
 		ddlLanguages_change: function (pEvent) {
-			PiLot.Utils.Language.setLanguage(pEvent.target.value);
-			const url = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.language);
-			document.location = RC.Utils.setUrlParameter(document.location, 'ok', 'ok');
+			PiLot.Utils.Language.changeLanguage(pEvent.target.value);
+			this.pnlSuccess.hidden = false;
 		}
 	};
 
