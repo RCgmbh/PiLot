@@ -35,6 +35,7 @@ PiLot.Templates.Common = {
 				<a data-page="boat"><i class="icon-sailing-boat-water1"></i><span data-text="boatConfig"></span></a>
 				<a data-page="boatTime"><i class="icon-time2"></i><span data-text="boatTime"></span></a>
 				<a data-page="language"><i class="icon-bubbles4"></i><span data-text="language"></span></a>
+				<a data-page="fullscreen"><i class="icon-resize3"></i><span data-text="fullscreen"></span></a>
 			</div>
 			<div class="menuSection menuSectionTools">
 				<a data-page="data"><i class="icon-database"></i><span data-text="gpsData"></span></a>

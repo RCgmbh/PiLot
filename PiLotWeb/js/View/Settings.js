@@ -120,10 +120,42 @@ PiLot.View.Settings = (function () {
 		}
 	};
 
+	var FullscreenSettingPage = function () {
+		this.initialize();
+	};
+
+	FullscreenSettingPage.prototype = {
+
+		initialize: function () {
+			this.draw();
+		},
+
+		cbFullscreen_change: function(pEvent){
+			this.setFullscreenAsync(pEvent.target.checked);
+		},
+
+		draw: function () {
+			const contentArea = PiLot.Utils.Loader.getContentArea();
+			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.fullscreenSettingPage);
+			contentArea.appendChild(pageContent);
+			pageContent.querySelector('.cbFullscreen').addEventListener('change', this.cbFullscreen_change.bind(this));
+		},
+
+		setFullscreenAsync: async function(pEnabled){
+			if(pEnabled){
+				await document.documentElement.requestFullscreen();
+			} else {
+				document.fullscreenElement && await document.exitFullscreen();
+			}
+			
+		}
+	};
+
 	/// return the classes
 	return {
 		BoatTimePage: BoatTimePage,
-		LanguagePage: LanguagePage
+		LanguagePage: LanguagePage,
+		FullscreenSettingPage:FullscreenSettingPage
 	};
 
 })();

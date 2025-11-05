@@ -112,6 +112,11 @@ PiLot.Utils.Loader = (function () {
 			startAction: function () { return new PiLot.View.Settings.LanguagePage(); },
 			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
 		},
+		fullscreen: {
+			key: 'fullscreen',
+			startAction: function () { return new PiLot.View.Settings.FullscreenSettingPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
+		},
 		analyze: {
 			key: 'analyze',
 			startAction: () => new PiLot.View.Analyze.AnalyzePage(),

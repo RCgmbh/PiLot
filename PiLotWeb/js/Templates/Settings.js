@@ -24,5 +24,12 @@ PiLot.Templates.Settings = {
 			<select class="input6 ddlLanguages"></select>
 			<div class="pnlSuccess feedbackGood marginTop marginRight" data-text="languageChanged" hidden>
 		</div>
+	`,
+
+	fullscreenSettingPage: `
+		<div class="contentPadding">
+			<h1 data-text="fullscreen"></h1>
+			<label><input type="checkbox" class="cbFullscreen" /><span data-text="fullscreenActive"></span></label>
+		</div>
 	`
 }
