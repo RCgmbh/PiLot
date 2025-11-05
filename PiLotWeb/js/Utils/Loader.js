@@ -275,7 +275,7 @@ PiLot.Utils.Loader = (function () {
 			// todo: disable header elements if no header
 			const noHeader = !!this.page.noHeader;
 			this.toggleHeader(!noHeader);
-			this.pageObject && this.pageObject.unload && this.pageObject.unload();
+			this.unloadPage();
 			getContentArea().clear();
 			let url = createPageLink(this.page);
 			if(pParams){
@@ -288,6 +288,20 @@ PiLot.Utils.Loader = (function () {
 			}
 			this.pageObject = this.page.startAction();
 			RC.Utils.handleActiveStyles();
+		},
+
+		/**
+		 * Calls the unload function of the current page, if there is one, and does some
+		 * document cleanup, removing all overlays (as they tend to be created by lots of
+		 * different controls).
+		 */
+		unloadPage: function(){
+			this.pageObject && this.pageObject.unload && this.pageObject.unload();
+			let overlay;
+			do { // getting all of them at once and removing one by one did not work
+				overlay = document.querySelector('.overlay');
+				overlay && overlay.remove();
+			} while (overlay)
 		},
 
 		toggleHeader: function(pVisible){
