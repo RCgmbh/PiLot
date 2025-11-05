@@ -883,11 +883,22 @@ PiLot.View.Nav = (function () {
 			this.swapActiveRoute(pRouteId);
 		},
 
+		lnkAddRoute_click: function(pEvent){
+			pEvent.preventDefault();
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.routeDetails);
+		},
+
+		lnkRoute_click: function(pRouteId, pEvent){
+			pEvent.preventDefault();
+			const params = [['routeId', pRouteId]];
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.routeDetails, params);
+		},
+
 		draw: function () {
 			let contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routesPage));
 			const lnkAddRoute = contentArea.querySelector('.lnkAddRoute');
-			PiLot.Utils.Common.bindOrHideEditLink(lnkAddRoute, null, PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routeDetails))
+			PiLot.Utils.Common.bindOrHideEditLink(lnkAddRoute, this.lnkAddRoute_click.bind(this), PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routeDetails))
 			this.plhTable = contentArea.querySelector('.plhTable');
 			this.drawTable();
 		},
@@ -926,6 +937,7 @@ PiLot.View.Nav = (function () {
 			lnkName.innerText = pRoute.getName();
 			let detailUrl = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routeDetails);
 			lnkName.setAttribute('href', `${detailUrl}&routeId=${routeId}`);
+			lnkName.addEventListener('click', this.lnkRoute_click.bind(this, routeId));
 			let distanceNM = PiLot.Utils.Nav.metersToNauticalMiles(pRoute.getTotalDistance());
 			row.querySelector('.tdDistance').innerText = distanceNM.toLocaleString(undefined, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 			row.querySelector('.tdWaypoints').innerText = pRoute.getWaypoints().length;
@@ -996,6 +1008,11 @@ PiLot.View.Nav = (function () {
 			this.showRoute();
 		},
 
+		lnkRoutes_click: function(pEvent){
+			pEvent.preventDefault();
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.routes);
+		},
+
 		/// change handler for the Name textbox
 		tbRouteName_changed: function () {
 			this.route.setName(this.tbRouteName.value.trim());
@@ -1005,7 +1022,8 @@ PiLot.View.Nav = (function () {
 		/// click handler for the "add waypoint" link, adds a new 
 		/// waypoint to the route, copying the coordinates of the
 		/// last waypoint
-		lnkAddWaypoint_click: function () {
+		lnkAddWaypoint_click: function (pEvent) {
+			pEvent.preventDefault();
 			const lastWp = this.route.getWaypoints().last();
 			let lat = null;
 			let lon = null;
@@ -1037,6 +1055,7 @@ PiLot.View.Nav = (function () {
 
 		/** click handler for the "copy" link */
 		lnkCopyRoute_click: function () {
+			pEvent.preventDefault();
 			this.route.setRouteId(null);
 			this.route.setName(`${this.route.getName()}-Copy`);
 			this.showRoute();
@@ -1045,9 +1064,10 @@ PiLot.View.Nav = (function () {
 
 		/// click handler for the "delete route" link. Deletes the route, ignoring the result
 		lnkDeleteRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			if (confirm(PiLot.Utils.Language.getText('confirmDeleteRoute'))) {
 				this.route.deleteFromServerAsync().then(r => {
-					window.location = PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routes);
+					PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.routes);
 				});
 			}
 		},
@@ -1108,6 +1128,9 @@ PiLot.View.Nav = (function () {
 		drawFormAsync: async function () {
 			const contentArea = PiLot.Utils.Loader.getContentArea();
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.routeDetailPage));
+			const lnkRoutes = contentArea.querySelector('.lnkRoutes');
+			lnkRoutes.setAttribute('href', PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.routes));
+			lnkRoutes.addEventListener('click', this.lnkRoutes_click.bind(this));
 			const routeContainer = contentArea.querySelector('#divRoute');
 			routeContainer.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.editRouteForm));
 			this.tbRouteName = routeContainer.querySelector('.tbRouteName');

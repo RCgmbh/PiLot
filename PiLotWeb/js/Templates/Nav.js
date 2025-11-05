@@ -49,7 +49,7 @@ PiLot.Templates.Nav = {
 	routeDetailPage: `
 		<div class="contentPadding">
 			<div class="dataContainerFull marginBottom">
-				<h1><a href="index.html?p=routes"><i class="icon-arrow-left2"></i> <span data-text="routes"></span></a></h1>
+				<h1><a href="#" class="lnkRoutes"><i class="icon-arrow-left2"></i> <span data-text="routes"></span></a></h1>
 			</div>
 			<div class="dataContainerHalf paddingRight">
 				<div id="divRoute"></div>

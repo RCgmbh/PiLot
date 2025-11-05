@@ -664,6 +664,12 @@ PiLot.View.Stats = (function () {
 			this.showDataAsync();
 		},
 
+		bar_click: function(pDate, pEvent){
+			pEvent.preventDefault();
+			const params = [PiLot.Utils.Common.getQsDateArray(pDate)];
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.diary, params);
+		},
+
 		draw: function () {
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsChart);
 			this.container.appendChild(control);
@@ -819,15 +825,17 @@ PiLot.View.Stats = (function () {
 			const loader = PiLot.Utils.Loader;
 			const utils = PiLot.Utils.Common;
 			let trackSegment, startTime;
-			let bar, lnkBarText;
+			let bar, lnkBarText, date;
 			const convertSpeedFunction = this.userSettings.unit == "kn" ? this.convertSpeedKn : this.convertSpeedKmh
 			for(let i = 0; i < this.trackSegments.length; i++){
 				trackSegment = this.trackSegments[i];
 				startTime = trackSegment.getStartBoatTime();
+				date = RC.Date.DateOnly.fromObject(startTime);
 				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsDataItem);
 				lnkBarText = node.querySelector('.lnkBarText');
 				lnkBarText.innerText = startTime.toLocaleString(DateTime.DATE_SHORT);
-				lnkBarText.href = `${loader.createPageLink(loader.pages.diary)}&d=${utils.getQsDateValue(RC.Date.DateOnly.fromObject(startTime))}`;
+				lnkBarText.href = `${loader.createPageLink(loader.pages.diary)}&${utils.qsDateKey}=${utils.getQsDateValue(date)}`;
+				lnkBarText.addEventListener('click', this.bar_click.bind(this, date));
 				node.querySelector('.lblBarLabel').innerText = convertSpeedFunction(trackSegment.getSpeed()).toFixed(2);
 				bar = node.querySelector('.divBar');
 				bar.style.width = `${(factor * trackSegment.getSpeed()).toFixed(2)}%`;

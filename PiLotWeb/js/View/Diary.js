@@ -74,7 +74,7 @@ PiLot.View.Diary = (function () {
 		lnkPublish_click: function(pEvent){
 			pEvent.preventDefault();
 			const page = PiLot.Utils.Loader.pages.publish;
-			const params = [[PiLot.Utils.Common.qsDateKey,PiLot.Utils.Common.getQsDateValue(this.date)]];
+			const params = [PiLot.Utils.Common.getQsDateArray(this.date)];
 			PiLot.Utils.Loader.PageLoader.getInstance().showPage(page, params);
 		},
 
@@ -210,7 +210,7 @@ PiLot.View.Diary = (function () {
 			const url = PiLot.Utils.Common.setQsDate(window.location, this.date);
 			const state = {
 				page:PiLot.Utils.Loader.pages.diary.key,
-				params:[[PiLot.Utils.Common.qsDateKey, PiLot.Utils.Common.getQsDateValue(this.date)]]
+				params:[PiLot.Utils.Common.getQsDateArray(this.date)]
 			};
 			if(pReplaceHistory){
 				window.history.replaceState(state, '', url);
@@ -659,6 +659,7 @@ PiLot.View.Diary = (function () {
 
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.date =  null;
 			this.track = null;
 			this.draw();
 			this.applyPermissions();
@@ -713,11 +714,24 @@ PiLot.View.Diary = (function () {
 			this.showAnalyzeTrackLink();
 		},
 
+		lnkEditTrack_click: function(pEvent){
+			pEvent.preventDefault();
+			const params = [PiLot.Utils.Common.getQsDateArray(this.date)];
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.data, params);
+		},
+
+		lnkAnalyzeTrack_click: function(pEvent){
+			pEvent.preventDefault();
+			const params = [PiLot.Utils.Common.getQsDateArray(this.date)];
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.analyze, params);
+		},
+
 		draw: function () {
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryTrackData);
 			this.container.appendChild(control);
 			this.pnlMapBox = this.container.querySelector('.pnlMapBox');
 			this.lnkEditTrack = control.querySelector('.lnkEditTrack');
+			this.lnkEditTrack.addEventListener('click', this.lnkEditTrack_click.bind(this));
 			this.lnkEnlargeMap = control.querySelector('.lnkEnlargeMap');
 			this.lnkEnlargeMap.addEventListener('click', this.lnkEnlargeMap_click.bind(this));
 			this.lnkMinimizeMap = control.querySelector('.lnkMinimizeMap');
@@ -746,6 +760,7 @@ PiLot.View.Diary = (function () {
 			this.trackStatistics = new PiLot.View.Nav.TrackStatistics(control.querySelector('.plhTrackStatistics'));
 			this.pnlAnalyzeTrack = control.querySelector('.pnlAnalyzeTrack');
 			this.lnkAnalyzeTrack = control.querySelector('.lnkAnalyzeTrack');
+			this.lnkAnalyzeTrack.addEventListener('click', this.lnkAnalyzeTrack_click.bind(this));
 			this.pnlNoData = control.querySelector('.pnlNoData');
 		},
 
@@ -763,8 +778,9 @@ PiLot.View.Diary = (function () {
 		},
 
 		showDataAsync: async function (pDate) {
-			this.lnkEditTrack.href = PiLot.Utils.Common.setQsDate(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.data), pDate)
-			await this.loadTracksAsync(pDate);
+			this.date = pDate;
+			this.lnkEditTrack.href = PiLot.Utils.Common.setQsDate(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.data), this.date);
+			await this.loadTracksAsync();
 		},
 
 		enlargeMinimizeMap: function (pEnlarge) {
@@ -786,10 +802,10 @@ PiLot.View.Diary = (function () {
 			}
 		},
 
-		loadTracksAsync: async function (pDate) {
+		loadTracksAsync: async function () {
 			this.pnlAnalyzeTrack.hidden = true;
-			const startMS = pDate.toLuxon().toMillis();
-			const endMS = pDate.addDays(1).toLuxon().toMillis();
+			const startMS = this.date.toLuxon().toMillis();
+			const endMS = this.date.addDays(1).toLuxon().toMillis();
 			this.tracks = await PiLot.Service.Nav.TrackService.getInstance().loadTracksAsync(startMS, endMS, true);
 			this.applyMapBoxEmptyStyle();
 			this.applyTracksBoxEmptyStyle();
@@ -1091,7 +1107,7 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * Shows a link to the diary page of the date of the photo, but only if the photo gallery
-		 * is not being shown for one certain date.
+		 * is not being shown for one certain date. The diary will be opened in a new tab
 		 * @param {PiLot.Model.Logbook.ImageCollection} pImageCollection
 		 *  */
 		showDiaryLink: function(pImageCollection){

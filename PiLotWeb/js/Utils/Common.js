@@ -84,6 +84,14 @@ PiLot.Utils.Common = {
 		return pDate.toLuxon().toFormat(this.qsDateFormat);
 	},
 
+	/**
+	 * Gets an array which can be used as date parameter for the page loader ([dateKey, dateValue])
+	 * @param {RC.Date.DateOnly} pDate - the date
+	 * */
+	getQsDateArray: function(pDate){
+		return [this.qsDateKey, this.getQsDateValue(pDate)];
+	},
+
 	/// converts a relative path into an absolute url on the current host.
 	/// use a leading / as in /tiles/xy
 	toLocalUrl: function (pRelativePath) {
