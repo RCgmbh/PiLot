@@ -22,7 +22,7 @@ PiLot.Templates.Settings = {
 		<div class="contentPadding">
 			<h1 data-text="language"></h1>
 			<select class="input6 ddlLanguages"></select>
-			<div class="pnlSuccess feedbackGood marginTop marginRight" data-text="languageChanged" hidden>
+			<div class="pnlSuccess feedbackGood marginTop marginRight" data-text="languageChanged" hidden></div>
 		</div>
 	`,
 
@@ -30,6 +30,21 @@ PiLot.Templates.Settings = {
 		<div class="contentPadding">
 			<h1 data-text="fullscreen"></h1>
 			<label><input type="checkbox" class="cbFullscreen" /><span data-text="fullscreenActive"></span></label>
+			<div class="pnlUnavailable feedbackBad" data-text="fullscreenUnavailable" hidden></div>
 		</div>
-	`
+	`,
+
+	fullscreenDialog: `
+		<div class="pnlOverlay vCenter overlay" hidden>
+			<div class="dialogPanel hCenter" style="width:30em; max-width:95%;">
+				<div class="paddingAllSmall">
+					<p data-text="fullscreenConfirm" class="marginBottom"></p>
+					<div class="buttons">
+						<a href="#" class="btnYes linkButton semiBold" data-text="yes"></a>
+						<a href="#" class="btnNo linkButton" data-text="no"></a>
+					</div>
+				</div>
+			</div>
+		</div>	
+	`,
 }

@@ -230,6 +230,7 @@ PiLot.Utils.Loader = (function () {
 			this.addDefaultControls();
 			const params = this.processParameters();
 			this.showPage(this.page, params, false);
+			this.initializeFullscreen();
 		},
 
 		showLoginForm: function(){
@@ -249,6 +250,10 @@ PiLot.Utils.Loader = (function () {
 
 		initializeLanguage: function(){
 			PiLot.Utils.Language.initializeLanguage();
+		},
+
+		initializeFullscreen: function(){
+			PiLot.Utils.Presentation.Fullscreen.initialize();
 		},
 
 		decidePage: function(){

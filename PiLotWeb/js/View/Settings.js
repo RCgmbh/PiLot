@@ -121,6 +121,8 @@ PiLot.View.Settings = (function () {
 	};
 
 	var FullscreenSettingPage = function () {
+		this.cbFullscreen = null;
+		this.pnlUnavailable = null;
 		this.initialize();
 	};
 
@@ -128,6 +130,7 @@ PiLot.View.Settings = (function () {
 
 		initialize: function () {
 			this.draw();
+			this.applySetting();
 		},
 
 		cbFullscreen_change: function(pEvent){
@@ -138,16 +141,57 @@ PiLot.View.Settings = (function () {
 			const contentArea = PiLot.Utils.Loader.getContentArea();
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.fullscreenSettingPage);
 			contentArea.appendChild(pageContent);
-			pageContent.querySelector('.cbFullscreen').addEventListener('change', this.cbFullscreen_change.bind(this));
+			this.cbFullscreen = pageContent.querySelector('.cbFullscreen');
+			this.cbFullscreen.addEventListener('change', this.cbFullscreen_change.bind(this));
+			this.pnlUnavailable = pageContent.querySelector('.pnlUnavailable');
+		},
+
+		applySetting: function(){
+			const available = !!document.documentElement.requestFullscreen;
+			this.cbFullscreen.checked = available && PiLot.Utils.Presentation.Fullscreen.getSetting();
+			this.pnlUnavailable.hidden = available;
 		},
 
 		setFullscreenAsync: async function(pEnabled){
 			if(pEnabled){
-				await document.documentElement.requestFullscreen();
+				await PiLot.Utils.Presentation.Fullscreen.setFullscreenAsync();
 			} else {
-				document.fullscreenElement && await document.exitFullscreen();
+				await PiLot.Utils.Presentation.Fullscreen.exitFullscreenAsync();
 			}
-			
+			PiLot.Utils.Presentation.Fullscreen.saveSetting(pEnabled);
+		}
+	};
+
+	FullscreenDialog = {
+
+		dialog: null,
+
+		btnYes_click: async function (pEvent){
+			pEvent.preventDefault();
+			await PiLot.Utils.Presentation.Fullscreen.setFullscreenAsync();
+			this.hide();
+		},
+
+		btnNo_click: function (pEvent){
+			pEvent.preventDefault();
+			PiLot.Utils.Presentation.Fullscreen.saveSetting(false);
+			this.hide();
+		},
+
+		draw: function(){
+			this.dialog = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.fullscreenDialog);
+			document.body.insertAdjacentElement('afterbegin', this.dialog);
+			this.dialog.querySelector('.btnYes').addEventListener('click', this.btnYes_click.bind(this));
+			this.dialog.querySelector('.btnNo').addEventListener('click', this.btnNo_click.bind(this));
+		},
+
+		show: function(){
+			this.dialog || this.draw();
+			this.dialog.hidden = false;
+		},
+
+		hide: function(){
+			this.dialog.hidden = true;
 		}
 	};
 
@@ -155,7 +199,8 @@ PiLot.View.Settings = (function () {
 	return {
 		BoatTimePage: BoatTimePage,
 		LanguagePage: LanguagePage,
-		FullscreenSettingPage:FullscreenSettingPage
+		FullscreenSettingPage:FullscreenSettingPage,
+		FullscreenDialog: FullscreenDialog
 	};
 
 })();
