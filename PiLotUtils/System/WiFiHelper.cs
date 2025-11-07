@@ -153,10 +153,11 @@ namespace PiLot.Utils.OS {
                     ssid = segments[4];
                     WiFiInfo wifiInfo = pKnownNetworks.FirstOrDefault(e => e.SSID == ssid);
                     if(wifiInfo == null){
-                        wifiInfo = new WiFiInfo(ssid);
+						wifiInfo = new WiFiInfo(ssid);
+						wifiInfo.SignalStrength = 0;
                         result.Add(wifiInfo);
                     }
-					wifiInfo.SignalStrength = Math.Min(signalStrength, -1); // we have positive signal strength sometimes, which confuses the gui...
+					wifiInfo.SignalStrength = Math.Min(wifiInfo.SignalStrength ?? 0, signalStrength); // we take the smallest value as one wifi can be listed many times
 					wifiInfo.IsAvailable = true;
                 }
             }
