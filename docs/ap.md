@@ -22,7 +22,19 @@ The file needs to have the following content:
 ```
 SUBSYSTEM=="net", ACTION=="add", ATTR{address}=="xx:xx:xx:xx:xx:xx", NAME="wlxOnboardWiFi"
 ```
-Replace **xx:xx:xx:xx:xx:xx** by the value after "ether" you copied before (7f:27:b8:60:39:7f in our example). As soon as you have replaced and double-checked the text, hit Ctrl + X, then Y, then Enter to save the file. You can reboot now to apply the changes with the command `sudo reboot now` (we just need a bunch of reboots during the network setup, sorry for that!).
+Replace **xx:xx:xx:xx:xx:xx** by the value after "ether" you copied before (7f:27:b8:60:39:7f in our example). As soon as you have replaced and double-checked the text, hit Ctrl + X, then Y, then Enter to save the file. 
+
+We do some more stuff, not knowing if they are necessary, but networking tends to be a bit shaky, so this might help (they might go into the installer script one day...):
+- run `sudo nmtui` then go to > Edit a connection > preconfigured > Edit > For Device, enter "wlxAdapterName (74:da:38:f4:df:aa)", of course replacing wlxAdapterName by the name of the network adapter used to connect to the internet, and 74:xxx replaced again by the "ether"-value from above.
+- still in nmtui, edit the hotspot connection, and select "Shared" for the IPv6 configuration.
+- run `sudo nano sudo nano  /etc/sysctl.d/98-rpi.conf` and add these two lines:
+```
+net.ipv4.ip_forward=1
+net.ipv6.conf.all.forwarding=1
+```
+
+-
+You can reboot now to apply the changes with the command `sudo reboot now`.
 
 After a minute, re-connect your ssh session. Run ifconfig once again, and now you see both wireless interfaces having a name starting with "wlx". Fantastic!
 
