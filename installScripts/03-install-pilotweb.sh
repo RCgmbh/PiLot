@@ -31,7 +31,7 @@ ln /opt/pilotapi/config/tileSources.json /etc/pilot/tileSources.json
 ln -s /opt/pilotapi/config/boats /etc/pilot/boats
 # set up API service
 cp resources/pilotApi.service /etc/systemd/system/pilotApi.service
-chmod 446 /etc/systemd/system/pilotApi.service
+chmod 0644 /etc/systemd/system/pilotApi.service
 systemctl daemon-reload
 systemctl enable pilotApi
 systemctl start pilotApi

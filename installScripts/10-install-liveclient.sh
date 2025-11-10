@@ -16,6 +16,7 @@ ln /opt/pilotliveclient/config.json /etc/pilot/liveClient.json
 
 # configure service, don't enable or start
 cp resources/liveClient.service /etc/systemd/system/liveClient.service
+chmod 0644 /etc/systemd/system/liveClient.service
 systemctl daemon-reload
 
 echo Done. Please update /etc/pilot/liveClient.json

@@ -23,7 +23,7 @@ ln /opt/pilotbackupapi/config/config.json /etc/pilotbackupapi/config.json
 
 # install service
 cp resources/pilotBackupApi.service /etc/systemd/system/pilotBackupApi.service
-chmod 446 /etc/systemd/system/pilotBackupApi.service
+chmod 0644 /etc/systemd/system/pilotBackupApi.service
 systemctl daemon-reload
 systemctl enable pilotBackupApi
 systemctl start pilotBackupApi

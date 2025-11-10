@@ -20,6 +20,7 @@ ln /opt/pilotphotoswatcher/PiLot.PhotosWatcher.dll.config /etc/pilot/pilotPhotos
 
 # install service
 cp resources/photosWatcher.service /etc/systemd/system/photosWatcher.service
+chmod 0644 /etc/systemd/system/photosWatcher.service
 systemctl daemon-reload
 systemctl enable photosWatcher
 systemctl start photosWatcher

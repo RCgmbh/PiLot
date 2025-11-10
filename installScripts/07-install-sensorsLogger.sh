@@ -16,6 +16,7 @@ ln /opt/pilotsensors/PiLot.Sensors.dll.config /etc/pilot/pilotSensors.config
 
 # configure and enable service
 cp resources/sensorsLogger.service /etc/systemd/system/sensorsLogger.service
+chmod 0644 /etc/systemd/system/sensorsLogger.service
 systemctl daemon-reload
 systemctl enable sensorsLogger
 systemctl start sensorsLogger

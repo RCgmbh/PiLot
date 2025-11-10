@@ -18,8 +18,8 @@ cp resources/gpsLogger.py /opt/pilotgpslogger/
 
 cp resources/gpsLogger.service /etc/systemd/system/
 
-chmod 446 /etc/systemd/system/gpsLogger.service
+chmod 0644 /etc/systemd/system/gpsLogger.service
 systemctl daemon-reload
 systemctl enable gpsLogger
 systemctl start gpsLogger
-echo "Done with part 2"
+echo "Done installing GPS Logger"

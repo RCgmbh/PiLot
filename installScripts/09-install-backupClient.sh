@@ -21,6 +21,7 @@ ln /opt/pilotbackupclient/config.json /etc/pilot/backupConfig.json
 
 # install service
 cp resources/backupClient.service /etc/systemd/system/backupClient.service
+chmod 0644 /etc/systemd/system/backupClient.service
 systemctl daemon-reload
 systemctl enable backupClient
 systemctl start backupClient
