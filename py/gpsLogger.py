@@ -58,20 +58,20 @@ def sendPosition(data, poolManager):
 def main():
         poolManager = urllib3.PoolManager()
         session = gps.gps(mode=gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
-        try:
-                for report in session:
+		for report in session:
+                try:
                         if report['class'] == 'TPV':
                                 data = readPosition(report)
                                 if not data is None:
                                         sendPosition(data, poolManager)
-                        sleep(0.05)
-        except KeyError:
-                pass
-        except KeyboardInterrupt:
-                quit()
-        except StopIteration as argument:
-                print('There was a StopIteration Exception: ', argument)
-                pass
+                except KeyError as argument:
+                        print('There was a KeyError Exception: ', argument)
+                except KeyboardInterrupt as argument:
+                        print('There was a KeyboardInterrupt Exception: ', argument)
+                        quit()
+                except StopIteration as argument:
+                        print('There was a StopIteration Exception: ', argument)
+                sleep(0.05)
 
 
 apiUrl = 'http://localhost/pilotapi/v1/Position/local'
