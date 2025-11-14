@@ -29,8 +29,8 @@ PiLot.Templates.Settings = {
 	fullscreenSettingPage: `
 		<div class="contentPadding">
 			<h1 data-text="fullscreen"></h1>
-			<label><input type="checkbox" class="cbFullscreen" /><span data-text="fullscreenActive"></span></label>
-			<div class="pnlUnavailable feedbackBad" data-text="fullscreenUnavailable" hidden></div>
+			<label class="block marginBottom"><input type="checkbox" class="cbFullscreen" /><span data-text="fullscreenActive"></span></label>
+			<div class="pnlUnavailable feedbackBad marginRight" data-text="fullscreenUnavailable" hidden></div>
 		</div>
 	`,
 

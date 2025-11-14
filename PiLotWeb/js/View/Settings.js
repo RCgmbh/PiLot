@@ -149,6 +149,7 @@ PiLot.View.Settings = (function () {
 		applySetting: function(){
 			const available = !!document.documentElement.requestFullscreen;
 			this.cbFullscreen.checked = available && PiLot.Utils.Presentation.Fullscreen.getSetting();
+			this.cbFullscreen.disabled = !available;
 			this.pnlUnavailable.hidden = available;
 		},
 
