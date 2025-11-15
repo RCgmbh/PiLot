@@ -12,7 +12,7 @@
  * THIS PROGRAM DOES IN NO WAY REPLACE SUITABLE NAVIGATION EQUIPMENT, UP-TO-DATE OFFICIAL CHARTS OR EDUCATED SEAMANSHIP.
  **/
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Configuration;
 
 using Microsoft.AspNetCore.Hosting;
@@ -25,11 +25,11 @@ namespace PiLot.API {
 	public class Program {
 
 		public const String APIROOT = "pilotapi/v1/";
-		private static Dictionary<String, Object> application;
+		private static ConcurrentDictionary<String, Object> application;
 
 		public static void Main(string[] args) {
 			Program.SetupLogger();
-			Program.application = new Dictionary<string, object>();
+			Program.application = new ConcurrentDictionary<string, object>(4, 13);
 			CreateHostBuilder(args).Build().Run();
 		}
 
