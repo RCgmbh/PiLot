@@ -23,6 +23,7 @@ echo "Copy website files done."
 echo "Build and install latest API Version"
 systemctl stop gpsLogger
 systemctl stop pilotApi
+systemctl stop sensorsLogger
 mv /opt/pilotapi/config /opt/pilotapi/config_bak
 mv /opt/pilotapi/PiLot.API.dll.config /opt/pilotapi/PiLot.API.dll.config.bak
 dotnet build PiLotAPICore -o /opt/pilotapi -c release -r linux-arm --no-self-contained
@@ -47,5 +48,6 @@ rm -r /opt/pilotapi/App_Data
 echo "API installed"
 systemctl start pilotApi
 systemctl start gpsLogger
+systemctl start sensorsLogger
 
 echo "Done"
