@@ -15,6 +15,8 @@ namespace PiLot.API.Workers {
 
 		private const String APPKEY = "photosWorker";
 
+		private static Object staticLock = new object();
+
 		private List<ImageData> queue;
 		private Boolean isProcessing = false;
 		private Object lockObject;
@@ -34,14 +36,15 @@ namespace PiLot.API.Workers {
 		/// </summary>
 		public static PhotosWorker Instance {
 			get {
-
 				PhotosWorker result = null;
-				Object applicationItem = Program.GetApplicationObject(APPKEY);
-				if (applicationItem != null) {
-					result = applicationItem as PhotosWorker;
-				} else {
-					result = new PhotosWorker();
-					Program.SetApplicationObject(APPKEY, result);
+				lock(staticLock){
+					Object applicationItem = Program.GetApplicationObject(APPKEY);
+					if (applicationItem != null) {
+						result = applicationItem as PhotosWorker;
+					} else {
+						result = new PhotosWorker();
+						Program.SetApplicationObject(APPKEY, result);
+					}
 				}
 				return result;
 			}
