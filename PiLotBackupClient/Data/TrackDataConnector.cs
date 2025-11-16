@@ -32,7 +32,7 @@ namespace PiLot.Backup.Client.Data {
 				try {
 					String tracksCountQuery = "SELECT count(id) FROM tracks WHERE start_utc IS NOT NULL;";
 					tracksCount = this.dbHelper.ReadValue<Int32?>(tracksCountQuery, transaction) ?? 0;
-					String changedTrackIDsQuery = "SELECT id FROM tracks WHERE date_changed >= @p_date_changed";
+					String changedTrackIDsQuery = "SELECT id FROM tracks WHERE date_changed >= @p_date_changed ORDER BY date_changed ASC";
 					List<(String, Object)> changedTrackIDsPars = new List<(String, Object)>();
 					changedTrackIDsPars.Add(("@p_date_changed", pChangedAfter));
 					changedTrackIDs = this.dbHelper.ReadData<Int32?>(changedTrackIDsQuery, new Func<NpgsqlDataReader, Int32?>(this.dbHelper.ReadNullableField<Int32?>), changedTrackIDsPars);
