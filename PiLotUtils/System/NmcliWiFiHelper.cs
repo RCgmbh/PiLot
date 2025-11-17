@@ -16,7 +16,7 @@ namespace PiLot.Utils.OS {
 		private const String DEVICETYPEWIFI = "wifi";
 		private const String CONNECTIONTYPEWIFI = "802-11-wireless";
 		private const String HOTSPOTCONNECTION = "hotspot";
-
+		private const Int32 MAXWAIT = 15000;
 		
         
         public NmcliWiFiHelper():base(){ }
@@ -31,7 +31,7 @@ namespace PiLot.Utils.OS {
 			List<String> result = new List<String>();
 			if (this.systemHelper.IsLinux) {
 				String hotspotInterface = this.GetHotspotInterface();
-				String cmdResult = this.systemHelper.CallCommand("sudo", "nmcli -t -f DEVICE,TYPE device");
+				String cmdResult = this.systemHelper.CallCommand("sudo", "nmcli -t -f DEVICE,TYPE device", MAXWAIT);
 				String[] fields;
 				foreach (String aLine in this.GetLines(cmdResult)) {
 					fields = this.GetFields(aLine);
@@ -57,7 +57,7 @@ namespace PiLot.Utils.OS {
         /// Adds a new network with SSID and passphrase and selects it. Returns the result of the command.
         /// </summary>
         public String AddNetwork(String pInterface, String pSSID, String pPassphrase){
-			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli device wifi connect {pSSID} password {pPassphrase} ifname {pInterface}");
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli device wifi connect {pSSID} password {pPassphrase} ifname {pInterface}", MAXWAIT);
 			return cmdResult;
         }
 
@@ -66,8 +66,7 @@ namespace PiLot.Utils.OS {
         /// </summary>
         public String SelectNetwork(String pInterface, Object pIdentifier){
             List<String> cmdResults = new List<String>();
-			cmdResults.Add(this.systemHelper.CallCommand("sudo", $"nmcli device wifi rescan ifname {pInterface}"));
-			cmdResults.Add(this.systemHelper.CallCommand("sudo", $"nmcli connection up ifname {pIdentifier}"));
+			cmdResults.Add(this.systemHelper.CallCommand("sudo", $"nmcli connection up {pIdentifier} ifname {pInterface}", MAXWAIT));
             return String.Join("\n", cmdResults);
         }
 
@@ -75,7 +74,7 @@ namespace PiLot.Utils.OS {
         /// Removes the network identified by pIdentifier
         /// </summary>
         public String RemoveNetwork(String pInterface, Object pIdentifier){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli connection delete {pIdentifier}");
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli connection delete {pIdentifier}", MAXWAIT);
             return cmdResult;
         }
 
@@ -83,7 +82,7 @@ namespace PiLot.Utils.OS {
         /// Gets the current WiFi status for pInterface. 
         /// </summary>
         public String GetStatus(String pInterface){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli dev show {pInterface}");
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli dev show {pInterface}", MAXWAIT);
             return cmdResult;
         }
 
@@ -103,7 +102,7 @@ namespace PiLot.Utils.OS {
 		/// </summary>
 		private List<String[]> ReadConnections(){
 			List<String[]> result = new List<String[]>(); 
-			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f NAME,TYPE,TIMESTAMP,DEVICE,ACTIVE connection");
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f NAME,TYPE,TIMESTAMP,DEVICE,ACTIVE connection", MAXWAIT);
 			String[] connectionInfo;
 			foreach(String aLine in this.GetLines(cmdResult)){
 				connectionInfo = this.GetFields(aLine);
@@ -148,8 +147,8 @@ namespace PiLot.Utils.OS {
         /// </summary>
         private List<WiFiInfo> SearchNetworks(String pInterface, List<WiFiInfo> pKnownNetworks){
             List<WiFiInfo> result = pKnownNetworks;
-            this.systemHelper.CallCommand("sudo", "nmcli dev wifi rescan");
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f SSID,IN-USE,SIGNAL device wifi list ifname {pInterface}");
+            this.systemHelper.CallCommand("sudo", "nmcli dev wifi rescan", MAXWAIT);
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f SSID,IN-USE,SIGNAL device wifi list ifname {pInterface}", MAXWAIT);
             String[] lines = this.GetLines(cmdResult);
             String[] fields;
             Int32 signalStrength;

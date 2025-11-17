@@ -77,8 +77,9 @@ namespace PiLot.Utils.OS {
 		/// </summary>
 		/// <param name="pCommand">The command, usually sudo</param>
 		/// <param name="pArguments">The parameters</param>
+		/// <param name="pMaxWait">The maximal duration to wait in ms, null defaults to 5000</param>
 		/// <returns>The console output returned after the command</returns>
-		public String CallCommand(String pCommand, String pArguments) {
+		public String CallCommand(String pCommand, String pArguments, Int32 pMaxWait = MAXWAIT) {
 			Process process = new Process();
 			process.StartInfo.FileName = pCommand;
 			process.StartInfo.Arguments = pArguments;
@@ -87,7 +88,7 @@ namespace PiLot.Utils.OS {
 			process.StartInfo.CreateNoWindow = true;
 			Logger.Logger.Log("Calling system command {0} with arguments {1}", pCommand, pArguments, LogLevels.DEBUG);
 			process.Start();
-			process.WaitForExit(MAXWAIT);
+			process.WaitForExit(pMaxWait);
 			String output = process.StandardOutput.ReadToEnd();
 			Logger.Logger.Log("Result from SystemService: {0}", output, LogLevels.DEBUG);
 			process.Close();
