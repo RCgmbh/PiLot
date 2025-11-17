@@ -586,7 +586,7 @@ PiLot.View.Admin = (function () {
 			const networks = await this.wifiHelper.getWiFiInfosAsync();
 			if (networks) {
 				networks.sort(function (a, b) {
-					return (b.signalStrength || -100) - (a.signalStrength || -100) || a.ssid.localeCompare(b.ssid); 					
+					return (b.signalStrength || 0) - (a.signalStrength || 0) || a.ssid.localeCompare(b.ssid); 					
 				});
 				for (let i = 0; i < networks.length; i++) {
 					const node = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.networkInfo);
@@ -594,10 +594,10 @@ PiLot.View.Admin = (function () {
 					const lnkName = node.querySelector('.lnkName');
 					lnkName.innerText = networks[i].ssid;
 					lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isAvailable, networks[i].isKnown, networks[i].identifier));
-					const level = Math.ceil(networks[i].signalStrength / -33);
-					node.querySelector('.icoWeak').hidden = (level != 3);
+					const level = Math.ceil(networks[i].signalStrength / 33);
+					node.querySelector('.icoWeak').hidden = (level != 1);
 					node.querySelector('.icoMedium').hidden = (level != 2);
-					node.querySelector('.icoStrong').hidden = (level != 1);
+					node.querySelector('.icoStrong').hidden = (level < 3);
 					node.querySelector('.icoConnected').hidden = !networks[i].isConnected;
 					const lnkForget = node.querySelector('.lnkForget');
 					lnkForget.hidden = !networks[i].isKnown;
@@ -630,7 +630,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		showOutput: function (pOutput) {
-			pOutput = pOutput.replace('\n', '<br/>')
+			pOutput = pOutput.replaceAll('\n', '<br/>')
 			this.pnlOutput.insertAdjacentHTML('beforeend', pOutput);
 			this.pnlOutput.scrollTop = this.pnlOutput.scrollHeight;
 		}

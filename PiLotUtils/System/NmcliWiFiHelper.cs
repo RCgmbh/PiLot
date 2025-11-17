@@ -54,57 +54,37 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
-        /// Adds a new network with SSID and passphrase and selects it. Returns the results of the
-        /// involved commands.
+        /// Adds a new network with SSID and passphrase and selects it. Returns the result of the command.
         /// </summary>
         public String AddNetwork(String pInterface, String pSSID, String pPassphrase){
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli device wifi connect {pSSID} password {pPassphrase} ifname {pInterface}");
+			return cmdResult;
+        }
+
+        /// <summary>
+        /// Selects the network identified by pIdentifier
+        /// </summary>
+        public String SelectNetwork(String pInterface, Object pIdentifier){
             List<String> cmdResults = new List<String>();
-			/*String[] addResult = this.GetLines(this.systemHelper.CallCommand("sudo", $"wpa_cli add_network -i {pInterface}"));
-			Int32 networkNumber = -1;
-			foreach(String aResult in addResult) {
-				if(Int32.TryParse(aResult, out networkNumber)){
-					break;
-				}
-			}
-			if (networkNumber > -1){
-                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} ssid \"{this.StringToHex(pSSID)}\" -i {pInterface}"));
-                String hexPassphrase = this.GetHexPassphrase(pSSID, pPassphrase);
-                cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli set_network {networkNumber} psk \"{hexPassphrase}\" -i {pInterface}"));
-				cmdResults.Add(this.systemHelper.CallCommand("sudo", $"wpa_cli enable_network {networkNumber} -i {pInterface}"));
-				cmdResults.Add($"Select network: {this.SelectNetwork(pInterface, networkNumber)};");
-				cmdResults.Add($"Save config: {this.SaveConfig(pInterface)};");
-            } else{
-                cmdResults.Add($"Unexpected result for Add network: {String.Join(" ", addResult)}");
-            }
-            return String.Join("\n", cmdResults);*/
-       		return "not implemented";
+			cmdResults.Add(this.systemHelper.CallCommand("sudo", $"nmcli device wifi rescan ifname {pInterface}"));
+			cmdResults.Add(this.systemHelper.CallCommand("sudo", $"nmcli connection up ifname {pIdentifier}"));
+            return String.Join("\n", cmdResults);
         }
 
         /// <summary>
-        /// Selects the network identified by pNumber
+        /// Removes the network identified by pIdentifier
         /// </summary>
-        public String SelectNetwork(String pInterface, Object pNumber){
-            /*String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli select_network {pNumber} -i {pInterface}");
-            return cmdResult;*/
-			return "not implemented";
-        }
-
-        /// <summary>
-        /// Removes the network identified by pNumber
-        /// </summary>
-        public String RemoveNetwork(String pInterface, Object pNumber){
-            /*String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli remove_network {pNumber} -i {pInterface}");
-            return cmdResult;*/
-			return "not implemented";
+        public String RemoveNetwork(String pInterface, Object pIdentifier){
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli connection delete {pIdentifier}");
+            return cmdResult;
         }
 
         /// <summary>
         /// Gets the current WiFi status for pInterface. 
         /// </summary>
         public String GetStatus(String pInterface){
-            /*String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli status -i {pInterface}");
-            return cmdResult;*/
-			return "not implemented";
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli dev show {pInterface}");
+            return cmdResult;
         }
 
 		/// <summary>
@@ -113,24 +93,21 @@ namespace PiLot.Utils.OS {
 		/// <param name="pInterface">The name of the interface</param>
 		/// <returns>True, if pInterface is connected</returns>
 		public Boolean IsConnected(String pInterface) {
-			/*List<WiFiInfo> knownNetworks = this.ReadKnownNetworks(pInterface);
+			List<WiFiInfo> knownNetworks = this.ReadKnownNetworks(pInterface);
 			return knownNetworks.Any(n => n.IsConnected);
-			*/
-			return false;
 		}
 
 		/// <summary>
 		/// Returns all known wifi connections, each as a string array with these fields:
 		/// [NAME, TYPE, TIMESTAMP, DEVICE, ACTIVE("yes"|"no")]
-		/// Connections with TIMESTAMP = 0 will be ignored.
 		/// </summary>
 		private List<String[]> ReadConnections(){
 			List<String[]> result = new List<String[]>(); 
-			String cmdResult = this.systemHelper.CallCommand("sudo", $" sudo nmcli -t -f NAME,TYPE,TIMESTAMP,DEVICE connection");
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f NAME,TYPE,TIMESTAMP,DEVICE,ACTIVE connection");
 			String[] connectionInfo;
 			foreach(String aLine in this.GetLines(cmdResult)){
 				connectionInfo = this.GetFields(aLine);
-				if(connectionInfo[1] == CONNECTIONTYPEWIFI && connectionInfo[2] != "0"){
+				if(connectionInfo[1] == CONNECTIONTYPEWIFI){
 					result.Add(connectionInfo);
 				}
 			}
@@ -156,7 +133,7 @@ namespace PiLot.Utils.OS {
             List<String[]> connections = this.ReadConnections();
             foreach(String[] aConnection in connections){
                 if((aConnection[3] == pInterface) || String.IsNullOrEmpty(aConnection[3])) {
-                    result.Add(new WiFiInfo(aConnection[0], -1, false));
+                    result.Add(new WiFiInfo(aConnection[0], aConnection[0], aConnection[4] == "yes"));
                 }
             }
             return result;
@@ -177,19 +154,22 @@ namespace PiLot.Utils.OS {
             String[] fields;
             Int32 signalStrength;
             String ssid;
+			Boolean isConnected;
             foreach(String aLine in lines){
                 fields = this.GetFields(aLine);
                 if((!String.IsNullOrEmpty(fields[0])) && Int32.TryParse(fields[2], out signalStrength)) {
                     ssid = fields[0];
-                    WiFiInfo wifiInfo = pKnownNetworks.FirstOrDefault(e => e.SSID == ssid);
+                    isConnected = (fields[1] == "*");
+					WiFiInfo wifiInfo = pKnownNetworks.FirstOrDefault(e => (e.SSID == ssid) || e.IsConnected && isConnected);
                     if(wifiInfo == null){
 						wifiInfo = new WiFiInfo(ssid);
 						wifiInfo.SignalStrength = 0;
                         result.Add(wifiInfo);
-                    }
-					signalStrength = signalStrength * -1; // we use negative strength, as it is with wpa_cli. The smaller the stronger.
-					wifiInfo.SignalStrength = Math.Min(wifiInfo.SignalStrength ?? 0, signalStrength); // we take the smallest value as one wifi can be listed many times
-					wifiInfo.IsConnected = (fields[1] == "*");
+                    } else {
+						wifiInfo.SSID = ssid; // special quirk in case the active connection is not named after the ssid (the "preconfigured")
+					}
+					wifiInfo.SignalStrength = Math.Max(wifiInfo.SignalStrength ?? 0, signalStrength); // we take the biggest value as one wifi can be listed many times
+					wifiInfo.IsConnected = wifiInfo.IsConnected || isConnected;
 					wifiInfo.IsAvailable = true;
                 }
             }

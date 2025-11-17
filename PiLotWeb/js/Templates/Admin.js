@@ -81,7 +81,7 @@ PiLot.Templates.Admin = {
 					<span class="lblDialogTitle block bold marginBottom" data-text="wifiConnectX"></span>
 					<div class="marginBottom">
 						<span data-text="wifiKey" class="input6 "></span>
-						<input type="password" class="tbWifiKey input12" autocomplete="off" value="" />
+						<input type="text" class="tbWifiKey input12" autocomplete="off" value="" />
 					</div>
 					<a href="#" class="btnCancel linkButton input6" data-text="cancel"></a>
 					<a href="#" class="btnConnect linkButton input6" data-text="wifiConnect"></a>

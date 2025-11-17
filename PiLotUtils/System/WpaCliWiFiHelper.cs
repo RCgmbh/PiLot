@@ -149,10 +149,11 @@ namespace PiLot.Utils.OS {
                     WiFiInfo wifiInfo = pKnownNetworks.FirstOrDefault(e => e.SSID == ssid);
                     if(wifiInfo == null){
 						wifiInfo = new WiFiInfo(ssid);
-						wifiInfo.SignalStrength = -100;
+						wifiInfo.SignalStrength = 0;
                         result.Add(wifiInfo);
                     }
-					wifiInfo.SignalStrength = Math.Max(wifiInfo.SignalStrength ?? -100, signalStrength); // we take the biggest value as one wifi can be listed many times
+					signalStrength += 100; // wpa_cli gives values from -100 to 0, we want 0..100
+					wifiInfo.SignalStrength = Math.Max(wifiInfo.SignalStrength ?? 0, signalStrength); // we take the biggest value as one wifi can be listed many times
 					wifiInfo.IsAvailable = true;
                 }
             }

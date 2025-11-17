@@ -70,8 +70,8 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
-        /// For available networks, represents the signal level (0
-        /// is 100%, less is less), null for unavailable.
+        /// For available networks, represents the signal level (usually from 0 to 100),
+		/// null for unavailable.
         /// </summary>
         [JsonPropertyName("signalStrength")]
         public Int32? SignalStrength{

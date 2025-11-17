@@ -74,10 +74,10 @@ namespace PiLot.API.Controllers {
 		/// Connects to the network with number. The number is taken
 		/// from the result of GetNetworks().
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/select")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{identifier}/select")]
 		[HttpPut]
-		public String SelectNetwork(String iface, Int32 number){
-			return this.GetWiFiHelper().SelectNetwork(iface, number);
+		public String SelectNetwork(String iface, String identifier){
+			return this.GetWiFiHelper().SelectNetwork(iface, identifier);
 		}
 
 		/// <summary>
@@ -92,18 +92,18 @@ namespace PiLot.API.Controllers {
 		/// <summary>
 		/// Deletes a specific network.
 		/// </summary>
-		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{identifier}")]
 		[HttpDelete]
-		public String DeleteNetwork(String iface, Int32 number){
-			return this.GetWiFiHelper().RemoveNetwork(iface, number);
+		public String DeleteNetwork(String iface, String identifier){
+			return this.GetWiFiHelper().RemoveNetwork(iface, identifier);
 		}
 
 		/// Get methods, mainly for testing or manual url based usage
 		
-		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/select")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{identifier}/select")]
 		[HttpGet]
-		public String GetSelectNetwork(String iface, Int32 number){
-			return this.GetWiFiHelper().SelectNetwork(iface, number);
+		public String GetSelectNetwork(String iface, String identifier){
+			return this.GetWiFiHelper().SelectNetwork(iface, identifier);
 		}
 
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/add")]
@@ -112,10 +112,10 @@ namespace PiLot.API.Controllers {
 			return this.GetWiFiHelper().AddNetwork(iface, ssid, passphrase);
 		}
 
-		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/delete")]
+		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{identifier}/delete")]
 		[HttpGet]
-		public String GetDeleteNetwork(String iface, Int32 number) {
-			return this.GetWiFiHelper().RemoveNetwork(iface, number);
+		public String GetDeleteNetwork(String iface, String identifier) {
+			return this.GetWiFiHelper().RemoveNetwork(iface, identifier);
 		}
 
 		private IWiFiHelper GetWiFiHelper(){
