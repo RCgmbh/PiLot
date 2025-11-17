@@ -482,23 +482,23 @@ PiLot.View.Admin = (function () {
 			this.loadNetworksAsync();
 		},
 
-		lnkName_click: async function (pSSID, pIsAvailable, pIsKnown, pNumber) {
+		lnkName_click: async function (pSSID, pIsAvailable, pIsKnown, pIdentifier) {
 			if (!pIsAvailable) {
 				alert(PiLot.Utils.Language.getText('wifiUnavailable'));
 			} else if (!pIsKnown) {
 				this.showKeyDialog(pSSID);
 			} else {
 				this.showHideWait(true);
-				const output = await this.wifiHelper.selectWiFiAsync(pNumber);
+				const output = await this.wifiHelper.selectWiFiAsync(pIdentifier);
 				this.showOutput(output.data);
 				this.loadNetworksAsync();
 			}
 		},
 
-		lnkForget_click: async function (pSSID, pNumber) {
+		lnkForget_click: async function (pSSID, pIdentifier) {
 			if (window.confirm(PiLot.Utils.Language.getText('wifiConfirmForgetX').replace('{{x}}', pSSID))) {
 				this.showHideWait(true);
-				const output = await this.wifiHelper.forgetWiFiAsync(pNumber);
+				const output = await this.wifiHelper.forgetWiFiAsync(pIdentifier);
 				this.showOutput(`delete ${output ? 'OK\n' : 'FAILED\n'}`);
 				await this.loadNetworksAsync();
 			}
@@ -593,7 +593,7 @@ PiLot.View.Admin = (function () {
 					this.plhNetworks.appendChild(node);
 					const lnkName = node.querySelector('.lnkName');
 					lnkName.innerText = networks[i].ssid;
-					lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isAvailable, networks[i].isKnown, networks[i].number));
+					lnkName.addEventListener('click', this.lnkName_click.bind(this, networks[i].ssid, networks[i].isAvailable, networks[i].isKnown, networks[i].identifier));
 					const level = Math.ceil(networks[i].signalStrength / -33);
 					node.querySelector('.icoWeak').hidden = (level != 3);
 					node.querySelector('.icoMedium').hidden = (level != 2);
@@ -601,7 +601,7 @@ PiLot.View.Admin = (function () {
 					node.querySelector('.icoConnected').hidden = !networks[i].isConnected;
 					const lnkForget = node.querySelector('.lnkForget');
 					lnkForget.hidden = !networks[i].isKnown;
-					lnkForget.addEventListener('click', this.lnkForget_click.bind(this, networks[i].ssid, networks[i].number))
+					lnkForget.addEventListener('click', this.lnkForget_click.bind(this, networks[i].ssid, networks[i].identifier))
 				}
 				this.showOutput(' done\n');
 			} else {

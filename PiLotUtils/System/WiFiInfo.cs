@@ -12,11 +12,11 @@ namespace PiLot.Utils.OS {
         /// Creates an instance of a known network. IsAvailable is set to
         /// true only if this is connected, so it should be set afterwards
         /// </summary>
-        public WiFiInfo(String pSSID, Int32 pNumber, Boolean pIsConnected){
+        public WiFiInfo(String pSSID, Object pIdentifier, Boolean pIsConnected){
             this.SSID = pSSID;
             this.IsKnown = true;
             this.IsAvailable = pIsConnected;
-            this.Number = pNumber;
+            this.Identifier = pIdentifier;
             this.IsConnected = pIsConnected;
         }
 
@@ -54,10 +54,10 @@ namespace PiLot.Utils.OS {
         }
 
         /// <summary>
-        /// The network number, for known networks, else null
+        /// The identifier for known networks, else null
         /// </summary>
-        [JsonPropertyName("number")]
-        public Int32? Number{
+        [JsonPropertyName("identifier")]
+        public Object Identifier{
             get; set;
         }
 

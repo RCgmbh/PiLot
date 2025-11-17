@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Configuration;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
@@ -24,7 +24,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public List<String> GetInterfaces() {
-			return new WiFiHelper().GetInterfaces();
+			return this.GetWiFiHelper().GetInterfaces();
 		}
 
 		/// <summary>
@@ -34,7 +34,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public async Task<List<WiFiInfo>> GetNetworks(String iface) {
-			return await new WiFiHelper().GetNetworksAsync(iface);
+			return await this.GetWiFiHelper().GetNetworksAsync(iface);
 		}
 
 		/// <summary>
@@ -44,7 +44,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String GetStatus(String iface) {
-			return new WiFiHelper().GetStatus(iface);
+			return this.GetWiFiHelper().GetStatus(iface);
 		}
 
 		/// <summary>
@@ -54,7 +54,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/status")]
 		[HttpGet]
 		public WiFiStaus GetStatus() {
-			WiFiHelper wifiHelper = new WiFiHelper();
+			IWiFiHelper wifiHelper = this.GetWiFiHelper();
 			WiFiStaus result = new WiFiStaus() {
 				Connected = false,
 				InternetAccess = false
@@ -77,7 +77,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/select")]
 		[HttpPut]
 		public String SelectNetwork(String iface, Int32 number){
-			return new WiFiHelper().SelectNetwork(iface, number);
+			return this.GetWiFiHelper().SelectNetwork(iface, number);
 		}
 
 		/// <summary>
@@ -86,7 +86,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks")]
 		[HttpPost]
 		public String AddNetwork(String iface, AddNetworkData data){
-			return new WiFiHelper().AddNetwork(iface, data.SSID, data.Passphrase);
+			return this.GetWiFiHelper().AddNetwork(iface, data.SSID, data.Passphrase);
 		}
 
 		/// <summary>
@@ -95,7 +95,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}")]
 		[HttpDelete]
 		public String DeleteNetwork(String iface, Int32 number){
-			return new WiFiHelper().RemoveNetwork(iface, number);
+			return this.GetWiFiHelper().RemoveNetwork(iface, number);
 		}
 
 		/// Get methods, mainly for testing or manual url based usage
@@ -103,19 +103,32 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/select")]
 		[HttpGet]
 		public String GetSelectNetwork(String iface, Int32 number){
-			return new WiFiHelper().SelectNetwork(iface, number);
+			return this.GetWiFiHelper().SelectNetwork(iface, number);
 		}
 
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/add")]
 		[HttpGet]
 		public String GetAddNetwork(String iface, String ssid, String passphrase){
-			return new WiFiHelper().AddNetwork(iface, ssid, passphrase);
+			return this.GetWiFiHelper().AddNetwork(iface, ssid, passphrase);
 		}
 
 		[Route(Program.APIROOT + "[controller]/interfaces/{iface}/networks/{number}/delete")]
 		[HttpGet]
 		public String GetDeleteNetwork(String iface, Int32 number) {
-			return new WiFiHelper().RemoveNetwork(iface, number);
+			return this.GetWiFiHelper().RemoveNetwork(iface, number);
+		}
+
+		private IWiFiHelper GetWiFiHelper(){
+			IWiFiHelper result;
+			switch(ConfigurationManager.AppSettings["wifiManager"]){
+				case "nmcli": 
+					result = new NmcliWiFiHelper();
+					break;
+				default:
+					result = new WpaCliWiFiHelper();
+					break;
+			}
+			return result;
 		}
 
 		/// <summary>

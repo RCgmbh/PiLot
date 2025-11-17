@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,13 +11,9 @@ namespace PiLot.Utils.OS {
 	/// wireless networks. This is very much coupled with the actual output
 	/// of wpa_cli, so it will probably need some fine tuning every now and then.
 	/// </summary>
-	public class WiFiHelper {
+	public class WpaCliWiFiHelper: BaseWiFiHelper, IWiFiHelper {
 
-        private SystemHelper systemHelper;
-
-        public WiFiHelper(){
-            this.systemHelper = new SystemHelper();
-        }
+        public WpaCliWiFiHelper():base(){ }
 
 		/// <summary>
 		/// Returns the list of available interfaces. Will only return results for linux
@@ -75,7 +70,7 @@ namespace PiLot.Utils.OS {
         /// <summary>
         /// Selects the network identified by pNumber
         /// </summary>
-        public String SelectNetwork(String pInterface, Int32 pNumber){
+        public String SelectNetwork(String pInterface, Object pNumber){
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli select_network {pNumber} -i {pInterface}");
             return cmdResult;
         }
@@ -83,7 +78,7 @@ namespace PiLot.Utils.OS {
         /// <summary>
         /// Removes the network identified by pNumber
         /// </summary>
-        public String RemoveNetwork(String pInterface, Int32 pNumber){
+        public String RemoveNetwork(String pInterface, Object pNumber){
             String cmdResult = this.systemHelper.CallCommand("sudo", $"wpa_cli remove_network {pNumber} -i {pInterface}");
             return cmdResult;
         }
@@ -188,14 +183,5 @@ namespace PiLot.Utils.OS {
             }
             return result;
         }
-
-		/// <summary>
-		/// Converts a String into an array of strings, separated by newline. Removes empty lines.
-		/// </summary>
-		private String[] GetLines(String pString) {
-			String[] result = pString.Split("\n".ToCharArray());
-			result = result.Where(s => !String.IsNullOrEmpty(s)).ToArray();
-			return result;
-		}
 	}
 }

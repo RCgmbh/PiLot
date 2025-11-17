@@ -110,18 +110,18 @@ PiLot.Model.Admin = (function () {
 
 		/**
 		 * Selects a known network
-		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
+		 * @param {Object} pIdentifier - the network identifier as returned from getWiFiInfosAsync
 		 */
-		selectWiFiAsync: async function (pNumber) {
-			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pNumber}/select`);
+		selectWiFiAsync: async function (pIdentifier) {
+			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pIdentifier}/select`);
 		},
 
 		/**
 		 * Removes a network from the list of known networks
-		 * @param {Number} pNumber - the network number as returned from getWiFiInfosAsync
+		 * @param {Object} pIdentifier - the network identifier as returned from getWiFiInfosAsync
 		 */
-		forgetWiFiAsync: async function (pNumber) {
-			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pNumber}`);
+		forgetWiFiAsync: async function (pIdentifier) {
+			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pIdentifier}`);
 		},
 		
 		/**
