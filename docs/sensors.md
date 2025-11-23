@@ -28,7 +28,7 @@ When opening the PiLot web application, in Administration > Services you should 
 Depending on the sensor, the connection varies a bit. And you will have to enable the respective interface on the PiLot. Again, when connecting wires to your PiLot, make very sure all connections are solid and won't come loose. Don't accept the "it will hold as long as I don't touch" it quality level, get help if needed. Really!
 
 #### Connect an I2C device
-All BMP/BME devices are connected over I2C, which is quite easy. First, enable I2C: run `sudo raspi-config`, go to **3 Interface Options** then **P5 I2C** and enable I2C. After that, install the i2c tools, which will come in handy to get your device's ids.
+All BMP/BME devices are connected over I2C, which is quite easy. First, enable I2C: run `sudo raspi-config`, go to **3 Interface Options** then **I5 I2C** and enable I2C. After that, install the i2c tools, which will come in handy to get your device's ids.
 ```
 sudo apt install -y i2c-tools
 ```
