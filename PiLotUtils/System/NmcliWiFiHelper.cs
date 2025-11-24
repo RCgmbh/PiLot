@@ -97,6 +97,21 @@ namespace PiLot.Utils.OS {
 		}
 
 		/// <summary>
+		/// Gets whether we are connected to any wifi and to the internet
+		/// </summary>
+		public WiFiStatus GetStatus(){
+			WiFiStatus result = new WiFiStatus();
+			String cmdResult = this.systemHelper.CallCommand("sudo", "nmcli -t networking connectivity check");
+			String[] lines = this.GetLines(cmdResult);
+			if(lines.Length > 0){
+				String checkResult = lines[0].Trim();
+				result.Connected = (checkResult == "portal") || (checkResult == "limited") || (checkResult == "full");
+				result.InternetAccess = (checkResult == "full");
+			}			
+			return result;
+		}
+
+		/// <summary>
 		/// Returns all known wifi connections, each as a string array with these fields:
 		/// [NAME, TYPE, TIMESTAMP, DEVICE, ACTIVE("yes"|"no")]
 		/// </summary>

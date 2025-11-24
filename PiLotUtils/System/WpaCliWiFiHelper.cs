@@ -92,6 +92,24 @@ namespace PiLot.Utils.OS {
         }
 
 		/// <summary>
+		/// Gets whether we are connected to any wifi and to the internet
+		/// </summary>
+		public WiFiStatus GetStatus(){
+			WiFiStatus result = new WiFiStatus() {
+				Connected = false,
+				InternetAccess = false
+			};
+			List<String> interfaces = this.GetInterfaces();
+			List<String> details = new List<String>(interfaces.Count);
+			foreach(String anInterface in interfaces) {
+				result.Connected = result.Connected || this.IsConnected(anInterface);
+				details.Add($"{anInterface}: {this.GetStatus(anInterface)}");
+			}
+			result.InternetAccess = new SystemHelper().Ping("8.8.8.8");
+			return result;
+		}
+
+		/// <summary>
 		/// Returns whether pInterface is currently connected to a WiFi
 		/// </summary>
 		/// <param name="pInterface">The name of the interface</param>

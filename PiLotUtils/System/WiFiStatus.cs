@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace PiLot.Model.System {
+namespace PiLot.Utils.OS {
 
 	/// <summary>
 	/// Represents the status of the WiFi
 	/// </summary>
-	public class WiFiStaus {
+	public class WiFiStatus {
 
 		/// <summary>
 		/// Whether any wifi is connected
@@ -20,10 +20,5 @@ namespace PiLot.Model.System {
 		[JsonPropertyName("internetAccess")]
 		public Boolean InternetAccess { get; set; }
 
-		/// <summary>
-		/// Details about the connection
-		/// </summary>
-		[JsonPropertyName("details")]
-		public String Details { get; set; }
 	}
 }

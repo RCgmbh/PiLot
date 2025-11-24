@@ -53,21 +53,9 @@ namespace PiLot.API.Controllers {
 		/// </summary>
 		[Route(Program.APIROOT + "[controller]/status")]
 		[HttpGet]
-		public WiFiStaus GetStatus() {
+		public WiFiStatus GetStatus() {
 			IWiFiHelper wifiHelper = this.GetWiFiHelper();
-			WiFiStaus result = new WiFiStaus() {
-				Connected = false,
-				InternetAccess = false
-			};
-			List<String> interfaces = wifiHelper.GetInterfaces();
-			List<String> details = new List<String>(interfaces.Count);
-			foreach(String anInterface in interfaces) {
-				result.Connected = result.Connected || wifiHelper.IsConnected(anInterface);
-				details.Add($"{anInterface}: {wifiHelper.GetStatus(anInterface)}");
-			}
-			result.Details = String.Join("\n", details);
-			result.InternetAccess = new SystemHelper().Ping("8.8.8.8");
-			return result;
+			return wifiHelper.GetStatus();
 		}
 
 		/// <summary>

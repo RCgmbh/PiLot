@@ -44,10 +44,9 @@ namespace PiLot.Utils.OS {
         String GetStatus(String pInterface);
 
 		/// <summary>
-		/// Returns whether pInterface is currently connected to a WiFi
+		/// Returns whether the device is connected to a wifi and this
+		/// wifi is connected to the internet
 		/// </summary>
-		/// <param name="pInterface">The name of the interface</param>
-		/// <returns>True, if pInterface is connected</returns>
-		Boolean IsConnected(String pInterface);
+		WiFiStatus GetStatus();
 	}
 }
