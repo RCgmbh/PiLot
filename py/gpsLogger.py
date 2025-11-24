@@ -6,33 +6,16 @@ import calendar
 
 def readPosition(record):
         data = None
-        if record['time'] != 'n/a':
-                reportTime = strptime(record['time'], '%Y-%m-%dT%H:%M:%S.%fZ')
+        time = getattr(record, 'time', None)
+        if not time is None:
+                reportTime = strptime(time, '%Y-%m-%dT%H:%M:%S.%fZ')
                 reportTimestamp = calendar.timegm(reportTime)
-                if record['lat'] != 'n/a':
-                        latitude = record['lat']
-                else:
-                        latitude = None
-                if record['lon'] != 'n/a':
-                        longitude = record['lon']
-                else:
-                        longitude = None
-                if record['alt'] != 'n/a':
-                        altitude = record['alt']
-                else:
-                        altitude = None
-                if record['epy'] != 'n/a':
-                        latError = record['epy']
-                else:
-                        latError = None
-                if record['epx'] != 'n/a':
-                        lonError = record['epx']
-                else:
-                        lonError = None
-                if record['epv'] != 'n/a':
-                        altError = record['epv']
-                else:
-                        altError = None
+                latitude = getattr(record, 'lat', None)
+                longitude = getattr(record, 'lon', None)
+                altitude = getattr(record, 'alt', None)
+                latError = getattr(record, 'epy', None)
+                lonError = getattr(record, 'epx', None)
+                altError = getattr(record, 'epv', None)
                 data = {
                         'utc': int(reportTimestamp * 1000),
                         'boatTime' : None,
