@@ -59,7 +59,7 @@ namespace PiLot.Data.Files {
 		/// <returns></returns>
 		public List<Checklist> ReadChecklists() {
 			List<Checklist> result = new List<Checklist>();
-			FileInfo file = this.GetFile(true, CHECKLISTSFILENAME);
+			FileInfo file = this.GetFile(true);
 			if (file.Exists) {
 				String fileContent = File.ReadAllText(file.FullName);
 				if (!String.IsNullOrEmpty(fileContent)) {
@@ -106,7 +106,7 @@ namespace PiLot.Data.Files {
 		/// <param name="pChecklists">The list of all Checklists</param>
 		public void SaveAllChecklists(List<Checklist> pChecklists) {
 			lock (this.lockObject) {
-				FileInfo file = this.GetFile(true, CHECKLISTSFILENAME);
+				FileInfo file = this.GetFile(true);
 				String json = null;
 				try {
 					json = JsonSerializer.Serialize(pChecklists);
@@ -137,10 +137,10 @@ namespace PiLot.Data.Files {
 		#region private methods		
 
 		/// <summary>
-		/// Gets a FileInfo, creating the file if it does not exist and pCreateIfMissing is true
+		/// Gets the FileInfo for all checklists, creating the file if it does not exist and pCreateIfMissing is true
 		/// </summary>
-		private FileInfo GetFile(Boolean pCreateIfMissing, String pFileName) {
-			string path = Path.Combine(this.helper.GetDataPath(DATASOURCENAME, pCreateIfMissing), pFileName);
+		protected FileInfo GetFile(Boolean pCreateIfMissing) {
+			string path = Path.Combine(this.helper.GetDataPath(DATASOURCENAME, pCreateIfMissing), CHECKLISTSFILENAME);
 			FileInfo result = new FileInfo(path);
 			if (!result.Exists && pCreateIfMissing) {
 				result.Create().Close();

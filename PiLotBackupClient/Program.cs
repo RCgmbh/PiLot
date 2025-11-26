@@ -318,6 +318,9 @@ namespace PiLot.Backup.Client {
 				case DataTypes.POIs:
 					backupHelper = new PoisBackupHelper(pProxy);
 					break;
+				case DataTypes.Checklists:
+					backupHelper = new ChecklistBackupHelper(pProxy);
+					break;
 				case DataTypes.Photos:
 					backupHelper = new PhotoBackupHelper(pProxy);
 					break;

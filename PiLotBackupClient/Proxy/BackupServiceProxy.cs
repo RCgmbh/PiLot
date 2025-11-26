@@ -10,10 +10,8 @@ using PiLot.Utils;
 using PiLot.Utils.DateAndTime;
 using PiLot.Model.Sensors;
 using PiLot.Model.Photos;
-using PiLot.Backup.Client.Model;
+using PiLot.Model.Tools;
 using PiLot.Model.Common;
-using System.Linq;
-using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.Client.Proxies {
 
@@ -105,6 +103,17 @@ namespace PiLot.Backup.Client.Proxies {
 			jsonString = JsonSerializer.Serialize(pAllFeatures);
 			success &= await this.httpClient.PutAsync(jsonString, url);
 			return success;
+		}
+
+		/// <summary
+		/// Sends a list of Checklists to the server
+		/// </summary>
+		/// <returns>True, if the call was successful, else false</returns>
+		public async Task<Boolean> BackupChecklistsAsync(List<Checklist> pChecklists, DateTime pBackupTime){
+			Int32 backupTime = DateTimeHelper.ToUnixTime(pBackupTime);
+			String url = $"{this.apiUrl}/Checklists?backupTime={backupTime}";
+			String jsonString = JsonSerializer.Serialize(pChecklists);
+			return await this.httpClient.PutAsync(jsonString, url);
 		}
 
 		/// <summary>

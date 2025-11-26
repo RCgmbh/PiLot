@@ -21,9 +21,9 @@ namespace PiLot.Backup.Client.Helper {
 		public PoisBackupHelper(BackupServiceProxy pProxy) : base(pProxy) { }
 
 		/// <summary>
-		/// Reads newly created GPS Data and sends a backup of the GPS records for one day to the backup service
+		/// Reads newly created POIs and sends a them to the backup service
 		/// </summary>
-		/// <param name="pTask">The backup task, neede to get the last Backup date</param>
+		/// <param name="pTask">The backup task, needed to get the last Backup date</param>
 		/// <param name="pBackupTime">The date of the backup</param>
 		public async Task<BackupTaskResult> PerformBackupTaskAsync(BackupTask pTask, DateTime pBackupTime) {
 			Boolean success = true;
