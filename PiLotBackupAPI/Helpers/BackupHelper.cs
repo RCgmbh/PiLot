@@ -9,6 +9,7 @@ using PiLot.Model.Nav;
 using PiLot.Model.Logbook;
 using PiLot.Model.Sensors;
 using PiLot.Model.Common;
+using PiLot.Model.Tools;
 using PiLot.Utils.Logger;
 
 namespace PiLot.Backup.API.Helpers {
@@ -143,6 +144,18 @@ namespace PiLot.Backup.API.Helpers {
 			new PhotoDataConnector(photosBackupDirectory.FullName).SaveImage(pDay, pFileName, pBytes);
 			Logger.Log("Recieved photo {0} to backup", pFileName, LogLevels.DEBUG);
 		}
+		
+		/// <summary>
+		/// Backs up checklists
+		/// </summary>
+		/// <param name="pData">The array of records to save</param>
+		/// <param name="pClientName">The client name</param>
+		/// <param name="pBackupTime">The timestamp of the current backup set</param>
+		public static void BackupChecklists(List<Checklist> pData, String pClientName, DateTime pBackupTime) {
+			DirectoryInfo backupDirectory = BackupHelper.GetTempDirectory(pClientName, pBackupTime);
+			new ChecklistDataConnector(backupDirectory.FullName).SaveAllChecklists(pData);
+			Logger.Log($"Recieved {pData.Count} checklists to backup", LogLevels.DEBUG);
+		}
 
 		/// <summary>
 		/// This renames the temp backup folder to its definitive name, and then removes any
@@ -203,6 +216,9 @@ namespace PiLot.Backup.API.Helpers {
 						break;
 					case DataTypes.Photos:
 						dataCount = new PhotoDataConnector(BackupHelper.GetClientRoot(pClientName, false).FullName).ReadPhotosCount();
+						break;
+					case DataTypes.Checklists:
+						dataCount = new ChecklistDataConnector(backupDirectory.FullName).ReadChecklists().Count;
 						break;
 				}
 				result.Add(dataCount);

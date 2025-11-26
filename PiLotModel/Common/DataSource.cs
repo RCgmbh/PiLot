@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace PiLot.Model.Common {
 
 	[JsonConverter(typeof(JsonStringEnumConverter))]
-	public enum DataTypes { GPS = 0, SensorData = 1, Logbook = 2, Routes = 3, POIs = 4, Photos = 5 }
+	public enum DataTypes { GPS = 0, SensorData = 1, Logbook = 2, Routes = 3, POIs = 4, Photos = 5, Checklists = 6 }
 
 
 	public struct DataSource {
