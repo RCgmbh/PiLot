@@ -8,8 +8,7 @@ using PiLot.Model.Nav;
 using PiLot.Utils.Logger;
 
 
-namespace PiLot.Data.Files
-{
+namespace PiLot.Data.Files {
 
     /// <summary>
     /// Helper class to read and save poi-related data from/to file. This is used
