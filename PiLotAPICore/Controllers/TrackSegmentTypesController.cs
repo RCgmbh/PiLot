@@ -48,7 +48,7 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/{id}")]
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
-		public void DeleteTrackPoints(Int32 id) {
+		public void Delete(Int32 id) {
 			throw new NotImplementedException();
 		}
 	}
