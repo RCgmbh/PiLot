@@ -54,6 +54,7 @@ namespace PiLot.Backup.Client.Helper {
 					} else {
 						Out.WriteError($"Photo backup failed for photo {imageData.Name}");
 						success = false;
+						break;
 					}
 				}
 			}
