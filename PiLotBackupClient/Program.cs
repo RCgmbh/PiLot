@@ -39,7 +39,7 @@ namespace PiLot.Backup.Client {
 		/// <summary>
 		/// Usage: ./PiLot.Backup.Client [-i] [-verbose] 
 		/// </summary>
-		/// <param name="args">Add "verbose" so that the output is written to the console instead of the log</param>
+		/// <param name="args">Add "verbose" so that the output is written to the console instead of the log, i starts an interactive session</param>
 		static async Task Main(string[] args) {
 			Program.ReadLogConfig();
 			Logger.Log("Starting PiLot.Backup.Client", LogLevels.INFO);

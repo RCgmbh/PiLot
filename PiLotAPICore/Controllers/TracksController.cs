@@ -42,7 +42,7 @@ namespace PiLot.API.Controllers {
 		public Track GetTrack(Int32 id) {
 			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
 			if (dataConnector.SupportsTrackIDs) {
-				return DataConnectionHelper.TrackDataConnector.ReadTrack(id);
+				return dataConnector.ReadTrack(id);
 			} else {
 				return null;
 			}
@@ -58,7 +58,7 @@ namespace PiLot.API.Controllers {
 		public List<TrackSegment> GetTrackSegments(Int32 id) {
 			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
 			if (dataConnector.SupportsStatistics) {
-				return DataConnectionHelper.TrackDataConnector.ReadTrackSegments(id);
+				return dataConnector.ReadTrackSegments(id);
 			} else {
 				return new List<TrackSegment>(0);
 			}
@@ -77,7 +77,7 @@ namespace PiLot.API.Controllers {
 			List<TrackSegment> result = null;
 			ITrackDataConnector dataConnector = DataConnectionHelper.TrackDataConnector;
 			if (dataConnector.SupportsTrackIDs && dataConnector.SupportsStatistics) {
-				Track track = DataConnectionHelper.TrackDataConnector.ReadTrack(id);
+				Track track = dataConnector.ReadTrack(id);
 				if(track != null) {
 					result = new TrackAnalyzer(track).GetTrackSegments(dataConnector.ReadTrackSegmentTypes());
 				}
@@ -122,7 +122,7 @@ namespace PiLot.API.Controllers {
 		/// Changes the boat for a track
 		/// </summary>
 		/// <param name="id">The track ID, not null</param>
-		/// <param name="boat">The name of the boat</param>
+		/// <param name="name">The name of the boat</param>
 		[Route(Program.APIROOT + "[controller]/{id}/boat")]
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]

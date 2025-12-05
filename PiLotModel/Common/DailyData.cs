@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text.Json.Serialization;
+
 using PiLot.Model.Logbook;
 using PiLot.Model.Nav;
 using PiLot.Model.Photos;
@@ -17,7 +18,7 @@ namespace PiLot.Model.Common {
 		public DailyData() { }
 
 		/// <summary>
-		/// The track for the chosen date
+		/// The tracks for the chosen date
 		/// </summary>
 		[JsonPropertyName("tracks")]
 		public List<Track> Tracks {
