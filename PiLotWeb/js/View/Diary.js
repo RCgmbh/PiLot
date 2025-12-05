@@ -1057,6 +1057,7 @@ PiLot.View.Diary = (function () {
 				this.hidePhoto();
 				this.showThumbnails();
 			}
+			this.lblPhotoTotal.innerText = this.imageData.length;
 			RC.Utils.notifyObservers(this, this.observers, 'delete', image.fileName);
 		},
 
