@@ -214,6 +214,7 @@ namespace PiLot.Data.Files {
 		public void SetBoat(Int32 pTrackId, String pBoat){
 			TrackMetadata metadata = this.ReadTrackMetadata(pTrackId);
 			metadata.Boat = pBoat;
+			metadata.DateChanged = DateTimeHelper.JSNow;
 			this.SaveTrackMetadata(metadata);
 		}
 
@@ -493,8 +494,8 @@ namespace PiLot.Data.Files {
 					EndBoatTime = pMetaData.EndBoatTime,
 					Distance = null,
 					Boat = pMetaData.Boat,
-					DateCreated = null,
-					DateChanged = null
+					DateCreated = pMetaData.DateCreated,
+					DateChanged = pMetaData.DateChanged
 				};
 			}
 			return result;
@@ -567,7 +568,9 @@ namespace PiLot.Data.Files {
 				result = new Track() {
 					StartBoatTime = pBoatTime,
 					EndBoatTime = pBoatTime,
-					Boat = pBoat
+					Boat = pBoat,
+					DateCreated = DateTimeHelper.JSNow,
+					DateChanged = DateTimeHelper.JSNow
 				};
 				this.SaveTrackMetadata(result);
 			}
@@ -704,6 +707,16 @@ namespace PiLot.Data.Files {
 
 			[JsonPropertyName("boat")]
 			public String Boat {
+				get; set;
+			}
+
+			[JsonPropertyName("dateCreated")]
+			public Int64? DateCreated {
+				get; set;
+			}
+
+			[JsonPropertyName("dateChanged")]
+			public Int64? DateChanged {
 				get; set;
 			}
 

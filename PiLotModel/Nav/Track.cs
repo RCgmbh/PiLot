@@ -87,13 +87,13 @@ namespace PiLot.Model.Nav {
 			get; set;
 		}
 
-		[JsonIgnore]
-		public DateTime? DateCreated {
+		[JsonPropertyName("dateCreated")]
+		public Int64? DateCreated {
 			get; set;
 		}
 
-		[JsonIgnore]
-		public DateTime? DateChanged {
+		[JsonPropertyName("dateChanged")]
+		public Int64? DateChanged {
 			get; set;
 		}
 
