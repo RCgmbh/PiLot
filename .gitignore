@@ -362,3 +362,4 @@ healthchecksdb
 /PiLotTilesDownloader/Properties/launchSettings.json
 /.gitignore
 /PiLotWeb/js/Config.pilotLive.js
+/PiLotWeb/js/Config.espilot.js
