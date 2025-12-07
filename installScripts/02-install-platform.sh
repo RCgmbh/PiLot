@@ -5,8 +5,10 @@ if [ `whoami` != root ]; then
 fi
 
 mkdir -p /opt/dotnet
-wget  https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/6.0.36/aspnetcore-runtime-6.0.36-linux-arm64.tar.gz
-tar -zxf aspnetcore-runtime-6.0.36-linux-arm64.tar.gz -C /opt/dotnet
+# wget  https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/6.0.36/aspnetcore-runtime-6.0.36-linux-arm64.tar.gz
+# tar -zxf aspnetcore-runtime-6.0.36-linux-arm64.tar.gz -C /opt/dotnet
+wget https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/9.0.11/aspnetcore-runtime-9.0.11-linux-arm64.tar.gz
+tar -zxf aspnetcore-runtime-9.0.11-linux-arm64.tar.gz -C /opt/dotnet
 
 ln -s /opt/dotnet/dotnet /usr/bin
 

@@ -340,8 +340,8 @@ namespace PiLot.Data.Postgres.Nav {
 				EndBoatTime = this.dbHelper.ReadNullableField<Int64?>(pReader, "end_boattime"),
 				Distance = pReader.GetFloat("distance"),
 				Boat = pReader.GetString("boat"),
-				DateCreated = pReader.GetDateTime("date_created"),
-				DateChanged = pReader.GetDateTime("date_changed")
+				DateCreated = DateTimeHelper.ToJSTime(pReader.GetDateTime("date_created")),
+				DateChanged = DateTimeHelper.ToJSTime(pReader.GetDateTime("date_changed"))
 			};
 			return result;
 		}

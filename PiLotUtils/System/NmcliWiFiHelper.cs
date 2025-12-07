@@ -56,7 +56,7 @@ namespace PiLot.Utils.OS {
         /// Adds a new network with SSID and passphrase and selects it. Returns the result of the command.
         /// </summary>
         public String AddNetwork(String pInterface, String pSSID, String pPassphrase){
-			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli device wifi connect {pSSID} password {pPassphrase} ifname {pInterface}", MAXWAIT);
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli device wifi connect \"{pSSID}\" password {pPassphrase} ifname {pInterface}", MAXWAIT);
 			return cmdResult;
         }
 
@@ -64,16 +64,15 @@ namespace PiLot.Utils.OS {
         /// Selects the network identified by pIdentifier
         /// </summary>
         public String SelectNetwork(String pInterface, Object pIdentifier){
-            List<String> cmdResults = new List<String>();
-			cmdResults.Add(this.systemHelper.CallCommand("sudo", $"nmcli connection up {pIdentifier} ifname {pInterface}", MAXWAIT));
-            return String.Join("\n", cmdResults);
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli connection up \"{pIdentifier}\" ifname {pInterface}", MAXWAIT);
+            return cmdResult;
         }
 
         /// <summary>
         /// Removes the network identified by pIdentifier
         /// </summary>
         public String RemoveNetwork(String pInterface, Object pIdentifier){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli connection delete {pIdentifier}", MAXWAIT);
+			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli connection delete \"{pIdentifier}\"", MAXWAIT);
             return cmdResult;
         }
 
