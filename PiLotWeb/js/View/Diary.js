@@ -1051,8 +1051,13 @@ PiLot.View.Diary = (function () {
 			PiLot.Model.Logbook.deletePhotoAsync(image.imageCollection.getName(), image.fileName);
 			image.imageCollection.removeImageName(image.fileName);
 			this.imageData.remove(this.imageIndex);
-			this.hidePhoto();
-			this.showThumbnails();
+			if(this.imageData.length){
+				this.changePhoto(0);
+			} else {
+				this.hidePhoto();
+				this.showThumbnails();
+			}
+			this.lblPhotoTotal.innerText = this.imageData.length;
 			RC.Utils.notifyObservers(this, this.observers, 'delete', image.fileName);
 		},
 
