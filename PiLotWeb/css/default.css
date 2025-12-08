@@ -455,14 +455,7 @@ body.night .homeContainer > div { box-shadow: 0px 0px 6px -1px white; }
 	.homeContainer > div:nth-child(3) { grid-row: 3/4; grid-column: 2/3; }
 	.homeContainer > div:nth-child(4) { grid-row: 3/4; grid-column: 3/4; }
 }
-/* reasonably large screen: four equally sized boxes */
-@media (min-height:800px) and (min-width:1250px) {
-	.homeContainer { grid-template-rows: 1fr 1fr; grid-template-columns: 1fr 1fr; margin: 0.5em; }
-	.homeContainer > div:nth-child(1) { grid-row: 1/2; grid-column: 1/2; }
-	.homeContainer > div:nth-child(2) { grid-row: 1/2; grid-column: 2/3; }
-	.homeContainer > div:nth-child(3) { grid-row: 2/3; grid-column: 1/2; }
-	.homeContainer > div:nth-child(4) { grid-row: 2/3; grid-column: 2/3; }
-}
+
 
 /*****************************************/
 /*     NAMED ITEMS: TEXT AND COLORS      */

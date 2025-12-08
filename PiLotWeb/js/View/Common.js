@@ -173,7 +173,7 @@ PiLot.View.Common = (function () {
 		this.containers = null;				/// an array with the 4 containers where the controls have been added
 		this.controls = null;				/// the PiLot.View.Whatever controls that have been added
 		this.observers = null;
-		this.layout = null;					/// 0: same size, 1: columns, 2: rows
+		this.layout = null;					/// 1: columns, 2: rows
 		this.initialize();
 	};
 
@@ -298,30 +298,22 @@ PiLot.View.Common = (function () {
 			}
 		},
 
-		/// this returns true, if not all controls have the equal size (+/-1) and pControl
-		/// is not the currently maximized control
+		/// this returns true, if pControl is not the currently maximized control
 		/// @param pControl: one of the specific view controls (PiLot.View.Whatever)
 		isMinimized: function (pControl) {
-			return ((this.layout !== 0) && (this.controls[0] !== pControl));
+			return ((this.controls[0] !== pControl));
 		},
 
 
-		/// calculates the layout. If the first and last container have more or less the same height,
-		/// then it's 0 (4 equal containers). Else, we compare the height of the first container to
-		/// the outer container. If there is much difference, we have a row layout, else a column
-		/// layout
+		/// calculates the layout. We compare the height of the first container to the outer
+		/// container. If there is much difference, we have a row layout, else a column layout
 		getLayout: function () {
-			var result = 0; // equally distributed
-			var heightRatio = this.containers[0].offsetHeight / this.containers.last().offsetHeight;
-			if (heightRatio > 2) { // the first container is bigger than the last 
-				//var containerRatio = this.homeContainer.offsetHeight / this.containers[0].offsetHeight;
-				//if (containerRatio > 1.1) { // the outer container is significantly higher than the inner
-				let containerRatio = this.homeContainer.offsetHeight / this.homeContainer.offsetWidth;
-				if (containerRatio > 1) {
-					result = 2; // rows
-				} else {
-					result = 3 // columns
-				}
+			let result;
+			const containerRatio = this.homeContainer.offsetHeight / this.homeContainer.offsetWidth;
+			if (containerRatio > 1) {
+				result = 2; // rows
+			} else {
+				result = 1 // columns
 			}
 			PiLot.log(`layout is ${result}`, 3);
 			return result;
