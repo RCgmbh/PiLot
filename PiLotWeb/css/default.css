@@ -544,6 +544,10 @@ body { min-width: 20em; }
 
 #content { flex-grow: 1; display: flex; }
 
+@media (max-width:335px) {
+	body {font-size: 93.75%;} 
+}
+
 @media (min-width:460px) {
 	#header > #clock { 
 		display:flex;
