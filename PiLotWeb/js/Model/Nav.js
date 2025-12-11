@@ -2397,8 +2397,8 @@ PiLot.Model.Nav = (function () {
 
 		/**
 		* Loads the latest positions from the server and returns an array of GPSRecords
-		* or null (if we don't get any valid data). We use the timestamp of the last
-	    * record we got, or just this.maxDataAgeSeconds into the past
+		* or an empty array if we don't get any valid data. We use the timestamp of the
+	    * last record we got, or just this.maxDataAgeSeconds into the past
 		* */
 		loadLatestTrackPointsAsync: async function () {
 			let lastTimestamp;
@@ -2411,7 +2411,10 @@ PiLot.Model.Nav = (function () {
 			const result = new Array();
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
-					result.push(TrackPoint.fromData(json[i]));
+					const trackPoint = TrackPoint.fromData(json[i]);
+					if(trackPoint){
+						result.push(trackPoint);
+					}					
 				}
 			}
 			return result;
