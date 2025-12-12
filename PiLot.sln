@@ -22,6 +22,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotDataFiles", "PiLotDataFiles\PiLotDataFiles.csproj", "{02324468-4D3C-417B-ABC1-8BA1B6E17DB5}"
 EndProject
 Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "PiLotWeb", "http:\localhost\PiLotWeb", "{8724624A-39B4-46D4-BF5F-AD477BB33B99}"
+	ProjectSection(WebsiteProperties) = preProject
+		Debug.AspNetCompiler.Debug = "True"
+		Release.AspNetCompiler.Debug = "False"
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PiLotPhotosWatcher", "PiLotPhotosWatcher\PiLotPhotosWatcher.csproj", "{ED5B51D6-3644-4733-B562-C0B7ED994067}"
 EndProject
@@ -120,6 +124,11 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataMigrator", "DataMigrato
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PiLotRestoreClient", "PiLotRestoreClient\PiLotRestoreClient.csproj", "{B12D32E8-24A2-455C-9749-E5137AE50D10}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "updatePrebuilt", "updatePrebuilt", "{02EA681E-C7D8-13C7-8484-4AC65E1B71E8}"
+	ProjectSection(SolutionItems) = preProject
+		installScripts\updatePrebuilt\createUpdatePackageARM64.bat = installScripts\updatePrebuilt\createUpdatePackageARM64.bat
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -217,6 +226,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{1125EB22-4B62-4888-BD40-64C09E1A0F88} = {746AFF13-8152-4EE2-99D7-C5B8D0ED0207}
 		{B438012B-4438-45DA-99BE-1089E803FAF7} = {746AFF13-8152-4EE2-99D7-C5B8D0ED0207}
+		{02EA681E-C7D8-13C7-8484-4AC65E1B71E8} = {746AFF13-8152-4EE2-99D7-C5B8D0ED0207}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {DFF59E6D-1CB2-45D7-9337-DF815740F907}
