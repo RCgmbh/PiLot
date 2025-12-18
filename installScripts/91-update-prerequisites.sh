@@ -19,8 +19,8 @@ apt -y upgrade
 apt -y install git
 git clone https://github.com/RCgmbh/PiLot
 cd /home/pi
-wget https://download.visualstudio.microsoft.com/download/pr/451f282f-dd26-4acd-9395-36cc3a9758e4/f5399d2ebced2ad9640db6283aa9d714/dotnet-sdk-6.0.401-linux-arm.tar.gz
-tar -zxf dotnet-sdk-6.0.401-linux-arm.tar.gz -C /opt/dotnet
+wget https://builds.dotnet.microsoft.com/dotnet/Sdk/8.0.416/dotnet-sdk-8.0.416-linux-arm.tar.gz
+tar -zxf dotnet-sdk-8.0.416-linux-arm.tar.gz -C /opt/dotnet
 
 # x64: 
 # wget https://builds.dotnet.microsoft.com/dotnet/Sdk/6.0.428/dotnet-sdk-6.0.428-linux-arm64.tar.gz
