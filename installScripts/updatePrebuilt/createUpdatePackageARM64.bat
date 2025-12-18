@@ -9,6 +9,7 @@ mkdir pilotupdatearm64\temp
 dotnet build PiLotApiCore -o pilotupdatearm64\temp -c release -r linux-arm64 --no-self-contained
 mkdir pilotupdatearm64\pilotapi
 xcopy /s /r /i pilotupdatearm64\temp\*.dll pilotupdatearm64\pilotapi\
+xcopy /s /r /i pilotupdatearm64\temp\*.deps.json pilotupdatearm64\pilotapi\
 rmdir /s /q pilotupdatearm64\temp
 @REM PiLot Web
 mkdir pilotupdatearm64\pilotweb
