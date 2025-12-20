@@ -499,7 +499,6 @@ PiLot.View.Admin = (function () {
 			if (window.confirm(PiLot.Utils.Language.getText('wifiConfirmForgetX').replace('{{x}}', pSSID))) {
 				this.showHideWait(true);
 				const output = await this.wifiHelper.forgetWiFiAsync(pIdentifier);
-				this.showOutput(output.data);
 				await this.loadNetworksAsync();
 			}
 		},
