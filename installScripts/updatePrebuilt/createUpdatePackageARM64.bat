@@ -6,7 +6,7 @@ mkdir pilotupdatearm64\temp
 
 @REM build solutions, just keeping relevant files
 @REM PiLot API
-dotnet build PiLotApiCore -o pilotupdatearm64\temp -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotApiCore -o pilotupdatearm64\temp -c release -r linux-arm64 -f net9.0 --no-self-contained
 mkdir pilotupdatearm64\pilotapi
 xcopy /s /r /i pilotupdatearm64\temp\*.dll pilotupdatearm64\pilotapi\
 xcopy /s /r /i pilotupdatearm64\temp\*.deps.json pilotupdatearm64\pilotapi\
