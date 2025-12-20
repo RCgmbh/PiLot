@@ -30,7 +30,7 @@ namespace PiLot.Utils.OS {
 			List<String> result = new List<String>();
 			if (this.systemHelper.IsLinux) {
 				String hotspotInterface = this.GetHotspotInterface();
-				String cmdResult = this.systemHelper.CallCommand("sudo", "nmcli -t -f DEVICE,TYPE device", MAXWAIT);
+				String cmdResult = this.systemHelper.CallCommand("nmcli", "-t -f DEVICE,TYPE device", MAXWAIT);
 				String[] fields;
 				foreach (String aLine in this.GetLines(cmdResult)) {
 					fields = this.GetFields(aLine);
@@ -80,7 +80,7 @@ namespace PiLot.Utils.OS {
         /// Gets the current WiFi status for pInterface. 
         /// </summary>
         public String GetStatus(String pInterface){
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli dev show {pInterface}", MAXWAIT);
+            String cmdResult = this.systemHelper.CallCommand("nmcli", $"dev show {pInterface}", MAXWAIT);
             return cmdResult;
         }
 
@@ -98,14 +98,17 @@ namespace PiLot.Utils.OS {
 		/// Gets whether we are connected to any wifi and to the internet
 		/// </summary>
 		public WiFiStatus GetStatus(){
-			WiFiStatus result = new WiFiStatus();
-			String cmdResult = this.systemHelper.CallCommand("sudo", "nmcli -t networking connectivity check");
-			String[] lines = this.GetLines(cmdResult);
-			if(lines.Length > 0){
-				String checkResult = lines[0].Trim();
-				result.Connected = (checkResult == "portal") || (checkResult == "limited") || (checkResult == "full");
-				result.InternetAccess = (checkResult == "full");
-			}			
+			WiFiStatus result = new WiFiStatus() {
+				Connected = false,
+				InternetAccess = false
+			};
+			List<String> interfaces = this.GetInterfaces();
+			List<String> details = new List<String>(interfaces.Count);
+			foreach(String anInterface in interfaces) {
+				result.Connected = result.Connected || this.IsConnected(anInterface);
+				details.Add($"{anInterface}: {this.GetStatus(anInterface)}");
+			}
+			result.InternetAccess = new SystemHelper().Ping("8.8.8.8");
 			return result;
 		}
 
@@ -115,7 +118,7 @@ namespace PiLot.Utils.OS {
 		/// </summary>
 		private List<String[]> ReadConnections(){
 			List<String[]> result = new List<String[]>(); 
-			String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f NAME,TYPE,TIMESTAMP,DEVICE,ACTIVE connection", MAXWAIT);
+			String cmdResult = this.systemHelper.CallCommand("nmcli", $"-t -f NAME,TYPE,TIMESTAMP,DEVICE,ACTIVE connection", MAXWAIT);
 			String[] connectionInfo;
 			foreach(String aLine in this.GetLines(cmdResult)){
 				connectionInfo = this.GetFields(aLine);
@@ -161,7 +164,7 @@ namespace PiLot.Utils.OS {
         private List<WiFiInfo> SearchNetworks(String pInterface, List<WiFiInfo> pKnownNetworks){
             List<WiFiInfo> result = pKnownNetworks;
             this.systemHelper.CallCommand("sudo", "nmcli dev wifi rescan", MAXWAIT);
-            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f SSID,IN-USE,SIGNAL device wifi list ifname {pInterface}", MAXWAIT);
+            String cmdResult = this.systemHelper.CallCommand("nmcli", $"-t -f SSID,IN-USE,SIGNAL device wifi list ifname {pInterface}", MAXWAIT);
             String[] lines = this.GetLines(cmdResult);
             String[] fields;
             Int32 signalStrength;
