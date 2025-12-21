@@ -1,7 +1,7 @@
 ﻿[
 	{
 		"name": "osm",
-		"onlineUrl": "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+		"onlineUrl": "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
 		"localPath": "/var/www/html/tiles/openstreetmap/{0}/{1}/{2}.png",
 		"localUrl": "/tiles/openstreetmap/{z}/{x}/{y}.png",
 		"minZoom": 1,
