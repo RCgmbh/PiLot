@@ -18,7 +18,7 @@ namespace PiLot.Model.Tiles {
 		public String Name { get; set; }
 
 		/// <summary>
-		/// The full tile url of the Tile Server, e.g. https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png
+		/// The full tile url of the Tile Server, e.g. https://tile.openstreetmap.org/{z}/{x}/{y}.png
 		/// from wehere we download the tiles.
 		/// </summary>
 		[JsonPropertyName("onlineUrl")]
