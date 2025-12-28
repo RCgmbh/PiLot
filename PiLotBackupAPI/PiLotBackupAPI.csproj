@@ -1,10 +1,10 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net9.0</TargetFramework>
-		<AssemblyName>PiLot.Backup.API</AssemblyName>
-		<RootNamespace>PiLot.Backup.API</RootNamespace>
-		<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
+    <TargetFrameworks>net6.0;net8.0;net9.0</TargetFrameworks>
+	<AssemblyName>PiLot.Backup.API</AssemblyName>
+	<RootNamespace>PiLot.Backup.API</RootNamespace>
+	<ProduceReferenceAssembly>false</ProduceReferenceAssembly>
   </PropertyGroup>
 
   <ItemGroup>
