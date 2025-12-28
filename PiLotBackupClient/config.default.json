@@ -29,6 +29,11 @@
 					"dataType": "Photos",
 					"dataSource": "photos",
 					"lastSuccess": null
+				},
+				{
+					"dataType": "Checklists",
+					"dataSource": "checklists",
+					"lastSuccess": null
 				}
 			]
 		}
