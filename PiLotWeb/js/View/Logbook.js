@@ -524,10 +524,18 @@ PiLot.View.Logbook = (function () {
 			this.logbookDay = pLogbookDay;
 			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.showTime(boatTime.now());
-			this.showDefaultTile(pBoatSetup);
+			this.showDefaultTitle(pBoatSetup);
 			this.tbNotes.value = '';
-			const meteo = await new PiLot.Service.Meteo.DataLoader().loadLogbookMeteoAsync();
-			this.showMeteo(meteo);
+			const currentMeteo = await new PiLot.Service.Meteo.DataLoader().loadLogbookMeteoAsync();
+			const latestMeteo = pLogbookDay.getLatestMeteo() || {};
+			this.showMeteo({
+				temperature: currentMeteo.temperature || latestMeteo.temperature,
+				pressure: currentMeteo.pressure || latestMeteo.pressure,
+				weather: latestMeteo.weather,
+				windForce: currentMeteo.windForce || latestMeteo.windForce,
+				windDirection: currentMeteo.windDirection || latestMeteo.windDirection,
+				waveHeight: latestMeteo.waveHeight
+			});
 			let lat = null;
 			let lon = null;
 			if (this.gpsObserver !== null) {
@@ -561,7 +569,7 @@ PiLot.View.Logbook = (function () {
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			this.showTime(null);
-			this.showDefaultTile(pBoatSetup);
+			this.showDefaultTitle(pBoatSetup);
 			this.tbNotes.value = '';
 			this.showMeteo({});
 			this.showNavData(null, null, null, null);
@@ -611,7 +619,7 @@ PiLot.View.Logbook = (function () {
 		 * Sets the name of a BoatSetup as title, to be used for new entries
 		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup
 		 */
-		showDefaultTile: function (pBoatSetup) {
+		showDefaultTitle: function (pBoatSetup) {
 			if (pBoatSetup) {
 				this.tbTitle.value = pBoatSetup.getName() || '';
 			}

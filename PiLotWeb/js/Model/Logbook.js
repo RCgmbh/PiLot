@@ -128,6 +128,18 @@ PiLot.Model.Logbook = (function () {
 			return result;
 		},
 
+		/**
+		 * returns the meteo object of the latest entry or null, if there is no entry
+		 */
+		getLatestMeteo: function(){
+			let result = null;
+			if(this.hasEntries()){
+				this.sortEntries(false);
+				result = this.logbookEntries.last().getMeteo();
+			}
+			return result;
+		},
+
 		/** 
 		 * Saves the current diary text back to the server 
 		 * @returns {Object} an object with {data: object, status: http code, ok: Boolean}
