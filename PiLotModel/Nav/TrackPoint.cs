@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Text.Json.Serialization;
 using PiLot.Utils.DateAndTime;
 
@@ -78,8 +79,8 @@ namespace PiLot.Model.Nav {
 				if (
 						Int64.TryParse(pStringArray[0], out Int64 utc)
 						&& Int64.TryParse(pStringArray[1], out Int64 boatTime)
-						&& Double.TryParse(pStringArray[2], out Double lat)
-						&& Double.TryParse(pStringArray[3], out Double lon)
+						&& Double.TryParse(pStringArray[2].Replace(',', '.'), out Double lat) // quick fix handling old data with "," instead of "."
+						&& Double.TryParse(pStringArray[3].Replace(',', '.'), out Double lon) // quick fix handling old data with "," instead of "."
 				) {
 					result = new TrackPoint(lat, lon);
 					result.UTC = utc;
@@ -223,7 +224,7 @@ namespace PiLot.Model.Nav {
 		/// <param name="pFormat">the format string, e.g. "F3"</param>
 		/// <returns>stringified value or null</returns>
 		private String DoubleToString(Double? pValue, String pFormat) {
-			return pValue != null ? pValue.Value.ToString(pFormat) : "null";
+			return pValue != null ? pValue.Value.ToString(pFormat, CultureInfo.InvariantCulture) : "null";
 		}
 
 		#endregion
