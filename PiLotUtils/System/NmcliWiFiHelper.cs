@@ -164,7 +164,7 @@ namespace PiLot.Utils.OS {
         private List<WiFiInfo> SearchNetworks(String pInterface, List<WiFiInfo> pKnownNetworks){
             List<WiFiInfo> result = pKnownNetworks;
             this.systemHelper.CallCommand("sudo", "nmcli dev wifi rescan", MAXWAIT);
-            String cmdResult = this.systemHelper.CallCommand("nmcli", $"-t -f SSID,IN-USE,SIGNAL device wifi list ifname {pInterface}", MAXWAIT);
+            String cmdResult = this.systemHelper.CallCommand("sudo", $"nmcli -t -f SSID,IN-USE,SIGNAL device wifi list ifname {pInterface}", MAXWAIT);
             String[] lines = this.GetLines(cmdResult);
             String[] fields;
             Int32 signalStrength;
