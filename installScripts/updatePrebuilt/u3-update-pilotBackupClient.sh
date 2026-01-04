@@ -19,11 +19,11 @@ echo stopping services
 systemctl stop backupClient
 echo installing application
 mkdir temp
-cp /opt/pilotbackupclient/config.json temp
-cp /opt/pilotbackupclient/PiLot.Backup.Client.dll.config temp
+mv /opt/pilotbackupclient/config.json temp
+mv /opt/pilotbackupclient/PiLot.Backup.Client.dll.config temp
 rm -r /opt/pilotbackupclient/*
 tar zxf pilotbackupclient_$1\_$2.tar.gz -C /opt/pilotbackupclient
-cp -r temp/* /opt/pilotbackupclient
+mv -r temp/* /opt/pilotbackupclient
 echo starting services
 systemctl start backupClient
 echo cleaning up
