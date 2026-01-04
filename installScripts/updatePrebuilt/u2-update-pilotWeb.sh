@@ -12,9 +12,10 @@ echo downloading release
 wget https://roethenmund.biz/pilot/pilotweb.tar.gz
 echo installing website
 mkdir temp
-tar zxf pilotweb.tar.gz -C temp
+mkdir temp/js
 cp /var/www/html/pilot/js/Config.js temp/js
 rm -r /var/www/html/pilot/*
+tar zxf pilotweb.tar.gz -C /var/www/html/pilot
 cp -r temp/* /var/www/html/pilot
 echo cleaning up
 rm -r temp
