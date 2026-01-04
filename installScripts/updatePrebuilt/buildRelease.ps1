@@ -1,3 +1,8 @@
+# Builds releases of one project for different dotnet versions and target archtectures.
+# Removes config files from the release, so that they won't be overwritten when installing
+# Creates .tar.gz files and uploads them to roethenmund.biz, so that the scripts on
+# the target machines can wget and unzip them. 
+
 Param(
     [Parameter(Mandatory)] [string] $csprojPath,
     [Parameter(Mandatory)] [string] $prefix,
