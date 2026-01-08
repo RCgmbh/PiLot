@@ -4,7 +4,7 @@ Description=PiLot API
 [Service]
 Type=simple
 WorkingDirectory=/opt/pilotapi
-ExecStart=/opt/pilotapi/PiLot.API
+ExecStart=dotnet /opt/pilotapi/PiLot.API.dll
 Restart=always
 RestartSec=2
 User=pi

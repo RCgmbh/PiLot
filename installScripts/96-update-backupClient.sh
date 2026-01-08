@@ -17,7 +17,7 @@ git pull
 systemctl stop backupClient
 mv /opt/pilotbackupclient/config.json /opt/pilotbackupclient/config.json.bak
 mv /opt/pilotbackupclient/PiLot.Backup.Client.dll.config /opt/pilotbackupclient/PiLot.Backup.Client.dll.config.bak
-dotnet build PiLotBackupClient -o /opt/pilotbackupclient -c release -r linux-arm --no-self-contained
+dotnet build PiLotBackupClient -o /opt/pilotbackupclient -c release --no-self-contained
 mv -f /opt/pilotbackupclient/config.json.bak /opt/pilotbackupclient/config.json
 mv -f /opt/pilotbackupclient/PiLot.Backup.Client.dll.config.bak /opt/pilotbackupclient/PiLot.Backup.Client.dll.config
 echo "Backup Client installed"

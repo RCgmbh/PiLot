@@ -13,7 +13,7 @@ fi
 cd /home/pi/repos/PiLot
 git pull
 echo "Build and install latest PiLotTilesDownloader version"
-dotnet build PiLotTilesDownloader -o /opt/pilottilesdownloader -c release -r linux-arm --no-self-contained
+dotnet build PiLotTilesDownloader -o /opt/pilottilesdownloader -c release --no-self-contained
 chmod +x /opt/pilottilesdownloader/launch.sh
 echo "New PiLotTilesDownloader installed"
 echo "Done"

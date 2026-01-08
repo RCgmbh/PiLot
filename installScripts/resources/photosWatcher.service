@@ -4,7 +4,7 @@ Description=PiLot Photo Import
 [Service]
 Type=simple
 WorkingDirectory=/opt/pilotphotoswatcher
-ExecStart=/opt/pilotphotoswatcher/PiLot.PhotosWatcher /home/pi/PhotoImport /var/opt/pilot process watch
+ExecStart=dotnet /opt/pilotphotoswatcher/PiLot.PhotosWatcher.dll /home/pi/PhotoImport /var/opt/pilot process watch
 Restart=always
 RestartSec=2
 User=pi

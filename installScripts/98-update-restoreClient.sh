@@ -15,6 +15,6 @@ mkdir -p /opt/pilotrestoreclient	#PiLot restore client binaries
 cd /home/pi/repos/PiLot
 git pull
 echo "Build and install latest restore client version"
-dotnet build PiLotRestoreClient -o /opt/pilotrestoreclient -c release -r linux-arm --no-self-contained
+dotnet build PiLotRestoreClient -o /opt/pilotrestoreclient -c release --no-self-contained
 echo "New restore client built"
 echo "Done"

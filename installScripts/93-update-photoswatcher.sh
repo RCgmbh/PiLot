@@ -14,7 +14,7 @@ cd /home/pi/repos/PiLot
 git pull
 echo "Build and install latest PhotosWatcher version"
 systemctl stop photosWatcher
-dotnet build PiLotPhotosWatcher -o /opt/pilotphotoswatcher -c release -r linux-arm --no-self-contained
+dotnet build PiLotPhotosWatcher -o /opt/pilotphotoswatcher -c release --no-self-contained
 echo "New PhotosWatcher installed"
 systemctl start photosWatcher
 echo "Done"

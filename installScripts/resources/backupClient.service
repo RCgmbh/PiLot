@@ -4,7 +4,7 @@ Description=PiLot Backup Client
 [Service]
 Type=simple
 WorkingDirectory=/opt/pilotbackupclient
-ExecStart=/opt/pilotbackupclient/PiLot.Backup.Client
+ExecStart=dotnet /opt/pilotbackupclient/PiLot.Backup.Client.dll
 Restart=always
 RestartSec=300
 User=pi

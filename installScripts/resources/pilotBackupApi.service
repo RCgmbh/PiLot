@@ -4,7 +4,7 @@ Description=PiLot Backup API
 [Service]
 Type=simple
 WorkingDirectory=/opt/pilotbackupapi
-ExecStart=/opt/pilotbackupapi/PiLot.Backup.API
+ExecStart=dotnet /opt/pilotbackupapi/PiLot.Backup.API.dll
 Restart=always
 RestartSec=2
 User=pi

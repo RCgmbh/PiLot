@@ -4,7 +4,7 @@ Description=PiLot Live Client
 [Service]
 Type=simple
 WorkingDirectory=/opt/pilotliveclient
-ExecStart=/opt/pilotliveclient/PiLot.LiveClient
+ExecStart=dotnet /opt/pilotliveclient/PiLot.LiveClient.dll
 Restart=always
 RestartSec=2
 User=pi

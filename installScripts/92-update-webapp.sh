@@ -26,7 +26,7 @@ systemctl stop pilotApi
 systemctl stop sensorsLogger
 mv /opt/pilotapi/config /opt/pilotapi/config_bak
 mv /opt/pilotapi/PiLot.API.dll.config /opt/pilotapi/PiLot.API.dll.config.bak
-dotnet build PiLotAPICore -o /opt/pilotapi -c release -r linux-arm --no-self-contained
+dotnet build PiLotAPICore -o /opt/pilotapi -c release --no-self-contained
 rm -r /opt/pilotapi/config
 # remove links from /etc/pilot
 rm -f /etc/pilot/pilotapi.config

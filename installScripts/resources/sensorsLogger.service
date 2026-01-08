@@ -4,7 +4,7 @@ Description=PiLot Sensors Logger
 [Service]
 Type=simple
 WorkingDirectory=/opt/pilotsensors
-ExecStart=/opt/pilotsensors/PiLot.Sensors
+ExecStart=dotnet /opt/pilotsensors/PiLot.Sensors.dll
 Restart=always
 RestartSec=2
 User=pi
