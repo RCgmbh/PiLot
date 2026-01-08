@@ -15,8 +15,8 @@ echo stopping services
 systemctl stop sensorsLogger
 echo installing application
 mkdir temp
-mv /opt/pilotSensors/PiLot.Sensors.dll.config temp
-rm -r /opt/pilotSensors/*
+mv /opt/pilotsensors/PiLot.Sensors.dll.config temp
+rm -r /opt/pilotsensors/*
 tar zxf pilotsensors.tar.gz -C /opt/pilotsensors
 mv temp/* /opt/pilotsensors
 echo starting services
