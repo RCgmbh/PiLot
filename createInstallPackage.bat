@@ -7,7 +7,7 @@ mkdir pilotinstall\resources\pilotapi\config
 mkdir pilotinstall\resources\pilotapi\data\global
 mkdir pilotinstall\resources\pilotapi\data\logbook
 mkdir pilotinstall\resources\pilotapi\data\routes
-dotnet build PiLotApiCore -o pilotinstall\resources\pilotapi -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotApiCore -o pilotinstall\resources\pilotapi -c release --no-self-contained
 copy /y pilotinstall\resources\pilotapi\app.default.config pilotinstall\resources\pilotapi\PiLot.API.dll.config
 del /s /q pilotinstall\resources\pilotapi\app.*.config
 del /s /q pilotinstall\resources\pilotapi\app.config
@@ -26,13 +26,13 @@ del  pilotinstall\resources\pilotapi\config\users.*.json
 
 
 mkdir pilotinstall\resources\pilotphotoswatcher
-dotnet build PiLotPhotosWatcher -o pilotinstall\resources\pilotphotoswatcher -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotPhotosWatcher -o pilotinstall\resources\pilotphotoswatcher -c release --no-self-contained
 copy /y pilotinstall\resources\pilotphotoswatcher\app.default.config pilotinstall\resources\pilotphotoswatcher\PiLot.PhotosWatcher.dll.config
 del /s /q pilotinstall\resources\pilotphotoswatcher\app.*.config
 del /s /q pilotinstall\resources\pilotphotoswatcher\app.config
 
 mkdir pilotinstall\resources\pilotsensors
-dotnet build PiLotSensors -o pilotinstall\resources\pilotsensors -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotSensors -o pilotinstall\resources\pilotsensors -c release --no-self-contained
 copy /y pilotinstall\resources\pilotsensors\app.default.config pilotinstall\resources\pilotsensors\PiLot.Sensors.dll.config
 del /s /q pilotinstall\resources\pilotsensors\app.*.config
 del /s /q pilotinstall\resources\pilotsensors\app.config
@@ -55,21 +55,21 @@ xcopy /s /r /i  ..\..\pilot\defaultlibrary\* pilotinstall\resources\library\
 copy py\gpsLogger.py pilotinstall\resources\
 
 mkdir pilotinstall\resources\pilotliveclient
-dotnet build PiLotLiveClient -o pilotinstall\resources\pilotliveclient -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotLiveClient -o pilotinstall\resources\pilotliveclient -c release --no-self-contained
 copy /y pilotinstall\resources\pilotliveclient\app.default.config pilotinstall\resources\pilotliveclient\PiLot.LiveClient.dll.config
 del /s /q pilotinstall\resources\pilotliveclient\app.*.config
 copy /y pilotinstall\resources\pilotliveclient\config.default.json pilotinstall\resources\pilotliveclient\config.json
 del /s /q pilotinstall\resources\pilotliveclient\config.*.json
 
 mkdir pilotinstall\resources\pilotbackupclient
-dotnet build PiLotBackupClient -o pilotinstall\resources\pilotbackupclient -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotBackupClient -o pilotinstall\resources\pilotbackupclient -c release --no-self-contained
 copy /y pilotinstall\resources\pilotbackupclient\app.default.config pilotinstall\resources\pilotbackupclient\PiLot.Backup.Client.dll.config
 del /s /q pilotinstall\resources\pilotbackupclient\app.*.config
 copy /y pilotinstall\resources\pilotbackupclient\config.default.json pilotinstall\resources\pilotbackupclient\config.json
 del /s /q pilotinstall\resources\pilotbackupclient\config.*.json
 
 mkdir pilotinstall\resources\pilotbackupapi
-dotnet build PiLotBackupApi -o pilotinstall\resources\pilotbackupapi -c release -r linux-arm64 --no-self-contained
+dotnet build PiLotBackupApi -o pilotinstall\resources\pilotbackupapi -c release --no-self-contained
 rd /s /q pilotinstall\resources\pilotbackupapi\App_Data
 copy /y pilotinstall\resources\pilotbackupapi\app.default.config pilotinstall\resources\pilotbackupapi\PiLot.Backup.API.dll.config
 del /s /q pilotinstall\resources\pilotbackupapi\app.*.config
