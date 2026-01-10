@@ -231,6 +231,7 @@ PiLot.Utils.Loader = (function () {
 			const params = this.processParameters();
 			this.showPage(this.page, params, false);
 			this.initializeFullscreen();
+			this.initializeNightMode();
 		},
 
 		showLoginForm: function(){
@@ -254,6 +255,10 @@ PiLot.Utils.Loader = (function () {
 
 		initializeFullscreen: function(){
 			PiLot.Utils.Presentation.Fullscreen.initialize();
+		},
+
+		initializeNightMode: function(){
+			PiLot.Utils.Presentation.NightModeHandler.initialize();
 		},
 
 		decidePage: function(){

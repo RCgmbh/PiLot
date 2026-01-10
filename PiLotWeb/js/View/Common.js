@@ -338,7 +338,7 @@ PiLot.View.Common = (function () {
 
 		initialize: function(){
 			this.draw();
-			new NightModeHandler();
+			PiLot.Utils.Presentation.NightModeHandler.initialize();
 			this.applyUserSettings();
 		},
 
@@ -645,7 +645,6 @@ PiLot.View.Common = (function () {
 
 	/** An icon allowing to swap the day/night mode */
 	var DayNightIcon = function () {
-		this.nightModeHandler = null;
 		this.lnkNight = null;
 		this.lnkDay = null;
 		this.initialize();
@@ -654,7 +653,6 @@ PiLot.View.Common = (function () {
 	DayNightIcon.prototype = {
 
 		initialize: function () {
-			this.nightModeHandler = new NightModeHandler();
 			this.draw();
 		},
 
@@ -679,48 +677,16 @@ PiLot.View.Common = (function () {
 		},
 
 		setLinksVisibility: function () {
-			const nightMode = this.nightModeHandler.getIsNightMode();
+			const nightMode = PiLot.Utils.Presentation.NightModeHandler.getIsNightMode();
 			this.lnkDay.hidden = !nightMode;
 			this.lnkNight.hidden = nightMode; 
 		},
 
 		setNightMode: function (pNightMode) {
-			this.nightModeHandler.setNightMode(pNightMode);
+			PiLot.Utils.Presentation.NightModeHandler.setNightMode(pNightMode);
 			this.setLinksVisibility();
 		}
 	}
-
-	/** handles the day/night mode by storing and applying the current settings */
-	var NightModeHandler = function () {
-
-		this.initialize();
-
-	};
-
-	NightModeHandler.prototype = {
-
-		initialize: function () {
-			this.ensureNightMode();
-		},
-
-		/// sets the night mode on or off
-		setNightMode: function (pNightMode) {
-			PiLot.Utils.Common.saveUserSetting('PiLot.Utils.Common.nightMode', pNightMode);
-			document.body.classList.add('nightTransition');
-			this.ensureNightMode();
-		},
-
-		/// makes sure we have the night class set to the body if necessary.
-		ensureNightMode: function () {
-			document.body.classList.toggle('night', this.getIsNightMode());
-		},
-
-		/** gets whether we currently are in nightmode */
-		getIsNightMode: function () {
-			return PiLot.Utils.Common.loadUserSetting('PiLot.Utils.Common.nightMode') || false;
-		}
-
-	};
 
 	/** Renders a hamburger icon, which will, when clicked, show the main menu */
 	var MainMenuHamburger = function(){
@@ -922,10 +888,7 @@ PiLot.View.Common = (function () {
 		},
 
 		arrowButton_click: function (pSender, pKey) {
-			//var e = $.Event('keydown');
-			var e = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: pKey });
-			//e.which = pKey;
-			//$(pSender).trigger(e);
+			const e = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, key: pKey });
 			pSender[0].dispatchEvent(e);
 		},
 
@@ -1132,7 +1095,6 @@ PiLot.View.Common = (function () {
 			this.btnLogout = this.menu.querySelector('.btnLogout');
 			this.btnLogout.addEventListener('click', this.btnLogout_click.bind(this));
 			container.appendChild(this.icon);
-			//container.appendChild(this.menu);
 			document.getElementById('headerButtons').appendChild(this.menu);
 		},
 
@@ -1310,7 +1272,6 @@ PiLot.View.Common = (function () {
 		GenericDisplayPage: GenericDisplayPage,
 		GenericDisplay: GenericDisplay,
 		DayNightIcon: DayNightIcon,
-		NightModeHandler: NightModeHandler,
 		MainMenuHamburger: MainMenuHamburger,
 		TouchButtons: TouchButtons,
 		LoginForm: LoginForm,

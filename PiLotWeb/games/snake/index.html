@@ -9,6 +9,7 @@
 	<script src="../../js/3rdParty/jQuery/jquery-3.3.1.min.js"></script>
 	<script src="../../js/3rdParty/jQuery/jquery-ui.min.js"></script>
 	<script src="../../js/Utils/Common.js"></script>
+	<script src="../../js/Utils/Presentation.js"></script>
 	<script src="../../js/View/Common.js"></script>
 	<script src="../../js/Templates/Common.js"></script>
 	<script src="snake.js" type="text/javascript"></script>
@@ -76,14 +77,15 @@
 					<label for="rbLeftRight">Links-Rechts</label>
 				</div><br />
 				<div class="optionsContainer">
-					<a class="linkButton btnNightMode" onclick="return new PiLot.View.Common.NightModeHandler().setNightMode(true);" href="#" title="Nachtmodus"><i class="icon-moon"></i></a>
-					<a class="linkButton btnDayMode" onclick="return new PiLot.View.Common.NightModeHandler().setNightMode(false);" href="#" title="Tagmodus"><i class="icon-sun2"></i></a>
+					<a class="linkButton btnNightMode" onclick="return PiLot.Utils.Presentation.NightModeHandler.setNightMode(true);" href="#" title="Nachtmodus"><i class="icon-moon"></i></a>
+					<a class="linkButton btnDayMode" onclick="return PiLot.Utils.Presentation.NightModeHandler.setNightMode(false);" href="#" title="Tagmodus"><i class="icon-sun2"></i></a>
 				</div>
 			</div>
 		</div>
 		<script>
 
 			new PiLot.View.Common.TouchButtons();
+			PiLot.Utils.Presentation.NightModeHandler.initialize();
 			new SnakeGame.Controller({
 				board: document.querySelector('#board'),
 				divScore: document.querySelector('#divScore'),
