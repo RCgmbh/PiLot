@@ -56,11 +56,11 @@ PiLot.View.Admin = (function () {
 		},
 
 		btnMinus_click: function () {
-			this.changeBoardTime(-1);
+			this.changeBoatTime(-1);
 		},
 
 		btnPlus_click: function () {
-			this.changeBoardTime(1);
+			this.changeBoatTime(1);
 		},
 
 		draw: function () {
@@ -91,7 +91,7 @@ PiLot.View.Admin = (function () {
 			}.bind(this), 1010 - milliseconds);
 		},
 
-		changeBoardTime: function (pHours) {
+		changeBoatTime: function (pHours) {
 			this.boatTime.setUtcOffset(this.boatTime.getUtcOffsetMinutes() + (pHours * 60));
 			this.showBoatTime();
 			this.analogClock.getClockOpts().hoursOffset = this.boatTime.getUtcOffsetHours();

@@ -429,6 +429,16 @@ PiLot.Utils.Common = {
 	}
 };
 
+/**
+ * To make an object observable, add a new Observable to it, defining the events that can
+ * be fired/observed, the use fire to fire these events. Add an "on" function, calling
+ * the observable's addObserver function, so that observers can register to any event
+ * Observable object. Usage:
+ * this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem'])
+ * on: function(pEvent, pObserver, pFunction){ this.observable.addObserver(pEvent, pObserver, pFunction) }
+ * this.observable.fire('addItem', null);			
+ * @param {*} pEvents 
+ */
 PiLot.Utils.Common.Observable = function(pEvents){
 	this.callbacks = null;
 	this.initialize(pEvents);
