@@ -504,7 +504,7 @@ PiLot.Utils.Common = {
 		/** Sets the current client time to the server and returns the result */
 		setServerTimeAsync: async function () {
 			const millisUtc = RC.Date.DateHelper.utcNowMillis()
-			await PiLot.Service.Common.ServerTimeService.setServerTimeAsync();
+			await PiLot.Service.Common.BoatTimeService.setServerTimeAsync();
 			await this.loadCurrentBoatTimeAsync();
 		},
 
