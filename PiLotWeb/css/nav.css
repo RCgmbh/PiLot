@@ -71,7 +71,7 @@ body.night .poiMarker { filter: brightness(50%); }
 .dialogPanel.anchorWatchForm { width:100vw; max-width:24em; }
 
 .anchorWatchWarning,
-.navOutdatedDataWarning { z-index:11100; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
+.navOutdatedDataWarning { z-index:11100; position:absolute; margin:1em auto;right:0; left:0; width:50%; max-width:30em; color:black; background-color:rgba(255, 255, 255, 0.8); }
 
 .navLiveRoute { padding: 0em 0em 0em 2em; font-size:2em; max-width:60em; }
 .navLiveRoute .lblRouteName { font-size: 1.25em; padding:0.5rem 0rem 0.25rem 0rem; display:block; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; max-width: 100%; text-align: center;}

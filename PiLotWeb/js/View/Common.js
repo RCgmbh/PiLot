@@ -11,7 +11,6 @@ PiLot.View.Common = (function () {
 		this.timeFormat = pTimeFormat;
 		this.lblTime = null;			/// the html element showing the time
 		this.interval = null;
-		this.boatTime = null;
 		this.locale = null;
 		this.initialize();
 	};
@@ -21,11 +20,21 @@ PiLot.View.Common = (function () {
 		initialize: function () {
 			this.locale = PiLot.Utils.Language.getLanguage();
 			this.draw();
-			this.loadBoatTimeAsync();
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeChanged', this, this.boatTime_boatTimeChanged.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('clientServerErrorChanged', this, this.boatTime_clientServerErrorChanged.bind(this));
+			this.startTimer();
 		},
 
 		unload: function(){
 			this.stopTimer();
+		},
+
+		boatTime_boatTimeChanged: function(pBoatTime){
+			this.showTime();
+		},
+
+		boatTime_clientServerErrorChanged: function(pClientServerError){
+			this.showTime();
 		},
 
 		/// draws the clock based on a template
@@ -35,12 +44,6 @@ PiLot.View.Common = (function () {
 			this.lblTime = container.querySelector('.lblTime');
 			this.timeFormat = this.timeFormat || DateTime.TIME_24_SIMPLE;
 			this.lblTime.addEventListener('mouseover', this.showTimezone.bind(this));
-		},
-
-		/// loads the boatTime and starts the timer
-		loadBoatTimeAsync: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-			this.startTimer();
 		},
 
 		/// this starts a timer with an interval of 1 second, and first
@@ -65,14 +68,59 @@ PiLot.View.Common = (function () {
 		/// shows the current time
 		showTime: function () {
 			if (this.lblTime) {
-				this.lblTime.innerText = this.boatTime.now(this.locale).toLocaleString(this.timeFormat);
+				const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+				this.lblTime.innerText = boatTime.now(this.locale).toLocaleString(this.timeFormat);
 			}
 		},
 
 		/// shows the BoatTime timezone name as tooltip
 		showTimezone: function () {
-			this.lblTime.title = 'Boat Time: ' + this.boatTime.getTimezoneName();
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			this.lblTime.title = 'Boat Time: ' + boatTime.getTimezoneName();
 		},
+	};
+
+	var AnalogClockControl = function(pContainerId){
+		this.containerId = pContainerId;
+		this.analogClock = null;
+		this.initialize();
+	};
+
+	AnalogClockControl.prototype = {
+
+		initialize: function(){
+			this.draw();
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeLoaded', this, this.boatTime_boatTimeLoaded.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeChanged', this, this.boatTime_boatTimeChanged.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('clientServerErrorChanged', this, this.boatTime_clientServerErrorChanged.bind(this));
+		},
+
+		unload: function(){
+			this.analogClock.stop();
+		},
+
+		boatTime_boatTimeLoaded: function(pBoatTime){
+			this.updateClock();
+		},
+
+		boatTime_boatTimeChanged: function(pBoatTime){
+			this.updateClock();
+		},
+
+		boatTime_clientServerErrorChanged: function(pClientServerError){
+			this.updateClock();
+		},
+
+		draw: function(){
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			this.analogClock = Analogclock.drawClock(this.containerId, boatTime.getUtcOffsetHours(), boatTime.getClientServerErrorSeconds() * -1);
+		},
+
+		updateClock: function(){
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			this.analogClock.getClockOpts().hoursOffset = boatTime.getUtcOffsetHours();
+			this.analogClock.getClockOpts().secondsOffset = boatTime.getClientServerErrorSeconds() * -1;
+		}
 	};
 
 	var GenericDigitalClock = function(pContainer){
@@ -82,7 +130,6 @@ PiLot.View.Common = (function () {
 	var GenericAnalogClock = function(pContainer){
 
 		this.container = pContainer;
-		this.boatTime = null;
 		this.analogClock = null;
 		this.initialize();
 
@@ -91,20 +138,17 @@ PiLot.View.Common = (function () {
 	GenericAnalogClock.prototype = {
 
 		initialize: function(){
-			PiLot.Model.Common.getCurrentBoatTimeAsync().then((bt) => {
-				this.boatTime = bt;
-				this.draw();
-			});
+			this.draw();
 		},
 
 		unload: function(){
-			this.analogClock.stop();
+			this.analogClock.unload();
 		},
 
 		draw: function(){
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.genericAnalogClock);
 			this.container.appendChild(control);
-			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours(), this.boatTime.getClientErrorOffsetSeconds() * -1);
+			this.analogClock = new AnalogClockControl('clockCanvas');
 		},
 	};
 
@@ -120,7 +164,22 @@ PiLot.View.Common = (function () {
 
 		initialize: function () {
 			this.draw();
-			this.showStatusAsync();
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeLoaded', this, this.boatTime_boatTimeLoaded.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeChanged', this, this.boatTime_boatTimeChanged.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('clientServerErrorChanged', this, this.boatTime_clientServerErrorChanged.bind(this));
+			this.showStatus();
+		},
+
+		boatTime_boatTimeLoaded: function(pBoatTime){
+			this.showStatus();
+		},
+
+		boatTime_boatTimeChanged: function(pBoatTime){
+			this.showStatus();
+		},
+
+		boatTime_clientServerErrorChanged: function(pClientServerError){
+			this.showStatus();
 		},
 
 		icoTimezoneOffset_click: function(pEvent){
@@ -144,9 +203,9 @@ PiLot.View.Common = (function () {
 			this.icoTimeOffset.addEventListener('click', this.icoTimeOffset_click.bind(this));
 		},
 
-		showStatusAsync: async function (pReloadBoatTime = false) {
-			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync(pReloadBoatTime);
-			const isTimeError = Math.abs(boatTime.getClientErrorOffsetSeconds()) > clientErrorThresholdSeconds;
+		showStatus: function () {
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			const isTimeError = Math.abs(boatTime.getClientServerErrorSeconds()) > clientErrorThresholdSeconds;
 			const isTimezoneDifferent = DateTime.now().offset !== boatTime.getUtcOffsetMinutes();
 			this.icoTimezoneOffset.hidden = !isTimezoneDifferent || isTimeError;
 			this.icoTimeOffset.hidden = !isTimeError;				
@@ -168,7 +227,6 @@ PiLot.View.Common = (function () {
 	/// then swaps the main item.
 	var StartPage = function () {
 		this.homeContainer = null;
-		this.boatTime = null;
 		this.gpsObserver = null;
 		this.containers = null;				/// an array with the 4 containers where the controls have been added
 		this.controls = null;				/// the PiLot.View.Whatever controls that have been added
@@ -243,7 +301,6 @@ PiLot.View.Common = (function () {
 			this.homeContainer = contentArea.querySelector('.homeContainer');
 			this.addContainers();
 			this.layout = this.getLayout();
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.drawBoatImage();
 			this.drawNavPanel();
 			this.drawMeteoPanel();
@@ -264,7 +321,7 @@ PiLot.View.Common = (function () {
 
 		/// adds the control for the boat Image
 		drawBoatImage: function () {
-			let boatImage = new PiLot.View.Boat.StartPageBoatImage(this.containers[2], this, this.boatTime, this.gpsObserver);
+			let boatImage = new PiLot.View.Boat.StartPageBoatImage(this.containers[2], this, this.gpsObserver);
 			this.controls[2] = boatImage;
 		},
 
@@ -275,11 +332,11 @@ PiLot.View.Common = (function () {
 
 		/// adds the motion Panel
 		drawNavPanel: function () {
-			this.controls[1] = new PiLot.View.Nav.StartPageNav(this.containers[1], this, this.boatTime, this.gpsObserver);
+			this.controls[1] = new PiLot.View.Nav.StartPageNav(this.containers[1], this, this.gpsObserver);
 		},
 
 		drawMeteoPanel: function () {
-			this.controls[3] = new PiLot.View.Meteo.StartPageMeteo(this.containers[3], this, this.boatTime);
+			this.controls[3] = new PiLot.View.Meteo.StartPageMeteo(this.containers[3], this);
 		},
 
 		/// switches the controls order so that pControl is the first and
@@ -303,7 +360,6 @@ PiLot.View.Common = (function () {
 		isMinimized: function (pControl) {
 			return ((this.controls[0] !== pControl));
 		},
-
 
 		/// calculates the layout. We compare the height of the first container to the outer
 		/// container. If there is much difference, we have a row layout, else a column layout
@@ -1265,6 +1321,7 @@ PiLot.View.Common = (function () {
 
 	return {
 		Clock: Clock,
+		AnalogClockControl: AnalogClockControl,
 		GenericDigitalClock: GenericDigitalClock,
 		GenericAnalogClock: GenericAnalogClock,
 		ClockOffsetIcon: ClockOffsetIcon,

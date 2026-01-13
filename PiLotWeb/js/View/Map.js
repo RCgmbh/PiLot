@@ -136,8 +136,7 @@ PiLot.View.Map = (function () {
 			if (this.options.route) {
 				const activeRoute = await PiLot.Model.Nav.loadActiveRouteAsync();
 				if (activeRoute) {
-					const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-					const routeObserver = new PiLot.Model.Nav.RouteObserver(activeRoute, boatTime, { autoCalculate: true });
+					const routeObserver = new PiLot.Model.Nav.RouteObserver(activeRoute, { autoCalculate: true });
 					const mapRouteOptions = {
 						routeObserver: routeObserver,
 						showOptions: true,
@@ -1368,7 +1367,6 @@ PiLot.View.Map = (function () {
 	var MapTrackSettings = function (pMap) {
 		this.map = pMap;
 		this.trackObserver = null;
-		this.boatTime = null;
 		this.seconds = null;		// if set, the last x seconds will be shown until now
 		this.startTime = null;		// start time of the track to show, boatTime
 		this.endTime = null;		// end time of the track to show (null=live track), boatTime
@@ -1391,7 +1389,6 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.mapTrack = new MapTrack(this.map);
 			this.draw();
 			this.readSettings();
@@ -1523,8 +1520,9 @@ PiLot.View.Map = (function () {
 			let end = null;		// end in seconds from epoc, either utc or local
 			let isBoatTime;
 			let tracks = [];
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			if (this.seconds !== null) {
-				end = this.boatTime.utcNowUnix();
+				end = boatTime.utcNowUnix();
 				start = end - this.seconds;
 				isBoatTime = false;
 			} else if (this.startTime !== null) {
@@ -1532,7 +1530,7 @@ PiLot.View.Map = (function () {
 				if (this.endTime !== null) {
 					end = RC.Date.DateHelper.luxonToUnixLocal(this.endTime);
 				} else {
-					end = this.boatTime.nowUnix();
+					end = boatTime.nowUnix();
 				}
 				isBoatTime = true;
 			}

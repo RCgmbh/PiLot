@@ -272,7 +272,7 @@ PiLot.Model.Logbook = (function () {
 		 * @param {Number} pBoatTime - the BoatTime timestamp in seconds from epoc
 		 */
 		setTime: function (pUtc, pBoatTime) {
-			this.dateTime = new PiLot.Model.Common.BoatTime((pBoatTime - pUtc) / 60, false).fromSeconds(pBoatTime);
+			this.dateTime = new PiLot.Model.Common.BoatTime((pBoatTime - pUtc) / 60).fromSeconds(pBoatTime);
 		},
 
 		/**
@@ -286,7 +286,7 @@ PiLot.Model.Logbook = (function () {
 		setTimeOfDay: function (pSeconds, pBoatTimeObject) {
 			let boatTimeObject;
 			if (this.dateTime) {
-				boatTimeObject = new PiLot.Model.Common.BoatTime(this.dateTime.offset, false);
+				boatTimeObject = new PiLot.Model.Common.BoatTime(this.dateTime.offset);
 			} else {
 				boatTimeObject = pBoatTimeObject;
 			}

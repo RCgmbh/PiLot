@@ -188,7 +188,7 @@ PiLot.View.Analyze = (function () {
 			let result = null;
 			let date = this.loadDate();
 			if(!date){
-				const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+				const currentBoatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();;
 				date = currentBoatTime.today();
 			}
 			result = await this.loadTracksByDateAsync(date);
@@ -199,7 +199,7 @@ PiLot.View.Analyze = (function () {
 		loadTracksByDateAsync: async function (pDate){
 			const result = await PiLot.Service.Nav.TrackService.getInstance().loadTracksByDateAsync(pDate);
 			this.showDate(pDate.toLuxon());
-			await this.saveDateAsync(pDate);
+			this.saveDate(pDate);
 			return result;
 		},
 
@@ -243,12 +243,11 @@ PiLot.View.Analyze = (function () {
 		 * date again. 
 		 * @param {RC.Date.DateOnly} pDate - a simple date
 		 * */
-		saveDateAsync: async function(pDate){
-			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+		saveDate: function(pDate){
+			const currentBoatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			let saveDate = currentBoatTime.today().equals(pDate) ? null : pDate;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Analyze.AnalyzePage.date', saveDate);
-		},
-
+		}
 	};
 
 	var LiveTackInfo = function(pContainer, pTackAnalyzerOptions, pMapTacks, pMapTrack){

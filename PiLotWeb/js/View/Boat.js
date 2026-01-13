@@ -516,13 +516,11 @@ PiLot.View.Boat = (function () {
 	 * entry with the new config
 	 * @param {HTMLElement} pContainer - a HTMLElement where the control will be inserted
 	 * @param {PiLot.View.Common.StartPage} pStartPage - The start page
-	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - The current boat time
 	 * @param {PiLot.Model.Nav.GPSObserver} pGpsObserver - a gps observer, used for new logbook entries
 	 * */
-	var StartPageBoatImage = function (pContainer, pStartPage, pBoatTime, pGpsObserver) {
+	var StartPageBoatImage = function (pContainer, pStartPage, pGpsObserver) {
 		this.container = pContainer;
 		this.startPage = pStartPage;
-		this.boatTime = pBoatTime;
 		this.gpsObserver = pGpsObserver;
 		this.isMinimized = null;				// true, if this is only represented as small image
 		this.alternativeSetupsShown = null;		// true, if the column with alternative setups is shown
@@ -620,7 +618,8 @@ PiLot.View.Boat = (function () {
 		 *  Loads the current boat setup and saves it to this.boatSetup
 		 */
 		loadCurrentSetupAsync: async function () {
-			let today = RC.Date.DateOnly.fromObject(this.boatTime.now());
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			let today = RC.Date.DateOnly.fromObject(boatTime.now());
 			let boatSetupResult = await PiLot.Model.Logbook.loadCurrentBoatSetupAsync(today);
 			if (boatSetupResult.latestBoatSetup !== null) {
 				this.boatSetup = boatSetupResult.latestBoatSetup;
@@ -728,7 +727,8 @@ PiLot.View.Boat = (function () {
 		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - The boat setup to preset
 		 */
 		showLogbookEntryFormAsync: async function (pBoatSetup) {
-			const today = RC.Date.DateOnly.fromObject(this.boatTime.now());
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			const today = RC.Date.DateOnly.fromObject(boatTime.now());
 			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(today) || new PiLot.Model.Logbook.LogbookDay(today);
 			this.logbookEntryForm.showDefaultValuesAsync(logbookDay, pBoatSetup || this.boatSetup);
 		}

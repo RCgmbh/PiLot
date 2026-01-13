@@ -32,7 +32,7 @@ PiLot.Service.Boat = (function () {
 			return this.allBoatConfigs;
 		},
 		
-		/** @returns {Object[]} an array of objects with name, displayName, boatImageUrl. Uses caching */
+		/** @returns {Object[]} an array of objects with name, displayName, boatImageUrl. */
 		loadBoatConfigsAsync: async function (pBoat) {
 			const result = await PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs`);
 			return result;

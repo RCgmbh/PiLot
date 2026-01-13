@@ -227,6 +227,7 @@ PiLot.Utils.Loader = (function () {
 		},
 
 		startApp: function(){
+			this.initializeBoatTime();
 			this.addDefaultControls();
 			const params = this.processParameters();
 			this.showPage(this.page, params, false);
@@ -247,6 +248,10 @@ PiLot.Utils.Loader = (function () {
 		startLogging: function(){
 			PiLot.log = PiLot.Utils.Common.log;
 			PiLot.Utils.Common.getLogLevel();
+		},
+
+		initializeBoatTime: function(){
+			PiLot.Utils.Common.BoatTimeHelper.initialize();
 		},
 
 		initializeLanguage: function(){

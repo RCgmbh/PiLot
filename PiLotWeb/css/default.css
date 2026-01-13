@@ -492,7 +492,7 @@ body { min-width: 20em; }
 	justify-content: center; 
 	align-items:center;
 	flex-grow:0;
-	width:5em; 
+	width:5.75em; 
 }
 
 #header > #clock > div { 

@@ -379,7 +379,7 @@ PiLot.Service.Nav = (function () {
 
 		/** @returns {PiLot.Model.Nav.Track} the latest track for today */
 		loadCurrentTrackAsync: async function(){
-			const currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			const currentBoatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			const tracks = await this.loadTracksByDateAsync(currentBoatTime.today());
 			return tracks.length ? tracks.last() : null;
 		},

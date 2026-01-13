@@ -426,18 +426,105 @@ PiLot.Utils.Common = {
 				.replace(pseudoUrlPattern, '<a href="http://$&" target="_blank">$&</a>')
 				.replace(emailAddressPattern, '<a href="mailto:$&">$&</a>');
 		} else return pText;
-	}
+	},
+
+	BoatTimeHelper: {
+
+		observers: null,
+		currentBoatTime: null,
+
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable(['boatTimeLoaded', 'boatTimeChanged', 'clientServerErrorChanged']);
+			this.currentBoatTime = new PiLot.Model.Common.BoatTime(0);
+			this.loadCurrentBoatTimeAsync().then(this.startUpdateInterval());
+		},
+
+		/**
+		 * Registers an observer for an event of the BoatTimeHelper
+		 * @param {String} pEvent - 'boatTimeLoaded', 'boatTimeChanged', 'clientServerErrorChanged'
+		 * @param {Object} pObserver - the observer, used to implement 'off' 
+		 * @param {Function} pFunction - the function to call
+		 */
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
+		},
+
+		/** Sets the current client time to the server and returns the result */
+		setServerTimeAsync: async function () {
+			const millisUtc = RC.Date.DateHelper.utcNowMillis()
+			return await PiLot.Utils.Common.putToServerAsync(`/System/date?millisUtc=${millisUtc}`);
+		},
+
+		/**
+		 * Calculates the difference between client utc and server utc in milliseconds, and fires
+		 * the clientServerErrorChanged event
+		 * @param {DateTime} pServerUTC - the current server time in UTC
+		 */
+		calculateClientServerError: function (pServerUTC) {
+			this.currentBoatTime.setClientServerError(luxon.DateTime.utc().diff(pServerUTC).as('milliseconds'));
+			this.observable.fire('clientServerErrorChanged', this.clientServerError);
+		},
+
+		/**
+		 * Gets the current boatTime from the cache. This is never null, as the loader will have
+		 * called initialize already. However, it can be the default boattime, which is utc, if
+		 * you call it very early. So make sure to observer boatTimeLoaded and boatTimeChanged.
+		 * */
+		getCurrentBoatTime: function() {
+			return this.currentBoatTime;
+		},
+
+		/** 
+		 * Saves the current boatTime and fires the boatTimeChanged event
+		 * @param {Number} pChangeByMinutes - the amount of minutes to change
+		 */
+		changeBoatTimeAsync: async function(pChangeByMinutes){
+			this.currentBoatTime.setUtcOffset(this.currentBoatTime.getUtcOffsetMinutes() + pChangeByMinutes);
+			await PiLot.Service.Common.BoatTimeService.saveBoatTimeAsync(this.currentBoatTime);
+			this.observable.fire('boatTimeChanged', this.currentBoatTime);
+		},
+
+		/**
+		 * Loads the current boatTime from the server
+		 * This also measures the entire time of the request/response, and adds
+		 * a part of it to correct the client error in order to get a best
+		 * guess of the client/server difference
+		 * */
+		loadCurrentBoatTimeAsync: async function(){
+			const requestTime = DateTime.utc();
+			const boatTimeInfo = await PiLot.Service.Common.BoatTimeService.loadBoatTimeInfoAsync();
+			const responseTime = DateTime.utc();
+			const responseMillis = (responseTime.toMillis() - requestTime.toMillis()) * 0.5; // we just guess 50% of the time was the response
+			const serverTimeUTC = RC.Date.DateHelper.millisToLuxon(boatTimeInfo.utcNow + responseMillis);
+			this.currentBoatTime.setUtcOffset(boatTimeInfo.utcOffsetMinutes || 0);
+			this.observable.fire('boatTimeLoaded', this.currentBoatTime);
+			this.calculateClientServerError(serverTimeUTC);
+		},
+
+		/** Sets the current client time to the server and returns the result */
+		setServerTimeAsync: async function () {
+			const millisUtc = RC.Date.DateHelper.utcNowMillis()
+			await PiLot.Service.Common.ServerTimeService.setServerTimeAsync();
+			await this.loadCurrentBoatTimeAsync();
+		},
+
+		/** Starts an interval that reloads the boatTime from the server so that we don't miss any changes */
+		startUpdateInterval: function () {
+			window.setInterval(this.loadCurrentBoatTimeAsync.bind(this), 10000);
+		},
+	},
 };
+
 
 /**
  * To make an object observable, add a new Observable to it, defining the events that can
- * be fired/observed, the use fire to fire these events. Add an "on" function, calling
- * the observable's addObserver function, so that observers can register to any event
- * Observable object. Usage:
+ * be fired/observed, then use fire to fire these events. Add an "on" function, calling
+ * the observable's addObserver function, so that observers can register to any event of the
+ * observable object. Usage:
  * this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem'])
  * on: function(pEvent, pObserver, pFunction){ this.observable.addObserver(pEvent, pObserver, pFunction) }
  * this.observable.fire('addItem', null);			
- * @param {*} pEvents 
+ * @param {String[]} pEvents - the array of all supported events
  */
 PiLot.Utils.Common.Observable = function(pEvents){
 	this.callbacks = null;
@@ -473,5 +560,4 @@ PiLot.Utils.Common.Observable.prototype = {
 			console.warn(`Unknown event name: ${pEvent}`);
 		}
 	}
-
 };

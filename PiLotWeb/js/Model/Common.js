@@ -17,15 +17,15 @@ PiLot.Model = PiLot.Model || {};
 
 PiLot.Model.Common = (function () {
 
-	var currentBoatTime = null;
-
-	/// The BoatTime is the virtual timezone used on the boat. It is defined by
-	/// just the UtcOffset, and offers some help to handle BoatTime-local DateTimes
-	var BoatTime = function (pUtcOffset, pIsCurrentBoatTime) {
-		this.utcOffset = 0;								// the offset against UTC in minutes
-		this.clientErrorOffsetSeconds = 0;				// the number of seconds the client is wrong relative to the server (comparing utc)
-		this.setUtcOffset(pUtcOffset);
-		this.isCurrentBoatTime = pIsCurrentBoatTime;	// if true, any change in the BoatTime will be saved to the server
+	/**
+	 * The BoatTime is the virtual timezone used on the boat. It is defined by
+	 * just the UtcOffset, and offers some help to handle BoatTime-local DateTimes. It also makes 
+	 * sure the client uses the time from the server, as these can differ in offline szenarios.
+	 * @param {Number} pUtcOffset - the utc offset in minutes, e.g. 60 for MEZ
+	 *  */ 
+	var BoatTime = function (pUtcOffset) {
+		this.utcOffset = pUtcOffset;
+		this.clientServerError = 0;							
 	};
 
 	BoatTime.prototype = {
@@ -40,28 +40,34 @@ PiLot.Model.Common = (function () {
 			return RC.Date.DateOnly.fromObject(this.now());
 		},
 
-		/// gets UTC now, corrected by clientErrorOffsetSeconds, therefore
-		/// close to Server UTC, as luxon DateTime	
+		/** @returns {DateTime} utc now as Luxon */
 		utcNow: function () {
-			return luxon.DateTime.fromMillis(this.utcNowUnix() * 1000, { zone: 'UTC' });;
+			return DateTime.fromMillis(this.utcNowMillis(), { zone: 'UTC' });;
 		},
 
-		/** Gets the current boatTime in seconds from epoc */
+		/** @returns {Number} Gets the current boatTime in seconds from epoc */
 		nowUnix: function () {
 			return this.utcNowUnix() + (this.utcOffset * 60);
 		},
 
-		/// Gets seconds from epoc in UTC, corrected by client error, resulting
-		/// in something close to server UTC
+		/** @returns {Number} the seconds from epoc corrected by the clientServerOffset, resulting in something close to server UTC */
 		utcNowUnix: function () {
-			return (new Date().getTime() / 1000) - this.clientErrorOffsetSeconds;
+			return this.utcNowMillis() / 1000;
 		},
 
-		/// Creates a luxon DateTime object in the BoatTime timezone based on 
-		/// a value representing millis from epoc UTC
+		/** @returns {Number} the milliseconds from epoc corrected by the clientServerOffset, resulting in something close to server UTC */
+		utcNowMillis: function(){
+			return (new Date().getTime()) - this.clientServerError;
+		},
+
+		/** 
+		 * @param {Number} pMillis - a value representing millis from epoc UTC
+		 * @param {String} pLocale - the locale, e.g. "de-CH", allows to properly format the luxon object
+		 * @returns {DateTime} a luxon DateTime object in the BoatTime timezone 
+		 * */ 
 		fromMillisUTC: function (pMillis, pLocale) {
-			var utc = luxon.DateTime.fromMillis(pMillis, { zone: 'UTC' });
-			var result = luxon.DateTime.fromObject({
+			const utc = DateTime.fromMillis(pMillis, { zone: 'UTC' });
+			let result = DateTime.fromObject({
 				year: utc.year,
 				month: utc.month,
 				day: utc.day,
@@ -77,100 +83,58 @@ PiLot.Model.Common = (function () {
 			return result;
 		},
 
-		/// Creates a luxonDateTime from seconds since Epoc. The seconds represent
-		/// a point in time in BoatTime (not UTC).
+		/**
+		 * Creates a luxon DateTime from seconds since Epoc. The seconds represent a point in time in BoatTime (not UTC).
+		 * @param {Number} pSeconds - seconds since epoc in BoatTime (not UTC)
+		 * @returns {DateTime} a luxon DateTime in boattime zone
+		 * */
 		fromSeconds: function (pSeconds) {
-			return luxon.DateTime.fromSeconds(pSeconds - this.utcOffset * 60, {zone: this.getTimezoneName()});
+			return DateTime.fromSeconds(pSeconds - this.utcOffset * 60, {zone: this.getTimezoneName()});
 		},
 
-		/// sets the utc offset of the current boat time, in minutes
-		/// e.g. for MEZ: 60, and writes it back to the server if this
-		/// is the default boatTime
-		setUtcOffset: function (pOffsetMinutes, pSuppressSave = false) {
-			if (RC.Utils.isNumeric(pOffsetMinutes)) {
-				this.utcOffset = Number(pOffsetMinutes);
-			} else {
-				PiLot.log('invalid pOffsetMinutes: ' + pOffsetMinutes, 0);
-				this.utcOffset = 0;
-			}
-			if (this.isCurrentBoatTime && !pSuppressSave) {
-				PiLot.Utils.Common.putToServerAsync(`/Settings/boatTime?utcOffset=${this.utcOffset}`);
-			}
-		},
-
-		/// takes the current server time utc as luxon object, and calculates
-		/// the client error offset.
-		calculateClientError: function (pServerUTC) {
-			if (pServerUTC instanceof luxon.DateTime) {
-				this.clientErrorOffsetSeconds = luxon.DateTime.utc().diff(pServerUTC).as('seconds');
-				PiLot.Utils.Common.log(`clientOffsetErrorSeconds set to ${this.clientErrorOffsetSeconds}`, 3);
-			} else {
-				PiLot.Utils.Common.log(`invalid value for pServerUTC while a luxon object was expected. ${pServerUTC} `, 0);
-			}
-		},
-
-		/// gets the boat time's UTC offset in minutes
+		/**  @returns {Number} the boat time's UTC offset in minutes */ 
 		getUtcOffsetMinutes: function () {
 			return this.utcOffset;
 		},
 
-		/// gets the boat time's UTC offset in hours
+		/**  @returns {Number} the boat time's UTC offset in hurs */ 
 		getUtcOffsetHours: function () {
 			return this.utcOffset / 60;
 		},
 
-		/// gets the offset error of the client compared to the server in seconds
-		getClientErrorOffsetSeconds: function () {
-			return this.clientErrorOffsetSeconds;
+		/** @param {Number} pOffsetMinutes - the UTC offset in minutes */ 
+		setUtcOffset: function (pOffsetMinutes) {
+			this.utcOffset = pOffsetMinutes;
 		},
 
-		/// returns a string like UTC+1, to be used for setZone
+		/**  @returns {Number} the difference between client utc and server utc in milliseconds */
+		getClientServerError: function () {
+			return this.clientServerError;
+		},
+		
+		/**  @returns {Number} the difference between client utc and server utc in seconds */
+		getClientServerErrorSeconds: function () {
+			return this.clientServerError / 1000;
+		},	
+
+		/** @param {Number} pClientServerError - the difference between client utc and server utc in milliseconds */
+		setClientServerError: function(pClientServerError){
+			this.clientServerError = pClientServerError;
+		},
+
+		/** @returns {String} astring like UTC+1, to be used for setZone */
 		getTimezoneName: function () {
 			let plusSign = this.utcOffset >= 0 ? '+' : '';
 			return 'UTC' + plusSign + this.getUtcOffsetHours();
 		},
 
-		/// converts this to an object that can be processed on the server
+		/** @returns {Object} an object that can be processed on the server */
 		toServerObject: function () {
 			return {
 				utcOffset: this.utcOffset
 			};
 		}
 	};
-
-	/// creates a BoatTime object based on an object loaded from the server. Don't use this
-	/// to create the current BoatTime.
-	BoatTime.fromServerObject = function (pServerObject) {
-		var result = null;
-		if (pServerObject && 'UtcOffset' in pServerObject) {
-			result = new BoatTime(pServerObject.UtcOffset);
-		} else {
-			PiLot.Utils.Common.log('Invalid argument in BoatTime.fromServerObject: ' + pServerObject);
-		}
-		return result;
-	};
-
-	/**
-	 * Gets the current boatTime either from the instance or from the server
-	 * Usage: PiLot.Model.Common.getCurrentBoatTymeAsync.then({b=> blah;});
-	 * or const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
-	 * This also measures the entire time of the request/response, and adds
-	 * a part of it to correct the client error in order to get a best
-	 * possible quess of the client/server difference
-     * @param {Boolean} pForceReload - Set to true to force reload from the server
-	 * */
-    async function getCurrentBoatTimeAsync(pForceReload = false) {
-        if (currentBoatTime === null || pForceReload) {
-			const requestTime = luxon.DateTime.utc();
-			const json = await PiLot.Utils.Common.getFromServerAsync('/Settings/boatTime');
-			const responseTime = luxon.DateTime.utc();
-			const responseMillis = (responseTime.toMillis() - requestTime.toMillis()) * 0.9; // we just guess 90% of the time was the response
-			const serverTimeUTC = RC.Date.DateHelper.millisToLuxon(json.utcNow + responseMillis);
-			currentBoatTime = currentBoatTime || new BoatTime(json.utcOffsetMinutes || 0, true); // another instance might have been created in the meantime, therefore the ||
-			currentBoatTime.calculateClientError(serverTimeUTC);
-		}
-		return currentBoatTime;
-	}
 
 	/** singleton instance for AuthHelper */
 	var currentAuthHelper = null;
@@ -322,7 +286,7 @@ PiLot.Model.Common = (function () {
 	PiLot.Permissions = Permissions;
 
 	return {
-		getCurrentBoatTimeAsync: getCurrentBoatTimeAsync,
+		//getCurrentBoatTimeAsync: getCurrentBoatTimeAsync,
 		BoatTime: BoatTime,
 		AuthHelper: AuthHelper,
 		Permissions: Permissions

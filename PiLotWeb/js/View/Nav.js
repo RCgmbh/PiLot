@@ -630,7 +630,6 @@ PiLot.View.Nav = (function () {
 	var NavPage = function () {
 		this.gpsObserver = null;
 		this.routeObserver = null;
-		this.boatTime = null;
 		this.outdatedGpsWarning = null;
 		this.sogIndicator = null;
 		this.cogIndicator = null;
@@ -648,14 +647,10 @@ PiLot.View.Nav = (function () {
 
 		/// initializes stuffs, requests data from the server and calls draw()
 		initialize: function () {
-			Promise.all([
-				PiLot.Model.Common.getCurrentBoatTimeAsync(),
-				PiLot.Model.Nav.loadActiveRouteAsync()
-			]).then(results => {
-				this.boatTime = results[0];
+			PiLot.Model.Nav.loadActiveRouteAsync().then(result => {
 				this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-				if (results[1] !== null) {
-					this.routeObserver = new PiLot.Model.Nav.RouteObserver(results[1], this.boatTime, { autoCalculate: true });
+				if (result !== null) {
+					this.routeObserver = new PiLot.Model.Nav.RouteObserver(result, { autoCalculate: true });
 				}
 				this.draw();
 				this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
@@ -1991,12 +1986,9 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			PiLot.Model.Common.getCurrentBoatTimeAsync().then(function (pBoatTime) {
-				this.boatTime = pBoatTime;
-				gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-				gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-				gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
-			}.bind(this));			
+			gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+			gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));		
 		},
 
 		/** handles new data from the gps observer */
@@ -2159,7 +2151,7 @@ PiLot.View.Nav = (function () {
 			const vmg = pGpsObserver.getVMG(poiLatLon);
 			const distance = poiLatLon.distanceTo(gpsLatLon);
 			const distanceNm = PiLot.Utils.Nav.metersToNauticalMiles(distance);
-			const now = this.boatTime.now().setLocale(PiLot.Utils.Language.getLanguage());
+			const now = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().now(iLot.Utils.Language.getLanguage());
 			if (vmg > 0) {
 				const deltaT = distanceNm / vmg;
 				const eta = now.plus({ hours: deltaT });
@@ -2732,10 +2724,9 @@ PiLot.View.Nav = (function () {
 
 	/// The control to be used on the start page, showing telemetry and
 	/// route information
-	var StartPageNav = function (pContainer, pStartPage, pBoatTime, pGpsObserver) {
+	var StartPageNav = function (pContainer, pStartPage, pGpsObserver) {
 		this.container = pContainer;
 		this.startPage = pStartPage;
-		this.boatTime = pBoatTime;
 		this.gpsObserver = pGpsObserver;
 		this.routeObserver = null;
 		this.controls = null;
@@ -2796,7 +2787,7 @@ PiLot.View.Nav = (function () {
 		/// as soon as we have a current route
 		activeRouteLoaded: function (pRoute) {
 			if (pRoute !== null) {
-				this.routeObserver = new PiLot.Model.Nav.RouteObserver(pRoute, this.boatTime, { autoCalculate: true });
+				this.routeObserver = new PiLot.Model.Nav.RouteObserver(pRoute, { autoCalculate: true });
 				this.routeObserver.on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));
 			} else {
 				this.routeObserver = null;

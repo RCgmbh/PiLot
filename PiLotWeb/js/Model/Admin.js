@@ -44,12 +44,6 @@ PiLot.Model.Admin = (function () {
 
 	};
 
-	/** Sets the current client time to the server and returns the result */
-	var setServerTimeAsync = async function () {
-		const millisUtc = RC.Date.DateHelper.utcNowMillis()
-		return await PiLot.Utils.Common.putToServerAsync(`/System/date?millisUtc=${millisUtc}`);
-	}
-
 	/**
 	 * Gets the list of all services the web gui is allowed to see and manage
 	 * @return {String[]}
@@ -143,7 +137,6 @@ PiLot.Model.Admin = (function () {
 	
 	return {
 		LogFilesLoader: LogFilesLoader,
-		setServerTimeAsync: setServerTimeAsync,
 		getServicesAsync: getServicesAsync,
 		WiFiHelper: WiFiHelper
 	};

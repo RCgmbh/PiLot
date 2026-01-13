@@ -12,7 +12,6 @@ PiLot.View.Settings = (function () {
 	 */
 	var BoatTimePage = function () {
 
-		this.boatTime = null;					// the current BoatTime
 		this.formatString = 'yyyy-LL-dd TT';	// string used to format date/times
 
 		this.lblBoatTime = null;				// label showing the current BoatTime
@@ -21,21 +20,35 @@ PiLot.View.Settings = (function () {
 		this.btnPlus = null;					// button to increase the BoatTime by 1 hour
 		this.analogClock = null;				// the AnalogClock object representing the clock
 
-		this.initializeAsync();
+		this.initialize();
 	};
 
 	BoatTimePage.prototype = {
 
-		initializeAsync: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+		initialize: function () {
 			this.draw();
 			this.showTime();
 			this.startTimer();
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeLoaded', this, this.boatTime_boatTimeLoaded.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeChanged', this, this.boatTime_boatTimeChanged.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('clientServerErrorChanged', this, this.boatTime_clientServerErrorChanged.bind(this));
 		},
 
 		unload: function(){
 			this.stopTimer();
-			this.analogClock.stop();
+			this.analogClock.unload();
+		},
+
+		boatTime_boatTimeLoaded: function(pBoatTime){
+			this.showTime();
+		},
+
+		boatTime_boatTimeChanged: function(pBoatTime){
+			this.showTime();
+		},
+
+		boatTime_clientServerErrorChanged: function(pClientServerError){
+			this.showTime();
 		},
 
 		btnMinus_click: function () {
@@ -56,7 +69,7 @@ PiLot.View.Settings = (function () {
 			this.btnMinus.onclick = this.btnMinus_click.bind(this);
 			this.btnPlus = contentArea.querySelector('#btnPlus');
 			this.btnPlus.onclick = this.btnPlus_click.bind(this);
-			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours(), this.boatTime.getClientErrorOffsetSeconds() * -1);
+			this.analogClock = new PiLot.View.Common.AnalogClockControl('clockCanvas');
 		},
 
 		startTimer: function () {
@@ -73,10 +86,7 @@ PiLot.View.Settings = (function () {
 		},
 
 		changeBoatTime: function (pHours) {
-			this.boatTime.setUtcOffset(this.boatTime.getUtcOffsetMinutes() + (pHours * 60));
-			this.showBoatTime();
-			this.analogClock.getClockOpts().hoursOffset = this.boatTime.getUtcOffsetHours();
-			PiLot.View.Common.ClockOffsetIcon.getInstance().showStatusAsync(true);
+			PiLot.Utils.Common.BoatTimeHelper.changeBoatTimeAsync(pHours * 60);
 		},
 
 		showTime: function () {
@@ -84,7 +94,7 @@ PiLot.View.Settings = (function () {
 		},
 
 		showBoatTime: function () {
-			const boatTimeNow = this.boatTime.now();
+			const boatTimeNow = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().now();
             this.lblBoatTime.innerText = boatTimeNow.toFormat(this.formatString);
             this.lblBoatTimeOffset.innerText = boatTimeNow.toFormat('ZZZ');
 		}

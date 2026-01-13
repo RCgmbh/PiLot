@@ -229,7 +229,7 @@ PiLot.View.Stats = (function () {
 		 * distances, this would add quite some complexity.
 		 * */
 		loadTracksAsync: async function () {
-			let boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			let boatTime = await PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			let now = boatTime.now();
 			switch (this.userSettings.timeframe) {
 				case 0:	// current month
@@ -753,7 +753,7 @@ PiLot.View.Stats = (function () {
 		 * Loads the segments based on the current settings.
 		 * */
 		loadTrackSegmentsAsync: async function () {
-			let boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			let boatTime = await PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			let now = boatTime.now();
 			switch (this.userSettings.timeframe) {
 				case 0:	// current month

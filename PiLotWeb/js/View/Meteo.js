@@ -4,7 +4,6 @@ PiLot.View = PiLot.View || {};
 PiLot.View.Meteo = (function () {
 
 	var SensorsPage = function () {
-		this.boatTime = null;
 		this.startDate = null;
 		this.endDate = null;
 		this.pnlNoSensors = null;
@@ -41,7 +40,6 @@ PiLot.View.Meteo = (function () {
 	SensorsPage.prototype = {
 
 		initialize: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.dataLoader = new PiLot.Service.Meteo.DataLoader();
 			this.controls = new Array();
 			this.draw();
@@ -56,7 +54,8 @@ PiLot.View.Meteo = (function () {
 		rblTimeMode_change: async function (pTarget) {
 			if (pTarget.value === 'historic') {
 				this.pnlSelectDate.hidden = false;
-				this.startDate = this.calendar.date() || this.boatTime.today().addDays(1).toLuxon(PiLot.Utils.Language.getLanguage()).minus({ seconds: this.getIntervalSeconds() });
+				const today = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().today();
+				this.startDate = this.calendar.date() || today.addDays(1).toLuxon(PiLot.Utils.Language.getLanguage()).minus({ seconds: this.getIntervalSeconds() });
 				this.updateEndDate();
 				this.showDates();
 			} else {
@@ -112,7 +111,8 @@ PiLot.View.Meteo = (function () {
 			const pnlCalendar = contentArea.querySelector('.pnlCalendar');
 			const lnkCalendar = contentArea.querySelector('.lnkCalendar');
 			const locale = PiLot.Utils.Language.getLanguage();
-			this.calendar = new RC.Controls.Calendar(pnlCalendar, null, lnkCalendar, this.calendar_change.bind(this), this.boatTime.getUtcOffsetMinutes(), locale);
+			const utcOffset = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().getUtcOffsetMinutes();
+			this.calendar = new RC.Controls.Calendar(pnlCalendar, null, lnkCalendar, this.calendar_change.bind(this), utcOffset, locale);
 			this.plhChartsContainer = contentArea.querySelector('.plhChartsContainer');
 		},
 
@@ -136,24 +136,19 @@ PiLot.View.Meteo = (function () {
 		 * Populates this.controls with all them created controls.
 		 * */
 		loadSensorsAsync: async function () {
-			let obj = await Promise.all([
-				PiLot.Model.Common.getCurrentBoatTimeAsync(),
-				this.dataLoader.loadMeteoDataSourcesAsync()
-			]);
-			const boatTime = obj[0];
-			const sensors = obj[1];
+			const sensors = await this.dataLoader.loadMeteoDataSourcesAsync();
 			if (sensors.length > 0) {
 				let control;
 				for (const sensor of sensors) {
 					switch (sensor.sensorType) {
 						case 'temperature':
-							control = new PiLot.View.Meteo.TemperatureInfo(this.plhChartsContainer, boatTime, sensor);
+							control = new PiLot.View.Meteo.TemperatureInfo(this.plhChartsContainer, sensor);
 							break;
 						case 'humidity':
-							control = new PiLot.View.Meteo.HumidityInfo(this.plhChartsContainer, boatTime, sensor);
+							control = new PiLot.View.Meteo.HumidityInfo(this.plhChartsContainer, sensor);
 							break;
 						case 'pressure':
-							control = new PiLot.View.Meteo.PressureInfo(this.plhChartsContainer, boatTime, sensor);
+							control = new PiLot.View.Meteo.PressureInfo(this.plhChartsContainer, sensor);
 							break;
 					}
 					this.controls.push(control);
@@ -254,13 +249,11 @@ PiLot.View.Meteo = (function () {
 	 * sort order defined with the sensors. Depending on the space available, more or less data is shown.
 	 * @param {HTMLElement} pContainer - the container to which we append the control
 	 * @param {PiLot.View.Common.StartPage} pStartPage - A reference to the startPage
-	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - the current boatTime
 	 */
-	var StartPageMeteo = function (pContainer, pStartPage, pBoatTime) {
+	var StartPageMeteo = function (pContainer, pStartPage) {
 		this.infoControls = null;
 		this.container = pContainer;
 		this.startPage = pStartPage;
-		this.boatTime = pBoatTime;
 		this.dataLoader = null;
 		this.dataLoadInterval = null;
 		this.initialize();
@@ -312,13 +305,13 @@ PiLot.View.Meteo = (function () {
 			pSensors.forEach(function (sensor) {
 				switch (sensor.sensorType) {
 					case 'temperature':
-						infoControl = new PiLot.View.Meteo.TemperatureInfo(mainControl, this.boatTime, sensor);
+						infoControl = new PiLot.View.Meteo.TemperatureInfo(mainControl, sensor);
 						break;
 					case 'humidity':
-						infoControl = new PiLot.View.Meteo.HumidityInfo(mainControl, this.boatTime, sensor);
+						infoControl = new PiLot.View.Meteo.HumidityInfo(mainControl, sensor);
 						break;
 					case 'pressure':
-						infoControl = new PiLot.View.Meteo.PressureInfo(mainControl, this.boatTime, sensor);
+						infoControl = new PiLot.View.Meteo.PressureInfo(mainControl, sensor);
 						break;
 				}
 				this.infoControls.push(infoControl);
@@ -449,13 +442,12 @@ PiLot.View.Meteo = (function () {
 	 * A control containing numeric and graphical information about the current and
 	 * historic temperature
 	 * @param {HTMLElement} pParentContainer - The container within which this will be appended as child
-	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - The current BoatTime object, used to localize time in the chart
 	 * @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}
 	 * @param {String} pTitle - the title to display within the chart
 	 * */
-	var TemperatureInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null) {
+	var TemperatureInfo = function (pParentContainer, pSensorInfo, pViewMode = null) {
 		let chartSettings = { fillColor: 'rgba(96, 96, 209, 0.6)', yStep: 5, yRange: 20 };
-		this.minMaxInfo = new MinMaxInfo(pParentContainer, pBoatTime, pSensorInfo, PiLot.Templates.Meteo.temperatureInfo, chartSettings, pViewMode);
+		this.minMaxInfo = new MinMaxInfo(pParentContainer, pSensorInfo, PiLot.Templates.Meteo.temperatureInfo, chartSettings, pViewMode);
 	};
 
 	TemperatureInfo.prototype = {
@@ -486,13 +478,12 @@ PiLot.View.Meteo = (function () {
 	 * A control containing numeric and graphical information about the current and
 	 * historic humidity
 	 * @param {HTMLElement} pParentContainer - The container within which this will be appended as child
-	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - The current BoatTime object, used to localize time in the chart
 	 * @param {Object} pSensorInfo - object with {sensorType, id, name, displayName, tags, sortOrder}
 	 * @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}
 	 * */
-	var HumidityInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null) {
+	var HumidityInfo = function (pParentContainer, pSensorInfo, pViewMode = null) {
 		let chartSettings = { fillColor: 'rgba(96, 148, 209, 0.6)', yStep: 5, yRange: 80 };
-		this.minMaxInfo = new MinMaxInfo(pParentContainer, pBoatTime, pSensorInfo, PiLot.Templates.Meteo.humidityInfo, chartSettings, pViewMode);
+		this.minMaxInfo = new MinMaxInfo(pParentContainer, pSensorInfo, PiLot.Templates.Meteo.humidityInfo, chartSettings, pViewMode);
 	};
 
 	HumidityInfo.prototype = {
@@ -522,15 +513,13 @@ PiLot.View.Meteo = (function () {
 	 * A control containing numeric and graphical information about the current and
 	 * historic values
 	 * @param {HTMLElement} pParentContainer - The container within which this will be appended as child
-	 * @param {PiLot.Model.Common.BoatTime} pBoatTime - The current BoatTime object, used to localize time in the chart
 	 * @param {Object} pSensorInfo - object with {sensorType, id, name, displayName, tags, sortOrder}
 	 * @param {String} pTemplate - the html template used to draw the control
 	 * @param {Object} pChartSettings - Object with {fillColor, yRange, yStep}
 	 * @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}
 	 * */
-	var MinMaxInfo = function (pParentContainer, pBoatTime, pSensorInfo, pTemplate, pChartSettings, pViewMode = null) {
+	var MinMaxInfo = function (pParentContainer, pSensorInfo, pTemplate, pChartSettings, pViewMode = null) {
 		this.parentContainer = pParentContainer;
-		this.boatTime = pBoatTime;
 		this.sensorInfo = pSensorInfo;
 		this.viewMode = pViewMode;
 		this.timeSpanSeconds = null;
@@ -617,7 +606,7 @@ PiLot.View.Meteo = (function () {
 		 * @param {Object} pData
 		 * */
 		showValues: function (pData) {
-			var utcNow = this.boatTime.utcNowUnix();
+			const utcNow = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().utcNowUnix();
 			if (this.viewMode.primaryInfo) {
 				if ((pData.lastValueTimestamp !== null) && (utcNow - pData.lastValueTimestamp < MinMaxInfo.maxAge)) {
 					this.lblCurrentValue.innerText = pData.lastValue.toFixed(1);
@@ -681,13 +670,11 @@ PiLot.View.Meteo = (function () {
 	* A control containing numeric and graphical information about the current and
 	* historic air pressure
 	* @param {HTMLElement} pParentContainer - The container within which this will be appended as child
-	* @param {PiLot.Model.Common.BoatTime} pBoatTime - The current BoatTime object, used to localize time in the chart
-    * @param {Object} pSensorInfo - object with {sensorType, id, name, displayName, tags, sortOrder}
+	* @param {Object} pSensorInfo - object with {sensorType, id, name, displayName, tags, sortOrder}
 	* @param {String} pViewMode - defines which parts are visible: {primaryInfo, secondaryInfo, chart}, corresponding to trend, current value, chart
 	* */
-	var PressureInfo = function (pParentContainer, pBoatTime, pSensorInfo, pViewMode = null) {
+	var PressureInfo = function (pParentContainer, pSensorInfo, pViewMode = null) {
 		this.parentContainer = pParentContainer;
-		this.boatTime = pBoatTime;
 		this.sensorInfo = pSensorInfo;
 		this.viewMode = pViewMode;
 		this.timeSpanSeconds = null;
@@ -785,7 +772,8 @@ PiLot.View.Meteo = (function () {
 		 * @param {Object} pData - The data as it has been loaded by the Chart
 		 */
 		showValues: function (pData) {
-			const utcNow = this.boatTime.utcNowUnix();
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			const utcNow = boatTime.utcNowUnix();
 			if ((pData.lastValueTimestamp !== null) && (utcNow - pData.lastValueTimestamp < PressureInfo.maxAge)) {
 				if (this.viewMode.secondaryInfo) {
 					RC.Utils.showNumericValue(this.lblPressure, this.PaToHPa(pData.lastValue), '----', 1, false);

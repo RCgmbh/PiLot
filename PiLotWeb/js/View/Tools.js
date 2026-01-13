@@ -8,7 +8,6 @@ PiLot.View.Tools = (function () {
 	var GpsImportExportForm = function () {
 
 		this.track = null;
-		this.boatTime = null;
 		this.exportMode = 'CSV';
 		this.importMode = 'CSV'
 
@@ -40,7 +39,6 @@ PiLot.View.Tools = (function () {
 	GpsImportExportForm.prototype = {
 
 		initializeAsync: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			await this.drawFormAsync();
 			this.setDefaultDates();
 			await this.loadTracksAsync();
@@ -220,13 +218,14 @@ PiLot.View.Tools = (function () {
 		},
 
 		setDefaultDates: function () {
-			let startDate = PiLot.Utils.Common.parseQsDate(this.boatTime);
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			let startDate = PiLot.Utils.Common.parseQsDate(boatTime);
 			if (startDate !== null) {
 				endDate = startDate.addDays(1).toLuxon();
 				startDate = startDate.toLuxon();
 			} else {
-				startDate = RC.Date.DateOnly.fromObject(this.boatTime.now()).toLuxon();
-				endDate = this.boatTime.now().plus({ minutes: 1 });
+				startDate = RC.Date.DateOnly.fromObject(boatTime.now()).toLuxon();
+				endDate = boatTime.now().plus({ minutes: 1 });
 			}
 			this.calStartDate.date(startDate);
 			this.calStartDate.showDate();

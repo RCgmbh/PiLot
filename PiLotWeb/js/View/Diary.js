@@ -10,7 +10,6 @@ PiLot.View.Diary = (function () {
 	 * story of one day, including the logbook, the track, the diary text and the daily photos.
 	 * */
 	var DiaryPage = function () {
-		this.currentBoatTime = null;					// PiLot.Model.Common.BoatTime
 		this.logbookDay = null;							// PiLot.Model.Logbook.LogbookDay
 		this.date = null;								// RC.Date.DateOnly
 		this.diaryInfoCache = null;						// PiLot.Model.Logbook.DiaryInfoCache
@@ -32,7 +31,6 @@ PiLot.View.Diary = (function () {
 	DiaryPage.prototype = {
 
 		initialize: async function () {
-			this.currentBoatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.diaryInfoCache = new PiLot.Model.Logbook.DiaryInfoCache();
 			this.draw();
 			this.applyPermissions();
@@ -89,7 +87,8 @@ PiLot.View.Diary = (function () {
 			const calendarLink = diaryPage.querySelector('.lblCalendarLink');
 			const calendarDate = diaryPage.querySelector('.lblCalendarDate');
 			const locale = PiLot.Utils.Language.getLanguage();
-			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), this.currentBoatTime.getUtcOffsetMinutes(), locale);
+			const utcOffset = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().getUtcOffsetMinutes();
+			this.calendar = new RC.Controls.Calendar(divCalendar, calendarDate, calendarLink, this.calendar_dateSelected.bind(this), utcOffset, locale);
 			new PiLot.View.Diary.DiaryCalendar(this.calendar, this.diaryInfoCache);
 			this.lnkPreviousDay = diaryPage.querySelector('.lnkPreviousDay');
 			this.lnkNextDay = diaryPage.querySelector('.lnkNextDay');
@@ -97,7 +96,7 @@ PiLot.View.Diary = (function () {
 			this.diaryText = new DiaryText(mainContent);
 			this.diaryText.on('expand', this.diaryText_expandCollapse.bind(this));
 			this.diaryText.on('collapse', this.diaryText_expandCollapse.bind(this));
-			this.diaryLogbook = new DiaryLogbook(mainContent, this.currentBoatTime);
+			this.diaryLogbook = new DiaryLogbook(mainContent);
 			this.diaryPhotos = new DiaryPhotos(mainContent, this);
 			this.diaryPhotos.on('expand', this.diaryPhotos_expandCollapse.bind(this));
 			this.diaryPhotos.on('collapse', this.diaryPhotos_expandCollapse.bind(this));
@@ -125,12 +124,13 @@ PiLot.View.Diary = (function () {
 		},
 
 		initializeDate: function () {
-			let date = PiLot.Utils.Common.parseQsDate(this.currentBoatTime);
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			let date = PiLot.Utils.Common.parseQsDate(boatTime);
 			if (date === null) {
 				date = this.loadDateFromSetting();
 			}
 			if (date === null) {
-				date = RC.Date.DateOnly.fromObject(this.currentBoatTime.now());
+				date = boatTime.today();
 			}
 			this.setDate(date, true);
 		},
@@ -232,7 +232,8 @@ PiLot.View.Diary = (function () {
 
 		saveDate: function () {
 			let settingsValue = null;
-			if (!this.date.contains(this.currentBoatTime.now())) {
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			if (!this.date.contains(boatTime.now())) {
 				settingsValue = this.date;
 			}
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Diary.currentDate', settingsValue)
@@ -395,10 +396,9 @@ PiLot.View.Diary = (function () {
 	 * Control containing the logbook and link to add logbook items
 	 * in a collapsable box.
 	 * */
-	var DiaryLogbook = function (pContainer, pCurrentBoatTime) {
+	var DiaryLogbook = function (pContainer) {
 		this.container = pContainer;
 		this.control = null;
-		this.currentBoatTime = pCurrentBoatTime;
 		this.logbookDay = null;
 		this.editForm = null;							// PiLot.View.Logbook.LogbokEntryForm
 		this.lnkEditLogbook = null;
@@ -473,7 +473,7 @@ PiLot.View.Diary = (function () {
 			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
 			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
 			const options = { isReadOnly: this.readOnly, sortDescending: false, autoFillNewItems: false };
-			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(this.control.querySelector('.plhLogbookEntries'), this.editForm, this.currentBoatTime, options);
+			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(this.control.querySelector('.plhLogbookEntries'), this.editForm, options);
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
 			this.lnkAddLogbookEntry = this.control.querySelector('.lnkAddLogbookEntry');
 			this.lnkAddLogbookEntry.addEventListener('click', this.lnkAddLogbookEntry_click.bind(this));

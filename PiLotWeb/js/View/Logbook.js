@@ -12,7 +12,6 @@ PiLot.View.Logbook = (function () {
 	var LogbookPage = function () {
 
 		this.logbookDay = null;			// PiLot.Model.Logbook.LogbookDay
-		this.boatTime = null;			// PiLot.Model.Common.BoatTime
 		this.gpsObserver = null;		// PiLot.Model.Nav.GPSObserver
 		this.boatConfig = null;			// PiLot.Model.Boat.BoatConfig, the current boat config
 		this.boatImageConfig = null;	// PiLot.View.Boat.BoatImageConfig
@@ -30,11 +29,8 @@ PiLot.View.Logbook = (function () {
 	LogbookPage.prototype = {
 
 		initializeAsync: async function () {
-			await Promise.all(
-				[PiLot.Model.Common.getCurrentBoatTimeAsync(), PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync()]
-			).then(results => {
-				this.boatTime = results[0];
-				this.boatConfig = results[1];
+			PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync().then(result => {
+				this.boatConfig = result;
 				this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
 			});
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
@@ -64,7 +60,7 @@ PiLot.View.Logbook = (function () {
 			PiLot.Utils.Loader.getContentArea().appendChild(logbookPage);
 			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
 			const plhLogbookEntries = logbookPage.querySelector('.plhLogbookEntries');
-			this.logbookEntries = new LogbookEntries(plhLogbookEntries, this.editForm, this.boatTime, { isReadOnly: false, sortDescending: true });
+			this.logbookEntries = new LogbookEntries(plhLogbookEntries, this.editForm, { isReadOnly: false, sortDescending: true });
 			this.pnlNoEntries = logbookPage.querySelector('.pnlNoEntries');
 			logbookPage.querySelector('.lnkAddEntry').addEventListener('click', this.lnkAddEntry_click.bind(this));
 			this.pnlRecentSetups = logbookPage.querySelector('.pnlRecentSetups');
@@ -75,9 +71,10 @@ PiLot.View.Logbook = (function () {
 
 		/** Loads the current logbookDay, of if none exists, creates a new one */
 		loadLogbookDayAsync: async function () {
-			this.logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(this.boatTime.today());
+			const today = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().today();
+			this.logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(today);
 			if (this.logbookDay === null) {
-				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(this.boatTime.today());
+				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(today);
 			}
 			this.logbookDay.on('saveEntry', this.logbookDay_change.bind(this));
 			this.logbookDay.on('deleteEntry', this.logbookDay_change.bind(this));
@@ -100,7 +97,7 @@ PiLot.View.Logbook = (function () {
 		 * if the day has changed since the page loaded, so that we don't mess things up around midnight. 
 		 * */
 		showEntryFormAsync: async function (pSetup) {
-			const today = this.boatTime.today();
+			const today = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().today();
 			if (!this.logbookDay.getDay().equals(today)) {
 				await this.loadLogbookDayAsync();
 			}
@@ -153,13 +150,11 @@ PiLot.View.Logbook = (function () {
 	 * This represents a control containing all logbook entries for one LogbookDay.
 	 * @param {HTMLElement} pContainer - the container where the controll will be added
 	 * @param {PiLot.View.Logbook.LogbookEntryForm} pEditForm - optionally pass an existing editForm
-	 * @param {PiLot.Model.Common.pBoatTime} - the current BoatTime
 	 * @param {Object} pOptions - Object with {isReadOnly:Boolean, sortDescending:Boolean}
 	 *  */
- 	var LogbookEntries = function (pContainer, pEditForm, pCurrentBoatTime, pOptions) {
+ 	var LogbookEntries = function (pContainer, pEditForm, pOptions) {
 		this.container = pContainer;					// HTMLElement object where the entries will be added
 		this.editForm = pEditForm;						// one edit form used to edit existing and create new items
-		this.currentBoatTime = pCurrentBoatTime;		// the current BoatTime used for new Entries
 		this.logbookEntryControls = null;				// an array of all PiLot.View.Logbook.LogbookEntryControl elements
 		this.gpsObserver = null;						// a GPS Observer used to auto-populate NAV Data
 		this.logbookDay = null;							// the Model object
@@ -522,7 +517,7 @@ PiLot.View.Logbook = (function () {
 		showDefaultValuesAsync: async function(pLogbookDay, pBoatSetup = null){
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
-			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			this.showTime(boatTime.now());
 			this.showDefaultTitle(pBoatSetup);
 			this.tbNotes.value = '';
@@ -670,7 +665,7 @@ PiLot.View.Logbook = (function () {
 
 		/** Reads the input, saves the data and closes the form */
 		saveAsync: async function () {
-			await this.readInputAsync();
+			this.readInput();
 			await this.logbookEntry.saveAsync();
 			this.hide();
 			RC.Utils.notifyObservers(this, this.observers, 'save', this.logbookEntry);
@@ -680,9 +675,9 @@ PiLot.View.Logbook = (function () {
 		 * reads the input and assigns the values to this.logbookEntry. If the latter is null, a new LogbookEntry
 		 * will be created.
 		 * */
-		readInputAsync: async function () {
+		readInput: function () {
 			this.logbookEntry = this.logbookEntry || this.logbookDay.addEntry(null);
-			const boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			this.logbookEntry.setTimeOfDay(this.readTime(), boatTime);
 			this.logbookEntry.setTitle(this.tbTitle.value);
 			this.logbookEntry.setNotes(this.tbNotes.value);

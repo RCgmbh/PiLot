@@ -1018,9 +1018,8 @@ PiLot.Model.Nav = (function () {
 	/// for waypoints. Options: autoCalculate: set to true, if vmg
 	/// etc. should be calculated on each update, false if only on
 	/// demand
-	var RouteObserver = function(pRoute, pBoatTime, pOptions){
+	var RouteObserver = function(pRoute, pOptions){
 		this.route = pRoute;
-		this.boatTime = pBoatTime;
 		this.gpsObserver = null;
 		this.latestPosition = null;
 		this.waypointsLiveData = new Map();
@@ -1082,7 +1081,6 @@ PiLot.Model.Nav = (function () {
 
 		ensureRouteAsync: async function(){
 			this.route = this.route || await loadActiveRouteAsync();
-			this.boatTime = this.boatTime || await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			if(this.route){
 				const waypoints = this.route.getWaypoints()
 				for(let i = 0; i < waypoints.length; i++){
@@ -1139,7 +1137,7 @@ PiLot.Model.Nav = (function () {
 			let totalMiles = null;
 			let legMiles = null;
 			let legHours = 0;
-			let eta = this.boatTime.now();
+			let eta = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().now();
 			const waypoints = this.route.getWaypoints();
 			let waypoint = null;
 			let waypointLiveData = null;
@@ -1258,7 +1256,7 @@ PiLot.Model.Nav = (function () {
 	/** Singleton accessor returning the current instance of the RouteObserver object with auto calculate being true */
 	RouteObserver.getInstance = function () {
 		if (routeObserverInstance === null) {
-			routeObserverInstance = new RouteObserver(null, null, {autoCalculate:true});
+			routeObserverInstance = new RouteObserver(null, {autoCalculate:true});
 		}
 		return routeObserverInstance;
 	};
@@ -2137,7 +2135,6 @@ PiLot.Model.Nav = (function () {
 	var TrackObserver = function (pTrack = null, pGPSObserver = null) {
 		this.track = pTrack;
 		this.gpsObserver = pGPSObserver;
-		this.boatTime = null;
 		this.trackSeconds = null;
 		this.addPositionThreshold = { seconds: 9.5, meters: 5 };		// the threshold to add new positions to the track
 		this.updatePositionThreshold = { seconds: 0.5, meters: 2 };		// the threshold to update the latest position
@@ -2155,11 +2152,8 @@ PiLot.Model.Nav = (function () {
 			this.ensureTrackAsync().then(()=>{
 				this.gpsObserver = this.gpsObserver || GPSObserver.getInstance();
 				this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			});
-			PiLot.Model.Common.getCurrentBoatTimeAsync().then((pBoatTime) => {
-				this.boatTime = pBoatTime;
 				this.start();
-			});
+			});			
 		},
 
 		/**
@@ -2193,7 +2187,7 @@ PiLot.Model.Nav = (function () {
 		/// time are not in sync
 		cropTimer_interval: function () {
 			if ((this.track != null) && (this.trackSeconds !== null)) {
-				if(this.track.cropTrackPoints(this.boatTime.utcNowUnix() - this.trackSeconds, null)){
+				if(this.track.cropTrackPoints(PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().utcNowUnix() - this.trackSeconds, null)){
 					this.notifyObservers('cropTrackPoints');
 				}
 			}
@@ -2301,7 +2295,6 @@ PiLot.Model.Nav = (function () {
 	var GPSObserver = function (pOptions, pBoatTime = null) {
 		const config = PiLot.Config.Nav.GPSObserver;
 		// fields
-		this.boatTime = pBoatTime;
 		this.interval = null;
 		this.autoStart = true;
 		this.intervalMs = config.intervalMS;				// the interval for querying the server for data
@@ -2390,7 +2383,6 @@ PiLot.Model.Nav = (function () {
 
 		/** reads the position data from the API */
 		fetchDataAsync: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			const positions = await this.loadLatestTrackPointsAsync();
 			this.fetchDataSuccess(positions);
 		},
@@ -2405,7 +2397,8 @@ PiLot.Model.Nav = (function () {
 			if (this.latestPositions.length > 0) {
 				lastTimestamp = this.latestPositions[0].getUTC();
 			} else {
-				lastTimestamp = (this.boatTime.utcNowUnix() - this.maxDataAgeSeconds) * 1000;
+				const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+				lastTimestamp = (boatTime.utcNowUnix() - this.maxDataAgeSeconds) * 1000;
 			}
 			const json = await PiLot.Utils.Common.getFromServerAsync(`/Position?startTime=${lastTimestamp.toFixed(0)}`);
 			const result = new Array();
@@ -2463,7 +2456,7 @@ PiLot.Model.Nav = (function () {
 		getLatestPosition: function (pMaxAgeSeconds = null) {
 			var result = null;
 			if (this.latestPositions.length > 0) {
-				const utcNowMs = this.boatTime.utcNowUnix() * 1000;
+				const utcNowMs = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().utcNowMillis();
 				if ((pMaxAgeSeconds === null) || (this.latestPositions[0].utc >= utcNowMs - (pMaxAgeSeconds * 1000))) {
 					result = this.latestPositions[0];
 				}

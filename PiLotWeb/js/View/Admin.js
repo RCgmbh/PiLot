@@ -12,7 +12,6 @@ PiLot.View.Admin = (function () {
 	 */
 	var BoatTimePage = function () {
 
-		this.boatTime = null;					// the current BoatTime
 		this.formatString = 'yyyy-LL-dd TT';	// string used to format date/times
 
 		this.lblClientTime = null;				// label showing the client time
@@ -25,8 +24,7 @@ PiLot.View.Admin = (function () {
 		this.lblBoatTimeOffset = null;			// label showing the UTC offset of the BoatTime
 		this.btnMinus = null;					// button to reduce the BoatTime by 1 hour
 		this.btnPlus = null;					// button to increase the BoatTime by 1 hour
-		this.clockCanvas = null;				// the canvas where the clock will be drawn
-		this.analogClock = null;				// the AnalogClock object representing the clock
+		this.analogClock = null;				// the AnalogClockControl object representing the clock
 		this.showTimeInterval = null;
 
 		this.initializeAsync();
@@ -35,23 +33,23 @@ PiLot.View.Admin = (function () {
 	BoatTimePage.prototype = {
 
 		initializeAsync: async function () {
-			this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync();
 			this.draw();
 			this.showTime();
 			this.startTimer();
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeLoaded', this, this.boatTime_boatTimeLoaded.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeChanged', this, this.boatTime_boatTimeChanged.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.on('clientServerErrorChanged', this, this.boatTime_clientServerErrorChanged.bind(this));
 		},
 
 		unload: function(){
 			this.showTimeInterval && window.clearInterval(this.showTimeInterval);
 			this.showTimeInterval = null;
-			this.analogClock.stop();
+			this.analogClock.unload();
 		},
 
 		lnkSetServerTime_click: async function () {
 			if (confirm(PiLot.Utils.Language.getText('confirmApplyClientTime'))) {
-				await PiLot.Model.Admin.setServerTimeAsync();
-                this.boatTime = await PiLot.Model.Common.getCurrentBoatTimeAsync(true);
-				this.showTime();
+				await PiLot.Utils.Common.BoatTimeHelper.setServerTimeAsync();
 			}
 		},
 
@@ -61,6 +59,18 @@ PiLot.View.Admin = (function () {
 
 		btnPlus_click: function () {
 			this.changeBoatTime(1);
+		},
+
+		boatTime_boatTimeLoaded: function(pBoatTime){
+			this.showTime();
+		},
+
+		boatTime_boatTimeChanged: function(pBoatTime){
+			this.showTime();
+		},
+
+		boatTime_clientServerErrorChanged: function(pClientServerError){
+			this.showTime();
 		},
 
 		draw: function () {
@@ -79,8 +89,7 @@ PiLot.View.Admin = (function () {
 			this.btnPlus = contentArea.querySelector('#btnPlus');
 			this.btnPlus.onclick = this.btnPlus_click.bind(this);
 			PiLot.Utils.Language.applyTexts(contentArea);
-			this.clockCanvas = contentArea.querySelector('#lblClientTime');
-			this.analogClock = Analogclock.drawClock('clockCanvas', this.boatTime.getUtcOffsetHours(), this.boatTime.getClientErrorOffsetSeconds() * -1);
+			this.createAnalogClock();
 		},
 
 		startTimer: function () {
@@ -92,9 +101,11 @@ PiLot.View.Admin = (function () {
 		},
 
 		changeBoatTime: function (pHours) {
-			this.boatTime.setUtcOffset(this.boatTime.getUtcOffsetMinutes() + (pHours * 60));
-			this.showBoatTime();
-			this.analogClock.getClockOpts().hoursOffset = this.boatTime.getUtcOffsetHours();
+			PiLot.Utils.Common.BoatTimeHelper.changeBoatTimeAsync(pHours * 60);
+		},
+
+		createAnalogClock: function() {
+			this.analogClock = new PiLot.View.Common.AnalogClockControl('clockCanvas');
 		},
 
 		showTime: function () {
@@ -110,12 +121,14 @@ PiLot.View.Admin = (function () {
 		},
 
 		showServerTime: function () {
-			this.lblServerTime.innerText = this.boatTime.utcNow().toFormat(this.formatString);
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			this.lblServerTime.innerText = boatTime.utcNow().toFormat(this.formatString);
 		},
 
 		showBoatTime: function () {
-			const boatTimeNow = this.boatTime.now();
-			this.lblClientErrorOffset.innerText = this.boatTime.getClientErrorOffsetSeconds().toFixed(1);
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime()
+			const boatTimeNow = boatTime.now();
+			this.lblClientErrorOffset.innerText = boatTime.getClientServerErrorSeconds().toFixed(1);
 			this.lblBoatTime.innerText = boatTimeNow.toFormat(this.formatString);
             this.lblBoatTimeOffset.innerText = boatTimeNow.toFormat('ZZZ');
 		}
