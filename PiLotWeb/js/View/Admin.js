@@ -27,18 +27,19 @@ PiLot.View.Admin = (function () {
 		this.analogClock = null;				// the AnalogClockControl object representing the clock
 		this.showTimeInterval = null;
 
-		this.initializeAsync();
+		this.initialize();
 	};
 
 	BoatTimePage.prototype = {
 
-		initializeAsync: async function () {
+		initialize: function () {
 			this.draw();
 			this.showTime();
 			this.startTimer();
 			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeLoaded', this, this.boatTime_boatTimeLoaded.bind(this));
 			PiLot.Utils.Common.BoatTimeHelper.on('boatTimeChanged', this, this.boatTime_boatTimeChanged.bind(this));
 			PiLot.Utils.Common.BoatTimeHelper.on('clientServerErrorChanged', this, this.boatTime_clientServerErrorChanged.bind(this));
+			PiLot.Utils.Common.BoatTimeHelper.loadCurrentBoatTimeAsync();
 		},
 
 		unload: function(){
