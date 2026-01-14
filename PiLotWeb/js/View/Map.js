@@ -1458,8 +1458,6 @@ PiLot.View.Map = (function () {
 			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, null, null, locale);
 			const tbEndDate = optionsControl.querySelector('.tbEndDate');
 			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
-			this.calStartDate.setMaxDateCalendar(this.calEndDate);
-			this.calEndDate.setMinDateCalendar(this.calStartDate);
 			this.calStartDate.on('change', this.calDate_change.bind(this));
 			this.calEndDate.on('change', this.calDate_change.bind(this));
 			this.map.addSettingsItem(optionsControl);

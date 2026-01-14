@@ -57,8 +57,6 @@ PiLot.View.Tools = (function () {
 			this.calEndDate = new RC.Controls.Calendar(this.pageContent.querySelector('.divCalEndDate'), tbEndDate, null, null, null, locale);
 			this.tbEndTime = this.pageContent.querySelector('.tbEndTime');
 			this.pageContent.querySelector('.lnkEndTimeFromMap').addEventListener('click', this.lnkTimeFromMap_click.bind(this, this.calEndDate, this.tbEndTime));
-			this.calStartDate.setMaxDateCalendar(this.calEndDate);
-			this.calEndDate.setMinDateCalendar(this.calStartDate);
 			this.pageContent.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
 			this.pageContent.querySelector('.btnLoadWholeDay').addEventListener('click', this.btnLoadWholeDay_click.bind(this));
 			this.divLoadingData = this.pageContent.querySelector('.divLoadingData');

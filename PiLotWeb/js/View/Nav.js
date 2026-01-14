@@ -2321,8 +2321,6 @@ PiLot.View.Nav = (function () {
 			this.control.querySelector('.lnkClearValidFrom').addEventListener('click', this.lnkClearValidFrom_click.bind(this));
 			this.calValidTo = new RC.Controls.Calendar(this.control.querySelector('.calValidTo'), this.control.querySelector('.tbValidTo'), null, null, null, locale);
 			this.control.querySelector('.lnkClearValidTo').addEventListener('click', this.lnkClearValidTo_click.bind(this));
-			this.calValidFrom.setMaxDateCalendar(this.calValidTo);
-			this.calValidTo.setMinDateCalendar(this.calValidFrom);
 			this.pnlSource = this.control.querySelector('.pnlSource');
 			this.tbSource = this.control.querySelector('.tbSource');
 			this.tbSourceId = this.control.querySelector('.tbSourceId');
