@@ -231,7 +231,6 @@ PiLot.Utils.Loader = (function () {
 			this.addDefaultControls();
 			const params = this.processParameters();
 			this.showPage(this.page, params, false);
-			this.initializeFullscreen();
 			this.initializeNightMode();
 		},
 
@@ -307,6 +306,7 @@ PiLot.Utils.Loader = (function () {
 				window.history.pushState({page:pPage.key, params:pParams}, '', url);
 			}
 			this.pageObject = this.page.startAction();
+			this.initializeFullscreen();
 			RC.Utils.handleActiveStyles();
 		},
 
