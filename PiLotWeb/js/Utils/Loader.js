@@ -227,6 +227,7 @@ PiLot.Utils.Loader = (function () {
 		},
 
 		startApp: function(){
+			this.initializeServiceHelper();
 			this.initializeBoatTime();
 			this.addDefaultControls();
 			const params = this.processParameters();
@@ -251,6 +252,10 @@ PiLot.Utils.Loader = (function () {
 
 		initializeBoatTime: function(){
 			PiLot.Utils.Common.BoatTimeHelper.initialize();
+		},
+
+		initializeServiceHelper: function(){
+			PiLot.Service.Common.ServiceHelper.initialize();
 		},
 
 		initializeLanguage: function(){
@@ -348,6 +353,7 @@ PiLot.Utils.Loader = (function () {
 			new PiLot.View.Common.DayNightIcon();
 			PiLot.View.Admin.WiFiIcon.getInstance();
 			new PiLot.View.Nav.GPSIcon();
+			PiLot.View.Common.ServiceErrorIcon.initialize();
 		},
 
 		/** @returns {Object} the object from this.pages with key = pKey */

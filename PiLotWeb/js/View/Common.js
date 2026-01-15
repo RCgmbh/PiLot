@@ -1339,3 +1339,95 @@ PiLot.View.Common = (function () {
 	};
 
 })();
+
+PiLot.View.Common.ServiceErrorIcon = {
+
+	control: null,
+	icoError: null,
+	errorDialog: null,
+	plhErrors: null,
+	pnlTemplate: null,
+	btnClearErrors: null,
+	
+	initialize: function(){
+		this.draw();
+		PiLot.Service.Common.ServiceHelper.on('error', this, this.serviceHelper_error.bind(this));
+		PiLot.Service.Common.ServiceHelper.on('errorsCleared', this, this.serviceHelper_errorsCleared.bind(this));
+		this.checkErrors();
+	},
+
+	serviceHelper_error: function(pError){
+		this.toggleIcon(true);
+	},
+
+	serviceHelper_errorsCleared: function(){
+		this.toggleIcon(false);
+	},
+
+	control_click: function(){
+		this.toggleDialog(true);
+	},
+
+	icoCloseDialog_click: function(){
+		this.toggleDialog(false);
+	},
+
+	btnClearErrors_click: function(){
+		this.clearErrors();
+		this.toggleDialog(false);
+	},
+
+	draw: function(){
+		this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.serviceErrorIcon);
+		PiLot.Utils.Loader.getIconsArea().appendChild(this.control);
+		this.control.addEventListener('click', this.control_click.bind(this));
+		this.icoError = this.control.querySelector('.icoError');
+		this.errorDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.serviceErrorsDialog);
+		document.body.insertAdjacentElement('afterbegin', this.errorDialog);
+		PiLot.Utils.Common.bindKeyHandlers(this.errorDialog, this.icoCloseDialog_click.bind(this), null);
+		this.errorDialog.querySelector('.lnkCloseDialog').addEventListener('click', this.icoCloseDialog_click.bind(this));
+		this.plhErrors = this.errorDialog.querySelector('.plhErrors');
+		this.pnlTemplate = this.errorDialog.querySelector('.pnlTemplate');
+		this.errorDialog.querySelector('.btnClear').addEventListener('click', this.btnClearErrors_click.bind(this));
+	},
+
+	checkErrors: function(){
+		this.toggleIcon(PiLot.Service.Common.ServiceHelper.getErrors().length > 0);
+	},
+
+	toggleIcon: function(pShow){
+		if(pShow && !this.control.hidden){
+			this.icoError.hidden = true;
+			PiLot.Utils.Common.sleepAsync(200).then(() => this.icoError.hidden = false);
+		} else{
+			this.control.hidden = !pShow;
+		}		
+	},
+
+	toggleDialog: function(pShow){
+		this.errorDialog.hidden = !pShow;
+		if(pShow){
+			this.showErrors();
+		}
+	},
+
+	showErrors: function(){
+		this.plhErrors.clear();
+		const errors = PiLot.Service.Common.ServiceHelper.getErrors();
+		for(let anError of errors){
+			const pnlError = this.pnlTemplate.cloneNode(true);
+			pnlError.hidden = false;
+			pnlError.querySelector('.lblTimestamp').innerText = anError.clientTimestamp.toLocaleString(DateTime.TIME_WITH_SECONDS);
+			pnlError.querySelector('.lblType').innerText = anError.errorType;
+			pnlError.querySelector('.lblStatus').innerText = anError.httpStatus;
+			pnlError.querySelector('.lblUrl').innerText = anError.requestUrl;
+			pnlError.querySelector('.lblBody').innerText = anError.requestBody;
+			pnlError.querySelector('.lblMessage').innerText = anError.message;
+			this.plhErrors.insertAdjacentElement('afterbegin', pnlError);
+		}
+	},
+
+	clearErrors: function(){
+		PiLot.Service.Common.ServiceHelper.clearErrors();
+	}
+}

@@ -182,7 +182,7 @@ PiLot.Service.Common = {
 			} catch(ex){
 				const error = {
 					clientTimestamp: DateTime.utc(),
-					errorType: 'exception',
+					errorType: 'exc',
 					httpStatus: result.status,
 					requestUrl: url,
 					requestBody: options.body,

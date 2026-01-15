@@ -62,6 +62,36 @@ PiLot.Templates.Common = {
 		</div>
 	`,
 
+	serviceErrorIcon: `
+		<div class="vCenter" style="width:2.25em;" hidden>
+			<a class="icoError icon red" href="#"><i class="icon-notification"></i></a>
+		</div>
+	`,
+
+	serviceErrorsDialog:`
+		<div class="pnlOverlay vCenter staticOverlay" hidden>
+			<div class="pnlDialog dialogPanel hCenter" style="width:95vw;">
+				<div class="">
+					<div class="marginBottomSmall flexRow">
+						<span class="grow paddingAllSmall bold" data-text="errors"></span>
+						<a href="#" class="lnkCloseDialog noGrow paddingAllSmall"><i class="icon-cross"></i></a>
+					</div>
+					<div class="pnlTemplate flexRow marginBottomSmall" hidden>
+						<span class="marginRight lblTimestamp col3 noGrow"></span>
+						<span class="marginRight lblType semiBold col2 noGrow"></span>
+						<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
+						<div class="marginRight col10 grow">Url: <span class="lblUrl"></span></div>
+						<div class="marginRight col4">Body: <span class="lblBody"></span></div>
+						<div class="marginRight col4">Details: <span class="lblMessage"></span></div>
+					</div>
+					<div class="plhErrors flexColumn paddingAllSmall marginBottomSmall"></div>
+				</div>
+				<div class="buttons paddingAllSmall reverse">
+					<button class="btnClear linkButton semiBold"><span data-text="clearErrors"></span></button>
+				</div>
+			</div>
+		</div>`,
+
 	genericAnalogClock: `<canvas id="clockCanvas"></canvas>`,
 
 	startPage: `<div class="homeContainer"></div>`,

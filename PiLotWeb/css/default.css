@@ -102,7 +102,8 @@ body.night div.feedbackInfo, body.night span.feedbackInfo { border-color: #3265A
 .dialogPanel.shadow { box-shadow: 0.5em 0.5em 1.5em -0.5em rgba(100, 100, 100, 0.7); }
 body.night .dialogPanel { background-color: black; }
 
-.overlay { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.75); z-index: 13500; }
+/* objects with class overlay are deleted on page load, staticOverlay objects aren't. But they look all the same. */
+.overlay, .staticOverlay { position: fixed; width: 100vw; height: 100vh; top: 0; left: 0; background-color: rgba(0, 0, 0, 0.75); z-index: 13500; }
 
 .sideMenu { width: 3.5em; height: auto; min-height: 3em; margin: 0.25em 0.125em; padding: 0.25em; padding-bottom: 0em; padding-top: 0.5em; position: absolute; border-radius: 0.25em; background-color: rgba(102,102,102,0.5); z-index: 11110; box-shadow: 8px 6px 10px -6px rgba(0, 0, 0, 0.6); }
 .sideMenu,
