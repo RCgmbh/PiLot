@@ -1,28 +1,27 @@
 ﻿var PiLot = PiLot || {};
-PiLot.Model = PiLot.Model || {};
+PiLot.Service = PiLot.Service || {};
 
-PiLot.Model.Admin = (function () {
+PiLot.Service.Admin = (function () {
 
-	var LogFilesLoader = function () { };
+	var LogFilesService = function () { };
 
-	LogFilesLoader.prototype = {
+	LogFilesService.prototype = {
 
 		/**
 		 * loads the log file infos, including server side paging 
 		 * @param {Number} pStart - the start index, 0 for first page, n* pageSize for page n
 		 * @param {Number} pPageSize - the total items to show on a page
 		 * */
-		loadLogFiles: async function (pStart, pPageSize) {
-			const response = await fetch(PiLot.Utils.Common.toApiUrl(`/LogFiles?start=${pStart}&pageSize=${pPageSize}`));
-			return await response.json();
+		loadLogFilesAsync: async function (pStart, pPageSize) {
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/LogFiles?start=${pStart}&pageSize=${pPageSize}`);
 		},
 
 		/**
 		 * Loads a logfile and returns the content of the file
 		 * @param {String} pFilename - usually something in the form of yyyy-mm-dd.txt
 		 */
-		loadLogFile: async function (pFilename) {
-			const data = await PiLot.Utils.Common.getFromServerAsync(`/LogFiles/${this.cropFilename(pFilename)}`);
+		loadLogFileAsync: async function (pFilename) {
+			const data = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/LogFiles/${this.cropFilename(pFilename)}`);
 			return data.content;
 		},
 
@@ -30,8 +29,8 @@ PiLot.Model.Admin = (function () {
 		 * Deletes a logfile
 		 * @param {String} pFilename - usually something in the form of yyyy-mm-dd.txt
 		 */
-		deleteLogFile: async function (pFilename) {
-			return await PiLot.Utils.Common.deleteFromServerAsync(`/LogFiles/${this.cropFilename(pFilename)}`);
+		deleteLogFileAsync: async function (pFilename) {
+			return await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/LogFiles/${this.cropFilename(pFilename)}`);
 		},
 
 		/**
@@ -44,20 +43,12 @@ PiLot.Model.Admin = (function () {
 
 	};
 
-	/**
-	 * Gets the list of all services the web gui is allowed to see and manage
-	 * @return {String[]}
-	 * */
-	var getServicesAsync = async function () {
-		return await PiLot.Utils.Common.getFromServerAsync ('/Services');
-	}
-
 	/** This helps with interacting with the WiFi controller */
-	var WiFiHelper = function () {
+	var WiFiService = function () {
 		this.interface = null;
 	};
 
-	WiFiHelper.prototype = {
+	WiFiService.prototype = {
 
 		setInterface: function (pInterface) {
 			this.interface = pInterface;
@@ -68,7 +59,7 @@ PiLot.Model.Admin = (function () {
 		 * @return {String[]}
 		 * */
 		getInterfacesAsync: async function () {
-			return await PiLot.Utils.Common.getFromServerAsync('/WiFi/interfaces');
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/WiFi/interfaces');
 			//return ['p2p-dev-wlxOnbo', 'wlxOnboardWiFi1', 'wlxOnboardWiFi2'];
 		},
 
@@ -77,7 +68,7 @@ PiLot.Model.Admin = (function () {
 		 * @return {Object[]} - objects with ssid, isKnown, isAvailable, number, isConnected, signalStrength
 		 * */
 		getWiFiInfosAsync: async function () {
-			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/networks`);
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/WiFi/interfaces/${this.interface}/networks`);
 			/*return JSON.parse(`
 				[
 					{"ssid":"nda-85236","isKnown":true,"isAvailable":true,"number":0,"isConnected":true,"signalStrength":-47},
@@ -99,7 +90,7 @@ PiLot.Model.Admin = (function () {
 		 */
 		addWiFiAsync: async function (pName, pKey) {
 			const pars = { ssid: pName, passphrase: pKey };
-			return await PiLot.Utils.Common.postToServerAsync(`/WiFi/interfaces/${this.interface}/networks`, pars);
+			return await PiLot.Service.Common.ServiceHelper.postToServerAsync(`/WiFi/interfaces/${this.interface}/networks`, pars);
 		},
 
 		/**
@@ -107,7 +98,7 @@ PiLot.Model.Admin = (function () {
 		 * @param {Object} pIdentifier - the network identifier as returned from getWiFiInfosAsync
 		 */
 		selectWiFiAsync: async function (pIdentifier) {
-			return await PiLot.Utils.Common.putToServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pIdentifier}/select`);
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pIdentifier}/select`);
 		},
 
 		/**
@@ -115,14 +106,14 @@ PiLot.Model.Admin = (function () {
 		 * @param {Object} pIdentifier - the network identifier as returned from getWiFiInfosAsync
 		 */
 		forgetWiFiAsync: async function (pIdentifier) {
-			return await PiLot.Utils.Common.deleteFromServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pIdentifier}`);
+			return await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/WiFi/interfaces/${this.interface}/networks/${pIdentifier}`);
 		},
 		
 		/**
 		 * Gets some status information for the current interface. 
 		 * */
 		getWiFiStatusAsync: async function(){
-			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/interfaces/${this.interface}/status`);
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/WiFi/interfaces/${this.interface}/status`);
 		},
 
 		/**
@@ -130,15 +121,28 @@ PiLot.Model.Admin = (function () {
 		 * @returns {Object} with connected:Boolean, internetAccess:boolean, details:String
 		 */
 		getOverallStatusAsync: async function () {
-			return await PiLot.Utils.Common.getFromServerAsync(`/WiFi/status`);
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/WiFi/status`);
 		}
 
 	};
+
+	var SystemService = function(){};
+
+	SystemService.prototype = {
+
+		/**
+		 * Gets the list of all services the web gui is allowed to see and manage
+		 * @return {String[]}
+		 * */
+		getServicesAsync: async function(){
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync ('/Services');
+		}
+	};
 	
 	return {
-		LogFilesLoader: LogFilesLoader,
-		getServicesAsync: getServicesAsync,
-		WiFiHelper: WiFiHelper
+		LogFilesService: LogFilesService,
+		SystemService: SystemService,
+		WiFiService: WiFiService
 	};
 
 })();

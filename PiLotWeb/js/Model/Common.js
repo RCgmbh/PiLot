@@ -174,7 +174,7 @@ PiLot.Model.Common = (function () {
 		 * @param {String} pPassword
 		 */
 		loginAsync: async function (pUsername, pPassword) {
-			const result = await PiLot.Utils.Common.postToServerAsync(this.endpointUrl.concat('/Authentication/login'), { username: pUsername, password: pPassword });
+			const result = await PiLot.Service.Common.ServiceHelper.postToServerAsync(this.endpointUrl.concat('/Authentication/login'), { username: pUsername, password: pPassword });
 			PiLot.log(`result from login attempt: data: ${result.data}, status: ${result.status}`, 3);
 			const success = (result.status === 200);
 			if (success) {
@@ -187,14 +187,14 @@ PiLot.Model.Common = (function () {
 		/** calls the logout against the api */
 		logoutAsync: async function () {
 			document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:00 GMT'
-			await PiLot.Utils.Common.postToServerAsync(this.endpointUrl.concat('/Authentication/logout'), null);
+			await PiLot.Service.Common.ServiceHelper.postToServerAsync(this.endpointUrl.concat('/Authentication/logout'), null);
 			await this.loadPermissionsAsync();
 			RC.Utils.notifyObservers(this, this.observers, 'logout', null);
 		},
 
 		/** loads the current permissions for later use */
 		loadPermissionsAsync: async function () {
-			const json = await PiLot.Utils.Common.getFromServerAsync(this.endpointUrl.concat('/Permissions'));
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(this.endpointUrl.concat('/Permissions'));
 			this.permissions = Permissions.fromData(json);
 		},
 
@@ -286,7 +286,6 @@ PiLot.Model.Common = (function () {
 	PiLot.Permissions = Permissions;
 
 	return {
-		//getCurrentBoatTimeAsync: getCurrentBoatTimeAsync,
 		BoatTime: BoatTime,
 		AuthHelper: AuthHelper,
 		Permissions: Permissions

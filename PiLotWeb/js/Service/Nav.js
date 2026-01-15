@@ -31,7 +31,7 @@ PiLot.Service.Nav = (function () {
 			const features = pFeatures.join(',');
 			const url = `/Pois?minLat=${pMinLat}&minLon=${pMinLon}&maxLat=${pMaxLat}&maxLon=${pMaxLon}&categories=${categories}&features=${features}`;
 			await this.ensureCategoriesLoadedAsync();
-			const json = await PiLot.Utils.Common.getFromServerAsync(url);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
 					const poi = this.poiFromArray(json[i]);
@@ -52,7 +52,7 @@ PiLot.Service.Nav = (function () {
 		 * @returns {Object[]} an array of raw objects, not Pois
 		 * */
 		loadRawPoisAsync: async function () {
-			return await PiLot.Utils.Common.getFromServerAsync('/Pois/all');
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Pois/all');
 		},
 
 		/**
@@ -96,7 +96,7 @@ PiLot.Service.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi - an existing poi or null
 		 */
 		loadPoiAsync: async function (pUrl, pPoi) {
-			const json = await PiLot.Utils.Common.getFromServerAsync(pUrl);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(pUrl);
 			let poi = pPoi || this.poiFromArray(json);
 			if (poi && json && Array.isArray(json)) {
 				poi.setDescription(json[10]);
@@ -110,7 +110,7 @@ PiLot.Service.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi
 		 */
 		savePoiAsync: async function (pPoi) {
-			return await PiLot.Utils.Common.putToServerAsync('/Pois', pPoi);
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync('/Pois', pPoi);
 		},
 
 		/**
@@ -118,7 +118,7 @@ PiLot.Service.Nav = (function () {
 		 * @param {PiLot.Model.Nav.Poi} pPoi
 		 */
 		deletePoiAsync: async function (pPoi) {
-			return await PiLot.Utils.Common.deleteFromServerAsync(`/Pois/${pPoi.getId()}`);
+			return await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/Pois/${pPoi.getId()}`);
 		},
 
 		/**
@@ -189,7 +189,7 @@ PiLot.Service.Nav = (function () {
 		/** Loads the categories from the server and sets up parent/child relations */
 		loadCategoriesAsync: async function () {
 			const result = new Map();
-			const json = await PiLot.Utils.Common.getFromServerAsync('/PoiCategories');
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/PoiCategories');
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
 					let labels = json[i].labels;
@@ -216,7 +216,7 @@ PiLot.Service.Nav = (function () {
 		 */
 		savePoiCategoryAsync: async function (pCategory) {
 			const isNew = !pCategory.id;
-			const result = await PiLot.Utils.Common.putToServerAsync('/PoiCategories', pCategory);
+			const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync('/PoiCategories', pCategory);
 			if (isNew) {
 				this.ensureCategoriesLoadedAsync(true);
 			}
@@ -229,7 +229,7 @@ PiLot.Service.Nav = (function () {
 		 * @returns true, if the category was deleted
 		 */
 		deletePoiCategoryAsync: async function (pCategory) {
-			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/PoiCategories/${pCategory.getId()}`);
+			const result = await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/PoiCategories/${pCategory.getId()}`);
 			return !!result;
 		},
 
@@ -252,7 +252,7 @@ PiLot.Service.Nav = (function () {
 		/** Loads the features from the server */
 		loadFeaturesAsync: async function () {
 			const result = new Map();
-			const json = await PiLot.Utils.Common.getFromServerAsync('/PoiFeatures');
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/PoiFeatures');
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
 					let labels = json[i].labels;
@@ -274,7 +274,7 @@ PiLot.Service.Nav = (function () {
 		 */
 		savePoiFeatureAsync: async function (pFeature) {
 			const isNew = !pFeature.id;
-			const result = await PiLot.Utils.Common.putToServerAsync('/PoiFeatures', pFeature);
+			const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync('/PoiFeatures', pFeature);
 			if (isNew) {
 				this.ensureFeaturesLoadedAsync(true);
 			}
@@ -287,7 +287,7 @@ PiLot.Service.Nav = (function () {
 		 * @returns true, if the feature was deleted
 		 */
 		deletePoiFeatureAsync: async function (pFeature) {
-			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/PoiFeatures/${pFeature.getId()}`);
+			const result = await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/PoiFeatures/${pFeature.getId()}`);
 			return !!result;
 		},
 
@@ -340,7 +340,7 @@ PiLot.Service.Nav = (function () {
 		loadTrackAsync: async function (pTrackId) {
 			let result = null;
 			const url = `/Tracks/${pTrackId}`;
-			const json = await PiLot.Utils.Common.getFromServerAsync(url);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			if (json) {
 				result = PiLot.Model.Nav.Track.fromData(json);
 			}
@@ -359,7 +359,7 @@ PiLot.Service.Nav = (function () {
 			const result = [];
 			const startTime = pStartTime || 0;
 			const url = `/Tracks?startTime=${Math.round(startTime)}&endTime=${Math.round(pEndTime)}&isBoatTime=${pIsBoatTime}&readTrackPoints=${pReadTrackPoints}`;
-			const json = await PiLot.Utils.Common.getFromServerAsync(url);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			for (aTrackData of json) {
 				result.push(PiLot.Model.Nav.Track.fromData(aTrackData));
 			}
@@ -392,13 +392,13 @@ PiLot.Service.Nav = (function () {
 		saveTrackAsync: async function (pTrack){
 			const path = '/Tracks/';
 			const obj = this.trackToObject(pTrack);
-			return await PiLot.Utils.Common.putToServerAsync(path, obj);
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync(path, obj);
 		},
 
 		/** Updates the boat for a track */
 		saveTrackBoatAsync: async function(pTrack){
 			const path = `/Tracks/${pTrack.getId()}/boat?name=${pTrack.getBoat()}`;
-			return await PiLot.Utils.Common.putToServerAsync(path, null)
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync(path, null)
 		},
 
 		/**
@@ -433,12 +433,12 @@ PiLot.Service.Nav = (function () {
 		 */
 		deleteTrackPointsAsync: async function(pTrackId, pStart, pEnd, pIsBoatTime){
 			const path = `/Tracks/${pTrackId}/TrackPoints?startTime=${pStart}&endTime=${pEnd}&isBoatTime=${pIsBoatTime}`;
-			return await PiLot.Utils.Common.deleteFromServerAsync(path);
+			return await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(path);
 		},
 		
 		loadMonthlyTrackSummaryAsync: async function(pYear, pMonth){
 			const path = `/Tracks/${pYear}/${pMonth}`;
-			return await PiLot.Utils.Common.getFromServerAsync(path);
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(path);
 		},
 
 		/**
@@ -450,7 +450,7 @@ PiLot.Service.Nav = (function () {
 		loadTrackSegmentsByTrackIdAsync: async function(pTrackId){
 			let result = null;
 			await this.ensureTrackSegmentTypesLoadedAsync();
-			const json = await PiLot.Utils.Common.getFromServerAsync(`/Tracks/${pTrackId}/Segments`);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Tracks/${pTrackId}/Segments`);
 			const language = PiLot.Utils.Language.getLanguage();
 			if (json !== null) {
 				if (Array.isArray(json)) {
@@ -480,7 +480,7 @@ PiLot.Service.Nav = (function () {
 			await this.ensureTrackSegmentTypesLoadedAsync();
 			const boatsString = pBoats ? pBoats.join(',') : null;
 			const url = `/TrackSegments?typeId=${pType}&start=${pStart || ''}&end=${pEnd || ''}&isBoatTime=${pIsBoatTime}&boats=${boatsString}&pageSize=${pPageSize}`
-			const json = await PiLot.Utils.Common.getFromServerAsync(url);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			const language = PiLot.Utils.Language.getLanguage();
 			if (json !== null) {
 				if (Array.isArray(json)) {
@@ -537,7 +537,7 @@ PiLot.Service.Nav = (function () {
 		/** Loads the track segment types from the server */
 		loadTrackSegmentTypesAsync: async function () {
 			const result = new Map();
-			const json = await PiLot.Utils.Common.getFromServerAsync('/TrackSegmentTypes');
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/TrackSegmentTypes');
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
 					let labels = json[i].labels;
@@ -564,7 +564,7 @@ PiLot.Service.Nav = (function () {
 		 */
 		saveTrackSegmentTypeAsync: async function (pTrackSegmentType) {
 			const isNew = !pTrackSegmentType.id;
-			const result = await PiLot.Utils.Common.putToServerAsync('/TrackSegmentTypes', pTrackSegmentType);
+			const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync('/TrackSegmentTypes', pTrackSegmentType);
 			if (isNew) {
 				this.ensureTrackSegmentTypesLoadedAsync(true);
 			}
@@ -577,7 +577,7 @@ PiLot.Service.Nav = (function () {
 		 * @returns true, if the track segment type was deleted
 		 */
 		deleteTrackSegmentTypeAsync: async function (pTrackSegmentType) {
-			const result = await PiLot.Utils.Common.deleteFromServerAsync(`/TrackSegmentTypes/${pTrackSegmentType.getId()}`);
+			const result = await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/TrackSegmentTypes/${pTrackSegmentType.getId()}`);
 			this.ensureTrackSegmentTypesLoadedAsync(true);
 			return !!result;
 		}
@@ -780,7 +780,7 @@ PiLot.Service.Nav = (function () {
 		* */
 		loadAnchorWatchAsync: async function () {
 			let result = null;
-			const json = await PiLot.Utils.Common.getFromServerAsync('/AnchorWatch');
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/AnchorWatch');
 			if (json) {
 				result = new PiLot.Model.Nav.AnchorWatch(
 					json.latitude,
@@ -796,14 +796,14 @@ PiLot.Service.Nav = (function () {
 		 * @param {PiLot.Model.Nav.AnchorWatch} pAnchorWatch
 		 */
 		saveAnchorWatchAsync: async function (pAnchorWatch) {
-			return await PiLot.Utils.Common.putToServerAsync('/AnchorWatch', pAnchorWatch);
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync('/AnchorWatch', pAnchorWatch);
 		},
 
 		/**
 		 * Deletes the current anchorWatch from the server
 		 */
 		deleteAnchorWatchAsync: async function () {
-			return await PiLot.Utils.Common.deleteFromServerAsync('/AnchorWatch');
+			return await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync('/AnchorWatch');
 		}
 	};
 

@@ -194,7 +194,7 @@ PiLot.View.Map = (function () {
 		addTileLayer: function (pTileSource, pUseOnlineUrl = false) {
 			let url = pUseOnlineUrl ? pTileSource.getOnlineUrl() : pTileSource.getLocalUrl();
 			if ((url.indexOf('https://') !== 0) && (url.indexOf('http://') !== 0)) {
-				url = PiLot.Utils.Common.toLocalUrl(url);
+				url = PiLot.Service.Common.ServiceHelper.toLocalUrl(url);
 			}
 			var layer = L.tileLayer.fallback(
 			//var layer = L.tileLayer(

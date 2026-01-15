@@ -9,7 +9,7 @@ PiLot.Service.Meteo = (function () {
 
 		/** returns an array of objects with displayName, sensorType representing all meteo data sources */
 		loadMeteoDataSourcesAsync: async function () {
-			const response = await fetch(PiLot.Utils.Common.toApiUrl(`/SensorInfos/meteo`));
+			const response = await fetch('/SensorInfos/meteo');
 			return await response.json();
 		},
 
@@ -19,15 +19,15 @@ PiLot.Service.Meteo = (function () {
 		 * */
 		loadLogbookMeteoAsync: async function () {
 			let result = { temperature: null, pressure: null };
-			const sensorsJson = await PiLot.Utils.Common.getFromServerAsync(`/SensorInfos/logbook`);
+			const sensorsJson = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/SensorInfos/logbook`);
 			const temperatureSource = sensorsJson.find(e => e.sensorType === 'temperature');
 			if (temperatureSource) {
-				const temperatureData = await PiLot.Utils.Common.getFromServerAsync(`/Data/${temperatureSource.name}?maxSecondsOld=600`);
+				const temperatureData = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Data/${temperatureSource.name}?maxSecondsOld=600`);
 				result.temperature = temperatureData ? temperatureData.value : null;
 			}
 			const pressureSource = sensorsJson.find(e => e.sensorType === 'pressure');
 			if (pressureSource) {
-				const pressureData = await PiLot.Utils.Common.getFromServerAsync(`/Data/${pressureSource.name}?maxSecondsOld=600`);
+				const pressureData = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Data/${pressureSource.name}?maxSecondsOld=600`);
 				result.pressure = pressureData ? pressureData.value : null;
 			}
 			return result;

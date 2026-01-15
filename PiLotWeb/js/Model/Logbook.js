@@ -148,7 +148,7 @@ PiLot.Model.Logbook = (function () {
 			const serverObject = {
 				text: this.diaryText
 			}
-			return PiLot.Utils.Common.putToServerAsync(`/Logbook/diary/${this.day.year}/${this.day.month}/${this.day.day}`, serverObject);
+			return PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Logbook/diary/${this.day.year}/${this.day.month}/${this.day.day}`, serverObject);
 		},
 	};
 
@@ -183,7 +183,7 @@ PiLot.Model.Logbook = (function () {
 	 * @param {RC.Date.DateOnly} pDate
 	 */
 	var loadLogbookDayAsync = async function (pDate) {
-		const json = await PiLot.Utils.Common.getFromServerAsync(`/Logbook/${pDate.year}/${pDate.month}/${pDate.day}`);
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Logbook/${pDate.year}/${pDate.month}/${pDate.day}`);
 		return await LogbookDay.fromDataAsync(json);
 	};
 
@@ -198,7 +198,7 @@ PiLot.Model.Logbook = (function () {
 		const boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync();
 		if (boatConfig !== null) {
 			const url = `/Logbook/latestBoatSetup?year=${pDate.year}&month=${pDate.month}&day=${pDate.day}&boatConfigName=${boatConfig.getName()}`;
-			const json = await PiLot.Utils.Common.getFromServerAsync(url);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			latestSetup = PiLot.Model.Boat.BoatSetup.fromData(json, boatConfig);
 		}
 		return { currentBoatConfig: boatConfig, latestBoatSetup: latestSetup };
@@ -406,7 +406,7 @@ PiLot.Model.Logbook = (function () {
 
 		/** saves the LogbookEntry to the server and updates the entryId */
 		saveAsync: async function () {
-			const result = await PiLot.Utils.Common.putToServerAsync(`/Logbook/entry`, this);
+			const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Logbook/entry`, this);
 			if (result.ok) {
 				this.entryId = result.data.entryId;
 				RC.Utils.notifyObservers(this, this.observers, 'save', null);
@@ -421,7 +421,7 @@ PiLot.Model.Logbook = (function () {
 		 * */
 		deleteAsync: async function () {
 			const path = `/Logbook/entry/${this.entryId}`;
-			const deleted = await PiLot.Utils.Common.deleteFromServerAsync(path);
+			const deleted = await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(path);
 			if (deleted) {
 				this.logbookDay.removeEntry(this);
 				RC.Utils.notifyObservers(this, this.observers, 'delete', null);
@@ -605,7 +605,7 @@ PiLot.Model.Logbook = (function () {
 		 * @param {Number} pMonth
 		 */
 		loadLogbookMonthAsync: async function (pYear, pMonth) {
-			return await PiLot.Utils.Common.getFromServerAsync(`/Logbook/${pYear}/${pMonth}`);
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Logbook/${pYear}/${pMonth}`);
 		}
 	};
 
@@ -731,7 +731,7 @@ PiLot.Model.Logbook = (function () {
 	var loadDailyImageCollectionAsync = async function (pDate) {
 		PiLot.log('PiLot.Logbook.Model.loadDailyImageCollectionAsync', 3);
 		const url = `/Photos/${pDate.year}/${pDate.month}/${pDate.day}`;
-		const json = await PiLot.Utils.Common.getFromServerAsync(url);
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 		return new ImageCollection(json.rootUrl, json.name, json.zoomFolders, json.imageNames);
 	};
 
@@ -739,7 +739,7 @@ PiLot.Model.Logbook = (function () {
 	 * Loads a random image, embedded in an image collection
 	 */
 	var loadRandomImageAsync = async function () {
-		const json = await PiLot.Utils.Common.getFromServerAsync('/Photos/random');
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Photos/random');
 		return new ImageCollection(json.rootUrl, json.name, json.zoomFolders, json.imageNames);
 	};
 
@@ -749,7 +749,7 @@ PiLot.Model.Logbook = (function () {
 	 * */
 	var loadAllImageCollectionsAsync = async function(){
 		PiLot.log('PiLot.Logbook.Model.loadAllImageCollectionsAsync', 3);
-		const json = await PiLot.Utils.Common.getFromServerAsync('/Photos');
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Photos');
 		const result = [];
 		for(let aCollection of json){
 			result.push(new ImageCollection(aCollection.rootUrl, aCollection.name, aCollection.zoomFolders, aCollection.imageNames));
@@ -766,14 +766,14 @@ PiLot.Model.Logbook = (function () {
 	var uploadPhotoAsync = async function (pDate, pFilename, pBytes) {
 		PiLot.log('PiLot.Logbook.Model.uploadPhotoAsync', 3);
 		const url = `/Photos?day=${pDate.toLuxon().toFormat('yyyy-MM-dd')}&fileName=${pFilename}`;
-		const result = await PiLot.Utils.Common.putToServerAsync(url, pBytes, true);
+		const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync(url, pBytes, true);
 		return result;
 	};
 
 	var deletePhotoAsync = async function (pCollection, pFilename) {
 		PiLot.log('PiLot.Logbook.Model.deletePhotoAsync', 3);
 		const url = `/Photos?collection=${pCollection}&fileName=${pFilename}`;
-		const result = await PiLot.Utils.Common.deleteFromServerAsync(url);
+		const result = await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(url);
 		return result;
 	}
 
@@ -785,7 +785,7 @@ PiLot.Model.Logbook = (function () {
 	var loadPublishTargetsAsync = async function () {
 		PiLot.log('PiLot.Logbook.Model.loadPublishTargetsAsync', 3);
 		const url = '/PublishTargets';
-		const json = await PiLot.Utils.Common.getFromServerAsync(url);
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 		return json;
 	};
 
@@ -802,7 +802,7 @@ PiLot.Model.Logbook = (function () {
 	var loadDailyDataAsync = async function (pTargetName, pDate) {
 		PiLot.log('PiLot.Logbook.Model.loadDailyDataAsync', 3);
 		const url = `/PublishTargets/${pTargetName}/${pDate.year}/${pDate.month}/${pDate.day}`;
-		const result = await PiLot.Utils.Common.getFromServerAsync(url);
+		const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 		if (result.success) {
 			let tracks = [];
 			for(aTrackData of result.data.tracks){
@@ -828,7 +828,7 @@ PiLot.Model.Logbook = (function () {
 	var loadJobStatusAsync = async function (pTargetName, pDate) {
 		PiLot.log('PiLot.Logbook.Model.loadJobStatusAsync', 3);
 		const url = `/PublishJobs/${pTargetName}/${pDate.year}/${pDate.month}/${pDate.day}`;
-		const result = await PiLot.Utils.Common.getFromServerAsync(url);
+		const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 		return result;
 	};
 
@@ -844,7 +844,7 @@ PiLot.Model.Logbook = (function () {
 	var sendPublishJobAsync = async function (pTargetName, pDate, pPublishSelection) {
 		PiLot.log('PiLot.Logbook.Model.sendPublishJobAsync', 3);
 		const url = `/PublishJobs/${pTargetName}/${pDate.year}/${pDate.month}/${pDate.day}`;
-		var result = await PiLot.Utils.Common.putToServerAsync(url, pPublishSelection);
+		var result = await PiLot.Service.Common.ServiceHelper.putToServerAsync(url, pPublishSelection);
 		return result;
 	};
 

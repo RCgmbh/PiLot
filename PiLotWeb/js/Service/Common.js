@@ -13,12 +13,12 @@ PiLot.Service.Common = {
 		errors: [],
 
 		initialize: function(){
-			this.observable = new PiLot.Utils.Common.Observable(['error', 'success']);
+			this.observable = new PiLot.Utils.Common.Observable(['error', 'errorsCleared']);
 		},
 
 		/**
 		 * Registers an observer for an event of the BoatTimeHelper
-		 * @param {String} pEvent - 'error', 'success'
+		 * @param {String} pEvent - 'error', 'errorsCleared'
 		 * @param {Object} pObserver - the observer, used to implement 'off' 
 		 * @param {Function} pFunction - the function to call
 		 */
@@ -138,32 +138,59 @@ PiLot.Service.Common = {
 			} else {
 				options.body = pData;
 			}
-			const response = await fetch(url, options);
-			result.status = response.status;
-			result.ok = response.ok;
-			if ((response.status === 401) || (response.status == 403)) {
-				if (pLoginOnAuthError) {
-					const loginForm = PiLot.View.Common.getLoginForm();
-					if (pRetryAfterLogin) {
-						loginForm.on('loginSuccess', function () {
-							PiLot.Utils.Common.sendToServerAsync(pApiPath, pData, pMethod, false, false);
-						})
-					}
-				}
-			}
-			else if (result.status !== 204) {
-				try {
-					const responseType = response.headers.get('Content-Type');
-					if (responseType !== null) {
-						if (responseType.indexOf("text/plain") === 0) {
-							result.data = await response.text();
-						} else if (responseType.indexOf("application/json") === 0) {
-							result.data = await response.json();
+			try{
+				const response = await fetch(url, options);
+				result.status = response.status;
+				result.ok = response.ok;
+				const responseType = response.headers.get('Content-Type');
+				const isTextResponse = (responseType !== null) && responseType.includes("text/plain");
+				const isJsonResponse = (responseType !== null) && responseType.includes("application/json");
+				if ((result.status === 401) || (result.status == 403)) {
+					if (pLoginOnAuthError) {
+						const loginForm = PiLot.View.Common.getLoginForm();
+						if (pRetryAfterLogin) {
+							loginForm.on('loginSuccess', function () {
+								this.sendToServerAsync(pApiPath, pData, pMethod, false, false);
+							})
 						}
 					}
-				} catch (ex) {
-					PiLot.Utils.Common.log(`Error in processing the response from url ${pApiPath}: ${ex}`, 0);
 				}
+				else if (!result.ok){
+					let responseText = 'n/a';
+					if(this.isTextResponse){
+						responseText = await response.text()
+					};
+					const error = {
+						clientTimestamp: DateTime.utc(),
+						errorType: 'fetch',
+						httpStatus: result.status,
+						requestUrl: url,
+						requestBody: options.body || 'n/a',
+						message: responseText
+					}
+					this.errors.push(error);
+					this.observable.fire('error', error);
+					console.log(this.errors);
+				}
+				else if (result.status !== 204) {
+					if (isTextResponse) {
+						result.data = await response.text();
+					} else if (isJsonResponse) {
+						result.data = await response.json();
+					}
+				}
+			} catch(ex){
+				const error = {
+					clientTimestamp: DateTime.utc(),
+					errorType: 'exception',
+					httpStatus: result.status,
+					requestUrl: url,
+					requestBody: options.body,
+					message: ex
+				}
+				this.errors.push(error);
+				this.observable.fire('error', error);
+				console.log(this.errors);
 			}
 			return result;
 		},
@@ -174,10 +201,21 @@ PiLot.Service.Common = {
 		 * @param {string} pApiPath - the relative Pat, as in /Ping/1
 		 */
 		deleteFromServerAsync: async function (pApiPath) {
-			const url = PiLot.Utils.Common.toApiUrl(pApiPath);
+			const url = this.toApiUrl(pApiPath);
 			const response = await fetch(url, { method: 'Delete' });
 			return response.ok;
 		},
+
+		/** @returns {Object[]} the list of all errors, the latest is the last */
+		getErrors: function(){
+			return this.errors;
+		},
+
+		/** clears all errors */
+		clearErrors: function(){
+			this.errors = [];
+			this.observable.fire('errorsCleared');
+		}
 
 	},
 
@@ -185,12 +223,12 @@ PiLot.Service.Common = {
 
         /** @returns {Object} an object containing the current boatTime utc offset and server time */
         loadBoatTimeInfoAsync: async function(){
-            return json = await PiLot.Utils.Common.getFromServerAsync('/Settings/boatTime');
+            return json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Settings/boatTime');
         },
 
         /** @param {PiLot.Model.Common.BoatTime} pBoatTime - the boat time to save */
         saveBoatTimeAsync: async function(pBoatTime){
-            await PiLot.Utils.Common.putToServerAsync(`/Settings/boatTime?utcOffset=${pBoatTime.getUtcOffsetMinutes()}`);
+            await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Settings/boatTime?utcOffset=${pBoatTime.getUtcOffsetMinutes()}`);
         },
 
         /**
@@ -199,7 +237,7 @@ PiLot.Service.Common = {
          * */
         setServerTimeAsync: async function () {
             const millisUtc = RC.Date.DateHelper.utcNowMillis() + 50; // we add a tiny bit of milliseconds as it will take some time :-)
-            return await PiLot.Utils.Common.putToServerAsync(`/System/date?millisUtc=${millisUtc}`);
+            return await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/System/date?millisUtc=${millisUtc}`);
         }
     },
 }

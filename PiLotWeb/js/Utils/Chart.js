@@ -109,7 +109,7 @@ PiLot.Utils.Chart = (function () {
 	 * @return {Object} quite a fancy structure with the data points (timestamp in UTC Millis), some max/min values, and information about the boatTime, see processData
 	 * */
 	var loadRecentDataAsync = async function (pDataSource, pTimeSpanSeconds, pAggregateSeconds) {
-		const data = await PiLot.Utils.Common.getFromServerAsync(`/Data/${pDataSource}/recent?durationSeconds=${pTimeSpanSeconds}&aggregateSeconds=${pAggregateSeconds}`);
+		const data = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Data/${pDataSource}/recent?durationSeconds=${pTimeSpanSeconds}&aggregateSeconds=${pAggregateSeconds}`);
 		const result = PiLot.Utils.Chart.processData(data);
 		return result;
 	};
@@ -123,7 +123,7 @@ PiLot.Utils.Chart = (function () {
 	 * @return {Object} quite a fancy structure with the data points (timestamp in UTC Millis), some max/min values, and information about the boatTime, see processData
 	 * */
 	var loadHistoricDataAsync = async function (pDataSource, pStartTime, pEndTime, pAggregateSeconds) {
-		const data = await PiLot.Utils.Common.getFromServerAsync(`/Data/${pDataSource}/historic?startTimeUnix=${pStartTime}&endTimeUnix=${pEndTime}&aggregateSeconds=${pAggregateSeconds}`);
+		const data = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Data/${pDataSource}/historic?startTimeUnix=${pStartTime}&endTimeUnix=${pEndTime}&aggregateSeconds=${pAggregateSeconds}`);
 		const result = PiLot.Utils.Chart.processData(data);
 		return result;
 	};

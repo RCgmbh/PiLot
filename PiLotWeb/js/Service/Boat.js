@@ -34,7 +34,7 @@ PiLot.Service.Boat = (function () {
 		
 		/** @returns {Object[]} an array of objects with name, displayName, boatImageUrl. */
 		loadBoatConfigsAsync: async function (pBoat) {
-			const result = await PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs`);
+			const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/BoatConfigs`);
 			return result;
 		},
 
@@ -43,17 +43,17 @@ PiLot.Service.Boat = (function () {
 		 * @param {string} pConfigName
 		 */
 		loadConfigAsync: async function (pConfigName) {
-			return PiLot.Model.Boat.BoatConfig.fromData(await PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs/${pConfigName}`));
+			return PiLot.Model.Boat.BoatConfig.fromData(await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/BoatConfigs/${pConfigName}`));
 		},
 
 		/** Loads the current BoatConfig */
 		loadCurrentConfigAsync: async function () {
-			return PiLot.Model.Boat.BoatConfig.fromData(await PiLot.Utils.Common.getFromServerAsync(`/BoatConfigs/current`));
+			return PiLot.Model.Boat.BoatConfig.fromData(await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/BoatConfigs/current`));
 		},
 
 		/** Loads the name of the current BoatConfig */
 		loadCurrentConfigNameAsync: async function () {
-			return PiLot.Utils.Common.getFromServerAsync('/Settings/currentBoatConfigName');
+			return PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Settings/currentBoatConfigName');
 		},
 
 		/**
@@ -61,7 +61,7 @@ PiLot.Service.Boat = (function () {
 		 * @param {string} pName
 		 */
 		saveCurrentConfigNameAsync: async function (pName) {
-			return await PiLot.Utils.Common.putToServerAsync(`/Settings/currentBoatConfigName?name=${pName}`, null);
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Settings/currentBoatConfigName?name=${pName}`, null);
 		}
 	};
 

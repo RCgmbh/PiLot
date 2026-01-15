@@ -114,7 +114,7 @@ PiLot.Model.Tools = (function () {
 		/// puts a file to the API, which will save it locally
 		putFile: function (pByteArray, pX, pY, pZ) {
 			const apiUrl = `/Tiles/${this.tileSource.getName()}/${pZ}/${pX}/${pY}`;
-			PiLot.Utils.Common.putToServerAsync(apiUrl, pByteArray, true).then(function (result) {
+			PiLot.Service.Common.ServiceHelper.putToServerAsync(apiUrl, pByteArray, true).then(function (result) {
 				if (result.ok) {
 					this.updateStats(0, pByteArray.length, 0, 1);
 				} else {

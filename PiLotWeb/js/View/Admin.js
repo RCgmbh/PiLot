@@ -206,7 +206,7 @@ PiLot.View.Admin = (function () {
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.servicesPage));
 			const plhServices = contentArea.querySelector('.plhServices');
 			this.serviceInfos = new Array();
-			const services = await PiLot.Model.Admin.getServicesAsync();
+			const services = await new PiLot.Service.Admin.SystemService.getServicesAsync();
 			services.forEach(function (s) {
 				this.serviceInfos.push(new ServiceInfo(s, plhServices));
 			}.bind(this));
@@ -269,7 +269,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		loadStatusAsync: async function () {
-			const status = await PiLot.Utils.Common.getFromServerAsync(`/Services/${this.serviceName}`);
+			const status = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Services/${this.serviceName}`);
 			this.showStatus(status);
 		},
 
@@ -278,7 +278,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		changeStatusAsync: async function (pAction) {
-			const result = await PiLot.Utils.Common.putToServerAsync(`/Services/${this.serviceName}/${pAction}`);
+			const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Services/${this.serviceName}/${pAction}`);
 			this.showStatus(result.data);
 		}
 	};
@@ -329,7 +329,7 @@ PiLot.View.Admin = (function () {
 			if (window.confirm(PiLot.Utils.Language.getText('confirmShutDown'))) {
 				this.pnlShuttingDown.hidden = false;
 				this.pnlAvailable.hidden = true;
-				fetch(PiLot.Utils.Common.toApiUrl(`/System/shutdown`), { method: 'PUT' });
+				PiLot.Service.Common.ServiceHelper.putToServerAsync('/System/shutdown');
 			}
 		},
 
@@ -351,7 +351,7 @@ PiLot.View.Admin = (function () {
 
 		/** calls the ping REST endpoint and does stuffs with the result */
 		callPing: async function () {
-			let result = await PiLot.Utils.Common.pingServerAsync(5000);
+			let result = await PiLot.Service.Common.ServiceHelper.pingServerAsync(5000);
 			this.handlePingResult(result);
 		},
 
@@ -387,7 +387,7 @@ PiLot.View.Admin = (function () {
 
 	/** An icon showing the current wifi state */
 	var WiFiIcon = function () {
-		this.wifiHelper = null;
+		this.wifiService = null;
 		this.icoWiFiInternet = null;
 		this.icoWiFiConnected = null;
 		this.initialize();
@@ -396,7 +396,7 @@ PiLot.View.Admin = (function () {
 	WiFiIcon.prototype = {
 
 		initialize: function () {
-			this.wifiHelper = new PiLot.Model.Admin.WiFiHelper();
+			this.wifiService = new PiLot.Service.Admin.WiFiService();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			authHelper.on('login', this.authHelper_change.bind(this));
 			authHelper.on('logout', this.authHelper_change.bind(this));
@@ -427,7 +427,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		showWiFiStatusAsync: async function () {
-			const wifiStatus = await this.wifiHelper.getOverallStatusAsync();
+			const wifiStatus = await this.wifiService.getOverallStatusAsync();
 			this.icoWiFiInternet.hidden = !wifiStatus.internetAccess;
 			this.icoWiFiConnected.hidden = wifiStatus.internetAccess || !wifiStatus.connected;
 		},
@@ -461,7 +461,7 @@ PiLot.View.Admin = (function () {
 
 	/** The page showing the list of available wireless networks and allowing to connect to them */
 	var WiFiPage = function () {
-		this.wifiHelper = null;
+		this.wifiService = null;
 		this.ddlInterface = null;
 		this.icoWait = null;
 		this.lnkRefresh = null;
@@ -474,7 +474,7 @@ PiLot.View.Admin = (function () {
 	WiFiPage.prototype = {
 
 		initializeAsync: async function () {
-			this.wifiHelper = new PiLot.Model.Admin.WiFiHelper();
+			this.wifiService = new PiLot.Service.Admin.WiFiService();
 			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
 			await this.drawAsync();
 			this.loadInterfacesAsync();
@@ -503,7 +503,7 @@ PiLot.View.Admin = (function () {
 				this.showKeyDialog(pSSID);
 			} else {
 				this.showHideWait(true);
-				const output = await this.wifiHelper.selectWiFiAsync(pIdentifier);
+				const output = await this.wifiService.selectWiFiAsync(pIdentifier);
 				this.showOutput(output.data);
 				this.loadNetworksAsync();
 			}
@@ -512,7 +512,7 @@ PiLot.View.Admin = (function () {
 		lnkForget_click: async function (pSSID, pIdentifier) {
 			if (window.confirm(PiLot.Utils.Language.getText('wifiConfirmForgetX').replace('{{x}}', pSSID))) {
 				this.showHideWait(true);
-				const output = await this.wifiHelper.forgetWiFiAsync(pIdentifier);
+				const output = await this.wifiService.forgetWiFiAsync(pIdentifier);
 				await this.loadNetworksAsync();
 			}
 		},
@@ -525,7 +525,7 @@ PiLot.View.Admin = (function () {
 			this.hideKeyDialog();
 			this.icoWait.hidden = false;
 			const key = this.pnlNetworkKey.querySelector('.tbWifiKey').value;
-			const output = await this.wifiHelper.addWiFiAsync(pSSID, key);
+			const output = await this.wifiService.addWiFiAsync(pSSID, key);
 			this.showOutput(output.data);
 			WiFiIcon.getInstance().showWiFiStatusAsync();
 			this.loadNetworksAsync();
@@ -536,7 +536,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		lnkStatus_click: async function () {
-			const output = await this.wifiHelper.getWiFiStatusAsync();
+			const output = await this.wifiService.getWiFiStatusAsync();
 			this.showOutput(output);
 		},
 
@@ -562,7 +562,7 @@ PiLot.View.Admin = (function () {
 		},
 
 		loadInterfacesAsync: async function () {
-			const interfaces = await this.wifiHelper.getInterfacesAsync();
+			const interfaces = await this.wifiService.getInterfacesAsync();
 			const selectableInterfaces = [];
 			for (const interface of interfaces) {
 				interface.startsWith('p2p') || selectableInterfaces.push(interface);
@@ -586,7 +586,7 @@ PiLot.View.Admin = (function () {
 
 		selectInterfaceAsync: async function (pInterface) {
 			this.ddlInterface.disabled = true;
-			this.wifiHelper.setInterface(pInterface);
+			this.wifiService.setInterface(pInterface);
 			await this.loadNetworksAsync();
 			this.ddlInterface.disabled = false;
 		},
@@ -596,7 +596,7 @@ PiLot.View.Admin = (function () {
 			this.showHideWait(true);
 			this.showOutput('loading networks...');
 			const interval = window.setInterval(this.showOutput.bind(this, '.'), 1000);
-			const networks = await this.wifiHelper.getWiFiInfosAsync();
+			const networks = await this.wifiService.getWiFiInfosAsync();
 			if (networks) {
 				networks.sort(function (a, b) {
 					return (b.signalStrength || 0) - (a.signalStrength || 0) || a.ssid.localeCompare(b.ssid); 					
@@ -651,7 +651,7 @@ PiLot.View.Admin = (function () {
 
 	/** A Page listing the logfiles and allowing to open them */
 	var LogFilesPage = function () {
-		this.dataLoader = null;
+		this.logfilesService = null;
 		this.divLogFile = null;
 		this.divLogFilesList = null;
 		this.tblLogFiles = null;
@@ -668,7 +668,7 @@ PiLot.View.Admin = (function () {
 
 		initializeAsync: async function () {
 			this.dataRows = new Array();
-			this.dataLoader = new PiLot.Model.Admin.LogFilesLoader();
+			this.logfilesService = new PiLot.Service.Admin.LogFilesService();
 			this.draw();
 			this.loadData();
 		},
@@ -724,7 +724,7 @@ PiLot.View.Admin = (function () {
 
 		/** loads the data and shows it */
 		loadData: async function () {
-			let data = await this.dataLoader.loadLogFiles(this.currentPage * this.pageSize, this.pageSize);
+			let data = await this.logfilesService.loadLogFilesAsync(this.currentPage * this.pageSize, this.pageSize);
 			this.showData(data);
 		},
 
@@ -749,7 +749,7 @@ PiLot.View.Admin = (function () {
 		 */
 		showLogFile: async function (pFilename) {
 			RC.Utils.showHide(this.divLogFilesList, false);
-			const content = await this.dataLoader.loadLogFile(pFilename);
+			const content = await this.logfilesService.loadLogFileAsync(pFilename);
 			this.divLogFile.querySelector('.lblFilename').innerText = pFilename;
 			this.divLogFile.querySelector('.divContent').innerText = content;
 			RC.Utils.showHide(this.divLogFile, true);
@@ -760,7 +760,7 @@ PiLot.View.Admin = (function () {
 		 * @param {String} pFilename - the filename
 		 */
 		deleteLogFile: async function (pFilename) {
-			await this.dataLoader.deleteLogFile(pFilename);
+			await this.logfilesService.deleteLogFileAsync(pFilename);
 			this.loadData();
 		},
 

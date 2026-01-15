@@ -8,12 +8,12 @@ PiLot.Service.Analyze = (function () {
 	TackAnalyzeService.prototype = {
 
 		loadTackAnalyzerOptionsAsync: async function (pBoat) {
-			return await PiLot.Utils.Common.getFromServerAsync(`/TackAnalyzerOptions/${pBoat}`);
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/TackAnalyzerOptions/${pBoat}`);
 		},
 
 		saveTackAnalyzerOptionsAsync: async function (pBoat, pOptions) {
 			const path = `/TackAnalyzerOptions/${pBoat}`;
-			return await PiLot.Utils.Common.putToServerAsync(path, pOptions);
+			return await PiLot.Service.Common.ServiceHelper.putToServerAsync(path, pOptions);
 		}
 	};
 

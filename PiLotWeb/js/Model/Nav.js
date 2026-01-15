@@ -222,14 +222,14 @@ PiLot.Model.Nav = (function () {
 				waypointsArray.push(this.waypoints[i].toServerObject());
 			}
 			var serverObject = { name: this.name, routeId: this.routeId, waypoints: waypointsArray };
-			PiLot.Utils.Common.putToServerAsync(`/Routes`, serverObject).then(r => {
+			PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Routes`, serverObject).then(r => {
 				this.routeId = r.data.routeId;
 			});
 		},
 
 		/** Deletes the route from the server, and returns true, if deletion succeeded */
 		deleteFromServerAsync: async function () {
-			return PiLot.Utils.Common.deleteFromServerAsync(`/Routes/${this.routeId}`);
+			return PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(`/Routes/${this.routeId}`);
 		}
 	};
 
@@ -258,7 +258,7 @@ PiLot.Model.Nav = (function () {
 	 * Loads the activeRouteId from the server
 	 * */
 	var loadActiveRouteIdAsync = async function () {
-		return PiLot.Utils.Common.getFromServerAsync('/Settings/activeRouteId');
+		return PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Settings/activeRouteId');
 	};
 
 	/**
@@ -267,7 +267,7 @@ PiLot.Model.Nav = (function () {
 	 */
 	var saveActiveRouteIdAsync = async function (pRouteId) {
 		let qs = (pRouteId === null) ? '' : `routeId=${pRouteId}` 
-		return PiLot.Utils.Common.putToServerAsync(`/Settings/activeRouteId?${qs}`, null);
+		return PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Settings/activeRouteId?${qs}`, null);
 	}
 
 	/**
@@ -283,7 +283,7 @@ PiLot.Model.Nav = (function () {
 	 * @param {String} pRouteId - The id (usually a number) or "current"
 	 * */
 	var loadRouteAsync = async function (pRouteId) {
-		const json = await PiLot.Utils.Common.getFromServerAsync(`/Routes/${pRouteId}`);
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Routes/${pRouteId}`);
 		const result = Route.fromData(json);
 		return result;
 	};
@@ -293,7 +293,7 @@ PiLot.Model.Nav = (function () {
 	 * @returns {Array} - An array of routes
 	 * */
 	var loadAllRoutesAsync = async function () {
-		const json = await PiLot.Utils.Common.getFromServerAsync(`/Routes`);
+		const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Routes`);
 		const result = new Array();
 		if (json && Array.isArray(json)) {
 			json.forEach(e => {
@@ -2400,7 +2400,7 @@ PiLot.Model.Nav = (function () {
 				const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 				lastTimestamp = (boatTime.utcNowUnix() - this.maxDataAgeSeconds) * 1000;
 			}
-			const json = await PiLot.Utils.Common.getFromServerAsync(`/Position?startTime=${lastTimestamp.toFixed(0)}`);
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(`/Position?startTime=${lastTimestamp.toFixed(0)}`);
 			const result = new Array();
 			if (Array.isArray(json)) {
 				for (let i = 0; i < json.length; i++) {
@@ -2642,7 +2642,7 @@ PiLot.Model.Nav = (function () {
 	/** @returns {Map} with key = tileSource.name, value = tileSource */
 	var readAllTileSourcesAsync = async function () {
 		const result = new Map();
-		const response = await PiLot.Utils.Common.getFromServerAsync('/TileSources');
+		const response = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/TileSources');
 		response.forEach(function (pItem) {
 			let tileSource = TileSource.fromData(pItem);
 			result.set(tileSource.getName(), tileSource);
