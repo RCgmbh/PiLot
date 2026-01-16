@@ -162,7 +162,7 @@ PiLot.Service.Common = {
 					};
 					const error = {
 						clientTimestamp: DateTime.utc(),
-						errorType: 'fetch',
+						errorType: pMethod,
 						httpStatus: result.status,
 						requestUrl: url,
 						requestBody: options.body || 'n/a',
@@ -170,7 +170,6 @@ PiLot.Service.Common = {
 					}
 					this.errors.push(error);
 					this.observable.fire('error', error);
-					console.log(this.errors);
 				}
 				else if (result.status !== 204) {
 					if (isTextResponse) {
@@ -190,7 +189,6 @@ PiLot.Service.Common = {
 				}
 				this.errors.push(error);
 				this.observable.fire('error', error);
-				console.log(this.errors);
 			}
 			return result;
 		},

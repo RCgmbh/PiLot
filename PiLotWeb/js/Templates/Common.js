@@ -76,13 +76,17 @@ PiLot.Templates.Common = {
 						<span class="grow paddingAllSmall bold" data-text="errors"></span>
 						<a href="#" class="lnkCloseDialog noGrow paddingAllSmall"><i class="icon-cross"></i></a>
 					</div>
-					<div class="pnlTemplate flexRow marginBottomSmall" hidden>
-						<span class="marginRight lblTimestamp col3 noGrow"></span>
-						<span class="marginRight lblType semiBold col2 noGrow"></span>
-						<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
-						<div class="marginRight col10 grow">Url: <span class="lblUrl"></span></div>
-						<div class="marginRight col4">Body: <span class="lblBody"></span></div>
-						<div class="marginRight col4">Details: <span class="lblMessage"></span></div>
+					<div class="pnlTemplate flexColumn" style="border:1px solid #ccc;border-radius:4px;padding:4px;margin:2px 0px;background-color:#f8f4f4;" hidden>
+						<div class="coreData flexRow" style="cursor:pointer;">
+							<span class="marginRight lblTimestamp col3 noGrow"></span>
+							<span class="marginRight lblType semiBold col2 noGrow"></span>
+							<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
+							<div class="lblUrl marginRight col10 grow"></div>
+						</div>
+						<div class="detailData flexColumn paddingLeft" style="word-wrap:break-word;">
+							<div class="marginRight">Body: <span class="lblBody"></span></div>
+							<div class="marginRight">Details: <span class="lblMessage"></span></div>
+						</div>
 					</div>
 					<div class="plhErrors flexColumn paddingAllSmall marginBottomSmall"></div>
 				</div>

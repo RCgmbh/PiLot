@@ -2836,7 +2836,7 @@ PiLot.View.Nav = (function () {
 			const xteIndicator = new PiLot.View.Nav.XTEIndicator(mainContainer);
 			this.controls.push({
 				control: xteIndicator,
-				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 30000, true),
+				decideIsVisible: this.decideMotionDisplayVisible.bind(this, 45000, true),
 				isVisible: null,
 				needsRoute: true,
 				updateData: xteIndicator.showValue.bind(xteIndicator, this.routeObserver),
