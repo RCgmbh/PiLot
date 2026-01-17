@@ -49,7 +49,7 @@ PiLot.Service.Common = {
 			if (!pApiPath.startsWith('http:') && !pApiPath.startsWith('https:')) {
 				path = PiLot.Config.apiUrl.concat(pApiPath);
 				if (!PiLot.Config.apiUrl.startsWith('http:') && !PiLot.Config.apiUrl.startsWith('https:')) {
-					path = PiLot.Utils.Common.toLocalUrl(path);
+					path = this.toLocalUrl(path);
 				}
 			} else {
 				path = pApiPath;
