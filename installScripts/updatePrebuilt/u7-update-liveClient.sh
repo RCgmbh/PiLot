@@ -26,5 +26,5 @@ tar zxf pilotliveclient_$1.tar.gz -C /opt/pilotliveclient
 mv temp/* /opt/pilotliveclient
 echo cleaning up
 rm -r temp
-rm pilotsensors_$1.tar.gz
+rm pilotliveclient_$1.tar.gz
 echo done. Please start the service if you need it.
