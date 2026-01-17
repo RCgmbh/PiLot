@@ -206,7 +206,7 @@ PiLot.View.Admin = (function () {
 			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.servicesPage));
 			const plhServices = contentArea.querySelector('.plhServices');
 			this.serviceInfos = new Array();
-			const services = await new PiLot.Service.Admin.SystemService.getServicesAsync();
+			const services = await new PiLot.Service.Admin.SystemService().getServicesAsync();
 			services.forEach(function (s) {
 				this.serviceInfos.push(new ServiceInfo(s, plhServices));
 			}.bind(this));
