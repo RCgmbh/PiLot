@@ -211,7 +211,7 @@ PiLot.Model.Analyze = (function () {
 		this.gpsObserver = null;
 		this.trackAnalyzer = null;
 		this.analyzerOptions = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 
 	};
@@ -219,7 +219,7 @@ PiLot.Model.Analyze = (function () {
 	TackObserver.prototype = {
 
 		initialize: function(){
-			this.observers = RC.Utils.initializeObservers(['analyzeTrack', 'noGpsData', 'loadTrack']);
+			this.observable = new PiLot.Utils.Common.Observable(['analyzeTrack', 'noGpsData', 'loadTrack']);
 			this.tackAnalyzer = new TackAnalyzer();
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();	
 			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
@@ -230,7 +230,7 @@ PiLot.Model.Analyze = (function () {
 		},
 
 		gpsObserver_outdatedGpsData: function(){
-			RC.Utils.notifyObservers(this, this.observers, 'noGpsData', null);
+			this.observable.fire('noGpsData', null);
 		},
 
 		trackObserver_changeTrackPoints: function(pTrackObserver){
@@ -245,16 +245,18 @@ PiLot.Model.Analyze = (function () {
 				const track = pTrackObserver.getTrack();
 				this.analyzerOptions = await (new PiLot.Service.Analyze.TackAnalyzeService().loadTackAnalyzerOptionsAsync(track.getBoat()));
 				this.analyzerOptions = this.analyzerOptions || TackAnalyzer.defaultOptions;
-				RC.Utils.notifyObservers(this, this.observers, 'loadTrack', track);
+				this.observable.fire('loadTrack', track);
 				this.tackAnalyzer.setTrack(track);
 				this.findTacks();
 			}
 			
 		},
 
-		/** @param {String} pEvent - 'analyzeTrack', 'noGpsData' */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		/**
+		 * @param {String} pEvent - 'analyzeTrack', 'noGpsData', 'loadTrack'
+		 * */
+		on: function(pEvent, pObserver, pFunction){ 
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		findTacks: function(){
@@ -262,7 +264,7 @@ PiLot.Model.Analyze = (function () {
 			const windDirection = this.calculateWindDirection(tacks);
 			const currentAngle = this.caculateCurrentAngle(tacks);
 			const vmg = this.calculateVMG(windDirection);
-			RC.Utils.notifyObservers(this, this.observers, 'analyzeTrack', {tacks: tacks, windDirection: windDirection, currentAngle: currentAngle, vmg: vmg});
+			this.observable.fire('analyzeTrack', {tacks: tacks, windDirection: windDirection, currentAngle: currentAngle, vmg: vmg});
 		},
 
 		calculateWindDirection: function(pTacks){

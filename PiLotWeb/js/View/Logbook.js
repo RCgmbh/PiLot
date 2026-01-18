@@ -76,8 +76,8 @@ PiLot.View.Logbook = (function () {
 			if (this.logbookDay === null) {
 				this.logbookDay = new PiLot.Model.Logbook.LogbookDay(today);
 			}
-			this.logbookDay.on('saveEntry', this.logbookDay_change.bind(this));
-			this.logbookDay.on('deleteEntry', this.logbookDay_change.bind(this));
+			this.logbookDay.on('saveEntry', this, this.logbookDay_change.bind(this));
+			this.logbookDay.on('deleteEntry', this, this.logbookDay_change.bind(this));
 		},
 				
 		/** Shows the current day's logbookEntries */
@@ -203,8 +203,8 @@ PiLot.View.Logbook = (function () {
 			}
 			this.logbookDay = pLogbookDay;
 			const eventHandler = this.logbookDay_change.bind(this);
-			this.logbookDay.on('saveEntry', eventHandler);
-			this.logbookDay.on('deleteEntry', eventHandler);
+			this.logbookDay.on('saveEntry', this, eventHandler);
+			this.logbookDay.on('deleteEntry', this, eventHandler);
 			this.showData();
 		},
 

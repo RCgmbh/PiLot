@@ -794,8 +794,8 @@ PiLot.View.Common = (function () {
 
 		initialize: function () {
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 			this.draw();
 		},
 
@@ -1101,8 +1101,8 @@ PiLot.View.Common = (function () {
 
 		initialize: function () {
 			this.authHelper = PiLot.Model.Common.AuthHelper.instance();
-			this.authHelper.on('login', this.authHelper_login.bind(this));
-			this.authHelper.on('logout', this.authHelper_logout.bind(this));
+			this.authHelper.on('login', this, this.authHelper_change.bind(this));
+			this.authHelper.on('logout', this, this.authHelper_change.bind(this));
 			this.draw();
 			this.updateInfo();
 		},
@@ -1131,11 +1131,7 @@ PiLot.View.Common = (function () {
 			this.hideMenu();
 		},
 
-		authHelper_login: function () {
-			this.updateInfo();
-		},
-
-		authHelper_logout: function () {
+		authHelper_change: function () {
 			this.updateInfo();
 		},
 

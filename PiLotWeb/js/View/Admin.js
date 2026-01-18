@@ -398,8 +398,8 @@ PiLot.View.Admin = (function () {
 		initialize: function () {
 			this.wifiService = new PiLot.Service.Admin.WiFiService();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 			this.draw();
 			this.showWiFiStatusAsync();
 			this.startUpdateInterval();
@@ -475,7 +475,7 @@ PiLot.View.Admin = (function () {
 
 		initializeAsync: async function () {
 			this.wifiService = new PiLot.Service.Admin.WiFiService();
-			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('login', this, this.authHelper_login.bind(this));
 			await this.drawAsync();
 			this.loadInterfacesAsync();
 		},

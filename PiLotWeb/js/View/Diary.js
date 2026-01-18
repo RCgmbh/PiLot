@@ -36,8 +36,8 @@ PiLot.View.Diary = (function () {
 			this.applyPermissions();
 			this.initializeDate();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 		},
 
 		unload: function(){
@@ -267,8 +267,8 @@ PiLot.View.Diary = (function () {
 			this.draw();
 			this.applyPermissions();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 		},
 
 		/**
@@ -418,8 +418,8 @@ PiLot.View.Diary = (function () {
 			this.applyPermissions();
 			this.toggleEditLogbook(true);
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 		},
 
 		/**
@@ -536,8 +536,8 @@ PiLot.View.Diary = (function () {
 			this.draw();
 			this.applyPermissions()
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 		},
 
 		unload: function(){
@@ -664,8 +664,8 @@ PiLot.View.Diary = (function () {
 			this.draw();
 			this.applyPermissions();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 		},
 
 		/**

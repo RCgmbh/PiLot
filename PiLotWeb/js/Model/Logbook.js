@@ -13,7 +13,7 @@ PiLot.Model.Logbook = (function () {
 		this.day = pDay;					// the day as DateOnly, in BoatTime
 		this.diaryText = '';				// the diary text for this day, as String
 		this.logbookEntries = null;			// the array of logook entries
-		this.observers = null;				// observers used by RC.Utils observers pattern
+		this.observable = null;
 		this.initialize();
 	};
 
@@ -21,7 +21,7 @@ PiLot.Model.Logbook = (function () {
 	LogbookDay.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['saveEntry', 'deleteEntry']);
+			this.observable = new PiLot.Utils.Common.Observable(['saveEntry', 'deleteEntry']);
 			this.logbookEntries = new Array();
 		},
 
@@ -30,24 +30,24 @@ PiLot.Model.Logbook = (function () {
 		 * @param {String} pEvent - 'saveEntry', 'deleteEntry'
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
-		/** Removes ALL observers for a ALL Events */
-		off: function(){
-			RC.Utils.removeObservers(this.observers, 'saveEntry');
-			RC.Utils.removeObservers(this.observers, 'deleteEntry');
+		/** Removes pObserver for a ALL Events */
+		off: function(pObserver){
+			this.observable.removeObserver('saveEntry', pObserver);
+			this.observable.removeObserver('deleteEntry', pObserver)
 		},
 
 		/** Handler for when the item is saved, notifies observers */
 		logbookEntry_save: function(pEntry){
-			RC.Utils.notifyObservers(this, this.observers, 'saveEntry', pEntry);
+			this.observable.fire('saveEntry', pEntry);
 		},
 
 		/** Handler for when the item is being deleted  */
 		logbookEntry_delete: function (pEntry) {
-			RC.Utils.notifyObservers(this, this.observers, 'deleteEntry', pEntry);
+			this.observable.fire('deleteEntry', pEntry);
 		},
 
 		/** @returns {RC.Date.DateOnly} */
@@ -87,8 +87,8 @@ PiLot.Model.Logbook = (function () {
 				entry = new PiLot.Model.Logbook.LogbookEntry(this);
 			}
 			this.logbookEntries.push(entry);
-			entry.on('save', this.logbookEntry_save.bind(this));
-			entry.on('delete', this.logbookEntry_delete.bind(this));
+			entry.on('save', this, this.logbookEntry_save.bind(this));
+			entry.on('delete', this, this.logbookEntry_delete.bind(this));
 			return entry;
 		},
 
@@ -221,7 +221,7 @@ PiLot.Model.Logbook = (function () {
 		this.meteo = {};				// an anonymous object containing meteo data
 		this.boatSetup = null			// a PiLot.Model.Boat.BoatSetup representing the boatSetup at the time of this entry
 		this.notes = null;				// additional text for longer comments
-		this.observers = null;			// observers used by RC.Utils observers pattern
+		this.observable = null;
 		this.initialize();
 	};
 
@@ -229,7 +229,7 @@ PiLot.Model.Logbook = (function () {
 	LogbookEntry.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['save', 'delete']);			
+			this.observable = new PiLot.Utils.Common.Observable(['save', 'delete']);
 		},
 
 		/**
@@ -237,8 +237,8 @@ PiLot.Model.Logbook = (function () {
 		 * @param {String} pEvent - 'save', 'delete'
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		/** @returns {PiLot.Model.Logbook.LogbookDay} */
@@ -409,7 +409,7 @@ PiLot.Model.Logbook = (function () {
 			const result = await PiLot.Service.Common.ServiceHelper.putToServerAsync(`/Logbook/entry`, this);
 			if (result.ok) {
 				this.entryId = result.data.entryId;
-				RC.Utils.notifyObservers(this, this.observers, 'save', null);
+				this.observable.fire('save', null);
 			} else {
 				PiLot.Utils.Common.log(`Error saving LogbookEntry`, 0);
 			}
@@ -424,7 +424,7 @@ PiLot.Model.Logbook = (function () {
 			const deleted = await PiLot.Service.Common.ServiceHelper.deleteFromServerAsync(path);
 			if (deleted) {
 				this.logbookDay.removeEntry(this);
-				RC.Utils.notifyObservers(this, this.observers, 'delete', null);
+				this.observable.fire('delete', null);
 			}
 			return deleted;
 		},

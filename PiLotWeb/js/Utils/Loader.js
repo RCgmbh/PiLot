@@ -241,7 +241,7 @@ PiLot.Utils.Loader = (function () {
 		},
 
 		bindHandlers: function(){
-			PiLot.Model.Common.AuthHelper.instance().on('logout', this.authHelper_logout.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('logout', this, this.authHelper_logout.bind(this));
 			window.addEventListener('popstate', this.window_popstate.bind(this));
 		},
 

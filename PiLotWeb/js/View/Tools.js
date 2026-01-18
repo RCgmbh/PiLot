@@ -2179,11 +2179,12 @@ PiLot.View.Tools = (function () {
 		
 		initialize: function(){
 			this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem'])
-			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('login', this, this.authHelper_change.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('logout', this, this.authHelper_change.bind(this));
 			this.draw();
 		},
 
-		authHelper_login: function(){
+		authHelper_change: function(){
 			this.applyPermissions();
 		},
 
@@ -2254,11 +2255,12 @@ PiLot.View.Tools = (function () {
 		
 		initialize: function(){
 			this.observable = new PiLot.Utils.Common.Observable(['close', 'edit', 'delete']);
-			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('login', this, this.authHelper_change.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('logout', this, this.authHelper_change.bind(this));
 			this.draw();
 		},
 
-		authHelper_login: function(){
+		authHelper_change: function(){
 			this.applyPermissions();
 		},
 

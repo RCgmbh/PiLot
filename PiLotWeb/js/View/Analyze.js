@@ -268,9 +268,9 @@ PiLot.View.Analyze = (function () {
 		initialize: function(){
 			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
 			this.tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
-			this.tackObserver.on('loadTrack', this.tackObserver_loadTrack.bind(this));
-			this.tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
-			this.tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
+			this.tackObserver.on('loadTrack', this, this.tackObserver_loadTrack.bind(this));
+			this.tackObserver.on('analyzeTrack', this, this.tackObserver_analyzeTrack.bind(this));
+			this.tackObserver.on('noGpsData', this, this.tackObserver_noGpsData.bind(this));
 			this.mapTrack.setEnableLiveUpdate(true);
 			this.draw();
 		},
@@ -412,8 +412,8 @@ PiLot.View.Analyze = (function () {
 			this.tackAnalyzeService = new PiLot.Service.Analyze.TackAnalyzeService();
 			this.observers = RC.Utils.initializeObservers(['change']);
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
-			authHelper.on('login', this.authHelper_change.bind(this));
-			authHelper.on('logout', this.authHelper_change.bind(this));
+			authHelper.on('login', this, this.authHelper_change.bind(this));
+			authHelper.on('logout', this, this.authHelper_change.bind(this));
 			this.draw();
 			this.loadSliderScale();
 		},
@@ -618,8 +618,8 @@ PiLot.View.Analyze = (function () {
 
 		createTackObserver: function(){
 			const tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
-			tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
-			tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
+			tackObserver.on('analyzeTrack', this, this.tackObserver_analyzeTrack.bind(this));
+			tackObserver.on('noGpsData', this, this.tackObserver_noGpsData.bind(this));
 			tackObserver.start();
 		},
 
@@ -659,8 +659,8 @@ PiLot.View.Analyze = (function () {
 
 		createTackObserver: function(){
 			const tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
-			tackObserver.on('analyzeTrack', this.tackObserver_analyzeTrack.bind(this));
-			tackObserver.on('noGpsData', this.tackObserver_noGpsData.bind(this));
+			tackObserver.on('analyzeTrack', this, this.tackObserver_analyzeTrack.bind(this));
+			tackObserver.on('noGpsData', this, this.tackObserver_noGpsData.bind(this));
 			tackObserver.start();
 		},
 

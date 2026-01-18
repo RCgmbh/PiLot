@@ -995,11 +995,11 @@ PiLot.View.Nav = (function () {
 			this.waypointForms = new Array();
 			await this.drawFormAsync();
 			this.route = await this.loadRoute();
-			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
-			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
-			this.route.on('moveWaypoint', this.route_moveWaypoint.bind(this));
-			this.route.on('changeWaypoints', this.route_changeWaypoints.bind(this));
-			this.route.on('rename', this.route_rename.bind(this));
+			this.route.on('addWaypoint', this, this.route_addWaypoint.bind(this));
+			this.route.on('deleteWaypoint', this, this.route_deleteWaypoint.bind(this));
+			this.route.on('moveWaypoint', this, this.route_moveWaypoint.bind(this));
+			this.route.on('changeWaypoints', this, this.route_changeWaypoints.bind(this));
+			this.route.on('rename', this, this.route_rename.bind(this));
 			this.showRoute();
 		},
 
@@ -1028,7 +1028,7 @@ PiLot.View.Nav = (function () {
 			}
 			let wpName = `${PiLot.Utils.Language.getText('waypoint')} ${this.route.getWaypoints().length + 1}`;
 			const newWaypoint = new PiLot.Model.Nav.Waypoint(this.route, lat, lon, wpName);
-			this.route.addWaypoint(newWaypoint, true, this);
+			this.route.addWaypoint(newWaypoint, true);
 			this.saveRoute();
 			return false;
 		},
@@ -1045,11 +1045,11 @@ PiLot.View.Nav = (function () {
 		/** click handler for the "reverse route" link */
 		lnkReverseRoute_click: function (pEvent) {
 			pEvent.preventDefault();
-			this.route.reverse(this);
+			this.route.reverse();
 		},
 
 		/** click handler for the "copy" link */
-		lnkCopyRoute_click: function () {
+		lnkCopyRoute_click: function (pEvent) {
 			pEvent.preventDefault();
 			this.route.setRouteId(null);
 			this.route.setName(`${this.route.getName()}-Copy`);
@@ -1068,13 +1068,13 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// handles the addWaypoint event of the route
-		route_addWaypoint: function (pSender, pArg) {
+		route_addWaypoint: function (pWaypoint) {
 			this.showTotalDistance();
 			this.showWaypoints(true);
 		},
 
 		/// handles the deleteWaypoint event of the route
-		route_deleteWaypoint: function (pSender, pArg) {
+		route_deleteWaypoint: function (pArg) {
 			this.showTotalDistance();
 			this.showWaypoints(true);
 		},
@@ -1085,13 +1085,13 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// handles the changeWaypoints event of the route
-		route_changeWaypoints: function (pSender, pArg) {
+		route_changeWaypoints: function (pArg) {
 			this.showTotalDistance();
 			this.showWaypoints(true);
 		},
 
 		/// handles the rename event of the route
-		route_rename: function (pSender, pArg) {
+		route_rename: function (pArg) {
 			this.tbRouteName.value = this.route.getName();
 		},
 
@@ -1250,9 +1250,9 @@ PiLot.View.Nav = (function () {
 	WaypointForm.prototype = {
 
 		initialize: function () {
-			this.waypoint.on('move', this.waypoint_move.bind(this));
+			this.waypoint.on('move', this, this.waypoint_move.bind(this));
 			this.bindNextWaypoint();
-			this.routeDetail.getRoute().on('changeWaypoints', this.bindNextWaypoint.bind(this));
+			this.routeDetail.getRoute().on('changeWaypoints', this, this.bindNextWaypoint.bind(this));
 			this.drawForm();
 		},
 
@@ -1262,7 +1262,7 @@ PiLot.View.Nav = (function () {
 		bindNextWaypoint: function () {
 			var nextWaypoint = this.routeDetail.getRoute().getNextWaypoint(this.waypoint);
 			if (nextWaypoint != null) {
-				nextWaypoint.on('move', this.nextWaypoint_move.bind(this));
+				nextWaypoint.on('move', this, this.nextWaypoint_move.bind(this));
 			}
 		},
 
@@ -1277,7 +1277,7 @@ PiLot.View.Nav = (function () {
 			pEvent.preventDefault();
 			const message = PiLot.Utils.Language.getText('confirmDeleteWaypoint').replace("{{waypointName}}", this.waypoint.getName());
 			if (confirm(message)) {
-				this.routeDetail.getRoute().deleteWaypoint(this.waypoint, this);
+				this.routeDetail.getRoute().deleteWaypoint(this.waypoint);
 			}
 			return false;
 		},
@@ -1305,8 +1305,8 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// handler for the move event of the waypoint
-		waypoint_move: function (pSender, pArg) {
-			if (pSender !== this) {
+		waypoint_move: function (pArgs) {
+			if (pArgs.sender !== this) {
 				this.showWaypoint();
 			}
 			this.showLeg();

@@ -147,7 +147,7 @@ PiLot.Model.Common = (function () {
 	 * */
 	var AuthHelper = function (pEndpointUrl = null) {
 		this.endpointUrl = pEndpointUrl || '';
-		this.observers = null;
+		this.observable = null;
 		this.permissions = null;
 		this.initialize();
 	};
@@ -155,7 +155,7 @@ PiLot.Model.Common = (function () {
 	AuthHelper.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['login', 'logout']);
+			this.observable = new PiLot.Utils.Common.Observable(['login', 'logout']);
 		},
 
 		/**
@@ -163,8 +163,8 @@ PiLot.Model.Common = (function () {
 		 * @param {String} pEvent: login, logout
 		 * @param {Function} pCallback: The callback function
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		/**
@@ -179,7 +179,7 @@ PiLot.Model.Common = (function () {
 			const success = (result.status === 200);
 			if (success) {
 				await this.loadPermissionsAsync();
-				RC.Utils.notifyObservers(this, this.observers, 'login', null);
+				this.observable.fire('login', null);
 			}
 			return success;
 		},
@@ -189,7 +189,7 @@ PiLot.Model.Common = (function () {
 			document.cookie = 'token=;expires=Thu, 01 Jan 1970 00:00:00 GMT'
 			await PiLot.Service.Common.ServiceHelper.postToServerAsync(this.endpointUrl.concat('/Authentication/logout'), null);
 			await this.loadPermissionsAsync();
-			RC.Utils.notifyObservers(this, this.observers, 'logout', null);
+			this.observable.fire('logout', null);
 		},
 
 		/** loads the current permissions for later use */

@@ -375,9 +375,9 @@ PiLot.Utils.Common = {
  * be fired/observed, then use fire to fire these events. Add an "on" function, calling
  * the observable's addObserver function, so that observers can register to any event of the
  * observable object. Usage:
- * this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem'])
+ * this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem']);
  * on: function(pEvent, pObserver, pFunction){ this.observable.addObserver(pEvent, pObserver, pFunction) }
- * this.observable.fire('addItem', null);			
+ * this.observable.fire('addItem', null);
  * @param {String[]} pEvents - the array of all supported events
  */
 PiLot.Utils.Common.Observable = function(pEvents){
@@ -394,6 +394,12 @@ PiLot.Utils.Common.Observable.prototype = {
 		}
 	},
 
+	/**
+	 * 
+	 * @param {String} pEvent - the name of the event
+	 * @param {Object} pObserver - the observer (needed for removeObserver)
+	 * @param {Function} pCallback - the function to call when pEvent happens 
+	 */
 	addObserver: function(pEvent, pObserver, pCallback){
 		if(this.callbacks.has(pEvent)){
 			this.callbacks.get(pEvent).push({
@@ -405,6 +411,22 @@ PiLot.Utils.Common.Observable.prototype = {
 		}
 	},
 
+	/** 
+	 * Removes an observer
+	 * @param {String} pEvent - the name of the event to stop observing
+	 * @param {Object} pObserver - the observer
+	 */
+	removeObserver: function(pEvent, pObserver){
+		if(this.callbacks.has(pEvent)){
+			this.callbacks.set(pEvent, this.callbacks.get(pEvent).filter(pItem => pItem.observer !== pObserver));
+		}
+	},
+
+	/**
+	 * Calls the callback function for each observer of a specific event
+	 * @param {String} pEvent - the name of the event
+	 * @param {Object} pArgs - the arguments to pass to the callback functions
+	 * */
 	fire: function(pEvent, pArgs) {
 		if(this.callbacks.has(pEvent)){
 			for(const aCallback of this.callbacks.get(pEvent)){

@@ -10,7 +10,7 @@ PiLot.Model.Nav = (function () {
 		this.name = "";
 		this.routeId = null;
 		this.totalDistance = null;			/// a cached value for the total route distance
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
@@ -19,24 +19,23 @@ PiLot.Model.Nav = (function () {
 
 		initialize: function () {
 			this.waypoints = new Array();
-			this.observers = RC.Utils.initializeObservers(['addWaypoint', 'deleteWaypoint', 'moveWaypoint', 'changeWaypoints', 'rename', 'delete']);
+			this.observable = new PiLot.Utils.Common.Observable(['addWaypoint', 'deleteWaypoint', 'moveWaypoint', 'changeWaypoints', 'rename', 'delete']);
 		},
 
-		/// calls all observers that registered for pEvent. Passes a custom sender or this
-		/// and pArg as parameters.
-		notifyObservers: function (pSender, pEvent, pArg) {
-			RC.Utils.notifyObservers(pSender || this, this.observers, pEvent, pArg);
+		/// calls all observers that registered for pEvent. 
+		notifyObservers: function (pEvent, pArgs) {
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		/// the handler for move actions of waypoints
-		waypoint_move: function (pWaypoint, pSender) {
+		waypoint_move: function (pArgs) {
 			this.totalDistance = null;
-			this.notifyObservers(pSender, 'moveWaypoint', pWaypoint);
+			this.notifyObservers('moveWaypoint', pArgs);
 		},
 
 		/// returns the name of the route
@@ -64,18 +63,7 @@ PiLot.Model.Nav = (function () {
 		getWaypoints: function(){
 			return this.waypoints;
 		},
-
-		/// sets a list of waypoints. This will expect the waypoints already
-		/// having been added before, and only change the order of the waypoints,
-		/// so use it carefully. It will not bind any observers to the waypoints.
-		/// fires changeWaypoints
-		setWaypoints: function (pWaypoints, pSender) {
-			this.waypoints = pWaypoints;
-			this.totalDistance = null;
-			this.saveToServer(null);
-			this.notifyObservers(pSender, 'changeWaypoints', this.waypoints);
-		},
-		
+	
 		/// gets the waypoint at pIndex
 		getWaypoint: function(pIndex){
 			var result = null;
@@ -86,24 +74,24 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/// adds a Waypoint to this
-		addWaypoint: function (pWaypoint, pSuppressSaving, pSender) {
+		addWaypoint: function (pWaypoint, pSuppressSaving) {
 			this.totalDistance = null;
 			this.waypoints.push(pWaypoint);
-			pWaypoint.on('move', this.waypoint_move.bind(this));
+			pWaypoint.on('move', this, this.waypoint_move.bind(this));
 			if (!pSuppressSaving) {
 				this.saveToServer(null);
 			}
-			this.notifyObservers(pSender, 'addWaypoint', pWaypoint);
+			this.notifyObservers('addWaypoint', pWaypoint);
 		},
 
 		/// adds a waypoint pWaypoint before pNextWaypoint
-		addBefore: function (pWaypoint, pNextWaypoint, pSender) {
+		addBefore: function (pWaypoint, pNextWaypoint) {
 			this.totalDistance = null;
 			const index = Math.max(this.waypoints.indexOf(pNextWaypoint), 0);
 			this.waypoints.splice(index, 0, pWaypoint);
-			pWaypoint.on('move', this.waypoint_move.bind(this));
+			pWaypoint.on('move', this, this.waypoint_move.bind(this));
 			this.saveToServer(null);
-			this.notifyObservers(pSender, 'addWaypoint', pWaypoint);
+			this.notifyObservers('addWaypoint', pWaypoint);
 		},
 
 		/// swaps two waypoints.
@@ -114,7 +102,7 @@ PiLot.Model.Nav = (function () {
 				this.waypoints[index1] = pWaypoint2;
 				this.totalDistance = null;
 				this.saveToServer(null);
-				this.notifyObservers(this, 'changeWaypoints', this.waypoints);
+				this.notifyObservers('changeWaypoints', { sender:this, waypoints:this.waypoints });
 			}
 			else {
 				PiLot.log(`Invalid arguments in Route.swapWaypoints()`, 0);
@@ -126,22 +114,22 @@ PiLot.Model.Nav = (function () {
 		 * and just for fun it tries to reverse the name of the route, if it's in
 		 * the form A - B. Then saves the route and fires the respective events.
 		 * */
-		reverse: function (pSender) {
+		reverse: function () {
 			this.waypoints.reverse();
 			this.name = this.name.split(' - ').reverse().join(' - ');
 			this.saveToServer(null);
-			this.notifyObservers(pSender, 'rename', this);
-			this.notifyObservers(pSender, 'changeWaypoints', this.waypoints);
+			this.notifyObservers('rename', this);
+			this.notifyObservers('changeWaypoints', { sender: this, waypoints:this.waypoints } );
 		},
 
 		/// deletes pWaypoint from the list of waypoints
-		deleteWaypoint: function (pWaypoint, pSender) {
+		deleteWaypoint: function (pWaypoint) {
 			this.totalDistance = null;
 			let index = this.waypoints.indexOf(pWaypoint);
 			if (index > -1) {
 				this.waypoints.splice(index, 1);
 			}
-			this.notifyObservers(pSender, 'deleteWaypoint', pWaypoint);
+			this.notifyObservers('deleteWaypoint', pWaypoint);
 			this.saveToServer(null);
 		},
 
@@ -247,7 +235,7 @@ PiLot.Model.Nav = (function () {
 			pData.waypoints.forEach(e => {
 				let waypoint = Waypoint.fromData(e, result);
 				if (waypoint !== null) {
-					result.addWaypoint(waypoint, true, null);
+					result.addWaypoint(waypoint, true);
 				}
 			});
 		}
@@ -844,26 +832,27 @@ PiLot.Model.Nav = (function () {
 		this.waypointId = pWaypointId;
 		this.name = pName;
 		this.latLon = null;
-		this.setLatLon(pLat, pLon, true);
-		this.observers = null;
-		this.initialize();
+		this.observable = null;
+		this.initialize(pLat, pLon);
 	};
 
 	Waypoint.prototype = {
 
-		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['move', 'delete', 'rename']);
+		initialize: function (pLat, pLon) {
+			this.observable = new PiLot.Utils.Common.Observable(['move', 'delete', 'rename']);
+			this.setLatLon(pLat, pLon, true);
 		},
 
-		/// calls all observers that registered for pEvent. Passes a custom sender or this
-		/// and pArg as parameters.
-		notifyObservers: function (pSender, pEvent, pArg) {
-			RC.Utils.notifyObservers(pSender || this, this.observers, pEvent, pArg);
+		/**
+		 * calls all observers that registered for pEvent. 
+		 * */ 
+		notifyObservers: function (pEvent, pArgs) {
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){ 
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		/// gets the rote this waypoint belongs to
@@ -888,11 +877,11 @@ PiLot.Model.Nav = (function () {
 			return this.name;
 		},
 
-		setName: function (pName, pSender) {
+		setName: function (pName) {
 			var isRenamed = (pName !== this.name);
 			this.name = pName;
 			if (isRenamed) {
-				this.notifyObservers(pSender, 'rename', this.name);
+				this.notifyObservers('rename', this.name);
 			}
 		},
 
@@ -914,7 +903,7 @@ PiLot.Model.Nav = (function () {
 			if (!pSuppressSave) {
 				this.route.saveToServer(null);
 			}
-			this.notifyObservers(pSender, 'move');
+			this.notifyObservers('move', { sender:pSender, waypoint:this });
 		},
 
 		/// returns the waypoint corrdinates in Leaflet style (L.LatLng)
@@ -1061,7 +1050,7 @@ PiLot.Model.Nav = (function () {
 			RC.Utils.addObserver(this.observers, pEvent, pCallback);
 		},
 
-		route_addWaypoint: function (pRoute, pWaypoint) {
+		route_addWaypoint: function (pWaypoint) {
 			this.waypointsLiveData.set(pWaypoint, new WaypointLiveData());
 		},
 
@@ -1090,8 +1079,8 @@ PiLot.Model.Nav = (function () {
 					this.gpsObserver.on('recieveGpsData', this.gpsObserver_changed.bind(this));
 				}
 				
-				this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
-				this.route.on('moveWaypoint', this.route_moveWaypoint.bind(this));
+				this.route.on('addWaypoint', this, this.route_addWaypoint.bind(this));
+				this.route.on('moveWaypoint', this, this.route_moveWaypoint.bind(this));
 			}
 		},
 

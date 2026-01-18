@@ -1388,7 +1388,7 @@ PiLot.View.Map = (function () {
 	MapTrackSettings.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.Model.Common.AuthHelper.instance().on('login', this.authHelper_login.bind(this));
+			PiLot.Model.Common.AuthHelper.instance().on('login', this, this.authHelper_login.bind(this));
 			this.mapTrack = new MapTrack(this.map);
 			this.draw();
 			this.readSettings();
@@ -1837,15 +1837,15 @@ PiLot.View.Map = (function () {
 		routeObserver_legChanged: function () { },
 
 		/// redraws the route, if the change was not caused by this
-		route_changeWaypoints: function (pSender, pArgs) {
-			if (pSender !== this) {
+		route_changeWaypoints: function (pArgs) {
+			if (pArgs.sender !== this) {
 				this.deleteFromMap();
 				this.draw(true);
 			}
 		},
 
 		/// handles adding new waypoints, redraws the entire route
-		route_addWaypoint: function () {
+		route_addWaypoint: function (pWaypoint) {
 			this.deleteFromMap();
 			this.draw(false);
 		},
@@ -1871,9 +1871,9 @@ PiLot.View.Map = (function () {
 
 		/** Binds the events to the route, so that route and Waypoints list are in sync */
 		bindRouteEvents: function(){
-			this.route.on('addWaypoint', this.route_addWaypoint.bind(this));
-			this.route.on('deleteWaypoint', this.route_deleteWaypoint.bind(this));
-			this.route.on('changeWaypoints', this.route_changeWaypoints.bind(this));
+			this.route.on('addWaypoint', this, this.route_addWaypoint.bind(this));
+			this.route.on('deleteWaypoint', this, this.route_deleteWaypoint.bind(this));
+			this.route.on('changeWaypoints', this, this.route_changeWaypoints.bind(this));
 		},
 
 		/**
@@ -2019,8 +2019,8 @@ PiLot.View.Map = (function () {
 
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['select', 'unselect']);
-			this.waypoint.on('move', this.waypoint_move.bind(this));
-			this.waypoint.on('rename', this.waypoint_rename.bind(this));
+			this.waypoint.on('move', this, this.waypoint_move.bind(this));
+			this.waypoint.on('rename', this, this.waypoint_rename.bind(this));
 		},
 
 		/** registers an observer which will be called when pEvent happens */
@@ -2031,8 +2031,8 @@ PiLot.View.Map = (function () {
 		/// handles moving the waypoint. Updates the marker,
 		/// if the movement was not caused by this, and 
 		/// refreshes the legs.
-		waypoint_move: function (pSender, pArg) {
-			if (pSender !== this) {
+		waypoint_move: function (pArgs) {
+			if (pArgs.sender !== this) {
 				this.drawMarker(true);
 			}
 			this.updateLegs(this.waypoint.getLatLng());
@@ -2040,7 +2040,7 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the rename event of the waypoint, updates the popup content
-		waypoint_rename: function (pSender, pArg) {
+		waypoint_rename: function (pArgs) {
 			this.updateMarkerPopup();
 		},
 
