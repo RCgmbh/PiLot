@@ -224,9 +224,9 @@ PiLot.Model.Analyze = (function () {
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();	
 			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
 			const trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
-			trackObserver.on('addTrackPoint', this.trackObserver_changeTrackPoints.bind(this));
-			trackObserver.on('changeLastTrackPoint', this.trackObserver_changeTrackPoints.bind(this));
-			trackObserver.on('loadTrack', this.trackObserver_loadTrack.bind(this));
+			trackObserver.on('addTrackPoint', this, this.trackObserver_changeTrackPoints.bind(this));
+			trackObserver.on('changeLastTrackPoint', this, this.trackObserver_changeTrackPoints.bind(this));
+			trackObserver.on('loadTrack', this, this.trackObserver_loadTrack.bind(this));
 		},
 
 		gpsObserver_outdatedGpsData: function(){

@@ -1352,10 +1352,10 @@ PiLot.View.Map = (function () {
 			this.enableLiveUpdate = pEnable;
 			if(this.enableLiveUpdate && this.trackObserver === null){
 				this.trackObserver = new PiLot.Model.Nav.TrackObserver(this.tracks.last());
-				this.trackObserver.on('addTrackPoint', this.trackObserver_addPosition.bind(this));
-				this.trackObserver.on('changeLastTrackPoint', this.trackObserver_changeLastPosition.bind(this));
-				this.trackObserver.on('cropTrackPoints', this.trackObserver_cropPositions.bind(this));
-				this.trackObserver.on('loadTrack', this.trackObserver_loadTrack.bind(this));
+				this.trackObserver.on('addTrackPoint', this, this.trackObserver_addPosition.bind(this));
+				this.trackObserver.on('changeLastTrackPoint', this, this.trackObserver_changeLastPosition.bind(this));
+				this.trackObserver.on('cropTrackPoints', this, this.trackObserver_cropPositions.bind(this));
+				this.trackObserver.on('loadTrack', this, this.trackObserver_loadTrack.bind(this));
 			}
 		}
 	};
@@ -1758,8 +1758,8 @@ PiLot.View.Map = (function () {
 		initialize: function () {
 			this.observers = RC.Utils.initializeObservers(['selectWaypoint', 'unselectWaypoint']);
 			if (this.routeObserver !== null) {
-				this.routeObserver.on('recieveGpsData', this.routeObserver_gpsChanged.bind(this));
-				this.routeObserver.on('changeLeg', this.routeObserver_legChanged.bind(this));
+				this.routeObserver.on('recieveGpsData', this, this.routeObserver_gpsChanged.bind(this));
+				this.routeObserver.on('changeLeg', this, this.routeObserver_legChanged.bind(this));
 			}
 			this.readSettings();
 			if (this.showOptions) {
@@ -2465,12 +2465,12 @@ PiLot.View.Map = (function () {
 		},
 
 		bindAnchorWatchHandlers: function () {
-			this.anchorWatch.on('change', this.anchorWatch_change.bind(this));
-			this.anchorWatch.on('exceedRadius', this.anchorWatch_exceedRadius.bind(this));
-			this.anchorWatch.on('belowRadius', this.anchorWatch_belowRadius.bind(this));
-			this.anchorWatch.on('enable', this.anchorWatch_enable.bind(this));
-			this.anchorWatch.on('disable', this.anchorWatch_disable.bind(this));
-			this.anchorWatch.on('remove', this.anchorWatch_remove.bind(this));
+			this.anchorWatch.on('change', this, this.anchorWatch_change.bind(this));
+			this.anchorWatch.on('exceedRadius', this, this.anchorWatch_exceedRadius.bind(this));
+			this.anchorWatch.on('belowRadius', this, this.anchorWatch_belowRadius.bind(this));
+			this.anchorWatch.on('enable', this, this.anchorWatch_enable.bind(this));
+			this.anchorWatch.on('disable', this, this.anchorWatch_disable.bind(this));
+			this.anchorWatch.on('remove', this, this.anchorWatch_remove.bind(this));
 		},
 
 		/** Shows the icon and the cirle on the map */

@@ -242,9 +242,9 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			this.trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
-			this.trackObserver.on('addTrackPoint', this.track_change.bind(this));
-			this.trackObserver.on('changeLastTrackPoint', this.track_change.bind(this));
-			this.trackObserver.on('loadTrack', this.track_change.bind(this));
+			this.trackObserver.on('addTrackPoint', this, this.track_change.bind(this));
+			this.trackObserver.on('changeLastTrackPoint', this, this.track_change.bind(this));
+			this.trackObserver.on('loadTrack', this, this.track_change.bind(this));
 		},
 
 		track_change: function(){
@@ -1531,7 +1531,7 @@ PiLot.View.Nav = (function () {
 	LiveWaypoint.prototype = {
 
 		initialize: function () {
-			this.routeObserver.on('recieveGpsData', this.routObserver_recieveGpsData.bind(this));
+			this.routeObserver.on('recieveGpsData', this, this.routObserver_recieveGpsData.bind(this));
 		},
 
 		/// handles changed data from the route observer
@@ -2786,7 +2786,7 @@ PiLot.View.Nav = (function () {
 		activeRouteLoaded: function (pRoute) {
 			if (pRoute !== null) {
 				this.routeObserver = new PiLot.Model.Nav.RouteObserver(pRoute, { autoCalculate: true });
-				this.routeObserver.on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));
+				this.routeObserver.on('recieveGpsData', this, this.routeObserver_recieveGpsData.bind(this));
 			} else {
 				this.routeObserver = null;
 			}

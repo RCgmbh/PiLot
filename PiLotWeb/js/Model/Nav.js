@@ -1012,7 +1012,7 @@ PiLot.Model.Nav = (function () {
 		this.gpsObserver = null;
 		this.latestPosition = null;
 		this.waypointsLiveData = new Map();
-		this.observers = null;
+		this.observable = null;
 		this.xte = {direction: null, distance: null};
 		this.vmg = null;
 		this.nextWaypointIndex = -1;
@@ -1035,19 +1035,18 @@ PiLot.Model.Nav = (function () {
 		/// value = WaypointLiveData, and subscribes to the gps observer
 		initialize: function(){
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			this.observers = RC.Utils.initializeObservers(['recieveGpsData', 'changeLeg']);
+			this.observable = new PiLot.Utils.Common.Observable(['recieveGpsData', 'changeLeg']);
 			this.ensureRouteAsync();
 		},
 
-		/// calls all observers that registered for pEvent. Passes this
-		/// and pArg as parameters.
+		/// calls all observers that registered for pEvent. 
 		notifyObservers: function (pEvent, pArg) {
-			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		route_addWaypoint: function (pWaypoint) {
@@ -1276,6 +1275,7 @@ PiLot.Model.Nav = (function () {
 		this.setCenter(pLatitude, pLongitude, this, true, true);
 		this.alarmIndex = null;										// index of AnchorWatch.alarms of the current alarm
 		this.gpsObserver = null;
+		this.observable = null;
 		this.initialize();
 	};
 
@@ -1289,7 +1289,7 @@ PiLot.Model.Nav = (function () {
 	AnchorWatch.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['change', 'exceedRadius', 'belowRadius', 'enable', 'disable', 'remove']);
+			this.observable = new PiLot.Utils.Common.Observable(['change', 'exceedRadius', 'belowRadius', 'enable', 'disable', 'remove']);
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
 			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
@@ -1308,8 +1308,8 @@ PiLot.Model.Nav = (function () {
 		 * @param {String} pEvent - 'change', 'exceedRadius', 'belowRadius', 'enable', 'disable', 'remove'
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		/** @returns {LatLon} the center as geodesy LatLon object */
@@ -1347,7 +1347,7 @@ PiLot.Model.Nav = (function () {
 				this.latLon = null;
 			}
 			if (!pSilent) {
-				RC.Utils.notifyObservers(pSender, this.observers, 'change', this);
+				this.observable.fire('change', this);
 				if (this.enabled) {
 					this.checkDistance();
 				} 
@@ -1371,7 +1371,7 @@ PiLot.Model.Nav = (function () {
 			const changed = this.radius !== pRadius;
 			this.radius = pRadius;
 			if (changed) {
-				RC.Utils.notifyObservers(this, this.observers, 'change', this);
+				this.observable.fire('change', this);
 				if (this.enabled) {
 					this.saveToServer();
 				}
@@ -1389,11 +1389,11 @@ PiLot.Model.Nav = (function () {
 			const disabled = this.enabled && !pEnabled;
 			this.enabled = !!pEnabled;
 			if (enabled) {
-				RC.Utils.notifyObservers(this, this.observers, 'enable', this);
+				this.observable.fire('enable', this);
 				this.saveToServer();
 			}
 			if (disabled) {
-				RC.Utils.notifyObservers(this, this.observers, 'disable', this);
+				this.observable.fire('disable', this);
 			}
 		},
 
@@ -1402,7 +1402,7 @@ PiLot.Model.Nav = (function () {
 			this.enabled = false;
 			const alarm = PiLot.Utils.Audio.Alarm.getInstance();
 			alarm && alarm.stop();
-			RC.Utils.notifyObservers(this, this.observers, 'remove', this);
+			this.observable.fire('remove', this);
 			await new PiLot.Service.Nav.AnchorWatchService().deleteAnchorWatchAsync();
 		},
 
@@ -1420,9 +1420,9 @@ PiLot.Model.Nav = (function () {
 				if (alarmIndex !== this.alarmIndex) {
 					PiLot.Utils.Audio.Alarm.getInstance().start(AnchorWatch.alarms[alarmIndex][1]);
 					if (distance > this.radius) {
-						RC.Utils.notifyObservers(this, this.observers, 'exceedRadius', this);
+						this.observable.fire('exceedRadius', this);
 					} else {
-						RC.Utils.notifyObservers(this, this.observers, 'belowRadius', this);
+						this.observable.fire('belowRadius', this);
 					}
 					this.alarmIndex = alarmIndex;
 				}
@@ -2130,14 +2130,14 @@ PiLot.Model.Nav = (function () {
 		this.lastPosition = null;										// PiLot.Model.Nav.TrackPoint
 		this.cropInterval = null;
 		this.cropIntervalMS = 10000;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	TrackObserver.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint', 'loadTrack']);
+			this.observable = new PiLot.Utils.Common.Observable(['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint', 'loadTrack']);
 			this.ensureTrackAsync().then(()=>{
 				this.gpsObserver = this.gpsObserver || GPSObserver.getInstance();
 				this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
@@ -2146,12 +2146,12 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/**
-		 * Calls all observers that registered for pEvent. Passes this and pArg as parameters.
+		 * Calls all observers that registered for pEvent. 
 		 * @param {String} pEvent
-		 * @param {any} pArg
+		 * @param {any} pArgs
 		 * */
-		notifyObservers: function (pEvent, pArg) {
-			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
+		notifyObservers: function (pEvent, pArgs) {
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/**
@@ -2159,16 +2159,8 @@ PiLot.Model.Nav = (function () {
 		 * @param {String} pEvent - one of ['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint', 'loadTrack']
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-		},
-
-		/** 
-		 * Removes all observers for pEvent 
-		 * @param {String} pEvent - one of ['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint', 'loadTrack']
-		 * */
-		off: function(pEvent){
-			RC.Utils.removeObservers(this.observers, pEvent);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
 		/// this is fired on the cropInterval timer, and just calls crop on the track
@@ -2177,7 +2169,7 @@ PiLot.Model.Nav = (function () {
 		cropTimer_interval: function () {
 			if ((this.track != null) && (this.trackSeconds !== null)) {
 				if(this.track.cropTrackPoints(PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().utcNowUnix() - this.trackSeconds, null)){
-					this.notifyObservers('cropTrackPoints');
+					this.notifyObservers('cropTrackPoints', null);
 				}
 			}
 		},
