@@ -1046,8 +1046,8 @@ PiLot.View.Common = (function () {
 
 		/** shows the login form */
 		show: function () {
-			RC.Utils.showHide(this.pnlLoginFailed, false);
-			RC.Utils.showHide(this.pnlLoginForm, true);
+			this.pnlLoginFailed.hidden = true;
+			this.pnlLoginForm.hidden = false;
 		},
 
 		/**
@@ -1062,7 +1062,7 @@ PiLot.View.Common = (function () {
 				this.closeForm();
 			} else {
 				PiLot.log(`login failed`, 3);
-				RC.Utils.showHide(this.pnlLoginFailed, true);
+				this.pnlLoginFailed.hidden = false;
 				RC.Utils.notifyObservers(this, this.observers, 'loginFailed', null, true);
 			}
 		},
@@ -1107,18 +1107,18 @@ PiLot.View.Common = (function () {
 			this.updateInfo();
 		},
 
-		icon_click: function () {
-			this.menu.classList.toggle('hidden');
+		icon_click: function (pEvent) {
+			this.menu.hidden = !this.menu.hidden;
 		},
 
-		body_click: function (event) {
-			if (!event.target.isSameOrDescendantOf(this.icon)) {
+		body_click: function (pEvent) {
+			if (!pEvent.target.isSameOrDescendantOf(this.icon)) {
 				this.hideMenu();
 			}
 		},
 
-		menu_click: function (event) {
-			event.stopPropagation();
+		menu_click: function (pEvent) {
+			pEvent.stopPropagation();
 		},
 
 		btnLogin_click: function () {
@@ -1155,7 +1155,7 @@ PiLot.View.Common = (function () {
 		},
 
 		hideMenu: function () {
-			RC.Utils.showHide(this.menu, false);
+			this.menu.hidden = true;
 		},
 
 		/** adds / removes the .active class from the icon, updates username and icons in the menu */
@@ -1165,17 +1165,17 @@ PiLot.View.Common = (function () {
 			const loggedIn = username !== null;
 			this.icon.classList.toggle('active', loggedIn);
 			this.menu.querySelector('.lblUsername').innerText = username;
-			RC.Utils.showHide(this.menu.querySelector('.lblAnonymous'), !loggedIn);
-			RC.Utils.showHide(this.menu.querySelector('.icoReadAccess'), permissions.getCanRead());
-			RC.Utils.showHide(this.menu.querySelector('.icoNoReadAccess'), !permissions.getCanRead());
-			RC.Utils.showHide(this.menu.querySelector('.icoWriteAccess'), permissions.getCanWrite());
-			RC.Utils.showHide(this.menu.querySelector('.icoNoWriteAccess'), !permissions.getCanWrite());
-			RC.Utils.showHide(this.menu.querySelector('.icoSettingsAccess'), permissions.getCanChangeSettings());
-			RC.Utils.showHide(this.menu.querySelector('.icoNoSettingsAccess'), !permissions.getCanChangeSettings());
-			RC.Utils.showHide(this.menu.querySelector('.icoSystemAccess'), permissions.getHasSystemAccess());
-			RC.Utils.showHide(this.menu.querySelector('.icoNoSystemAccess'), !permissions.getHasSystemAccess());
-			RC.Utils.showHide(this.btnLogin, !loggedIn);
-			RC.Utils.showHide(this.btnLogout, loggedIn);
+			this.menu.querySelector('.lblAnonymous').hidden = loggedIn;
+			this.menu.querySelector('.icoReadAccess').hidden = !permissions.getCanRead();
+			this.menu.querySelector('.icoNoReadAccess').hidden = permissions.getCanRead();
+			this.menu.querySelector('.icoWriteAccess').hidden = !permissions.getCanWrite();
+			this.menu.querySelector('.icoNoWriteAccess').hidden = permissions.getCanWrite();
+			this.menu.querySelector('.icoSettingsAccess').hidden = !permissions.getCanChangeSettings();
+			this.menu.querySelector('.icoNoSettingsAccess').hidden = permissions.getCanChangeSettings();
+			this.menu.querySelector('.icoSystemAccess').hidden = !permissions.getHasSystemAccess();
+			this.menu.querySelector('.icoNoSystemAccess').hidden = permissions.getHasSystemAccess();
+			this.btnLogin.hidden = loggedIn;
+			this.btnLogout.hidden = !loggedIn;
 		}
 	};
 

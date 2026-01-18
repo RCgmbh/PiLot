@@ -156,7 +156,7 @@ PiLot.View.Diary = (function () {
 					this.setDate(previousDate); 
 				}.bind(this);
 			}
-			RC.Utils.showHide(this.lnkPreviousDay, !!previousDate);
+			this.lnkPreviousDay.hidden = !previousDate;
 			const nextDate = this.diaryInfoCache.getNextDate(this.date);
 			if (nextDate) {
 				this.lnkNextDay.onclick = function (pEvent) {
@@ -164,7 +164,7 @@ PiLot.View.Diary = (function () {
 					this.setDate(nextDate);
 				}.bind(this);
 			}
-			RC.Utils.showHide(this.lnkNextDay, !!nextDate);
+			this.lnkNextDay.hidden = !nextDate;
 		},
 
 		bindLnkPublish: function () {
@@ -1522,7 +1522,7 @@ PiLot.View.Diary = (function () {
 					const image = imageContainer.querySelector('.imgPhoto');
 					image.setAttribute('src', `${thumbnailFolder}${pPhoto}`);
 					const cbSelectPhoto = imageContainer.querySelector('.cbSelectPhoto');
-					RC.Utils.showHide(cbSelectPhoto, pShowCheckboxes);
+					cbSelectPhoto.hidden = !pShowCheckboxes;
 					const lblName = imageContainer.querySelector('.lblName');
 					lblName.innerText = pPhoto;
 					lblName.setAttribute('title', pPhoto);
@@ -1564,15 +1564,14 @@ PiLot.View.Diary = (function () {
 				this.cbSelectPhotos.setState(anyChecked ? 1 : 0);
 			}
 		},
-
 		
 		refreshPublishJobAsync: async function () {
 			const jobStatus = await PiLot.Model.Logbook.loadJobStatusAsync(this.targetName, this.date);
-			RC.Utils.showHide(this.pnlJobInfo.querySelector('.lblStatusNone'), !jobStatus);
-			RC.Utils.showHide(this.pnlJobInfo.querySelector('.lblStatusIdle'), jobStatus && jobStatus.overallStatus === 0);
-			RC.Utils.showHide(this.pnlJobInfo.querySelector('.lblStatusBusy'), jobStatus && jobStatus.overallStatus === 1);
-			RC.Utils.showHide(this.pnlJobInfo.querySelector('.lblStatusFinished'), jobStatus && jobStatus.overallStatus === 2);
-			RC.Utils.showHide(this.pnlJobInfo.querySelector('.lblStatusError'), jobStatus && jobStatus.overallStatus === 9);
+			this.pnlJobInfo.querySelector('.lblStatusNone').hidden = !!jobStatus;
+			this.pnlJobInfo.querySelector('.lblStatusIdle').hidden = !jobStatus || jobStatus.overallStatus !== 0;
+			this.pnlJobInfo.querySelector('.lblStatusBusy').hidden = !jobStatus || jobStatus.overallStatus !== 1;
+			this.pnlJobInfo.querySelector('.lblStatusFinished').hidden = !jobStatus || jobStatus.overallStatus !== 2;
+			this.pnlJobInfo.querySelector('.lblStatusError').hidden = !jobStatus || jobStatus.overallStatus !== 9;
 			const pnlMessages = this.pnlJobInfo.querySelector('.pnlMessages');
 			pnlMessages.innerText = "";
 			if (jobStatus && jobStatus.messages) {

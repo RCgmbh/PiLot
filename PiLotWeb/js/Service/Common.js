@@ -149,9 +149,7 @@ PiLot.Service.Common = {
 					if (pLoginOnAuthError) {
 						const loginForm = PiLot.View.Common.getLoginForm();
 						if (pRetryAfterLogin) {
-							loginForm.on('loginSuccess', function () {
-								this.sendToServerAsync(pApiPath, pData, pMethod, false, false);
-							})
+							loginForm.on('loginSuccess', this.sendToServerAsync.bind(this, pApiPath, pData, pMethod, false, false));
 						}
 					}
 				}

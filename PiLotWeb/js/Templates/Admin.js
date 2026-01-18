@@ -113,7 +113,7 @@ PiLot.Templates.Admin = {
 	logFilePage: `
 		<div class="contentPadding marginRight">
 			<h1 data-text="logfiles"></h1>
-			<div style="border:1px solid #666; font-family: Lucida Console;" class="divLogFile fullWidth marginBottom hidden">
+			<div style="border:1px solid #666; font-family: Lucida Console;" class="divLogFile fullWidth marginBottom" hidden>
 				<div class="fullWidth paddingAll bgLight" style="display:flex; justify-content:space-between" >
 					<span class="lblFilename"></span>
 					<a href="#" class="lnkCloseLogFile"><i class="icon-cross"></i></a>
@@ -135,7 +135,7 @@ PiLot.Templates.Admin = {
 						<td class="right"><a class="lnkDelete biggerText marginRightSmall"><i class="icon-trashcan"></i></a></td>
 					</tr>
 				</table>
-				<div class="divPaging paging marginBottom hidden"></div>
+				<div class="divPaging paging marginBottom" hidden></div>
 			</div>
 		</div>
 	` 

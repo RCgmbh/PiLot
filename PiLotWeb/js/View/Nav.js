@@ -1372,7 +1372,7 @@ PiLot.View.Nav = (function () {
 		/// the leg part of the form as necessary
 		showLeg: function () {
 			const leg = this.waypoint.getLegToNext();
-			RC.Utils.showHide(this.divLeg, leg !== null);
+			this.divLeg.hidden = leg === null;
 			if (leg !== null) {
 				this.lblDistance.innerText = PiLot.Utils.Nav.metersToNauticalMiles(leg.distance).toFixed(1);
 				this.lblBearing.innerText = RC.Utils.toFixedLength(leg.bearing, 3, 0);

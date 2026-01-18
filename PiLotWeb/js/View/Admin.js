@@ -693,8 +693,8 @@ PiLot.View.Admin = (function () {
 
 		/** handles the click on the close icon in the file content box */
 		lnkCloseLogFile_click: function () {
-			RC.Utils.showHide(this.divLogFile, false);
-			RC.Utils.showHide(this.divLogFilesList, true);
+			this.divLogFile.hidden = true;
+			this.divLogFilesList.hidden = false;
 		},
 
 		/**
@@ -748,11 +748,11 @@ PiLot.View.Admin = (function () {
 		 * @param {String} pFilename - the filename
 		 */
 		showLogFile: async function (pFilename) {
-			RC.Utils.showHide(this.divLogFilesList, false);
+			this.divLogFilesList.hidden = true;
 			const content = await this.logfilesService.loadLogFileAsync(pFilename);
 			this.divLogFile.querySelector('.lblFilename').innerText = pFilename;
 			this.divLogFile.querySelector('.divContent').innerText = content;
-			RC.Utils.showHide(this.divLogFile, true);
+			this.divLogFile.hidden = false;
 		},
 
 		/**
@@ -791,7 +791,7 @@ PiLot.View.Admin = (function () {
 		 * */
 		showPaging: function (pTotalItems) {
 			if (pTotalItems > this.pageSize) {
-				RC.Utils.showHide(this.divPaging, false);
+				this.divPaging.hidden = false;
 				this.divPaging.clear();
 				let minPage = Math.max(0, this.currentPage - Math.floor(this.pagerMaxPages / 2));
 				let maxPage = Math.min(minPage + this.pagerMaxPages, Math.ceil(pTotalItems / this.pageSize)) - 1;
@@ -807,7 +807,7 @@ PiLot.View.Admin = (function () {
 					}
 				}
 			} else {
-				RC.Utils.showHide(this.divPaging, false);
+				this.divPaging.hidden = true;
 			}
 		}
 	};

@@ -80,7 +80,7 @@ PiLot.View.Map = (function () {
 			this.settingsContainer = RC.Utils.stringToNode(PiLot.Templates.Map.mapSettingsContainer);
 			this.mapContainer.insertAdjacentElement('beforebegin', this.settingsContainer);
 			this.settingsContainer.querySelector('a.expandCollapse').addEventListener('click', this.toggleSettingsContainer.bind(this));
-			RC.Utils.showHide(this.settingsContainer, false);
+			this.settingsContainer.hidden = true;
 		},
 
 		/** Adds the icon which will open the poi/layers menu */
@@ -99,9 +99,9 @@ PiLot.View.Map = (function () {
 
 		/** Shows the map and returns itself. It's async, because it will load the tile sources if necessary */
 		showAsync: async function () {
-			RC.Utils.showHide(this.mapContainer, true);
+			this.mapContainer.hidden = false;
 			if (this.hasSettings) {
-				RC.Utils.showHide(this.settingsContainer, true);
+				this.settingsContainer.hidden = false;
 			}
 			if (!this.isMapLoaded) {
 				PiLot.log("PiLot.Nav.Map.DrawMap", 3);
@@ -169,13 +169,13 @@ PiLot.View.Map = (function () {
 
 		/** Hides the map */
 		hide: function(){
-			RC.Utils.showHide(this.mapContainer, false);
+			this.mapContainer.hidden = true;
 			this.hideSettingsContainer();
 		},
 
 		/** Hides the settings container */
 		hideSettingsContainer: function () {
-			RC.Utils.showHide(this.settingsContainer, false);
+			this.settingsContainer.hidden = true;
 		},
 
 		/** removes the leaflet map */
@@ -395,7 +395,7 @@ PiLot.View.Map = (function () {
 		addSettingsItem: function (pItem) {
 			this.hasSettings = true;
 			this.settingsContainer.insertAdjacentElement('beforeend', pItem)
-			RC.Utils.showHide(this.settingsContainer, true);
+			this.settingsContainer.hidden = false;
 		}
 	};
 
@@ -2259,7 +2259,7 @@ PiLot.View.Map = (function () {
 				this.lblEta.innerText = etaText;
 				this.lblDist.innerText = distanceText;
 				this.lblBearing.innerText = bearingText;
-				RC.Utils.showHide(this.lnkDelete, !this.mapRoute.lockRoute);
+				this.lnkDelete.hidden = this.mapRoute.lockRoute;
 			}
 		},
 
@@ -2586,9 +2586,9 @@ PiLot.View.Map = (function () {
 		/// sets the map mode, if it changed, by showing/hiding controls
 		setMapMode: function (pMode) {
 			if (pMode !== this.mode) {
-				this.tile.classList.toggle('hidden', pMode !== 1);
+				this.tile.hidden = pMode !== 1;
 				this.divMap.classList.toggle('noControls', pMode === 2);
-				this.divMap.classList.toggle('hidden', pMode < 2);
+				this.divMap.hidden = pMode < 2;
 				if (pMode > 1) {
 					this.ensureMap();
 					if (pMode < 3) {
