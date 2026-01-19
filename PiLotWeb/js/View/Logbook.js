@@ -482,8 +482,8 @@ PiLot.View.Logbook = (function () {
 			this.tbLog = this.control.querySelector('.tbLog');
 			this.editBoatSetupImage = new PiLot.View.Boat.BoatImageLink(null, this.control.querySelector('.plhBoatSetup'), null);
 			this.boatSetupForm = new PiLot.View.Boat.BoatSetupForm(null, this.control.querySelector('.logbookBoxes'));
-			this.boatSetupForm.on('show', this.boatSetupForm_show.bind(this));
-			this.boatSetupForm.on('hide', this.boatSetupForm_hide.bind(this));
+			this.boatSetupForm.on('show', this, this.boatSetupForm_show.bind(this));
+			this.boatSetupForm.on('hide', this, this.boatSetupForm_hide.bind(this));
 			this.editBoatSetupImage.attachForm(this.boatSetupForm);
 			this.btnSave = this.control.querySelector('.btnSave');
 			this.btnSave.addEventListener('click', this.btnSave_click.bind(this));

@@ -549,7 +549,7 @@ PiLot.View.Tools = (function () {
 			this.tileSources = await PiLot.Model.Nav.readAllTileSourcesAsync();
 			this.tileSources.forEach(function (pTileSource) {
 				let downloadHelper = new PiLot.Model.Tools.TilesDownloadHelper(pTileSource);
-				downloadHelper.on('updateStats', this.tileSource_updateStats.bind(this));
+				downloadHelper.on('updateStats', this, this.tileSource_updateStats.bind(this));
 				this.tilesDownloadHelpers.set(pTileSource, downloadHelper);
 			}.bind(this));
 			this.drawForm();

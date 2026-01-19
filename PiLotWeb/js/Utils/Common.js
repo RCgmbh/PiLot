@@ -376,7 +376,7 @@ PiLot.Utils.Common = {
  * the observable's addObserver function, so that observers can register to any event of the
  * observable object. Usage:
  * this.observable = new PiLot.Utils.Common.Observable(['selectItem', 'addItem']);
- * on: function(pEvent, pObserver, pFunction){ this.observable.addObserver(pEvent, pObserver, pFunction) }
+ * on: function(pEvent, pObserver, pFunction){ this.observable.addObserver(pEvent, pObserver, pFunction); }
  * this.observable.fire('addItem', null);
  * @param {String[]} pEvents - the array of all supported events
  */

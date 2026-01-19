@@ -222,7 +222,7 @@ PiLot.Model.Analyze = (function () {
 			this.observable = new PiLot.Utils.Common.Observable(['analyzeTrack', 'noGpsData', 'loadTrack']);
 			this.tackAnalyzer = new TackAnalyzer();
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();	
-			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 			const trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
 			trackObserver.on('addTrackPoint', this, this.trackObserver_changeTrackPoints.bind(this));
 			trackObserver.on('changeLastTrackPoint', this, this.trackObserver_changeTrackPoints.bind(this));
@@ -233,16 +233,16 @@ PiLot.Model.Analyze = (function () {
 			this.observable.fire('noGpsData', null);
 		},
 
-		trackObserver_changeTrackPoints: function(pTrackObserver){
-			if(pTrackObserver.hasTrack()){
-				this.tackAnalyzer.setTrack(pTrackObserver.getTrack());
+		trackObserver_changeTrackPoints: function(pArgs){
+			if(pArgs.track){
+				this.tackAnalyzer.setTrack(pArgs.track);
 				this.findTacks();
 			}
 		},
 
-		trackObserver_loadTrack: async function(pTrackObserver){
-			if(pTrackObserver.hasTrack()){
-				const track = pTrackObserver.getTrack();
+		trackObserver_loadTrack: async function(pArgs){
+			if(pArgs.track){
+				const track = pArgs.track;
 				this.analyzerOptions = await (new PiLot.Service.Analyze.TackAnalyzeService().loadTackAnalyzerOptionsAsync(track.getBoat()));
 				this.analyzerOptions = this.analyzerOptions || TackAnalyzer.defaultOptions;
 				this.observable.fire('loadTrack', track);

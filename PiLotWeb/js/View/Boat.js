@@ -70,14 +70,14 @@ PiLot.View.Boat = (function () {
 		this.imageSvgDoc = null;					// the document element of the svg object; null until this.imageLoaded
 		this.imageSvg = null;						// the svg element of the image; null until this.imageLoaded
 		this.imageLoaded = false;					// set to true, as soon as the svg image is loaded
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	BoatImageLink.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['imageLoaded']);
+			this.observable = new PiLot.Utils.Common.Observable(['imageLoaded']);
 			this.draw();
 		},
 
@@ -86,8 +86,8 @@ PiLot.View.Boat = (function () {
 		 * @param {String} pEvent - 'imageLoaded'
 		 * @param {Function} pCallback - The method to call
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		draw: function () {
@@ -112,7 +112,7 @@ PiLot.View.Boat = (function () {
 			if (this.imageSvg) {
 				PiLot.log('BoatImageLink: image loaded', 3);
 				this.imageLoaded = true;
-				RC.Utils.notifyObservers(this, this.observers, 'imageLoaded', null);
+				this.observable.fire('imageLoaded', null);
 				this.imageSvgDoc = this.imageObject.contentDocument;
 				this.setOnClick(this.onClick);
 				this.imageSvgDoc.onclick = this.image_click.bind(this);
@@ -225,7 +225,7 @@ PiLot.View.Boat = (function () {
 			this.onClick = function () {
 				pBoatSetupForm.show();
 			};
-			pBoatSetupForm.on('apply', this.boatSetupForm_apply.bind(this));
+			pBoatSetupForm.on('apply', this, this.boatSetupForm_apply.bind(this));
 		},
 
 		/** 
@@ -234,7 +234,7 @@ PiLot.View.Boat = (function () {
 		 * */
 		detachForm: function (pBoatSetupForm) {
 			this.onClick = null;
-			pBoatSetupForm.off('apply');
+			pBoatSetupForm.off('apply', this);
 		},
 
 		/**
@@ -268,7 +268,7 @@ PiLot.View.Boat = (function () {
 		this.control = null;
 		this.plhFeatures = null;								// the placeholder where we will add the selectors
 		this.selectors = null;									// a map with key = featureId, value = dropdown control
-		this.observers = null;									// functions to call when settings change
+		this.observable = null;									// functions to call when settings change
 		this.initialize();
 	};
 
@@ -281,7 +281,7 @@ PiLot.View.Boat = (function () {
 		},
 
 		initializeObservers: function () {
-			this.observers = RC.Utils.initializeObservers(['show', 'hide', 'apply']);
+			this.observable = new PiLot.Utils.Common.Observable(['show', 'hide', 'apply']);
 		},
 
 		btnOk_click: function () {
@@ -296,13 +296,13 @@ PiLot.View.Boat = (function () {
 		 * @param {String} pEvent - 'show', 'hide', 'apply'
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/** @param {String} pEvent - 'show', 'hide', 'apply' */
-		off: function (pEvent) {
-			RC.Utils.removeObservers(this.observers, pEvent);
+		off: function (pEvent, pObserver) {
+			this.observable.removeObserver(pEvent, pObserver);
 		},
 
 		draw: function () {
@@ -322,7 +322,7 @@ PiLot.View.Boat = (function () {
 		apply: function () {
 			this.readInput();
 			this.hide();
-			RC.Utils.notifyObservers(this, this.observers, 'apply', this);
+			this.observable.fire('apply', this);
 		},
 
 		cancel: function () {
@@ -336,12 +336,12 @@ PiLot.View.Boat = (function () {
 			if (firstSelector) {
 				firstSelector.focus();
 			}
-			RC.Utils.notifyObservers(this, this.observers, 'show', this);
+			this.observable.fire('show', this);
 		},
 
 		hide: function () {
 			this.control.hidden = true;
-			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
+			this.observable.fire('hide', this);
 		},
 
 		setBoatConfig: function (pBoatConfig) {
@@ -540,8 +540,8 @@ PiLot.View.Boat = (function () {
 
 		initialize: function () {
 			this.loadAndDrawAsync().then(result => {
-				this.startPage.on('resize', this.startPage_resize.bind(this));
-				this.startPage.on('changedLayout', this.startPage_changedLayout.bind(this));
+				this.startPage.on('resize', this, this.startPage_resize.bind(this));
+				this.startPage.on('changedLayout', this, this.startPage_changedLayout.bind(this));
 				this.container.addEventListener('click', this.container_click.bind(this));
 				PiLot.log('crating a StartPageBoatImage', 3);
 			});
@@ -558,7 +558,7 @@ PiLot.View.Boat = (function () {
 			}
 		},
 
-		startPage_resize: function () {
+		startPage_resize: function (pArgs) {
 			this.setAlternativesColumn();
 		},
 
@@ -579,8 +579,8 @@ PiLot.View.Boat = (function () {
 		 * Handles the changedLayout event from the StartPage, checking if we
 		 * have space for the alternative setup columns
 		 */
-		startPage_changedLayout: function (pSender, pEventArgs) {
-			var isMinimized = (!pEventArgs.sameSize && (pEventArgs.mainControl !== this));
+		startPage_changedLayout: function (pArgs) {
+			var isMinimized = (!pArgs.sameSize && (pArgs.mainControl !== this));
 			if (this.isMinimized !== isMinimized) {
 				this.isMinimized = isMinimized;
 				this.setAlternativesColumn();
@@ -638,7 +638,7 @@ PiLot.View.Boat = (function () {
 				this.plhBoatSetupForm = this.container.querySelector('.plhBoatSetupForm');
 				this.pendingImages++;
 				this.boatImageLink = new PiLot.View.Boat.BoatImageLink(this.imageConfig, imageContainer, null);
-				this.boatImageLink.on('imageLoaded', this.boatImage_loaded.bind(this));
+				this.boatImageLink.on('imageLoaded', this, this.boatImage_loaded.bind(this));
 				this.boatImageLink.showBoatSetup(this.boatSetup);
 				this.logbookEntryForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
 				this.logbookEntryForm.on('save', this.logbookEntryForm_save.bind(this));
@@ -715,7 +715,7 @@ PiLot.View.Boat = (function () {
 				this.pendingImages++;
 				let clickFunction = PiLot.Permissions.canWrite() ? this.showLogbookEntryFormAsync.bind(this, boatSetups[i]) : null;
 				let alternativeSetupBoatImageLink = new PiLot.View.Boat.BoatImageLink(this.imageConfig, divAlternativeSetup, clickFunction);
-				alternativeSetupBoatImageLink.on('imageLoaded', this.boatImage_loaded.bind(this));
+				alternativeSetupBoatImageLink.on('imageLoaded', this, this.boatImage_loaded.bind(this));
 				PiLot.log('StartPageBoatImage: showing alternative setup', 3);
 				alternativeSetupBoatImageLink.showBoatSetup(boatSetups[i]);
 			}

@@ -102,7 +102,7 @@ PiLot.View.Analyze = (function () {
 	HistoricTacksInfo.prototype = {
 		
 		initialize: function(){
-			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
+			this.tackAnalyzerOptions.on('change', this, this.tackAnalyzerOptions_change.bind(this));
 			this.mapTrack.setEnableLiveUpdate(false);
 			this.draw();
 		},
@@ -266,7 +266,7 @@ PiLot.View.Analyze = (function () {
 	LiveTackInfo.prototype = {
 	
 		initialize: function(){
-			this.tackAnalyzerOptions.on('change', this.tackAnalyzerOptions_change.bind(this));
+			this.tackAnalyzerOptions.on('change', this, this.tackAnalyzerOptions_change.bind(this));
 			this.tackObserver = PiLot.Model.Analyze.TackObserver.getInstance();
 			this.tackObserver.on('loadTrack', this, this.tackObserver_loadTrack.bind(this));
 			this.tackObserver.on('analyzeTrack', this, this.tackObserver_analyzeTrack.bind(this));
@@ -275,22 +275,22 @@ PiLot.View.Analyze = (function () {
 			this.draw();
 		},
 		
-		tackAnalyzerOptions_change: function (pSender, pOptions) {
+		tackAnalyzerOptions_change: function (pOptions) {
 			this.tackObserver.setAnalyzerOptions(pOptions);
 			if(!this.control.hidden){
 				this.tackObserver.findTacks();
 			}
 		},
 
-		tackObserver_analyzeTrack: function(pSender, pTackData){
+		tackObserver_analyzeTrack: function(pTackData){
 			if(!this.control.hidden){
 				this.showTackInfo(pTackData);
 			}
 		},
 
-		tackObserver_noGpsData: function(pSender){ },
+		tackObserver_noGpsData: function(){ },
 
-		tackObserver_loadTrack: function(pSender, pTrack){
+		tackObserver_loadTrack: function(pTrack){
 			this.tackAnalyzerOptions.showOptions(this.tackObserver.getAnalyzerOptions(), pTrack.getBoat());
 			this.mapTrack.setTracks([pTrack], true);
 		},
@@ -402,7 +402,7 @@ PiLot.View.Analyze = (function () {
 		this.tackAnalyzeService = null;
 		this.options = null;
 		this.boat = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
@@ -410,7 +410,7 @@ PiLot.View.Analyze = (function () {
 
 		initialize: function () {
 			this.tackAnalyzeService = new PiLot.Service.Analyze.TackAnalyzeService();
-			this.observers = RC.Utils.initializeObservers(['change']);
+			this.observable = new PiLot.Utils.Common.Observable(['change']);
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
 			authHelper.on('login', this, this.authHelper_change.bind(this));
 			authHelper.on('logout', this, this.authHelper_change.bind(this));
@@ -422,8 +422,8 @@ PiLot.View.Analyze = (function () {
 		 * @param {String} pEvent - "change"
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		authHelper_change: function () {
@@ -574,7 +574,7 @@ PiLot.View.Analyze = (function () {
 			pLabel.innerText = value;
 			this.pnlSaveSuccess.hidden = true;
 			this.lnkSaveSettings.hidden = !PiLot.Permissions.canWrite();
-			RC.Utils.notifyObservers(this, this.observers, 'change', this.options);
+			this.observable.fire('change', this.options);
 		},
 
 		setScaledRangeValue: function (pRange, pValue) {
@@ -588,7 +588,6 @@ PiLot.View.Analyze = (function () {
 		initializeDefaultOptions: function () {
 			this.options = PiLot.Model.Analyze.TackAnalyzer.defaultOptions;
 		},
-
 	};
 
 	var GenericVMGDisplay = function(pContainer){
@@ -604,7 +603,7 @@ PiLot.View.Analyze = (function () {
 			this.createTackObserver();
 		},
 
-		tackObserver_analyzeTrack: function(pSender, pTackInfo){
+		tackObserver_analyzeTrack: function(pTackInfo){
 			this.showData(pTackInfo);
 		},
 
@@ -645,7 +644,7 @@ PiLot.View.Analyze = (function () {
 			this.createTackObserver();
 		},
 
-		tackObserver_analyzeTrack: function(pSender, pTackInfo){
+		tackObserver_analyzeTrack: function(pTackInfo){
 			this.showData(pTackInfo);
 		},
 

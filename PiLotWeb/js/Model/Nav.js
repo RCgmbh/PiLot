@@ -1040,7 +1040,7 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/// calls all observers that registered for pEvent. 
-		notifyObservers: function (pEvent, pArg) {
+		notifyObservers: function (pEvent, pArgs) {
 			this.observable.fire(pEvent, pArgs);
 		},
 
@@ -1064,7 +1064,7 @@ PiLot.Model.Nav = (function () {
 			if(this.autoCalculate){
 				this.calculate();
 			}
-			this.notifyObservers('recieveGpsData', null);
+			this.notifyObservers('recieveGpsData', this);
 		},		
 
 		ensureRouteAsync: async function(){
@@ -1075,7 +1075,7 @@ PiLot.Model.Nav = (function () {
 					this.waypointsLiveData.set(waypoints[i], new WaypointLiveData());
 				}
 				if (this.gpsObserver !== null) {
-					this.gpsObserver.on('recieveGpsData', this.gpsObserver_changed.bind(this));
+					this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_changed.bind(this));
 				}
 				
 				this.route.on('addWaypoint', this, this.route_addWaypoint.bind(this));
@@ -1291,11 +1291,11 @@ PiLot.Model.Nav = (function () {
 		initialize: function () {
 			this.observable = new PiLot.Utils.Common.Observable(['change', 'exceedRadius', 'belowRadius', 'enable', 'disable', 'remove']);
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
-		gpsObserver_recieveGpsData: function () {
+		gpsObserver_recieveGpsData: function (pArgs) {
 			if (this.enabled) {
 				this.checkDistance();
 			}
@@ -1309,7 +1309,7 @@ PiLot.Model.Nav = (function () {
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
-			this.observable.addObserver(pEvent, pObserver, pFunction)
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/** @returns {LatLon} the center as geodesy LatLon object */
@@ -2140,7 +2140,7 @@ PiLot.Model.Nav = (function () {
 			this.observable = new PiLot.Utils.Common.Observable(['addTrackPoint', 'cropTrackPoints', 'changeLastTrackPoint', 'loadTrack']);
 			this.ensureTrackAsync().then(()=>{
 				this.gpsObserver = this.gpsObserver || GPSObserver.getInstance();
-				this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
+				this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
 				this.start();
 			});			
 		},
@@ -2160,7 +2160,7 @@ PiLot.Model.Nav = (function () {
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
-			this.observable.addObserver(pEvent, pObserver, pFunction)
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/// this is fired on the cropInterval timer, and just calls crop on the track
@@ -2169,7 +2169,7 @@ PiLot.Model.Nav = (function () {
 		cropTimer_interval: function () {
 			if ((this.track != null) && (this.trackSeconds !== null)) {
 				if(this.track.cropTrackPoints(PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().utcNowUnix() - this.trackSeconds, null)){
-					this.notifyObservers('cropTrackPoints', null);
+					this.notifyObservers('cropTrackPoints', { track:this.track });
 				}
 			}
 		},
@@ -2177,30 +2177,30 @@ PiLot.Model.Nav = (function () {
 		/// this handles new gps data. If the time/local difference
 		/// to the latest position is above threshold, a new position
 		/// will be added, otherwise the latest position will be updated
-		gpsObserver_recieveGpsData: async function (pSender, pTrackPoints) {
-			await this.ensureTrackAsync(pTrackPoints)
+		gpsObserver_recieveGpsData: async function (pArgs) {
+			await this.ensureTrackAsync(pArgs.trackPoints)
 			if (this.track != null) {
-				for (let i = 0; i < pTrackPoints.length; i++) {
-					if ((pTrackPoints[i].latitude !== null) && (pTrackPoints[i].longitude !== null)) {
+				for (let i = 0; i < pArgs.trackPoints.length; i++) {
+					if ((pArgs.trackPoints[i].latitude !== null) && (pArgs.trackPoints[i].longitude !== null)) {
 						let deltaTMs = null;
-						if (this.lastPosition !== null && this.lastPosition.utc !== null && pTrackPoints[i].utc !== null) {
-							deltaTMs = pTrackPoints[i].utc - this.lastPosition.utc;
+						if (this.lastPosition !== null && this.lastPosition.utc !== null && pArgs.trackPoints[i].utc !== null) {
+							deltaTMs = pArgs.trackPoints[i].utc - this.lastPosition.utc;
 						}
 						let deltaX = null;
-						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pTrackPoints[i].getLatLon() !== null) {
-							deltaX = pTrackPoints[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
+						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pArgs.trackPoints[i].getLatLon() !== null) {
+							deltaX = pArgs.trackPoints[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
 						}
 						if (
 							(this.lastPosition === null)
 							|| ((deltaTMs > this.addPositionThreshold.seconds * 1000) && (deltaX > this.addPositionThreshold.meters))
 						) {
-							this.track.addTrackPoint(pTrackPoints[i].clone());
-							this.lastPosition = pTrackPoints[i];
-							this.notifyObservers('addTrackPoint', pTrackPoints[i]);
+							this.track.addTrackPoint(pArgs.trackPoints[i].clone());
+							this.lastPosition = pArgs.trackPoints[i];
+							this.notifyObservers('addTrackPoint', {track:this.track, trackPoint: pArgs.trackPoints[i] });
 						} else {
 							if ((deltaTMs > this.updatePositionThreshold.seconds) && (deltaX > this.updatePositionThreshold.meters)) {
-								this.track.updateLastTrackPoint(pTrackPoints[i].utc, pTrackPoints[i].boatTime, pTrackPoints[i].latitude, pTrackPoints[i].longitude);
-								this.notifyObservers('changeLastTrackPoint', pTrackPoints[i]);
+								this.track.updateLastTrackPoint(pArgs.trackPoints[i].utc, pArgs.trackPoints[i].boatTime, pArgs.trackPoints[i].latitude, pArgs.trackPoints[i].longitude);
+								this.notifyObservers('changeLastTrackPoint', { track:this.track, trackPoint:pArgs.trackPoints[i] });
 							} 
 						}
 					}
@@ -2214,7 +2214,7 @@ PiLot.Model.Nav = (function () {
 				|| (pTrackPoints !== null && pTrackPoints.some((tp) => {return (tp.getTrackId() !== null && tp.getTrackId() !== this.track.getId())}))
 			){
 				this.track = await PiLot.Service.Nav.TrackService.getInstance().loadCurrentTrackAsync();
-				this.notifyObservers('loadTrack', this.track);
+				this.notifyObservers('loadTrack', { track:this.track });
 			}
 		},
 
@@ -2285,7 +2285,7 @@ PiLot.Model.Nav = (function () {
 		this.maxDataAgeSeconds = config.maxDataAgeSeconds;	// the maximum age of gpsData. If the latest position is older, outdatedGpsData will be fired
 		this.currentSOG = null;
 		this.currentCOG = null;
-		this.observers = null;
+		this.observable = null;
 		// init
 		this.readOptions(pOptions);
 		this.initialize();		
@@ -2310,24 +2310,24 @@ PiLot.Model.Nav = (function () {
 
 		/** prepares everything and starts the data fetching process */
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['recieveGpsData', 'outdatedGpsData']);
+			this.observable = new PiLot.Utils.Common.Observable(['recieveGpsData', 'outdatedGpsData']);
 			if (this.autoStart) {
 				this.start();
 			}
 		},
 
-		/** calls all observers that registered for pEvent. Passes this and pArg as parameters. */
-		notifyObservers: function (pEvent, pArg) {
-			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
+		/** calls all observers that registered for pEvent. */
+		notifyObservers: function (pEvent, pArgs) {
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/**
 		 * Registers an observer which will be called when pEvent happens 
 		 * @param {String} pEvent - 'recieveGpsData', 'outdatedGpsData'
-		 * @param {Function} pCallback - Callback function(sender: GPSObserver, args: TrackPoint[])
+		 * @param {Function} pCallback - Callback function(args: {sender, trackPoints})
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/**
@@ -2405,7 +2405,7 @@ PiLot.Model.Nav = (function () {
 				this.cropTrackPoints();
 				this.calculateSpeedAndCourse();
 				if (!this.checkOutdatedData()) {
-					this.notifyObservers('recieveGpsData', pTrackPoints);
+					this.notifyObservers('recieveGpsData', {sender:this, trackPoints: pTrackPoints});
 				}
 			}
 			else {

@@ -247,7 +247,7 @@ PiLot.View.Nav = (function () {
 			this.trackObserver.on('loadTrack', this, this.track_change.bind(this));
 		},
 
-		track_change: function(){
+		track_change: function(pArgs){
 			this.showValue();
 		},
 
@@ -338,11 +338,11 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
-		gpsObserver_recieveGpsData: function(){
+		gpsObserver_recieveGpsData: function(pArgs){
 			this.motionDisplay.showValue(PiLot.Model.Nav.GPSObserver.getInstance().getCOG());
 		},
 
@@ -365,11 +365,11 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
-		gpsObserver_recieveGpsData: function(){
+		gpsObserver_recieveGpsData: function(pArgs){
 			this.motionDisplay.showValue(PiLot.Model.Nav.GPSObserver.getInstance().getSOG());
 		},
 
@@ -393,11 +393,11 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			this.createRouteObserverAsync();
-			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
-		routeObserver_recieveGpsData: function(pSender){
-			this.xteIndicator.showValue(pSender);
+		routeObserver_recieveGpsData: function(pRouteObserver){
+			this.xteIndicator.showValue(pRouteObserver);
 		},
 
 		gpsObserver_outdatedGpsData: function(){
@@ -409,7 +409,7 @@ PiLot.View.Nav = (function () {
 		},
 
 		createRouteObserverAsync: async function(){
-			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));		
+			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this, this.routeObserver_recieveGpsData.bind(this));		
 		}
 	};
 
@@ -424,7 +424,7 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			this.createRouteObserverAsync();
-			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
 		routeObserver_recieveGpsData: function(pSender){
@@ -440,7 +440,7 @@ PiLot.View.Nav = (function () {
 		},
 
 		createRouteObserverAsync: async function(){
-			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));
+			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this, this.routeObserver_recieveGpsData.bind(this));
 		}
 	};
 
@@ -455,7 +455,7 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			this.createRouteObserverAsync();
-			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
 		routeObserver_recieveGpsData: function(pSender){
@@ -473,7 +473,7 @@ PiLot.View.Nav = (function () {
 		},
 
 		createRouteObserverAsync: async function(){
-			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this.routeObserver_recieveGpsData.bind(this));		
+			PiLot.Model.Nav.RouteObserver.getInstance().on('recieveGpsData', this, this.routeObserver_recieveGpsData.bind(this));		
 		},
 
 		showData: function(pRouteObserver){
@@ -504,13 +504,13 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			this.loadCurrentTrackAsync().then(
-				() => PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this))
+				() => PiLot.Model.Nav.GPSObserver.getInstance().on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this))
 			);
 			
 		},
 
-		gpsObserver_recieveGpsData: function(pSender, pPositions){
-			const trackIds = pPositions
+		gpsObserver_recieveGpsData: function(pArgs){
+			const trackIds = pArgs.trackPoints
 				.filter((p) => p.getTrackId() !== null)
 				.map(p => p.getTrackId())
 				.sort((p1, p2) => p2.getUTC() - p1.getUTC());
@@ -601,7 +601,7 @@ PiLot.View.Nav = (function () {
 			this.startObservingDelayed();
 		},
 
-		gpsObserver_recieveGpsData: function () {
+		gpsObserver_recieveGpsData: function (pArgs) {
 			this.icoGpsConnected.hidden = false;
 		},
 
@@ -621,8 +621,8 @@ PiLot.View.Nav = (function () {
 
 		startObserving: function () {
 			this.gpsObserver = new PiLot.Model.Nav.GPSObserver({ intervalMs: 5000, autoStart: true });
-			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		}
 	};
 
@@ -653,8 +653,8 @@ PiLot.View.Nav = (function () {
 					this.routeObserver = new PiLot.Model.Nav.RouteObserver(result, { autoCalculate: true });
 				}
 				this.draw();
-				this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-				this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+				this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+				this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 			});
 		},
 
@@ -662,7 +662,7 @@ PiLot.View.Nav = (function () {
 			PiLot.Model.Nav.GPSObserver.stopInstance();
 		},
 
-		gpsObserver_recieveGpsData: async function () {
+		gpsObserver_recieveGpsData: async function (pArgs) {
 			this.outdatedGpsWarning.classList.toggle('hidden', true);
 			this.cogIndicator.showValue(this.gpsObserver.getCOG());
 			this.xteIndicator.showValue(this.routeObserver);
@@ -1987,14 +1987,14 @@ PiLot.View.Nav = (function () {
 		initialize: function(){
 			this.draw();
 			gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));		
+			gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+			gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));		
 		},
 
 		/** handles new data from the gps observer */
-		gpsObserver_recieveGpsData: function (pSender, pRecords) {
+		gpsObserver_recieveGpsData: function (pArgs) {
 			if (!this.control.hidden && !this.lnkHideLiveData.hidden) {
-				this.showGpsData(pSender);
+				this.showGpsData(pArgs.sender);
 			}
 		},
 
@@ -2735,11 +2735,11 @@ PiLot.View.Nav = (function () {
 
 		initialize: function () {
 			this.controls = new Array();
-			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieveGpsData.bind(this));
-			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
-			this.startPage.on('changingLayout', this.startPage_changingLayout.bind(this));
-			this.startPage.on('changedLayout', this.startPage_changedLayout.bind(this));
-			this.startPage.on('resize', this.startPage_resize.bind(this));
+			this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
+			this.startPage.on('changingLayout', this, this.startPage_changingLayout.bind(this));
+			this.startPage.on('changedLayout', this, this.startPage_changedLayout.bind(this));
+			this.startPage.on('resize', this, this.startPage_resize.bind(this));
 			PiLot.Model.Nav.loadActiveRouteAsync().then(pRoute => this.activeRouteLoaded(pRoute));
 		},
 
@@ -2751,24 +2751,24 @@ PiLot.View.Nav = (function () {
 
 		/// before a layout change is applied, we hide everything because
 		/// otherwise it can break the layout
-		startPage_changingLayout: function (pSender, pEventArgs) {
+		startPage_changingLayout: function (pArgs) {
 			this.hideAll();
 		},
 
 		/// ensures the right click handler and control visibility
 		/// after the layout has changed
-		startPage_changedLayout: function (pSender, pEventArgs) {
-			var isMinimized = (!pEventArgs.sameSize && (pEventArgs.mainControl !== this));
+		startPage_changedLayout: function (pArgs) {
+			var isMinimized = (!pArgs.sameSize && (pArgs.mainControl !== this));
 			this.setContainerClick(isMinimized);
 			this.decideControlsVisible();
 		},
 
-		startPage_resize: function () {
+		startPage_resize: function (pArgs) {
 			this.decideControlsVisible();
 		},
 
 		/// handles recieving new data from the gps
-		gpsObserver_recieveGpsData: function (pSender, pData) {
+		gpsObserver_recieveGpsData: function (pArgs) {
 			this.updateControlsData(false);
 		},
 

@@ -230,7 +230,7 @@ PiLot.View.Common = (function () {
 		this.gpsObserver = null;
 		this.containers = null;				/// an array with the 4 containers where the controls have been added
 		this.controls = null;				/// the PiLot.View.Whatever controls that have been added
-		this.observers = null;
+		this.observable = null;
 		this.layout = null;					/// 1: columns, 2: rows
 		this.initialize();
 	};
@@ -239,7 +239,7 @@ PiLot.View.Common = (function () {
 
 		initialize: function () {
 			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
-			this.observers = RC.Utils.initializeObservers(['resize', 'changingLayout', 'changedLayout']);
+			this.observable = new PiLot.Utils.Common.Observable(['resize', 'changingLayout', 'changedLayout']);
 			this.controls = new Array(4);
 			window.addEventListener('resize', this.window_resize.bind(this));
 			this.draw();
@@ -264,10 +264,9 @@ PiLot.View.Common = (function () {
 			}			
 		},
 
-		/// calls all observers that registered for pEvent. Passes this
-		/// and pArg as parameters.
-		notifyObservers: function (pEvent, pArg) {
-			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
+		/// calls all observers that registered for pEvent. 
+		notifyObservers: function (pEvent, pArgs) {
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/// fires the resize event
@@ -290,8 +289,8 @@ PiLot.View.Common = (function () {
 		},
 
 		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/// adds 4 divs to the container, and adds the individual items to the divs

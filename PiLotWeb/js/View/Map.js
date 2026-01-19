@@ -1060,27 +1060,27 @@ PiLot.View.Map = (function () {
 			this.polylines = new Map();
 		},
 
-		trackObserver_addPosition: function(pTrackObserver, pTrackPoint){
-			if(this.enableLiveUpdate && pTrackObserver.hasTrack()){
-				this.addTrackPosition(pTrackObserver.getTrack(), pTrackPoint);
+		trackObserver_addTrackPoint: function(pArgs){
+			if(this.enableLiveUpdate && pArgs.track){
+				this.addTrackPosition(pArgs.track, pArgs.trackPoint);
 			}
 		},
 
-		trackObserver_changeLastPosition: function(pTrackObserver, pTrackPoint){
-			if(this.enableLiveUpdate && pTrackObserver.hasTrack()){
-				this.changeLastTrackPosition(pTrackObserver.getTrack(), pTrackPoint);
+		trackObserver_changeLastPosition: function(pArgs){
+			if(this.enableLiveUpdate && pArgs.track){
+				this.changeLastTrackPosition(pArgs.track, pArgs.trackPoint);
 			}
 		},
 
-		trackObserver_cropPositions: function(pTrackObserver){
-			if(this.enableLiveUpdate && pTrackObserver.hasTrack()){
-				this.cropTrackPositions(pTrackObserver.getTrack());
+		trackObserver_cropPositions: function(pArgs){
+			if(this.enableLiveUpdate && pArgs.track){
+				this.cropTrackPositions(pArgs.track);
 			}
 		},
 
-		trackObserver_loadTrack: function(pTrackObserver, pTrack){
-			if(this.enableLiveUpdate && pTrack !== null){
-				this.addTrack(pTrack);
+		trackObserver_loadTrack: function(pArgs){
+			if(this.enableLiveUpdate && pArgs.track !== null){
+				this.addTrack(pArgs.track);
 			}
 		},
 
@@ -1352,7 +1352,7 @@ PiLot.View.Map = (function () {
 			this.enableLiveUpdate = pEnable;
 			if(this.enableLiveUpdate && this.trackObserver === null){
 				this.trackObserver = new PiLot.Model.Nav.TrackObserver(this.tracks.last());
-				this.trackObserver.on('addTrackPoint', this, this.trackObserver_addPosition.bind(this));
+				this.trackObserver.on('addTrackPoint', this, this.trackObserver_addTrackPoint.bind(this));
 				this.trackObserver.on('changeLastTrackPoint', this, this.trackObserver_changeLastPosition.bind(this));
 				this.trackObserver.on('cropTrackPoints', this, this.trackObserver_cropPositions.bind(this));
 				this.trackObserver.on('loadTrack', this, this.trackObserver_loadTrack.bind(this));
@@ -1592,8 +1592,8 @@ PiLot.View.Map = (function () {
 		/// registers the listener for changed gps data
 		initialize: function () {
 			this.readSettings();
-			this.gpsObserver.on('recieveGpsData', this.gpsObserver_recieceGpsData.bind(this));
-			this.gpsObserver.on('outdatedGpsData', this.gpsObserver_outdatedGpsData.bind(this));
+			this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieceGpsData.bind(this));
+			this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 			this.addSettingsControl();
 			this.addOutdatedGpsWarning();
 		},
@@ -2525,18 +2525,18 @@ PiLot.View.Map = (function () {
 
 		initialize: function () {
 			this.draw();
-			this.startPage.on('resize', this.startPage_resize.bind(this));
-			this.startPage.on('changedLayout', this.startPage_changedLayout.bind(this));
+			this.startPage.on('resize', this, this.startPage_resize.bind(this));
+			this.startPage.on('changedLayout', this, this.startPage_changedLayout.bind(this));
 		},
 
-		startPage_resize: function () {
+		startPage_resize: function (pArgs) {
 			this.show();
 		},
 
 		/// handles the changedLayout event by making sure we have the proper click event
 		/// and the map is refereshed
-		startPage_changedLayout: function (pSender, pEventArgs) {
-			const isMinimized = (!pEventArgs.sameSize && (pEventArgs.mainControl !== this));
+		startPage_changedLayout: function (pArgs) {
+			const isMinimized = (!pArgs.sameSize && (pArgs.mainControl !== this));
 			this.setContainerClick(isMinimized);
 			this.show();
 			this.invalidateMap();

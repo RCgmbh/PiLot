@@ -262,9 +262,9 @@ PiLot.View.Meteo = (function () {
 	StartPageMeteo.prototype = {
 
 		initialize: async function () {
-			this.startPage.on('changingLayout', this.startPage_changingLayout.bind(this));
-			this.startPage.on('changedLayout', this.startPage_changedLayout.bind(this));
-			this.startPage.on('resize', this.startPage_resize.bind(this));
+			this.startPage.on('changingLayout', this, this.startPage_changingLayout.bind(this));
+			this.startPage.on('changedLayout', this, this.startPage_changedLayout.bind(this));
+			this.startPage.on('resize', this, this.startPage_resize.bind(this));
 			this.dataLoader = new PiLot.Service.Meteo.DataLoader();
 			this.infoControls = new Array();
 			let sensors = await this.dataLoader.loadMeteoDataSourcesAsync();
@@ -280,20 +280,20 @@ PiLot.View.Meteo = (function () {
 
 		/// before a layout change is applied, we hide everything because
 		/// otherwise it can break the layout
-		startPage_changingLayout: function (pSender, pEventArgs) {
+		startPage_changingLayout: function (pArgs) {
 			this.hideAll();
 		},
 
 		/// ensures the right click handler and control visibility
 		/// after the layout has changed
-		startPage_changedLayout: function (pSender, pEventArgs) {
-			var isMinimized = (!pEventArgs.sameSize && (pEventArgs.mainControl !== this));
+		startPage_changedLayout: function (pArgs) {
+			var isMinimized = (!pArgs.sameSize && (pArgs.mainControl !== this));
 			this.setContainerClick(isMinimized);
 			this.decideControlsVisible();
 		},
 
 		/// handles resize of the page
-		startPage_resize: function () {
+		startPage_resize: function (pArgs) {
 			this.decideControlsVisible();
 		},
 

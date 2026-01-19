@@ -16,7 +16,7 @@ PiLot.Model.Tools = (function () {
 		this.completedRequestsCount = 0;	/// the number of completed requests (including failed ones)
 		this.pendingRequestsBytes = 0;		/// the total amount of bytes being requested
 		this.completedRequestBytes = 0;		/// the total amount of bytes successfully saved to the API
-		this.observers = null;				/// observers for 
+		this.observable = null;				/// observers for 
 		this.initialize();
 	};
 
@@ -25,7 +25,8 @@ PiLot.Model.Tools = (function () {
 		/// initializes what needs to be initialized
 		initialize: function () {
 			this.requestedTiles = new Map();
-			this.observers = RC.Utils.initializeObservers(['updateStats']);
+			this.observable = new PiLot.Utils.Common.Observable(['updateStats']);
+
 		},
 
 		/// accessors
@@ -34,15 +35,14 @@ PiLot.Model.Tools = (function () {
 		getPendingRequestsBytes: function () { return this.pendingRequestsBytes; },
 		getCompletedRequestsBytes: function () { return this.completedRequestBytes; },
 
-		/// calls all observers that registered for pEvent. Passes this
-		/// and pArg as parameters.
-		notifyObservers: function (pEvent, pArg) {
-			RC.Utils.notifyObservers(this, this.observers, pEvent, pArg);
+		/// calls all observers that registered for pEvent. 
+		notifyObservers: function (pEvent, pArgs) {
+			this.observable.fire(pEvent, pArgs);
 		},
 
 		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/// triggers the download from the online source and local saving
