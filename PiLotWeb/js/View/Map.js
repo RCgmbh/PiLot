@@ -89,7 +89,7 @@ PiLot.View.Map = (function () {
 			this.mapContainer.insertAdjacentElement('afterbegin', this.icoMapLayers);
 			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
 			this.mapLayersSettings = new MapLayersSettings();
-			this.mapLayersSettings.on('applySettings', this.mapLayerSettings_applySettings.bind(this));
+			this.mapLayersSettings.on('applySettings', this, this.mapLayerSettings_applySettings.bind(this));
 		},
 
 		/** switches between expanded and collapsed state of the settings container */
@@ -468,23 +468,25 @@ PiLot.View.Map = (function () {
 		this.cbShowPois = null;				// HTMLInputElement
 		this.ddlPoisMinZoomLevel = null;	//HTMLSelectElement
 		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
-		this.observers = null;				// Used for the RC observer pattern
+		this.observable = null;				
 		this.initialize();
 	};
 
 	MapLayersSettings.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['applySettings']);
+			this.observable = new PiLot.Utils.Common.Observable(['applySettings']);
 			this.ensureFeaturesAsync();
 		},
 
 		/**
 		 * registers an observer which will be called when pEvent happens 
 		 * @param {String} pEvent - 'applySettings'
+		 * @param {Object} pObserver
+		 * @param {Function} pFunction
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/** handles clicks on the dark background by closing the dialog */
@@ -791,7 +793,7 @@ PiLot.View.Map = (function () {
 			this.currentSettings.poisMinZoomLevel = this.ddlPoisMinZoomLevel.value;
 			this.currentSettings.featureIds = this.featuresSelector.getSelectedFeatureIds();
 			this.saveSettings();
-			RC.Utils.notifyObservers(this, this.observers, 'applySettings', this);
+			this.observable.fire('applySettings', this);
 			this.hide();
 		},
 
@@ -834,7 +836,7 @@ PiLot.View.Map = (function () {
 			this.seamap.getLeafletMap().on('movestart', this.leafletMap_movestart.bind(this));
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
-			this.settingsControl.on('applySettings', this.settings_applySettings.bind(this));
+			this.settingsControl.on('applySettings', this, this.settings_applySettings.bind(this));
 			this.addContextPopupLink();
 			await this.loadPoisAsync();
 		},
@@ -1723,7 +1725,7 @@ PiLot.View.Map = (function () {
 	var MapRoute = function (pMap, pRoute, pOptions) {
 		this.map = pMap;
 		this.route = pRoute;
-		this.observers = null;
+		this.observable = null;
 		this.routeObserver = null;
 		this.lnkOptionShowRoute = null;
 		this.lnkOptionLockRoute = null;
@@ -1756,7 +1758,7 @@ PiLot.View.Map = (function () {
 		},
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['selectWaypoint', 'unselectWaypoint']);
+			this.observable = new PiLot.Utils.Common.Observable(['selectWaypoint', 'unselectWaypoint']);
 			if (this.routeObserver !== null) {
 				this.routeObserver.on('recieveGpsData', this, this.routeObserver_gpsChanged.bind(this));
 				this.routeObserver.on('changeLeg', this, this.routeObserver_legChanged.bind(this));
@@ -1770,8 +1772,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/** registers an observer which will be called when pEvent happens */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/// reads the persisted user settings
@@ -1860,13 +1862,13 @@ PiLot.View.Map = (function () {
 
 		route_delete: function () { },
 
-		mapWaypoint_select: function (pSender, pArg) {
-			const index = this.route.getWaypoints().indexOf(pArg.getWaypoint());
-			RC.Utils.notifyObservers(this, this.observers, 'selectWaypoint', index);
+		mapWaypoint_select: function (pArgs) {
+			const index = this.route.getWaypoints().indexOf(pArgs.getWaypoint());
+			this.observable.fire('selectWaypoint', index);
 		},
 
-		mapWaypoint_unselect: function (pSender, pArg) {
-			RC.Utils.notifyObservers(this, this.observers, 'unselectWaypoint', null);
+		mapWaypoint_unselect: function (pArg) {
+			this.observable.fire('unselectWaypoint', null);
 		},
 
 		/** Binds the events to the route, so that route and Waypoints list are in sync */
@@ -1905,8 +1907,8 @@ PiLot.View.Map = (function () {
 					waypoint = waypoints[i];
 					if (!this.mapWaypoints.has(waypoint)) {
 						mapWaypoint = new MapWaypoint(this, waypoint);
-						mapWaypoint.on('select', this.mapWaypoint_select.bind(this));
-						mapWaypoint.on('unselect', this.mapWaypoint_unselect.bind(this));
+						mapWaypoint.on('select', this, this.mapWaypoint_select.bind(this));
+						mapWaypoint.on('unselect', this, this.mapWaypoint_unselect.bind(this));
 						this.mapWaypoints.set(waypoint, mapWaypoint);
 					} else {
 						mapWaypoint = this.mapWaypoints.get(waypoint);
@@ -1995,7 +1997,7 @@ PiLot.View.Map = (function () {
 	/// represents the waypoint being drawn onto the map. 
 	var MapWaypoint = function (pMapRoute, pWaypoint) {
 		this.marker = null;
-		this.observers = null;
+		this.observable = null;
 		// marker popup and controls within
 		this.markerPopup = null;
 		this.markerPopupContent = null;
@@ -2018,14 +2020,14 @@ PiLot.View.Map = (function () {
 	MapWaypoint.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['select', 'unselect']);
+			this.observable = new PiLot.Utils.Common.Observable(['select', 'unselect']);
 			this.waypoint.on('move', this, this.waypoint_move.bind(this));
 			this.waypoint.on('rename', this, this.waypoint_rename.bind(this));
 		},
 
 		/** registers an observer which will be called when pEvent happens */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/// handles moving the waypoint. Updates the marker,
@@ -2064,7 +2066,7 @@ PiLot.View.Map = (function () {
 		/// handles clicks on the marker, showing the popup
 		marker_click: function () {
 			this.showMarkerPopup();
-			RC.Utils.notifyObservers(this, this.observers, 'select', this);
+			this.observable.fire('select', this);
 		},
 
 		/// handles the click on the leg by ad hoc binding a popup with 
@@ -2235,7 +2237,7 @@ PiLot.View.Map = (function () {
 		removeMarkerPopup: function () {
 			this.marker.unbindPopup();
 			this.markerPopup = null;
-			RC.Utils.notifyObservers(this, this.observers, 'unselect', this);
+			this.observable.fire('unselect', this);
 		},
 
 		/// updates the popup content in order to reflect waypoint properties

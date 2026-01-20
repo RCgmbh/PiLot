@@ -113,12 +113,12 @@ PiLot.View.Analyze = (function () {
 			this.tracksList.showTracks(tracks || []);
 		},
 
-		tracksList_trackSelected: function (pSender, pTrack) {
+		tracksList_trackSelected: function (pTrack) {
 			this.track = pTrack;
 			this.showTrackAsync();
 		},
 
-		tackAnalyzerOptions_change: function (pSender, pOptions) {
+		tackAnalyzerOptions_change: function (pOptions) {
 			if(!this.control.hidden){
 				this.showTrackAnalysis(false);
 			}
@@ -132,7 +132,7 @@ PiLot.View.Analyze = (function () {
 			this.calDate = new RC.Controls.Calendar(divCalDate, tbDate, null, null, null, PiLot.Utils.Language.getLanguage());
 			this.control.querySelector('.btnLoadData').addEventListener('click', this.btnLoadData_click.bind(this));
 			this.tracksList = new PiLot.View.Nav.TracksList(this.control.querySelector('.plhTracksList'));
-			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
+			this.tracksList.on('trackSelected', this, this.tracksList_trackSelected.bind(this));
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
 		},
 

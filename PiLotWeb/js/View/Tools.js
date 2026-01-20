@@ -61,7 +61,7 @@ PiLot.View.Tools = (function () {
 			this.pageContent.querySelector('.btnLoadWholeDay').addEventListener('click', this.btnLoadWholeDay_click.bind(this));
 			this.divLoadingData = this.pageContent.querySelector('.divLoadingData');
 			this.tracksList = new PiLot.View.Nav.TracksList(this.pageContent.querySelector('.divTracksList'));
-			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
+			this.tracksList.on('trackSelected', this, this.tracksList_trackSelected.bind(this));
 			this.divDataLoaded = this.pageContent.querySelector('.divDataLoaded');
 			this.map = new PiLot.View.Map.Seamap(this.pageContent.querySelector('.divMap'), { persistMapState: false });
 			await this.map.showAsync();
@@ -147,7 +147,7 @@ PiLot.View.Tools = (function () {
 			this.loadTracksAsync();
 		},
 
-		tracksList_trackSelected: function (pSender, pTrack) {
+		tracksList_trackSelected: function (pTrack) {
 			this.showTrack(pTrack);
 		},
 		
@@ -766,20 +766,20 @@ PiLot.View.Tools = (function () {
 			this.lblLoadingData.hidden = true;
 		},
 
-		osmMapPois_selectPoi: function (pSender, pArg) {
+		osmMapPois_selectPoi: function (pArg) {
 			this.highlightPoiDetails(pArg, true);
 		},
 
-		poiDetails_select: function (pSender, pArg) {
+		poiDetails_select: function (pArg) {
 			this.highlightPoiDetails(pArg, false);
 			this.osmMapPois.highlightPoi(pArg);
 		},
 
-		poiDetails_hidePoi: function (pSender, pArg) {
+		poiDetails_hidePoi: function (pArg) {
 			this.osmMapPois.togglePoi(pArg, false);
 		},
 
-		poiDetails_showPoi: function (pSender, pArg) {
+		poiDetails_showPoi: function (pArg) {
 			this.osmMapPois.togglePoi(pArg, true);
 		},
 
@@ -805,7 +805,7 @@ PiLot.View.Tools = (function () {
 			btnLoad.hidden = false;
 			btnLoad.addEventListener('click', this.btnLoad_click.bind(this));
 			this.osmMapPois = new OsmMapPois(this.seamap);
-			this.osmMapPois.on('selectPoi', this.osmMapPois_selectPoi.bind(this));
+			this.osmMapPois.on('selectPoi', this, this.osmMapPois_selectPoi.bind(this));
 			this.plhOsmDetails = control.querySelector('.plhOsmDetails');
 			this.fillDdlApi();
 		},
@@ -850,9 +850,9 @@ PiLot.View.Tools = (function () {
 			this.poiDetailControls = new Map();
 			for (const[poiId, poi] of osmPois) {
 				const poiDetails = new OsmPoiDetails(poi, this.plhOsmDetails, this.editDialog);
-				poiDetails.on('select', this.poiDetails_select.bind(this));
-				poiDetails.on('hidePoi', this.poiDetails_hidePoi.bind(this));
-				poiDetails.on('showPoi', this.poiDetails_showPoi.bind(this));
+				poiDetails.on('select', this, this.poiDetails_select.bind(this));
+				poiDetails.on('hidePoi', this, this.poiDetails_hidePoi.bind(this));
+				poiDetails.on('showPoi', this, this.poiDetails_showPoi.bind(this));
 				this.poiDetailControls.set(poiId, poiDetails);
 			}
 		},
@@ -901,14 +901,14 @@ PiLot.View.Tools = (function () {
 		this.pnlLinkCandidates = null;
 		this.plhLinkCandidates = null;
 		this.pnlNoLinkCandidates = null;
-		this.observers = null;						// Map for observable pattern
+		this.observable = null;						// Map for observable pattern
 		this.initialize();
 	};
 
 	OsmPoiDetails.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['select', 'hidePoi', 'showPoi']);
+			this.observable = new PiLot.Utils.Common.Observable(['select', 'hidePoi', 'showPoi']);
 			this.draw();
 			if (this.osmPoi) {
 				this.showPoi();
@@ -918,14 +918,15 @@ PiLot.View.Tools = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "select", "hidePoi", "showPoi"
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		control_click: function (pEvent) {
-			RC.Utils.notifyObservers(this, this.observers, 'select', this.osmPoi.getId());
+			this.observable.fire('select', this.osmPoi.getId());
 		},
 
 		lnkEdit_click: function () {
@@ -953,7 +954,7 @@ PiLot.View.Tools = (function () {
 		lnkHide_click: function (pEvent) {
 			pEvent.preventDefault();
 			pEvent.stopPropagation();
-			RC.Utils.notifyObservers(this, this.observers, 'hidePoi', this.osmPoi.getId());
+			this.observable.fire('hidePoi', this.osmPoi.getId());
 			this.lnkHide.hidden = true;
 			this.lnkShow.hidden = false;
 		},
@@ -961,7 +962,7 @@ PiLot.View.Tools = (function () {
 		lnkShow_click: function (pEvent) {
 			pEvent.preventDefault();
 			pEvent.stopPropagation();
-			RC.Utils.notifyObservers(this, this.observers, 'showPoi', this.osmPoi.getId());
+			this.observable.fire('showPoi', this.osmPoi.getId());
 			this.lnkHide.hidden = false;
 			this.lnkShow.hidden = true;
 		},
@@ -1116,7 +1117,7 @@ PiLot.View.Tools = (function () {
 	var OsmMapPois = function (pMap) {
 		this.map = pMap;
 		this.pois = null;							// Map with key=poi.id and value={poi, marker}
-		this.observers = null;						// Map for observable pattern
+		this.observable = null;						// Map for observable pattern
 		this.activePoiId = null;					// the id of the currently highlighted poi
 		this.initialize();
 	};
@@ -1125,17 +1126,18 @@ PiLot.View.Tools = (function () {
 
 		initialize: function () {
 			this.pois = new Map();
-			this.observers = RC.Utils.initializeObservers(['selectPoi', 'unselectPoi']);
+			this.observable = new PiLot.Utils.Common.Observable(['selectPoi', 'unselectPoi']);
 			this.map.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 		},
 
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "selectPoi", "unselectPoi"
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		leafletMap_zoomend: function () {
@@ -1143,7 +1145,7 @@ PiLot.View.Tools = (function () {
 		},
 
 		poiMarker_click: async function (pPoi) {
-			RC.Utils.notifyObservers(this, this.observers, 'selectPoi', pPoi.getId());
+			this.observable.fire('selectPoi', pPoi.getId());
 			this.highlightPoi(pPoi.getId());
 		},
 
@@ -1263,8 +1265,8 @@ PiLot.View.Tools = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiEditDialog);
 			document.body.insertAdjacentElement('afterbegin', this.control);
 			this.poiForm = new PiLot.View.Nav.PoiForm(this.mapPois, this.control.querySelector('.pnlPoiForm'));
-			this.poiForm.on('save', this.poiForm_save.bind(this));
-			this.poiForm.on('cancel', this.poiForm_cancel.bind(this));
+			this.poiForm.on('save', this, this.poiForm_save.bind(this));
+			this.poiForm.on('cancel', this, this.poiForm_cancel.bind(this));
 			this.pnlDialog = this.control.querySelector('.pnlDialog');
 			this.osmPoiDetails = new OsmPoiDetails(null, this.control.querySelector('.pnlOsmPoiForm'), null, true);
 			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.poiForm.saveDataAsync.bind(this));
@@ -1714,16 +1716,16 @@ PiLot.View.Tools = (function () {
 
 		addCategoryForm: function (pCategory) {
 			const categoryForm = new PoiCategoryForm(pCategory, this.plhCategories);
-			categoryForm.on('changeParent', this.categoryForm_changeParent.bind(this));
-			categoryForm.on('delete', this.categoryForm_delete.bind(this));
+			categoryForm.on('changeParent', this, this.categoryForm_changeParent.bind(this));
+			categoryForm.on('delete', this, this.categoryForm_delete.bind(this));
 			this.categoryForms.push(categoryForm);
 		},
 
 		clearCategoriesList: function () {
 			if (this.categoryForms) {
 				this.categoryForms.forEach(function (category) {
-					category.off('changeParent');
-					category.off('delete');
+					category.off('changeParent', this);
+					category.off('delete', this);
 				});
 			}
 			this.plhCategories.clear();
@@ -1749,14 +1751,14 @@ PiLot.View.Tools = (function () {
 		this.labels = null;
 		this.ddlParent = null;
 		this.tbIcon = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	PoiCategoryForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['changeParent', 'delete']);
+			this.observable = new PiLot.Utils.Common.Observable(['changeParent', 'delete']);
 			this.labels = new Map();
 			this.drawAsync();
 		},
@@ -1764,18 +1766,20 @@ PiLot.View.Tools = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "changeParent", "delete"
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/**
 		 * Removes all Observers for pEvent
 		 * @param {String} pEvent - 'changeParent', 'delete'
+		 * @param {Object} pObserver
 		 */
-		off: function (pEvent) {
-			RC.Utils.removeObservers(this.observers, pEvent);
+		off: function (pEvent, pObserver) {
+			this.observable.removeObserver(pEvent, pObserver);
 		},
 
 		tb_change: async function () {
@@ -1787,7 +1791,7 @@ PiLot.View.Tools = (function () {
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePoiCategory'))) {
 				const result = await this.deleteCategoryAsync();
 				if (result) {
-					RC.Utils.notifyObservers(this, this.observers, 'delete', null);
+					this.observable.fire('delete', null);
 				} else {
 					window.alert(PiLot.Utils.Language.getText('couldNotDeletePoiCategory'));
 				}
@@ -1796,7 +1800,7 @@ PiLot.View.Tools = (function () {
 
 		ddlParent_change: async function () {
 			await this.saveDataAsync();
-			RC.Utils.notifyObservers(this, this.observers, 'changeParent', null);
+			this.observable.fire('changeParent', null);
 		},
 
 		drawAsync: async function () {
@@ -1919,14 +1923,14 @@ PiLot.View.Tools = (function () {
 
 		addFeatureForm: function (pFeature) {
 			const featureForm = new PoiFeatureForm(pFeature, this.plhFeatures);
-			featureForm.on('delete', this.featureForm_delete.bind(this));
+			featureForm.on('delete', this, this.featureForm_delete.bind(this));
 			this.featureForms.push(featureForm);
 		},
 
 		clearFeaturesList: function () {
 			if (this.featureForms) {
 				this.featureForms.forEach(function (feature) {
-					feature.off('delete');
+					feature.off('delete', this);
 				});
 			}
 			this.plhFeatures.clear();
@@ -1950,14 +1954,14 @@ PiLot.View.Tools = (function () {
 		this.container = pContainer;
 		this.tbName = null;
 		this.labels = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	PoiFeatureForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['delete']);
+			this.observable = new PiLot.Utils.Common.Observable(['delete']);
 			this.labels = new Map();
 			this.drawAsync();
 		},
@@ -1965,18 +1969,20 @@ PiLot.View.Tools = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "delete"
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		/**
 		 * Removes all Observers for pEvent
 		 * @param {String} pEvent - 'delete'
+		 * @param {Object} pObserver
 		 */
-		off: function (pEvent) {
-			RC.Utils.removeObservers(this.observers, pEvent);
+		off: function (pEvent, pObserver) {
+			this.observable.removeObserver(pEvent, pObserver);
 		},
 
 		tb_change: async function () {
@@ -1988,7 +1994,7 @@ PiLot.View.Tools = (function () {
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeletePoiFeature'))) {
 				const result = await this.deleteFeatureAsync();
 				if (result) {
-					RC.Utils.notifyObservers(this, this.observers, 'delete', null);
+					this.observable.fire('delete', null);
 				} else {
 					window.alert(PiLot.Utils.Language.getText('couldNotDeletePoiFeature'));
 				}

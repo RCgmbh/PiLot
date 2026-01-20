@@ -273,7 +273,7 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
-		 * @param {Object} pSender - the sender, used for off()
+		 * @param {Object} pObserver - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
@@ -425,7 +425,7 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
-		 * @param {Object} pSender - the sender, used for off()
+		 * @param {Object} pObserver - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
@@ -463,7 +463,7 @@ PiLot.View.Diary = (function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Diary.diaryLogbook);
 			this.container.appendChild(this.control);
 			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(null);
-			this.editForm.on('save', this.editForm_save.bind(this));
+			this.editForm.on('save', this, this.editForm_save.bind(this));
 			this.lnkEditLogbook = this.control.querySelector('.lnkEditLogbook');
 			this.lnkEditLogbook.addEventListener('click', this.lnkEditLogbook_click.bind(this));
 			const expandCollapseBox = new PiLot.View.Common.ExpandCollapseBox(
@@ -548,7 +548,7 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
-		 * @param {Object} pSender - the sender, used for off()
+		 * @param {Object} pObserver - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
@@ -568,12 +568,12 @@ PiLot.View.Diary = (function () {
 			this.observable.fire('collapse', null);
 		},
 
-		photoUpload_upload: function(pSender, pArg){
+		photoUpload_upload: function(pArgs){
 			this.photoGallery.ensureAutoUpdate();
 			this.showHasData(true);
 		},
 
-		photoGallery_delete: function(pSender, pArg){
+		photoGallery_delete: function(pArgs){
 			this.checkHasData();
 		},
 
@@ -597,10 +597,10 @@ PiLot.View.Diary = (function () {
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
 			const plhPhotoUpload = this.control.querySelector('.plhPhotoUpload');
 			this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this.diaryPage);
-			this.photoUpload.on('upload', this.photoUpload_upload.bind(this));
+			this.photoUpload.on('upload', this, this.photoUpload_upload.bind(this));
 			this.photoUpload.toggleVisible(false);
 			this.photoGallery = new DiaryPhotoGallery(this.control.querySelector('.plhPhotoGallery'));
-			this.photoGallery.on('delete', this.photoGallery_delete.bind(this));
+			this.photoGallery.on('delete', this, this.photoGallery_delete.bind(this));
 		},
 
 		applyPermissions: function () {
@@ -673,7 +673,7 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
-		 * @param {Object} pSender - the sender, used for off()
+		 * @param {Object} pObserver - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
@@ -704,14 +704,14 @@ PiLot.View.Diary = (function () {
 		},
 
 		expandCollapseTracksBox_expand: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.observable.fire('expand', null);
 		},
 
 		expandCollapseTracksBox_collapse: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.observable.fire('collapse', null);
 		},
 
-		tracksList_trackSelected: function (pSender, pTrack) {
+		tracksList_trackSelected: function (pTrack) {
 			this.track = pTrack;
 			this.showSpeedDiagram();
 			this.showTrackStatistics();
@@ -759,7 +759,7 @@ PiLot.View.Diary = (function () {
 			expandCollapseTracksBox.on('expand', this, this.expandCollapseTracksBox_expand.bind(this));
 			expandCollapseTracksBox.on('collapse', this, this.expandCollapseTracksBox_collapse.bind(this));
 			this.tracksList = new PiLot.View.Nav.TracksList(control.querySelector('.plhTracks'));
-			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
+			this.tracksList.on('trackSelected', this, this.tracksList_trackSelected.bind(this));
 			this.plhSpeedDiagram = control.querySelector('.plhSpeedDiagram');
 			this.trackStatistics = new PiLot.View.Nav.TrackStatistics(control.querySelector('.plhTrackStatistics'));
 			this.pnlAnalyzeTrack = control.querySelector('.pnlAnalyzeTrack');
@@ -888,7 +888,7 @@ PiLot.View.Diary = (function () {
 		this.imageIndex = -1;
 		this.navigationVisible = false;
         this.updateInterval = null;
-		this.observers = null;				// observers used by RC.Utils observers pattern
+		this.observable = null;
 		this.initialize();
 	};
 
@@ -896,16 +896,17 @@ PiLot.View.Diary = (function () {
 
 		initialize: function () {
 			this.keyHandler = this.document_keydown.bind(this);
-			this.observers = RC.Utils.initializeObservers(['delete']);
+			this.observable = new PiLot.Utils.Common.Observable(['delete']);
 			this.draw();
 		},
 
 		/**
 		 * @param {String} pEvent - 'delete'
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		lnkDelete_click: function (pEvent) {
@@ -1062,7 +1063,7 @@ PiLot.View.Diary = (function () {
 				this.showThumbnails();
 			}
 			this.lblPhotoTotal.innerText = this.imageData.length;
-			RC.Utils.notifyObservers(this, this.observers, 'delete', image.fileName);
+			this.observable.fire('delete', image.fileName);
 		},
 
 		/** @param {Boolean} pVisible */
@@ -1244,14 +1245,14 @@ PiLot.View.Diary = (function () {
 		this.pnlUploading = null;
 		this.pnlUploadSuccess = null;
 		this.pnlInvalidType = null;
-		this.observers = null;			// observers used by RC.Utils observers pattern
+		this.observable = null;			// observers used by RC.Utils observers pattern
 		this.initialize();
 	};
 
 	DiaryPhotoUpload.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['upload']);
+			this.observable = new PiLot.Utils.Common.Observable(['upload']);
 			this.filePreviewReader = new FileReader();
 			this.filePreviewReader.onload = this.filePreviewReader_load.bind(this);
 			this.draw();
@@ -1259,10 +1260,11 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - 'upload'
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		 on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		fileImageUpload_change: function (e) {
@@ -1326,7 +1328,7 @@ PiLot.View.Diary = (function () {
 
 		uploadPhotoAsync: async function(pFileName, pBytes){
 			await PiLot.Model.Logbook.uploadPhotoAsync(this.logbookPage.getDate(), pFileName, pBytes);
-			RC.Utils.notifyObservers(this, this.observers, 'upload', pFileName);
+			this.observable.fire('upload', pFileName);
 			this.imgPreview.hidden = true;
 			this.pnlUploading.hidden = true;
 			this.pnlUploadSuccess.hidden = false;

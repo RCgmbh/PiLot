@@ -378,7 +378,6 @@ PiLot.View.Logbook = (function () {
 
 		deleteEntryAsync: async function () {
 			const success = await this.logbookEntry.deleteAsync();
-			RC.Utils.notifyObservers(this, this.observers, 'delete', null);
 		}
 	}
 
@@ -414,8 +413,7 @@ PiLot.View.Logbook = (function () {
 		this.boatSetupForm = null;			/// PiLot.View.Boat.BoatSetupForm
 		this.btnSave = null;
 		this.btnCancel = null;
-
-		this.observers = null;				// observers used by RC.Utils observers pattern
+		this.observable = null;				// observers used by RC.Utils observers pattern
 		
 		this.initialize();
 	};
@@ -423,17 +421,18 @@ PiLot.View.Logbook = (function () {
 	LogbookEntryForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['show', 'hide', 'save']);
+			this.observable = new PiLot.Utils.Common.Observable(['show', 'hide', 'save']);
 			this.draw();
 		},
 
 		/**
 		 * Registers an observer that will be called when pEvent happens.
 		 * @param {String} pEvent - 'show', 'hide', 'save'
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback - The method to call 
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		boatSetupForm_show: function () {
@@ -652,7 +651,7 @@ PiLot.View.Logbook = (function () {
 			this.control.hidden = false;
 			this.lblTitleAddEntry.hidden = !!this.logbookEntry;
 			this.lblTitleEditEntry.hidden = !this.logbookEntry;
-			RC.Utils.notifyObservers(this, this.observers, 'show', this);
+			this.observable.fire('show', this);
 			this.tbTime.focus();
 		},
 
@@ -660,7 +659,7 @@ PiLot.View.Logbook = (function () {
 		hide: function () {
 			document.body.classList.toggle('overflowHidden', false);
 			this.control.hidden = true;
-			RC.Utils.notifyObservers(this, this.observers, 'hide', this);
+			this.observable.fire('hide', this);
 		},
 
 		/** Reads the input, saves the data and closes the form */
@@ -668,7 +667,7 @@ PiLot.View.Logbook = (function () {
 			this.readInput();
 			await this.logbookEntry.saveAsync();
 			this.hide();
-			RC.Utils.notifyObservers(this, this.observers, 'save', this.logbookEntry);
+			this.observable.fire('save', this.logbookEntry);
 		},
 
 		/**

@@ -99,8 +99,8 @@ PiLot.View.Boat = (function () {
 
 
 		/** handle the "apply" event of the form, by refreshing the image */
-		boatSetupForm_apply: function (pSender, pArg) {
-			this.showBoatSetup(pSender.getBoatSetup());
+		boatSetupForm_apply: function (pBoatSetup) {
+			this.showBoatSetup(pBoatSetup);
 		},
 
 		/**
@@ -322,7 +322,7 @@ PiLot.View.Boat = (function () {
 		apply: function () {
 			this.readInput();
 			this.hide();
-			this.observable.fire('apply', this);
+			this.observable.fire('apply', this.boatSetup);
 		},
 
 		cancel: function () {
@@ -641,9 +641,9 @@ PiLot.View.Boat = (function () {
 				this.boatImageLink.on('imageLoaded', this, this.boatImage_loaded.bind(this));
 				this.boatImageLink.showBoatSetup(this.boatSetup);
 				this.logbookEntryForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
-				this.logbookEntryForm.on('save', this.logbookEntryForm_save.bind(this));
-				this.logbookEntryForm.on('show', this.logbookEntryForm_show.bind(this));
-				this.logbookEntryForm.on('hide', this.logbookEntryForm_hide.bind(this));
+				this.logbookEntryForm.on('save', this, this.logbookEntryForm_save.bind(this));
+				this.logbookEntryForm.on('show', this, this.logbookEntryForm_show.bind(this));
+				this.logbookEntryForm.on('hide', this, this.logbookEntryForm_hide.bind(this));
 				this.isMinimized = this.startPage.isMinimized(this);
 				this.setAlternativesColumn();
 				this.ensureClickHandler();

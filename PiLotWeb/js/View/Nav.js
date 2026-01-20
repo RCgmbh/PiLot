@@ -11,6 +11,7 @@ PiLot.View.Nav = (function () {
 		this.container = pContainer;
 		this.isLatitude = pIsLatitude;
 		this.coordinate = null;
+		this.observable = null;
 
 		/// controls
 		this.tbPrefix = null;
@@ -23,21 +24,20 @@ PiLot.View.Nav = (function () {
 	CoordinateForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['changeCoordinates']);
+			this.observable = new PiLot.Utils.Common.Observable(['changeCoordinates']);
 			this.drawForm();
 			this.showCoordinate();
 		},
 
 		/// registers an observer which will be called when pEvent happens
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-			return this;
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		tb_changed: function () {
 			this.parseForm();
 			this.showCoordinate();
-			RC.Utils.notifyObservers(this, this.observers, 'changeCoordinates', null);
+			this.observable.fire('changeCoordinates', null);
 		},
 
 		drawForm: function () {
@@ -55,7 +55,7 @@ PiLot.View.Nav = (function () {
 
 		showCoordinate: function () {
 			if (this.coordinate !== null) {
-				var coordinateArray = PiLot.Utils.Nav.toCoordinateArray(this.coordinate, this.isLatitude);
+				const coordinateArray = PiLot.Utils.Nav.toCoordinateArray(this.coordinate, this.isLatitude);
 				this.tbPrefix.value = coordinateArray[0];
 				this.tbDeg.value = coordinateArray[1];
 				this.tbMin.value = coordinateArray[2];
@@ -64,12 +64,12 @@ PiLot.View.Nav = (function () {
 		},
 
 		parseForm: function () {
-			var result = null;
-			var maxValue = this.isLatitude ? 90 : 180;
-			var negativePrefix = this.isLatitude ? PiLot.Utils.Language.getText('directionS') : PiLot.Utils.Language.getText('directionW');
-			var prefix = this.tbPrefix.value;
-			var deg = this.tbDeg.value;
-			var min = this.tbMin.value;
+			let result = null;
+			const maxValue = this.isLatitude ? 90 : 180;
+			const negativePrefix = this.isLatitude ? PiLot.Utils.Language.getText('directionS') : PiLot.Utils.Language.getText('directionW');
+			const prefix = this.tbPrefix.value;
+			const deg = this.tbDeg.value;
+			const min = this.tbMin.value;
 			if (RC.Utils.isNumeric(deg)) {
 				result = Number(deg);
 				if (RC.Utils.isNumeric(min)) {
@@ -1074,18 +1074,18 @@ PiLot.View.Nav = (function () {
 		},
 
 		/// handles the deleteWaypoint event of the route
-		route_deleteWaypoint: function (pArg) {
+		route_deleteWaypoint: function (pArgs) {
 			this.showTotalDistance();
 			this.showWaypoints(true);
 		},
 
 		/// handles the moveWaypoint event of the route
-		route_moveWaypoint: function (pSender, pArg) {
+		route_moveWaypoint: function (pArgs) {
 			this.showTotalDistance();
 		},
 
 		/// handles the changeWaypoints event of the route
-		route_changeWaypoints: function (pArg) {
+		route_changeWaypoints: function (pArgs) {
 			this.showTotalDistance();
 			this.showWaypoints(true);
 		},
@@ -1096,12 +1096,12 @@ PiLot.View.Nav = (function () {
 		},
 
 		/** Handlers selecting a waypoint on the map by highlighting the corresponding form element */
-		mapRoute_selectWaypoint: function (pSender, pArg) {
-			this.highlightWaypoint(pArg);
+		mapRoute_selectWaypoint: function (pArgs) {
+			this.highlightWaypoint(pArgs);
 		},
 
 		/** Handlers unselecting a waypoint on the map by de-highlighting all form elements */
-		mapRoute_unselectWaypoint: function (pSender, pArg) {
+		mapRoute_unselectWaypoint: function (pArgs) {
 			this.highlightWaypoint(null);
 		},
 
@@ -1175,8 +1175,8 @@ PiLot.View.Nav = (function () {
 			} else{
 				this.mapRoute = new PiLot.View.Map.MapRoute(this.map, this.route, { showRoute: true, lockRoute: lockRoute, showOptions: false }).draw().fitMap();
 			}
-			this.mapRoute.on('selectWaypoint', this.mapRoute_selectWaypoint.bind(this));
-			this.mapRoute.on('unselectWaypoint', this.mapRoute_unselectWaypoint.bind(this));
+			this.mapRoute.on('selectWaypoint', this, this.mapRoute_selectWaypoint.bind(this));
+			this.mapRoute.on('unselectWaypoint', this, this.mapRoute_unselectWaypoint.bind(this));
 		},
 
 		/// shows the waypoints (create the forms if necessary, refresh all values). Pass
@@ -1340,8 +1340,10 @@ PiLot.View.Nav = (function () {
 					lnkMoveDown.addEventListener('click', this.lnkMoveDown_click.bind(this));
 				}
 				lnkMoveDown.classList.toggle('invisible', isLast);
-				this.editLatitude = new PiLot.View.Nav.CoordinateForm(this.form.querySelector('.plhLatitude'), true).on('changeCoordinates', this.editLatitude_changeCoordinates.bind(this));
-				this.editLongitude = new PiLot.View.Nav.CoordinateForm(this.form.querySelector('.plhLongitude'), false).on('changeCoordinates', this.editLongitude_changeCoordinates.bind(this));
+				this.editLatitude = new PiLot.View.Nav.CoordinateForm(this.form.querySelector('.plhLatitude'), true);
+				this.editLatitude.on('changeCoordinates', this, this.editLatitude_changeCoordinates.bind(this));
+				this.editLongitude = new PiLot.View.Nav.CoordinateForm(this.form.querySelector('.plhLongitude'), false);
+				this.editLongitude.on('changeCoordinates', this, this.editLongitude_changeCoordinates.bind(this));
 
 			} else {
 				this.form.querySelector('.divButtons').remove();
@@ -1531,11 +1533,11 @@ PiLot.View.Nav = (function () {
 	LiveWaypoint.prototype = {
 
 		initialize: function () {
-			this.routeObserver.on('recieveGpsData', this, this.routObserver_recieveGpsData.bind(this));
+			this.routeObserver.on('recieveGpsData', this, this.routeObserver_recieveGpsData.bind(this));
 		},
 
 		/// handles changed data from the route observer
-		routObserver_recieveGpsData: function (pSender, pData) {
+		routeObserver_recieveGpsData: function (pRouteObserver) {
 			this.update(false, true, true);
 		},
 
@@ -1613,31 +1615,31 @@ PiLot.View.Nav = (function () {
 		this.container = pContainer;
 		this.control = null;
 		this.trackInfos = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	TracksList.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['trackSelected']);
+			this.observable = new PiLot.Utils.Common.Observable(['trackSelected']);
 			this.draw();
 		},
 
 		/** 
 		 * Registers an observer which will be called when pEvent happens 
 		 * @param {String} pEvent: trackSelected
-		 * @param {function} pCallback: the function to call when pEvent happens
+		 * @param {OBject} pObserver
+		 * @param {Function} pCallback: the function to call when pEvent happens
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-			return this;
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
-		trackInfo_selected: function (pSender) {
-			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', pSender.getTrack());
+		trackInfo_selected: function (pArgs) {
+			this.observable.fire('trackSelected', pArgs.track);
 			for (let aTrackInfo of this.trackInfos) {
-				if (aTrackInfo !== pSender) {
+				if (aTrackInfo !== pArgs.sender) {
 					aTrackInfo.unselect();
 				}
 			}
@@ -1653,14 +1655,15 @@ PiLot.View.Nav = (function () {
 			this.trackInfos = [];
 			let selectedTrack = null;
 			for (let i = 0; i < pTracks.length; i++) {
-				let trackInfo = new TrackInfo(this.control, pTracks[i]).on("selected", this.trackInfo_selected.bind(this));
+				let trackInfo = new TrackInfo(this.control, pTracks[i]);
+				trackInfo.on('selected', this, this.trackInfo_selected.bind(this));
 				this.trackInfos.push(trackInfo);
 				if (i == 0) {
 					trackInfo.select();
 					selectedTrack = pTracks[i];
 				}
 			}
-			RC.Utils.notifyObservers(this, this.observers, 'trackSelected', selectedTrack);
+			this.observable.fire('trackSelected', selectedTrack);
 		}
 	};
 
@@ -1670,31 +1673,31 @@ PiLot.View.Nav = (function () {
 		this.track = pTrack;
 		this.selected = false;
 		this.control = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	TrackInfo.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['selected']);
+			this.observable = new PiLot.Utils.Common.Observable(['selected']);
 			this.draw();
 		},
 
 		/** 
 		 * Registers an observer which will be called when pEvent happens 
 		 * @param {String} pEvent: selected
+		 * @param {Object} pObserver
 		 * @param {function} pCallback: the function to call when pEvent happens
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-			return this;
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		control_click: function (pSender) {
 			if (!this.selected) {
 				this.setSelected(true);
-				RC.Utils.notifyObservers(this, this.observers, 'selected', this);
+				this.observable.fire('selected', {sender:this, track:this.track });
 			}
 		},
 
@@ -1999,8 +2002,8 @@ PiLot.View.Nav = (function () {
 		},
 
 		/** handles messages form the gps observer that there is no data */
-		gpsObserver_outdatedGpsData: function (pSender, pTimeStamp) {
-			this.hideGpsData(pSender);
+		gpsObserver_outdatedGpsData: function (pTimeStamp) {
+			this.hideGpsData();
 		},
 
 		/** handles clicks on the dark background by closing the dialog */
@@ -2252,24 +2255,25 @@ PiLot.View.Nav = (function () {
 		this.pnlSource = null;
 		this.tbSource = null;
 		this.tbSourceId = null;
-		this.observers = null;					// Map for observable pattern
+		this.observable = null;					
 		this.initializeAsync();
 	};
 
 	PoiForm.prototype = {
 
 		initializeAsync: async function () {
-			this.observers = RC.Utils.initializeObservers(['save', 'cancel']);
+			this.observable = new PiLot.Utils.Common.Observable(['save', 'cancel']);
 			await this.drawAsync();
 		},
 
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "save", "cancel"
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		lnkClearValidFrom_click: function (e) {
@@ -2287,14 +2291,14 @@ PiLot.View.Nav = (function () {
 		btnSave_click: async function (e) {
 			!!e && e.preventDefault();
 			if (await this.saveDataAsync()) {
-				RC.Utils.notifyObservers(this, this.observers, 'save', this.poi);
+				this.observable.fire('save', this.poi);
 				this.hide();
 			}
 		},
 
 		btnCancel_click: function (e) {
 			!!e && e.preventDefault();
-			RC.Utils.notifyObservers(this, this.observers, 'cancel', this.poi);
+			this.observable.fire('cancel', this.poi);
 			this.hide();
 		},
 

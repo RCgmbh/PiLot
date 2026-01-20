@@ -577,7 +577,7 @@ PiLot.View.Common = (function () {
 
 		/**
 		 * @param {String} pEvent: click, close 
-		 * @param {Object} pSender
+		 * @param {Object} pObserver
 		 * */
 		off: function(pEvent, pObserver){
 			this.observable.removeObserver(pEvent, pObserver);
@@ -1205,7 +1205,7 @@ PiLot.View.Common = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "expand", "collapse"
-		 * @param {Object} pSender
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
@@ -1281,7 +1281,7 @@ PiLot.View.Common = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "expand", "collapse"
-		 * @param {Object} pSender
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback
 		 * */
 		on: function(pEvent, pObserver, pFunction){
