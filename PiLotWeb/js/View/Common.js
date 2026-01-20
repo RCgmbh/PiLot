@@ -415,20 +415,20 @@ PiLot.View.Common = (function () {
 			}
 		},
 
-		display_click: function(pSender){
+		display_click: function(){
 			this.toggleControls();
 		},
 
-		display_close: function(pIndex, pSender){
-			this.removeDisplay(pIndex);
+		display_close: function(pDisplay){
+			this.removeDisplay(pDisplay);
 			this.saveUserSettings();
 		},
 
-		display_changeEnlarged: function(pSender){
+		display_changeEnlarged: function(){
 			this.saveUserSettings();
 		},
 
-		display_changeTextSize: function(pSender){
+		display_changeTextSize: function(){
 			this.saveUserSettings();
 		},
 
@@ -1000,7 +1000,7 @@ PiLot.View.Common = (function () {
 		if (loginForm) {
 			PiLot.Utils.Common.log('Warning: more than one login dialog have been instantiated. Use getLoginForm please', 0);
 		}
-		this.observers = null;
+		this.observable = null;
 		this.control = null;
 		this.pnlLoginFailed = null;
 		this.pnlLoginForm = null;
@@ -1013,17 +1013,18 @@ PiLot.View.Common = (function () {
 	LoginForm.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['loginSuccess', 'loginFailed']);
+			this.observable = new PiLot.Utils.Common.Observable(['loginSuccess', 'loginFailed']);
 			this.draw();
 		},
 
 		/**
 		 * Adds an observer which will be called once.
 		 * @param {String} pEvent: loginSuccess, loginFailed
+		 * @param {Object} pObserver - the observer, needed for off()
 		 * @param {Function} pCallback: The callback function
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		frmLogin_submit: function (event) {
@@ -1061,12 +1062,12 @@ PiLot.View.Common = (function () {
 			const loginSuccess = await PiLot.Model.Common.AuthHelper.instance().loginAsync(this.tbUsername.value, this.tbPassword.value);
 			if (loginSuccess) {
 				PiLot.log(`login succeeded`, 3);
-				RC.Utils.notifyObservers(this, this.observers, 'loginSuccess', null, true);
+				this.observable.fire('loginSuccess', null);
 				this.closeForm();
 			} else {
 				PiLot.log(`login failed`, 3);
 				this.pnlLoginFailed.hidden = false;
-				RC.Utils.notifyObservers(this, this.observers, 'loginFailed', null, true);
+				this.observable.fire('loginFailed', null);
 			}
 		},
 
@@ -1190,24 +1191,25 @@ PiLot.View.Common = (function () {
 		this.content = pContent;
 		this.lnkExpand = null;
 		this.lnkCollapse = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	ExpandCollapse.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.observable = new PiLot.Utils.Common.Observable(['expand', 'collapse']);
 			this.draw();
 		},
 
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Object} pSender
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		lnkExpand_click: function (pEvent) {
@@ -1243,9 +1245,8 @@ PiLot.View.Common = (function () {
 			this.content.hidden = !pExpand;
 			this.lnkExpand.hidden = pExpand;
 			this.lnkCollapse.hidden = !pExpand;
-			RC.Utils.notifyObservers(this, this.observers, pExpand ? 'expand' : 'collapse', null);
+			this.observable.fire(pExpand ? 'expand' : 'collapse', null);
 		},
-
 	};
 
 	/**
@@ -1265,14 +1266,14 @@ PiLot.View.Common = (function () {
 		this.collapseIcon = pCollapseIcon;
 		this.settingsKey = pSettingsKey;
 		this.defaultExpanded = pDefaultExpanded;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	};
 
 	ExpandCollapseBox.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.observable = new PiLot.Utils.Common.Observable(['expand', 'collapse']);
 			this.bindEvents();
 			this.initializeState();
 		},
@@ -1280,10 +1281,11 @@ PiLot.View.Common = (function () {
 		/**
 		 * Registers an observer which will be called when pEvent happens.
 		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Object} pSender
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		expandIcon_click: function (pEvent) {
@@ -1314,7 +1316,7 @@ PiLot.View.Common = (function () {
 			if (this.settingsKey) {
 				PiLot.Utils.Common.saveUserSetting(this.settingsKey, pExpanded);
 			}
-			RC.Utils.notifyObservers(this, this.observers, pExpanded ? 'expand' : 'collapse', null);
+			this.observable.fire(pExpanded ? 'expand' : 'collapse', null);
 		}
 	};
 
