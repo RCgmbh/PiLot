@@ -659,8 +659,7 @@ PiLot.Service.Nav = (function () {
 		queryOverpassAsync: async function (pApiUrl, pQuery, pBox) {
 			const apiUrl = pApiUrl || OsmPoiLoader.apiUrls[Math.floor(Math.random() * OsmPoiLoader.apiUrls.length)];
 			const url = `${apiUrl}?data=${encodeURIComponent(pQuery.replaceAll('{box}', pBox)).trim()}`;
-			const response = await fetch(url);
-			const json = await response.json();
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			return this.parseResult(json);
 		},
 
@@ -672,7 +671,7 @@ PiLot.Service.Nav = (function () {
 		 */
 		parseResult: function (pOverpassResult) {
 			const nodesMap = new Map();
-			if (pOverpassResult.elements) {
+			if (pOverpassResult && pOverpassResult.elements) {
 				// fill the nodes map. For nodes with tags, create an Osm Poi.
 				let isPoi;
 				for (anElement of pOverpassResult.elements) {
