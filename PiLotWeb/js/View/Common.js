@@ -500,17 +500,17 @@ PiLot.View.Common = (function () {
 			if(pTypeName in GenericDisplay.types){
 				const display = new GenericDisplay(pTypeName, pTextSize, pEnlarged, this.plhDisplays);
 				this.displays.push(display);
-				display.on('click', this.display_click.bind(this));
-				display.on('close', this.display_close.bind(this, display));
-				display.on('changeTextSize', this.display_changeTextSize.bind(this));
-				display.on('changeEnlarged', this.display_changeEnlarged.bind(this));
+				display.on('click', this, this.display_click.bind(this));
+				display.on('close', this, this.display_close.bind(this, display));
+				display.on('changeTextSize', this, this.display_changeTextSize.bind(this));
+				display.on('changeEnlarged', this, this.display_changeEnlarged.bind(this));
 				this.fillDisplaysList();
 			}
 		},
 
 		removeDisplay: function(pDisplay){
-			pDisplay.off('click');
-			pDisplay.off('close');
+			pDisplay.off('click', this);
+			pDisplay.off('close', this);
 			this.displays = this.displays.filter((d) => d !== pDisplay);
 			this.fillDisplaysList();
 		},
@@ -551,7 +551,7 @@ PiLot.View.Common = (function () {
 		this.container = pContainer;
 		this.control = null;
 		this.display = null;
-		this.observers = null;
+		this.observable = null;
 		this.pnlHeader = null;
 		this.lnkEnlarge = null;
 		this.lnkShrink = null;
@@ -562,25 +562,29 @@ PiLot.View.Common = (function () {
 	GenericDisplay.prototype = {
 
 		initialize: function(){
-			this.observers = RC.Utils.initializeObservers(['click', 'close', 'changeTextSize', 'changeEnlarged']);
+			this.observable = new PiLot.Utils.Common.Observable(['click', 'close', 'changeTextSize', 'changeEnlarged']);
 			this.draw();
 		},
 
 		/**
 		 * @param {String} pEvent: click, close
+		 * @param {Object} pObserver
 		 * @param {Function} pCallback: The callback function
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
-		/** @param {String} pEvent: click, close */
-		off: function(pEvent){
-			RC.Utils.removeObservers(this.observers, pEvent);
+		/**
+		 * @param {String} pEvent: click, close 
+		 * @param {Object} pSender
+		 * */
+		off: function(pEvent, pObserver){
+			this.observable.removeObserver(pEvent, pObserver);
 		},
 
 		display_click: function(pEvent){
-			RC.Utils.notifyObservers(this, this.observers, 'click', null);
+			this.observable.fire('click', null);
 		},
 
 		lnkEnlarge_click: function(pEvent){
@@ -611,7 +615,7 @@ PiLot.View.Common = (function () {
 			pEvent.stopPropagation();
 			pEvent.preventDefault();
 			this.control.parentNode.removeChild(this.control);
-			RC.Utils.notifyObservers(this, this.observers, 'close', null);
+			this.observable.fire('close', null);
 		},
 
 		draw: function(){
@@ -639,7 +643,7 @@ PiLot.View.Common = (function () {
 		changeEnlarged: function(pEnlarged){
 			this.enlarged = pEnlarged;
 			this.applyEnlarged();
-			RC.Utils.notifyObservers(this, this.observers, 'changeEnlarged', pEnlarged);
+			this.observable.fire('changeEnlarged', pEnlarged);
 		},
 
 		applyEnlarged: function(){
@@ -651,7 +655,7 @@ PiLot.View.Common = (function () {
 		changeTextSize: function(pSign){
 			this.textSize = Math.max(GenericDisplay.textSizes.min, Math.max(GenericDisplay.textSizes.min, this.textSize + pSign * GenericDisplay.textSizes.step));
 			this.applyTextSize();
-			RC.Utils.notifyObservers(this, this.observers, 'changeTextSize', null);
+			this.observable.fire('changeTextSize', null);
 		},
 
 		applyTextSize: function(){
