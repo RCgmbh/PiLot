@@ -9,8 +9,7 @@ PiLot.Service.Meteo = (function () {
 
 		/** returns an array of objects with displayName, sensorType representing all meteo data sources */
 		loadMeteoDataSourcesAsync: async function () {
-			const response = await fetch('/SensorInfos/meteo');
-			return await response.json();
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/SensorInfos/meteo');
 		},
 
 		/**
