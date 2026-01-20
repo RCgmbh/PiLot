@@ -55,8 +55,8 @@ PiLot.View.Stats = (function () {
 				pageContent.querySelector('.lnkTotalDistance'),
 				pnlTotalDistanceChart
 			);
-			this.expandCollapseTotalDistance.on('expand', this.expandCollapseTotalDistance_expand.bind(this));
-			this.expandCollapseTotalDistance.on('collapse', this.expandCollapseTotalDistance_collapse.bind(this));
+			this.expandCollapseTotalDistance.on('expand', this, this.expandCollapseTotalDistance_expand.bind(this));
+			this.expandCollapseTotalDistance.on('collapse', this, this.expandCollapseTotalDistance_collapse.bind(this));
 			this.totalDistanceChart = new TotalDistanceChart(pnlTotalDistanceChart);
 
 			const pnlFastestSegmentsChart = pageContent.querySelector('.pnlFastestSegmentsChart');
@@ -64,8 +64,8 @@ PiLot.View.Stats = (function () {
 				pageContent.querySelector('.lnkFastestSegments'),
 				pnlFastestSegmentsChart
 			);
-			this.expandCollapseFastestSegments.on('expand', this.expandCollapseFastestSegments_expand.bind(this));
-			this.expandCollapseFastestSegments.on('collapse', this.expandCollapseFastestSegments_collapse.bind(this));
+			this.expandCollapseFastestSegments.on('expand', this, this.expandCollapseFastestSegments_expand.bind(this));
+			this.expandCollapseFastestSegments.on('collapse', this, this.expandCollapseFastestSegments_collapse.bind(this));
 			this.fastestSegmentsChart = new FastestSegmentsChart(pnlFastestSegmentsChart);
 		},
 

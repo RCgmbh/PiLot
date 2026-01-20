@@ -237,7 +237,7 @@ PiLot.Utils.Loader = (function () {
 
 		showLoginForm: function(){
 			const loginForm = PiLot.View.Common.getLoginForm();
-			loginForm.on('loginSuccess', this.loginForm_loginSuccess.bind(this));
+			loginForm.on('loginSuccess', this, this.loginForm_loginSuccess.bind(this), true);
 		},
 
 		bindHandlers: function(){

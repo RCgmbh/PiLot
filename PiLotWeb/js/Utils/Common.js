@@ -381,16 +381,16 @@ PiLot.Utils.Common = {
  * @param {String[]} pEvents - the array of all supported events
  */
 PiLot.Utils.Common.Observable = function(pEvents){
-	this.callbacks = null;
+	this.subscriptions = null;
 	this.initialize(pEvents);
 }
 
 PiLot.Utils.Common.Observable.prototype = {
 
 	initialize: function(pEvents){
-		this.callbacks = new Map();
+		this.subscriptions = new Map();
 		for(const anEvent of pEvents){
-			this.callbacks.set(anEvent, []);
+			this.subscriptions.set(anEvent, []);
 		}
 	},
 
@@ -399,12 +399,14 @@ PiLot.Utils.Common.Observable.prototype = {
 	 * @param {String} pEvent - the name of the event
 	 * @param {Object} pObserver - the observer (needed for removeObserver)
 	 * @param {Function} pCallback - the function to call when pEvent happens 
+	 * @param {Boolean} pOnce - optionally indicate to only once call teh callback
 	 */
-	addObserver: function(pEvent, pObserver, pCallback){
-		if(this.callbacks.has(pEvent)){
-			this.callbacks.get(pEvent).push({
+	addObserver: function(pEvent, pObserver, pCallback, pOnce = false){
+		if(this.subscriptions.has(pEvent)){
+			this.subscriptions.get(pEvent).push({
 				observer: pObserver,
-				callback: pCallback
+				callback: pCallback,
+				once: pOnce
 			})
 		} else {
 			console.warn(`Unknown event name: ${pEvent}`);
@@ -417,8 +419,8 @@ PiLot.Utils.Common.Observable.prototype = {
 	 * @param {Object} pObserver - the observer
 	 */
 	removeObserver: function(pEvent, pObserver){
-		if(this.callbacks.has(pEvent)){
-			this.callbacks.set(pEvent, this.callbacks.get(pEvent).filter(pItem => pItem.observer !== pObserver));
+		if(this.subscriptions.has(pEvent)){
+			this.subscriptions.set(pEvent, this.subscriptions.get(pEvent).filter(pItem => pItem.observer !== pObserver));
 		}
 	},
 
@@ -428,9 +430,13 @@ PiLot.Utils.Common.Observable.prototype = {
 	 * @param {Object} pArgs - the arguments to pass to the callback functions
 	 * */
 	fire: function(pEvent, pArgs) {
-		if(this.callbacks.has(pEvent)){
-			for(const aCallback of this.callbacks.get(pEvent)){
-				aCallback.callback(pArgs);
+		if(this.subscriptions.has(pEvent)){
+			const eventSubscriptions = this.subscriptions.get(pEvent);
+			for(let i = 0; i < eventSubscriptions.length; i++){
+				eventSubscriptions[i].callback(pArgs);
+				if (eventSubscriptions.once) {
+					eventSubscriptions.remove(i, i);
+				}
 			}
 		} else {
 			console.warn(`Unknown event name: ${pEvent}`);

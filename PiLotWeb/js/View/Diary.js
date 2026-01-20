@@ -94,16 +94,16 @@ PiLot.View.Diary = (function () {
 			this.lnkNextDay = diaryPage.querySelector('.lnkNextDay');
 			const mainContent = diaryPage.querySelector('.plhMainContent');
 			this.diaryText = new DiaryText(mainContent);
-			this.diaryText.on('expand', this.diaryText_expandCollapse.bind(this));
-			this.diaryText.on('collapse', this.diaryText_expandCollapse.bind(this));
+			this.diaryText.on('expand', this, this.diaryText_expandCollapse.bind(this));
+			this.diaryText.on('collapse', this, this.diaryText_expandCollapse.bind(this));
 			this.diaryLogbook = new DiaryLogbook(mainContent);
 			this.diaryPhotos = new DiaryPhotos(mainContent, this);
-			this.diaryPhotos.on('expand', this.diaryPhotos_expandCollapse.bind(this));
-			this.diaryPhotos.on('collapse', this.diaryPhotos_expandCollapse.bind(this));
+			this.diaryPhotos.on('expand', this, this.diaryPhotos_expandCollapse.bind(this));
+			this.diaryPhotos.on('collapse', this, this.diaryPhotos_expandCollapse.bind(this));
 			this.pnlContext = diaryPage.querySelector('.pnlContext');
 			this.diaryTracksData = new DiaryTracksData(this.pnlContext, this);
-			this.diaryTracksData.on('expand', this.diaryTracksData_expandCollapse.bind(this));
-			this.diaryTracksData.on('collapse', this.diaryTracksData_expandCollapse.bind(this));
+			this.diaryTracksData.on('expand', this, this.diaryTracksData_expandCollapse.bind(this));
+			this.diaryTracksData.on('collapse', this, this.diaryTracksData_expandCollapse.bind(this));
 			this.lnkTop = diaryPage.querySelector('.lnkTop');
 			this.lnkPublish = diaryPage.querySelector('.lnkPublish');
 			this.lnkPublish.addEventListener('click', this.lnkPublish_click.bind(this));
@@ -254,7 +254,7 @@ PiLot.View.Diary = (function () {
 		this.pnlNoData = null;
 		this.tbDiary = null;
 		this.diaryFontSize = null;						// the index of [0.75, 0.875, 1, 1.125, 1.25, 1.375, 1.5] for the current diary text size
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	}
 
@@ -263,7 +263,7 @@ PiLot.View.Diary = (function () {
 	DiaryText.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.observable = new PiLot.Utils.Common.Observable(['expand', 'collapse']);
 			this.draw();
 			this.applyPermissions();
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
@@ -273,10 +273,11 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Object} pSender - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		authHelper_change: function () {
@@ -299,11 +300,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		expandCollapseBox_expand: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.observable.fire('expand', null);
 		},
 
 		expandCollapseBox_collapse: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.observable.fire('collapse', null);
 		},
 
 		tbDiary_change: async function () {
@@ -324,8 +325,8 @@ PiLot.View.Diary = (function () {
 				this.control.querySelector('.lnkCollapseDiary'),
 				'PiLot.View.Diary.diaryBoxExpanded'
 			);
-			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
-			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
+			expandCollapseBox.on('expand', this, this.expandCollapseBox_expand.bind(this));
+			expandCollapseBox.on('collapse', this, this.expandCollapseBox_collapse.bind(this));
 			this.control.querySelector('.lnkBiggerText').addEventListener('click', this.lnkBiggerText_click.bind(this));
 			this.control.querySelector('.lnkSmallerText').addEventListener('click', this.lnkSmallerText_click.bind(this));
 			this.pnlShowDiary = this.control.querySelector('.pnlShowDiary');
@@ -406,14 +407,14 @@ PiLot.View.Diary = (function () {
 		this.pnlNoData = null;
 		this.lnkAddLogbookEntry = null;
 		this.readOnly = true;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	}
 
 	DiaryLogbook.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.observable = new PiLot.Utils.Common.Observable(['expand', 'collapse']);
 			this.draw();
 			this.applyPermissions();
 			this.toggleEditLogbook(true);
@@ -424,10 +425,11 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Object} pSender - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		authHelper_change: function () {
@@ -440,11 +442,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		expandCollapseBox_expand: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.observable.fire('expand', null);
 		},
 
 		expandCollapseBox_collapse: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.observable.fire('collapse', null);
 		},
 
 		lnkAddLogbookEntry_click: function (pEvent) {
@@ -470,8 +472,8 @@ PiLot.View.Diary = (function () {
 				this.control.querySelector('.lnkCollapseLogbook'),				
 				'PiLot.View.Diary.logbookBoxExpanded'
 			);
-			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
-			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
+			expandCollapseBox.on('expand', this, this.expandCollapseBox_expand.bind(this));
+			expandCollapseBox.on('collapse', this, this.expandCollapseBox_collapse.bind(this));
 			const options = { isReadOnly: this.readOnly, sortDescending: false, autoFillNewItems: false };
 			this.logbookEntriesControl = new PiLot.View.Logbook.LogbookEntries(this.control.querySelector('.plhLogbookEntries'), this.editForm, options);
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
@@ -525,14 +527,14 @@ PiLot.View.Diary = (function () {
 		this.pnlNoData = null;
 		this.photoGallery = null;						// PiLot.View.Diary.DiaryPhotoGallery
 		this.photoUpload = null;						// PiLot.View.Diary.DiaryPhotoUpload
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	}
 
 	DiaryPhotos.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.observable = new PiLot.Utils.Common.Observable(['expand', 'collapse']);
 			this.draw();
 			this.applyPermissions()
 			const authHelper = PiLot.Model.Common.AuthHelper.instance();
@@ -546,10 +548,11 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Object} pSender - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},		
 	
 		lnkEditPhotos_click: function (pEvent) {
@@ -558,11 +561,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		expandCollapseBox_expand: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.observable.fire('expand', null);
 		},
 
 		expandCollapseBox_collapse: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.observable.fire('collapse', null);
 		},
 
 		photoUpload_upload: function(pSender, pArg){
@@ -589,8 +592,8 @@ PiLot.View.Diary = (function () {
 				this.control.querySelector('.lnkCollapsePhotos'),				
 				'PiLot.View.Diary.photosBoxExpanded'
 			);
-			expandCollapseBox.on('expand', this.expandCollapseBox_expand.bind(this));
-			expandCollapseBox.on('collapse', this.expandCollapseBox_collapse.bind(this));
+			expandCollapseBox.on('expand', this, this.expandCollapseBox_expand.bind(this));
+			expandCollapseBox.on('collapse', this, this.expandCollapseBox_collapse.bind(this));
 			this.pnlNoData = this.control.querySelector('.pnlNoData');
 			const plhPhotoUpload = this.control.querySelector('.plhPhotoUpload');
 			this.photoUpload = new DiaryPhotoUpload(plhPhotoUpload, this.diaryPage);
@@ -651,14 +654,14 @@ PiLot.View.Diary = (function () {
 		this.pnlAnalyzeTrack = null;
 		this.lnkAnalyzeTrack = null;
 		this.plhNoData = null;
-		this.observers = null;
+		this.observable = null;
 		this.initialize();
 	}
 
 	DiaryTracksData.prototype = {
 
 		initialize: function () {
-			this.observers = RC.Utils.initializeObservers(['expand', 'collapse']);
+			this.observable = new PiLot.Utils.Common.Observable(['expand', 'collapse']);
 			this.date =  null;
 			this.track = null;
 			this.draw();
@@ -670,23 +673,24 @@ PiLot.View.Diary = (function () {
 
 		/**
 		 * @param {String} pEvent - "expand", "collapse"
+		 * @param {Object} pSender - the sender, used for off()
 		 * @param {Function} pCallback
 		 * */
-		on: function (pEvent, pCallback) {
-			RC.Utils.addObserver(this.observers, pEvent, pCallback);
-		},
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
+		},	
 
 		authHelper_change: function () {
 			this.applyPermissions();
 		},
 
 		expandCollapseMapBox_expand: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'expand', null);
+			this.observable.fire('expand', null);
 			this.invalidateMap();
 		},
 
 		expandCollapseMapBox_collapse: function () {
-			RC.Utils.notifyObservers(this, this.observers, 'collapse', null);
+			this.observable.fire('collapse', null);
 		},
 
 		lnkEnlargeMap_click: function (pEvent) {
@@ -742,8 +746,8 @@ PiLot.View.Diary = (function () {
 				control.querySelector('.lnkCollapseMap'),
 				'PiLot.View.Diary.mapBoxExpanded'
 			);
-			expandCollapseMapBox.on('expand', this.expandCollapseMapBox_expand.bind(this));
-			expandCollapseMapBox.on('collapse', this.expandCollapseMapBox_collapse.bind(this));
+			expandCollapseMapBox.on('expand', this, this.expandCollapseMapBox_expand.bind(this));
+			expandCollapseMapBox.on('collapse', this, this.expandCollapseMapBox_collapse.bind(this));
 			this.map = new PiLot.View.Map.Seamap(control.querySelector('.plhMap'), { persistMapState: false });
 			this.pnlTracksBox = this.container.querySelector('.pnlTracksBox');
 			const expandCollapseTracksBox = new PiLot.View.Common.ExpandCollapseBox(
@@ -752,8 +756,8 @@ PiLot.View.Diary = (function () {
 				control.querySelector('.lnkCollapseTracks'),
 				'PiLot.View.Diary.tracksBoxExpanded'
 			);
-			expandCollapseTracksBox.on('expand', this.expandCollapseTracksBox_expand.bind(this));
-			expandCollapseTracksBox.on('collapse', this.expandCollapseTracksBox_collapse.bind(this));
+			expandCollapseTracksBox.on('expand', this, this.expandCollapseTracksBox_expand.bind(this));
+			expandCollapseTracksBox.on('collapse', this, this.expandCollapseTracksBox_collapse.bind(this));
 			this.tracksList = new PiLot.View.Nav.TracksList(control.querySelector('.plhTracks'));
 			this.tracksList.on('trackSelected', this.tracksList_trackSelected.bind(this));
 			this.plhSpeedDiagram = control.querySelector('.plhSpeedDiagram');

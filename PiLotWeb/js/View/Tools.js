@@ -96,7 +96,7 @@ PiLot.View.Tools = (function () {
 				lnkDelete.hidden = true;
 			}			
 			this.pnlSpeedDiagram = document.querySelector('.pnlSpeedDiagram');
-			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkSpeedDiagram'), this.pnlSpeedDiagram).on('expand', this.showSpeedChartData.bind(this));
+			new PiLot.View.Common.ExpandCollapse(this.pageContent.querySelector('.lnkSpeedDiagram'), this.pnlSpeedDiagram).on('expand', this, this.showSpeedChartData.bind(this));
 			const lnkImport = this.pageContent.querySelector('.lnkImport');
 			if (PiLot.Permissions.canWrite()){
 				new PiLot.View.Common.ExpandCollapse(lnkImport, this.pageContent.querySelector('.divImport'));
@@ -788,7 +788,7 @@ PiLot.View.Tools = (function () {
 			this.container.appendChild(control);
 			const lblTitle = control.querySelector('.lblTitle');
 			const pnlForm = control.querySelector('.pnlForm');
-			new PiLot.View.Common.ExpandCollapse(lblTitle, pnlForm).on('expand', this.expandCollapse_expand.bind(this));
+			new PiLot.View.Common.ExpandCollapse(lblTitle, pnlForm).on('expand', this, this.expandCollapse_expand.bind(this));
 			this.ddlApi = control.querySelector('.ddlApi');
 			this.cbImportMarinas = control.querySelector('.cbImportMarinas');
 			this.cbImportLocks = control.querySelector('.cbImportLocks');
