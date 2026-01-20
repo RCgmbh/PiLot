@@ -71,7 +71,7 @@ PiLot.Templates.Common = {
 	serviceErrorsDialog:`
 		<div class="pnlOverlay vCenter staticOverlay" hidden>
 			<div class="pnlDialog dialogPanel hCenter" style="width:95vw;">
-				<div class="">
+				<div class="" style="overflow-wrap:anywhere;">
 					<div class="marginBottomSmall flexRow">
 						<span class="grow paddingAllSmall bold" data-text="errors"></span>
 						<a href="#" class="lnkCloseDialog noGrow paddingAllSmall"><i class="icon-cross"></i></a>
@@ -83,7 +83,7 @@ PiLot.Templates.Common = {
 							<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
 							<div class="lblUrl marginRight col10 grow"></div>
 						</div>
-						<div class="detailData flexColumn paddingLeft" style="word-wrap:break-word;">
+						<div class="detailData flexColumn paddingLeft">
 							<div class="marginRight">Body: <span class="lblBody"></span></div>
 							<div class="marginRight">Details: <span class="lblMessage"></span></div>
 						</div>
