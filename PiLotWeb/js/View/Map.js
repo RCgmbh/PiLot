@@ -1598,6 +1598,7 @@ PiLot.View.Map = (function () {
 			this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 			this.addSettingsControl();
 			this.addOutdatedGpsWarning();
+			this.draw();
 		},
 
 		/// reads the persisted user settings
@@ -1625,7 +1626,7 @@ PiLot.View.Map = (function () {
 
 		/// draws the marker and the cog vector onto the map
 		draw: function () {
-			var latestPosition = this.gpsObserver.getLatestPosition(this.maxAgeSeconds);
+			const latestPosition = this.gpsObserver.getLatestPosition(this.maxAgeSeconds);
 			if (latestPosition != null) {
 				this.drawPosition(latestPosition.getLatLng());
 				this.drawCOGVector(latestPosition.getLatLon());
@@ -1638,7 +1639,7 @@ PiLot.View.Map = (function () {
 				this.map.setCenter(pLatLng);
 			}
 			if (this.marker === null) {
-				var icon = L.divIcon({
+				const icon = L.divIcon({
 					className: 'navMyBoatIcon', iconSize: [20, 20]
 				});
 				this.marker = L.marker(pLatLng, { icon: icon, zIndexOffset: 1000 });
