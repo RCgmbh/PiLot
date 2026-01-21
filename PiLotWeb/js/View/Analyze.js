@@ -24,6 +24,7 @@ PiLot.View.Analyze = (function () {
 
 		unload: function(){
 			PiLot.Model.Nav.GPSObserver.stopInstance();
+			this.liveTackInfo.unload();
 		},
 		
 		rblMode_change: function (pEvent) {
@@ -273,6 +274,12 @@ PiLot.View.Analyze = (function () {
 			this.tackObserver.on('noGpsData', this, this.tackObserver_noGpsData.bind(this));
 			this.mapTrack.setEnableLiveUpdate(true);
 			this.draw();
+		},
+
+		unload: function(){
+			this.tackObserver.off('loadTrack', this);
+			this.tackObserver.off('analyzeTrack', this);
+			this.tackObserver.off('noGpsData', this);
 		},
 		
 		tackAnalyzerOptions_change: function (pOptions) {

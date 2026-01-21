@@ -1049,6 +1049,14 @@ PiLot.Model.Nav = (function () {
 			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
+		/**
+		 * @param {String} pEvent 
+		 * @param {Object} pObserver 
+		 */
+		off: function(pEvent, pObserver){
+			this.observable.removeObserver(pEvent, pObserver);
+		},
+
 		route_addWaypoint: function (pWaypoint) {
 			this.waypointsLiveData.set(pWaypoint, new WaypointLiveData());
 		},
@@ -2161,6 +2169,14 @@ PiLot.Model.Nav = (function () {
 		 * */
 		on: function(pEvent, pObserver, pFunction){
 			this.observable.addObserver(pEvent, pObserver, pFunction);
+		},
+
+		/**
+		 * @param {String} pEvent 
+		 * @param {Object} pObserver 
+		 */
+		off: function(pEvent, pObserver){
+			this.observable.removeObserver(pEvent, pObserver);
 		},
 
 		/// this is fired on the cropInterval timer, and just calls crop on the track

@@ -396,6 +396,11 @@ PiLot.View.Nav = (function () {
 			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
+		unload: function(){
+			const routeObserver = PiLot.Model.Nav.RouteObserver.getInstance();
+			routeObserver && routeObserver.off('recieveGpsData', this);
+		},
+
 		routeObserver_recieveGpsData: function(pRouteObserver){
 			this.xteIndicator.showValue(pRouteObserver);
 		},
@@ -427,6 +432,11 @@ PiLot.View.Nav = (function () {
 			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 		},
 
+		unload: function(){
+			const routeObserver = PiLot.Model.Nav.RouteObserver.getInstance();
+			routeObserver && routeObserver.off('recieveGpsData', this);
+		},
+
 		routeObserver_recieveGpsData: function(pSender){
 			this.motionDisplay.showValue(pSender.getVMG());
 		},
@@ -456,6 +466,11 @@ PiLot.View.Nav = (function () {
 			this.draw();
 			this.createRouteObserverAsync();
 			PiLot.Model.Nav.GPSObserver.getInstance().on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
+		},
+
+		unload: function(){
+			const routeObserver = PiLot.Model.Nav.RouteObserver.getInstance();
+			routeObserver && routeObserver.off('recieveGpsData', this);
 		},
 
 		routeObserver_recieveGpsData: function(pSender){

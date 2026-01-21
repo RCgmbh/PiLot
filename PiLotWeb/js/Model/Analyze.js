@@ -259,6 +259,14 @@ PiLot.Model.Analyze = (function () {
 			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
+		/**
+		 * @param {String} pEvent 
+		 * @param {Object} pObserver 
+		 */
+		off: function(pEvent, pObserver){
+			this.observable.removeObserver(pEvent, pObserver);
+		},
+
 		findTacks: function(){
 			const tacks = this.tackAnalyzer.findTacks(this.analyzerOptions, 2);
 			const windDirection = this.calculateWindDirection(tacks);
@@ -314,7 +322,8 @@ PiLot.Model.Analyze = (function () {
 		},
 
 		stop: function(){
-			PiLot.Model.Nav.GPSObserver.stopInstance();
+			const gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			gpsObserver && gpsObserver.stop();
 		}
 	};
 
