@@ -381,21 +381,25 @@ PiLot.Utils.Common = {
  * @param {String[]} pEvents - the array of all supported events
  */
 PiLot.Utils.Common.Observable = function(pEvents){
+	this.events = pEvents;
 	this.subscriptions = null;
-	this.initialize(pEvents);
+	this.initialize();
 }
 
 PiLot.Utils.Common.Observable.prototype = {
 
-	initialize: function(pEvents){
+	initialize: function(){
+		this.buildsubscriptionsMap()
+	},
+
+	buildsubscriptionsMap: function(){
 		this.subscriptions = new Map();
-		for(const anEvent of pEvents){
+		for(const anEvent of this.events){
 			this.subscriptions.set(anEvent, []);
 		}
 	},
 
 	/**
-	 * 
 	 * @param {String} pEvent - the name of the event
 	 * @param {Object} pObserver - the observer (needed for removeObserver)
 	 * @param {Function} pCallback - the function to call when pEvent happens 
@@ -422,6 +426,11 @@ PiLot.Utils.Common.Observable.prototype = {
 		if(this.subscriptions.has(pEvent)){
 			this.subscriptions.set(pEvent, this.subscriptions.get(pEvent).filter(pItem => pItem.observer !== pObserver));
 		}
+	},
+
+	/** Removes all observers for all events */
+	clearObservers: function(){
+		this.buildsubscriptionsMap();
 	},
 
 	/**

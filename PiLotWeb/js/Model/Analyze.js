@@ -314,7 +314,7 @@ PiLot.Model.Analyze = (function () {
 		},
 
 		stop: function(){
-			this.gpsObserver && this.gpsObserver.stop();
+			PiLot.Model.Nav.GPSObserver.stopInstance();
 		}
 	};
 

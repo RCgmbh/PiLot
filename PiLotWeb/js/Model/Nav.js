@@ -2352,6 +2352,13 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/**
+		 * Removes all observers for all events
+		 * */
+		clearObservers: function(){
+			this.observable.clearObservers();
+		},
+
+		/**
 		 * makes sure we have an interval for fetching the data. The Interval is not
 		 * started immediately in order to avoid too many requests against a service
 		 * which might need some time to wake up
@@ -2556,9 +2563,15 @@ PiLot.Model.Nav = (function () {
 		return !!gpsObserverInstance;
 	};
 
-	/** Stops the current instance of the GPS Observer, if there is any */
+	/** 
+	 * Stops the current instance of the GPS Observer, if there is any,
+	 * and also removes ALL observers
+	 * */
 	GPSObserver.stopInstance = function(){
-		gpsObserverInstance && gpsObserverInstance.stop();
+		if(gpsObserverInstance){
+			gpsObserverInstance.stop();
+			gpsObserverInstance.clearObservers();
+		}
 	};
 
 	/**
