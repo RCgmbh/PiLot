@@ -4,10 +4,12 @@ PiLot.Templates.Nav = {
 
 	navPage: `
 		<div class="navPage hCenter fullWidth">
-			<div class="divData navData easyShadow marginBottomSmall">
-				<div class="divDirection"></div>
-				<div class="divSpeed"></div>
-				<div class="divPosition hidden"></div>
+			<div class="marginAllSmall easyShadow">
+				<div class="divData navData">
+					<div class="divDirection"></div>
+					<div class="divSpeed"></div>
+					<div class="divPosition hidden"></div>
+				</div>
 			</div>
 		</div>
 		`,
@@ -109,9 +111,11 @@ PiLot.Templates.Nav = {
 		/>\' <input type="text" class="inlineBlock tbPrefix inlineTextbox" style="width:1.3em;" placeholder="-" />`,
 
 	liveRoute: `
-		<div class="navLiveRoute easyShadow paddingTop">
-			<span class="lblRouteName" hidden></span>
-			<div class="divWaypoints"></div>
+		<div class="easyShadow marginAllSmall">
+			<div class="navLiveRoute">
+				<span class="lblRouteName" hidden></span>
+				<div class="divWaypoints"></div>
+			</div>
 		</div>`,
 
 	liveWaypoint: `
