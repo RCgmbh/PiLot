@@ -808,9 +808,9 @@ PiLot.View.Common = (function () {
 
 		menuItem_click: function(pPage, pEvent){
 			pEvent.preventDefault();
-			PiLot.Utils.Loader.PageLoader.getInstance().showPage(pPage);
 			this.toggle(false);
 			PiLot.Utils.Loader.getContentArea().hidden = false;
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(pPage);
 		},
 
 		draw: function(){
