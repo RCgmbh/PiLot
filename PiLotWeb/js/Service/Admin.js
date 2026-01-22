@@ -135,7 +135,20 @@ PiLot.Service.Admin = (function () {
 		 * @return {String[]}
 		 * */
 		getServicesAsync: async function(){
-			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync ('/Services');
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Services');
+		},
+
+		/**
+		 * Gets some general system information
+		 * @returns {String[][]} - Array of Arrays with command, result
+		 */
+		getInfoAsync: async function(){
+			const serviceResult = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/System/info');
+			const result = [];
+			for(let aResult of serviceResult){
+				result.push({command: aResult[0], result: aResult[1]});
+			}
+			return result;
 		}
 	};
 	

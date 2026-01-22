@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
 
 using PiLot.API.ActionFilters;
@@ -27,6 +28,16 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(SystemAuthorizationFilter))]
 		public String PutDate(Int64 millisUtc) {
 			return new SystemHelper().SetDate(millisUtc);
+		}
+
+		/// <summary>
+		/// Gets general system info
+		/// </summary>
+		[Route(Program.APIROOT + "[controller]/info")]
+		[HttpGet]
+		[ServiceFilter(typeof(SystemAuthorizationFilter))]
+		public List<String[]> GetInfo() {
+			return new SystemHelper().GetSystemInfo();
 		}
 	}
 }

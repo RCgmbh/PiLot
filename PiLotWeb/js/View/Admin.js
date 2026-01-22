@@ -138,6 +138,8 @@ PiLot.View.Admin = (function () {
 	var SystemStatusPage = function () {
 
 		this.chart = null;
+		this.pnlInfoTemplate = null;
+		this.plhInfos = null;
 		this.interval = null;
 		this.initialize();
 
@@ -149,6 +151,7 @@ PiLot.View.Admin = (function () {
 			this.draw();
 			this.showCPUTemperature();
 			this.startCPUTempTimer();
+			this.showSystemInfoAsync();
 		},
 
 		unload: function(){
@@ -156,14 +159,15 @@ PiLot.View.Admin = (function () {
 		},
 
 		draw: function () {
-			const loader = PiLot.Utils.Loader;
-			const contentArea = loader.getContentArea();
-			contentArea.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Admin.systemStatusPage));
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.systemStatusPage)
+			PiLot.Utils.Loader.getContentArea().appendChild(control);
 			const controls = {
-				loading: contentArea.querySelector('.chartWait'),
-				chart: contentArea.querySelector('.chartContainer')
+				loading: control.querySelector('.chartWait'),
+				chart: control.querySelector('.chartContainer')
 			};
 			this.chart = new PiLot.Utils.Chart.DataChart(controls, 60, 20, null, null);
+			this.pnlInfoTemplate = control.querySelector('.pnlInfoTemplate');
+			this.plhInfos = control.querySelector('.plhInfos');
 		},
 
 		showCPUTemperature: function () {
@@ -177,6 +181,17 @@ PiLot.View.Admin = (function () {
 		stopCPUTempTimer: function(){
 			this.interval && window.clearInterval(this.interval);
 			this.interval = null;
+		},
+
+		showSystemInfoAsync: async function(){
+			const infos = await new PiLot.Service.Admin.SystemService().getInfoAsync();
+			for(let anInfo of infos){
+				const control = this.pnlInfoTemplate.cloneNode(true);
+				control.querySelector('.lblCommand').innerText = anInfo.command;
+				control.querySelector('.lblResult').innerText = anInfo.result;
+				control.hidden = false;
+				this.plhInfos.appendChild(control);
+			}
 		}
 	};
 

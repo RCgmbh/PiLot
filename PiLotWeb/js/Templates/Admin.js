@@ -31,6 +31,11 @@ PiLot.Templates.Admin = {
 				<div class="chartContainer" hidden></div>
 				<div class="chartWait" data-text="pleaseWait"></div>
 			</div>
+			<div class="pnlInfoTemplate flexRowWrap dataContainerHalf marginBottom" hidden>
+				<span class="lblCommand bold"></span>
+				<span class="lblResult preWrap preLine"></span>
+			</div>
+			<div class="plhInfos marginBottomBig"></div>
 		</div>
 	`,
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using PiLot.Utils.DateAndTime;
@@ -21,9 +22,7 @@ namespace PiLot.Utils.OS {
 		private const String PINGSUCCSSSLINUX = "1 received";
 		private const String PINGARGSWIN = "-n 1 {0}";
 		private const String PINGSUCCSSSWIN = "Received = 1";
-
 		private const String NOLINUXMESSAGE = "This feature is only available on Linux systems.";
-
 		private const Int32 MAXWAIT = 5000;     // the number of milliseconds to wait for an answer from the process
 
 		public SystemHelper() {
@@ -70,6 +69,36 @@ namespace PiLot.Utils.OS {
 			String args = String.Format(this.IsLinux ? PINGARGSLINUX : PINGARGSWIN, pHost);
 			String cmdResult = this.CallCommand(PINGCOMMAND, args);
 			return (cmdResult.IndexOf(this.IsLinux ? PINGSUCCSSSLINUX : PINGSUCCSSSWIN)) > -1;
+		}
+
+		/// <summary>
+		/// Calls a few commands in order to get some general info about the system
+		/// </summary>
+		/// <returns>the results from all commands</returns>
+		public List<String[]> GetSystemInfo(){
+			List<String[]> result = new List<String[]>();
+			List<String[]> commands;
+			if(this.IsLinux) {
+				commands = new List<String[]>() {
+					new String[]{"dotnet","--info"},
+					new String[]{"sudo","ifconfig"},
+					new String[]{"ip","link"},
+					new String[]{"lsb_release","-a"},
+					new String[]{"uname","-a"},
+				};
+			} else {
+				commands = new List<String[]>(){
+					new String[]{"dotnet","--info"},
+					new String[]{"ipconfig",""}
+				};
+			}
+			for(Int32 i = 0; i < commands.Count; i++){
+				result.Add(new String[2] {
+					String.Join(" ", commands[i]),
+					this.CallCommand(commands[i][0], commands[i][1])
+				});
+			}
+			return result;
 		}
 
 		/// <summary>
