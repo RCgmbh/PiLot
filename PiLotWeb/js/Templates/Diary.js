@@ -227,13 +227,13 @@ PiLot.Templates.Diary = {
 						<a href="#" target="_blank" download class="lnkDownload marginLeft" data-title="imageDownload"><i class="icon-download2"></i></a>
 						<a href="#" target="_blank" class="lnkOpenBlank marginLeft" data-title="imageOpenOriginal"><i class="icon-popout"></i></a>
 						<a href="#" target="_blank" class="lnkDiary marginLeft" data-title="diary"><i class="icon-book3"></i></a>
-						<a href="#" class="lnkDelete marginLeft" data-title="delete"><i class="icon-trashcan"></i></a>
+						<a class="lnkDelete marginLeft pointer" data-title="delete"><i class="icon-trashcan"></i></a>
 					</div>
-					<a href="#" class="lnkClose" data-title="close"><i class="icon-cancel3"></i></a>
+					<a class="lnkClose pointer" data-title="close"><i class="icon-cancel3"></i></a>
 				</div>
-				<a href="#" class="lnkPrevious"><i class="icon-circle-left"></i></a>
+				<a class="lnkPrevious pointer"><i class="icon-circle-left"></i></a>
 				<img src="" class="imgFullSize photo" />
-				<a href="#" class="lnkNext"><i class="icon-circle-right"></i></a>
+				<a class="lnkNext pointer"><i class="icon-circle-right"></i></a>
 				<div class="pnlFooter">
 					<span class="lblFileName"></span>
 					<div>
