@@ -216,6 +216,7 @@ PiLot.Utils.Loader = (function () {
 		prepareAppAsync: async function () {
 			this.bindHandlers();
 			this.startLogging();
+			this.initializeServiceHelper();
 			this.initializeLanguage();
 			await PiLot.Model.Common.AuthHelper.instance().loadPermissionsAsync();
 			this.decidePage();
@@ -227,7 +228,6 @@ PiLot.Utils.Loader = (function () {
 		},
 
 		startApp: function(){
-			this.initializeServiceHelper();
 			this.initializeBoatTime();
 			this.addDefaultControls();
 			const params = this.processParameters();

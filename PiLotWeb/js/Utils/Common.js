@@ -347,12 +347,14 @@ PiLot.Utils.Common = {
 		loadCurrentBoatTimeAsync: async function(){
 			const requestTime = DateTime.utc();
 			const boatTimeInfo = await PiLot.Service.Common.BoatTimeService.loadBoatTimeInfoAsync();
-			const responseTime = DateTime.utc();
-			const responseMillis = (responseTime.toMillis() - requestTime.toMillis()) * 0.5; // we just guess 50% of the time was the response
-			const serverTimeUTC = RC.Date.DateHelper.millisToLuxon(boatTimeInfo.utcNow + responseMillis);
-			this.currentBoatTime.setUtcOffset(boatTimeInfo.utcOffsetMinutes || 0);
-			this.observable.fire('boatTimeLoaded', this.currentBoatTime);
-			this.calculateClientServerError(serverTimeUTC);
+			if(boatTimeInfo){
+				const responseTime = DateTime.utc();
+				const responseMillis = (responseTime.toMillis() - requestTime.toMillis()) * 0.5; // we just guess 50% of the time was the response
+				const serverTimeUTC = RC.Date.DateHelper.millisToLuxon(boatTimeInfo.utcNow + responseMillis);
+				this.currentBoatTime.setUtcOffset(boatTimeInfo.utcOffsetMinutes || 0);
+				this.observable.fire('boatTimeLoaded', this.currentBoatTime);
+				this.calculateClientServerError(serverTimeUTC);
+			}
 		},
 
 		/** Sets the current client time to the server and returns the result */

@@ -443,8 +443,8 @@ PiLot.View.Admin = (function () {
 
 		showWiFiStatusAsync: async function () {
 			const wifiStatus = await this.wifiService.getOverallStatusAsync();
-			this.icoWiFiInternet.hidden = !wifiStatus.internetAccess;
-			this.icoWiFiConnected.hidden = wifiStatus.internetAccess || !wifiStatus.connected;
+			this.icoWiFiInternet.hidden = !wifiStatus || !wifiStatus.internetAccess;
+			this.icoWiFiConnected.hidden = !wifiStatus || !wifiStatus.connected || wifiStatus.internetAccess;
 		},
 
 		startUpdateInterval: function () {

@@ -260,27 +260,35 @@ PiLot.Model.Common = (function () {
 	 * @param {any} pData
 	 */
 	Permissions.fromData = function (pData) {
-		return new Permissions(pData.username, pData.canRead, pData.canWrite, pData.canChangeSettings, pData.hasSystemAccess);
+		let result = null;
+		if(pData){
+			result = new Permissions(pData.username, !!pData.canRead, !!pData.canWrite, !!pData.canChangeSettings, !!pData.hasSystemAccess);
+		}
+		return result;
 	};
 
 	/** Static shortcut to get whether the current user can read */
 	Permissions.canRead = function () {
-		return AuthHelper.instance().getPermissions().getCanRead();
+		const permissions = AuthHelper.instance().getPermissions();
+		return permissions && permissions.getCanRead();
 	};
 	
 	/** Static shortcut to get whether the current user can write */
 	Permissions.canWrite = function () {
-		return AuthHelper.instance().getPermissions().getCanWrite();
+		const permissions = AuthHelper.instance().getPermissions();
+		return permissions && permissions.getCanWrite();
 	};
 
 	/** Static shortcut to get whether the current user can change settings */
 	Permissions.canChangeSettings = function () {
-		return AuthHelper.instance().getPermissions().getCanChangeSettings();
+		const permissions = AuthHelper.instance().getPermissions();
+		return permissions && permissions.getCanChangeSettings();
 	};
 
 	/** Static shortcut to get whether the current user has system access */
 	Permissions.hasSystemAccess = function () {
-		return AuthHelper.instance().getPermissions().getHasSystemAccess();
+		const permissions = AuthHelper.instance().getPermissions();
+		return permissions && permissions.getHasSystemAccess();
 	};
 
 	PiLot.Permissions = Permissions;
