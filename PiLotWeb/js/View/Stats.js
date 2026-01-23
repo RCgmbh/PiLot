@@ -264,13 +264,13 @@ PiLot.View.Stats = (function () {
 					this.showLabels = this.userSettings.interval > 2;
 					break;
 			}
+			this.allBoats || await this.loadAllBoatsAsync();
 			let chartData = await this.processDataAsync();
 			if (chartData.hasData) {
 				this.pnlChart.hidden = false;
 				this.pnlNoData.hidden = true;
 				const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
 				const colorIndex = new Map();
-				this.allBoats || await this.loadAllBoatsAsync();
 				for (let i = 0; i < this.allBoats.length; i++) {
 					colorIndex.set(this.allBoats[i].name, colors[i % colors.length]);
 				}
@@ -402,7 +402,6 @@ PiLot.View.Stats = (function () {
 					boats.sort(function(a, b){return this.getBoatDisplayName(a).localeCompare(this.getBoatDisplayName(b))}.bind(this));
 					const boatsIndex = new Map();
 					let boatsArray = ['boats'];
-					this.allBoats || await this.loadAllBoatsAsync();
 					for(aBoatName of boats){
 						boatsIndex.set(aBoatName, boatsArray.push(aBoatName) - 1);
 					}
