@@ -144,6 +144,7 @@ PiLot.Service.Common = {
 				result.ok = response.ok;
 				const responseType = response.headers.get('Content-Type');
 				const isTextResponse = (responseType !== null) && responseType.includes("text/plain");
+				const isHtmlResponse = (responseType !== null) && responseType.includes("text/html");
 				const isJsonResponse = (responseType !== null) && responseType.includes("application/json");
 				if ((result.status === 401) || (result.status == 403)) {
 					if (pLoginOnAuthError) {
@@ -156,7 +157,7 @@ PiLot.Service.Common = {
 				}
 				else if (!result.ok){
 					let responseText = 'n/a';
-					if(this.isTextResponse){
+					if(isTextResponse || isHtmlResponse){
 						responseText = await response.text()
 					};
 					const error = {
@@ -171,7 +172,7 @@ PiLot.Service.Common = {
 					this.observable.fire('error', error);
 				}
 				else if (result.status !== 204) {
-					if (isTextResponse) {
+					if (isTextResponse || isHtmlResponse) {
 						result.data = await response.text();
 					} else if (isJsonResponse) {
 						result.data = await response.json();
