@@ -2252,6 +2252,7 @@ PiLot.View.Tools = (function () {
 		this.lblTitle = null;
 		this.plhItems = null;
 		this.checklist = null;
+		this.logbookForm = null;
 		this.observable = null;
 
 		this.initialize();
@@ -2263,6 +2264,8 @@ PiLot.View.Tools = (function () {
 			this.observable = new PiLot.Utils.Common.Observable(['close', 'edit', 'delete']);
 			PiLot.Model.Common.AuthHelper.instance().on('login', this, this.authHelper_change.bind(this));
 			PiLot.Model.Common.AuthHelper.instance().on('logout', this, this.authHelper_change.bind(this));
+			this.logbookEntryForm = new PiLot.View.Logbook.LogbookEntryForm();
+			this.logbookEntryForm.on('save', this, this.logbookForm_save.bind(this));
 			this.draw();
 		},
 
@@ -2284,6 +2287,11 @@ PiLot.View.Tools = (function () {
 			this.observable.fire('edit', this.checklist);
 		},
 
+		lnkLogbook_click: function(pEvent){
+			pEvent.preventDefault();
+			this.createLogbookEntryAsync();
+		},
+
 		lnkReset_click: function(pEvent){
 			pEvent.preventDefault();
 			this.resetChecklistAsync();
@@ -2292,6 +2300,10 @@ PiLot.View.Tools = (function () {
 		lnkDelete_click: function (pEvent){
 			pEvent.preventDefault();
 			this.deleteChecklistAsync();
+		},
+
+		logbookForm_save: function(){
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.logbook);
 		},
 
 		on: function(pEvent, pObserver, pFunction){
@@ -2305,6 +2317,7 @@ PiLot.View.Tools = (function () {
 			this.lblTitle = this.container.querySelector('.lblTitle');
 			this.plhItems = this.control.querySelector('.plhItems');
 			this.container.querySelector('.lnkEdit').addEventListener('click', this.lnkEdit_click.bind(this));
+			this.container.querySelector('.lnkLogbook').addEventListener('click', this.lnkLogbook_click.bind(this));
 			this.container.querySelector('.lnkReset').addEventListener('click', this.lnkReset_click.bind(this));
 			this.container.querySelector('.lnkDelete').addEventListener('click', this.lnkDelete_click.bind(this));
 			this.applyPermissions();
@@ -2357,6 +2370,22 @@ PiLot.View.Tools = (function () {
 				aCheckbox.checked = false;
 			}
 			await new PiLot.Service.Tools.ChecklistsService().saveChecklistAsync(this.checklist);
+		},
+
+		createLogbookEntryAsync: async function(){
+			let notes = [], item;
+			for(let i = 0; i < this.checklist.items.length; i++){
+				item = this.checklist.items[i];
+				if(item.checked){
+					notes.push(`☑ ${item.title}`);
+				} else{
+					notes.push(`☐ ${item.title}`);
+				}
+			}
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			const today = RC.Date.DateOnly.fromObject(boatTime.now());
+			const logbookDay = await PiLot.Model.Logbook.loadLogbookDayAsync(today) || new PiLot.Model.Logbook.LogbookDay(today);
+			this.logbookEntryForm.showDefaultValuesAsync(logbookDay, null, this.checklist.title, notes.join('\n'));
 		}
 	};
 

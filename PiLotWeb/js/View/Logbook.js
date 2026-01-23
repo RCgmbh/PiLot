@@ -12,7 +12,6 @@ PiLot.View.Logbook = (function () {
 	var LogbookPage = function () {
 
 		this.logbookDay = null;			// PiLot.Model.Logbook.LogbookDay
-		this.gpsObserver = null;		// PiLot.Model.Nav.GPSObserver
 		this.boatConfig = null;			// PiLot.Model.Boat.BoatConfig, the current boat config
 		this.boatImageConfig = null;	// PiLot.View.Boat.BoatImageConfig
 		this.editForm = null;			// PiLot.View.Logbook.LogbookEntryForm
@@ -33,7 +32,6 @@ PiLot.View.Logbook = (function () {
 				this.boatConfig = result;
 				this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
 			});
-			this.gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
 			await this.loadLogbookDayAsync();
 			this.draw();
 			this.showLogbookDay();
@@ -58,7 +56,7 @@ PiLot.View.Logbook = (function () {
 		draw: function () {
 			const logbookPage = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(logbookPage);
-			this.editForm = new PiLot.View.Logbook.LogbookEntryForm(this.gpsObserver);
+			this.editForm = new PiLot.View.Logbook.LogbookEntryForm();
 			const plhLogbookEntries = logbookPage.querySelector('.plhLogbookEntries');
 			this.logbookEntries = new LogbookEntries(plhLogbookEntries, this.editForm, { isReadOnly: false, sortDescending: true });
 			this.pnlNoEntries = logbookPage.querySelector('.pnlNoEntries');
@@ -156,7 +154,6 @@ PiLot.View.Logbook = (function () {
 		this.container = pContainer;					// HTMLElement object where the entries will be added
 		this.editForm = pEditForm;						// one edit form used to edit existing and create new items
 		this.logbookEntryControls = null;				// an array of all PiLot.View.Logbook.LogbookEntryControl elements
-		this.gpsObserver = null;						// a GPS Observer used to auto-populate NAV Data
 		this.logbookDay = null;							// the Model object
 		this.date = null;								// the date as RC.Date.DateOnly
 		this.sortDescending = false;					// If true, the latest logbookEntries will appear on top
@@ -382,12 +379,10 @@ PiLot.View.Logbook = (function () {
 	}
 
 	/**
-	 * Class LogbookEntryControl 
+	 * Class LogbookEntryForm 
 	 * This represents a form used to enter or edit a LogbookEntry.
-	 * @param {PiLot.Model.Nav.GPSObserver} pGPSObserver - used to auto-fill nav data
 	 * */
-	var LogbookEntryForm = function (pGPSObserver) {
-		this.gpsObserver = pGPSObserver;			// a PiLot.Model.Nav.GPSObserver
+	var LogbookEntryForm = function () {
 		this.logbookDay = null;						// the LogbookDay for creating new items
 		this.logbookEntry = null;					// the business object to edit
 		
@@ -509,17 +504,25 @@ PiLot.View.Logbook = (function () {
 		},
 
 		/**
-		 * Shows default values for nav and sensor data, and empties all other fields. Then shows the form.
+		 * Shows default values for nav and sensor data, takes the meteo date from the previous entry (if 
+		 * there is any) and empties all other fields. Optinally takes a BoatSetup, a title and a notes text
+		 * then shows the form.
 		 * @param {PiLot.Model.Logbook.LogbookDay} pLogbookDay - The logbook day needed to create a new item
 		 * @param {PiLot.Model.Boat.BoatSetup} pBoatSetup - Optionally pass a boat setup.
+		 * @param {String} pTitle - optionally pass a title to set
+		 * @param {String} pNotes - optionally pass a notes text
 		 * */
-		showDefaultValuesAsync: async function(pLogbookDay, pBoatSetup = null){
+		showDefaultValuesAsync: async function(pLogbookDay, pBoatSetup = null, pTitle = null, pNotes = null){
 			this.logbookEntry = null;
 			this.logbookDay = pLogbookDay;
 			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			this.showTime(boatTime.now());
-			this.showDefaultTitle(pBoatSetup);
-			this.tbNotes.value = '';
+			if(pTitle){
+				this.tbTitle.value = pTitle;
+			} else {
+				this.showDefaultTitle(pBoatSetup);
+			}
+			this.tbNotes.value = pNotes || '';
 			const currentMeteo = await new PiLot.Service.Meteo.DataLoader().loadLogbookMeteoAsync();
 			const latestMeteo = pLogbookDay.getLatestMeteo() || {};
 			this.showMeteo({
@@ -532,16 +535,14 @@ PiLot.View.Logbook = (function () {
 			});
 			let lat = null;
 			let lon = null;
-			if (this.gpsObserver !== null) {
-				const latestPosition = this.gpsObserver.getRecentPosition(10);
-				if (latestPosition) {
-					const latLon = latestPosition.getLatLon();
-					lat = latLon.lat;
-					lon = latLon.lon;
-				}
-				
+			const gpsObserver = PiLot.Model.Nav.GPSObserver.getInstance();
+			const latestPosition = gpsObserver.getRecentPosition(10);
+			if (latestPosition) {
+				const latLon = latestPosition.getLatLon();
+				lat = latLon.lat;
+				lon = latLon.lon;
 			}
-			this.showNavData(lat, lon, this.gpsObserver.getCOG(), this.gpsObserver.getSOG());
+			this.showNavData(lat, lon, gpsObserver.getCOG(), gpsObserver.getSOG());
 			const track = await ( new PiLot.Service.Nav.TrackService().loadCurrentTrackAsync());
 			if(track !== null){
 				RC.Utils.showNumericValue(this.tbLog, PiLot.Utils.Nav.metersToNauticalMiles(track.getDistance()), '', 2);
