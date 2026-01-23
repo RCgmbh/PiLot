@@ -77,7 +77,7 @@ PiLot.Templates.Common = {
 						<a href="#" class="lnkCloseDialog noGrow paddingAllSmall"><i class="icon-cross"></i></a>
 					</div>
 					<div class="pnlTemplate flexColumn" style="border:1px solid #ccc;border-radius:4px;padding:4px;margin:2px 0px;background-color:#f8f4f4;" hidden>
-						<div class="coreData flexRow" style="cursor:pointer;">
+						<div class="coreData flexRow">
 							<span class="marginRight lblTimestamp col3 noGrow"></span>
 							<span class="marginRight lblType semiBold col2 noGrow"></span>
 							<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
