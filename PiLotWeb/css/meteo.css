@@ -25,6 +25,6 @@
 	.meteoChartContainer > div {min-width:40em; }
 }
 
-@media (min-height:600px) and (min-width:1000px){
+@media (min-height:600px) and (min-width:1000px){ /* Big label on big screens */
 	.divChartContainer>.divLabel { font-size:2.5em;}
 }

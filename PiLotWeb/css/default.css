@@ -63,7 +63,6 @@ body.night .rcCalendar .yearsPager { background-color: #666; }
 
 /* NAMED ITEMS */
 #logWindow { display: block; position: absolute; height: 10em; width: 100%; background-color: rgba(0, 0, 0, 0.5); font-family: 'Lucida Console'; font-size: 12px; overflow: auto; color: white; line-height: 13px; z-index: 14000; }
-#mainContent { flex: 1 1 auto; float: left; margin: 0px; padding: 0em; }
 #resolutionInfo:after { content: "default"; font-size: 12px; margin: 2px; color: #666666; font-family: 'Lucida Console'; }
 
 /* CONTAINERS */
@@ -256,8 +255,6 @@ textarea.big { height: 20em; }
 .paddingRightSmall { padding-right: min(0.5em, 2vw); }
 .absolute { position: absolute }
 .fixed { position: fixed; }
-.floatLeft { float: left; }
-.clearAll { clear: both; }
 .table { display: table; }
 .row { display: table-row; }
 .col { display: table-column; }
@@ -282,7 +279,6 @@ textarea.big { height: 20em; }
 .hCenter { margin-left: auto; margin-right: auto; left: 0; right: 0; }
 .vCenter { display: flex; flex-direction: column; justify-content: center; }
 .right { text-align: right; }
-.floatRight { float: right; }
 .preLine { white-space: pre-line; }
 .preWrap { white-space: pre-wrap; }
 .noWrap { white-space: nowrap; }
@@ -344,7 +340,7 @@ button.linkButton { padding-top: 0em; }
 .buttons.reverse { flex-direction: row-reverse; }
 .buttons .linkButton { flex-grow: 1; flex-basis: 8em; }
 
-a.tile { display: block; float: left; display: table; text-align: center; text-decoration: none; color: #000; border: 1px solid #666; border-radius: 0.5em; }
+a.tile { display: table; text-align: center; text-decoration: none; color: #000; border: 1px solid #666; border-radius: 0.5em; }
 a.tile.noBorder {border-style: none;}
 a.tile.big { margin: 1em; height: 12em; width: 12em; }
 a.tile.big { transition: color 0.2s, background-color 0.2s; }
