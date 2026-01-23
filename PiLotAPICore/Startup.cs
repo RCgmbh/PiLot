@@ -1,3 +1,4 @@
+using System;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -34,7 +35,7 @@ namespace PiLot.API{
 			if (env.IsDevelopment()) {
 				app.UseDeveloperExceptionPage();
 			}
-			app.UseFileServer();
+			this.ConfigureStaticFiles(app);
 			app.UseRouting();
 			app.UseForwardedHeaders(new ForwardedHeadersOptions {
 				ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
@@ -42,6 +43,18 @@ namespace PiLot.API{
 			app.UseEndpoints(endpoints => {
 				endpoints.MapControllers();
 			});
+		}
+
+		/// <summary>
+		/// Configures static files, so that files in wwwroot will be delivered as static files
+		/// This depends on the app.config value "staticFiles" having a value of "true"
+		/// </summary>
+		/// <param name="app"></param>
+		private void ConfigureStaticFiles(IApplicationBuilder app){
+			Boolean.TryParse(System.Configuration.ConfigurationManager.AppSettings["staticFiles"], out Boolean staticFiles);
+			if(staticFiles){
+				app.UseFileServer();
+			}
 		}
 	}
 }
