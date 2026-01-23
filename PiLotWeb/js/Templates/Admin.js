@@ -25,15 +25,15 @@ PiLot.Templates.Admin = {
 	`,
 
 	systemStatusPage: `
-		<div class="contentPadding">
-			<h1 data-text="cpuTemperature"></h1>
-			<div class="dataContainerHalf">
+		<div class="contentPadding flexColumn">
+			<h1 data-text="systemInfo"></h1>
+			<div class="marginBottom" style="max-width:64em;">
 				<div class="chartContainer" hidden></div>
 				<div class="chartWait" data-text="pleaseWait"></div>
 			</div>
-			<div class="pnlInfoTemplate flexRowWrap dataContainerHalf marginBottom" hidden>
+			<div class="pnlInfoTemplate flexColumn marginBottom console" hidden>
 				<span class="lblCommand bold"></span>
-				<span class="lblResult preWrap preLine"></span>
+				<span class="lblResult"></span>
 			</div>
 			<div class="plhInfos marginBottomBig"></div>
 		</div>
@@ -73,7 +73,7 @@ PiLot.Templates.Admin = {
 		<div class="contentPadding">
 			<h1 data-text="wifi"></h1>
 			<select class="ddlInterface input8 marginBottom" hidden></select>
-			<div class="pnlOutput marginBottom marginRight" style="font-family:courier; color:white; background-color:black; height:5.5em; max-width:54em; padding: 0.5em; 
+			<div class="pnlOutput marginBottom marginRight console" style="color:white; background-color:black; height:8em; max-width:54em; padding: 0.5em; 
 			border:3px solid; border-color: #333 #bbb #bbb #333; overflow:auto;"></div>
 			<div style="text-align:center; max-width:54em;" class="marginRight marginBottom">
 				<a href="#" class="lnkRefresh"><i class="icon-loop2"></i></a>

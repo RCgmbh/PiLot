@@ -286,6 +286,7 @@ textarea.big { height: 20em; }
 .preLine { white-space: pre-line; }
 .preWrap { white-space: pre-wrap; }
 .noWrap { white-space: nowrap; }
+.console {font-family: 'Courier New', Courier, monospace ; white-space: pre-wrap; word-wrap: anywhere;}
 .breakWord { word-break: break-word; overflow-wrap: break-word; }
 .textColumns {columns: auto 25em;}
 .bgLight { background-color: #eee; }
