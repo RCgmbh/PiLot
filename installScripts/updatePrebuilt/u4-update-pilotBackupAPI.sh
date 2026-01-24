@@ -21,6 +21,7 @@ echo installing application
 mkdir temp
 cp -r /opt/pilotbackupapi/config temp
 cp -r /opt/pilotbackupapi/PiLot.Backup.API.dll.config temp
+cp -r /opt/pilotbackupapi/appsettings.json temp
 rm -r /opt/pilotbackupapi/*
 tar zxf pilotbackupapi_$1.tar.gz -C /opt/pilotbackupapi
 mv temp/* /opt/pilotbackupapi
