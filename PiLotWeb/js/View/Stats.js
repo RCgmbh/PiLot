@@ -177,10 +177,7 @@ PiLot.View.Stats = (function () {
 			}
 			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
 			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
-			Promise.all([
-				this.boatSelector.fillBoatsListAsync(),
-				this.loadAllBoatsAsync()
-			]).then(results => this.applyUserSettings());
+			this.boatSelector.fillBoatsListAsync().then(() => this.applyUserSettings());
 			this.pnlChart = control.querySelector('.pnlChart');
 			this.pnlNoData = control.querySelector('.pnlNoData');
 		},
@@ -689,7 +686,6 @@ PiLot.View.Stats = (function () {
 			}
 			Promise.all([
 				this.boatSelector.fillBoatsListAsync(),
-				this.loadAllBoatsAsync(),
 				this.fillSegmentTypesAsync()
 			]).then(results => this.applyUserSettings());
 			this.pnlNoData = control.querySelector('.pnlNoData');
