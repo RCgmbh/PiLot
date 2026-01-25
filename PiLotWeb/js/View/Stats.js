@@ -226,7 +226,7 @@ PiLot.View.Stats = (function () {
 		 * distances, this would add quite some complexity.
 		 * */
 		loadTracksAsync: async function () {
-			let boatTime = await PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			let boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			let now = boatTime.now();
 			switch (this.userSettings.timeframe) {
 				case 0:	// current month
@@ -748,7 +748,7 @@ PiLot.View.Stats = (function () {
 		 * Loads the segments based on the current settings.
 		 * */
 		loadTrackSegmentsAsync: async function () {
-			let boatTime = await PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			let boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			let now = boatTime.now();
 			switch (this.userSettings.timeframe) {
 				case 0:	// current month
@@ -856,16 +856,22 @@ PiLot.View.Stats = (function () {
 		},
 
 		convertSpeedKn: function (pSpeed) {
-			return PiLot.Utils.Nav.metersToNauticalMiles(pSpeed) * 3600;
+			return PiLot.Utils.Nav.mpsToKnots(pSpeed);
 		},
 
 		convertSpeedKmh: function (pSpeed) {
-			return pSpeed * 3.6;
+			return PiLot.Utils.Nav.mpsToKmh(pSpeed);
 		}
 	};
 
-	/*var TimeframeSelector = function(pContainer, pUniqueName){
+	var TimeframeSelector = function(pContainer){
 		this.container = pContainer;
+		this.rblTimeframe = null;					// Array of radiobuttons
+		this.calStart = null;
+		this.calEnd = null;
+		this.mode = null;							// 0: this month, 1: this year, 2: all, 3: custom
+		this.start = null; 							// RC.Date.DateOnly
+		this.end = null;							// RC.Date.DateOnly
 		this.observable = null;
 		this.initialize();
 	};
@@ -881,12 +887,63 @@ PiLot.View.Stats = (function () {
 			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
+		rblTimeframe_change: function (pSender) {
+			this.mode = pSender.value;
+			this.pnlCustomDates.hidden = (this.mode !== 3);
+			this.observable.fire('change', this.readInput());
+			console.log(this.readInput());
+		},
+
+		calDate_change: function (){
+			this.observable.fire('change', this.readInput());
+			console.log(this.readInput());
+		},
+
 		draw: function(){
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.timeframeSelector);
 			this.container.appendChild(control);
-			this.fillBoatsListAsync();
+			this.rblTimeframe = control.querySelectorAll('.rblTimeframe');
+			for (let rbTimeframe of this.rblTimeframe) {
+				rbTimeframe.addEventListener('change', this.rblTimeframe_change.bind(this, rbTimeframe));
+			}
+			const locale = PiLot.Utils.Language.getLanguage();
+			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
+			const tbStartDate = optionsControl.querySelector('.tbStartDate');
+			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, null, null, locale);
+			this.calStartDate.on('change', this.calDate_change.bind(this));
+			const tbEndDate = optionsControl.querySelector('.tbEndDate');
+			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
+			this.calEndDate.on('change', this.calDate_change.bind(this));
+		
+		},
+
+		/**
+		 * @returns {Object} Object with {mode: number, start:RC.Date.DateOnly?, end:RC.Date.DateOnly?}
+		 */
+		readInput: function(){
+			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
+			const now = boatTime.now();
+			switch (this.mode) {
+				case 0:	// current month
+					this.start = RC.Date.DateOnly.fromObject({ year: now.year, month: now.month, day: 1 });
+					this.end = this.start.addMonths(1);
+					break;
+				case 1: // current year
+					this.start = RC.Date.DateOnly.fromObject({ year: now.year, month: 1, day: 1 });;
+					this.end = this.start.addYears(1);
+					break;
+				case 2: // all
+					this.start = null;
+					this.end = null;
+					break;
+				case 3: // custom
+					this.start = this.calStartDate.date();
+					this.end = this.calEndDate.date();
+					break;
+			}
+			return {mode: this.mode, start: this.start, end: this.end};
 		}
-	};*/
+	};
 
 	var BoatSelector = function(pContainer){
 		this.container = pContainer;
@@ -939,7 +996,6 @@ PiLot.View.Stats = (function () {
 			}
 			return result;
 		}
-
 	};
 	
 	return {

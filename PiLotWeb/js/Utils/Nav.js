@@ -149,7 +149,7 @@ PiLot.Utils.Nav = {
 
 	/// converts a distance in meters into a distance in nautical miles
 	metersToNauticalMiles: function (pMeters) {
-		return pMeters == null ? null : pMeters / 1852;
+		return pMeters === null ? null : pMeters / 1852;
 	},
 
 	/** @returns {Number} the input value converted from knots to m/s **/

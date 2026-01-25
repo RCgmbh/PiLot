@@ -95,11 +95,16 @@ PiLot.Templates.Stats = {
 	`,
 
 	timeframeSelector: `
-		<div class="flexColumn">
+		<form><div class="flexColumn">
 			<span data-text="timeframe" class="bold"></span>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
-		</div>
+			<label><input type="radio" name="rblFastestSegmentTimeframe" value="3" class="rblTimeframe" /><span data-text="userdefined"></span></label>
+			<div class="label marginBottomSmall pnlCustomDates">
+				<span class="inlineBlock col2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate" hidden></div><br />
+				<span class="inlineBlock col2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate" hidden></div>
+			</div>
+		</div></form>
 	`
 };
