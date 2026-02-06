@@ -463,6 +463,7 @@ AS $$ BEGIN
 			start_utc = p_start_utc, end_utc = p_end_utc,
 			start_boattime = p_start_boattime, end_boattime = p_end_boattime,
 			distance_mm = p_distance_mm,
+			speed = p_distance_mm::double precision / (p_end_utc - p_start_utc)::double precision,
 			date_changed = NOW()
 		WHERE 
 			track_id = p_track_id AND type_id = p_type_id;
@@ -470,13 +471,14 @@ AS $$ BEGIN
 		INSERT INTO track_segments (
 			type_id, track_id, 
 			start_utc, end_utc,	start_boattime,	end_boattime,
-			distance_mm,
+			distance_mm, speed
 			date_created, date_changed
 		)
 		VALUES (
 			p_type_id, p_track_id,
 			p_start_utc, p_end_utc, p_start_boattime, p_end_boattime,
 			p_distance_mm,
+			p_distance_mm::double precision / (p_end_utc - p_start_utc)::double precision,
 			NOW(), NOW()
 		);
 	END IF;
