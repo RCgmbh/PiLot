@@ -1,8 +1,8 @@
-/* !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+/* *****************************************************
 
-  This will create pr update the db structure for tracks
+  This will create or update the db structure for tracks
   
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+***************************************************** */
 
 /*-----------TABLE track_segment_types -------------------------*/
 
@@ -72,6 +72,12 @@ CREATE INDEX IF NOT EXISTS track_segments_track_id_index
    ON track_segments 
    USING btree (track_id);
 
+ALTER TABLE track_segments ADD COLUMN IF NOT EXISTS speed double precision;
+
+CREATE INDEX IF NOT EXISTS track_segments_type_speed_index ON track_segments (type_id, speed DESC);
+
+UPDATE track_segments SET speed = distance_mm::double precision / (end_utc - start_utc)::double precision;
+
 GRANT SELECT ON track_segments TO pilotweb;
 GRANT INSERT ON track_segments TO pilotweb;
 GRANT UPDATE ON track_segments TO pilotweb;
@@ -103,22 +109,36 @@ CREATE INDEX IF NOT EXISTS track_points_coordinates_index
    USING btree (track_id);
 
 /*-----------VIEW all_track_segments-----------------*/
+DROP VIEW IF EXISTS public.all_track_segments
 
-CREATE OR REPLACE VIEW public.all_track_segments AS (
-	SELECT
-		ts.type_id,
-		ts.track_id,
-		ts.start_utc,
-		ts.end_utc,
-		ts.start_boattime,
-		ts.end_boattime,
-		ts.distance_mm,
-		ts.distance_mm::DOUBLE PRECISION/(ts.end_utc - ts.start_utc) as speed,
-		tr.boat,
-		EXTRACT(YEAR FROM to_timestamp(ts.start_boattime / 1000)) AS year
-	FROM
-		track_segments ts INNER JOIN tracks tr ON ts.track_id = tr.id
-);
+CREATE OR REPLACE VIEW public.all_track_segments
+ AS
+  SELECT 
+ 	type_id,
+	track_id,
+	start_utc,
+	end_utc,
+	start_boattime,
+	end_boattime,
+	distance_mm,
+	speed,
+	boat,
+	row_number() over (PARTITION BY type_id, boat, year ORDER BY speed DESC) as year_rank,
+	row_number() over (PARTITION BY type_id, boat ORDER BY speed DESC) as overall_rank
+ FROM (
+ SELECT ts.type_id,
+    ts.track_id,
+    ts.start_utc,
+    ts.end_utc,
+    ts.start_boattime,
+    ts.end_boattime,
+    ts.distance_mm,
+    ts.speed,
+    tr.boat,
+    EXTRACT(year FROM to_timestamp((ts.start_boattime / 1000)::double precision)) AS year
+   FROM track_segments ts
+     JOIN tracks tr ON ts.track_id = tr.id
+ );
 
 GRANT SELECT ON all_track_segments TO pilotweb;
 
@@ -350,8 +370,8 @@ AS $BODY$
 			distance_mm,
 			speed,
 			boat,
-			row_number() over (PARTITION BY type_id, year ORDER BY speed DESC) as year_rank,
-			row_number() over (PARTITION BY type_id ORDER BY speed DESC) as overall_rank
+			year_rank,
+			overall_rank
 		FROM
 			all_track_segments
 		WHERE
@@ -400,7 +420,8 @@ AS $BODY$
 		distance_mm,
 		speed,
 		boat,
-		0::bigint, 0::bigint
+		year_rank,
+		overall_rank
 	FROM
 		all_track_segments
 	WHERE
