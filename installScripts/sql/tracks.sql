@@ -4,6 +4,23 @@
   
 ***************************************************** */
 
+DROP VIEW IF EXISTS public.all_track_segments;
+DROP FUNCTION IF EXISTS public.insert_track_segment_type;
+DROP FUNCTION IF EXISTS public.update_track_segment_type;
+DROP FUNCTION IF EXISTS public.delete_track_segment_type;
+DROP FUNCTION IF EXISTS public.read_tracks;
+DROP FUNCTION IF EXISTS public.insert_track;
+DROP FUNCTION IF EXISTS public.delete_track;
+DROP FUNCTION IF EXISTS public.update_track_data;
+DROP FUNCTION IF EXISTS public.update_track_boat;
+DROP FUNCTION IF EXISTS public.read_track_segments_by_track;
+DROP FUNCTION IF EXISTS public.find_track_segments;
+DROP FUNCTION IF EXISTS public.save_track_segment;
+DROP FUNCTION IF EXISTS public.delete_track_segments;
+DROP FUNCTION IF EXISTS public.read_track_points;
+DROP FUNCTION IF EXISTS public.insert_track_point;
+DROP FUNCTION IF EXISTS public.delete_track_points;
+
 /*-----------TABLE track_segment_types -------------------------*/
 
 CREATE TABLE IF NOT EXISTS track_segment_types(
@@ -109,9 +126,8 @@ CREATE INDEX IF NOT EXISTS track_points_coordinates_index
    USING btree (track_id);
 
 /*-----------VIEW all_track_segments-----------------*/
-DROP VIEW IF EXISTS public.all_track_segments
 
-CREATE OR REPLACE VIEW public.all_track_segments
+CREATE VIEW public.all_track_segments
  AS
   SELECT 
  	type_id,
@@ -138,13 +154,13 @@ CREATE OR REPLACE VIEW public.all_track_segments
     EXTRACT(year FROM to_timestamp((ts.start_boattime / 1000)::double precision)) AS year
    FROM track_segments ts
      JOIN tracks tr ON ts.track_id = tr.id
- );
+ ) AS joinedTracks;
 
 GRANT SELECT ON all_track_segments TO pilotweb;
 
 /*-----------FUNCTION insert_track_segment_type-----------------*/
 
-CREATE OR REPLACE FUNCTION public.insert_track_segment_type(
+CREATE FUNCTION public.insert_track_segment_type(
 	p_duration integer,
 	p_distance integer,
 	p_labels jsonb
@@ -164,7 +180,7 @@ GRANT EXECUTE ON FUNCTION insert_track_segment_type TO pilotweb;
 
 /*-----------FUNCTION update_track_segment_type-----------------*/
 
-CREATE OR REPLACE FUNCTION public.update_track_segment_type(
+CREATE FUNCTION public.update_track_segment_type(
 	p_id integer,
 	p_duration integer,
 	p_distance integer,
@@ -190,7 +206,7 @@ GRANT EXECUTE ON FUNCTION update_track_segment_type to pilotweb;
 /*-----------FUNCTION delete_track_segment_type-----------------*/
 -- Deletes a track_segment_type, and with it all track segments for this type
 
-CREATE OR REPLACE FUNCTION public.delete_track_segment_type(
+CREATE FUNCTION public.delete_track_segment_type(
 	p_id integer
 )
 RETURNS void 
@@ -207,7 +223,7 @@ GRANT EXECUTE ON FUNCTION delete_track_segment_type TO pilotweb;
 /*-----------FUNCTION read_tracks-----------------*/
 -- reads all tracks overlapping a certain period of time
 
-CREATE OR REPLACE FUNCTION public.read_tracks(
+CREATE FUNCTION public.read_tracks(
 	p_start bigint,
 	p_end bigint,
 	p_is_boattime boolean
@@ -250,7 +266,7 @@ GRANT EXECUTE ON FUNCTION read_tracks TO pilotweb;
 /*-----------FUNCTION insert_track-----------------*/
 -- inserts a new track, setting the distance to 0
 
-CREATE OR REPLACE FUNCTION public.insert_track(
+CREATE FUNCTION public.insert_track(
 	p_boat text
 )
 RETURNS integer
@@ -269,7 +285,7 @@ GRANT EXECUTE ON FUNCTION insert_track TO pilotweb;
 /*-----------FUNCTION delete_track-----------------*/
 -- deletes a track and all connected segments and track_points
 
-CREATE OR REPLACE FUNCTION public.delete_track(
+CREATE FUNCTION public.delete_track(
 	p_id integer
 )
 RETURNS void
@@ -285,8 +301,7 @@ GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
 /*-----------FUNCTION update_track_data-----------------*/
 -- updates the track distance and start/end based on the track_points
 
-
-CREATE OR REPLACE FUNCTION public.update_track_data(
+CREATE FUNCTION public.update_track_data(
 	p_id integer
 )
 RETURNS void
@@ -322,7 +337,7 @@ GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 /*-----------FUNCTION update_track_boat-----------------*/
 -- updates the boat for a track
 
-CREATE OR REPLACE FUNCTION public.update_track_boat(
+CREATE FUNCTION public.update_track_boat(
 	p_id integer,
 	p_boat text 
 )
@@ -339,7 +354,7 @@ GRANT EXECUTE ON FUNCTION update_track_boat TO pilotweb;
 /*-----------FUNCTION read_track_segments-----------------*/
 -- reads all track segments for a certain track
 
-CREATE OR REPLACE FUNCTION public.read_track_segments_by_track(
+CREATE FUNCTION public.read_track_segments_by_track(
 	p_track_id integer
 )
 RETURNS TABLE (
@@ -387,7 +402,7 @@ GRANT EXECUTE ON FUNCTION read_track_segments_by_track TO pilotweb;
 -- finds track segments for a certain type, optionally limited
 -- by a timeframe and boats
 
-CREATE OR REPLACE FUNCTION public.find_track_segments(
+CREATE FUNCTION public.find_track_segments(
 	p_type_id integer,
 	p_start bigint,
 	p_end bigint,
@@ -445,7 +460,7 @@ GRANT EXECUTE ON FUNCTION find_track_segments TO pilotweb;
 -- saves a track segment, replacing any existing segment for
 -- the same type and track.
 
-CREATE OR REPLACE FUNCTION public.save_track_segment(
+CREATE FUNCTION public.save_track_segment(
 	p_type_id integer,
 	p_track_id integer,
 	p_start_utc bigint,
@@ -471,7 +486,7 @@ AS $$ BEGIN
 		INSERT INTO track_segments (
 			type_id, track_id, 
 			start_utc, end_utc,	start_boattime,	end_boattime,
-			distance_mm, speed
+			distance_mm, speed,
 			date_created, date_changed
 		)
 		VALUES (
@@ -489,7 +504,7 @@ GRANT EXECUTE ON FUNCTION save_track_segment TO pilotweb;
 /*-----------FUNCTION delete_track_segments -----------------*/
 -- deletes all track segments for one or all tracks and of one or all types
 
-CREATE OR REPLACE FUNCTION public.delete_track_segments(
+CREATE FUNCTION public.delete_track_segments(
 	p_type_id integer,
 	p_track_id integer
 )
@@ -507,7 +522,7 @@ GRANT EXECUTE ON FUNCTION delete_track_segments TO pilotweb;
 /*-----------FUNCTION read_track_points-----------------*/
 -- reads all track points of a track, optionally limited by start-/endtime
 
-CREATE OR REPLACE FUNCTION public.read_track_points(
+CREATE FUNCTION public.read_track_points(
 	p_track_id integer,
 	p_start bigint,
 	p_end bigint,
@@ -544,7 +559,7 @@ GRANT EXECUTE ON FUNCTION read_track_points TO pilotweb;
 /*-----------FUNCTION insert_track_point-----------------*/
 -- inserts a track_point and optionally updates the distance and start/end of the track
 
-CREATE OR REPLACE FUNCTION public.insert_track_point(
+CREATE FUNCTION public.insert_track_point(
 	p_track_id integer,
 	p_utc bigint,
 	p_boattime bigint,
@@ -568,7 +583,7 @@ END $$;
 /*-----------FUNCTION delete_track_point-----------------*/
 -- deletes a range of track_points and updates the distance and start/end of the track
 
-CREATE OR REPLACE FUNCTION public.delete_track_points(
+CREATE FUNCTION public.delete_track_points(
 	p_track_id integer,
 	p_start bigint,
 	p_end bigint,
