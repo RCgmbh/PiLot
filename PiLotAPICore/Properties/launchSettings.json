@@ -1,4 +1,16 @@
 {
+  "profiles": {
+    "PiLotAPI": {
+      "commandName": "IIS",
+      "launchBrowser": true,
+      "launchUrl": "api/v1/Authentication/login?username=dido&password=1234",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "http://localhost:5000"
+    }
+  },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -9,26 +21,6 @@
     "iisExpress": {
       "applicationUrl": "http://localhost:2355",
       "sslPort": 0
-    }
-  },
-  "$schema": "http://json.schemastore.org/launchsettings.json",
-  "profiles": {
-    "IIS Express": {
-      "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "weatherforecast",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "PiLotAPI": {
-      "commandName": "IIS",
-      "launchBrowser": true,
-      "launchUrl": "api/v1/Authentication/login?username=dido&password=1234",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      },
-      "applicationUrl": "http://localhost:5000"
     }
   }
 }
