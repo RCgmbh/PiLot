@@ -58,13 +58,13 @@ Write-Host "Start ftp upload" -ForegroundColor Blue
 $webclient = New-Object System.Net.WebClient
 $webclient.Credentials = New-Object System.Net.NetworkCredential($ftpUser, $ftpPassword)
 $ftpServerPath = "ftp://roethenmund.biz/httpdocs/pilot/"
-#for ( $i = 0; $i -lt $releaseFiles.Count; $i++) {
-#    $releaseFile = $releaseFiles[$i]
-#	$releaseFileName = $releaseFile | Split-Path -Leaf
-#	$uri = New-Object System.Uri("$ftpServerPath/$releaseFileName")
-#	$webclient.UploadFile($uri, $releaseFile)
-#	Write-Host "Release file uploaded: $releaseFileName" -ForegroundColor Green
-#}
+for ( $i = 0; $i -lt $releaseFiles.Count; $i++) {
+    $releaseFile = $releaseFiles[$i]
+	$releaseFileName = $releaseFile | Split-Path -Leaf
+	$uri = New-Object System.Uri("$ftpServerPath/$releaseFileName")
+	$webclient.UploadFile($uri, $releaseFile)
+	Write-Host "Release file uploaded: $releaseFileName" -ForegroundColor Green
+}
 $webclient.Dispose()
 
 Write-host "`n****************`n*   All done.  *`n****************" -ForegroundColor Green
