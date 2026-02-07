@@ -1,5 +1,5 @@
-psql -d postgres -f sql/pilotDb.sql
-psql -d pilot -f sql/poi.sql
-psql -d pilot -f sql/poiData.sql
-psql -d pilot -f sql/tracks.sql
-psql -d pilot -f sql/trackSegmentsData.sql
+psql -d postgres -f sql/once/pilotDb.sql
+psql -d pilot -f sql/always/poi.sql
+psql -d pilot -f sql/once/poiData.sql
+psql -d pilot -f sql/always/tracks.sql
+psql -d pilot -f sql/once/trackSegmentsData.sql

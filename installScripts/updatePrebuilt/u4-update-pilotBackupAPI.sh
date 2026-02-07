@@ -19,12 +19,12 @@ echo stopping services
 systemctl stop pilotBackupApi
 echo installing application
 mkdir temp
-cp -r /opt/pilotbackupapi/config temp
-cp -r /opt/pilotbackupapi/PiLot.Backup.API.dll.config temp
-cp -r /opt/pilotbackupapi/appsettings.json temp
+tar zxf pilotbackupapi_$1.tar.gz -C temp
+cp -r /opt/pilotbackupapi/config temp/app
+cp -r /opt/pilotbackupapi/PiLot.Backup.API.dll.config temp/app
+cp -r /opt/pilotbackupapi/appsettings.json temp/app
 rm -r /opt/pilotbackupapi/*
-tar zxf pilotbackupapi_$1.tar.gz -C /opt/pilotbackupapi
-mv temp/* /opt/pilotbackupapi
+mv temp/app/* /opt/pilotbackupapi
 echo starting services
 systemctl start pilotBackupApi
 echo cleaning up

@@ -19,10 +19,10 @@ echo stopping services
 systemctl stop photosWatcher
 echo installing application
 mkdir temp
-mv /opt/pilotphotoswatcher/PiLot.PhotosWatcher.dll.config temp
+tar zxf pilotphotoswatcher_$1.tar.gz -C temp
+mv /opt/pilotphotoswatcher/PiLot.PhotosWatcher.dll.config temp/app
 rm -r /opt/pilotphotoswatcher/*
-tar zxf pilotphotoswatcher_$1.tar.gz -C /opt/pilotphotoswatcher
-mv temp/* /opt/pilotphotoswatcher
+mv temp/app/* /opt/pilotphotoswatcher
 echo starting services
 systemctl start photosWatcher
 echo cleaning up

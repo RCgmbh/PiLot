@@ -19,11 +19,11 @@ echo stopping services
 systemctl stop liveClient
 echo installing application
 mkdir temp
-mv /opt/pilotliveclient/config.json temp
-mv /opt/pilotliveclient/PiLot.LiveClient.dll.config temp
+tar zxf pilotliveclient_$1.tar.gz -C temp
+mv /opt/pilotliveclient/config.json temp/app
+mv /opt/pilotliveclient/PiLot.LiveClient.dll.config temp/app
 rm -r /opt/pilotliveclient/*
-tar zxf pilotliveclient_$1.tar.gz -C /opt/pilotliveclient
-mv temp/* /opt/pilotliveclient
+mv temp/app/* /opt/pilotliveclient
 echo cleaning up
 rm -r temp
 rm pilotliveclient_$1.tar.gz

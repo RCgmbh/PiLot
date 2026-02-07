@@ -21,11 +21,16 @@ systemctl stop sensorsLogger
 systemctl stop pilotApi
 echo installing application
 mkdir temp
-cp -r /opt/pilotapi/config temp
-cp -r /opt/pilotapi/PiLot.API.dll.config temp
+tar zxf pilotapi_$1.tar.gz -C temp
+cp -r /opt/pilotapi/config temp/app
+cp -r /opt/pilotapi/PiLot.API.dll.config temp/app
 rm -r /opt/pilotapi/*
-tar zxf pilotapi_$1.tar.gz -C /opt/pilotapi
-cp -r temp/* /opt/pilotapi/
+cp -r temp/app/* /opt/pilotapi/
+echo running db scripts
+shopt -s nullglob
+for file in temp/db/*.sql; do
+    sudo -u postgres psql -d pilot -f "$file" 
+done
 echo starting services
 systemctl start gpsLogger
 systemctl start sensorsLogger
