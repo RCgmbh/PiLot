@@ -9,6 +9,7 @@ DROP FUNCTION IF EXISTS public.insert_track_segment_type;
 DROP FUNCTION IF EXISTS public.update_track_segment_type;
 DROP FUNCTION IF EXISTS public.delete_track_segment_type;
 DROP FUNCTION IF EXISTS public.read_tracks;
+DROP FUNCTION IF EXISTS public.find_tracks;
 DROP FUNCTION IF EXISTS public.insert_track;
 DROP FUNCTION IF EXISTS public.delete_track;
 DROP FUNCTION IF EXISTS public.update_track_data;
@@ -262,6 +263,64 @@ AS $BODY$
 $BODY$;
 
 GRANT EXECUTE ON FUNCTION read_tracks TO pilotweb;
+
+/*-----------FUNCTION find_tracks-----------------*/
+-- finds all tracks overlapping a certain period of time for one or many
+-- specific boats. Includes information about the fastest segments for
+-- each track.
+
+CREATE FUNCTION public.find_tracks(
+	p_start bigint,
+	p_end bigint,
+	p_is_boattime boolean,
+	p_boats text[]
+)
+RETURNS TABLE(
+	id integer,
+	start_utc bigint,
+	end_utc bigint,
+	start_boattime bigint,
+	end_boattime bigint,
+	distance real,
+	boat text,
+	type_ids integer [],
+	year_ranks bigint[],
+	overall_ranks bigint[]
+) 
+LANGUAGE 'sql'
+AS $BODY$
+	SELECT
+	 tracks.id,
+	 tracks.start_utc,
+	 tracks.end_utc,
+	 tracks.start_boattime,
+	 tracks.end_boattime,
+	 tracks.distance,
+	 tracks.boat,
+	 array_remove(array_agg(segments.type_id), NULL) AS type_ids,
+	 array_remove(array_agg(segments.year_rank), NULL) AS year_ranks,
+	 array_remove(array_agg(segments.overall_rank), NULL) AS overall_ranks 
+	FROM
+		tracks
+		LEFT JOIN
+			(SELECT track_id, type_id, year_rank, overall_rank
+			FROM all_track_segments
+			WHERE year_rank = 1)
+			AS segments
+		ON tracks.id = segments.track_id
+	WHERE
+		( 
+			(p_is_boattime = FALSE AND (p_end IS NULL OR start_utc < p_end) AND (p_start IS NULL OR end_utc > p_start))
+			OR
+			(p_is_boattime = TRUE AND (p_end IS NULL OR start_boattime < p_end) AND (p_start IS NULL OR end_boattime > p_start))
+		)
+		AND (
+			p_boats IS NULL OR array_length(p_boats, 1) IS NULL OR boat = ANY (p_boats)
+		)
+	GROUP BY tracks.id
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION find_tracks TO pilotweb;
 
 /*-----------FUNCTION insert_track-----------------*/
 -- inserts a new track, setting the distance to 0
