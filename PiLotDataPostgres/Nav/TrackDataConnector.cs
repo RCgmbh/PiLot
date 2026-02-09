@@ -82,6 +82,24 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
+		/// Returns all tracks for a certain time period, optinally filtered by boat
+		/// </summary>
+		/// <param name="pStart">Start of the period in ms since epoc</param>
+		/// <param name="pEnd">End of the period in ms since epoc</param>
+		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
+		/// <param name="pBoats">Comma separated list of boats, null or empty returns all boats</param>
+		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
+		public List<Track> FindTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime, String[] pBoats) {
+			String query = "SELECT * FROM find_tracks(@p_start, @p_end, @p_is_boattime, @p_boats);";
+			List<(String, Object)> pars = new List<(String, Object)>();
+			pars.Add(("@p_start", pStart));
+			pars.Add(("@p_end", pEnd));
+			pars.Add(("@p_is_boattime", pIsBoatTime));
+			pars.Add(("@p_boats", pBoats));
+			return this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrackWithTrophies), pars, null);
+		}
+
+		/// <summary>
 		/// Reads for each day of a month whether we have a track.
 		/// </summary>
 		/// <param name="pYear">The year</param>
@@ -343,6 +361,26 @@ namespace PiLot.Data.Postgres.Nav {
 				DateCreated = DateTimeHelper.ToJSTime(pReader.GetDateTime("date_created")),
 				DateChanged = DateTimeHelper.ToJSTime(pReader.GetDateTime("date_changed"))
 			};
+			return result;
+		}
+
+		/// <summary>
+		/// Helper to create a Track containing silver/gold segments out of a db record
+		/// </summary>
+		private Track ReadTrackWithTrophies(NpgsqlDataReader pReader) {
+			Track result = this.ReadTrack(pReader);
+			result.SilverSegments = new List<Int32>();
+			result.GoldSegments = new List<Int32>();
+			Int32[] typeIds = this.dbHelper.ReadNullableField<Int32[]>(pReader, "type_ids");
+			Int32[] yearRanks = this.dbHelper.ReadNullableField<Int32[]>(pReader, "year_ranks");
+			Int32[] overallRanks = this.dbHelper.ReadNullableField<Int32[]>(pReader, "overall_ranks");
+			for(Int32 i = 0; i < typeIds.Length; i++) {
+				if (overallRanks[i] == 1) {
+					result.GoldSegments.Add(typeIds[i]);
+				} else if (yearRanks[i] == 1) {
+					result.SilverSegments.Add(typeIds[i]);
+				}
+			}
 			return result;
 		}
 

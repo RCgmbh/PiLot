@@ -28,8 +28,27 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Track> GetTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime, Boolean readTrackPoints) {
-			List<Track> tracks = DataConnectionHelper.TrackDataConnector.ReadTracks(startTime, endTime, isBoatTime, readTrackPoints);
-			return tracks;
+			return DataConnectionHelper.TrackDataConnector.ReadTracks(startTime, endTime, isBoatTime, readTrackPoints);
+		}
+
+		/// <summary>
+		/// Finds tracks within a certain range and one, many or all boats. A list of all Tracks that
+		/// overlap with the period from startTime to endTime is returned.
+		/// </summary>
+		/// <param name="startTime">Starttime in ms utc or boatTime</param>
+		/// <param name="endTime">Endtime in ms utc or boatTime</param>
+		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
+		/// <param name="boats">comma-separated list of boats. If empty, no filtering is done</param>
+		/// <returns>a list of tracks having GoldSegments and SilverSegments set</returns>
+		[Route(Program.APIROOT + "[controller]/search")]
+		[HttpGet]
+		[ServiceFilter(typeof(ReadAuthorizationFilter))]
+		public List<Track> FindTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime, String boats) {
+			String[] boatsArray = null;
+			if (!String.IsNullOrEmpty(boats)) {
+				boatsArray = boats.Split(',');
+			} 
+			return DataConnectionHelper.TrackDataConnector.FindTracks(startTime, endTime, isBoatTime, boatsArray);
 		}
 
 		/// <summary>

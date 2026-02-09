@@ -283,6 +283,8 @@ RETURNS TABLE(
 	end_boattime bigint,
 	distance real,
 	boat text,
+	date_created timestamp,
+	date_changed timestamp,
 	type_ids integer [],
 	year_ranks bigint[],
 	overall_ranks bigint[]
@@ -297,6 +299,8 @@ AS $BODY$
 	 tracks.end_boattime,
 	 tracks.distance,
 	 tracks.boat,
+	 tracks.date_created,
+	 tracks.date_changed,
 	 array_remove(array_agg(segments.type_id), NULL) AS type_ids,
 	 array_remove(array_agg(segments.year_rank), NULL) AS year_ranks,
 	 array_remove(array_agg(segments.overall_rank), NULL) AS overall_ranks 

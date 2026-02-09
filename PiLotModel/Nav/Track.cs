@@ -87,6 +87,27 @@ namespace PiLot.Model.Nav {
 			get; set;
 		}
 
+		/// <summary>
+		/// The segment type ids of the overall fastest segments for this track, if any.
+		/// If null, the values have not been read, if empyty, there are no trophies
+		/// for this track.
+		/// </summary>
+		[JsonPropertyName("goldSegments")]
+		public List<Int32> GoldSegments {
+			get; set;
+		}
+
+		/// <summary>
+		/// The segment type ids of the fastest per year segments for this track, if any.
+		/// Overall fastest segments are not contained, as they are in GoldSegments.
+		/// If null, the values have not been read, if empyty, there are no trophies
+		/// for this track.
+		/// </summary>
+		[JsonPropertyName("silverSegments")]
+		public List<Int32> SilverSegments {
+			get; set;
+		}
+
 		[JsonPropertyName("dateCreated")]
 		public Int64? DateCreated {
 			get; set;
