@@ -13,6 +13,7 @@ PiLot.View.Stats = (function () {
 		this.userSettings = null;
 		this.totalDistanceChart = null;
 		this.fastestSegmentsChart = null;
+		this.tracksList = null;
 
 		this.initialize();
 	}
@@ -47,6 +48,17 @@ PiLot.View.Stats = (function () {
 			this.saveUserSettings();
 		},
 
+		expandCollapseTracksList_expand: function () {
+			this.userSettings.tracksListVisible = true;
+			this.saveUserSettings();
+			this.tracksList.loadAndShowDataAsync();
+		},
+
+		expandCollapseTracksList_collapse: function () {
+			this.userSettings.tracksListVisible = false;
+			this.saveUserSettings();
+		},
+
 		draw: function () {
 			const pageContent = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.trackStatsPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(pageContent);
@@ -67,11 +79,21 @@ PiLot.View.Stats = (function () {
 			this.expandCollapseFastestSegments.on('expand', this, this.expandCollapseFastestSegments_expand.bind(this));
 			this.expandCollapseFastestSegments.on('collapse', this, this.expandCollapseFastestSegments_collapse.bind(this));
 			this.fastestSegmentsChart = new FastestSegmentsChart(pnlFastestSegmentsChart);
+
+			const pnlTracksList = pageContent.querySelector('.pnlTracksList');
+			this.expandCollapseTracksList = new PiLot.View.Common.ExpandCollapse(
+				pageContent.querySelector('.lnkTracksList'),
+				pnlTracksList
+			);
+			this.expandCollapseTracksList.on('expand', this, this.expandCollapseTracksList_expand.bind(this));
+			this.expandCollapseTracksList.on('collapse', this, this.expandCollapseTracksList_collapse.bind(this));
+			this.tracksList = new TracksList(pnlTracksList);
 		},
 
 		applyUserSettings: function () {
 			this.expandCollapseTotalDistance.expandCollapse(this.userSettings.totalDistanceChartVisible);
 			this.expandCollapseFastestSegments.expandCollapse(this.userSettings.fastestSegmentsChartVisible);
+			this.expandCollapseTracksList.expandCollapse(this.userSettings.tracksListVisible);
 		},
 
 		saveUserSettings: function () {
@@ -98,7 +120,6 @@ PiLot.View.Stats = (function () {
 		this.showBarLabels = false;
 		this.userLanguage = null;
 		// controls
-		this.lnkToggleSettings = null;
 		this.pnlSettings = null;
 		this.rblTimeframe = null;					// Array of radiobuttons
 		this.rblInterval = null;					// NodeList of radiobuttons
@@ -160,8 +181,7 @@ PiLot.View.Stats = (function () {
 		draw: function () {
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.totalDistanceChart);
 			this.container.appendChild(control);
-			this.lnkToggleSettings = control.querySelector('.lnkToggleSettings');
-			this.lnkToggleSettings.addEventListener('click', this.lnkToggleSettings_click.bind(this));
+			control.querySelector('.lnkToggleSettings').addEventListener('click', this.lnkToggleSettings_click.bind(this));
 			this.pnlSettings = control.querySelector('.pnlSettings');
 			this.rblTimeframe = control.querySelectorAll('.rblTimeframe');
 			for(let rbTimeframe of this.rblTimeframe){
@@ -606,7 +626,6 @@ PiLot.View.Stats = (function () {
 		this.start = null;							// RC.Date.DateOnly
 		this.end = null;							// RC.Date.DateOnly
 		// controls
-		this.lnkToggleSettings = null;
 		this.pnlSettings = null;
 		this.ddlSegmentTypes = null;				// Dropdown with all segment types
 		this.rblTimeframe = null;					// Array of radiobuttons
@@ -669,8 +688,7 @@ PiLot.View.Stats = (function () {
 		draw: function () {
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsChart);
 			this.container.appendChild(control);
-			this.lnkToggleSettings = control.querySelector('.lnkToggleSettings');
-			this.lnkToggleSettings.addEventListener('click', this.lnkToggleSettings_click.bind(this));
+			control.querySelector('.lnkToggleSettings').addEventListener('click', this.lnkToggleSettings_click.bind(this));
 			this.pnlSettings = control.querySelector('.pnlSettings');
 			this.ddlSegmentTypes = control.querySelector('.ddlSegmentTypes');
 			this.ddlSegmentTypes.addEventListener('change', this.ddlSegmentTypes_change.bind(this, this.ddlSegmentTypes));
@@ -864,6 +882,80 @@ PiLot.View.Stats = (function () {
 		}
 	};
 
+	var TracksList = function (pContainer) {
+		this.container = pContainer;
+		this.userSettingsName = 'PiLot.View.Stats.TracksList';
+		this.userSettings = null;
+		this.trackService = null;
+		this.allBoats = null;
+		this.pnlSettings = null;
+		this.timeframeSelector = null;				// PiLot.View.Stats.TimeframeSelector
+		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
+		this.pnlNoData = null;
+		this.initialize();
+	};
+
+	TracksList.prototype = {
+
+		initialize: function () {
+			this.trackService = PiLot.Service.Nav.TrackService.getInstance();
+			this.userSettings = PiLot.Utils.Common.loadUserSetting(this.userSettingsName) || {};
+			this.setDefaultValues();
+			this.draw();
+		},
+
+		lnkToggleSettings_click: function (pEvent) {
+			pEvent.preventDefault();
+			this.pnlSettings.hidden = !this.pnlSettings.hidden;
+			this.userSettings.showSettings = !this.pnlSettings.hidden;
+			this.saveUserSettings();
+		},
+
+		timeframeSelector_change: function(pData){
+			console.log(pData);
+		},
+
+		boatSelector_change: function(pData){
+			this.userSettings.boats = this.boatSelector.getSelectedBoats();
+			this.saveUserSettings();
+			this.loadAndShowDataAsync();
+		},
+
+		draw: function(){
+			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.tracksList);
+			this.container.appendChild(control);
+			control.querySelector('.lnkToggleSettings').addEventListener('click', this.lnkToggleSettings_click.bind(this));
+			this.pnlSettings = control.querySelector('.pnlSettings');
+			this.timeframeSelector = new TimeframeSelector(control.querySelector('.plhTimeframe'));
+			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
+			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
+			this.boatSelector.fillBoatsListAsync().then(() => this.applyUserSettings());
+			this.pnlNoData = control.querySelector('.pnlNoData');
+			this.pnlChart = control.querySelector('.pnlChart');
+			this.pnlLegend = control.querySelector('.pnlLegend');
+			this.plhData = control.querySelector('.plhData');
+		},
+
+		setDefaultValues: function () {
+			this.userSettings.timeframe = this.userSettings.timeframe || 0;
+			this.userSettings.boats = this.userSettings.boats || [];
+			
+		},
+
+		applyUserSettings: function () {
+			this.pnlSettings.hidden = !this.userSettings.showSettings;
+			this.boatSelector.setSelectedBoats(this.userSettings.boats);
+		},
+
+		saveUserSettings: function(){
+			PiLot.Utils.Common.saveUserSetting(this.userSettingsName, this.userSettings);
+		},
+
+		loadAndShowDataAsync: async function(){
+
+		}
+	};		
+
 	var TimeframeSelector = function(pContainer){
 		this.container = pContainer;
 		this.rblTimeframe = null;					// Array of radiobuttons
@@ -888,7 +980,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		rblTimeframe_change: function (pSender) {
-			this.mode = pSender.value;
+			this.mode = Number(pSender.value);
 			this.pnlCustomDates.hidden = (this.mode !== 3);
 			this.observable.fire('change', this.readInput());
 			console.log(this.readInput());
@@ -907,12 +999,12 @@ PiLot.View.Stats = (function () {
 				rbTimeframe.addEventListener('change', this.rblTimeframe_change.bind(this, rbTimeframe));
 			}
 			const locale = PiLot.Utils.Language.getLanguage();
-			this.pnlCustomDates = optionsControl.querySelector('.pnlCustomDates');
-			const tbStartDate = optionsControl.querySelector('.tbStartDate');
-			this.calStartDate = new RC.Controls.Calendar(optionsControl.querySelector('.calStartDate'), tbStartDate, null, null, null, locale);
+			this.pnlCustomDates = control.querySelector('.pnlCustomDates');
+			const tbStartDate = control.querySelector('.tbStartDate');
+			this.calStartDate = new RC.Controls.Calendar(control.querySelector('.calStartDate'), tbStartDate, null, null, null, locale);
 			this.calStartDate.on('change', this.calDate_change.bind(this));
-			const tbEndDate = optionsControl.querySelector('.tbEndDate');
-			this.calEndDate = new RC.Controls.Calendar(optionsControl.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
+			const tbEndDate = control.querySelector('.tbEndDate');
+			this.calEndDate = new RC.Controls.Calendar(control.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
 			this.calEndDate.on('change', this.calDate_change.bind(this));
 		
 		},

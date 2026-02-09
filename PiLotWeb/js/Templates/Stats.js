@@ -10,13 +10,15 @@ PiLot.Templates.Stats = {
 			<div class="pnlTotalDistanceChart marginBottomBig"></div>
 			<h3 class="marginBottomSmall"><a class="lnkFastestSegments" data-text="fastestSegments"></a></h3>
 			<div class="pnlFastestSegmentsChart marginBottomBig"></div>
+			<h3 class="marginBottomSmall"><a class="lnkTracksList" data-text="tracks"></a></h3>
+			<div class="pnlTracksList marginBottomBig"></div>
 		</div>
 	`,
 
 	totalDistanceChart: `
 		<div class="easyShadow">
 			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
-				<div class="pnlSettings flexRowWrap grow" hidden>
+				<div class="pnlSettings flexRowWrap grow">
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="timeframe" class="bold"></span>
 						<label><input type="radio" name="rblTotalDistanceTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
@@ -54,7 +56,7 @@ PiLot.Templates.Stats = {
 	fastestSegmentsChart: `
 		<div class="easyShadow">
 			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
-				<div class="pnlSettings flexRowWrap" hidden>
+				<div class="pnlSettings flexRowWrap">
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="segmentType" class="bold"></span>
 						<select class="ddlSegmentTypes"></select>
@@ -94,9 +96,26 @@ PiLot.Templates.Stats = {
 		</div>
 	`,
 
+	tracksList: `
+		<div class="easyShadow">
+			<div class="flexRow reverse bgLight paddingAllSmall" style="justify-content: space-between;">
+				<div class="pnlSettings flexRowWrap">
+					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
+						<span data-text="timeframe" class="bold"></span>
+						<div class="plhTimeframe"></div>
+					</div>
+					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
+						<span data-text="boats" class="bold"></span>
+						<div class="plhBoats flexColumn"></div>
+					</div>
+				</div>
+				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
+			</div>
+		</div>
+	`,
+
 	timeframeSelector: `
 		<form><div class="flexColumn">
-			<span data-text="timeframe" class="bold"></span>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
