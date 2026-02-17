@@ -887,11 +887,15 @@ PiLot.View.Stats = (function () {
 		this.userSettingsName = 'PiLot.View.Stats.TracksList';
 		this.userSettings = null;
 		this.trackService = null;
+		this.tracks = null;
 		this.allBoats = null;
 		this.pnlSettings = null;
 		this.timeframeSelector = null;				// PiLot.View.Stats.TimeframeSelector
 		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
 		this.pnlNoData = null;
+		this.pnlTable = null;
+		this.plhTracks = null;
+		this.pnlTemplate = null;
 		this.initialize();
 	};
 
@@ -912,7 +916,9 @@ PiLot.View.Stats = (function () {
 		},
 
 		timeframeSelector_change: function(pData){
-			console.log(pData);
+			this.userSettings.timeframe = pData;
+			this.saveUserSettings();
+			this.loadAndShowDataAsync();
 		},
 
 		boatSelector_change: function(pData){
@@ -927,24 +933,28 @@ PiLot.View.Stats = (function () {
 			control.querySelector('.lnkToggleSettings').addEventListener('click', this.lnkToggleSettings_click.bind(this));
 			this.pnlSettings = control.querySelector('.pnlSettings');
 			this.timeframeSelector = new TimeframeSelector(control.querySelector('.plhTimeframe'));
+			this.timeframeSelector.on('change', this, this.timeframeSelector_change.bind(this));
 			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
 			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
 			this.boatSelector.fillBoatsListAsync().then(() => this.applyUserSettings());
 			this.pnlNoData = control.querySelector('.pnlNoData');
-			this.pnlChart = control.querySelector('.pnlChart');
+			this.pnlTable = control.querySelector('.pnlTable');
 			this.pnlLegend = control.querySelector('.pnlLegend');
-			this.plhData = control.querySelector('.plhData');
+			this.plhTracks = control.querySelector('.plhTracks');
+			this.pnlTemplate = control.querySelector('.pnlTemlate');
 		},
 
 		setDefaultValues: function () {
-			this.userSettings.timeframe = this.userSettings.timeframe || 0;
-			this.userSettings.boats = this.userSettings.boats || [];
-			
+			this.userSettings.timeframe = this.userSettings.timeframe || {mode: 0, start: null, end: null };
+			this.userSettings.timeframe.start = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.start);
+			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
+			this.userSettings.boats = this.userSettings.boats || [];			
 		},
 
 		applyUserSettings: function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.boatSelector.setSelectedBoats(this.userSettings.boats);
+			this.timeframeSelector.setValues(this.userSettings.timeframe);
 		},
 
 		saveUserSettings: function(){
@@ -952,6 +962,37 @@ PiLot.View.Stats = (function () {
 		},
 
 		loadAndShowDataAsync: async function(){
+			const start = this.userSettings.timeframe.start ? this.userSettings.timeframe.start.toMillis() : null;
+			const end = this.userSettings.timeframe.end ? this.userSettings.timeframe.end.toMillis() : null;
+			this.tracks = await this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats);
+			console.log(this.tracks);
+		},
+
+		showTracks: function(){
+			if(this.tracks && this.tracks.length > 0){
+				this.pnlNoData.hidden = true;
+				this.pnlTable.hidden = false;
+				this.plhTracks.clear();
+				for(let aTrack of this.tracks){
+					this.createTrackRow(aTrack);
+				}
+			} else {
+				this.pnlTable.hidden = true;
+				this.pnlNoData.hidden = false;
+			}
+		},
+
+		createTrackRow: function(pTrack){
+			const row = this.pnlTemplate.cloneNode(true);
+			
+			row.hidden = false;
+		},
+
+		getTrophyIcon: function(pIsGold){
+			pIsGold ? PiLot.Templates.Nav.topSegmentOverall : PiLot.Templates.Nav.topSegmentYear;
+		},
+
+		sortData: function(){
 
 		}
 	};		
@@ -981,14 +1022,12 @@ PiLot.View.Stats = (function () {
 
 		rblTimeframe_change: function (pSender) {
 			this.mode = Number(pSender.value);
-			this.pnlCustomDates.hidden = (this.mode !== 3);
+			this.showMode();
 			this.observable.fire('change', this.readInput());
-			console.log(this.readInput());
 		},
 
 		calDate_change: function (){
 			this.observable.fire('change', this.readInput());
-			console.log(this.readInput());
 		},
 
 		draw: function(){
@@ -1006,12 +1045,32 @@ PiLot.View.Stats = (function () {
 			const tbEndDate = control.querySelector('.tbEndDate');
 			this.calEndDate = new RC.Controls.Calendar(control.querySelector('.calEndDate'), tbEndDate, null, null, null, locale);
 			this.calEndDate.on('change', this.calDate_change.bind(this));
-		
 		},
 
-		/**
-		 * @returns {Object} Object with {mode: number, start:RC.Date.DateOnly?, end:RC.Date.DateOnly?}
-		 */
+		/** @param {Object} pValues - object with {mode:number, start:DateOnly, end:DateOnly} */
+		setValues: function(pValues){
+			this.mode = (pValues.mode || 0);
+			this.showMode();
+			this.showDates(pValues);
+		},
+
+		/** applies the current mode by selecting the right radiobutton and showing/hiding the dates panel */
+		showMode: function(){
+			this.rblTimeframe.forEach(function (rb) { rb.checked = Number(rb.value) === this.mode}.bind(this));
+			this.pnlCustomDates.hidden = (this.mode !== 3);
+		},
+
+		/** @param {Object} pValues - - object with {start:DateOnly, end:DateOnly}  */
+		showDates: function(pValues){
+			let startDateLuxon = pValues.start ? pValues.start.toLuxon() : null;
+			let endDateLuxon = pValues.end ? pValues.end.toLuxon() : null;
+			this.calStartDate.date(startDateLuxon);
+			this.calStartDate.showDate();
+			this.calEndDate.date(endDateLuxon);
+			this.calEndDate.showDate();
+		},
+
+		/** @returns {Object} Object with {mode: Number, start:RC.Date.DateOnly?, end:RC.Date.DateOnly?} */
 		readInput: function(){
 			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			const now = boatTime.now();
@@ -1029,8 +1088,8 @@ PiLot.View.Stats = (function () {
 					this.end = null;
 					break;
 				case 3: // custom
-					this.start = this.calStartDate.date();
-					this.end = this.calEndDate.date();
+					this.start = RC.Date.DateOnly.fromObject(this.calStartDate.date());
+					this.end = RC.Date.DateOnly.fromObject(this.calEndDate.date());
 					break;
 			}
 			return {mode: this.mode, start: this.start, end: this.end};

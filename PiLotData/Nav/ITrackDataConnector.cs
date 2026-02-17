@@ -39,14 +39,15 @@ namespace PiLot.Data.Nav {
 		List<Track> ReadTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime, Boolean pReadTrackPoints);
 
 		/// <summary>
-		/// Returns all tracks for a certain time period, optinally filtered by boat
+		/// Returns all tracks for a certain time period, optinally filtered by boat, including
+		/// some statistic-relevant data (fastest segments)
 		/// </summary>
 		/// <param name="pStart">Start of the period in ms since epoc</param>
 		/// <param name="pEnd">End of the period in ms since epoc</param>
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
 		/// <param name="pBoats">list of boats, null or empty returns all boats</param>
 		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
-		List<Track> FindTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime, String[] pBoats);
+		List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats);
 
 		/// <summary>
 		/// Reads for each day of a month whether there is a track.

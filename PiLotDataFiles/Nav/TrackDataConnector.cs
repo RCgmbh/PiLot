@@ -90,8 +90,8 @@ namespace PiLot.Data.Files {
 		/// Only there in order to implement ITrackDataConnector
 		/// </summary>
 		/// <exception cref="NotImplementedException"></exception>
-		public List<Track> FindTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime, String[] pBoats) {
-			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling ReadTrackSegmentTypes()");
+		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats) {
+			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling ReadTracksStatistics()");
 		}
 
 		/// <summary>

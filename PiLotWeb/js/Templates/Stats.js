@@ -111,6 +111,35 @@ PiLot.Templates.Stats = {
 				</div>
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
 			</div>
+			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
+			<div class="pnlTable tracksTable fullWidth borderLight flexColumn">
+				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
+				<div class="pnlHeader" class="semiBold">
+					<span class="colBoat" data-text="boat"></span>
+					<span class="colDate" data-text="date"></span>
+					<span class="colTime" data-text="time"></span>
+					<span class="colDuration" data-text="duration"></span>
+					<span class="colDistance" data-text="distance"></span>
+					<span class="colSpeed" data-text="averageSpeed ⌀"></span>
+					<span class="colTrophies" data-text="trophies"></span>
+				</div>
+				<div class="plhTracks"></div>
+				<div class="pnlTemplate" hidden>
+					<span class="lblBoat colBoat"></span>
+					<span class="lblDate colDate"></span>
+					<span class="colTime">
+						<span class="lblTimeFrom"></span> - <span class="lblTimeTo"></span>
+					</span>
+					<span class="lblDuration colDuration"></span>
+					<span class="colDistance">
+						<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
+					</span>
+					<span class="colSpeed">
+						<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
+					</span>
+					<span class="lblTrophies colTrophies"></span>
+				</div>
+			</div>
 		</div>
 	`,
 
@@ -119,10 +148,14 @@ PiLot.Templates.Stats = {
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
 			<label><input type="radio" name="rblFastestSegmentTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
-			<label><input type="radio" name="rblFastestSegmentTimeframe" value="3" class="rblTimeframe" /><span data-text="userdefined"></span></label>
-			<div class="label marginBottomSmall pnlCustomDates">
-				<span class="inlineBlock col2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate" hidden></div><br />
-				<span class="inlineBlock col2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate" hidden></div>
+			<label class="marginBottomXSmall"><input type="radio" name="rblFastestSegmentTimeframe" value="3" class="rblTimeframe" /><span data-text="userdefined"></span></label>
+			<div class="label pnlCustomDates" hidden>
+				<div class="marginBottomXSmall">
+					<span class="inlineBlock col2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate" hidden></div><br />
+				</div>
+				<div class="marginBottomXSmall">
+					<span class="inlineBlock col2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate" hidden></div>
+				</div>
 			</div>
 		</div></form>
 	`

@@ -89,11 +89,11 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
 		/// <param name="pBoats">Comma separated list of boats, null or empty returns all boats</param>
 		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
-		public List<Track> FindTracks(Int64 pStart, Int64 pEnd, Boolean pIsBoatTime, String[] pBoats) {
-			String query = "SELECT * FROM find_tracks(@p_start, @p_end, @p_is_boattime, @p_boats);";
+		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats) {
+			String query = "SELECT * FROM read_tracks_stats(@p_start, @p_end, @p_is_boattime, @p_boats);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@p_start", pStart));
-			pars.Add(("@p_end", pEnd));
+			pars.Add(("@p_start", this.dbHelper.GetNullableParameterValue(pStart)));
+			pars.Add(("@p_end", this.dbHelper.GetNullableParameterValue(pEnd)));
 			pars.Add(("@p_is_boattime", pIsBoatTime));
 			pars.Add(("@p_boats", pBoats));
 			return this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrackWithTrophies), pars, null);

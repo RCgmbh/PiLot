@@ -206,6 +206,7 @@ textarea.big { height: 20em; }
 .marginBottom { margin-bottom: 1em; }
 .marginBottomBig { margin-bottom: 2em; }
 .marginBottomSmall { margin-bottom: 0.5em; }
+.marginBottomXSmall { margin-bottom: 0.25em; }
 .marginBottomVeryBig { margin-bottom: 4em; }
 .marginLeft { margin-left: 1em; }
 .marginLeftSmall { margin-left: 0.5em; }

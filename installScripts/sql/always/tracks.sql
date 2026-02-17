@@ -10,6 +10,7 @@ DROP FUNCTION IF EXISTS public.update_track_segment_type;
 DROP FUNCTION IF EXISTS public.delete_track_segment_type;
 DROP FUNCTION IF EXISTS public.read_tracks;
 DROP FUNCTION IF EXISTS public.find_tracks;
+DROP FUNCTION IF EXISTS public.read_tracks_stats;
 DROP FUNCTION IF EXISTS public.insert_track;
 DROP FUNCTION IF EXISTS public.delete_track;
 DROP FUNCTION IF EXISTS public.update_track_data;
@@ -264,12 +265,12 @@ $BODY$;
 
 GRANT EXECUTE ON FUNCTION read_tracks TO pilotweb;
 
-/*-----------FUNCTION find_tracks-----------------*/
+/*-----------FUNCTION read_tracks_stats-----------------*/
 -- finds all tracks overlapping a certain period of time for one or many
 -- specific boats. Includes information about the fastest segments for
 -- each track.
 
-CREATE FUNCTION public.find_tracks(
+CREATE FUNCTION public.read_tracks_stats(
 	p_start bigint,
 	p_end bigint,
 	p_is_boattime boolean,
@@ -324,7 +325,7 @@ AS $BODY$
 	GROUP BY tracks.id
 $BODY$;
 
-GRANT EXECUTE ON FUNCTION find_tracks TO pilotweb;
+GRANT EXECUTE ON FUNCTION read_tracks_stats TO pilotweb;
 
 /*-----------FUNCTION insert_track-----------------*/
 -- inserts a new track, setting the distance to 0

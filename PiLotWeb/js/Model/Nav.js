@@ -1597,6 +1597,8 @@ PiLot.Model.Nav = (function () {
 		this.startBoatTime = null;
 		this.endBoatTime = null;
 		this.distance = null;		// the distance as it was persisted with the track
+		this.goldSegments = null;	// array of track segment ids
+		this.silverSegments = null;	// array of track segment ids
 		this.initialize();
 	};
 
@@ -1614,14 +1616,14 @@ PiLot.Model.Nav = (function () {
 			this.id = pId;
 		},
 
-		/** @param {String} pBoat */
-		setBoat: function(pBoat){
-			this.boat = pBoat;
-		},
-
 		/** @returns {String} */
 		getBoat: function(){
 			return this.boat;
+		},
+
+		/** @param {String} pBoat */
+		setBoat: function(pBoat){
+			this.boat = pBoat;
 		},
 
 		/**
@@ -1655,6 +1657,26 @@ PiLot.Model.Nav = (function () {
 		/** @returns {Number} the boatTime milliseconds or the explicitly set value, if there are no trakpoints */
 		getEndBoatTime: function () {
 			return this.hasTrackPoints() ? this.getLastTrackPoint().getBoatTime() : this.endBoatTime;
+		},
+
+		/** @returns {Number[]} the segment type ids of the overall fastest segments of this track */
+		getGoldSegments: function(){
+			return this.goldSegments;
+		},
+
+		/** @param {Number[]} pSegments - the segment type ids of the overall fastest segments of this track */
+		setGoldSegments: function(pSegments){
+			this.goldSegments = pSegments;
+		},
+
+		/** @returns {Number[]} the segment type ids of the fastest per year segments of this track */
+		getSilverSegments: function(){
+			return this.silverSegments;
+		},
+
+		/** @param {Number[]} pSegments - the segment type ids of the fastest per year segments of this track */
+		setSilverSegments: function(pSegments){
+			this.silverSegments = pSegments;
 		},
 
 		/**
@@ -1817,7 +1839,7 @@ PiLot.Model.Nav = (function () {
 	 * Creates a track object based on a serialized track object. Returns null, if the 
 	 * pData is invalid. Start/end date and distance will only be set explicitly, if
 	 * there is no trackPointsArray delivered.
-	 * @param {Object} pData - an object with id, boat, distance, startUtc, endUtc, startBoatTime, endBoatTime, trackPointsArray
+	 * @param {Object} pData - an object with id, boat, distance, startUtc, endUtc, startBoatTime, endBoatTime, goldSegments, silverSegments, trackPointsArray
 	 */
 	Track.fromData = function (pData) {
 		let result = null;
@@ -1825,6 +1847,8 @@ PiLot.Model.Nav = (function () {
 			result = new Track();
 			result.setId(pData.id || null);
 			result.setBoat(pData.boat);
+			result.setGoldSegments(pData.goldSegments || null);
+			result.setSilverSegments(pData.silverSegments || null);
 			if (Array.isArray(pData.trackPointsArray) && (pData.trackPointsArray.length > 0)) {
 				pData.trackPointsArray.forEach((value, index, array) => {
 					if (Array.isArray(value) && value.length == 4) {

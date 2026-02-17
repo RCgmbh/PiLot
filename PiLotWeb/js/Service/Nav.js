@@ -370,6 +370,27 @@ PiLot.Service.Nav = (function () {
 		},
 
 		/**
+		 * Loads all tracks, including information about trophies for each track.
+		 * Optionally limits results by a timeframe. If start and end is passed, all
+		 * tracks that overlap with the interval start-end are returned, so be aware that the
+		 * resulting tracks potentially have start/end outside the interval.
+		 * @param {Number} pStart - Start time in milliseconds, can be null
+		 * @param {Number} pEnd - timeframe end time in milliseconds, can be null
+		 * @param {Boolean} pIsBoatTime - whether start and end is boat time or utc
+		 * @param {String[]} pBoats - the boats to filter, unfiltered if null or empty
+		 * */
+		loadTracksStatisticsAsync: async function (pStart, pEnd, pIsBoatTime, pBoats) {
+			let result = [];
+			const boatsString = pBoats ? pBoats.join(',') : '';
+			const url = `/Tracks/stats?startTime=${pStart || ''}&endTime=${pEnd || ''}&isBoatTime=${pIsBoatTime}&boats=${boatsString}`
+			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
+			for (aTrackData of json) {
+				result.push(PiLot.Model.Nav.Track.fromData(aTrackData));
+			}
+			return result;
+		},
+
+		/**
 		 * Loads all tracks for a day, based on BoatTime
 		 * @param {RC.Date.DateOnly} pDate
 		 **/
@@ -473,6 +494,7 @@ PiLot.Service.Nav = (function () {
 		 * @param {Number} pStart - Start time in milliseconds, can be null
 		 * @param {Number} pEnd - timeframe end time in milliseconds, can be null
 		 * @param {Boolean} pIsBoatTime - whether start and end is boat time or utc
+		 * @param {String[]} pBoats - list of boats, if empty, no filter is applied
 		 * @param {Number} pPageSize - the number of records to return
 		 * */
 		findTrackSegmentsAsync: async function (pType, pStart, pEnd, pIsBoatTime, pBoats, pPageSize) {

@@ -40,15 +40,15 @@ namespace PiLot.API.Controllers {
 		/// <param name="isBoatTime">If true, start and end are BoatTime, else UTC</param>
 		/// <param name="boats">comma-separated list of boats. If empty, no filtering is done</param>
 		/// <returns>a list of tracks having GoldSegments and SilverSegments set</returns>
-		[Route(Program.APIROOT + "[controller]/search")]
+		[Route(Program.APIROOT + "[controller]/stats")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<Track> FindTracks(Int64 startTime, Int64 endTime, Boolean isBoatTime, String boats) {
+		public List<Track> ReadTracksStatistics(Int64? startTime, Int64? endTime, Boolean isBoatTime, String boats) {
 			String[] boatsArray = null;
 			if (!String.IsNullOrEmpty(boats)) {
 				boatsArray = boats.Split(',');
 			} 
-			return DataConnectionHelper.TrackDataConnector.FindTracks(startTime, endTime, isBoatTime, boatsArray);
+			return DataConnectionHelper.TrackDataConnector.ReadTracksStatistics(startTime, endTime, isBoatTime, boatsArray);
 		}
 
 		/// <summary>
