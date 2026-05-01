@@ -314,7 +314,7 @@ PiLot.Templates.Tools = {
 	checklistsPage: `
 		<div class="contentPadding paddingRight">
 			<h1 data-text="checklists"></h1>
-			<div class="plhContent"></div>
+			<div class="plhContent marginBottom"></div>
 		</div>
 	`,
 
