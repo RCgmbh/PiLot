@@ -41,7 +41,7 @@ def sendPosition(data, poolManager):
 def main():
         poolManager = urllib3.PoolManager()
         session = gps.gps(mode=gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
-		for report in session:
+        for report in session:
                 try:
                         if report['class'] == 'TPV':
                                 data = readPosition(report)
