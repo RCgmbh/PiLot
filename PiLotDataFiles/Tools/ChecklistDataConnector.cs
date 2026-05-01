@@ -20,6 +20,8 @@ namespace PiLot.Data.Files {
 
 		private const String DATASOURCENAME = "tools";
 		private const String CHECKLISTSFILENAME = "checklists.json";
+
+		private static ChecklistDataConnector instance = null;
 		
 		#endregion
 
@@ -33,9 +35,9 @@ namespace PiLot.Data.Files {
 		#region constructors
 
 		/// <summary>
-		/// Default constructor
+		/// Default constructor, private for singleton
 		/// </summary>
-		public ChecklistDataConnector() {
+		protected ChecklistDataConnector() {
 			this.helper = new DataHelper();
 			this.lockObject = new Object();
 		}
@@ -47,6 +49,16 @@ namespace PiLot.Data.Files {
 		public ChecklistDataConnector(String pDataRoot) {
 			this.helper = new DataHelper(pDataRoot);
 			this.lockObject = new Object();
+		}
+
+		/// <summary>
+		/// Returns the instance for the default data root, or creates a new one
+		/// </summary>
+		public static ChecklistDataConnector GetInstance(){
+			if(ChecklistDataConnector.instance == null){
+				ChecklistDataConnector.instance = new ChecklistDataConnector();
+			} 
+			return ChecklistDataConnector.instance;
 		}
 
 		#endregion

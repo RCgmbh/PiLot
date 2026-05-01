@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 
 using PiLot.API.ActionFilters;
-using PiLot.Config;
 using PiLot.Data.Files;
 using PiLot.Model.Tools;
 
@@ -20,7 +19,7 @@ namespace PiLot.API.Controllers {
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Checklist> Get() {
-			return new ChecklistDataConnector().ReadChecklists();
+			return ChecklistDataConnector.GetInstance().ReadChecklists();
 		}
 
 		/// <summary>
@@ -30,7 +29,7 @@ namespace PiLot.API.Controllers {
 		[HttpPut]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public Int32 Put(Checklist checklist) {
-			return new ChecklistDataConnector().SaveChecklist(checklist);
+			return ChecklistDataConnector.GetInstance().SaveChecklist(checklist);
 		}
 
 		/// <summary>
@@ -45,7 +44,7 @@ namespace PiLot.API.Controllers {
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public ActionResult PutChecked(Int32 id, Int32 index, Boolean isChecked) {
 			ActionResult result;
-			ChecklistDataConnector connector = new ChecklistDataConnector();
+			ChecklistDataConnector connector = ChecklistDataConnector.GetInstance();
 			Checklist checklist = connector.ReadChecklist(id);
 			if (checklist != null) {
 				if (checklist.Items.Length > index) {
@@ -65,7 +64,7 @@ namespace PiLot.API.Controllers {
 		[HttpDelete]
 		[ServiceFilter(typeof(WriteAuthorizationFilter))]
 		public void DeleteChecklist(Int32 id) {
-			new ChecklistDataConnector().DeleteChecklist(id);
+			ChecklistDataConnector.GetInstance().DeleteChecklist(id);
 		}
 		
 	}
