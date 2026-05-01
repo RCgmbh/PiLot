@@ -2169,7 +2169,7 @@ PiLot.View.Nav = (function () {
 			const vmg = pGpsObserver.getVMG(poiLatLon);
 			const distance = poiLatLon.distanceTo(gpsLatLon);
 			const distanceNm = PiLot.Utils.Nav.metersToNauticalMiles(distance);
-			const now = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().now(iLot.Utils.Language.getLanguage());
+			const now = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime().now(PiLot.Utils.Language.getLanguage());
 			if (vmg > 0) {
 				const deltaT = distanceNm / vmg;
 				const eta = now.plus({ hours: deltaT });
