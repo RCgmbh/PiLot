@@ -178,7 +178,7 @@ PiLot.Utils.Common = {
 			result += ' ' + duration.minutes + "'";
 		}
 		const seconds = duration.seconds + Math.round(duration.milliseconds / 1000);
-		result += seconds + "''";
+		result += ' ' + seconds + "''";
 		return result.trim();
 	},
 

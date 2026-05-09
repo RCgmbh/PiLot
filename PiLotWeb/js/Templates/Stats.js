@@ -112,32 +112,50 @@ PiLot.Templates.Stats = {
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
-			<div class="pnlTable tracksTable fullWidth borderLight flexColumn">
+			<div class="pnlData fullWidth">
 				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
-				<div class="pnlHeader" class="semiBold">
-					<span class="colBoat" data-text="boat"></span>
-					<span class="colDate" data-text="date"></span>
-					<span class="colTime" data-text="time"></span>
-					<span class="colDuration" data-text="duration"></span>
-					<span class="colDistance" data-text="distance"></span>
-					<span class="colSpeed" data-text="averageSpeed"></span>
-					<span class="colTrophies" data-text="records"></span>
-				</div>
-				<div class="plhTracks"></div>
-				<div class="pnlTemplate flexRowWrap" hidden>
-					<div class="col1 inlineBlock flex" style="padding:1px;"><div class="lblBoat colBoat grow" style="border-radius:3px;"></div></div>
-					<span class="lblDate colDate"></span>
-					<span class="colTime">
-						<span class="lblTimeFrom"></span> - <span class="lblTimeTo"></span>
-					</span>
-					<span class="lblDuration colDuration"></span>
-					<span class="colDistance">
-						<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
-					</span>
-					<span class="colSpeed">
-						<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
-					</span>
-					<span class="lblTrophies colTrophies"></span>
+				<div class="pnlTable tracksTable fullWidth flexColumn">
+					<div class="pnlHeader flexRowWrap tracksHeader bgLight trackRow" class="semiBold">
+						<div class="cellGroup">
+							<span class="colBoat trackCell" data-text="boat"></span>
+							<span class="colDate trackCell" data-text="date"></span>
+						</div>
+						<div class="cellGroup">
+							<span class="colTime trackCell" data-text="time"></span>
+						</div>
+						<div class="cellGroup">
+							<span class="colDuration trackCell" data-text="duration"></span>
+							<span class="colDistance trackCell" data-text="distance"></span>
+						</div>
+						<div class="cellGroup">
+							<span class="colSpeed trackCell" data-text="averageSpeed"></span>
+							<span class="colTrophies trackCell" data-text="records"></span>
+						</div>
+					</div>
+					<div class="plhTracks"></div>
+					<div class="pnlTemplate flexRowWrap trackRow" hidden>
+						<div class="cellGroup">
+							<div class="trackCell"><div class="lblBoat colBoat boatColorBox" ></div></div>
+							<span class="lblDate colDate trackCell"></span>
+						</div>
+						<div class="cellGroup">
+							<span class="colTime trackCell">
+								<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
+							</span>
+						</div>
+						<div class="cellGroup">
+							<span class="lblDuration colDuration trackCell">dur</span>
+							<span class="colDistance trackCell">
+								<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
+							</span>
+						</div>
+						<div class="cellGroup">
+							<span class="colSpeed trackCell">
+								<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
+							</span>
+							<span class="lblTrophies colTrophies trackCell"></span>
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>

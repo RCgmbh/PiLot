@@ -1,0 +1,30 @@
+.chartLegend > div {align-items: baseline;}
+.chartLegend .color{ width:1.8em; height: 0.8em; border-radius:4px; }
+.chart .bar {height:2.4em; margin-bottom: 1em; border-radius: 0px 2px 2px 0px; overflow:hidden; min-width:2px; align-items:flex-start; }
+.chart .bar .link { overflow:hidden; text-overflow:ellipsis; margin-left:0.25em; margin-right:0.25em; }
+.chart .barLabel {height:2.4em;}
+
+.boatColorBox {width: 1.5em; height: 1em; border-radius:3px;}
+
+.trackRow .cellGroup {
+  display: flex;
+  flex: 1 1 25%;
+  min-width: 10em;
+}
+
+.trackRow .trackCell {
+    display: block;
+    align-content: center;
+    flex: 1 1 50%;
+    border: 1px solid #eee;
+    padding: 0.25em;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.tracksHeader {border-top: 1px solid #ccc;}
+.tracksHeader .cellGroup {border-bottom: 1px solid #ccc;}
+.tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc;}
+
+
