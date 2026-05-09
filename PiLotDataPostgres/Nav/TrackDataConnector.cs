@@ -82,7 +82,7 @@ namespace PiLot.Data.Postgres.Nav {
 		}
 
 		/// <summary>
-		/// Returns all tracks for a certain time period, optinally filtered by boat
+		/// Returns all tracks (just metadata) for a certain time period, optinally filtered by boat
 		/// </summary>
 		/// <param name="pStart">Start of the period in ms since epoc</param>
 		/// <param name="pEnd">End of the period in ms since epoc</param>

@@ -142,12 +142,19 @@ namespace PiLot.Data.Files {
 		}
 
 		/// <summary>
-		/// This should not be called as SupportsStatistics is false. Will throw an exception. 
-		/// Only there in order to implement ITrackDataConnector
+		/// Returns all tracks (just metadata) for a certain time period, optinally filtered by boat
 		/// </summary>
-		/// <exception cref="NotImplementedException"></exception>
+		/// <param name="pStart">Start of the period in ms since epoc</param>
+		/// <param name="pEnd">End of the period in ms since epoc</param>
+		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
+		/// <param name="pBoats">Comma separated list of boats, null or empty returns all boats</param>
+		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
 		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats) {
-			throw new NotImplementedException("Files based DataConnector does not support statistics. Check SupportsStatistics before calling ReadTracksStatistics()");
+			List<Track> result = this.ReadTracksMetadata(pStart, pEnd, pIsBoatTime)
+				.Select(t => this.TrackFromMetadata(t))
+				.Where(t => pBoats == null || pBoats.Length == 0 || Array.IndexOf(pBoats, t.Boat) >= 0)
+				.ToList();
+			return result;
 		}
 
 		/// <summary>
@@ -478,7 +485,7 @@ namespace PiLot.Data.Files {
 		/// <param name="pIsBoatTime">If true, pStartTime and pEndTime are BoatTime, else UTC</param>
 		/// <param name="pReadTrackPoints">If true, track points will be read</param>
 		/// <returns>A list of track metadata, can be empty but not null</returns>
-		private List<TrackMetadata> ReadTracksMetadata(Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime = false) {
+		private List<TrackMetadata> ReadTracksMetadata(Int64? pStartTime, Int64? pEndTime, Boolean pIsBoatTime = false) {
 			List<TrackMetadata> result = new List<TrackMetadata>();
 			foreach (TrackMetadata aMetadata in this.EnumerateTrackMetadata()) {
 				if(aMetadata.Overlaps(pStartTime, pEndTime, pIsBoatTime)){
@@ -501,7 +508,7 @@ namespace PiLot.Data.Files {
 					EndUTC = pMetaData.EndUTC,
 					StartBoatTime = pMetaData.StartBoatTime,
 					EndBoatTime = pMetaData.EndBoatTime,
-					Distance = null,
+					Distance = pMetaData.Distance,
 					Boat = pMetaData.Boat,
 					DateCreated = pMetaData.DateCreated,
 					DateChanged = pMetaData.DateChanged
@@ -626,7 +633,7 @@ namespace PiLot.Data.Files {
 		/// Saves trackpoints to file, either by adding them or by replacing the entire track. If there are no
 		/// track points, the file for the track points will be deleted.
 		/// </summary>
-		/// <param name="pTrack">The track for which we save the data</param>
+		/// <param name="pTrackId">The id of the track for which we save the data</param>
 		/// <param name="pReplaceExisting">Set true, if the existing trackPoints should be replaced</param>
 		/// <param name="pDoUpdateMetadata">If true, track start and end will be updated in the index file</param>
 		private void SaveTrackPoints(List<TrackPoint> pTrackPoints, Int32 pTrackId, Boolean pReplaceExisting, Boolean pDoUpdateMetadata) {
@@ -653,8 +660,23 @@ namespace PiLot.Data.Files {
 				trackPoint = trackPoints.LastOrDefault();
 				metaData.EndUTC = trackPoint?.UTC;
 				metaData.EndBoatTime = trackPoint?.BoatTime ?? trackPoint?.UTC;
+				metaData.Distance = this.CalculateDistance(trackPoints);
 				this.SaveTrackMetadata(metaData);
 			}
+		}
+
+		/// <summary>
+		/// Calculates the distance of the track. This is done here and not in the mode,
+		/// because when using a database it's done within the database
+		/// </summary>
+		/// <param name="pTrackPoints">ordered list of trackPoints</param>
+		/// <returns>total distance between all trackPoints</returns>
+		private double CalculateDistance(List<TrackPoint> pTrackPoints){
+			Double result = 0;
+			for(Int32 i = 1; i < pTrackPoints.Count; i++){
+				result += pTrackPoints[i - 1].DistanceTo(pTrackPoints[i]);
+			}
+			return result;
 		}
 
 		/// <summary>
@@ -687,6 +709,7 @@ namespace PiLot.Data.Files {
 				this.StartBoatTime = pTrack.StartBoatTime;
 				this.EndBoatTime = pTrack.EndBoatTime;
 				this.Boat = pTrack.Boat;
+				this.Distance = pTrack.Distance;
 			}
 
 			[JsonPropertyName("trackId")]
@@ -719,6 +742,11 @@ namespace PiLot.Data.Files {
 				get; set;
 			}
 
+			[JsonPropertyName("distance")]
+			public Double? Distance {
+				get; set;
+			}
+
 			[JsonPropertyName("dateCreated")]
 			public Int64? DateCreated {
 				get; set;
@@ -740,6 +768,7 @@ namespace PiLot.Data.Files {
 				this.StartBoatTime = pOther.StartBoatTime;
 				this.EndBoatTime = pOther.EndBoatTime;
 				this.Boat = pOther.Boat;
+				this.Distance = pOther.Distance;
 			}
 
 			/// <summary>
@@ -750,7 +779,7 @@ namespace PiLot.Data.Files {
 			/// <param name="pEndTime">End time in ms</param>
 			/// <param name="pIsBoatTime">True to treat start and end as boattime, else it's UTC</param>
 			/// <returns></returns>
-			internal Boolean Overlaps (Int64 pStartTime, Int64 pEndTime, Boolean pIsBoatTime){
+			internal Boolean Overlaps (Int64? pStartTime, Int64? pEndTime, Boolean pIsBoatTime){
 				Boolean result;
 				if((this.StartUTC != null) && (this.EndUTC != null)) {
 					Int64 trackStart = pIsBoatTime ? this.StartBoatTime.Value : this.StartUTC.Value;
