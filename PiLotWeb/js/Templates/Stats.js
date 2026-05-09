@@ -120,12 +120,12 @@ PiLot.Templates.Stats = {
 					<span class="colTime" data-text="time"></span>
 					<span class="colDuration" data-text="duration"></span>
 					<span class="colDistance" data-text="distance"></span>
-					<span class="colSpeed" data-text="averageSpeed ⌀"></span>
-					<span class="colTrophies" data-text="trophies"></span>
+					<span class="colSpeed" data-text="averageSpeed"></span>
+					<span class="colTrophies" data-text="records"></span>
 				</div>
 				<div class="plhTracks"></div>
-				<div class="pnlTemplate" hidden>
-					<span class="lblBoat colBoat"></span>
+				<div class="pnlTemplate flexRowWrap" hidden>
+					<div class="col1 inlineBlock flex" style="padding:1px;"><div class="lblBoat colBoat grow" style="border-radius:3px;"></div></div>
 					<span class="lblDate colDate"></span>
 					<span class="colTime">
 						<span class="lblTimeFrom"></span> - <span class="lblTimeTo"></span>

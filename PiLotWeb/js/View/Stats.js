@@ -797,12 +797,8 @@ PiLot.View.Stats = (function () {
 
 		/** Processes the track segments data and assigns it to the chart */
 		showDataAsync: async function () {
-			const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
-			const colorIndex = new Map();
 			this.allBoats || await this.loadAllBoatsAsync();
-			for (let i = 0; i < this.allBoats.length; i++) {
-				colorIndex.set(this.allBoats[i].name, colors[i % colors.length]);
-			}
+			const colorIndex = getBoatColors(this.allBoats);
 			if (this.trackSegments && this.trackSegments.length) {
 				this.pnlChart.hidden = false;
 				this.showLegend(colorIndex);
@@ -941,7 +937,7 @@ PiLot.View.Stats = (function () {
 			this.pnlTable = control.querySelector('.pnlTable');
 			this.pnlLegend = control.querySelector('.pnlLegend');
 			this.plhTracks = control.querySelector('.plhTracks');
-			this.pnlTemplate = control.querySelector('.pnlTemlate');
+			this.pnlTemplate = control.querySelector('.pnlTemplate');
 		},
 
 		setDefaultValues: function () {
@@ -964,8 +960,16 @@ PiLot.View.Stats = (function () {
 		loadAndShowDataAsync: async function(){
 			const start = this.userSettings.timeframe.start ? this.userSettings.timeframe.start.toMillis() : null;
 			const end = this.userSettings.timeframe.end ? this.userSettings.timeframe.end.toMillis() : null;
-			this.tracks = await this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats);
-			console.log(this.tracks);
+			const results = await Promise.all([
+				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats),
+				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync()
+			]);
+			this.tracks = results[0];
+			this.allBoats = results[1];
+
+			//this.tracks = await this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats);
+			//this.allBoats = await PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync();
+			this.showTracks();
 		},
 
 		showTracks: function(){
@@ -973,8 +977,9 @@ PiLot.View.Stats = (function () {
 				this.pnlNoData.hidden = true;
 				this.pnlTable.hidden = false;
 				this.plhTracks.clear();
+				const colors = getBoatColors(this.allBoats);
 				for(let aTrack of this.tracks){
-					this.createTrackRow(aTrack);
+					this.createTrackRow(aTrack, colors);
 				}
 			} else {
 				this.pnlTable.hidden = true;
@@ -982,9 +987,10 @@ PiLot.View.Stats = (function () {
 			}
 		},
 
-		createTrackRow: function(pTrack){
+		createTrackRow: function(pTrack, pColors){
 			const row = this.pnlTemplate.cloneNode(true);
-			
+			row.querySelector('.colBoat').style.backgroundColor = pColors.get(pTrack.getBoat());
+			this.plhTracks.appendChild(row);
 			row.hidden = false;
 		},
 
@@ -1020,10 +1026,14 @@ PiLot.View.Stats = (function () {
 			this.observable.addObserver(pEvent, pObserver, pFunction)
 		},
 
+		/** Fires the change event, exept if mode is custom date and no date is set */
 		rblTimeframe_change: function (pSender) {
 			this.mode = Number(pSender.value);
 			this.showMode();
-			this.observable.fire('change', this.readInput());
+			const data = this.readInput();
+			if(data.mode !== 3 || data.start || data.end){
+				this.observable.fire('change', data);
+			}
 		},
 
 		calDate_change: function (){
@@ -1148,6 +1158,15 @@ PiLot.View.Stats = (function () {
 			return result;
 		}
 	};
+
+	function getBoatColors(pAllBoats){
+		const colors = ['#ee6666', '#fc8452', '#fac858', '#91cc75', '#3ba272', '#73c0de', '#5470c6', '#9a60b4', '#ea7ccc'];
+		const result = new Map();
+		for (let i = 0; i < pAllBoats.length; i++) {
+			result.set(pAllBoats[i].name, colors[i % colors.length]);
+		}
+		return result;
+	}
 	
 	return {
 		TrackStatsPage: TrackStatsPage
