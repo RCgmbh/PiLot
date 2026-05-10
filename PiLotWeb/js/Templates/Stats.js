@@ -81,13 +81,13 @@ PiLot.Templates.Stats = {
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
 			<div class="pnlChart chart fullWidth borderLight flexColumn">
-				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
+				<div class="plhLegend"></div>
 				<div class="plhData"></div>
 			</div>
 		</div>
 	`,
 
-	fastestSegmentsLegendItem: `<div class="marginRight flex"><div class="divColor color marginRightSmall"></div><span class="lblText text"></span></div>`,
+	fastestSegmentsLegendItem: `<div class="marginRight flex"><div class="divColor boatColorBox marginRightSmall"></div><span class="lblText text"></span></div>`,
 
 	fastestSegmentsDataItem: `
 		<div class="flexRow">
@@ -113,7 +113,7 @@ PiLot.Templates.Stats = {
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
 			<div class="pnlData fullWidth">
-				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
+				<div class="plhLegend"></div>
 				<div class="pnlTable tracksTable fullWidth flexColumn">
 					<div class="pnlHeader flexRowWrap tracksHeader bgLight trackRow" class="semiBold">
 						<div class="cellGroup group1">
@@ -176,5 +176,10 @@ PiLot.Templates.Stats = {
 				</div>
 			</div>
 		</div></form>
-	`
+	`,
+
+	boatsLegend: `<div class="pnlLegend boatsLegend fullWidth center marginBottom flexRowWrap"></div>`,
+
+	boatsLegendItem: `<div class="marginRight flex"><div class="divColor boatColorBox marginRightSmall"></div><span class="lblText text"></span></div>`,
+
 };

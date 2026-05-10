@@ -631,9 +631,9 @@ PiLot.View.Stats = (function () {
 		this.rblTimeframe = null;					// Array of radiobuttons
 		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
 		this.rblUnit = null;						// NodeList of checkboxes
+		this.boatsLegend = null;					// PiLot.View.Stats.BoatsLegend
 		this.pnlNoData = null;
 		this.pnlChart = null;
-		this.pnlLegend = null;
 		this.plhData = null;
 
 		this.initialize();
@@ -706,9 +706,9 @@ PiLot.View.Stats = (function () {
 				this.boatSelector.fillBoatsListAsync(),
 				this.fillSegmentTypesAsync()
 			]).then(results => this.applyUserSettings());
+			this.boatsLegend = new BoatsLegend(control.querySelector('.plhLegend'));
 			this.pnlNoData = control.querySelector('.pnlNoData');
 			this.pnlChart = control.querySelector('.pnlChart');
-			this.pnlLegend = control.querySelector('.pnlLegend');
 			this.plhData = control.querySelector('.plhData');
 		},
 
@@ -810,20 +810,13 @@ PiLot.View.Stats = (function () {
 		},
 
 		showLegend: function (pColorIndex) {
-			this.pnlLegend.clear();
 			let boats;
 			if (this.userSettings.boats && this.userSettings.boats.length) {
 				boats = Array.from(this.userSettings.boats);
 			} else {
 				boats = this.getBoatsFromTrackSegments();
 			}
-			boats.sort(function (a, b) { return this.getBoatDisplayName(a).localeCompare(this.getBoatDisplayName(b)) }.bind(this));
-			for (let aBoat of boats) {
-				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.fastestSegmentsLegendItem);
-				node.querySelector('.divColor').style.backgroundColor = pColorIndex.get(aBoat);
-				node.querySelector('.lblText').innerText = this.getBoatDisplayName(aBoat);
-				this.pnlLegend.appendChild(node);
-			}
+			this.boatsLegend.showBoats(this.allBoats, boats);
 		},
 
 		showBars: function (pColorIndex) {
@@ -891,6 +884,7 @@ PiLot.View.Stats = (function () {
 		this.pnlSettings = null;
 		this.timeframeSelector = null;				// PiLot.View.Stats.TimeframeSelector
 		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
+		this.boatsLegend = null;					// PiLot.View.Stats.BoatsLegend
 		this.pnlNoData = null;
 		this.pnlData = null;
 		this.plhTracks = null;
@@ -955,6 +949,7 @@ PiLot.View.Stats = (function () {
 			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
 			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
 			this.boatSelector.fillBoatsListAsync().then(() => this.applyUserSettings());
+			this.boatsLegend = new BoatsLegend(control.querySelector('.plhLegend'));
 			this.pnlNoData = control.querySelector('.pnlNoData');
 			this.pnlData = control.querySelector('.pnlData');
 			this.pnlLegend = control.querySelector('.pnlLegend');
@@ -1010,6 +1005,7 @@ PiLot.View.Stats = (function () {
 			if(this.tracks && this.tracks.length > 0){
 				this.pnlNoData.hidden = true;
 				this.pnlData.hidden = false;
+				this.showLegend();
 				this.plhTracks.clear();
 				const colors = getBoatColors(this.allBoats);
 				const language = PiLot.Utils.Language.getLanguage();
@@ -1036,6 +1032,26 @@ PiLot.View.Stats = (function () {
 				this.pnlData.hidden = true;
 				this.pnlNoData.hidden = false;
 			}
+		},
+
+		showLegend: function(){
+			let boats;
+			if (this.userSettings.boats && this.userSettings.boats.length) {
+				boats = Array.from(this.userSettings.boats);
+			} else {
+				boats = this.getBoatsFromTracks();
+			}
+			this.boatsLegend.showBoats(this.allBoats, boats);
+		},
+
+		getBoatsFromTracks: function () {
+			const result = [];
+			for (let aTrack of this.tracks) {
+				if (result.indexOf(aTrack.getBoat()) < 0) {
+					result.push(aTrack.getBoat());
+				}
+			}
+			return result;
 		},
 
 		createTrackRow: function(pTrack, pColors, pLanguage, pConvertDistanceFunction, pDistanceUnitText, pConvertSpeedFunction, pSpeedUnitText){
@@ -1269,6 +1285,42 @@ PiLot.View.Stats = (function () {
 			}
 			return result;
 		}
+	};
+
+	var BoatsLegend = function(pContainer){
+		this.container = pContainer;
+		this.control = null;
+		this.initialize();
+	};
+
+	BoatsLegend.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.boatsLegend);
+			this.container.appendChild(this.control);
+		},
+
+		showBoats: function(pAllBoats, pBoats){
+			const colors = getBoatColors(pAllBoats);
+			this.control.clear();
+			pBoats.sort(function (a, b) { return this.getBoatDisplayName(a, pAllBoats).localeCompare(this.getBoatDisplayName(b, pAllBoats)) }.bind(this));
+			for (let aBoat of pBoats) {
+				const node = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.boatsLegendItem);
+				node.querySelector('.divColor').style.backgroundColor = colors.get(aBoat);
+				node.querySelector('.lblText').innerText = this.getBoatDisplayName(aBoat, pAllBoats);
+				this.control.appendChild(node);
+			}
+		},		
+
+		getBoatDisplayName: function(pBoatName, pAllBoats){
+			const boatInfo = pAllBoats.find(b => b.name === pBoatName);
+			return boatInfo ? boatInfo.displayName : pBoatName;
+		},
+
 	};
 
 	function getBoatColors(pAllBoats){

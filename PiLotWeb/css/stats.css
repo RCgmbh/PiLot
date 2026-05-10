@@ -1,23 +1,18 @@
-.chartLegend > div {align-items: baseline;}
-.chartLegend .color{ width:1.8em; height: 0.8em; border-radius:4px; }
+.boatsLegend > div {align-items: baseline;}
 .chart .bar {height:2.4em; margin-bottom: 1em; border-radius: 0px 2px 2px 0px; overflow:hidden; min-width:2px; align-items:flex-start; }
 .chart .bar .link { overflow:hidden; text-overflow:ellipsis; margin-left:0.25em; margin-right:0.25em; }
 .chart .barLabel {height:2.4em;}
 
-.boatColorBox {width: 1.5em; height: 1em; border-radius:3px;}
+.boatColorBox {width: 1.5em; height: 0.8em; border-radius:4px;}
 
 .tracksHeader {border-top: 1px solid #ccc;}
 .tracksHeader .cellGroup {border-bottom: 1px solid #ccc;}
 .tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc;}
 
-.trackRow .cellGroup {
-  display: flex;
-  flex: 1 1 25%;
-  min-width: 11em;
-}
+.tracksTable .tracks { 	max-height:80vh; overflow:auto; }
 
+.trackRow .cellGroup { display: flex; flex: 1 1 25%; min-width: 11em;}
 .trackRow .cellGroup.group1 { min-width: 8em; }
-
 .trackRow .cellGroup.group4 { min-width: 15.5em; }
 
 .trackRow .trackCell {
