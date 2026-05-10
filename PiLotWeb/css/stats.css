@@ -6,25 +6,28 @@
 
 .boatColorBox {width: 1.5em; height: 1em; border-radius:3px;}
 
+.tracksHeader {border-top: 1px solid #ccc;}
+.tracksHeader .cellGroup {border-bottom: 1px solid #ccc;}
+.tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc;}
+
 .trackRow .cellGroup {
   display: flex;
   flex: 1 1 25%;
-  min-width: 10em;
 }
 
 .trackRow .trackCell {
-    display: block;
-    align-content: center;
+    display: flex;
+    justify-content: center;
+	align-items: center;
     flex: 1 1 50%;
     border: 1px solid #eee;
     padding: 0.25em;
+	min-width: 5.5em;
     text-wrap: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.tracksHeader {border-top: 1px solid #ccc;}
-.tracksHeader .cellGroup {border-bottom: 1px solid #ccc;}
-.tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc;}
-
-
+.trackRow .colBoat {min-width: 2.5em; flex-basis:1.5em;}
+.tracksTable .tracks .colDistance, .tracksTable .tracks .colSpeed { display: block; text-align:right; }
+.trackRow .colTrophies {min-width: 10em;}

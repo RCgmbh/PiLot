@@ -885,6 +885,9 @@ PiLot.View.Stats = (function () {
 		this.trackService = null;
 		this.tracks = null;
 		this.allBoats = null;
+		this.allTrackSegmentTypes;
+		this.sortBy = null;
+		this.sortDirection = 0;
 		this.pnlSettings = null;
 		this.timeframeSelector = null;				// PiLot.View.Stats.TimeframeSelector
 		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
@@ -923,6 +926,25 @@ PiLot.View.Stats = (function () {
 			this.loadAndShowDataAsync();
 		},
 
+		lblSort_click: function(pEvent){
+			const sortBy = pEvent.target.dataset['sort'];
+			if(sortBy === this.userSettings.sortBy){
+				this.userSettings.sortDirection = this.userSettings.sortDirection * -1;
+			} else{
+				this.userSettings.sortBy = sortBy;
+				this.userSettings.sortDirection = 1;
+			}
+			this.saveUserSettings();
+			this.sortTracks();
+			this.showTracks();
+		},
+
+		lnkDate_click: function(pDate, pEvent){
+			pEvent.preventDefault();
+			const params = [PiLot.Utils.Common.getQsDateArray(pDate)];
+			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.diary, params);
+		},
+
 		draw: function(){
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.tracksList);
 			this.container.appendChild(control);
@@ -938,6 +960,10 @@ PiLot.View.Stats = (function () {
 			this.pnlLegend = control.querySelector('.pnlLegend');
 			this.plhTracks = control.querySelector('.plhTracks');
 			this.pnlTemplate = control.querySelector('.pnlTemplate');
+			const sortHeaders = control.querySelector('.pnlHeader').querySelectorAll('[data-sort]');
+			for(let aHeader of sortHeaders){
+				aHeader.addEventListener('click', this.lblSort_click.bind(this));
+			}
 		},
 
 		setDefaultValues: function () {
@@ -946,6 +972,8 @@ PiLot.View.Stats = (function () {
 			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
 			this.userSettings.boats = this.userSettings.boats || [];
 			this.userSettings.unit = this.userSettings.unit || 'nm';	
+			this.userSettings.sortBy = this.userSettings.sortBy || 'date';
+			this.userSettings.sortDirection = this.userSettings.sortDirection || -1;
 		},
 
 		applyUserSettings: function () {
@@ -963,11 +991,19 @@ PiLot.View.Stats = (function () {
 			const end = this.userSettings.timeframe.end ? this.userSettings.timeframe.end.toMillis() : null;
 			const results = await Promise.all([
 				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats),
-				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync()
+				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync(),
+				this.trackService.getTrackSegmentTypesAsync()
+			
 			]);
 			this.tracks = results[0];
 			this.allBoats = results[1];
+			this.allTrackSegmentTypes = results[2];
+			this.sortTracks();
 			this.showTracks();
+		},
+
+		sortTracks: function(){
+			this.tracks.sort((a, b) => a.compareTo(b, this.userSettings.sortBy, this.userSettings.sortDirection));
 		},
 
 		showTracks: function(){
@@ -1004,8 +1040,9 @@ PiLot.View.Stats = (function () {
 
 		createTrackRow: function(pTrack, pColors, pLanguage, pConvertDistanceFunction, pDistanceUnitText, pConvertSpeedFunction, pSpeedUnitText){
 			const startLuxon = RC.Date.DateHelper.millisToLuxon(pTrack.getStartBoatTime(), pLanguage);
+			const startDate = RC.Date.DateOnly.fromObject(startLuxon);
 			const endLuxon = RC.Date.DateHelper.millisToLuxon(pTrack.getEndBoatTime(), pLanguage);
-			const durationMillis = pTrack.getEndUTC() - pTrack.getStartUTC();
+			const durationMillis = pTrack.getDurationMillis();
 			const duration = luxon.Duration.fromMillis(durationMillis);
 			const distanceMeters = pTrack.getDistance();
 			const distance = pConvertDistanceFunction(distanceMeters);
@@ -1013,20 +1050,41 @@ PiLot.View.Stats = (function () {
 			const speed = pConvertSpeedFunction(speedMetric);
 			const row = this.pnlTemplate.cloneNode(true);
 			row.querySelector('.lblBoat').style.backgroundColor = pColors.get(pTrack.getBoat());
-			row.querySelector('.lblDate').innerText = startLuxon.toLocaleString(DateTime.DATE_SHORT);
+			row.querySelector('.lblBoat').title = this.getBoatDisplayName(pTrack.getBoat());
+			const lnkDate = row.querySelector('.lnkDate'); 
+			lnkDate.innerText = startLuxon.toLocaleString(DateTime.DATE_SHORT);
+			lnkDate.href = PiLot.Utils.Common.setQsDate(PiLot.Utils.Loader.createPageLink(PiLot.Utils.Loader.pages.diary), startDate);
+			lnkDate.addEventListener('click', this.lnkDate_click.bind(this, startDate));
 			row.querySelector('.lblStartTime').innerText = startLuxon.toLocaleString(DateTime.TIME_SIMPLE);
 			row.querySelector('.lblEndTime').innerText = endLuxon.toLocaleString(DateTime.TIME_SIMPLE);
 			row.querySelector('.lblDuration').innerText = PiLot.Utils.Common.durationToHHMMSS(duration);
-			row.querySelector('.lblDistance').innerText = this.round(distance);
+			row.querySelector('.lblDistance').innerText = distance.toFixed(2);
 			row.querySelector('.lblDistanceUnit').innerText = pDistanceUnitText;
-			row.querySelector('.lblSpeed').innerText = this.round(speed);
+			row.querySelector('.lblSpeed').innerText = speed.toFixed(2);
 			row.querySelector('.lblSpeedUnit').innerText = pSpeedUnitText;
+			this.showTrophies(pTrack, row.querySelector('.lblTrophies'), pLanguage);
 			this.plhTracks.appendChild(row);
 			row.hidden = false;
 		},
+
+		getBoatDisplayName: function(pBoatName){
+			const boatInfo = this.allBoats.find(b => b.name === pBoatName);
+			return boatInfo ? boatInfo.displayName : pBoatName;
+		},
 		
-		showTrophies: function(pTrack, pCell){
-			
+		showTrophies: function(pTrack, pCell, pLanguage){
+			const goldSegments = pTrack.getGoldSegments();
+			if(Array.isArray(goldSegments)){
+				for(let aSegment of goldSegments){
+					pCell.appendChild(this.getTrophyIcon(aSegment, true, pLanguage));
+				}
+			}
+			const silverSegments = pTrack.getSilverSegments();
+			if(Array.isArray(silverSegments)){
+				for(let aSegment of silverSegments){
+					pCell.appendChild(this.getTrophyIcon(aSegment, false, pLanguage));
+				}
+			}
 		},
 
 		convertDistanceNm: function(pDistance){
@@ -1045,13 +1103,11 @@ PiLot.View.Stats = (function () {
 			return PiLot.Utils.Nav.mpsToKmh(pSpeed);
 		},
 
-		/** Rounds a value to two decimal places */
-		round: function (pValue) {
-			return (pValue && RC.Utils.isNumeric(pValue)) ? Math.round(pValue * 100) / 100 : pValue;
-		},
-
-		getTrophyIcon: function(pIsGold){
-			return pIsGold ? PiLot.Templates.Nav.topSegmentOverall : PiLot.Templates.Nav.topSegmentYear;
+		getTrophyIcon: function(pType, pIsGold, pLanguage){
+			const template = pIsGold ? PiLot.Templates.Nav.topSegmentOverall : PiLot.Templates.Nav.topSegmentYear;
+			const result = PiLot.Utils.Common.createNode(template);
+			result.title = this.allTrackSegmentTypes.get(pType).getLabel(pLanguage);
+			return result;
 		},
 
 		sortData: function(){

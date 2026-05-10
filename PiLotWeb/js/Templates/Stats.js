@@ -117,26 +117,26 @@ PiLot.Templates.Stats = {
 				<div class="pnlTable tracksTable fullWidth flexColumn">
 					<div class="pnlHeader flexRowWrap tracksHeader bgLight trackRow" class="semiBold">
 						<div class="cellGroup">
-							<span class="colBoat trackCell" data-text="boat"></span>
-							<span class="colDate trackCell" data-text="date"></span>
+							<span class="lblBoat colBoat trackCell" data-text="boat"></span>
+							<span class="lblDate colDate trackCell pointer" data-sort="date" data-text="date"></span>
 						</div>
 						<div class="cellGroup">
 							<span class="colTime trackCell" data-text="time"></span>
 						</div>
 						<div class="cellGroup">
-							<span class="colDuration trackCell" data-text="duration"></span>
-							<span class="colDistance trackCell" data-text="distance"></span>
+							<span class="lblDuration colDuration trackCell pointer" data-sort="duration" data-text="duration"></span>
+							<span class="lblDistance colDistance trackCell pointer" data-sort="distance" data-text="distance"></span>
 						</div>
 						<div class="cellGroup">
-							<span class="colSpeed trackCell" data-text="averageSpeed"></span>
-							<span class="colTrophies trackCell" data-text="records"></span>
+							<span class="lblSpeed colSpeed trackCell pointer" data-sort="speed" data-text="averageSpeed"></span>
+							<span class="lblTrophies colTrophies trackCell pointer" data-sort="trophies" data-text="records"></span>
 						</div>
 					</div>
-					<div class="plhTracks"></div>
+					<div class="plhTracks tracks"></div>
 					<div class="pnlTemplate flexRowWrap trackRow" hidden>
 						<div class="cellGroup">
-							<div class="trackCell"><div class="lblBoat colBoat boatColorBox" ></div></div>
-							<span class="lblDate colDate trackCell"></span>
+							<div class="colBoat trackCell"><div class="lblBoat boatColorBox" ></div></div>
+							<a href="#" class="lnkDate colDate trackCell"></a>
 						</div>
 						<div class="cellGroup">
 							<span class="colTime trackCell">

@@ -1659,9 +1659,19 @@ PiLot.Model.Nav = (function () {
 			return this.hasTrackPoints() ? this.getLastTrackPoint().getBoatTime() : this.endBoatTime;
 		},
 
+		/** @returns {Number} the track duration in milliseconds */
+		getDurationMillis: function(){
+			return (this.getEndUTC() - this.getStartUTC());
+		},
+
+		/** @returns {Number} the average speed in m/s */
+		getAverageSpeed: function(){
+			return this.getDistance() / this.getDurationMillis() * 1000;
+		},
+
 		/** @returns {Number[]} the segment type ids of the overall fastest segments of this track */
 		getGoldSegments: function(){
-			return this.goldSegments;
+			return this.goldSegments ? this.goldSegments : [];
 		},
 
 		/** @param {Number[]} pSegments - the segment type ids of the overall fastest segments of this track */
@@ -1671,7 +1681,7 @@ PiLot.Model.Nav = (function () {
 
 		/** @returns {Number[]} the segment type ids of the fastest per year segments of this track */
 		getSilverSegments: function(){
-			return this.silverSegments;
+			return this.silverSegments ? this.silverSegments : [];
 		},
 
 		/** @param {Number[]} pSegments - the segment type ids of the fastest per year segments of this track */
@@ -1812,15 +1822,47 @@ PiLot.Model.Nav = (function () {
 		},
 
 		/**
+		 * Compares two tracks by a specific criterion
+		 * @param {String} pCriterion - 'end' (default), 'date', 'duration', 'distance', 'speed', 'trophies'
+		 */
+		compareTo: function (pOther, pCriterion = 'end', pDirection = 1) {
+			let result = 0;
+			switch(pCriterion){
+				case 'end':
+					result = this.compareByEnd(pOther);
+					break;
+				case 'date':
+					result = this.getStartUTC() - pOther.getStartUTC();
+					break;
+				case 'duration':
+					result = this.getDurationMillis() - pOther.getDurationMillis();
+					break;
+				case 'distance':
+					result = this.getDistance() - pOther.getDistance();
+					break;
+				case 'speed':
+					result = this.getAverageSpeed() - pOther.getAverageSpeed();
+					break;
+				case 'trophies':
+					result = (
+						(this.getGoldSegments().length * 2 + this.getSilverSegments().length) 
+						- (pOther.getGoldSegments().length * 2 + pOther.getSilverSegments().length)
+					);
+					break;
+			}
+			return result * pDirection;
+		},
+
+		/**
 		 * Compares two tracks for sorting, having the track that ends earlier first
 		 * (we need to look at the end, so that we can find the current track by taking
 		 * the last one)
 		 */
-		compareTo: function (pOther) {
+		compareByEnd: function(){
 			let result;
 			if (this.hasTrackPoints()) {
 				if (pOther.hasTrackPoints()) {
-					result = this.getLastTrackPoint().getUTC() - pOther.getLastTrackPoint().getUTC();
+					result = this.getEndUTC() - pOther.getEndUTC();
 				} else {
 					result = 1;
 				}
