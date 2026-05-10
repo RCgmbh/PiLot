@@ -116,40 +116,40 @@ PiLot.Templates.Stats = {
 				<div class="pnlLegend chartLegend fullWidth center marginBottom flexRowWrap"></div>
 				<div class="pnlTable tracksTable fullWidth flexColumn">
 					<div class="pnlHeader flexRowWrap tracksHeader bgLight trackRow" class="semiBold">
-						<div class="cellGroup">
+						<div class="cellGroup group1">
 							<span class="lblBoat colBoat trackCell" data-text="boat"></span>
 							<span class="lblDate colDate trackCell pointer" data-sort="date" data-text="date"></span>
 						</div>
-						<div class="cellGroup">
+						<div class="cellGroup group2">
 							<span class="colTime trackCell" data-text="time"></span>
 						</div>
-						<div class="cellGroup">
+						<div class="cellGroup group3">
 							<span class="lblDuration colDuration trackCell pointer" data-sort="duration" data-text="duration"></span>
 							<span class="lblDistance colDistance trackCell pointer" data-sort="distance" data-text="distance"></span>
 						</div>
-						<div class="cellGroup">
+						<div class="cellGroup group4">
 							<span class="lblSpeed colSpeed trackCell pointer" data-sort="speed" data-text="averageSpeed"></span>
 							<span class="lblTrophies colTrophies trackCell pointer" data-sort="trophies" data-text="records"></span>
 						</div>
 					</div>
 					<div class="plhTracks tracks"></div>
 					<div class="pnlTemplate flexRowWrap trackRow" hidden>
-						<div class="cellGroup">
+						<div class="cellGroup group1">
 							<div class="colBoat trackCell"><div class="lblBoat boatColorBox" ></div></div>
 							<a href="#" class="lnkDate colDate trackCell"></a>
 						</div>
-						<div class="cellGroup">
+						<div class="cellGroup group2">
 							<span class="colTime trackCell">
 								<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
 							</span>
 						</div>
-						<div class="cellGroup">
+						<div class="cellGroup group3">
 							<span class="lblDuration colDuration trackCell">dur</span>
 							<span class="colDistance trackCell">
 								<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
 							</span>
 						</div>
-						<div class="cellGroup">
+						<div class="cellGroup group4">
 							<span class="colSpeed trackCell">
 								<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
 							</span>
