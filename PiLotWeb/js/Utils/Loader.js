@@ -204,10 +204,16 @@ PiLot.Utils.Loader = (function () {
 		},
 
 		window_popstate: function(pEvent){
-			console.log(pEvent.state);
+			console.log(`window_popstate, state: ${pEvent.state}`);
+			let page;
+			let params;
 			if(pEvent.state && pEvent.state.page){
-				this.showPage(this.getPage(pEvent.state.page), pEvent.state.params, false);
+				page = pEvent.state.page;
+				params = pEvent.state.params;
+			} else{
+				page = RC.Utils.getUrlParameter(PAGEKEY);
 			}
+			page && this.showPage(this.getPage(page), params, false);
 		},
 
 		/**
