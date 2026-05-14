@@ -1858,7 +1858,7 @@ PiLot.Model.Nav = (function () {
 		 * (we need to look at the end, so that we can find the current track by taking
 		 * the last one)
 		 */
-		compareByEnd: function(){
+		compareByEnd: function(pOther){
 			let result;
 			if (this.hasTrackPoints()) {
 				if (pOther.hasTrackPoints()) {
