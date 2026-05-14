@@ -159,11 +159,71 @@ PiLot.Utils.Nav = {
 
 	/** @returns {Number} the input value converted from m/s to knots **/
 	mpsToKnots: function (pMps) {
-		return pMps * 3600 / 1852;
+		return this.convertSpeed(pMps, 'nautical');
 	},
 
 	/** @returns {Number} the input value converted from m/s to km/h **/
 	mpsToKmh: function (pMps) {
-		return pMps * 3.6;
+		return this.convertSpeed(pMps, 'metric');
+	},
+
+	/**
+	 * Converts a distance form meters to either km, milese or meters
+	 * @param {Number} pDistance - distance in m, null returns null
+	 * @param {String} pUnit - ["metric", "nautical", "SI"]
+	 * @returns {Number} distance in km (metric), nautical miles (nautical) or m (SI)
+	 */
+	convertDistance: function(pDistance, pUnit){
+		let result;
+		if(pDistance) {
+			switch(pUnit){
+				case 'metric':
+					result = pDistance / 1000;
+					break;
+				case 'nautical':
+					result = pDistance / 1852;
+					break;
+				case 'SI':
+					result = pDistance;
+					break;
+				default:
+					PiLot.Utils.Common.log(`Invalid unit: ${pUnit}`, 0);
+					result = undefined;
+					break;
+			}
+		} else if(pDistance === null){
+			result === null;
+		}
+		return result;
+	},
+
+	/**
+	 * Converts a speed form m/s to either km/h, knots or m/s
+	 * @param {Number} pSpeed - speed in m/s, null returns null
+	 * @param {String} pUnit - ["metric", "nautical", "SI"]
+	 * @returns {Number} pSpeed in km/h (metric), knots (nautical) or m/s (SI)
+	 */
+	convertSpeed: function(pSpeed, pUnit){
+		let result;
+		if(pSpeed) {
+			switch(pUnit){
+				case 'metric':
+					result = pSpeed * 3.6;
+					break;
+				case 'nautical':
+					result = pSpeed * 3600 / 1852;
+					break;
+				case 'SI':
+					result = pSpeed;
+					break;
+				default:
+					PiLot.Utils.Common.log(`Invalid unit: ${pUnit}`, 0);
+					result = undefined;
+					break;
+			}
+		} else if(pSpeed === null){
+			result === null;
+		}
+		return result;
 	}
 };

@@ -36,8 +36,7 @@ PiLot.Templates.Stats = {
 					</div>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="unit" class="bold"></span>
-						<label><input type="radio" name="rblTotalDistanceUnit" value="nm" class="rblUnit" /><span data-text="nm"></span></label>
-						<label><input type="radio" name="rblTotalDistanceUnit" value="km" class="rblUnit" /><span data-text="km"></span></label>
+						<div class="plhUnit"></div>
 					</div>
 				</div>
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
@@ -69,8 +68,7 @@ PiLot.Templates.Stats = {
 					</div>
 					<div class="plhUnit flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="unit" class="bold"></span>
-						<label><input type="radio" name="rblFastestSegmentUnit" value="kn" class="rblUnit" /><span data-text="kn"></span></label>
-						<label><input type="radio" name="rblFastestSegmentUnit" value="kmh" class="rblUnit" /><span data-text="kmh"></span></label>
+						<div class="plhUnit"></div>
 					</div>
 				</div>
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
@@ -104,6 +102,10 @@ PiLot.Templates.Stats = {
 						<span data-text="boats" class="bold"></span>
 						<div class="plhBoats flexColumn"></div>
 					</div>
+					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
+						<span data-text="unit" class="bold"></span>
+						<div class="plhUnit"></div>
+					</div>
 				</div>
 				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
 			</div>
@@ -111,7 +113,7 @@ PiLot.Templates.Stats = {
 			<div class="pnlData fullWidth">
 				<div class="plhLegend"></div>
 				<div class="pnlTable tracksTable fullWidth flexColumn">
-					<div class="pnlHeader flexRowWrap tracksHeader bgLight trackRow" class="semiBold">
+					<div class="pnlHeader flexRowWrap tracksHeader bgLight trackRow semiBold">
 						<div class="cellGroup group1">
 							<span class="lblBoat colBoat trackCell" data-text="boat"></span>
 							<span class="lblDate colDate trackCell pointer" data-sort="date" data-text="date"></span>
@@ -136,20 +138,55 @@ PiLot.Templates.Stats = {
 						</div>
 						<div class="cellGroup group2">
 							<span class="colTime trackCell">
-								<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
+								<span class="grow">
+									<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
+								</span>
 							</span>
 						</div>
 						<div class="cellGroup group3">
-							<span class="lblDuration colDuration trackCell">dur</span>
+							<span class="lblDuration colDuration trackCell"></span>
 							<span class="colDistance trackCell">
-								<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
+								<span class="grow right">
+									<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
+								</span>
 							</span>
 						</div>
 						<div class="cellGroup group4">
 							<span class="colSpeed trackCell">
-								<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
+								<span class="grow right">
+									<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
+								</span>
 							</span>
 							<span class="lblTrophies colTrophies trackCell"></span>
+						</div>
+					</div>
+					<div class="pnlSummary flexRowWrap tracksSummary bgLight trackRow">
+						<div class="cellGroup group1">
+							<span class="colBoat trackCell">
+								<span class="lblTracksCount colBoat trackCell"></span>
+							</span>
+							<span class="colDate trackCell"></span>
+						</div>
+						<div class="cellGroup group2">
+							<span class="colTime trackCell"></span>
+						</div>
+						<div class="cellGroup group3">
+							<span class="colDuration trackCell">
+								<span class="lblTotalDuration"></span>
+							</span>
+							<span class="colDistance trackCell">
+								<span class="grow right">
+									<span class="lblTotalDistance"></span> <span class="lblTotalDistanceUnit"></span>
+								</span>
+							</span>
+						</div>
+						<div class="cellGroup group4">
+							<span class="colSpeed trackCell">
+								<span class="grow right">
+									<span class="lblAverageSpeed"></span> <span class="lblAverageSpeedUnit"></span>
+								</span>
+							</span>
+							<span class="colTrophies trackCell"></span>
 						</div>
 					</div>
 				</div>
@@ -159,10 +196,10 @@ PiLot.Templates.Stats = {
 
 	timeframeSelector: `
 		<form><div class="flexColumn">
-			<label><input type="radio" name="rblFastestSegmentTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
-			<label><input type="radio" name="rblFastestSegmentTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
-			<label><input type="radio" name="rblFastestSegmentTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
-			<label class="marginBottomXSmall"><input type="radio" name="rblFastestSegmentTimeframe" value="3" class="rblTimeframe" /><span data-text="userdefined"></span></label>
+			<label><input type="radio" name="rblTimeframe" value="0" class="rblTimeframe" /><span data-text="monthsSingular"></span></label>
+			<label><input type="radio" name="rblTimeframe" value="1" class="rblTimeframe" /><span data-text="yearsSingular"></span></label>
+			<label><input type="radio" name="rblTimeframe" value="2" class="rblTimeframe" /><span data-text="all"></span></label>
+			<label class="marginBottomXSmall"><input type="radio" name="rblTimeframe" value="3" class="rblTimeframe" /><span data-text="userdefined"></span></label>
 			<div class="label pnlCustomDates" hidden>
 				<div class="marginBottomXSmall">
 					<span class="inlineBlock col2" data-text="from">:</span><input type="text" class="tbStartDate input4" /><div class="calStartDate" hidden></div><br />
@@ -171,6 +208,13 @@ PiLot.Templates.Stats = {
 					<span class="inlineBlock col2" data-text="to">:</span><input type="text" class="tbEndDate input4" /><div class="calEndDate" hidden></div>
 				</div>
 			</div>
+		</div></form>
+	`,
+
+	unitSelector: `
+		<form><div class="flexColumn">
+			<label><input type="radio" name="rblUnits" value="nautical" class="rblUnits" /><span data-text="unitsNautical"></span></label>
+			<label><input type="radio" name="rblUnits" value="metric" class="rblUnits" /><span data-text="unitsMetric"></span></label>
 		</div></form>
 	`,
 

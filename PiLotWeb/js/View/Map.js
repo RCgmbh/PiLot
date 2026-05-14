@@ -1655,7 +1655,7 @@ PiLot.View.Map = (function () {
 				var sog = this.gpsObserver.getSOG();
 				var cog = this.gpsObserver.getCOG();
 				if ((sog !== null) && (sog !== 0) && (cog !== null)) {
-					var distance = PiLot.Utils.Nav.knotsToMps(sog) * this.cogLength; // the length of the vector in meters
+					const distance = PiLot.Utils.Nav.knotsToMps(sog) * this.cogLength; // the length of the vector in meters
 					if (distance > 0) {
 						var endPosition = pPosition.destinationPoint(distance, cog);
 						var lineStart = PiLot.Utils.Nav.latLonToLatLng(pPosition);

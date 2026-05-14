@@ -391,6 +391,9 @@ body.night table.dgTable > tbody > tr.dgHeader > td, body.night table.dgTable > 
 th.center, td.center { text-align: center !important; }
 th.right, td.right { text-align: right !important; }
 
+.sortedAscending {text-decoration: underline; }
+.sortedDescending {text-decoration: overline; }
+
 /* SPECIFIC ELEMENTS */
 
 .pnlUserInfo { text-align: left; width: 15em; padding: 0.5em; margin-top: 3em; border: 1px solid #aaa; border-radius: 0.25em; z-index: 13000; }

@@ -9,8 +9,6 @@
 .tracksHeader .cellGroup {border-bottom: 1px solid #ccc;}
 .tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc;}
 
-.tracksTable .tracks { 	max-height:80vh; overflow:auto; }
-
 .trackRow .cellGroup { display: flex; flex: 1 1 25%; min-width: 11em;}
 .trackRow .cellGroup.group1 { min-width: 8em; }
 .trackRow .cellGroup.group4 { min-width: 15.5em; }
@@ -29,5 +27,4 @@
 }
 
 .trackRow .colBoat {min-width: 2.5em; flex-basis:1.5em;}
-.tracksTable .tracks .colDistance, .tracksTable .tracks .colSpeed { display: block; text-align:right; }
 .trackRow .colTrophies {min-width: 10em;}
