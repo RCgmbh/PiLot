@@ -232,10 +232,10 @@ PiLot.Templates.Nav = {
 		<div class="pnlOverlay vCenter overlay" hidden>
 			<div class="pnlDialog poiDetails dialogPanel hCenter">
 				<div class="paddingAllSmall">
-					<div class="marginBottomSmall flexRowWrap" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
-						<div class="plhCategoryIcon poiIcon marginRight" style="flex-grow:0;"></div>
-						<span class="lblCategoryName italic" style="flex-grow:1;"></span>
-						<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
+					<div class="marginBottomSmall flexRowWrap reverse" style="align-items:center;">
+						<div class="plhCategoryIcon poiIcon marginRight noGrow"></div>
+						<span class="lblCategoryName italic grow"></span>
+						<a href="#" class="lnkClose noGrow"><i class="icon-cross"></i></a>
 					</div>
 					<span class="lblTitle marginBottomSmall block semiBold"></span>
 					<div class="labelValues30-70 flexColumn marginBottomSmall">
