@@ -138,59 +138,60 @@ PiLot.Templates.Stats = {
 						</div>
 						<div class="cellGroup group2">
 							<span class="colTime trackCell">
-								<span class="grow">
-									<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
-								</span>
+								<span class="lblStartTime"></span> - <span class="lblEndTime"></span>
 							</span>
 						</div>
 						<div class="cellGroup group3">
 							<span class="lblDuration colDuration trackCell"></span>
-							<span class="colDistance trackCell">
-								<span class="grow right">
-									<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
-								</span>
+							<span class="colDistance trackCell right">
+								<span class="lblDistance"></span> <span class="lblDistanceUnit"></span>
 							</span>
 						</div>
 						<div class="cellGroup group4">
-							<span class="colSpeed trackCell">
-								<span class="grow right">
-									<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
-								</span>
+							<span class="colSpeed trackCell right">
+								<span class="lblSpeed"></span> <span class="lblSpeedUnit"></span>
 							</span>
 							<span class="lblTrophies colTrophies trackCell"></span>
 						</div>
 					</div>
 					<div class="pnlSummary flexRowWrap tracksSummary bgLight trackRow">
 						<div class="cellGroup group1">
-							<span class="colBoat trackCell">
-								<span class="lblTracksCount colBoat trackCell"></span>
-							</span>
+							<span class="lblTracksCount colBoat trackCell "></span>
 							<span class="colDate trackCell"></span>
 						</div>
 						<div class="cellGroup group2">
 							<span class="colTime trackCell"></span>
 						</div>
 						<div class="cellGroup group3">
-							<span class="colDuration trackCell">
-								<span class="lblTotalDuration"></span>
-							</span>
-							<span class="colDistance trackCell">
-								<span class="grow right">
-									<span class="lblTotalDistance"></span> <span class="lblTotalDistanceUnit"></span>
-								</span>
+							<span class="lblTotalDuration colDuration trackCell"></span>
+							<span class="colDistance trackCell right">
+								<span class="lblTotalDistance"></span> <span class="lblTotalDistanceUnit"></span>
 							</span>
 						</div>
 						<div class="cellGroup group4">
-							<span class="colSpeed trackCell">
-								<span class="grow right">
-									<span class="lblAverageSpeed"></span> <span class="lblAverageSpeedUnit"></span>
-								</span>
+							<span class="colSpeed trackCell right">
+								<span class="lblAverageSpeed"></span> <span class="lblAverageSpeedUnit"></span>
 							</span>
 							<span class="colTrophies trackCell"></span>
 						</div>
 					</div>
 				</div>
+				<div class="buttons paddingAll">
+					<button class="btnShowOnMap linkButton"><i class="icon-map marginRightSmall"></i><span data-text="showOnMap"></span></button>
+				</div>
 			</div>
+		</div>
+	`,
+
+	tracksMap:`
+		<div class="flexColumn overlay" hidden>
+			<div class="flexRowWrap paddingAllSmall bgLight">
+				<span class="grow">
+					<span class="lblLoadingTracks" data-text="loadingTracksXofY"></span>
+				</span>
+				<a href="#" class="lnkClose noGrow"><i class="icon-cross"></i></a>
+			</div>
+			<div class="pnlMap map grow">Map</div>
 		</div>
 	`,
 

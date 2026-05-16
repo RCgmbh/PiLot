@@ -828,6 +828,7 @@ PiLot.View.Stats = (function () {
 		this.lblTotalDistanceUnit = null;
 		this.lblAverageSpeed = null;
 		this.lblAverageSpeedUnit = null;
+		this.tracksMap = null;						// PiLot.View.Stats.TracksMap
 		this.initialize();
 	};
 
@@ -884,6 +885,10 @@ PiLot.View.Stats = (function () {
 			PiLot.Utils.Loader.PageLoader.getInstance().showPage(PiLot.Utils.Loader.pages.diary, params);
 		},
 
+		btnShowOnMap_click: function(){
+			this.showTracksOnMap();
+		},
+
 		draw: function(){
 			let control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.tracksList);
 			this.container.appendChild(control);
@@ -909,9 +914,10 @@ PiLot.View.Stats = (function () {
 			this.lblTracksCount = control.querySelector('.lblTracksCount');
 			this.lblTotalDuration = control.querySelector('.lblTotalDuration');
 			this.lblTotalDistance = control.querySelector('.lblTotalDistance');
-			this.lblTotalDistanceUnit = control.querySelector('.lblTotalDistanceUnit');;
-			this.lblAverageSpeed = control.querySelector('.lblAverageSpeed');;
-			this.lblAverageSpeedUnit = control.querySelector('.lblAverageSpeedUnit');;
+			this.lblTotalDistanceUnit = control.querySelector('.lblTotalDistanceUnit');
+			this.lblAverageSpeed = control.querySelector('.lblAverageSpeed');
+			this.lblAverageSpeedUnit = control.querySelector('.lblAverageSpeedUnit');
+			control.querySelector('.btnShowOnMap').addEventListener('click', this.btnShowOnMap_click.bind(this));
 		},
 
 		setDefaultValues: function () {
@@ -1026,6 +1032,11 @@ PiLot.View.Stats = (function () {
 			this.lblAverageSpeedUnit.innerText = unitLabels.speed;
 		},
 
+		showTracksOnMap: function(){
+			this.tracksMap = this.tracksMap || new TracksMap();
+			this.tracksMap.showTracksAsync(this.tracks);
+		},	
+
 		getBoatsFromTracks: function () {
 			const result = [];
 			for (let aTrack of this.tracks) {
@@ -1091,7 +1102,75 @@ PiLot.View.Stats = (function () {
 			result.title = this.allTrackSegmentTypes.get(pType).getLabel(pLanguage);
 			return result;
 		}
-	};		
+	};
+	
+	var TracksMap = function(){
+
+		this.cancelLoadTracks = false;
+		this.control = null;
+		this.lblLoadingTracks = null;
+		this.pnlMap = null;
+		this.map = null;					// PiLot.View.Map.Seamap
+		this.mapTrack = null;				// PiLot.View.Map.MapTrack
+
+		this.initialize();
+	};
+
+	TracksMap.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		lnkClose_click: function(pEvent){
+			pEvent.preventDefault();
+			this.hide();
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.tracksMap);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			this.pnlMap = this.control.querySelector('.pnlMap');
+			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
+			this.lblLoadingTracks = this.control.querySelector('.lblLoadingTracks');
+		},
+
+		ensureMapAsync: async function(){
+			if(this.map === null){
+				const options = {};
+				this.map = new PiLot.View.Map.Seamap(this.pnlMap, options);
+				await this.map.showAsync();
+				this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
+			}
+		},
+
+		showTracksAsync: async function(pTracks){
+			this.cancelLoadTracks = false;
+			this.control.hidden = false;
+			await this.ensureMapAsync();
+			this.lblLoadingTracks.hidden = false;
+			this.mapTrack.setTracks([], false);
+			let infoText = PiLot.Utils.Language.getText(this.lblLoadingTracks.dataset.text);
+			for(let i = 0; i < pTracks.length && !this.cancelLoadTracks; i++){
+				this.lblLoadingTracks.innerText = infoText.replace('{{currentTrack}}', i + 1).replace('{{totalTracks}}', pTracks.length);
+				const track = await PiLot.Service.Nav.TrackService.getInstance().loadTrackAsync(pTracks[i].getId());
+				this.mapTrack.addTrack(track, false);
+				this.mapTrack.zoomToTracks();
+			}	
+			this.lblLoadingTracks.hidden = true;	
+			this.mapTrack.sortTracks();
+			this.mapTrack.resetHistoricPosition();
+			this.mapTrack.updateTimeScale();
+			this.mapTrack.showTimeSlider();
+			this.mapTrack.drawHistoricPosition();
+		},
+
+		hide: function(){
+			this.cancelLoadTracks = true;
+			this.control.hidden = true;
+		}
+
+	};
 
 	var TimeframeSelector = function(pContainer){
 		this.container = pContainer;

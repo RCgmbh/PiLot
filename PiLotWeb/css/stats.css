@@ -7,16 +7,13 @@
 
 .tracksHeader {border-top: 1px solid #ccc;}
 .tracksHeader .cellGroup {border-bottom: 1px solid #ccc;}
-.tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc;}
+.tracksHeader .trackCell {border-width: 0px 1px; border-style: solid; border-color: #ccc; text-align: center;}
 
 .trackRow .cellGroup { display: flex; flex: 1 1 25%; min-width: 11em;}
 .trackRow .cellGroup.group1 { min-width: 8em; }
 .trackRow .cellGroup.group4 { min-width: 15.5em; }
 
 .trackRow .trackCell {
-    display: flex;
-    justify-content: center;
-	align-items: center;
     flex: 1 1 50%;
     border: 1px solid #eee;
     padding: 0.25em;
@@ -24,7 +21,10 @@
     text-wrap: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    text-align: center;
 }
 
-.trackRow .colBoat {min-width: 2.5em; flex-basis:1.5em;}
+.trackRow .trackCell.right {text-align: right;}
+
+.trackRow .colBoat {display: flex; justify-content: center; align-items:center;  min-width: 2.5em; flex-basis:1.5em;}
 .trackRow .colTrophies {min-width: 10em;}
