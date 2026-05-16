@@ -1146,7 +1146,7 @@ PiLot.View.Stats = (function () {
 
 		showTracksAsync: async function(pTracks){
 			this.cancelLoadTracks = false;
-			this.control.hidden = false;
+			this.show();
 			await this.ensureMapAsync();
 			this.lblLoadingTracks.hidden = false;
 			this.mapTrack.setTracks([], false);
@@ -1165,8 +1165,14 @@ PiLot.View.Stats = (function () {
 			this.mapTrack.drawHistoricPosition();
 		},
 
+		show: function(){
+			this.control.hidden = false;
+			document.body.classList.toggle('overflowHidden', true);
+		},
+
 		hide: function(){
 			this.cancelLoadTracks = true;
+			document.body.classList.toggle('overflowHidden', false);
 			this.control.hidden = true;
 		}
 

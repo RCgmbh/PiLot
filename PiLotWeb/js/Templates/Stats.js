@@ -185,13 +185,13 @@ PiLot.Templates.Stats = {
 
 	tracksMap:`
 		<div class="flexColumn overlay" hidden>
-			<div class="flexRowWrap paddingAllSmall bgLight">
+			<div class="flexRowWrap paddingAllSmall bgLight borderBottom">
 				<span class="grow">
 					<span class="lblLoadingTracks" data-text="loadingTracksXofY"></span>
 				</span>
 				<a href="#" class="lnkClose noGrow"><i class="icon-cross"></i></a>
 			</div>
-			<div class="pnlMap map grow">Map</div>
+			<div class="pnlMap map grow"></div>
 		</div>
 	`,
 
