@@ -796,6 +796,7 @@ PiLot.View.Diary = (function () {
 			this.lnkEnlargeMap.hidden = pEnlarge;
 			this.lnkMinimizeMap.hidden = !pEnlarge;
 			this.invalidateMap();
+			this.mapTrack.refreshSlider();
 		},
 
 		invalidateMap: function () {

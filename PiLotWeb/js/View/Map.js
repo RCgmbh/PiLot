@@ -1088,24 +1088,10 @@ PiLot.View.Map = (function () {
 		},
 
 		/**
-		 * Handles sliding the slider. Finds the position on any of the tracks and 
-		 * if there is one, makes sure it is drawn / moved on the map.
+		 * Handles sliding the slider. Sets the historic position based on the 
+		 * trackPointsIndex corresponding to the slider value
 		 * */
 		timeSlider_slide: function () {
-			/*this.historicPosition = null;
-			const index = this.timeSlider.value * this.timeScaleFactor;
-			let counter = 0;
-			for (let aTrack of this.tracks) {
-				if (index < aTrack.getTrackPointsCount() + counter) {
-					this.historicPosition = aTrack.getTrackPointAt(index - counter);
-					break;
-				} else {
-					counter += aTrack.getTrackPointsCount();
-				}
-			}
-			if (this.historicPosition !== null) {
-				this.drawHistoricPosition();
-			}*/
 			this.historicPosition = this.trackPointsIndex[this.timeSlider.value];
 			this.drawHistoricPosition();
 		},
@@ -1120,20 +1106,10 @@ PiLot.View.Map = (function () {
 		},
 
 		/**
-		 * This makes sure we have a time scale factor which allows to distribute 
-		 * the whole visible track to the slider
-		 * */
-		/*updateTimeScale: function () {
-			if ((this.tracks.length > 0) && this.timeSlider) {
-				let trackPointsCount = 0;
-				for (let aTrack of this.tracks) {
-					trackPointsCount += aTrack.getTrackPointsCount();
-				}
-				this.timeScaleFactor = Math.ceil(trackPointsCount / this.maxTimeSteps);
-				this.timeSlider.setAttribute("max", Math.ceil(trackPointsCount / this.timeScaleFactor) - 1);
-			}
-		},*/
-
+		 * Creates an array of trackPoints that correspond to each value of the
+		 * slider. The array is build so that equal distance on the slider 
+		 * corresponds to equal time, ignoring time between tracks.
+		 */
 		createTrackPointsIndex: function () {
 			if(this.tracks.length > 0){
 				this.trackPointsIndex = [];
@@ -1150,6 +1126,11 @@ PiLot.View.Map = (function () {
 			}			
 		},
 
+		/**
+		 * Creates the index for one track
+		 * @param {PiLot.Model.Nav.Track} pTrack 
+		 * @param {Number} pInterval - the target interval (in ms) between two trackpoints in the index
+		 */
 		createTrackSamples: function(pTrack, pInterval){
 			if(pTrack.getTrackPointsCount() > 1){
 				let trackPoint, nextTrackPoint;
@@ -1197,6 +1178,7 @@ PiLot.View.Map = (function () {
 
 		/**
 		 * Adds a track and shows it on the map. All tracks that were added before will be kept.
+		 * Please make sure to call refreshSlider() once all tracks have been added.
 		 * @param {PiLot.Model.Nav.Track} pTrack
 		 * @param {Boolean} pSortTracks - allows to not sort the tracks. Make sure to call sortTracks() later in that case!
 		 * */
@@ -1210,6 +1192,10 @@ PiLot.View.Map = (function () {
 			}
 		},
 
+		/**
+		 * Updates the slider so that its timescale matches the tracks. Call this
+		 * after adding tracks manually.
+		 */
 		refreshSlider: function(){
 			this.showTimeSlider(true);
 			this.createTrackPointsIndex();
