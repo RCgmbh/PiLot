@@ -15,7 +15,7 @@ PiLot.Templates.Map = {
 	mapLayersIcon: `<a href="" class="sideMenu mapLayersIcon"><i class="icon-stack4 biggerText"></i></a>`,
 
 	mapLayersSettings: `
-		<div class="pnlOverlay vCenter overlay" hidden>
+		<div class="pnlOverlay vCenter overlay foreground" hidden>
 			<div class="pnlDialog mapLayerSettings dialogPanel flexColumn hCenter">
 				<div class="paddingAllSmall flexRowWrap bgLight" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
 					<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>

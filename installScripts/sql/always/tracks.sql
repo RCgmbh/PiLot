@@ -315,9 +315,17 @@ AS $BODY$
 		ON tracks.id = segments.track_id
 	WHERE
 		( 
-			(p_is_boattime = FALSE AND (p_end IS NULL OR start_utc < p_end) AND (p_start IS NULL OR end_utc > p_start))
-			OR
-			(p_is_boattime = TRUE AND (p_end IS NULL OR start_boattime < p_end) AND (p_start IS NULL OR end_boattime > p_start))
+			(
+				p_is_boattime = FALSE
+				AND start_utc IS NOT NULL AND end_utc IS NOT NULL 
+				AND (p_end IS NULL OR start_utc < p_end) AND (p_start IS NULL OR end_utc > p_start)
+			)
+			OR 
+			(
+				p_is_boattime = TRUE 
+				AND start_boattime IS NOT NULL AND end_boattime IS NOT NULL
+				AND (p_end IS NULL OR start_boattime < p_end) AND (p_start IS NULL OR end_boattime > p_start)
+			)
 		)
 		AND (
 			p_boats IS NULL OR array_length(p_boats, 1) IS NULL OR boat = ANY (p_boats)

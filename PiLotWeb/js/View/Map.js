@@ -1034,8 +1034,9 @@ PiLot.View.Map = (function () {
 		this.map = pMap;
 		this.includeTimeSlider = pIncludeTimeSlider;
 		this.tracks = null;
-		this.timeScaleFactor = 1;
-		this.maxTimeSteps = 1000;
+		//this.timeScaleFactor = 1;
+		this.trackPointsIndex = null;
+		//this.maxTimeSteps = 1000;
 		this.historicPosition = null;  // TrackPoint
 		this.trackObserver = null;
 		this.enableLiveUpdate = false;
@@ -1091,7 +1092,7 @@ PiLot.View.Map = (function () {
 		 * if there is one, makes sure it is drawn / moved on the map.
 		 * */
 		timeSlider_slide: function () {
-			this.historicPosition = null;
+			/*this.historicPosition = null;
 			const index = this.timeSlider.value * this.timeScaleFactor;
 			let counter = 0;
 			for (let aTrack of this.tracks) {
@@ -1104,7 +1105,9 @@ PiLot.View.Map = (function () {
 			}
 			if (this.historicPosition !== null) {
 				this.drawHistoricPosition();
-			}
+			}*/
+			this.historicPosition = this.trackPointsIndex[this.timeSlider.value];
+			this.drawHistoricPosition();
 		},
 
 		/** Adds the slider and binds events. */
@@ -1120,7 +1123,7 @@ PiLot.View.Map = (function () {
 		 * This makes sure we have a time scale factor which allows to distribute 
 		 * the whole visible track to the slider
 		 * */
-		updateTimeScale: function () {
+		/*updateTimeScale: function () {
 			if ((this.tracks.length > 0) && this.timeSlider) {
 				let trackPointsCount = 0;
 				for (let aTrack of this.tracks) {
@@ -1129,6 +1132,48 @@ PiLot.View.Map = (function () {
 				this.timeScaleFactor = Math.ceil(trackPointsCount / this.maxTimeSteps);
 				this.timeSlider.setAttribute("max", Math.ceil(trackPointsCount / this.timeScaleFactor) - 1);
 			}
+		},*/
+
+		createTrackPointsIndex: function () {
+			if(this.tracks.length > 0){
+				this.trackPointsIndex = [];
+				const samples = this.timeSliderContainer.clientWidth / 2;
+				let totalDuration = 0;
+				for (let aTrack of this.tracks) {
+					totalDuration += aTrack.getDurationMillis();
+				}
+				const sampleInterval = (totalDuration / samples);
+				for(let aTrack of this.tracks){
+					this.createTrackSamples(aTrack, sampleInterval);
+				}
+				this.timeSlider.setAttribute("max", this.trackPointsIndex.length - 1);
+			}			
+		},
+
+		createTrackSamples: function(pTrack, pInterval){
+			if(pTrack.getTrackPointsCount() > 1){
+				let trackPoint, nextTrackPoint;
+				const trackEnd = pTrack.getEndUTC();
+				let loopTime = pTrack.getStartUTC();
+				let i = 0;
+				while(i < pTrack.getTrackPointsCount() - 1){
+					trackPoint = pTrack.getTrackPointAt(i);
+					nextTrackPoint = pTrack.getTrackPointAt(i + 1);
+					if((trackPoint.getUTC() <= loopTime) && (nextTrackPoint.getUTC() >= loopTime)){
+						if(Math.abs(loopTime - trackPoint.getUTC()) < Math.abs(loopTime - nextTrackPoint.getUTC())){
+							this.trackPointsIndex.push(trackPoint);
+						} else {
+							this.trackPointsIndex.push(nextTrackPoint);
+						}
+						loopTime += pInterval;
+					}
+					else{
+						i++;
+					}
+				}
+			} else if (pTrack.hasTrackPoints()) {
+				this.trackPointsIndex.push(pTrack.getTrackPointAt(0));
+			}			
 		},
 
 		/**
@@ -1145,10 +1190,7 @@ PiLot.View.Map = (function () {
 			this.sortTracks();
 			if (this.includeTimeSlider) {
 				this.historicPosition = null;
-				this.resetHistoricPosition();
-				this.showTimeSlider();
-				this.updateTimeScale();
-				this.drawHistoricPosition();
+				this.refreshSlider();
 			}
 			pZoomToTracks && this.zoomToTracks();
 		},
@@ -1159,7 +1201,7 @@ PiLot.View.Map = (function () {
 		 * @param {Boolean} pSortTracks - allows to not sort the tracks. Make sure to call sortTracks() later in that case!
 		 * */
 		addTrack: function (pTrack, pSortTracks = true) {
-			if (pTrack && !this.tracks.includes(pTrack)) {
+			if (pTrack && pTrack.hasTrackPoints() && !this.tracks.includes(pTrack)) {
 				this.tracks.push(pTrack);
 				if (pSortTracks){
 					this.sortTracks();
@@ -1168,13 +1210,20 @@ PiLot.View.Map = (function () {
 			}
 		},
 
+		refreshSlider: function(){
+			this.showTimeSlider(true);
+			this.createTrackPointsIndex();
+			this.drawHistoricPosition();
+		},
+
 		/**
 		 * Shows a new position added to a track.
 		 * @param {PiLot.Model.Nav.Track} pTrack
 		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The TrackPoint that was added
 		 */
 		addTrackPosition: function (pTrack, pTrackPoint) {
-			this.updateTimeScale();
+			//this.updateTimeScale();
+			this.createTrackPointsIndex();
 			const polyline = this.polylines.get(pTrack);
 			if (polyline) {
 				polyline.addLatLng(pTrackPoint.getLatLng());
@@ -1189,7 +1238,8 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The position that was updated
 		 */
 		changeLastTrackPosition: function (pTrack, pTrackPoint) {
-			this.updateTimeScale();
+			//this.updateTimeScale();
+			this.createTrackPointsIndex();
 			const polyline = this.polylines.get(pTrack);
 			if (polyline) {
 				const latLngs = polyline.getLatLngs();
@@ -1210,7 +1260,8 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.Track} pTrack
 		 * */
 		cropTrackPositions: function (pTrack) {
-			this.updateTimeScale();
+			//this.updateTimeScale();
+			this.createTrackPointsIndex();
 			this.drawTrack(pTrack);
 			if(this.includeTimeSlider) {
 				this.fixHistoricPosition();

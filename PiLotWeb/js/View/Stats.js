@@ -1159,10 +1159,7 @@ PiLot.View.Stats = (function () {
 			}	
 			this.lblLoadingTracks.hidden = true;	
 			this.mapTrack.sortTracks();
-			this.mapTrack.resetHistoricPosition();
-			this.mapTrack.updateTimeScale();
-			this.mapTrack.showTimeSlider();
-			this.mapTrack.drawHistoricPosition();
+			this.mapTrack.refreshSlider();
 		},
 
 		show: function(){
