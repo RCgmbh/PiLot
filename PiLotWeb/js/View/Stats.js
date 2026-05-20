@@ -818,6 +818,7 @@ PiLot.View.Stats = (function () {
 		this.unitSelector = null;					// PiLot.View.Stats.UnitSelector
 		this.boatsLegend = null;					// PiLot.View.Stats.BoatsLegend
 		this.pnlNoData = null;
+		this.pnlLoading = null;
 		this.pnlData = null;
 		this.sortHeaders = null;					// List of all headers of sortable columns
 		this.plhTracks = null;
@@ -903,6 +904,7 @@ PiLot.View.Stats = (function () {
 			this.unitSelector.on('change', this, this.unitSelector_change.bind(this));
 			this.boatsLegend = new BoatsLegend(control.querySelector('.plhLegend'));
 			this.pnlNoData = control.querySelector('.pnlNoData');
+			this.icoLoading = control.querySelector('.icoLoading');
 			this.pnlData = control.querySelector('.pnlData');
 			this.sortHeaders = control.querySelector('.pnlHeader').querySelectorAll('[data-sort]');
 			for(let aHeader of this.sortHeaders){
@@ -944,6 +946,7 @@ PiLot.View.Stats = (function () {
 		loadAndShowDataAsync: async function(){
 			const start = this.userSettings.timeframe.start ? this.userSettings.timeframe.start.toMillis() : null;
 			const end = this.userSettings.timeframe.end ? this.userSettings.timeframe.end.toMillis() : null;
+			this.icoLoading.hidden = false;
 			const results = await Promise.all([
 				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats),
 				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync(),
@@ -954,6 +957,7 @@ PiLot.View.Stats = (function () {
 			this.allBoats = results[1];
 			this.allTrackSegmentTypes = results[2];
 			this.sortTracks();
+			this.icoLoading.hidden = true;
 			this.showTracks();
 		},
 

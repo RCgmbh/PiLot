@@ -107,7 +107,10 @@ PiLot.Templates.Stats = {
 						<div class="plhUnit"></div>
 					</div>
 				</div>
-				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
+				<div class="grow right" style="min-width:3em;">
+					<span class="icoLoading grey marginRight" hidden><i class="icon-hour-glass"></i></span>
+					<a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a>
+				</div>
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
 			<div class="pnlData fullWidth">
