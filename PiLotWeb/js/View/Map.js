@@ -93,7 +93,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/** switches between expanded and collapsed state of the settings container */
-		toggleSettingsContainer: function () {
+		toggleSettingsContainer: function (pEvent) {
+			pEvent.preventDefault();
 			this.settingsContainer.classList.toggle('expanded');
 		},
 
