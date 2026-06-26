@@ -340,13 +340,21 @@ PiLot.View.Stats = (function () {
 			const template = PiLot.Templates.Stats.totalDistanceChartTooltip;
 			const boatName =  this.getBoatDisplayName(pData.seriesName);
 			const distance = this.roundDistance(pData.data[pData.seriesIndex + 1]);
-			const unit = PiLot.Utils.Language.getText(this.userSettings.unit);
+			let unitText;
+			switch(this.userSettings.unit){
+				case 'nautical':
+					unitText = PiLot.Utils.Language.getText('nm');
+					break;
+				case 'metric':
+					unitText = PiLot.Utils.Language.getText('km');
+					break;
+			}
 			const dateString = this.dateLabelFunction(Number(pData.name));
 			return (template
 				.replace('{boat}', boatName)
 				.replace('{date}', dateString)
 				.replace('{distance}', distance)
-				.replace('{unit}', unit)
+				.replace('{unit}', unitText)
 			);
 			
 		},
