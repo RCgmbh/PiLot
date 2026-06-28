@@ -195,8 +195,8 @@ PiLot.Templates.Diary = {
 						<div class="divTargetPhotos photos"></div>
 					</div>
 					<div class="divButton paddingTop center">
-						<a href="#" class="btnPublish block linkButton paddingLeft paddingRight marginRight" data-text="publish"></a>
-						<a href="#" class="btnStatus block linkButton paddingLeft paddingRight" data-text="state"></a>
+						<button class="btnPublish block linkButton paddingLeft paddingRight marginRight" data-text="publish"></button>
+						<button class="btnStatus block linkButton paddingLeft paddingRight" data-text="state"></button>
 					</div>
 				</div>
 			</div>

@@ -28,10 +28,8 @@ PiLot.View.Logbook = (function () {
 	LogbookPage.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync().then(result => {
-				this.boatConfig = result;
-				this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
-			});
+			this.boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync();
+			this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
 			await this.loadLogbookDayAsync();
 			this.draw();
 			this.showLogbookDay();
@@ -440,13 +438,11 @@ PiLot.View.Logbook = (function () {
 
 		/** handles clicks on the save button */
 		btnSave_click: async function (e) {
-			e.preventDefault();
 			this.saveAsync();
 		},
 
 		/** handles clicks on the cancel button */
 		btnCancel_click: function (e) {
-			e.preventDefault();
 			this.hide();
 		},
 

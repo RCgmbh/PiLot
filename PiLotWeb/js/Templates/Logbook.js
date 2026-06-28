@@ -141,8 +141,8 @@ PiLot.Templates.Logbook = {
 				</div>
 				<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" data-title="remarks"></textarea>
 				<div class="buttons reverse marginBottom">
-					<a href="#" class="btnSave linkButton bold" data-text="save"></a>
-					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+					<button class="btnSave linkButton bold" data-text="save"></button>
+					<butoon class="btnCancel linkButton" data-text="cancel"></button>
 				</div>
 			</div>
 		</div>`,

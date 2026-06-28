@@ -178,13 +178,11 @@ PiLot.View.Settings = (function () {
 		dialog: null,
 
 		btnYes_click: async function (pEvent){
-			pEvent.preventDefault();
 			await PiLot.Utils.Presentation.Fullscreen.setFullscreenAsync();
 			this.hide();
 		},
 
 		btnNo_click: function (pEvent){
-			pEvent.preventDefault();
 			PiLot.Utils.Presentation.Fullscreen.saveSetting(false);
 			this.hide();
 		},

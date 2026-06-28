@@ -312,8 +312,8 @@ PiLot.Templates.Nav = {
 				</div>
 			</div>
 			<div class="buttons reverse paddingBottomBig">
-				<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
-				<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				<button class="btnSave linkButton semiBold" data-text="save"></button>
+				<button class="btnCancel linkButton" data-text="cancel"></button>
 			</div>
 		</div>`,
 
@@ -348,10 +348,10 @@ PiLot.Templates.Nav = {
 						</div>
 					</div>
 					<div class="buttons reverse">
-						<a href="#" class="btnActivate linkButton semiBold" data-text="activate"></a>
-						<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
-						<a href="#" class="btnClose linkButton" data-text="close"></a>
-						<a href="#" class="btnDeactivate linkButton" data-text="deactivate"></a>
+						<button class="btnActivate linkButton semiBold" data-text="activate"></button>
+						<button class="btnCancel linkButton" data-text="cancel"></button>
+						<button class="btnClose linkButton" data-text="close"></button>
+						<button class="btnDeactivate linkButton" data-text="deactivate"></button>
 					</div>
 				</div>
 			</div>

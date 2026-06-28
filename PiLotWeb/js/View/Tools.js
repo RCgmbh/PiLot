@@ -2438,12 +2438,10 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnSave_click: function(pEvent){
-			pEvent.preventDefault();
 			this.saveChecklistAsync();
 		},
 
 		btnCancel_click: function(pEvent){
-			pEvent.preventDefault();
 			this.observable.fire('cancel', this.checklist);
 		},
 

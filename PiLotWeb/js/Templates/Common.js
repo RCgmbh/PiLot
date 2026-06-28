@@ -117,8 +117,8 @@ PiLot.Templates.Common = {
 				<span class="block marginBottomSmall semiBold" data-text="addDisplay"></span>
 				<select class="ddlDisplayName marginBottom"></select>
 				<div class="buttons reverse">
-					<a href="#" class="btnAdd linkButton semiBold" data-text="add"></a>
-					<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+					<button class="btnAdd linkButton semiBold" data-text="add"></button>
+					<button class="btnCancel linkButton" data-text="cancel"></button>
 				</div>
 			</div>
 		</div>	

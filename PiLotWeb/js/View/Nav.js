@@ -1879,25 +1879,21 @@ PiLot.View.Nav = (function () {
 		},
 
 		btnActivate_click: function (pEvent) {
-			pEvent.preventDefault();
 			this.anchorWatch.setEnabled(true);
 			this.hide();
 		},
 
 		btnCancel_click: function (pEvent) {
-			pEvent.preventDefault();
 			this.anchorWatch.removeAsync();
 			this.hide();
 		},
 
 		btnDeactivate_click: function (pEvent) {
-			pEvent.preventDefault();
 			this.anchorWatch.removeAsync();
 			this.hide();
 		},
 
 		btnClose_click: function (pEvent) {
-			pEvent.preventDefault();
 			this.hide();
 		},
 
@@ -2304,7 +2300,6 @@ PiLot.View.Nav = (function () {
 		},
 
 		btnSave_click: async function (e) {
-			!!e && e.preventDefault();
 			if (await this.saveDataAsync()) {
 				this.observable.fire('save', this.poi);
 				this.hide();
@@ -2312,7 +2307,6 @@ PiLot.View.Nav = (function () {
 		},
 
 		btnCancel_click: function (e) {
-			!!e && e.preventDefault();
 			this.observable.fire('cancel', this.poi);
 			this.hide();
 		},

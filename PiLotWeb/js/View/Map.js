@@ -541,12 +541,10 @@ PiLot.View.Map = (function () {
 		},
 
 		btnApply_click: function (e) {
-			e.preventDefault();
 			this.apply();
 		},
 
 		btnCancel_click: function (e) {
-			e.preventDefault();
 			this.hide();
 		},
 
