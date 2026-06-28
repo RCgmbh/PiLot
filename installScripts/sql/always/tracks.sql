@@ -55,6 +55,9 @@ CREATE TABLE IF NOT EXISTS tracks(
 	date_changed timestamp NOT NULL
 );
 
+ALTER TABLE tracks ADD COLUMN IF NOT EXISTS linestring geography(LINESTRING, 4326);
+ALTER TABLE tracks ADD COLUMN IF NOT EXISTS end_position geography(POINT, 4326);
+
 GRANT SELECT ON tracks TO pilotweb;
 GRANT INSERT ON tracks TO pilotweb;
 GRANT UPDATE ON tracks TO pilotweb;
@@ -66,6 +69,7 @@ CREATE INDEX IF NOT EXISTS track_start_utc_index ON tracks USING btree (start_ut
 CREATE INDEX IF NOT EXISTS track_end_utc_index ON tracks USING btree (end_utc);
 CREATE INDEX IF NOT EXISTS track_start_boattime_index ON tracks USING btree (start_boattime);
 CREATE INDEX IF NOT EXISTS track_end_boattime_index ON tracks USING btree (end_boattime);
+CREATE INDEX IF NOT EXISTS tracks_linestring_index ON tracks USING GIST (linestring);
 
 /*-----------TABLE track_segments -------------------------*/
 
