@@ -44,8 +44,8 @@ PiLot.Templates.Map = {
 					</div>
 				</div>
 				<div class="buttons reverse paddingAllSmall paddingBottomBig bgLight">
-					<button class="btnApply linkButton semiBold" data-text="ok"></button>
-					<button class="btnCancel linkButton" data-text="cancel"></button>
+					<button class="btnApply semiBold" data-text="ok"></button>
+					<button class="btnCancel" data-text="cancel"></button>
 				</div>
 			</div>
 		</div>`,

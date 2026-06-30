@@ -356,8 +356,8 @@ PiLot.Templates.Tools = {
 			<div class="plhItems flexColumn"></div>
 			<div class="marginBottom"><a href="#" class="lnkAddItem"><i class="icon-plus"></i></a></div>
 			<div class="buttons reverse">
-				<button class="btnSave linkButton semiBold" data-text="save"></button>
-				<button class="btnCancel linkButton" data-text="cancel"></button>
+				<button class="btnSave semiBold" data-text="save"></button>
+				<button class="btnCancel" data-text="cancel"></button>
 			</div>
 		</div>
 	`

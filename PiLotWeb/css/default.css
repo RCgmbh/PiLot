@@ -18,13 +18,12 @@ li { margin-left: 1em; }
 /* NIGHT MODE incl. TRANSITION */
 body.night, body.night .inlineTextbox { background-color: black; color: #ccc; }
 body.night input, body.night textarea, body.night select { background-color: #333; color: #ccc; border: none; }
-body.night button { background-color: #333; color: #ccc; border-color: #666; }
+body.night button { background-color: #333; color: #4992FF; border-color: #999; }
+body.night button:hover { background-color: #1e2426; }
 body.night #statusBar { color: #000; background-color: #3265AD; }
 body.night #clock { color: #ccc; }
 body.night .warning { color: #A53030; }
-body.night .linkButton { background-color: #333; color: #4992FF; border-color: #999; }
-body.night a.linkButton:hover { background-color: #1e2426; }
-body.night a.linkButton.btnDayMode, body.night a.linkButton.btnNightMode { background-color: #eee; }
+body.night .btnDayMode, body.night .btnNightMode { background-color: #eee; }
 body.night a, body.night a:active { color: #4992FF; }
 body.night a.tile { color: #4992FF; }
 body.night a.tile:hover { background-color: #1e2426; }
@@ -327,20 +326,15 @@ a.darkLink, a.darkLink:active, a.darkLink:visited { color: #222; }
 a.darkLink:hover { color:#000; }
 a.active, a:visited.active, a:active.active, body.night a.active, body.night a:visited.active, body.night a:active.active { color: #FFBF49; }
 
-.linkButton { text-decoration: none; display: inline-block; min-width: 3.5em; min-height: 2.5em; border: 1px solid #222; border-radius: 3px; background-color: #eee; text-align: center; padding-top: 0.4em; }
-.linkButton.hidden { display: none; }
-.linkButton > i { font-size: 1.5em; }
-a.linkButton { color: #000; }
-a.linkButton.active { color: #FFBF49; }
-.linkButton:hover { background-color: #fff; color: #FFC20C; }
-.linkButton { transition: background-color 0.2s; }
-.linkButton { transition: color 0.5s; }
-button.linkButton { padding-top: 0em; }
-.linkButton.narrow { min-width: 1.75em; }
+button{ min-width: 3.5em; min-height: 2.5em; border: 1px solid #222; border-radius: 3px; color: #000; background-color: #eee; text-align: center; transition: background-color 0.2s, color 0.5s}
+button > i { font-size: 1.5em; }
+button.active { color: #FFBF49; }
+button:hover { background-color: #fff; color: #FFC20C; }
+button.narrow { min-width: 1.75em; }
 
 .buttons { display: flex; flex-wrap: wrap; gap: 1em; }
 .buttons.reverse { flex-direction: row-reverse; }
-.buttons .linkButton { flex-grow: 1; flex-basis: 8em; }
+.buttons button { flex-grow: 1; flex-basis: 8em; }
 
 a.tile { display: table; text-align: center; text-decoration: none; color: #000; border: 1px solid #666; border-radius: 0.5em; }
 a.tile.noBorder {border-style: none;}

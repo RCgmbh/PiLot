@@ -91,7 +91,7 @@ PiLot.Templates.Common = {
 					<div class="plhErrors flexColumn paddingAllSmall marginBottomSmall"></div>
 				</div>
 				<div class="buttons paddingAllSmall reverse">
-					<button class="btnClear linkButton semiBold"><span data-text="clearErrors"></span></button>
+					<button class="btnClear semiBold"><span data-text="clearErrors"></span></button>
 				</div>
 			</div>
 		</div>`,
@@ -117,8 +117,8 @@ PiLot.Templates.Common = {
 				<span class="block marginBottomSmall semiBold" data-text="addDisplay"></span>
 				<select class="ddlDisplayName marginBottom"></select>
 				<div class="buttons reverse">
-					<button class="btnAdd linkButton semiBold" data-text="add"></button>
-					<button class="btnCancel linkButton" data-text="cancel"></button>
+					<button class="btnAdd semiBold" data-text="add"></button>
+					<button class="btnCancel" data-text="cancel"></button>
 				</div>
 			</div>
 		</div>	
@@ -225,8 +225,8 @@ PiLot.Templates.Common = {
 			<div><span class="col1 marginRight"><i class="icon-checkmark icoSettingsAccess green"></i><i class="icon-cross icoNoSettingsAccess red"></i></span><span data-text="settingsAccess"></span></div>
 			<div><span class="col1 marginRight"><i class="icon-checkmark icoSystemAccess green"></i><i class="icon-cross icoNoSystemAccess red"></i></span><span data-text="systemAccess"></span></div>
 			<div class="center">
-				<button class="btnLogin linkButton input8 center marginTop" data-text="login"></button>
-				<button class="btnLogout linkButton input8 center marginTop" data-text="logout"></button>
+				<button class="btnLogin input8 center marginTop" data-text="login"></button>
+				<button class="btnLogout input8 center marginTop" data-text="logout"></button>
 			</div>
 		</div>
 	`,

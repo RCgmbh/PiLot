@@ -12,8 +12,8 @@ PiLot.Templates.Boat = {
 				<span class="block semiBold marginBottom" data-text="boatSetup"></span>
 				<div class="plhFeatures"></div>
 				<div class="buttons reverse marginTop marginBottom">
-					<button class="btnBoatSetupOk linkButton bold" data-text="ok"></button>
-					<button class="btnBoatSetupCancel linkButton" data-text="cancel"></button>
+					<button class="btnBoatSetupOk bold" data-text="ok"></button>
+					<button class="btnBoatSetupCancel" data-text="cancel"></button>
 				</div>
 			</div>
 		</div>`,

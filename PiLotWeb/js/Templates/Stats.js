@@ -180,7 +180,7 @@ PiLot.Templates.Stats = {
 					</div>
 				</div>
 				<div class="buttons paddingAll">
-					<button class="btnShowOnMap linkButton"><i class="icon-map marginRightSmall"></i><span data-text="showOnMap"></span></button>
+					<button class="btnShowOnMap"><i class="icon-map marginRightSmall"></i><span data-text="showOnMap"></span></button>
 				</div>
 			</div>
 		</div>

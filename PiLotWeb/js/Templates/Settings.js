@@ -40,8 +40,8 @@ PiLot.Templates.Settings = {
 				<div class="paddingAllSmall">
 					<p data-text="fullscreenConfirm" class="marginBottom"></p>
 					<div class="buttons">
-						<button class="btnYes linkButton semiBold" data-text="yes"></button>
-						<button class="btnNo linkButton" data-text="no"></button>
+						<button class="btnYes semiBold" data-text="yes"></button>
+						<button class="btnNo" data-text="no"></button>
 					</div>
 				</div>
 			</div>
