@@ -326,7 +326,7 @@ a.darkLink, a.darkLink:active, a.darkLink:visited { color: #222; }
 a.darkLink:hover { color:#000; }
 a.active, a:visited.active, a:active.active, body.night a.active, body.night a:visited.active, body.night a:active.active { color: #FFBF49; }
 
-button{ min-width: 3.5em; min-height: 2.5em; border: 1px solid #222; border-radius: 3px; color: #000; background-color: #eee; text-align: center; transition: background-color 0.2s, color 0.5s}
+button{ min-width: 3.5em; border: 1px solid #222; border-radius: 3px; color: #000; background-color: #eee; text-align: center; transition: background-color 0.2s, color 0.5s}
 button > i { font-size: 1.5em; }
 button.active { color: #FFBF49; }
 button:hover { background-color: #fff; color: #FFC20C; }
@@ -334,7 +334,7 @@ button.narrow { min-width: 1.75em; }
 
 .buttons { display: flex; flex-wrap: wrap; gap: 1em; }
 .buttons.reverse { flex-direction: row-reverse; }
-.buttons button { flex-grow: 1; flex-basis: 8em; }
+.buttons button { flex-grow: 1; flex-basis: 8em; min-height: 2.5em; }
 
 a.tile { display: table; text-align: center; text-decoration: none; color: #000; border: 1px solid #666; border-radius: 0.5em; }
 a.tile.noBorder {border-style: none;}
