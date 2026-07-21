@@ -241,7 +241,7 @@ PiLot.View.Nav = (function () {
 
 		initialize: function(){
 			this.draw();
-			this.trackObserver = PiLot.Model.Nav.TrackObserver.getInstance();
+			this.trackObserver = new PiLot.Model.Nav.TrackObserver();
 			this.trackObserver.on('addTrackPoint', this, this.track_change.bind(this));
 			this.trackObserver.on('changeLastTrackPoint', this, this.track_change.bind(this));
 			this.trackObserver.on('loadTrack', this, this.track_change.bind(this));
