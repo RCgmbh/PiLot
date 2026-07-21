@@ -789,35 +789,41 @@ PiLot.View.Nav = (function () {
 			this.lnkToggleFinalWaypoint.classList.toggle(className, this.liveRouteSettings.showFinalWaypoint);
 		},
 
-		lnkToggleSettings_click: function () {
+		lnkToggleSettings_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.control.classList.toggle('expanded');
 		},
 
-		lnkToggleCoordinates_click: function () {
+		lnkToggleCoordinates_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showCoordinates = !this.showCoordinates;
 			this.updateButtons();
 			this.applyCoordinatesSetting();
 			this.saveCoordinatesSetting();
 		},
 
-		lnkTogglePastWaypoints_click: function () {
+		lnkTogglePastWaypoints_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.liveRouteSettings.showPastWaypoints = !this.liveRouteSettings.showPastWaypoints;
 			this.changeLiveRouteSettings();
 		},
 
-		lnkToggleNextWaypoint_click: function () {
+		lnkToggleNextWaypoint_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.liveRouteSettings.showNextWaypoint = !this.liveRouteSettings.showNextWaypoint;
 			this.changeLiveRouteSettings();
 		},
 
-		lnkToggleAheadWaypoints_click: function () {
+		lnkToggleAheadWaypoints_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.liveRouteSettings.showAheadWaypoints = !this.liveRouteSettings.showAheadWaypoints;
 			this.liveRouteSettings.showNextWaypoint = this.liveRouteSettings.showNextWaypoint || this.liveRouteSettings.showAheadWaypoints;
 			this.liveRouteSettings.showFinalWaypoint = this.liveRouteSettings.showFinalWaypoint || this.liveRouteSettings.showAheadWaypoints;
 			this.changeLiveRouteSettings();
 		},
 
-		lnkToggleFinalWaypoint_click: function () {
+		lnkToggleFinalWaypoint_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.liveRouteSettings.showFinalWaypoint = !this.liveRouteSettings.showFinalWaypoint;
 			this.changeLiveRouteSettings();
 		},

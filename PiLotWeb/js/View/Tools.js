@@ -127,7 +127,8 @@ PiLot.View.Tools = (function () {
 		 * @param {RC.Controls.Calendar} pCalendar
 		 * @param {HTMLElement} pTimeField
 		 */
-		lnkTimeFromMap_click: function (pCalendar, pTimeField) {
+		lnkTimeFromMap_click: function (pCalendar, pTimeField, pEvent) {
+			pEvent.preventDefault();
 			let position = this.mapTrack.getHistoricPosition();
 			if (position) {
 				let date = RC.Date.DateHelper.millisToLuxon(position.getBoatTime());
@@ -449,7 +450,8 @@ PiLot.View.Tools = (function () {
 		},
 
 		/** Swaps visibility of the two settings items */
-		lnkSettings_click: function () {
+		lnkSettings_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.pnlSample.hidden = !this.pnlSample.hidden;
 			this.pnlUnit.hidden = !this.pnlUnit.hidden;
 		},
@@ -929,15 +931,18 @@ PiLot.View.Tools = (function () {
 			this.observable.fire('select', this.osmPoi.getId());
 		},
 
-		lnkEdit_click: function () {
+		lnkEdit_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showEditDialogAsync();
 		},
 
-		lnkImport_click: function () {
+		lnkImport_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showEditDialogAsync();
 		},
 
-		lnkLink_click: function () {
+		lnkLink_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showLinkCandidates();
 		},
 

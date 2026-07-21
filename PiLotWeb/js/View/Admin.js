@@ -48,17 +48,20 @@ PiLot.View.Admin = (function () {
 			this.analogClock.unload();
 		},
 
-		lnkSetServerTime_click: async function () {
+		lnkSetServerTime_click: async function (pEvent) {
+			pEvent.preventDefault();
 			if (confirm(PiLot.Utils.Language.getText('confirmApplyClientTime'))) {
 				await PiLot.Utils.Common.BoatTimeHelper.setServerTimeAsync();
 			}
 		},
 
-		btnMinus_click: function () {
+		btnMinus_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.changeBoatTime(-1);
 		},
 
-		btnPlus_click: function () {
+		btnPlus_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.changeBoatTime(1);
 		},
 
@@ -261,15 +264,18 @@ PiLot.View.Admin = (function () {
 			this.loadStatusAsync();
 		},
 
-		lnkStart_click: function () {
+		lnkStart_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.changeStatusAsync('start');
 		},
 
-		lnkStop_click: function () {
+		lnkStop_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.changeStatusAsync('stop');
 		},
 
-		lnkRestart_click: function () {
+		lnkRestart_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.changeStatusAsync('restart');
 		},
 
@@ -507,11 +513,13 @@ PiLot.View.Admin = (function () {
 			}
 		},
 
-		lnkRefresh_click: function(){
+		lnkRefresh_click: function(pEvent){
+			pEvent.preventDefault();
 			this.loadNetworksAsync();
 		},
 
-		lnkName_click: async function (pSSID, pIsAvailable, pIsKnown, pIdentifier) {
+		lnkName_click: async function (pSSID, pIsAvailable, pIsKnown, pIdentifier, pEvent) {
+			pEvent.preventDefault();
 			if (!pIsAvailable) {
 				alert(PiLot.Utils.Language.getText('wifiUnavailable'));
 			} else if (!pIsKnown) {
@@ -524,7 +532,8 @@ PiLot.View.Admin = (function () {
 			}
 		},
 
-		lnkForget_click: async function (pSSID, pIdentifier) {
+		lnkForget_click: async function (pSSID, pIdentifier, pEvent) {
+			pEvent.preventDefault();
 			if (window.confirm(PiLot.Utils.Language.getText('wifiConfirmForgetX').replace('{{x}}', pSSID))) {
 				this.showHideWait(true);
 				const output = await this.wifiService.forgetWiFiAsync(pIdentifier);
@@ -550,12 +559,14 @@ PiLot.View.Admin = (function () {
 			this.hideKeyDialog();
 		},
 
-		lnkStatus_click: async function () {
+		lnkStatus_click: async function (pEvent) {
+			pEvent.preventDefault();
 			const output = await this.wifiService.getWiFiStatusAsync();
 			this.showOutput(output);
 		},
 
-		lnkClear_click: function () {
+		lnkClear_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.pnlOutput.innerText = "";
 		},
 
@@ -692,7 +703,8 @@ PiLot.View.Admin = (function () {
 		 * handles the click on a file, by displaying the file content
 		 * @param {String} pFilename
 		 */
-		lnkFile_click: function (pFilename) {
+		lnkFile_click: function (pFilename, pEvent) {
+			pEvent.preventDefault();
 			this.showLogFile(pFilename);
 		},
 
@@ -700,14 +712,16 @@ PiLot.View.Admin = (function () {
 		 * handles the click on the delete icon, by deleting the file after a confirmation
 		 * @param {String} pFilename
 		 */
-		lnkDelete_click: function (pFilename) {
+		lnkDelete_click: function (pFilename, pEvent) {
+			pEvent.preventDefault();
 			if (window.confirm(PiLot.Utils.Language.getText('confirmDeleteElement'))){
 				this.deleteLogFile(pFilename);
 			}
 		},
 
 		/** handles the click on the close icon in the file content box */
-		lnkCloseLogFile_click: function () {
+		lnkCloseLogFile_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.divLogFile.hidden = true;
 			this.divLogFilesList.hidden = false;
 		},
@@ -716,7 +730,8 @@ PiLot.View.Admin = (function () {
 		 * handles pager link clicks
 		 * @param {any} pPage
 		 */
-		lnkPager_click: function (pPage) {
+		lnkPager_click: function (pPage, pEvent) {
+			pEvent.preventDefault();
 			this.currentPage = pPage;
 			this.loadData();
 		},

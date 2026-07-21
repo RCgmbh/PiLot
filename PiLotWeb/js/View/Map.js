@@ -1461,7 +1461,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/** Handles click onto the show track button, showing or hiding the tracks */
-		lnkShowTrack_click: function () {
+		lnkShowTrack_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showTrack = !this.showTrack;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showTrack', this.showTrack);
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
@@ -1738,7 +1739,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click on the autoCenter link
-		lnkOptionAutoCenter_click: function () {
+		lnkOptionAutoCenter_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.autoCenter = !this.autoCenter;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.autoCenterPosition', this.autoCenter);
 			this.lnkOptionAutoCenter.classList.toggle('active', this.autoCenter);
@@ -1746,7 +1748,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click on the cogVector option link
-		lnkOptionCOGVector_click: function () {
+		lnkOptionCOGVector_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.cogVectorVisible = !this.cogVectorVisible;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.cogVectorVisible', this.cogVectorVisible);
 			this.lnkOptionCOGVector.classList.toggle('active', this.cogVectorVisible);
@@ -1824,7 +1827,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click to the "show route" button, shows or removes the route
-		lnkOptionShowRoute_click: function () {
+		lnkOptionShowRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showRoute = !this.showRoute;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showRoute', this.showRoute);
 			this.lnkOptionShowRoute.classList.toggle('active', this.showRoute);
@@ -1838,7 +1842,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click to the "lock route" button
-		lnkOptionLockRoute_click: function () {
+		lnkOptionLockRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.lockRoute = !this.lockRoute;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.lockRoute', this.lockRoute);
 			this.lnkOptionLockRoute.classList.toggle('active', this.lockRoute);
@@ -2346,7 +2351,8 @@ PiLot.View.Map = (function () {
 		 * Handles clicks on the Anchor Watch icon in the menu. The anchor position will
 		 * be set to the map center, the radius will be set to the default value.
 		 * */
-		lnkOptionAnchorWatch_click: function () {
+		lnkOptionAnchorWatch_click: function (pEvent) {
+			pEvent.preventDefault();
 			if (!this.anchorWatch) {
 				const center = this.seamap.getLeafletMap().getCenter();
 				this.prepareAnchorWatch(center.lat, center.lng, MapAnchorWatch.defaultRadius);
