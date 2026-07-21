@@ -80,7 +80,7 @@ body.night .poiMarker { filter: brightness(50%); }
 .navLiveRoute .navWaypoint.past { color: #999; }
 .navLiveRoute .divWaypointName { width: 12em; max-width: 18em; flex-grow: 1; display: flex; align-items: center; }
 .navLiveRoute .divWaypointName .lblIcon{ margin-right: 0.5em; font-size:1em; line-height:0.75em; }
-.navLiveRoute .divWaypointName .lblName{ font-size: 1.5em; line-height: 1.25; display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space:nowrap; }
+.navLiveRoute .divWaypointName .lblName{ font-size: 1.5em; line-height: 1.5; display: inline-block; overflow:hidden; text-overflow: ellipsis; white-space:nowrap; }
 .navLiveRoute .pnlLatLon { margin-left: 0.5em; margin-right: 0.5em; padding-bottom: 0.25em; text-align: right; }
 .navLiveRoute .pnlLatLon span { display: inline-block; width: 7em; margin-top:0.5em; }
 .navLiveRoute .divEtaDistBear { min-width: 15em; max-width:15em; flex-grow: 0; text-align: center; padding-bottom: 0.25em; }
