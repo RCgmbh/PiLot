@@ -1033,9 +1033,7 @@ PiLot.View.Map = (function () {
 		this.map = pMap;
 		this.includeTimeSlider = pIncludeTimeSlider;
 		this.tracks = null;
-		//this.timeScaleFactor = 1;
 		this.trackPointsIndex = null;
-		//this.maxTimeSteps = 1000;
 		this.historicPosition = null;  // TrackPoint
 		this.trackObserver = null;
 		this.enableLiveUpdate = false;
@@ -1110,7 +1108,7 @@ PiLot.View.Map = (function () {
 		 * corresponds to equal time, ignoring time between tracks.
 		 */
 		createTrackPointsIndex: function () {
-			if(this.tracks.length > 0){
+			if(this.tracks.length > 0 && this.timeSliderContainer){
 				this.trackPointsIndex = [];
 				const samples = this.timeSliderContainer.clientWidth / 2;
 				let totalDuration = 0;
@@ -1207,7 +1205,6 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The TrackPoint that was added
 		 */
 		addTrackPosition: function (pTrack, pTrackPoint) {
-			//this.updateTimeScale();
 			this.createTrackPointsIndex();
 			const polyline = this.polylines.get(pTrack);
 			if (polyline) {
@@ -1223,7 +1220,6 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The position that was updated
 		 */
 		changeLastTrackPosition: function (pTrack, pTrackPoint) {
-			//this.updateTimeScale();
 			this.createTrackPointsIndex();
 			const polyline = this.polylines.get(pTrack);
 			if (polyline) {
