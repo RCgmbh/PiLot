@@ -40,7 +40,8 @@ PiLot.View.Logbook = (function () {
 		},
 
 		/** Click handler for the add entry link * */
-		lnkAddEntry_click: async function () {
+		lnkAddEntry_click: async function (pEvent) {
+			pEvent.preventDefault();
 			this.showEntryFormAsync(null);
 		},
 
