@@ -14,6 +14,7 @@ DROP FUNCTION IF EXISTS public.read_tracks_stats;
 DROP FUNCTION IF EXISTS public.insert_track;
 DROP FUNCTION IF EXISTS public.delete_track;
 DROP FUNCTION IF EXISTS public.update_track_data;
+DROP FUNCTION IF EXISTS public.update_track_end;
 DROP FUNCTION IF EXISTS public.update_track_boat;
 DROP FUNCTION IF EXISTS public.read_track_segments_by_track;
 DROP FUNCTION IF EXISTS public.find_track_segments;
@@ -380,33 +381,45 @@ GRANT EXECUTE ON FUNCTION delete_track TO pilotweb;
 CREATE FUNCTION public.update_track_data(
 	p_id integer
 )
-RETURNS void
-LANGUAGE 'plpgsql'
-AS $$ BEGIN
+    RETURNS void
+    LANGUAGE 'plpgsql'
+AS $BODY$
+ BEGIN
 	IF EXISTS (SELECT FROM track_points WHERE track_id = p_id) THEN
 		WITH ordered_track_points AS (
 			SELECT utc, boattime, coordinates
 			FROM track_points
 			WHERE track_id = p_id
 			ORDER BY utc ASC
-		)	
+		)
 		UPDATE tracks
-		SET (start_utc, end_utc, start_boattime, end_boattime, distance, date_changed) = (
+		SET (start_utc, end_utc, start_boattime, end_boattime, linestring, date_changed) = (
 			SELECT
 				MIN(utc), MAX(utc), MIN(boattime), MAX(boattime),
-				ST_Length(ST_MakeLine("coordinates"::geometry)::geography),
+				ST_MakeLine(coordinates::geometry)::geography,
 				NOW()
 			FROM ordered_track_points 
 		)
 		WHERE id = p_id;
+		UPDATE tracks 
+		SET
+			distance = ST_Length(linestring),
+			end_position = ST_EndPoint(linestring::geometry)::geography
+		WHERE id = p_id;
 	ELSE
 		UPDATE tracks
-		SET start_utc = NULL, end_utc = NULL, start_boattime = NULL, end_boattime = NULL, distance = 0, date_changed = NOW()
+		SET
+			start_utc = NULL, end_utc = NULL, start_boattime = NULL, end_boattime = NULL,
+			distance = 0,
+			linestring = NULL,
+			end_position = NULL,
+			date_changed = NOW()
 		WHERE id = p_id;
-		DELETE FROM track_points WHERE track_id = p_id;
 		DELETE FROM track_segments WHERE track_id = p_id;
 	END IF;
-END $$;
+END 
+$BODY$;
+
 
 GRANT EXECUTE ON FUNCTION update_track_data TO pilotweb;
 
@@ -426,6 +439,52 @@ AS $$ BEGIN
 END $$;
 
 GRANT EXECUTE ON FUNCTION update_track_boat TO pilotweb;
+
+/*-----------FUNCTION update_track_end--------------------*/
+-- updates the end of a track, updating end time, length and the linestring
+CREATE FUNCTION public.update_track_end(
+	p_id integer,
+	p_coordinates geography,
+	p_utc bigint,
+	p_boattime bigint
+)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+AS $BODY$
+	DECLARE linestring_new geography;
+	BEGIN
+		linestring_new = ST_MakeLine(p_coordinates::geometry)::geography;
+		/*
+			having the ST_MakeLine in the Update section gave an aggregate function
+			not allowed within the update error.
+		*/
+		UPDATE tracks
+		SET 
+			start_utc = CASE
+				WHEN start_utc IS NULL then p_utc
+				ELSE start_utc
+			END,
+			start_boattime = CASE
+				WHEN start_boattime IS NULL then p_boattime
+				ELSE start_boattime
+			END,
+			end_utc = p_utc, 
+			end_boattime = p_boattime,
+			distance = CASE
+				WHEN end_position IS NULL THEN 0
+				ELSE distance + ST_Distance(end_position, p_coordinates)
+			END,
+			linestring = CASE
+				WHEN linestring IS NULL THEN linestring_new
+				ELSE ST_AddPoint(linestring::geometry, p_coordinates::geometry)::geography
+			END,
+			end_position = p_coordinates,
+			date_changed = NOW()
+		WHERE id = p_id;
+	END 
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION public.update_track_end TO pilotweb;
 
 /*-----------FUNCTION read_track_segments-----------------*/
 -- reads all track segments for a certain track
@@ -633,28 +692,37 @@ $BODY$;
 GRANT EXECUTE ON FUNCTION read_track_points TO pilotweb;
 
 /*-----------FUNCTION insert_track_point-----------------*/
--- inserts a track_point and optionally updates the distance and start/end of the track
+-- inserts a track_point at the end of the track
+
+-- FUNCTION: public.insert_track_point(integer, bigint, bigint, double precision, double precision, boolean)
 
 CREATE FUNCTION public.insert_track_point(
 	p_track_id integer,
 	p_utc bigint,
 	p_boattime bigint,
 	p_latitude double precision,
-	p_longitude double precision,
-	p_update_track_data boolean
+	p_longitude double precision
 )
-RETURNS void
-LANGUAGE 'plpgsql'
-AS $$ BEGIN
-	INSERT INTO track_points(
-		track_id, utc, boatTime, coordinates, date_created, date_changed
-	) VALUES (
-		p_track_id, p_utc, p_boattime, ST_MakePoint(p_longitude, p_latitude), NOW(), NOW()
-	);
-	IF (p_update_track_data = TRUE) THEN
-		PERFORM update_track_data(p_track_id);
-	END IF;
-END $$;
+    RETURNS void
+    LANGUAGE 'plpgsql'
+AS $BODY$
+	DECLARE coordinates_point geography;
+ 	BEGIN
+		coordinates_point = ST_MakePoint(p_longitude, p_latitude);
+		IF NOT EXISTS 
+			(SELECT FROM track_points WHERE track_id = p_track_id AND UTC > p_utc)
+		THEN
+			INSERT INTO track_points(
+				track_id, utc, boatTime, coordinates, date_created, date_changed
+			) VALUES (
+				p_track_id, p_utc, p_boattime, coordinates_point, NOW(), NOW()
+			);
+			PERFORM update_track_end(p_track_id, coordinates_point, p_utc, p_boattime);
+		END IF;
+	END 
+$BODY$;
+
+GRANT EXECUTE ON FUNCTION insert_track_point TO pilotweb;
 
 /*-----------FUNCTION delete_track_point-----------------*/
 -- deletes a range of track_points and updates the distance and start/end of the track

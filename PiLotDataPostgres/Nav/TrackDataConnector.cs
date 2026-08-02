@@ -531,10 +531,7 @@ namespace PiLot.Data.Postgres.Nav {
 		private void SaveTrackPoints(List<TrackPoint> pTrackPoints, Int32 pTrackId, NpgsqlTransaction pTransaction) {
 			if (pTrackPoints != null && pTrackPoints.Count > 0) {
 				foreach (TrackPoint aTrackPoint in pTrackPoints) {
-					this.SaveTrackPoint(aTrackPoint, pTrackId, pTrackPoints.Count == 1, pTransaction);
-				}
-				if (pTrackPoints.Count > 1) {
-					this.UpdateTrackData(pTrackId, pTransaction);
+					this.SaveTrackPoint(aTrackPoint, pTrackId, pTransaction);
 				}
 			}
 		}
@@ -544,17 +541,15 @@ namespace PiLot.Data.Postgres.Nav {
 		/// </summary>
 		/// <param name="pTrackPoint">The trackpoint to save</param>
 		/// <param name="pTrackID">The ID of the track the trackpoint belongs to</param>
-		/// <param name="pUpdateTrack">Set to true to automatically update track distance etc.</param>
 		/// <param name="pTransaction">Pass an open transaction or null</param>
-		private void SaveTrackPoint(TrackPoint pTrackPoint, Int32 pTrackId, Boolean pUpdateTrack, NpgsqlTransaction pTransaction) {
-			String command = "SELECT insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude, @p_update_track_data);";
+		private void SaveTrackPoint(TrackPoint pTrackPoint, Int32 pTrackId, NpgsqlTransaction pTransaction) {
+			String command = "SELECT insert_track_point(@p_track_id, @p_utc, @p_boattime, @p_latitude, @p_longitude);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_track_id", pTrackId));
 			pars.Add(("@p_utc", pTrackPoint.UTC));
 			pars.Add(("@p_boattime", pTrackPoint.BoatTime));
 			pars.Add(("@p_latitude", pTrackPoint.Latitude));
 			pars.Add(("@p_longitude", pTrackPoint.Longitude));
-			pars.Add(("@p_update_track_data", pUpdateTrack));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 			pTrackPoint.TrackID = pTrackId;
 		}
