@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using PiLot.API.ActionFilters;
 using PiLot.API.Helpers;
 using PiLot.Data.Nav;
+using PiLot.Data.Files;
 using PiLot.Model.Nav;
 
 namespace PiLot.API.Controllers {
@@ -43,12 +44,16 @@ namespace PiLot.API.Controllers {
 		[Route(Program.APIROOT + "[controller]/stats")]
 		[HttpGet]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
-		public List<Track> ReadTracksStatistics(Int64? startTime, Int64? endTime, Boolean isBoatTime, String boats) {
+		public List<Track> ReadTracksStatistics(Int64? startTime, Int64? endTime, Boolean isBoatTime, String boats, Int32? regionId) {
 			String[] boatsArray = null;
 			if (!String.IsNullOrEmpty(boats)) {
 				boatsArray = boats.Split(',');
 			} 
-			return DataConnectionHelper.TrackDataConnector.ReadTracksStatistics(startTime, endTime, isBoatTime, boatsArray);
+			List<LatLon> regionCoordinates = null;
+			if(regionId != null){
+				regionCoordinates = RegionDataConnector.GetInstance().ReadRegion(regionId.Value)?.Coordinates;
+			}
+			return DataConnectionHelper.TrackDataConnector.ReadTracksStatistics(startTime, endTime, isBoatTime, boatsArray, regionCoordinates);
 		}
 
 		/// <summary>

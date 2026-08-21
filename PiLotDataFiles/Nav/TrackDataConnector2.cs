@@ -148,8 +148,10 @@ namespace PiLot.Data.Files {
 		/// <param name="pEnd">End of the period in ms since epoc</param>
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
 		/// <param name="pBoats">Comma separated list of boats, null or empty returns all boats</param>
+		/// <param name="pRegion">not supported, must be null</param>
 		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
-		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats) {
+		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats, List<LatLon> pRegion) {
+			Assert.IsNull(pRegion, "pRegion must be null for TrackDataConnector2.ReadTracksStatistics");
 			List<Track> result = this.ReadTracksMetadata(pStart, pEnd, pIsBoatTime)
 				.Select(t => this.TrackFromMetadata(t))
 				.Where(t => pBoats == null || pBoats.Length == 0 || Array.IndexOf(pBoats, t.Boat) >= 0)

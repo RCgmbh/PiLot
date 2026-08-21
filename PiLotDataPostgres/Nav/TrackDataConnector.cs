@@ -88,14 +88,16 @@ namespace PiLot.Data.Postgres.Nav {
 		/// <param name="pEnd">End of the period in ms since epoc</param>
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
 		/// <param name="pBoats">Comma separated list of boats, null or empty returns all boats</param>
+		/// <param name="pRegion">list of Points forming a polygon whithin which to search</param>
 		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
-		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats) {
-			String query = "SELECT * FROM read_tracks_stats(@p_start, @p_end, @p_is_boattime, @p_boats);";
+		public List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats, List<LatLon> pRegionCoordinates) {
+			String query = "SELECT * FROM read_tracks_stats(@p_start, @p_end, @p_is_boattime, @p_boats, @p_polygon_wkt);";
 			List<(String, Object)> pars = new List<(String, Object)>();
 			pars.Add(("@p_start", this.dbHelper.GetNullableParameterValue(pStart)));
 			pars.Add(("@p_end", this.dbHelper.GetNullableParameterValue(pEnd)));
 			pars.Add(("@p_is_boattime", pIsBoatTime));
 			pars.Add(("@p_boats", pBoats));
+			pars.Add(("@p_polygon_wkt", this.dbHelper.GetNullableParameterValue(this.CoordinatesToPolygonWKT(pRegionCoordinates))));
 			return this.dbHelper.ReadData<Track>(query, new Func<NpgsqlDataReader, Track>(this.ReadTrackWithTrophies), pars, null);
 		}
 
@@ -552,6 +554,20 @@ namespace PiLot.Data.Postgres.Nav {
 			pars.Add(("@p_longitude", pTrackPoint.Longitude));
 			this.dbHelper.ExecuteCommand<Int32>(command, pars, pTransaction);
 			pTrackPoint.TrackID = pTrackId;
+		}
+
+		private String CoordinatesToPolygonWKT(List<LatLon> pCoordinates){
+			String result;
+				if(pCoordinates != null){
+				String coordinatesWKT = String.Join(
+					",",
+					pCoordinates.Select((c)=> c.ToWKT()).ToArray()
+				);
+				result = $"POLYGON(({coordinatesWKT}))";
+			} else {
+				result = null;
+			}
+			return result;
 		}
 
 		#endregion

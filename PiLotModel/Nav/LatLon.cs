@@ -1,6 +1,7 @@
-﻿using PiLot.Utils;
-using System;
+﻿using System;
 using System.Text.Json.Serialization;
+
+using PiLot.Utils;
 
 namespace PiLot.Model.Nav {
 
@@ -14,8 +15,10 @@ namespace PiLot.Model.Nav {
 		private double? longitude;
 
 		/// <summary>
-		/// Default constructor
+		/// Default constructor for deserialization
 		/// </summary>
+		public LatLon(){}
+		
 		/// <param name="pLat">The latitude in degrees. Allowed values are -90 to 90</param>
 		/// <param name="pLon">The longitude in degrees. Any values are accepted, but will translate to -180 to 180</param>
 		public LatLon(Double? pLat, Double? pLon) {
@@ -132,6 +135,11 @@ namespace PiLot.Model.Nav {
 
 		public override string ToString() {
 			return $"{this.Latitude:00.000} / {this.Longitude:000.000}";
+		}
+
+		/// <returns>A well known text representation, e.g. "8.5 47.7"</returns>
+		public String ToWKT(){
+			return String.Format($"{this.Longitude.Value} {this.Latitude.Value}");
 		}
 	}
 }

@@ -272,14 +272,14 @@ GRANT EXECUTE ON FUNCTION read_tracks TO pilotweb;
 
 /*-----------FUNCTION read_tracks_stats-----------------*/
 -- finds all tracks overlapping a certain period of time for one or many
--- specific boats. Includes information about the fastest segments for
--- each track.
-
+-- specific boats in a specific region. Includes information about the
+-- fastest segments for each track.
 CREATE FUNCTION public.read_tracks_stats(
 	p_start bigint,
 	p_end bigint,
 	p_is_boattime boolean,
-	p_boats text[]
+	p_boats text[],
+	p_polygon_wkt text
 )
 RETURNS TABLE(
 	id integer,
@@ -334,6 +334,15 @@ AS $BODY$
 		)
 		AND (
 			p_boats IS NULL OR array_length(p_boats, 1) IS NULL OR boat = ANY (p_boats)
+		)
+		AND (
+			CASE WHEN p_polygon_wkt IS NULL THEN true
+			ELSE 
+			ST_Contains(
+				ST_GeomFromText(p_polygon_wkt, 4326),
+				linestring::geometry
+			)
+			END
 		)
 	GROUP BY tracks.id
 $BODY$;
