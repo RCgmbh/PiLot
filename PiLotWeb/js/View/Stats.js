@@ -356,7 +356,6 @@ PiLot.View.Stats = (function () {
 				.replace('{distance}', distance)
 				.replace('{unit}', unitText)
 			);
-			
 		},
 
 		/** Rounds a distance to two decimal places */
@@ -823,6 +822,7 @@ PiLot.View.Stats = (function () {
 		this.pnlSettings = null;
 		this.timeframeSelector = null;				// PiLot.View.Stats.TimeframeSelector
 		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
+		this.ddlRegion = null;
 		this.unitSelector = null;					// PiLot.View.Stats.UnitSelector
 		this.boatsLegend = null;					// PiLot.View.Stats.BoatsLegend
 		this.pnlNoData = null;
@@ -867,7 +867,13 @@ PiLot.View.Stats = (function () {
 			this.userSettings.boats = this.boatSelector.getSelectedBoats();
 			this.saveUserSettings();
 			this.loadAndShowDataAsync();
-		},		
+		},	
+		
+		ddlRegion_change: function(){
+			this.userSettings.region = this.ddlRegion.value;
+			this.saveUserSettings();
+			this.loadAndShowDataAsync();
+		},
 
 		unitSelector_change: function (pValue) {
 			this.userSettings.unit = pValue;
@@ -907,7 +913,8 @@ PiLot.View.Stats = (function () {
 			this.timeframeSelector.on('change', this, this.timeframeSelector_change.bind(this));
 			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
 			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
-			this.boatSelector.fillBoatsListAsync().then(() => this.applyUserSettings());
+			this.ddlRegion = control.querySelector('.ddlRegion');
+			this.ddlRegion.addEventListener('change', this.ddlRegion_change.bind(this));
 			this.unitSelector = new UnitSelector(control.querySelector('.plhUnit'));
 			this.unitSelector.on('change', this, this.unitSelector_change.bind(this));
 			this.boatsLegend = new BoatsLegend(control.querySelector('.plhLegend'));
@@ -928,6 +935,10 @@ PiLot.View.Stats = (function () {
 			this.lblAverageSpeed = control.querySelector('.lblAverageSpeed');
 			this.lblAverageSpeedUnit = control.querySelector('.lblAverageSpeedUnit');
 			control.querySelector('.btnShowOnMap').addEventListener('click', this.btnShowOnMap_click.bind(this));
+			Promise.all([
+				this.boatSelector.fillBoatsListAsync(),
+				this.fillRegionsAsync()
+			]).then(()=> this.applyUserSettings());			
 		},
 
 		setDefaultValues: function () {
@@ -935,6 +946,7 @@ PiLot.View.Stats = (function () {
 			this.userSettings.timeframe.start = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.start);
 			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
 			this.userSettings.boats = this.userSettings.boats || [];
+			this.userSettings.region = this.userSettings.region || null;
 			this.userSettings.unit = this.userSettings.unit || 'nautical';	
 			this.userSettings.sortBy = this.userSettings.sortBy || 'date';
 			this.userSettings.sortDirection = this.userSettings.sortDirection || -1;
@@ -944,6 +956,7 @@ PiLot.View.Stats = (function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.boatSelector.setSelectedBoats(this.userSettings.boats);
 			this.timeframeSelector.setValues(this.userSettings.timeframe);
+			this.ddlRegion.value = this.userSettings.region;
 			this.unitSelector.setUnit(this.userSettings.unit);
 		},
 
@@ -951,12 +964,18 @@ PiLot.View.Stats = (function () {
 			PiLot.Utils.Common.saveUserSetting(this.userSettingsName, this.userSettings);
 		},
 
+		fillRegionsAsync: async function(){
+			const regions = await new PiLot.Service.Nav.RegionService().loadRegionsAsync();
+			const regionNames = regions.map((r) => [r.id, r.name]);
+			RC.Utils.fillDropdown(this.ddlRegion, regionNames, '');			
+		},
+
 		loadAndShowDataAsync: async function(){
 			const start = this.userSettings.timeframe.start ? this.userSettings.timeframe.start.toMillis() : null;
 			const end = this.userSettings.timeframe.end ? this.userSettings.timeframe.end.toMillis() : null;
 			this.icoLoading.hidden = false;
 			const results = await Promise.all([
-				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats),
+				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats, this.userSettings.region),
 				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync(),
 				this.trackService.getTrackSegmentTypesAsync()
 			

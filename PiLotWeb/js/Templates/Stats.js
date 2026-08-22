@@ -103,6 +103,10 @@ PiLot.Templates.Stats = {
 						<div class="plhBoats flexColumn"></div>
 					</div>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
+						<span data-text="region" class="bold"></span>
+						<select class="ddlRegion"></select>
+					</div>
+					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="unit" class="bold"></span>
 						<div class="plhUnit"></div>
 					</div>

@@ -378,11 +378,12 @@ PiLot.Service.Nav = (function () {
 		 * @param {Number} pEnd - timeframe end time in milliseconds, can be null
 		 * @param {Boolean} pIsBoatTime - whether start and end is boat time or utc
 		 * @param {String[]} pBoats - the boats to filter, unfiltered if null or empty
+		 * @param {String} pRegion - the region to search, unfiltered if null or empty
 		 * */
-		loadTracksStatisticsAsync: async function (pStart, pEnd, pIsBoatTime, pBoats) {
+		loadTracksStatisticsAsync: async function (pStart, pEnd, pIsBoatTime, pBoats, pRegion) {
 			let result = [];
 			const boatsString = pBoats ? pBoats.join(',') : '';
-			const url = `/Tracks/stats?startTime=${pStart || ''}&endTime=${pEnd || ''}&isBoatTime=${pIsBoatTime}&boats=${boatsString}`
+			const url = `/Tracks/stats?startTime=${pStart || ''}&endTime=${pEnd || ''}&isBoatTime=${pIsBoatTime}&boats=${boatsString}&regionId=${pRegion || ''}`;
 			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			for (aTrackData of json) {
 				result.push(PiLot.Model.Nav.Track.fromData(aTrackData));
@@ -828,12 +829,29 @@ PiLot.Service.Nav = (function () {
 		}
 	};
 
+	var RegionService = function(){
+		this.initialize();
+	};
+
+	RegionService.prototype = {
+
+		initialize: function(){},
+		
+		/**
+		 * @returns {Object[]} array of objects with id, name, coordinates
+		 */
+		loadRegionsAsync: async function(){
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Regions');
+		}
+	};
+
     /// Returning the class and static method definitions
 	return {
 		PoiService: PoiService,
 		TrackService: TrackService,
 		OsmPoiLoader: OsmPoiLoader,
-		AnchorWatchService: AnchorWatchService
+		AnchorWatchService: AnchorWatchService,
+		RegionService: RegionService
 	}
 
 })();
