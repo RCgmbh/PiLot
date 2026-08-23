@@ -68,8 +68,9 @@ PiLot.Templates.Tools = {
 				</div>
 				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<div class="divImport" hidden>
-					<label><input type="radio" name="importFormat" class="rbImportFormat" />CSV</label>
-					<label><input type="radio" name="importFormat" class="rbImportFormat" />TCX</label>
+					<label><input type="radio" name="importFormat" value="CSV" class="rbImportFormat" />CSV</label>
+					<label><input type="radio" name="importFormat" value="TCX" class="rbImportFormat" />TCX</label>
+					<label><input type="radio" name="importFormat" value="GPX" class="rbImportFormat" />GPX</label>
 					<textarea class="fullWidth big tbImport marginBottomSmall" style="max-height: 20em; overflow:auto; border:1px solid #666"></textarea>
 					<div class="fullWidth marginBottom">
 						<span data-text="utcOffset" class="marginRightSmall"></span><input type="text" class="tbImportUtcOffset input2 marginRight" />

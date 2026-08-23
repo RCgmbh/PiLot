@@ -1969,7 +1969,7 @@ PiLot.Model.Nav = (function () {
 	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to set boatTime
 	 * @param {String} pBoat - the name of the boat
 	 * */
-	Track.fromTCX = function (pTCXString, pUtcOffset) {
+	Track.fromTCX = function (pTCXString, pUtcOffset, pBoat) {
 		const result = { track: new Track(), success: true, message: '' };
 		result.track.setBoat(pBoat);
 		try {
@@ -1991,6 +1991,47 @@ PiLot.Model.Nav = (function () {
 						lon = elementsLon[0].innerHTML;
 						if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
 							result.track.addTrackPoint(new TrackPoint(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
+						}
+					}
+				}
+			}
+		} catch (ex) {
+			result.track = null;
+			result.success = false;
+			result.message = ex;
+		}
+		return result;
+	};
+
+	/**
+	 * Creates a track from a GPX XML String
+	 * @param {String} pGPXString - The xml
+	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to set boatTime
+	 * @param {String} pBoat - the name of the boat
+	 * */
+	Track.fromGPX = function (pGPXString, pUtcOffset, pBoat) {
+		const result = { track: new Track(), success: true, message: '' };
+		result.track.setBoat(pBoat);
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(pGPXString, "text/xml");
+			const segments = doc.documentElement.getElementsByTagName('trkseg');
+			let elementsTime;
+			let trackPoint, lat, lon, timeString, utc, boatTime;
+			for(let segment of segments){
+				const trackPoints = segment.getElementsByTagName('trkpt');
+				for(trackPoint of trackPoints){
+					elementsTime = trackPoint.getElementsByTagName("time");
+					if (elementsTime.length === 1) {
+						timeString = elementsTime[0].innerHTML;
+						utc = DateTime.fromISO(timeString, { zone: 'utc' });
+						if (utc) {
+							boatTime = pUtcOffset ? utc.plus({ hours: pUtcOffset }) : utc;
+							lat = trackPoint.getAttribute('lat');
+							lon = trackPoint.getAttribute('lon');
+							if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
+								result.track.addTrackPoint(new TrackPoint(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
+							}
 						}
 					}
 				}

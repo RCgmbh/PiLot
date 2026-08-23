@@ -193,7 +193,7 @@ PiLot.View.Tools = (function () {
 		},		
 
 		rbImportFormat_Change: function (pEvent) {
-			this.ImportMode = pEvent.target.value;
+			this.importMode = pEvent.target.value;
 		},
 		
 		btnImportPreview_click: function () {
@@ -378,12 +378,14 @@ PiLot.View.Tools = (function () {
 				case 'TCX':
 					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset, this.ddlImportBoats.value);
 					break;
+				case 'GPX':
+					processImportDataResult = PiLot.Model.Nav.Track.fromGPX(this.tbImport.value, utcOffset, this.ddlImportBoats.value);
 			}
 			if (processImportDataResult.success) {
 				this.track = processImportDataResult.track;
 				this.mapTrack.setTracks([this.track]);
 			} else {
-				alert(trackFrprocessImportDataResultomTCXResult.message);
+				alert(processImportDataResult.message);
 			}
 			return processImportDataResult;
 		},
