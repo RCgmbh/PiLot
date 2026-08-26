@@ -165,7 +165,6 @@ PiLot.Templates.Diary = {
 						<div class="divLocalDiaryText diaryText"></div>
 						<div style="flex: 0 0 4em;" class="center">
 							<input type="checkbox" class="cbPublishDiary" /><i class="icon-arrow-right"></i><br />
-							<input type="checkbox" class="cbOverwriteDiary" /><i class="icon-trashcan"></i>
 						</div>
 						<div class="divTargetDiaryText diaryText"></div>
 					</div>
@@ -178,7 +177,6 @@ PiLot.Templates.Diary = {
 						<div class="divLocalLogbookEntries logbookEntries"></div>
 						<div style="flex: 0 0 4em;" class="center">
 							<input type="checkbox" class="cbPublishLogbook" /><i class="icon-arrow-right"></i><br />
-							<input type="checkbox" class="cbOverwriteLogbook" /><i class="icon-trashcan"></i>
 						</div>
 						<div class="divTargetLogbookEntries logbookEntries"></div>
 					</div>
