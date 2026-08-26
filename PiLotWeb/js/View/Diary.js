@@ -1554,7 +1554,7 @@ PiLot.View.Diary = (function () {
 						cbPhoto.checked = true;
 						break;
 					case 2:
-						const imageName = cb.name;
+						const imageName = cbPhoto.name;
 						cbPhoto.checked = !this.targetData.data.photoInfos.getImageNames().includes(imageName);
 				}
 				
