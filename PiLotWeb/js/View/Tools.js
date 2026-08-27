@@ -905,7 +905,7 @@ PiLot.View.Tools = (function () {
 		this.pnlLinkCandidates = null;
 		this.plhLinkCandidates = null;
 		this.pnlNoLinkCandidates = null;
-		this.observable = null;						// Map for observable pattern
+		this.observable = null;	
 		this.initialize();
 	};
 

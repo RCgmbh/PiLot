@@ -1351,6 +1351,7 @@ PiLot.View.Diary = (function () {
 		this.localTrackMap = null;			// PiLot.View.Map.Seamap
 		this.targetTrackMap = null;			// PiLot.View.Map.Seamap
 		this.cbSelectPhotos = null;			// not the checkbox itself, but an RC.Controls.TriStateCheckBox!
+		this.overlayDialog = null;
 
 		this.initialize();
 	};
@@ -1382,6 +1383,8 @@ PiLot.View.Diary = (function () {
 			this.ddlPublishTarget.addEventListener('change', this.ddlPublishTarget_select.bind(this));
 			this.pnlJobInfo = pageContent.querySelector('.pnlJobInfo');
 			this.pnlJobInfo.querySelector('.btnClose').addEventListener('click', this.btnCloseJobInfo_click.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.pnlJobInfo),
+			this.overlayDialog.on('hide', this, this.overlayDialog_hide.bind(this));
 			this.pnlPublish = pageContent.querySelector('.pnlPublish');
 			this.lblLocalPositionsCount = this.pnlPublish.querySelector('.lblLocalPositionsCount');
 			this.lblTargetPositionsCount = this.pnlPublish.querySelector('.lblTargetPositionsCount');
@@ -1419,8 +1422,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		btnCloseJobInfo_click: function () {
+			this.overlayDialog.hide();
+		},
+
+		overlayDialog_hide: function(){
 			this.stopJobStatusInterval();
-			this.pnlJobInfo.hidden = true;
 			this.loadTargetDataAsync();
 		},
 
@@ -1592,7 +1598,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		showPublishJob: function () {
-			this.pnlJobInfo.hidden = false;
+			this.overlayDialog.show();
 			this.refreshPublishJobAsync();
 			this.jobStatusInterval = window.setInterval(this.refreshPublishJobAsync.bind(this), 1000);
 		},

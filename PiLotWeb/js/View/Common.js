@@ -1320,6 +1320,60 @@ PiLot.View.Common = (function () {
 		}
 	};
 
+	var OverlayDialog = function(pDialog){
+		this.dialog = pDialog;
+		this.observable = null;	
+		this.control = null;
+		this.initialize();
+	};
+
+	OverlayDialog.prototype = {
+
+		initialize: function(){
+			this.observable = new PiLot.Utils.Common.Observable(['show', 'hide']);
+			this.draw();
+		},
+
+		control_click: function(pEvent){
+			this.hide(null);
+		},
+
+		dialog_click: function (pEvent) {
+			pEvent.stopPropagation();
+		},
+
+		/**
+		 * Registers an observer which will be called when pEvent happens.
+		 * @param {String} pEvent - "show", "hide"
+		 * @param {Object} pObserver
+		 * @param {Function} pCallback
+		 * */
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
+		},
+
+		draw: function(){
+			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Common.overlay);
+			this.control.appendChild(this.dialog);
+			document.body.insertAdjacentElement('afterbegin', this.control);
+			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
+			this.control.addEventListener('click', this.control_click.bind(this));
+			this.dialog.addEventListener('click', this.dialog_click.bind(this));
+		},
+
+		show: function(pPars){
+			this.control.hidden = false;
+			document.body.classList.toggle('overflowHidden', true);
+			this.observable.fire('show', pPars);
+		},
+		
+		hide: function(pPars){
+			this.control.hidden = true;
+			document.body.classList.toggle('overflowHidden', false);
+			this.observable.fire('hide', pPars);
+		}
+	};
+
 	return {
 		Clock: Clock,
 		AnalogClockControl: AnalogClockControl,
@@ -1336,7 +1390,8 @@ PiLot.View.Common = (function () {
 		getLoginForm: getLoginForm,
 		UserIcon: UserIcon,
 		ExpandCollapse: ExpandCollapse,
-		ExpandCollapseBox: ExpandCollapseBox
+		ExpandCollapseBox: ExpandCollapseBox,
+		OverlayDialog: OverlayDialog
 	};
 
 })();

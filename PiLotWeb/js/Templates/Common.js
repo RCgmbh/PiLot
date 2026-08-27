@@ -235,5 +235,7 @@ PiLot.Templates.Common = {
 
 	expandIcon: '<span class="lnkExpand marginRightSmall"><i class="icon-circle-right"></i></span>',
 
-	collapseIcon: '<span class="lnkCollapse marginRightSmall" hidden><i class="icon-circle-down"></i></span>'
+	collapseIcon: '<span class="lnkCollapse marginRightSmall" hidden><i class="icon-circle-down"></i></span>',
+
+	overlay: '<div class="pnlOverlay vCenter overlay" hidden></div>'
 };
