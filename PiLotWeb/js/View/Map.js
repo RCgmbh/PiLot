@@ -466,6 +466,7 @@ PiLot.View.Map = (function () {
 		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, control: HTMLElement, selectedChildren: number};
 		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
+		this.overlayDialog = null;			// PiLot.View.Common.OverlayDialog
 		this.cbShowPois = null;				// HTMLInputElement
 		this.ddlPoisMinZoomLevel = null;	//HTMLSelectElement
 		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
@@ -488,16 +489,6 @@ PiLot.View.Map = (function () {
 		 * */
 		on: function(pEvent, pObserver, pFunction){
 			this.observable.addObserver(pEvent, pObserver, pFunction);
-		},
-
-		/** handles clicks on the dark background by closing the dialog */
-		pnlOverlay_click: function () {
-			this.hide();
-		},
-
-		/** makes sure that clicks are not bubbled to the background, which would close the window */
-		pnlDialog_click: function (pEvent) {
-			pEvent.stopPropagation();
 		},
 
 		/**
@@ -566,10 +557,7 @@ PiLot.View.Map = (function () {
 		drawAsync: async function () {
 			await this.loadSettingsAsync();
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
-			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
-			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control),
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.currentSettings.showPois;
 			this.cbShowPois.addEventListener('change', this.cbShowPois_change.bind(this));
@@ -801,14 +789,12 @@ PiLot.View.Map = (function () {
 			if (!this.control) {
 				await this.drawAsync();
 			}
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
+			this.overlayDialog.show();
 		},
 
 		/** Hides the entire control */
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 

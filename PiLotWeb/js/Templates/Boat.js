@@ -7,14 +7,12 @@ PiLot.Templates.Boat = {
 		'<object type="image/svg+xml" style="height:100%; max-height:100%; max-width:100%; position:absolute;"></object>',
 
 	boatSetupForm:
-		`<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="boatSetupForm dialogPanel hCenter paddingAllSmall">
-				<span class="block semiBold marginBottom" data-text="boatSetup"></span>
-				<div class="plhFeatures"></div>
-				<div class="buttons reverse marginTop marginBottom">
-					<button class="btnBoatSetupOk bold" data-text="ok"></button>
-					<button class="btnBoatSetupCancel" data-text="cancel"></button>
-				</div>
+		`<div class="boatSetupForm dialogPanel hCenter paddingAllSmall">
+			<span class="block semiBold marginBottom" data-text="boatSetup"></span>
+			<div class="plhFeatures"></div>
+			<div class="buttons reverse marginTop marginBottom">
+				<button class="btnBoatSetupOk bold" data-text="ok"></button>
+				<button class="btnBoatSetupCancel" data-text="cancel"></button>
 			</div>
 		</div>`,
 
@@ -25,15 +23,13 @@ PiLot.Templates.Boat = {
 		</div>`,
 
 	boatSetupDetails:
-		`<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog boatSetupDetails dialogPanel hCenter">
-				<div class="flexRow bgLight paddingAllSmall" style="justify-content:flex-end;">
-					<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
-				</div>
-				<div class="flexRowWrap paddingAllSmall" style="justify-content:center">
-					<div class="plhImage image marginRight"></div>
-					<div class="plhFeatures features"></div>
-				</div>
+		`<div class="pnlDialog boatSetupDetails dialogPanel hCenter">
+			<div class="flexRow bgLight paddingAllSmall" style="justify-content:flex-end;">
+				<a href="#" class="lnkClose" style="flex-grow:0;"><i class="icon-cross"></i></a>
+			</div>
+			<div class="flexRowWrap paddingAllSmall" style="justify-content:center">
+				<div class="plhImage image marginRight"></div>
+				<div class="plhFeatures features"></div>
 			</div>
 		</div>`,
 

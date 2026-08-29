@@ -15,38 +15,36 @@ PiLot.Templates.Map = {
 	mapLayersIcon: `<a href="" class="sideMenu mapLayersIcon"><i class="icon-stack4 biggerText"></i></a>`,
 
 	mapLayersSettings: `
-		<div class="pnlOverlay vCenter overlay foreground" hidden>
-			<div class="pnlDialog mapLayerSettings dialogPanel flexColumn hCenter">
-				<div class="paddingAllSmall flexRowWrap bgLight" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
-					<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>
-					<span class="semiBold" data-text="mapLayerSettings"></span>
+		<div class="pnlDialog mapLayerSettings dialogPanel flexColumn hCenter">
+			<div class="paddingAllSmall flexRowWrap bgLight" style="align-items:center; display:flex; flex-wrap:wrap-reverse;">
+				<span class="marginRight"><i class="icon-stack4 biggerText"></i></span>
+				<span class="semiBold" data-text="mapLayerSettings"></span>
+			</div>
+			<div class="paddingAllSmall labelValues30-70" style="overflow:auto;">
+				<label class="borderBottom borderLight paddingBottomSmall">
+					<span data-text="tileSets" class="semiBold label"></span>
+					<span class="value plhTileSources flexColumn"></span>
+				</label>
+				<label class="borderBottom borderLight paddingBottomSmall">
+					<span data-text="pois" class="semiBold label"></span>
+					<span class="value">
+						<label><input type="checkbox" class="cbShowPois" /><span data-text="show"></span></label>					
+						<span data-text="fromZoomLevel"></span>
+						<select class="ddlPoisMinZoomLevel input4"></select>
+					</span>
+				</label>
+				<div class="borderBottom borderLight paddingBottomSmall">
+					<span class="label" data-text="categories"></span>
+					<div class="plhCategories value flexColumn"></div>
 				</div>
-				<div class="paddingAllSmall labelValues30-70" style="overflow:auto;">
-					<label class="borderBottom borderLight paddingBottomSmall">
-						<span data-text="tileSets" class="semiBold label"></span>
-						<span class="value plhTileSources flexColumn"></span>
-					</label>
-					<label class="borderBottom borderLight paddingBottomSmall">
-						<span data-text="pois" class="semiBold label"></span>
-						<span class="value">
-							<label><input type="checkbox" class="cbShowPois" /><span data-text="show"></span></label>					
-							<span data-text="fromZoomLevel"></span>
-							<select class="ddlPoisMinZoomLevel input4"></select>
-						</span>
-					</label>
-					<div class="borderBottom borderLight paddingBottomSmall">
-						<span class="label" data-text="categories"></span>
-						<div class="plhCategories value flexColumn"></div>
-					</div>
-					<div>
-						<span class="label" data-text="features"></span>
-						<div class="plhFeatures value"></div>
-					</div>
+				<div>
+					<span class="label" data-text="features"></span>
+					<div class="plhFeatures value"></div>
 				</div>
-				<div class="buttons reverse paddingAllSmall paddingBottomBig bgLight">
-					<button class="btnApply semiBold" data-text="ok"></button>
-					<button class="btnCancel" data-text="cancel"></button>
-				</div>
+			</div>
+			<div class="buttons reverse paddingAllSmall paddingBottomBig bgLight">
+				<button class="btnApply semiBold" data-text="ok"></button>
+				<button class="btnCancel" data-text="cancel"></button>
 			</div>
 		</div>`,
 

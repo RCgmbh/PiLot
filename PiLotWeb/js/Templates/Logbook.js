@@ -89,61 +89,59 @@ PiLot.Templates.Logbook = {
 		<div class="newEntryImage"></div>`,
 
 	logbookEntryForm: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="logbookEntry dialogPanel hCenter paddingAllSmall">
-				<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
-				<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
-				<div class="marginBottomSmall titleContainer">
-					<input type="text" class="tbTime" placeholder="hh:mm"
-					/><input type="text" class="tbTitle" data-title="title" />
-				</div>
-				<div class="logbookBoxes editable marginBottomSmall">
-					<div class="plhBoatSetup logbookBox logbookBoat"></div>
-					<div class="data">
-						<div class="logbookBox logbookMeteo">
-							<div class="semiBold inlineBlock marginBottomSmall" data-text="meteo"></div>
-							<select class="ddlWeather fullWidth marginBottomSmall"></select>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="temperatureShort"></span><input type="text" class="tbTemperature input3" />°C
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="pressureShort"></span><input type="text" class="tbPressure input3" /><span data-text="hPa"></span>
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="wind"></span><select class="ddlWindForce input3"></select><span data-text="bft"></span>
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label"></span><select class="ddlWindDirection input3"></select>
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="wave"></span><input type="text" class="tbWaveHeight input3" />m
-							</div>
+		<div class="logbookEntry dialogPanel hCenter paddingAllSmall">
+			<span class="lblTitleAddEntry block marginBottomSmall semiBold" data-text="addLogbookEntry"></span>
+			<span class="lblTitleEditEntry block marginBottomSmall semiBold" data-text="editLogbookEntry"></span>
+			<div class="marginBottomSmall titleContainer">
+				<input type="text" class="tbTime" placeholder="hh:mm"
+				/><input type="text" class="tbTitle" data-title="title" />
+			</div>
+			<div class="logbookBoxes editable marginBottomSmall">
+				<div class="plhBoatSetup logbookBox logbookBoat"></div>
+				<div class="data">
+					<div class="logbookBox logbookMeteo">
+						<div class="semiBold inlineBlock marginBottomSmall" data-text="meteo"></div>
+						<select class="ddlWeather fullWidth marginBottomSmall"></select>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="temperatureShort"></span><input type="text" class="tbTemperature input3" />°C
 						</div>
-						<div class="logbookBox logbookNav">
-							<div class="semiBold inlineBlock marginBottomSmall" data-text="nav"></div>
-							<div class="block">
-								<span class="labelSmall" data-text="latitudeShort"></span><div class="plhLat inlineBlock"></div>
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="labelSmall" data-text="longitudeShort"></span><div class="plhLon inlineBlock"></div>
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="cog"></span><input type="text" class="tbCOG input3" />°
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="sog"></span><input type="text" class="tbSOG input3" /><span data-text="kn"></span>
-							</div>
-							<div class="block marginBottomSmall">
-								<span class="label" data-text="log"></span><input type="text" class="tbLog input3" /><span data-text="nm"></span>
-							</div>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="pressureShort"></span><input type="text" class="tbPressure input3" /><span data-text="hPa"></span>
 						</div>
-					</div>	
-				</div>
-				<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" data-title="remarks"></textarea>
-				<div class="buttons reverse marginBottom">
-					<button class="btnSave bold" data-text="save"></button>
-					<button class="btnCancel" data-text="cancel"></button>
-				</div>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="wind"></span><select class="ddlWindForce input3"></select><span data-text="bft"></span>
+						</div>
+						<div class="block marginBottomSmall">
+							<span class="label"></span><select class="ddlWindDirection input3"></select>
+						</div>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="wave"></span><input type="text" class="tbWaveHeight input3" />m
+						</div>
+					</div>
+					<div class="logbookBox logbookNav">
+						<div class="semiBold inlineBlock marginBottomSmall" data-text="nav"></div>
+						<div class="block">
+							<span class="labelSmall" data-text="latitudeShort"></span><div class="plhLat inlineBlock"></div>
+						</div>
+						<div class="block marginBottomSmall">
+							<span class="labelSmall" data-text="longitudeShort"></span><div class="plhLon inlineBlock"></div>
+						</div>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="cog"></span><input type="text" class="tbCOG input3" />°
+						</div>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="sog"></span><input type="text" class="tbSOG input3" /><span data-text="kn"></span>
+						</div>
+						<div class="block marginBottomSmall">
+							<span class="label" data-text="log"></span><input type="text" class="tbLog input3" /><span data-text="nm"></span>
+						</div>
+					</div>
+				</div>	
+			</div>
+			<textarea class="tbNotes fullWidth block marginBottomSmall" rows="2" data-title="remarks"></textarea>
+			<div class="buttons reverse marginBottom">
+				<button class="btnSave bold" data-text="save"></button>
+				<button class="btnCancel" data-text="cancel"></button>
 			</div>
 		</div>`,
 
