@@ -35,16 +35,14 @@ PiLot.Templates.Settings = {
 	`,
 
 	fullscreenDialog: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="dialogPanel hCenter" style="width:30em; max-width:95%;">
-				<div class="paddingAllSmall">
-					<p data-text="fullscreenConfirm" class="marginBottom"></p>
-					<div class="buttons">
-						<button class="btnYes semiBold" data-text="yes"></button>
-						<button class="btnNo" data-text="no"></button>
-					</div>
+		<div class="dialogPanel hCenter" style="width:30em; max-width:95%;">
+			<div class="paddingAllSmall">
+				<p data-text="fullscreenConfirm" class="marginBottom"></p>
+				<div class="buttons">
+					<button class="btnYes semiBold" data-text="yes"></button>
+					<button class="btnNo" data-text="no"></button>
 				</div>
 			</div>
-		</div>	
+		</div>
 	`,
 }

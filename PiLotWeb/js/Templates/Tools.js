@@ -225,11 +225,9 @@ PiLot.Templates.Tools = {
 	osmMapMarkerIcon: '<i class="icon-cloud-download"></i>',
 
 	osmPoiEditDialog: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap">
-				<div class="pnlPoiForm"></div>
-				<div class="pnlOsmPoiForm"></div>
-			</div>
+		<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap">
+			<div class="pnlPoiForm"></div>
+			<div class="pnlOsmPoiForm"></div>
 		</div>
 	`,
 

@@ -229,47 +229,45 @@ PiLot.Templates.Nav = {
 	`,
 
 	poiDetails: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog poiDetails dialogPanel hCenter">
-				<div class="paddingAllSmall">
-					<div class="marginBottomSmall flexRowWrap reverse" style="align-items:center;">
-						<div class="plhCategoryIcon poiIcon marginRight noGrow"></div>
-						<span class="lblCategoryName italic grow"></span>
-						<a href="#" class="lnkClose noGrow"><i class="icon-cross"></i></a>
-					</div>
-					<span class="lblTitle marginBottomSmall block semiBold"></span>
-					<div class="labelValues30-70 flexColumn marginBottomSmall">
-						<div class="pnlFeatures"><span class="label" data-text="features"></span><ul class="ulFeatures value"></ul></div>
-						<div class="pnlDescription"><span class="label" data-text="description"></span><span class="lblDescription value preWrap breakWord"></span></div>
-						<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
-						<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
-						<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
-						<div>
-							<div class="label">
-								<span class="label" data-text="eta"></span>
-							</div>
-							<div class="value">
-								<span class="pnlLiveData marginRightSmall" hidden>
-									<span class="lblEta"></span>
-									(<span class="lblEtaDuration"></span>, <span class="lblDistance"></span>&thinsp;<span data-text="nm"></span>, <span class="lblBearing"></span>°)
-								</span>
-								<span class="pnlNoLiveData marginRightSmall">---</span>
-								<a href="#" class="lnkHideLiveData marginRight"><i class="icon-eye-blocked"></i></a>
-								<a href="#" class="lnkShowLiveData marginRight" hidden><i class="icon-eye"></i></a>
-							</div>
+		<div class="pnlDialog poiDetails dialogPanel hCenter">
+			<div class="paddingAllSmall">
+				<div class="marginBottomSmall flexRowWrap reverse" style="align-items:center;">
+					<div class="plhCategoryIcon poiIcon marginRight noGrow"></div>
+					<span class="lblCategoryName italic grow"></span>
+					<a href="#" class="lnkClose noGrow"><i class="icon-cross"></i></a>
+				</div>
+				<span class="lblTitle marginBottomSmall block semiBold"></span>
+				<div class="labelValues30-70 flexColumn marginBottomSmall">
+					<div class="pnlFeatures"><span class="label" data-text="features"></span><ul class="ulFeatures value"></ul></div>
+					<div class="pnlDescription"><span class="label" data-text="description"></span><span class="lblDescription value preWrap breakWord"></span></div>
+					<div class="pnlProperties" hidden><span class="label" data-text="properties"></span><span class="lblProperties value"></span></div>
+					<div class="pnlValidFrom"><span class="label" data-text="validFrom"></span><span class="lblValidFrom value"></span></div>
+					<div class="pnlValidTo"><span class="label" data-text="validTo"></span><span class="lblValidTo value"></span></div>
+					<div>
+						<div class="label">
+							<span class="label" data-text="eta"></span>
+						</div>
+						<div class="value">
+							<span class="pnlLiveData marginRightSmall" hidden>
+								<span class="lblEta"></span>
+								(<span class="lblEtaDuration"></span>, <span class="lblDistance"></span>&thinsp;<span data-text="nm"></span>, <span class="lblBearing"></span>°)
+							</span>
+							<span class="pnlNoLiveData marginRightSmall">---</span>
+							<a href="#" class="lnkHideLiveData marginRight"><i class="icon-eye-blocked"></i></a>
+							<a href="#" class="lnkShowLiveData marginRight" hidden><i class="icon-eye"></i></a>
 						</div>
 					</div>
 				</div>
-				<div class="flexRowWrap bgLight" style="justify-content:space-between;">
-					<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
-					<a href="#" class="lnkMove marginAllSmall"><i class="icon-unlocked2 marginRightSmall"></i><span data-text="move"></span></a>
-					<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
-				</div>
+			</div>
+			<div class="flexRowWrap bgLight" style="justify-content:space-between;">
+				<a href="#" class="lnkEdit marginAllSmall"><i class="icon-pencil marginRightSmall"></i><span data-text="edit"></span></a>
+				<a href="#" class="lnkMove marginAllSmall"><i class="icon-unlocked2 marginRightSmall"></i><span data-text="move"></span></a>
+				<a href="#" class="lnkDelete marginAllSmall"><i class="icon-trashcan marginRightSmall"></i><span data-text="delete"></span></a>
 			</div>
 		</div>`,
 
 	editPoiDialog: `
-		<div class="pnlOverlay vCenter overlay" hidden><div class="pnlDialog poiDetails dialogPanel hCenter"></div></div>
+		<div class="pnlDialog poiDetails dialogPanel hCenter"></div>
 	`,
 
 	poiForm: `
@@ -333,26 +331,24 @@ PiLot.Templates.Nav = {
 	poiCategoryIconSvg: '<img src="img/icons/{{icon}}" />',
 
 	anchorWatchForm:  `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog anchorWatchForm dialogPanel hCenter">
-				<div class="paddingAllSmall">
-					<span class="block marginBottomSmall semiBold" data-text="anchorWatch"></span>
-					<div class="marginBottom">
-						<div class="flexRowWrap">
-							<span class="inlineBlock col4" data-text="radius">:</span>
-							<input type="text" class="tbRadius input4" />
-							<div class="flex">
-								<a href="#" class="lnkRadiusMinus inlineBlock center input1 bold">-</a>
-								<a href="#" class="lnkRadiusPlus inlineBlock center input1 bold">+</a>
-							</div>
+		<div class="pnlDialog anchorWatchForm dialogPanel hCenter">
+			<div class="paddingAllSmall">
+				<span class="block marginBottomSmall semiBold" data-text="anchorWatch"></span>
+				<div class="marginBottom">
+					<div class="flexRowWrap">
+						<span class="inlineBlock col4" data-text="radius">:</span>
+						<input type="text" class="tbRadius input4" />
+						<div class="flex">
+							<a href="#" class="lnkRadiusMinus inlineBlock center input1 bold">-</a>
+							<a href="#" class="lnkRadiusPlus inlineBlock center input1 bold">+</a>
 						</div>
 					</div>
-					<div class="buttons reverse">
-						<button class="btnActivate semiBold" data-text="activate"></button>
-						<button class="btnCancel" data-text="cancel"></button>
-						<button class="btnClose" data-text="close"></button>
-						<button class="btnDeactivate" data-text="deactivate"></button>
-					</div>
+				</div>
+				<div class="buttons reverse">
+					<button class="btnActivate semiBold" data-text="activate"></button>
+					<button class="btnCancel" data-text="cancel"></button>
+					<button class="btnClose" data-text="close"></button>
+					<button class="btnDeactivate" data-text="deactivate"></button>
 				</div>
 			</div>
 		</div>

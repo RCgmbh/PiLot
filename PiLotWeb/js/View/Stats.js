@@ -1139,6 +1139,7 @@ PiLot.View.Stats = (function () {
 
 		this.cancelLoadTracks = false;
 		this.control = null;
+		this.overlayDialog = null;
 		this.lblLoadingTracks = null;
 		this.pnlMap = null;
 		this.map = null;					// PiLot.View.Map.Seamap
@@ -1158,9 +1159,14 @@ PiLot.View.Stats = (function () {
 			this.hide();
 		},
 
+		overlayDialog_hide: function(){
+			this.cancelLoadTracks = true;
+		},
+
 		draw: function(){
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.tracksMap);
-			document.body.insertAdjacentElement('afterbegin', this.control);
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
+			this.overlayDialog.on('hide', this.overlayDialog_hide.bind(this));
 			this.pnlMap = this.control.querySelector('.pnlMap');
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.lblLoadingTracks = this.control.querySelector('.lblLoadingTracks');
@@ -1194,14 +1200,11 @@ PiLot.View.Stats = (function () {
 		},
 
 		show: function(){
-			this.control.hidden = false;
-			document.body.classList.toggle('overflowHidden', true);
+			this.overlayDialog.show();
 		},
 
 		hide: function(){
-			this.cancelLoadTracks = true;
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 
 	};

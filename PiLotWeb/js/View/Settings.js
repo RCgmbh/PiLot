@@ -176,6 +176,7 @@ PiLot.View.Settings = (function () {
 	FullscreenDialog = {
 
 		dialog: null,
+		overlay: null,
 
 		btnYes_click: async function (pEvent){
 			await PiLot.Utils.Presentation.Fullscreen.setFullscreenAsync();
@@ -189,18 +190,18 @@ PiLot.View.Settings = (function () {
 
 		draw: function(){
 			this.dialog = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.fullscreenDialog);
-			document.body.insertAdjacentElement('afterbegin', this.dialog);
+			this.overlay = new PiLot.View.Common.OverlayDialog(this.dialog, true);
 			this.dialog.querySelector('.btnYes').addEventListener('click', this.btnYes_click.bind(this));
 			this.dialog.querySelector('.btnNo').addEventListener('click', this.btnNo_click.bind(this));
 		},
 
 		show: function(){
 			this.dialog || this.draw();
-			this.dialog.hidden = false;
+			this.overlay.show();
 		},
 
 		hide: function(){
-			this.dialog.hidden = true;
+			this.overlay.hide();
 		}
 	};
 

@@ -385,6 +385,7 @@ PiLot.View.Common = (function () {
 		this.plhMainMenu = null;
 		this.plhDisplays = null;
 		this.addDisplayDialog = null;
+		this.ovelayDialog = null;
 		this.ddlDisplayName = null;
 		this.initialize();
 	};
@@ -464,7 +465,7 @@ PiLot.View.Common = (function () {
 			this.control.querySelector('.lnkAddDisplay').addEventListener('click', this.lnkAddDisplay_click.bind(this));
 			this.plhDisplays = this.control.querySelector('.plhDisplays');
 			this.addDisplayDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.addGenericDisplayDialog);
-			document.body.insertAdjacentElement('afterbegin', this.addDisplayDialog);
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.addDisplayDialog);
 			this.ddlDisplayName = this.addDisplayDialog.querySelector('.ddlDisplayName');
 			const btnAdd = this.addDisplayDialog.querySelector('.btnAdd');
 			const btnCancel = this.addDisplayDialog.querySelector('.btnCancel');
@@ -529,13 +530,12 @@ PiLot.View.Common = (function () {
 		},
 
 		showAddDisplayDialog: function(){
-			this.addDisplayDialog.hidden = false;
+			this.overlayDialog.show();
 		},
 
 		hideAddDisplayDialog: function(){
-			this.addDisplayDialog.hidden = true;
+			this.overlayDialog.hide();
 		}
-
 	};
 
 	/**
@@ -1320,8 +1320,9 @@ PiLot.View.Common = (function () {
 		}
 	};
 
-	var OverlayDialog = function(pDialog){
+	var OverlayDialog = function(pDialog, pIsStatic = false){
 		this.dialog = pDialog;
+		this.isStatic = pIsStatic;
 		this.observable = null;	
 		this.control = null;
 		this.initialize();
@@ -1332,6 +1333,7 @@ PiLot.View.Common = (function () {
 		initialize: function(){
 			this.observable = new PiLot.Utils.Common.Observable(['show', 'hide']);
 			this.draw();
+			this.applyIsStatic();
 		},
 
 		control_click: function(pEvent){
@@ -1361,9 +1363,15 @@ PiLot.View.Common = (function () {
 			this.dialog.addEventListener('click', this.dialog_click.bind(this));
 		},
 
+		applyIsStatic: function(){
+			this.control.classList.toggle('staticOverlay', this.isStatic);
+			this.control.classList.toggle('overlay', !this.isStatic);			
+		},
+
 		show: function(pPars){
 			this.control.hidden = false;
 			document.body.classList.toggle('overflowHidden', true);
+			this.dialog.scrollTop = 0;
 			this.observable.fire('show', pPars);
 		},
 		
@@ -1401,6 +1409,7 @@ PiLot.View.Common.ServiceErrorIcon = {
 	control: null,
 	icoError: null,
 	errorDialog: null,
+	overlayDialog: null,
 	plhErrors: null,
 	pnlTemplate: null,
 	btnClearErrors: null,
@@ -1421,16 +1430,16 @@ PiLot.View.Common.ServiceErrorIcon = {
 	},
 
 	control_click: function(){
-		this.toggleDialog(true);
+		this.showDialog();
 	},
 
 	icoCloseDialog_click: function(){
-		this.toggleDialog(false);
+		this.hideDialog();
 	},
 
 	btnClearErrors_click: function(){
 		this.clearErrors();
-		this.toggleDialog(false);
+		this.hideDialog();
 	},
 
 	draw: function(){
@@ -1439,8 +1448,7 @@ PiLot.View.Common.ServiceErrorIcon = {
 		this.control.addEventListener('click', this.control_click.bind(this));
 		this.icoError = this.control.querySelector('.icoError');
 		this.errorDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.serviceErrorsDialog);
-		document.body.insertAdjacentElement('afterbegin', this.errorDialog);
-		PiLot.Utils.Common.bindKeyHandlers(this.errorDialog, this.icoCloseDialog_click.bind(this), null);
+		this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.errorDialog, true);
 		this.errorDialog.querySelector('.lnkCloseDialog').addEventListener('click', this.icoCloseDialog_click.bind(this));
 		this.plhErrors = this.errorDialog.querySelector('.plhErrors');
 		this.pnlTemplate = this.errorDialog.querySelector('.pnlTemplate');
@@ -1460,11 +1468,13 @@ PiLot.View.Common.ServiceErrorIcon = {
 		}		
 	},
 
-	toggleDialog: function(pShow){
-		this.errorDialog.hidden = !pShow;
-		if(pShow){
-			this.showErrors();
-		}
+	showDialog: function(){
+		this.overlayDialog.show();
+		this.showErrors();
+	},
+
+	hideDialog: function(){
+		this.overlayDialog.hide();
 	},
 
 	showErrors: function(){

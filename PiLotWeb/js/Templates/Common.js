@@ -69,30 +69,28 @@ PiLot.Templates.Common = {
 	`,
 
 	serviceErrorsDialog:`
-		<div class="pnlOverlay vCenter staticOverlay" hidden>
-			<div class="pnlDialog dialogPanel hCenter" style="width:95vw;">
-				<div class="" style="overflow-wrap:anywhere;">
-					<div class="marginBottomSmall flexRow">
-						<span class="grow paddingAllSmall bold" data-text="errors"></span>
-						<a href="#" class="lnkCloseDialog noGrow paddingAllSmall"><i class="icon-cross"></i></a>
-					</div>
-					<div class="pnlTemplate flexColumn" style="border:1px solid #ccc;border-radius:4px;padding:4px;margin:2px 0px;background-color:#f8f4f4;" hidden>
-						<div class="coreData flexRow">
-							<span class="marginRight lblTimestamp col3 noGrow"></span>
-							<span class="marginRight lblType semiBold col2 noGrow"></span>
-							<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
-							<div class="lblUrl marginRight col10 grow"></div>
-						</div>
-						<div class="detailData flexColumn paddingLeft">
-							<div class="marginRight">Body: <span class="lblBody"></span></div>
-							<div class="marginRight">Details: <span class="lblMessage"></span></div>
-						</div>
-					</div>
-					<div class="plhErrors flexColumn paddingAllSmall marginBottomSmall"></div>
+		<div class="pnlDialog dialogPanel hCenter" style="width:95vw;">
+			<div class="" style="overflow-wrap:anywhere;">
+				<div class="marginBottomSmall flexRow">
+					<span class="grow paddingAllSmall bold" data-text="errors"></span>
+					<a href="#" class="lnkCloseDialog noGrow paddingAllSmall"><i class="icon-cross"></i></a>
 				</div>
-				<div class="buttons paddingAllSmall reverse">
-					<button class="btnClear semiBold"><span data-text="clearErrors"></span></button>
+				<div class="pnlTemplate flexColumn" style="border:1px solid #ccc;border-radius:4px;padding:4px;margin:2px 0px;background-color:#f8f4f4;" hidden>
+					<div class="coreData flexRow">
+						<span class="marginRight lblTimestamp col3 noGrow"></span>
+						<span class="marginRight lblType semiBold col2 noGrow"></span>
+						<div class="marginRight col4 nogrow">Status: <span class="lblStatus"></span></div>
+						<div class="lblUrl marginRight col10 grow"></div>
+					</div>
+					<div class="detailData flexColumn paddingLeft">
+						<div class="marginRight">Body: <span class="lblBody"></span></div>
+						<div class="marginRight">Details: <span class="lblMessage"></span></div>
+					</div>
 				</div>
+				<div class="plhErrors flexColumn paddingAllSmall marginBottomSmall"></div>
+			</div>
+			<div class="buttons paddingAllSmall reverse">
+				<button class="btnClear semiBold"><span data-text="clearErrors"></span></button>
 			</div>
 		</div>`,
 
@@ -112,16 +110,14 @@ PiLot.Templates.Common = {
 	`,
 
 	addGenericDisplayDialog: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog dialogPanel hCenter paddingAllSmall" style="width:30em; max-width:95%;">
-				<span class="block marginBottomSmall semiBold" data-text="addDisplay"></span>
-				<select class="ddlDisplayName marginBottom"></select>
-				<div class="buttons reverse">
-					<button class="btnAdd semiBold" data-text="add"></button>
-					<button class="btnCancel" data-text="cancel"></button>
-				</div>
+		<div class="pnlDialog dialogPanel hCenter paddingAllSmall" style="width:30em; max-width:95%;">
+			<span class="block marginBottomSmall semiBold" data-text="addDisplay"></span>
+			<select class="ddlDisplayName marginBottom"></select>
+			<div class="buttons reverse">
+				<button class="btnAdd semiBold" data-text="add"></button>
+				<button class="btnCancel" data-text="cancel"></button>
 			</div>
-		</div>	
+		</div>
 	`,
 
 	genericDisplay: `

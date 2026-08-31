@@ -1270,7 +1270,7 @@ PiLot.View.Tools = (function () {
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiEditDialog);
-			document.body.insertAdjacentElement('afterbegin', this.control);
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
 			this.poiForm = new PiLot.View.Nav.PoiForm(this.mapPois, this.control.querySelector('.pnlPoiForm'));
 			this.poiForm.on('save', this, this.poiForm_save.bind(this));
 			this.poiForm.on('cancel', this, this.poiForm_cancel.bind(this));
@@ -1290,14 +1290,11 @@ PiLot.View.Tools = (function () {
 		},
 
 		show: function () {
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
-			this.pnlDialog.scrollTop = 0;
+			this.overlayDialog.show();
 		},
 
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 

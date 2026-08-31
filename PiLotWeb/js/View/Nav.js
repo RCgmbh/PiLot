@@ -1842,8 +1842,8 @@ PiLot.View.Nav = (function () {
 
 	/** The form used to configure the anchor watch, and to activate/deactivate it */
 	var AnchorWatchForm = function () {
-		this.control = null;			// HTMLElement representing the entire control
-		this.pnlDialog = null;			// HTMLElement representing the actual dialog
+		this.control = null;			
+		this.overlayDialog = null;			// PiLot.View.Common.OverlayDialog
 		this.tbRadius = null;
 		this.btnActivate = null;
 		this.btnCancel = null;
@@ -1857,16 +1857,6 @@ PiLot.View.Nav = (function () {
 
 		initialize: function () {
 			this.draw();
-		},
-
-		/** handles clicks on the dark background by closing the dialog */
-		pnlOverlay_click: function () {
-			this.hide();
-		},
-
-		/** makes sure that clicks are not bubbled to the background, which would close the window */
-		pnlDialog_click: function (pEvent) {
-			pEvent.stopPropagation();
 		},
 
 		tbRadius_keyup: function (pEvent) {
@@ -1905,22 +1895,18 @@ PiLot.View.Nav = (function () {
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.anchorWatchForm);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
-			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
-			this.pnlDialog = this.control.querySelector('.pnlDialog');
-			this.pnlDialog.addEventListener('click', this.pnlDialog_click.bind(this));
-			this.tbRadius = this.pnlDialog.querySelector('.tbRadius');
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
+			this.tbRadius = this.control.querySelector('.tbRadius');
 			this.tbRadius.addEventListener('keyup', this.tbRadius_keyup.bind(this));
 			this.control.querySelector('.lnkRadiusMinus').addEventListener('click', this.lnkRadiusMinus_click.bind(this));
 			this.control.querySelector('.lnkRadiusPlus').addEventListener('click', this.lnkRadiusPlus_click.bind(this));
-			this.btnActivate = this.pnlDialog.querySelector('.btnActivate');
+			this.btnActivate = this.control.querySelector('.btnActivate');
 			this.btnActivate.addEventListener('click', this.btnActivate_click.bind(this));
-			this.btnCancel = this.pnlDialog.querySelector('.btnCancel');
+			this.btnCancel = this.control.querySelector('.btnCancel');
 			this.btnCancel.addEventListener('click', this.btnCancel_click.bind(this));
-			this.btnDeactivate = this.pnlDialog.querySelector('.btnDeactivate');
+			this.btnDeactivate = this.control.querySelector('.btnDeactivate');
 			this.btnDeactivate.addEventListener('click', this.btnDeactivate_click.bind(this));
-			this.btnClose = this.pnlDialog.querySelector('.btnClose');
+			this.btnClose = this.control.querySelector('.btnClose');
 			this.btnClose.addEventListener('click', this.btnClose_click.bind(this));
 		},
 
@@ -1953,15 +1939,13 @@ PiLot.View.Nav = (function () {
 
 		/** Shows the control */
 		show: function () {
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
-			this.pnlDialog.scrollTop = 0;
+			this.overlayDialog.show();
+			
 		},
 
 		/** Hides the entire control */
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 
@@ -1977,6 +1961,7 @@ PiLot.View.Nav = (function () {
 		this.boatTime = null;			// PiLot.Model.Common.BoatTime to calculate ETA
 		this.poi = null;				// PiLot.Model.Nav.Poi
 		this.control = null;			// HTMLElement representing the entire control
+		this.overlayDialog = null;		// PiLot.View.Common.OverlayDialog
 		this.pnlDialog = null;			// HTMLElement representing the actual dialog
 		this.plhCategoryIcon = null;	// HTMLElement where the icon is inserted
 		this.lblCategoryName = null;	// HTMLSpanElement showing the category name
@@ -2023,16 +2008,6 @@ PiLot.View.Nav = (function () {
 			this.hideGpsData();
 		},
 
-		/** handles clicks on the dark background by closing the dialog */
-		pnlOverlay_click: function () {
-			this.hide();
-		},
-
-		/** makes sure that clicks are not bubbled to the background, which would close the window */
-		pnlDialog_click: function (pEvent) {
-			pEvent.stopPropagation();
-		},
-
 		lnkShowLiveData_click: function (pEvent) {
 			pEvent.preventDefault();
 			this.showHideLiveData(true);
@@ -2075,11 +2050,7 @@ PiLot.View.Nav = (function () {
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiDetails);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), null);
-			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
-			this.pnlDialog = this.control.querySelector('.pnlDialog');
-			this.pnlDialog.addEventListener('click', this.pnlDialog_click.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.plhCategoryIcon = this.control.querySelector('.plhCategoryIcon');
 			this.lblCategoryName = this.control.querySelector('.lblCategoryName');
@@ -2213,16 +2184,12 @@ PiLot.View.Nav = (function () {
 
 		/** Shows the control */
 		show: function () {
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
-			this.pnlDialog.scrollTop = 0;
+			this.overlayDialog.show();
 		},
 
 		/** Hides the entire control */
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.hideGpsData();
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 
@@ -2258,6 +2225,7 @@ PiLot.View.Nav = (function () {
 		this.mapPois = pMapPois;
 		this.container = pContainer;
 		this.control = null;
+		this.overlayDialog = null;				// PiLot.View.Common.OverlayDialog
 		this.lblTitleAddPoi = null;
 		this.lblTitleEditPoi = null;
 		this.tbTitle = null;
@@ -2320,9 +2288,8 @@ PiLot.View.Nav = (function () {
 		drawAsync: async function () {
 			if (!this.container) {
 				this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.editPoiDialog);
-				this.control.querySelector('.pnlDialog').appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm));
-				document.body.insertAdjacentElement('afterbegin', this.control);
-				PiLot.Utils.Common.bindKeyHandlers(this.control, this.btnCancel_click.bind(this), this.btnSave_click.bind(this));
+				this.control.appendChild(PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm));
+				this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
 			} else {
 				this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Nav.poiForm);
 				this.container.appendChild(this.control);
@@ -2459,14 +2426,18 @@ PiLot.View.Nav = (function () {
 
 		/** Shows the control */
 		show: function () {
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
+			if(this.overlayDialog){
+				this.overlayDialog.show();
+			} else {
+				this.control.hidden = false;
+			}
 		},
 
 		/** Hides the entire control */
 		hide: function () {
-			if (!this.container) {
-				document.body.classList.toggle('overflowHidden', false);
+			if(this.overlayDialog){
+				this.overlayDialog.hide();
+			} else {
 				this.control.hidden = true;
 			}
 		}
