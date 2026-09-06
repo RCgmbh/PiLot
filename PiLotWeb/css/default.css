@@ -140,23 +140,15 @@ body.night .dialogPanel { background-color: black; }
 div.hr { display: inline-block; border-top: 0.125em solid #3265AD; height: 0.125em; }
 
 /* INPUTS */
-.input05 { width: 0.50em; }
-.input1 { width: 1.25em; }
 .input2 { width: 2.75em; }
-.input2-5 { width: 3.5em; }
 .input3 { width: 4.25em; }
 .input4 { width: 5.75em; }
-.input5 { width: 7.25em; }
 .input6 { width: 8.75em; }
 .input7 { width: 10.25em; }
 .input8 { width: 11.75em; }
-.input9 { width: 13.25em; }
 .input10 { width: 14.75em; }
-.input11 { width: 16.25em; }
 .input12 { width: 17.75em; }
-.input16 { width: 23.75em; }
-.input18 { width: 26.75em; }
-.input05, .input1, .input2, .input2-5, .input3, .input4, .input5, .input6, .input7, .input8, .input16, .input18 { margin-right: 0.25em; }
+.input2, .input3, .input4, .input6, .input7, .input8 { margin-right: 0.25em; }
 input[type=text], input[type=submit], input[type=button], select, button { height: 1.75em; }
 input[type=radio] { margin-right: 0.5em; }
 input[type=checkbox] { margin-right: 0.5em; }
