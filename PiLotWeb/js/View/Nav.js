@@ -1866,11 +1866,11 @@ PiLot.View.Nav = (function () {
 			}
 		},
 
-		lnkRadiusPlus_click: function (pEvent) {
+		btnRadiusPlus_click: function (pEvent) {
 			this.changeRadius(5);
 		},
 
-		lnkRadiusMinus_click: function (pEvent) {
+		btnRadiusMinus_click: function (pEvent) {
 			this.changeRadius(-5);
 		},
 
@@ -1898,8 +1898,8 @@ PiLot.View.Nav = (function () {
 			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
 			this.tbRadius = this.control.querySelector('.tbRadius');
 			this.tbRadius.addEventListener('keyup', this.tbRadius_keyup.bind(this));
-			this.control.querySelector('.lnkRadiusMinus').addEventListener('click', this.lnkRadiusMinus_click.bind(this));
-			this.control.querySelector('.lnkRadiusPlus').addEventListener('click', this.lnkRadiusPlus_click.bind(this));
+			this.control.querySelector('.btnRadiusMinus').addEventListener('click', this.btnRadiusMinus_click.bind(this));
+			this.control.querySelector('.btnRadiusPlus').addEventListener('click', this.btnRadiusPlus_click.bind(this));
 			this.btnActivate = this.control.querySelector('.btnActivate');
 			this.btnActivate.addEventListener('click', this.btnActivate_click.bind(this));
 			this.btnCancel = this.control.querySelector('.btnCancel');

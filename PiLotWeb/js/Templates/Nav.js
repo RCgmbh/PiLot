@@ -339,8 +339,8 @@ PiLot.Templates.Nav = {
 						<span class="inlineBlock col4" data-text="radius">:</span>
 						<input type="text" class="tbRadius input4" />
 						<div class="flex">
-							<a href="#" class="lnkRadiusMinus inlineBlock center input1 bold">-</a>
-							<a href="#" class="lnkRadiusPlus inlineBlock center input1 bold">+</a>
+							<button class="btnRadiusMinus bold center">-</button>
+							<button class="btnRadiusPlus bold center">+</button>
 						</div>
 					</div>
 				</div>
