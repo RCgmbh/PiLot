@@ -50,9 +50,9 @@ PiLot.Templates.Admin = {
 		<div class="marginBottomSmall" style="display:flex">
 			<div style="min-width:8.5em;">
 				<span class="lblService semiBold"></span><br />
-				<a href="#" class="lnkStart marginRightSmall biggerText" data-title="serviceStart"><i class="icon-play2"></i></a>
-				<a href="#" class="lnkStop marginRightSmall biggerText" data-title="serviceStop"><i class="icon-stop"></i></a>
-				<a href="#" class="lnkRestart biggerText" data-title="serviceRestart"><i class="icon-loop2"></i></a>
+				<button class="btnStart paddingAllSmall linkButton" data-title="serviceStart"><i class="icon-play2"></i></button>
+				<button class="btnStop paddingAllSmall linkButton" data-title="serviceStop"><i class="icon-stop"></i></button>
+				<button class="btnRestart paddingAllSmall linkButton" data-title="serviceRestart"><i class="icon-loop2"></i></button>
 			</div>
 			<div>
 				<span class="lblStatus" data-text="loadingStatus"></span>

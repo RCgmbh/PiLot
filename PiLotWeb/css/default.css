@@ -24,7 +24,8 @@ body.night #statusBar { color: #000; background-color: #3265AD; }
 body.night #clock { color: #ccc; }
 body.night .warning { color: #A53030; }
 body.night .btnDayMode, body.night .btnNightMode { background-color: #eee; }
-body.night a, body.night a:active { color: #4992FF; }
+body.night a, body.night a:active, 
+body.night button.linkButton, body.night button.linkButton:active { color: #4992FF; }
 body.night a.tile { color: #4992FF; }
 body.night a.tile:hover { background-color: #1e2426; }
 body.night .bgLight { background-color: #1e2426; }
@@ -149,7 +150,7 @@ div.hr { display: inline-block; border-top: 0.125em solid #3265AD; height: 0.125
 .input10 { width: 14.75em; }
 .input12 { width: 17.75em; }
 .input2, .input3, .input4, .input6, .input7, .input8 { margin-right: 0.25em; }
-input[type=text], input[type=submit], input[type=button], select, button { height: 1.75em; }
+input[type=text], input[type=submit], input[type=button], select { height: 1.75em; }
 input[type=radio] { margin-right: 0.5em; }
 input[type=checkbox] { margin-right: 0.5em; }
 input[type=checkbox].marginNone { margin-right: 0em; }
@@ -308,21 +309,24 @@ body.night .darkGrey, body.night a.darkGrey, body.night a.darkGrey:hover, body.n
 .silver {color: #d3d3d3;}
 
 /* LINKS, BUTTONS */
-a, a:visited, a:active { color: #3265AD; }
+a, a:visited, a:active, button.linkButton, button.linkButton:active { color: #3265AD; }
 a { text-decoration: none; }
 a.underline { text-decoration: underline; }
-a:hover, a.tile:hover { color: #4992FF; }
+a:hover, a.tile:hover, button.linkButton:hover { color: #4992FF; }
 
 a.lightLink, a.lightLink:active, a.lightLink:visited { color: #EEE; }
 a.darkLink, a.darkLink:active, a.darkLink:visited { color: #222; }
 a.darkLink:hover { color:#000; }
-a.active, a:visited.active, a:active.active, body.night a.active, body.night a:visited.active, body.night a:active.active { color: #FFBF49; }
+a.active, a:visited.active, a:active.active,
+	body.night a.active, body.night a:visited.active, body.night a:active.active,
+	button.linkButton.active, body.night button.linkButton.active { color: #FFBF49; }
 
-button{ min-width: 3.5em; border: 1px solid #222; border-radius: 3px; color: #000; background-color: #eee; text-align: center; transition: background-color 0.2s, color 0.5s}
+button{ min-width: 3.5em; min-height:1.75em; border: 1px solid #222; border-radius: 3px; color: #000; background-color: #eee; text-align: center; transition: background-color 0.2s, color 0.5s}
 button > i { font-size: 1.5em; }
 button.active { color: #FFBF49; }
 button:hover { background-color: #fff; color: #FFC20C; }
 button.narrow { min-width: 1.75em; }
+button.linkButton { border:none; background:none; min-width: unset; text-align: unset; height:unset; }
 
 .buttons { display: flex; flex-wrap: wrap; gap: 1em; }
 .buttons.reverse { flex-direction: row-reverse; }

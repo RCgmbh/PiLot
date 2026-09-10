@@ -264,18 +264,15 @@ PiLot.View.Admin = (function () {
 			this.loadStatusAsync();
 		},
 
-		lnkStart_click: function (pEvent) {
-			pEvent.preventDefault();
+		btnStart_click: function () {
 			this.changeStatusAsync('start');
 		},
 
-		lnkStop_click: function (pEvent) {
-			pEvent.preventDefault();
+		btnStop_click: function () {
 			this.changeStatusAsync('stop');
 		},
 
-		lnkRestart_click: function (pEvent) {
-			pEvent.preventDefault();
+		btnRestart_click: function () {
 			this.changeStatusAsync('restart');
 		},
 
@@ -284,9 +281,9 @@ PiLot.View.Admin = (function () {
 			this.placeholder.appendChild(control);
 			control.querySelector('.lblService').innerText = this.serviceName;
 			this.lblStatus = control.querySelector('.lblStatus');
-			control.querySelector('.lnkStart').addEventListener('click', this.lnkStart_click.bind(this));
-			control.querySelector('.lnkStop').addEventListener('click', this.lnkStop_click.bind(this));
-			control.querySelector('.lnkRestart').addEventListener('click', this.lnkRestart_click.bind(this));
+			control.querySelector('.btnStart').addEventListener('click', this.btnStart_click.bind(this));
+			control.querySelector('.btnStop').addEventListener('click', this.btnStop_click.bind(this));
+			control.querySelector('.btnRestart').addEventListener('click', this.btnRestart_click.bind(this));
 		},
 
 		loadStatusAsync: async function () {
