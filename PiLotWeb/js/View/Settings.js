@@ -190,7 +190,7 @@ PiLot.View.Settings = (function () {
 
 		draw: function(){
 			this.dialog = PiLot.Utils.Common.createNode(PiLot.Templates.Settings.fullscreenDialog);
-			this.overlay = new PiLot.View.Common.OverlayDialog(this.dialog, true);
+			this.overlay = new PiLot.View.Common.OverlayDialog(this.dialog, {static: true});
 			this.dialog.querySelector('.btnYes').addEventListener('click', this.btnYes_click.bind(this));
 			this.dialog.querySelector('.btnNo').addEventListener('click', this.btnNo_click.bind(this));
 		},

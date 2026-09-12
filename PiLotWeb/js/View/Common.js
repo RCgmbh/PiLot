@@ -1320,9 +1320,13 @@ PiLot.View.Common = (function () {
 		}
 	};
 
-	var OverlayDialog = function(pDialog, pIsStatic = false){
+	/**
+	 * @param {Node} pDialog 
+	 * @param {Object} pOptions - object with static: boolean, foreground:boolean 
+	 */
+	var OverlayDialog = function(pDialog, pOptions){
 		this.dialog = pDialog;
-		this.isStatic = pIsStatic;
+		this.options = pOptions;
 		this.observable = null;	
 		this.control = null;
 		this.initialize();
@@ -1333,7 +1337,7 @@ PiLot.View.Common = (function () {
 		initialize: function(){
 			this.observable = new PiLot.Utils.Common.Observable(['show', 'hide']);
 			this.draw();
-			this.applyIsStatic();
+			this.applyOptions();
 		},
 
 		control_click: function(pEvent){
@@ -1363,9 +1367,11 @@ PiLot.View.Common = (function () {
 			this.dialog.addEventListener('click', this.dialog_click.bind(this));
 		},
 
-		applyIsStatic: function(){
-			this.control.classList.toggle('staticOverlay', this.isStatic);
-			this.control.classList.toggle('overlay', !this.isStatic);			
+		applyOptions: function(){
+			const isStatic = this.options && this.options.static;
+			this.control.classList.toggle('staticOverlay', !!isStatic);
+			this.control.classList.toggle('overlay', !isStatic);
+			this.control.classList.toggle('foreground', !!(this.options && this.options.foreground));
 		},
 
 		show: function(pPars){
@@ -1448,7 +1454,7 @@ PiLot.View.Common.ServiceErrorIcon = {
 		this.control.addEventListener('click', this.control_click.bind(this));
 		this.icoError = this.control.querySelector('.icoError');
 		this.errorDialog = PiLot.Utils.Common.createNode(PiLot.Templates.Common.serviceErrorsDialog);
-		this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.errorDialog, true);
+		this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.errorDialog, {static: true});
 		this.errorDialog.querySelector('.lnkCloseDialog').addEventListener('click', this.icoCloseDialog_click.bind(this));
 		this.plhErrors = this.errorDialog.querySelector('.plhErrors');
 		this.pnlTemplate = this.errorDialog.querySelector('.pnlTemplate');

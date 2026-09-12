@@ -326,7 +326,7 @@ button > i { font-size: 1.5em; }
 button.active { color: #FFBF49; }
 button:hover { background-color: #fff; color: #FFC20C; }
 button.narrow { min-width: 1.75em; }
-button.linkButton { border:none; background:none; min-width: unset; text-align: unset; height:unset; }
+button.linkButton { border:none; background:none; min-width: unset; text-align: unset; height:unset; cursor:pointer }
 
 .buttons { display: flex; flex-wrap: wrap; gap: 1em; }
 .buttons.reverse { flex-direction: row-reverse; }

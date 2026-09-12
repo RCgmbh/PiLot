@@ -56,14 +56,26 @@ PiLot.View.Map = (function () {
 		this.maxZoom = 17; // default maxZoom
 		this.maxNativeZoom = 17; // default maxNativeZoom
 		this.attribution = '<a href="http://openstreetmap.com" target="_blank">OSM</a> | <a href="http://openseamap.org" target="_blank">OpenSeaMap</a>';
+		this.observable = null;				
 		this.initialize();
 	};
 
 	Seamap.prototype = {
 
 		initialize: function () {
+			this.observable = new PiLot.Utils.Common.Observable(['closeDialog']);
 			this.addSettingsContainer();
 			this.addMapLayersIcon();
+		},
+
+		/**
+		 * registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent - 'closeDialog'
+		 * @param {Object} pObserver
+		 * @param {Function} pFunction
+		 * */
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		icoMapLayers_click: function (e) {
@@ -73,6 +85,10 @@ PiLot.View.Map = (function () {
 
 		mapLayerSettings_applySettings: function () {
 			this.showHideMapLayersAsync();
+		},
+
+		mapLayerSettings_close: function () {
+			this.observable.fire('closeDialog', this);
 		},
 
 		/** adds the sliding settings menu and attaches the expand/collapse script */
@@ -90,6 +106,7 @@ PiLot.View.Map = (function () {
 			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
 			this.mapLayersSettings = new MapLayersSettings();
 			this.mapLayersSettings.on('applySettings', this, this.mapLayerSettings_applySettings.bind(this));
+			this.mapLayersSettings.on('close', this, this.mapLayerSettings_close.bind(this));
 		},
 
 		/** switches between expanded and collapsed state of the settings container */
@@ -477,7 +494,7 @@ PiLot.View.Map = (function () {
 	MapLayersSettings.prototype = {
 
 		initialize: function () {
-			this.observable = new PiLot.Utils.Common.Observable(['applySettings']);
+			this.observable = new PiLot.Utils.Common.Observable(['applySettings', 'close']);
 			this.ensureFeaturesAsync();
 		},
 
@@ -539,6 +556,10 @@ PiLot.View.Map = (function () {
 			this.hide();
 		},
 
+		overlayDialog_hide: function(){
+			this.observable.fire('close', this);
+		},
+
 		/** @returns {Object} {tileSourceNames: String[], showPois: Boolean, categoryIds: Number[], featureIds: Number[]} */
 		getSettingsAsync: async function () {
 			if (this.currentSettings == null) {
@@ -557,7 +578,8 @@ PiLot.View.Map = (function () {
 		drawAsync: async function () {
 			await this.loadSettingsAsync();
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
-			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control),
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control, {foreground:true}),
+			this.overlayDialog.on('hide', this, this.overlayDialog_hide.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.currentSettings.showPois;
 			this.cbShowPois.addEventListener('change', this.cbShowPois_change.bind(this));
