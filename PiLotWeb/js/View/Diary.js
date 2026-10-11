@@ -1479,8 +1479,9 @@ PiLot.View.Diary = (function () {
 				this.showLogbook(this.targetData.data.logbookDay, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
 				this.showThumbnails(this.targetData.data.photoInfos, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 				this.cbSelectPhotos.setState(2);
-				this.applyCbPhotosState();
 				this.applyCbTrackState(this.targetData.data.tracks);
+				this.applyCbDiaryState();
+				this.applyCbPhotosState();
 			} else {
 				alert(this.targetData.messages);
 			}
@@ -1570,6 +1571,10 @@ PiLot.View.Diary = (function () {
 
 		applyCbTrackState: function(pTracks){
 			this.cbPublishTrack.checked = pTracks.length === 0;
+		},
+
+		applyCbDiaryState: function(){
+			this.cbPublishDiary.checked = this.divLocalDiaryText.innerText.length !== this.divTargetDiaryText.innerText.length;
 		},
 
 		setCbPhotosState: function () {
