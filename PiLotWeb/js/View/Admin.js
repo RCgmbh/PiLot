@@ -405,6 +405,7 @@ PiLot.View.Admin = (function () {
 
 	/** An icon showing the current wifi state */
 	var WiFiIcon = function () {
+		this.fetching = false;
 		this.wifiService = null;
 		this.icoWiFiInternet = null;
 		this.icoWiFiConnected = null;
@@ -445,9 +446,13 @@ PiLot.View.Admin = (function () {
 		},
 
 		showWiFiStatusAsync: async function () {
-			const wifiStatus = await this.wifiService.getOverallStatusAsync();
-			this.icoWiFiInternet.hidden = !wifiStatus || !wifiStatus.internetAccess;
-			this.icoWiFiConnected.hidden = !wifiStatus || !wifiStatus.connected || wifiStatus.internetAccess;
+			if(!this.fetching){
+				this.fetching = true;
+				const wifiStatus = await this.wifiService.getOverallStatusAsync();
+				this.icoWiFiInternet.hidden = !wifiStatus || !wifiStatus.internetAccess;
+				this.icoWiFiConnected.hidden = !wifiStatus || !wifiStatus.connected || wifiStatus.internetAccess;
+				this.fetching = false;
+			}			
 		},
 
 		startUpdateInterval: function () {
