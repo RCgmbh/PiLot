@@ -1583,13 +1583,12 @@ PiLot.View.Tools = (function () {
 		 */
 		getExistingPoisAsync: async function (pPoi) {
 			const latLng = pPoi.getLatLng();
+			this.poiService.setFilters([pPoi.getCategory().getId()], [])
 			const pois = await this.poiService.findPoisAsync(
 				latLng.lat - 0.0001,
 				latLng.lng - 0.0001,
 				latLng.lat + 0.0001,
-				latLng.lng + 0.0001,
-				[pPoi.getCategory().getId()],
-				[]
+				latLng.lng + 0.0001				
 			);
 			return pois;
 		},

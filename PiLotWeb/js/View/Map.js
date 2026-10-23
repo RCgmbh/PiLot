@@ -828,6 +828,7 @@ PiLot.View.Map = (function () {
 	var MapPois = function (pSeamap, pSettingsControl) {
 		this.seamap = pSeamap;
 		this.settingsControl = pSettingsControl;
+		this.poiService = null;						// PiLot.Service.Nav.PoiService
 		this.pois = null;							// map with key=poi.id and value={poi, marker}
 		this.categoryIcons = null;					// map with key=category.id and value=icon html
 		this.poiDetailControl = null;				// PiLot.View.Nav.PoiDetails
@@ -845,6 +846,8 @@ PiLot.View.Map = (function () {
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 			this.settingsControl.on('applySettings', this, this.settings_applySettings.bind(this));
 			this.addContextPopupLink();
+			this.poiService = new PiLot.Service.Nav.PoiService();
+			await this.applyFiltersAsync();
 			await this.loadPoisAsync();
 		},
 
@@ -864,9 +867,10 @@ PiLot.View.Map = (function () {
 			}
 		},
 
-		settings_applySettings: function (pSender) {
+		settings_applySettings: async function (pSender) {
 			this.clearPois();
-			this.loadPoisAsync();
+			await this.applyFiltersAsync();
+			await this.loadPoisAsync();
 		},
 
 		poiMarker_click: async function(pPoi){
@@ -905,22 +909,19 @@ PiLot.View.Map = (function () {
 			this.resizeMarkers([obj]);
 		},
 
+		applyFiltersAsync: async function(){
+			const settings = await this.settingsControl.getSettingsAsync();
+			this.poiService.setFilters(settings.categoryIds, settings.featureIds)
+		},
+
 		/**
-		 * Loads the pois based on the current settings and shows them on the map. We add some buffer
-		 * around the actual map bounds, so that pois outside of the actual viewport are loaded as well.
+		 * Loads the pois based on the current settings and shows them on the map. 
 		 * */
 		loadPoisAsync: async function () {
 			const settings = await this.settingsControl.getSettingsAsync();
 			await this.ensureCategoryIconsAsync();
 			if (settings.showPois && (this.seamap.getCurrentZoom() >= settings.poisMinZoomLevel)) {
-				const bounds = this.seamap.getLeafletMap().getBounds();
-				const minPoint = bounds.getSouthWest();
-				const maxPoint = bounds.getNorthEast();
-				const minLat = Math.max(minPoint.lat, -90);
-				const minLng = Math.max(minPoint.lng, -180);
-				const maxLat = Math.min(maxPoint.lat, 90);
-				const maxLng = Math.min(maxPoint.lng, 180);
-				const pois = await PiLot.Service.Nav.PoiService.getInstance().findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
+				const pois = await this.poiService.findPoisAsync(this.seamap.getLeafletMap().getBounds());
 				const newPois = [];
 				pois.forEach(function (p) {
 					const objPoi = this.drawMarker(p, false, false);
