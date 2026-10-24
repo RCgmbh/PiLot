@@ -65,7 +65,7 @@ PiLot.Service.Nav = (function () {
 			const result = [];
 			const categories = this.categoriesFilter.join(',');
 			const features = this.featuresFilter.join(',');
-			const url = `/Pois?minLat=${pBounds.getSouth()}&minLon=${pBounds.getWest()}&maxLat=${pBounds.getNorth()}&maxLon=${pBounds.getEast()}&categories=${categories}&features=${features}`;
+			const url = `/Pois?south=${pBounds.getSouth()}&west=${pBounds.getWest()}&north=${pBounds.getNorth()}&east=${pBounds.getEast()}&categories=${categories}&features=${features}`;
 			await this.ensureCategoriesLoadedAsync();
 			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			if (Array.isArray(json)) {

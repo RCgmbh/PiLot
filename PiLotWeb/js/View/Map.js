@@ -63,14 +63,14 @@ PiLot.View.Map = (function () {
 	Seamap.prototype = {
 
 		initialize: function () {
-			this.observable = new PiLot.Utils.Common.Observable(['closeDialog']);
+			this.observable = new PiLot.Utils.Common.Observable(['closeDialog', 'wrap']);
 			this.addSettingsContainer();
 			this.addMapLayersIcon();
 		},
 
 		/**
 		 * registers an observer which will be called when pEvent happens 
-		 * @param {String} pEvent - 'closeDialog'
+		 * @param {String} pEvent - 'closeDialog', 'wrap'
 		 * @param {Object} pObserver
 		 * @param {Function} pFunction
 		 * */
@@ -295,6 +295,7 @@ PiLot.View.Map = (function () {
 			const lng = this.leafletMap.getCenter().lng;
 			if (Math.abs(lng) > 180) {
 				this.setView(center.wrap(), null);
+				this.observable.fire('wrap', this);
 			}
 		},
 
@@ -841,6 +842,7 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			this.pois = new Map();
+			this.seamap.on('wrap', this, this.seamap_wrap.bind(this));
 			this.seamap.getLeafletMap().on('movestart', this.leafletMap_movestart.bind(this));
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
@@ -871,6 +873,10 @@ PiLot.View.Map = (function () {
 			this.clearPois();
 			await this.applyFiltersAsync();
 			await this.loadPoisAsync();
+		},
+
+		seamap_wrap: function(){
+			this.clearPois();
 		},
 
 		poiMarker_click: async function(pPoi){
@@ -962,7 +968,10 @@ PiLot.View.Map = (function () {
 				const icon = L.divIcon({
 					className: `poiMarker ${pPoi.getRootCategory().getName()}`, iconSize: [null, null], html: iconHtml
 				});
-				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true, zIndexOffset: 1000 });
+				const marker = L.marker(
+					this.adjustMapCoordinates(pPoi.getLatLng()),
+					{ icon: icon, draggable: pSetDraggable, autoPan: true, zIndexOffset: 1000 }
+				);
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
 				if (pSetDraggable) {
@@ -972,6 +981,18 @@ PiLot.View.Map = (function () {
 				this.pois.set(pPoi.getId(), result);
 			} else {
 				result = this.pois.get(pPoi.getId());
+			}
+			return result;
+		},
+
+		adjustMapCoordinates: function(pLatLng){
+			const result = L.latLng(pLatLng.lat, pLatLng.lng);
+			let lng = pLatLng.wrap().lng;
+			const bounds = this.seamap.getLeafletMap().getBounds();
+			if(bounds.getWest() < -180 && lng > 0){
+				result.lng -= 360;
+			} else if (bounds.getEast() > 180 && lng < 0){
+				result.lng += 360;
 			}
 			return result;
 		},

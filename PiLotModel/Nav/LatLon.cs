@@ -12,7 +12,32 @@ namespace PiLot.Model.Nav {
 
 		public const Double RADIUS = 6371000; // earth radius in meters
 
+		private double? latitude;
 		private double? longitude;
+
+		/// <summary>
+		/// Makes sure a longitude is between -180 and 180. Null remains null.
+		/// Does so by e.g. setting 190 to -170
+		/// </summary>
+		public static Double? SanitizeLongitude(Double? pLongitude){
+			Double? result = null;
+			if (pLongitude != null){
+				result = (pLongitude.Value + 540) % 360 - 180;
+			}
+			return result;
+		}
+
+		/// <summary>
+		/// Makes sure a latitude is between -90 and 90. Null remains null.
+		/// Does so by just ignoring any amound below -90 or above 90
+		/// </summary>
+		public static Double? SanitizeLatitude(Double? pLatitude){
+			Double? result = null;
+			if (pLatitude != null){
+				result = Math.Max(Math.Min(pLatitude.Value, 90), -90);
+			}
+			return result;
+		}
 
 		/// <summary>
 		/// Default constructor for deserialization
@@ -27,10 +52,16 @@ namespace PiLot.Model.Nav {
 		}
 
 		/// <summary>
-		/// Gets or sets the latitude in degrees. Allowed values are -90 to 90
+		/// Gets or sets the latitude in degrees. Will sanitize any value
+		/// Any values are accepted, but will min/maxed to -90 .. 90
 		/// </summary>
 		[JsonPropertyName("latitude")]
-		public Double? Latitude { get; set; }
+		public Double? Latitude { 
+			get { return this.latitude; }
+			set {
+				this.latitude = LatLon.SanitizeLatitude(value);
+			}
+		}
 
 		/// <summary>
 		/// The longitude in degrees. Any values are accepted, but will translate to -180 .. 180
@@ -39,7 +70,7 @@ namespace PiLot.Model.Nav {
 		public Double? Longitude {
 			get { return this.longitude; }
 			set {
-				this.longitude = (value + 180) % 360 - 180;
+				this.longitude = LatLon.SanitizeLongitude(value);
 			}
 		}
 

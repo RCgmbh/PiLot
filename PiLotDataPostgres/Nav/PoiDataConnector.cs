@@ -43,21 +43,19 @@ namespace PiLot.Data.Postgres.Nav
 		/// The result is a list of Object-arrays, directly as it is returned by the postgresql function.
 		/// Not all attributes are read, in order to keep the resulting data as slim as possible.
 		/// </summary>
-		/// <param name="pMinLat">Minimal latitude, degrees WGS84</param>
-		/// <param name="pMinLon">Minimal longitude, degrees WGS84</param>
-		/// <param name="pMaxLat">Maximal latitude, degrees WGS84</param>
-		/// <param name="pMaxLon">Maximal lontitude, degrees WGS84</param>
+		/// <param name="pSouthWest">SouthWest of bounding rectangle</param>
+		/// <param name="pNorthEast">NorthEast of bounding rectangle</param>
 		/// <param name="pCategories">Array of category ids</param>
 		/// <param name="pFeatures">Array of feature ids</param>
 		/// <returns>List of Obect[] with id, title, category_id, feature_ids, lat, lon, valid from, valid to, source, sourceId</returns>
-		public List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures) {
+		public List<Object[]> FindPois(LatLon pSouthWest, LatLon pNorthEast, Int32[] pCategories, Int32[] pFeatures) {
 			Logger.Log("PoiDataConnector.FindPois", LogLevels.DEBUG);
-			String query = "SELECT * FROM find_pois(@min_lat, @min_lng, @max_lat, @max_lng, @categories, @features);";
+			String query = "SELECT * FROM find_pois(@p_south, @p_west, @p_north, @p_east, @categories, @features);";
 			List<(String, Object)> pars = new List<(String, Object)>();
-			pars.Add(("@min_lat", pMinLat));
-			pars.Add(("@min_lng", pMinLon));
-			pars.Add(("@max_lat", pMaxLat));
-			pars.Add(("@max_lng", pMaxLon));
+			pars.Add(("@p_south", pSouthWest.Latitude));
+			pars.Add(("@p_west", pSouthWest.Longitude));
+			pars.Add(("@p_north", pNorthEast.Latitude));
+			pars.Add(("@p_east", pNorthEast.Longitude));
 			pars.Add(("@categories", pCategories));
 			pars.Add(("@features", pFeatures));
 			return this.dbHelper.ReadData<Object[]>(query, new Func<NpgsqlDataReader, Object[]>(this.dbHelper.ReadObjects), pars);

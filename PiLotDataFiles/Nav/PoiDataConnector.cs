@@ -63,22 +63,21 @@ namespace PiLot.Data.Files {
 		/// feature_ids (In32 []), latitude (Double), longitude (Double), valid_from (timestamp String),
 		/// valid_to (timestamp String), source (String), source_id (String)
 		/// Not all attributes are read, in order to keep the resulting data as slim as possible.
+		/// This will not work properly around the antimeridian.
 		/// </summary>
-		/// <param name="pMinLat">Minimal latitude, degrees WGS84</param>
-		/// <param name="pMinLon">Minimal longitude, degrees WGS84</param>
-		/// <param name="pMaxLat">Maximal latitude, degrees WGS84</param>
-		/// <param name="pMaxLon">Maximal lontitude, degrees WGS84</param>
+		/// <param name="pSouthWest">SouthWest of bounding rectangle</param>
+		/// <param name="pNorthEast">NorthEast of bounding rectangle</param>
 		/// <param name="pCategories">Array of category ids</param>
 		/// <param name="pFeatures">Array of feature ids</param>
 		/// <returns>List of Obect[] with id, title, category_id, feature_ids, lat, lon, valid from, valid to, source, sourceId</returns>
-		public List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures) {
+		public List<Object[]> FindPois(LatLon pSouthWest, LatLon pNorthEast, Int32[] pCategories, Int32[] pFeatures) {
 			List<Poi> pois = this.ReadPois();
 			return pois
 			.Where(p =>
-				   p.Latitude >= pMinLat
-				&& p.Latitude <= pMaxLat
-				&& p.Longitude >= pMinLon
-				&& p.Longitude <= pMaxLon
+				   p.Latitude >= pSouthWest.Latitude
+				&& p.Latitude <= pNorthEast.Latitude
+				&& p.Longitude >= pSouthWest.Longitude
+				&& p.Longitude <= pNorthEast.Longitude
 				&& pCategories.Contains(p.CategoryID)
 				&& pFeatures.All(f => p.FeatureIDs.Contains(f))
 			)
