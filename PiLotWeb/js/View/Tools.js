@@ -127,7 +127,8 @@ PiLot.View.Tools = (function () {
 		 * @param {RC.Controls.Calendar} pCalendar
 		 * @param {HTMLElement} pTimeField
 		 */
-		lnkTimeFromMap_click: function (pCalendar, pTimeField) {
+		lnkTimeFromMap_click: function (pCalendar, pTimeField, pEvent) {
+			pEvent.preventDefault();
 			let position = this.mapTrack.getHistoricPosition();
 			if (position) {
 				let date = RC.Date.DateHelper.millisToLuxon(position.getBoatTime());
@@ -192,7 +193,7 @@ PiLot.View.Tools = (function () {
 		},		
 
 		rbImportFormat_Change: function (pEvent) {
-			this.ImportMode = pEvent.target.value;
+			this.importMode = pEvent.target.value;
 		},
 		
 		btnImportPreview_click: function () {
@@ -377,12 +378,14 @@ PiLot.View.Tools = (function () {
 				case 'TCX':
 					processImportDataResult = PiLot.Model.Nav.Track.fromTCX(this.tbImport.value, utcOffset, this.ddlImportBoats.value);
 					break;
+				case 'GPX':
+					processImportDataResult = PiLot.Model.Nav.Track.fromGPX(this.tbImport.value, utcOffset, this.ddlImportBoats.value);
 			}
 			if (processImportDataResult.success) {
 				this.track = processImportDataResult.track;
 				this.mapTrack.setTracks([this.track]);
 			} else {
-				alert(trackFrprocessImportDataResultomTCXResult.message);
+				alert(processImportDataResult.message);
 			}
 			return processImportDataResult;
 		},
@@ -449,7 +452,8 @@ PiLot.View.Tools = (function () {
 		},
 
 		/** Swaps visibility of the two settings items */
-		lnkSettings_click: function () {
+		lnkSettings_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.pnlSample.hidden = !this.pnlSample.hidden;
 			this.pnlUnit.hidden = !this.pnlUnit.hidden;
 		},
@@ -901,7 +905,7 @@ PiLot.View.Tools = (function () {
 		this.pnlLinkCandidates = null;
 		this.plhLinkCandidates = null;
 		this.pnlNoLinkCandidates = null;
-		this.observable = null;						// Map for observable pattern
+		this.observable = null;	
 		this.initialize();
 	};
 
@@ -929,15 +933,18 @@ PiLot.View.Tools = (function () {
 			this.observable.fire('select', this.osmPoi.getId());
 		},
 
-		lnkEdit_click: function () {
+		lnkEdit_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showEditDialogAsync();
 		},
 
-		lnkImport_click: function () {
+		lnkImport_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showEditDialogAsync();
 		},
 
-		lnkLink_click: function () {
+		lnkLink_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showLinkCandidates();
 		},
 
@@ -1263,7 +1270,7 @@ PiLot.View.Tools = (function () {
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Tools.osmPoiEditDialog);
-			document.body.insertAdjacentElement('afterbegin', this.control);
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
 			this.poiForm = new PiLot.View.Nav.PoiForm(this.mapPois, this.control.querySelector('.pnlPoiForm'));
 			this.poiForm.on('save', this, this.poiForm_save.bind(this));
 			this.poiForm.on('cancel', this, this.poiForm_cancel.bind(this));
@@ -1283,14 +1290,11 @@ PiLot.View.Tools = (function () {
 		},
 
 		show: function () {
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
-			this.pnlDialog.scrollTop = 0;
+			this.overlayDialog.show();
 		},
 
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 
@@ -1579,13 +1583,12 @@ PiLot.View.Tools = (function () {
 		 */
 		getExistingPoisAsync: async function (pPoi) {
 			const latLng = pPoi.getLatLng();
+			this.poiService.setFilters([pPoi.getCategory().getId()], [])
 			const pois = await this.poiService.findPoisAsync(
 				latLng.lat - 0.0001,
 				latLng.lng - 0.0001,
 				latLng.lat + 0.0001,
-				latLng.lng + 0.0001,
-				[pPoi.getCategory().getId()],
-				[]
+				latLng.lng + 0.0001				
 			);
 			return pois;
 		},
@@ -2438,12 +2441,10 @@ PiLot.View.Tools = (function () {
 		},
 
 		btnSave_click: function(pEvent){
-			pEvent.preventDefault();
 			this.saveChecklistAsync();
 		},
 
 		btnCancel_click: function(pEvent){
-			pEvent.preventDefault();
 			this.observable.fire('cancel', this.checklist);
 		},
 

@@ -73,11 +73,13 @@ PiLot.View.Meteo = (function () {
 			await this.loadAllDataAsync(true);
 		},
 
-		lnkPrevious_click: function () {
+		lnkPrevious_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.moveTimeFrameAsync(-1);
 		},
 
-		lnkNext_click: function () {
+		lnkNext_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.moveTimeFrameAsync(1);
 		},
 

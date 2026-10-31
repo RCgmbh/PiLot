@@ -68,8 +68,9 @@ PiLot.Templates.Tools = {
 				</div>
 				<h3><a class="lnkImport" data-text="import"></a></h3>
 				<div class="divImport" hidden>
-					<label><input type="radio" name="importFormat" class="rbImportFormat" />CSV</label>
-					<label><input type="radio" name="importFormat" class="rbImportFormat" />TCX</label>
+					<label><input type="radio" name="importFormat" value="CSV" class="rbImportFormat" />CSV</label>
+					<label><input type="radio" name="importFormat" value="TCX" class="rbImportFormat" />TCX</label>
+					<label><input type="radio" name="importFormat" value="GPX" class="rbImportFormat" />GPX</label>
 					<textarea class="fullWidth big tbImport marginBottomSmall" style="max-height: 20em; overflow:auto; border:1px solid #666"></textarea>
 					<div class="fullWidth marginBottom">
 						<span data-text="utcOffset" class="marginRightSmall"></span><input type="text" class="tbImportUtcOffset input2 marginRight" />
@@ -224,11 +225,9 @@ PiLot.Templates.Tools = {
 	osmMapMarkerIcon: '<i class="icon-cloud-download"></i>',
 
 	osmPoiEditDialog: `
-		<div class="pnlOverlay vCenter overlay" hidden>
-			<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap">
-				<div class="pnlPoiForm"></div>
-				<div class="pnlOsmPoiForm"></div>
-			</div>
+		<div class="pnlDialog editOsmPoi dialogPanel hCenter flexRowWrap">
+			<div class="pnlPoiForm"></div>
+			<div class="pnlOsmPoiForm"></div>
 		</div>
 	`,
 
@@ -356,8 +355,8 @@ PiLot.Templates.Tools = {
 			<div class="plhItems flexColumn"></div>
 			<div class="marginBottom"><a href="#" class="lnkAddItem"><i class="icon-plus"></i></a></div>
 			<div class="buttons reverse">
-				<a href="#" class="btnSave linkButton semiBold" data-text="save"></a>
-				<a href="#" class="btnCancel linkButton" data-text="cancel"></a>
+				<button class="btnSave semiBold" data-text="save"></button>
+				<button class="btnCancel" data-text="cancel"></button>
 			</div>
 		</div>
 	`

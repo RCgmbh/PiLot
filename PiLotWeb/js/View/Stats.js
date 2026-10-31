@@ -340,15 +340,22 @@ PiLot.View.Stats = (function () {
 			const template = PiLot.Templates.Stats.totalDistanceChartTooltip;
 			const boatName =  this.getBoatDisplayName(pData.seriesName);
 			const distance = this.roundDistance(pData.data[pData.seriesIndex + 1]);
-			const unit = PiLot.Utils.Language.getText(this.userSettings.unit);
+			let unitText;
+			switch(this.userSettings.unit){
+				case 'nautical':
+					unitText = PiLot.Utils.Language.getText('nm');
+					break;
+				case 'metric':
+					unitText = PiLot.Utils.Language.getText('km');
+					break;
+			}
 			const dateString = this.dateLabelFunction(Number(pData.name));
 			return (template
 				.replace('{boat}', boatName)
 				.replace('{date}', dateString)
 				.replace('{distance}', distance)
-				.replace('{unit}', unit)
+				.replace('{unit}', unitText)
 			);
-			
 		},
 
 		/** Rounds a distance to two decimal places */
@@ -815,9 +822,11 @@ PiLot.View.Stats = (function () {
 		this.pnlSettings = null;
 		this.timeframeSelector = null;				// PiLot.View.Stats.TimeframeSelector
 		this.boatSelector = null;					// PiLot.View.Stats.BoatSelector
+		this.ddlRegion = null;
 		this.unitSelector = null;					// PiLot.View.Stats.UnitSelector
 		this.boatsLegend = null;					// PiLot.View.Stats.BoatsLegend
 		this.pnlNoData = null;
+		this.pnlLoading = null;
 		this.pnlData = null;
 		this.sortHeaders = null;					// List of all headers of sortable columns
 		this.plhTracks = null;
@@ -858,7 +867,13 @@ PiLot.View.Stats = (function () {
 			this.userSettings.boats = this.boatSelector.getSelectedBoats();
 			this.saveUserSettings();
 			this.loadAndShowDataAsync();
-		},		
+		},	
+		
+		ddlRegion_change: function(){
+			this.userSettings.region = this.ddlRegion.value;
+			this.saveUserSettings();
+			this.loadAndShowDataAsync();
+		},
 
 		unitSelector_change: function (pValue) {
 			this.userSettings.unit = pValue;
@@ -898,11 +913,13 @@ PiLot.View.Stats = (function () {
 			this.timeframeSelector.on('change', this, this.timeframeSelector_change.bind(this));
 			this.boatSelector = new BoatSelector(control.querySelector('.plhBoats'));
 			this.boatSelector.on('change', this, this.boatSelector_change.bind(this));
-			this.boatSelector.fillBoatsListAsync().then(() => this.applyUserSettings());
+			this.ddlRegion = control.querySelector('.ddlRegion');
+			this.ddlRegion.addEventListener('change', this.ddlRegion_change.bind(this));
 			this.unitSelector = new UnitSelector(control.querySelector('.plhUnit'));
 			this.unitSelector.on('change', this, this.unitSelector_change.bind(this));
 			this.boatsLegend = new BoatsLegend(control.querySelector('.plhLegend'));
 			this.pnlNoData = control.querySelector('.pnlNoData');
+			this.icoLoading = control.querySelector('.icoLoading');
 			this.pnlData = control.querySelector('.pnlData');
 			this.sortHeaders = control.querySelector('.pnlHeader').querySelectorAll('[data-sort]');
 			for(let aHeader of this.sortHeaders){
@@ -918,6 +935,10 @@ PiLot.View.Stats = (function () {
 			this.lblAverageSpeed = control.querySelector('.lblAverageSpeed');
 			this.lblAverageSpeedUnit = control.querySelector('.lblAverageSpeedUnit');
 			control.querySelector('.btnShowOnMap').addEventListener('click', this.btnShowOnMap_click.bind(this));
+			Promise.all([
+				this.boatSelector.fillBoatsListAsync(),
+				this.fillRegionsAsync()
+			]).then(()=> this.applyUserSettings());			
 		},
 
 		setDefaultValues: function () {
@@ -925,6 +946,7 @@ PiLot.View.Stats = (function () {
 			this.userSettings.timeframe.start = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.start);
 			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
 			this.userSettings.boats = this.userSettings.boats || [];
+			this.userSettings.region = this.userSettings.region || null;
 			this.userSettings.unit = this.userSettings.unit || 'nautical';	
 			this.userSettings.sortBy = this.userSettings.sortBy || 'date';
 			this.userSettings.sortDirection = this.userSettings.sortDirection || -1;
@@ -934,6 +956,7 @@ PiLot.View.Stats = (function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.boatSelector.setSelectedBoats(this.userSettings.boats);
 			this.timeframeSelector.setValues(this.userSettings.timeframe);
+			this.ddlRegion.value = this.userSettings.region;
 			this.unitSelector.setUnit(this.userSettings.unit);
 		},
 
@@ -941,11 +964,18 @@ PiLot.View.Stats = (function () {
 			PiLot.Utils.Common.saveUserSetting(this.userSettingsName, this.userSettings);
 		},
 
+		fillRegionsAsync: async function(){
+			const regions = await new PiLot.Service.Nav.RegionService().loadRegionsAsync();
+			const regionNames = regions.map((r) => [r.id, r.name]);
+			RC.Utils.fillDropdown(this.ddlRegion, regionNames, '');			
+		},
+
 		loadAndShowDataAsync: async function(){
 			const start = this.userSettings.timeframe.start ? this.userSettings.timeframe.start.toMillis() : null;
 			const end = this.userSettings.timeframe.end ? this.userSettings.timeframe.end.toMillis() : null;
+			this.icoLoading.hidden = false;
 			const results = await Promise.all([
-				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats),
+				this.trackService.loadTracksStatisticsAsync(start, end, true, this.userSettings.boats, this.userSettings.region),
 				PiLot.Service.Boat.BoatConfigService.getInstance().getBoatConfigsAsync(),
 				this.trackService.getTrackSegmentTypesAsync()
 			
@@ -954,6 +984,7 @@ PiLot.View.Stats = (function () {
 			this.allBoats = results[1];
 			this.allTrackSegmentTypes = results[2];
 			this.sortTracks();
+			this.icoLoading.hidden = true;
 			this.showTracks();
 		},
 
@@ -1108,6 +1139,7 @@ PiLot.View.Stats = (function () {
 
 		this.cancelLoadTracks = false;
 		this.control = null;
+		this.overlayDialog = null;
 		this.lblLoadingTracks = null;
 		this.pnlMap = null;
 		this.map = null;					// PiLot.View.Map.Seamap
@@ -1127,9 +1159,18 @@ PiLot.View.Stats = (function () {
 			this.hide();
 		},
 
+		overlayDialog_hide: function(){
+			this.cancelLoadTracks = true;
+		},
+
+		map_closeDialog: function(){
+			this.overlayDialog.show();
+		},
+
 		draw: function(){
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Stats.tracksMap);
-			document.body.insertAdjacentElement('afterbegin', this.control);
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
+			this.overlayDialog.on('hide', this, this.overlayDialog_hide.bind(this));
 			this.pnlMap = this.control.querySelector('.pnlMap');
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.lblLoadingTracks = this.control.querySelector('.lblLoadingTracks');
@@ -1139,6 +1180,7 @@ PiLot.View.Stats = (function () {
 			if(this.map === null){
 				const options = {};
 				this.map = new PiLot.View.Map.Seamap(this.pnlMap, options);
+				this.map.on('closeDialog', this, this.map_closeDialog.bind(this));
 				await this.map.showAsync();
 				this.mapTrack = new PiLot.View.Map.MapTrack(this.map, true);
 			}
@@ -1163,14 +1205,11 @@ PiLot.View.Stats = (function () {
 		},
 
 		show: function(){
-			this.control.hidden = false;
-			document.body.classList.toggle('overflowHidden', true);
+			this.overlayDialog.show();
 		},
 
 		hide: function(){
-			this.cancelLoadTracks = true;
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 
 	};

@@ -7,7 +7,7 @@ namespace PiLot.Data.Nav {
 
     public interface IPoiDataConnector {
 
-        List<Object[]> FindPois(Double pMinLat, Double pMinLon, Double pMaxLat, Double pMaxLon, Int32[] pCategories, Int32[] pFeatures);
+        List<Object[]> FindPois(LatLon pSouthWest, LatLon pNorthEast, Int32[] pCategories, Int32[] pFeatures);
 
         List<Poi> ReadPois();
 

@@ -56,14 +56,26 @@ PiLot.View.Map = (function () {
 		this.maxZoom = 17; // default maxZoom
 		this.maxNativeZoom = 17; // default maxNativeZoom
 		this.attribution = '<a href="http://openstreetmap.com" target="_blank">OSM</a> | <a href="http://openseamap.org" target="_blank">OpenSeaMap</a>';
+		this.observable = null;				
 		this.initialize();
 	};
 
 	Seamap.prototype = {
 
 		initialize: function () {
+			this.observable = new PiLot.Utils.Common.Observable(['closeDialog', 'wrap']);
 			this.addSettingsContainer();
 			this.addMapLayersIcon();
+		},
+
+		/**
+		 * registers an observer which will be called when pEvent happens 
+		 * @param {String} pEvent - 'closeDialog', 'wrap'
+		 * @param {Object} pObserver
+		 * @param {Function} pFunction
+		 * */
+		on: function(pEvent, pObserver, pFunction){
+			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
 		icoMapLayers_click: function (e) {
@@ -73,6 +85,10 @@ PiLot.View.Map = (function () {
 
 		mapLayerSettings_applySettings: function () {
 			this.showHideMapLayersAsync();
+		},
+
+		mapLayerSettings_close: function () {
+			this.observable.fire('closeDialog', this);
 		},
 
 		/** adds the sliding settings menu and attaches the expand/collapse script */
@@ -90,10 +106,12 @@ PiLot.View.Map = (function () {
 			this.icoMapLayers.addEventListener('click', this.icoMapLayers_click.bind(this));
 			this.mapLayersSettings = new MapLayersSettings();
 			this.mapLayersSettings.on('applySettings', this, this.mapLayerSettings_applySettings.bind(this));
+			this.mapLayersSettings.on('close', this, this.mapLayerSettings_close.bind(this));
 		},
 
 		/** switches between expanded and collapsed state of the settings container */
-		toggleSettingsContainer: function () {
+		toggleSettingsContainer: function (pEvent) {
+			pEvent.preventDefault();
 			this.settingsContainer.classList.toggle('expanded');
 		},
 
@@ -277,6 +295,7 @@ PiLot.View.Map = (function () {
 			const lng = this.leafletMap.getCenter().lng;
 			if (Math.abs(lng) > 180) {
 				this.setView(center.wrap(), null);
+				this.observable.fire('wrap', this);
 			}
 		},
 
@@ -465,6 +484,7 @@ PiLot.View.Map = (function () {
 		this.categoryCheckboxes = null;		// Map with key = category, value = {checkbox: HTMLInputControl, control: HTMLElement, selectedChildren: number};
 		this.allFeatures = null;			// Map, as it comes from the service (key: id, value: feature)
 		this.control = null;				// HTMLElement - the outermost element
+		this.overlayDialog = null;			// PiLot.View.Common.OverlayDialog
 		this.cbShowPois = null;				// HTMLInputElement
 		this.ddlPoisMinZoomLevel = null;	//HTMLSelectElement
 		this.featuresSelector = null;		// PiLot.View.Nav.PoiFeaturesSelector
@@ -475,7 +495,7 @@ PiLot.View.Map = (function () {
 	MapLayersSettings.prototype = {
 
 		initialize: function () {
-			this.observable = new PiLot.Utils.Common.Observable(['applySettings']);
+			this.observable = new PiLot.Utils.Common.Observable(['applySettings', 'close']);
 			this.ensureFeaturesAsync();
 		},
 
@@ -487,16 +507,6 @@ PiLot.View.Map = (function () {
 		 * */
 		on: function(pEvent, pObserver, pFunction){
 			this.observable.addObserver(pEvent, pObserver, pFunction);
-		},
-
-		/** handles clicks on the dark background by closing the dialog */
-		pnlOverlay_click: function () {
-			this.hide();
-		},
-
-		/** makes sure that clicks are not bubbled to the background, which would close the window */
-		pnlDialog_click: function (pEvent) {
-			pEvent.stopPropagation();
 		},
 
 		/**
@@ -540,13 +550,15 @@ PiLot.View.Map = (function () {
 		},
 
 		btnApply_click: function (e) {
-			e.preventDefault();
 			this.apply();
 		},
 
 		btnCancel_click: function (e) {
-			e.preventDefault();
 			this.hide();
+		},
+
+		overlayDialog_hide: function(){
+			this.observable.fire('close', this);
 		},
 
 		/** @returns {Object} {tileSourceNames: String[], showPois: Boolean, categoryIds: Number[], featureIds: Number[]} */
@@ -567,10 +579,8 @@ PiLot.View.Map = (function () {
 		drawAsync: async function () {
 			await this.loadSettingsAsync();
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Map.mapLayersSettings);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.apply.bind(this));
-			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
-			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control, {foreground:true}),
+			this.overlayDialog.on('hide', this, this.overlayDialog_hide.bind(this));
 			this.cbShowPois = this.control.querySelector('.cbShowPois');
 			this.cbShowPois.checked = this.currentSettings.showPois;
 			this.cbShowPois.addEventListener('change', this.cbShowPois_change.bind(this));
@@ -802,14 +812,12 @@ PiLot.View.Map = (function () {
 			if (!this.control) {
 				await this.drawAsync();
 			}
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
+			this.overlayDialog.show();
 		},
 
 		/** Hides the entire control */
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 
@@ -821,6 +829,7 @@ PiLot.View.Map = (function () {
 	var MapPois = function (pSeamap, pSettingsControl) {
 		this.seamap = pSeamap;
 		this.settingsControl = pSettingsControl;
+		this.poiService = null;						// PiLot.Service.Nav.PoiService
 		this.pois = null;							// map with key=poi.id and value={poi, marker}
 		this.categoryIcons = null;					// map with key=category.id and value=icon html
 		this.poiDetailControl = null;				// PiLot.View.Nav.PoiDetails
@@ -833,11 +842,14 @@ PiLot.View.Map = (function () {
 
 		initializeAsync: async function () {
 			this.pois = new Map();
+			this.seamap.on('wrap', this, this.seamap_wrap.bind(this));
 			this.seamap.getLeafletMap().on('movestart', this.leafletMap_movestart.bind(this));
 			this.seamap.getLeafletMap().on('moveend', this.leafletMap_moveend.bind(this));
 			this.seamap.getLeafletMap().on('zoomend', this.leafletMap_zoomend.bind(this));
 			this.settingsControl.on('applySettings', this, this.settings_applySettings.bind(this));
 			this.addContextPopupLink();
+			this.poiService = new PiLot.Service.Nav.PoiService();
+			await this.applyFiltersAsync();
 			await this.loadPoisAsync();
 		},
 
@@ -857,9 +869,14 @@ PiLot.View.Map = (function () {
 			}
 		},
 
-		settings_applySettings: function (pSender) {
+		settings_applySettings: async function (pSender) {
 			this.clearPois();
-			this.loadPoisAsync();
+			await this.applyFiltersAsync();
+			await this.loadPoisAsync();
+		},
+
+		seamap_wrap: function(){
+			this.clearPois();
 		},
 
 		poiMarker_click: async function(pPoi){
@@ -898,22 +915,19 @@ PiLot.View.Map = (function () {
 			this.resizeMarkers([obj]);
 		},
 
+		applyFiltersAsync: async function(){
+			const settings = await this.settingsControl.getSettingsAsync();
+			this.poiService.setFilters(settings.categoryIds, settings.featureIds)
+		},
+
 		/**
-		 * Loads the pois based on the current settings and shows them on the map. We add some buffer
-		 * around the actual map bounds, so that pois outside of the actual viewport are loaded as well.
+		 * Loads the pois based on the current settings and shows them on the map. 
 		 * */
 		loadPoisAsync: async function () {
 			const settings = await this.settingsControl.getSettingsAsync();
 			await this.ensureCategoryIconsAsync();
 			if (settings.showPois && (this.seamap.getCurrentZoom() >= settings.poisMinZoomLevel)) {
-				const bounds = this.seamap.getLeafletMap().getBounds();
-				const minPoint = bounds.getSouthWest();
-				const maxPoint = bounds.getNorthEast();
-				const minLat = Math.max(minPoint.lat, -90);
-				const minLng = Math.max(minPoint.lng, -180);
-				const maxLat = Math.min(maxPoint.lat, 90);
-				const maxLng = Math.min(maxPoint.lng, 180);
-				const pois = await PiLot.Service.Nav.PoiService.getInstance().findPoisAsync(minLat, minLng, maxLat, maxLng, settings.categoryIds, settings.featureIds);
+				const pois = await this.poiService.findPoisAsync(this.seamap.getLeafletMap().getBounds());
 				const newPois = [];
 				pois.forEach(function (p) {
 					const objPoi = this.drawMarker(p, false, false);
@@ -954,7 +968,10 @@ PiLot.View.Map = (function () {
 				const icon = L.divIcon({
 					className: `poiMarker ${pPoi.getRootCategory().getName()}`, iconSize: [null, null], html: iconHtml
 				});
-				const marker = L.marker(pPoi.getLatLng(), { icon: icon, draggable: pSetDraggable, autoPan: true, zIndexOffset: 1000 });
+				const marker = L.marker(
+					this.adjustMapCoordinates(pPoi.getLatLng()),
+					{ icon: icon, draggable: pSetDraggable, autoPan: true, zIndexOffset: 1000 }
+				);
 				marker.addTo(this.seamap.getLeafletMap());
 				marker.on('click', this.poiMarker_click.bind(this, pPoi));
 				if (pSetDraggable) {
@@ -964,6 +981,18 @@ PiLot.View.Map = (function () {
 				this.pois.set(pPoi.getId(), result);
 			} else {
 				result = this.pois.get(pPoi.getId());
+			}
+			return result;
+		},
+
+		adjustMapCoordinates: function(pLatLng){
+			const result = L.latLng(pLatLng.lat, pLatLng.lng);
+			let lng = pLatLng.wrap().lng;
+			const bounds = this.seamap.getLeafletMap().getBounds();
+			if(bounds.getWest() < -180 && lng > 0){
+				result.lng -= 360;
+			} else if (bounds.getEast() > 180 && lng < 0){
+				result.lng += 360;
 			}
 			return result;
 		},
@@ -1034,9 +1063,7 @@ PiLot.View.Map = (function () {
 		this.map = pMap;
 		this.includeTimeSlider = pIncludeTimeSlider;
 		this.tracks = null;
-		//this.timeScaleFactor = 1;
 		this.trackPointsIndex = null;
-		//this.maxTimeSteps = 1000;
 		this.historicPosition = null;  // TrackPoint
 		this.trackObserver = null;
 		this.enableLiveUpdate = false;
@@ -1088,24 +1115,10 @@ PiLot.View.Map = (function () {
 		},
 
 		/**
-		 * Handles sliding the slider. Finds the position on any of the tracks and 
-		 * if there is one, makes sure it is drawn / moved on the map.
+		 * Handles sliding the slider. Sets the historic position based on the 
+		 * trackPointsIndex corresponding to the slider value
 		 * */
 		timeSlider_slide: function () {
-			/*this.historicPosition = null;
-			const index = this.timeSlider.value * this.timeScaleFactor;
-			let counter = 0;
-			for (let aTrack of this.tracks) {
-				if (index < aTrack.getTrackPointsCount() + counter) {
-					this.historicPosition = aTrack.getTrackPointAt(index - counter);
-					break;
-				} else {
-					counter += aTrack.getTrackPointsCount();
-				}
-			}
-			if (this.historicPosition !== null) {
-				this.drawHistoricPosition();
-			}*/
 			this.historicPosition = this.trackPointsIndex[this.timeSlider.value];
 			this.drawHistoricPosition();
 		},
@@ -1120,22 +1133,12 @@ PiLot.View.Map = (function () {
 		},
 
 		/**
-		 * This makes sure we have a time scale factor which allows to distribute 
-		 * the whole visible track to the slider
-		 * */
-		/*updateTimeScale: function () {
-			if ((this.tracks.length > 0) && this.timeSlider) {
-				let trackPointsCount = 0;
-				for (let aTrack of this.tracks) {
-					trackPointsCount += aTrack.getTrackPointsCount();
-				}
-				this.timeScaleFactor = Math.ceil(trackPointsCount / this.maxTimeSteps);
-				this.timeSlider.setAttribute("max", Math.ceil(trackPointsCount / this.timeScaleFactor) - 1);
-			}
-		},*/
-
+		 * Creates an array of trackPoints that correspond to each value of the
+		 * slider. The array is build so that equal distance on the slider 
+		 * corresponds to equal time, ignoring time between tracks.
+		 */
 		createTrackPointsIndex: function () {
-			if(this.tracks.length > 0){
+			if(this.tracks.length > 0 && this.timeSliderContainer){
 				this.trackPointsIndex = [];
 				const samples = this.timeSliderContainer.clientWidth / 2;
 				let totalDuration = 0;
@@ -1150,6 +1153,11 @@ PiLot.View.Map = (function () {
 			}			
 		},
 
+		/**
+		 * Creates the index for one track
+		 * @param {PiLot.Model.Nav.Track} pTrack 
+		 * @param {Number} pInterval - the target interval (in ms) between two trackpoints in the index
+		 */
 		createTrackSamples: function(pTrack, pInterval){
 			if(pTrack.getTrackPointsCount() > 1){
 				let trackPoint, nextTrackPoint;
@@ -1197,6 +1205,7 @@ PiLot.View.Map = (function () {
 
 		/**
 		 * Adds a track and shows it on the map. All tracks that were added before will be kept.
+		 * Please make sure to call refreshSlider() once all tracks have been added.
 		 * @param {PiLot.Model.Nav.Track} pTrack
 		 * @param {Boolean} pSortTracks - allows to not sort the tracks. Make sure to call sortTracks() later in that case!
 		 * */
@@ -1210,6 +1219,10 @@ PiLot.View.Map = (function () {
 			}
 		},
 
+		/**
+		 * Updates the slider so that its timescale matches the tracks. Call this
+		 * after adding tracks manually.
+		 */
 		refreshSlider: function(){
 			this.showTimeSlider(true);
 			this.createTrackPointsIndex();
@@ -1222,7 +1235,6 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The TrackPoint that was added
 		 */
 		addTrackPosition: function (pTrack, pTrackPoint) {
-			//this.updateTimeScale();
 			this.createTrackPointsIndex();
 			const polyline = this.polylines.get(pTrack);
 			if (polyline) {
@@ -1238,7 +1250,6 @@ PiLot.View.Map = (function () {
 		 * @param {PiLot.Model.Nav.TrackPoint} pTrackPoint - The position that was updated
 		 */
 		changeLastTrackPosition: function (pTrack, pTrackPoint) {
-			//this.updateTimeScale();
 			this.createTrackPointsIndex();
 			const polyline = this.polylines.get(pTrack);
 			if (polyline) {
@@ -1476,7 +1487,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/** Handles click onto the show track button, showing or hiding the tracks */
-		lnkShowTrack_click: function () {
+		lnkShowTrack_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showTrack = !this.showTrack;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showTrack', this.showTrack);
 			this.lnkShowTrack.classList.toggle('active', this.showTrack);
@@ -1753,7 +1765,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click on the autoCenter link
-		lnkOptionAutoCenter_click: function () {
+		lnkOptionAutoCenter_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.autoCenter = !this.autoCenter;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.autoCenterPosition', this.autoCenter);
 			this.lnkOptionAutoCenter.classList.toggle('active', this.autoCenter);
@@ -1761,7 +1774,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click on the cogVector option link
-		lnkOptionCOGVector_click: function () {
+		lnkOptionCOGVector_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.cogVectorVisible = !this.cogVectorVisible;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.cogVectorVisible', this.cogVectorVisible);
 			this.lnkOptionCOGVector.classList.toggle('active', this.cogVectorVisible);
@@ -1839,7 +1853,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click to the "show route" button, shows or removes the route
-		lnkOptionShowRoute_click: function () {
+		lnkOptionShowRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.showRoute = !this.showRoute;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.showRoute', this.showRoute);
 			this.lnkOptionShowRoute.classList.toggle('active', this.showRoute);
@@ -1853,7 +1868,8 @@ PiLot.View.Map = (function () {
 		},
 
 		/// handles the click to the "lock route" button
-		lnkOptionLockRoute_click: function () {
+		lnkOptionLockRoute_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.lockRoute = !this.lockRoute;
 			PiLot.Utils.Common.saveUserSetting('PiLot.View.Map.lockRoute', this.lockRoute);
 			this.lnkOptionLockRoute.classList.toggle('active', this.lockRoute);
@@ -2361,7 +2377,8 @@ PiLot.View.Map = (function () {
 		 * Handles clicks on the Anchor Watch icon in the menu. The anchor position will
 		 * be set to the map center, the radius will be set to the default value.
 		 * */
-		lnkOptionAnchorWatch_click: function () {
+		lnkOptionAnchorWatch_click: function (pEvent) {
+			pEvent.preventDefault();
 			if (!this.anchorWatch) {
 				const center = this.seamap.getLeafletMap().getCenter();
 				this.prepareAnchorWatch(center.lat, center.lng, MapAnchorWatch.defaultRadius);

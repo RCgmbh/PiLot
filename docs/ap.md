@@ -44,7 +44,7 @@ Now, run the script as superuser, so enter
 ``` 
 sudo sh 01-install-ap.sh
 ```
-As soon as the script has been executed, should see the "pilot" (or whatever you named it) wireless network from you phone, tablet or computer. And when connected to it (using the wpa_passphrase you defined), the device should be able to access the PiLot's internet connection. Scroll to the end of the page and continue.
+As soon as the script has been executed, should see the "pilot" (or whatever you named it) wireless network from you phone, tablet or computer. And when connected to it (using the password you defined), the device should be able to access the PiLot's internet connection. Scroll to the end of the page and continue.
 
 ### Manual setup
 If you don't want to use the script, or the script did not work, you can set up the access point manually, following these steps.
@@ -65,7 +65,7 @@ It's time for a sudo reboot now! After the reboot, you should see the "pilot" (o
 We do some more stuff, not knowing if they are necessary, but networking tends to be a bit shaky, so this might help (they might go into the installer script one day...):
 - run `sudo nmtui` then go to > Edit a connection > preconfigured > Edit > For Device, enter "wlxAdapterName (74:da:38:f4:df:aa)", of course replacing wlxAdapterName by the name of the network adapter used to connect to the internet, and 74:xxx replaced again by the "ether"-value from above.
 - still in nmtui, edit the hotspot connection, and select "Shared" for the IPv6 configuration.
-- run `sudo nano sudo nano  /etc/sysctl.d/98-rpi.conf` and add these two lines:
+- run `sudo nano  /etc/sysctl.d/98-rpi.conf` and add these two lines:
 ```
 net.ipv4.ip_forward=1
 net.ipv6.conf.all.forwarding=1

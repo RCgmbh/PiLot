@@ -46,8 +46,9 @@ namespace PiLot.Data.Nav {
 		/// <param name="pEnd">End of the period in ms since epoc</param>
 		/// <param name="pIsBoatTime">True, to treat start/end as Boattime, false for UTC</param>
 		/// <param name="pBoats">list of boats, null or empty returns all boats</param>
+		/// <param name="pRegion">list of Points forming a polygon whithin which to search</param>
 		/// <returns>A list of tracks with silver/gold segments, can be empty, but not null</returns>
-		List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats);
+		List<Track> ReadTracksStatistics(Int64? pStart, Int64? pEnd, Boolean pIsBoatTime, String[] pBoats, List<LatLon> pRegion);
 
 		/// <summary>
 		/// Reads for each day of a month whether there is a track.

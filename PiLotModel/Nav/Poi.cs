@@ -8,6 +8,9 @@ namespace PiLot.Model.Nav {
 	/// </summary>
 	public class Poi {
 
+		private double? latitude;
+		private double? longitude;
+
 		[JsonPropertyName("id")]
 		public Int64? ID { get; set; }
 		
@@ -26,11 +29,27 @@ namespace PiLot.Model.Nav {
 		[JsonPropertyName("properties")]
 		public Object Properties { get; set; }
 
+		/// <summary>
+		/// Gets or sets the latitude in degrees. Any values are accepted, but will min/max to -90 .. 90
+		/// </summary>
 		[JsonPropertyName("latitude")]
-		public Double Latitude { get; set; }
+		public Double? Latitude { 
+			get { return this.latitude; }
+			set {
+				this.latitude = LatLon.SanitizeLatitude(value);
+			}
+		}
 
+		/// <summary>
+		/// The longitude in degrees. Any values are accepted, but will translate to -180 .. 180
+		/// </summary>
 		[JsonPropertyName("longitude")]
-		public Double Longitude { get; set; }
+		public Double? Longitude {
+			get { return this.longitude; }
+			set {
+				this.longitude = LatLon.SanitizeLongitude(value);
+			}
+		}
 
 		/// <summary>
 		/// Date in seconds since epoc UTC

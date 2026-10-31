@@ -103,11 +103,18 @@ PiLot.Templates.Stats = {
 						<div class="plhBoats flexColumn"></div>
 					</div>
 					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
+						<span data-text="region" class="bold"></span>
+						<select class="ddlRegion"></select>
+					</div>
+					<div class="flexColumn paddingRight paddingBottom" style="width:12em;">
 						<span data-text="unit" class="bold"></span>
 						<div class="plhUnit"></div>
 					</div>
 				</div>
-				<div class="grow right"><a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a></div>
+				<div class="grow right" style="min-width:3em;">
+					<span class="icoLoading grey marginRight" hidden><i class="icon-hour-glass"></i></span>
+					<a href="#" class="lnkToggleSettings"><i class="icon-cog"></i></a>
+				</div>
 			</div>
 			<div class="pnlNoData fullWidth feedbackInfo" data-text="noData" hidden></div>
 			<div class="pnlData fullWidth">
@@ -177,14 +184,14 @@ PiLot.Templates.Stats = {
 					</div>
 				</div>
 				<div class="buttons paddingAll">
-					<button class="btnShowOnMap linkButton"><i class="icon-map marginRightSmall"></i><span data-text="showOnMap"></span></button>
+					<button class="btnShowOnMap"><i class="icon-map marginRightSmall"></i><span data-text="showOnMap"></span></button>
 				</div>
 			</div>
 		</div>
 	`,
 
 	tracksMap:`
-		<div class="flexColumn overlay" hidden>
+		<div class="flexColumn fullHeight">
 			<div class="flexRowWrap paddingAllSmall bgLight borderBottom">
 				<span class="grow">
 					<span class="lblLoadingTracks" data-text="loadingTracksXofY"></span>

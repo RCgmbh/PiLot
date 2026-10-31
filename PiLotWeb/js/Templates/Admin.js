@@ -50,9 +50,9 @@ PiLot.Templates.Admin = {
 		<div class="marginBottomSmall" style="display:flex">
 			<div style="min-width:8.5em;">
 				<span class="lblService semiBold"></span><br />
-				<a href="#" class="lnkStart marginRightSmall biggerText" data-title="serviceStart"><i class="icon-play2"></i></a>
-				<a href="#" class="lnkStop marginRightSmall biggerText" data-title="serviceStop"><i class="icon-stop"></i></a>
-				<a href="#" class="lnkRestart biggerText" data-title="serviceRestart"><i class="icon-loop2"></i></a>
+				<button class="btnStart paddingAllSmall linkButton" data-title="serviceStart"><i class="icon-play2"></i></button>
+				<button class="btnStop paddingAllSmall linkButton" data-title="serviceStop"><i class="icon-stop"></i></button>
+				<button class="btnRestart paddingAllSmall linkButton" data-title="serviceRestart"><i class="icon-loop2"></i></button>
 			</div>
 			<div>
 				<span class="lblStatus" data-text="loadingStatus"></span>
@@ -88,8 +88,8 @@ PiLot.Templates.Admin = {
 						<span data-text="wifiKey" class="input6 "></span>
 						<input type="text" class="tbWifiKey input12" autocomplete="off" value="" />
 					</div>
-					<a href="#" class="btnCancel linkButton input6" data-text="cancel"></a>
-					<a href="#" class="btnConnect linkButton input6" data-text="wifiConnect"></a>
+					<button class="btnCancel input6" data-text="cancel"></button>
+					<button class="btnConnect input6" data-text="wifiConnect"></button>
 				</div>
 			</div>
 			<div class="plhNetworks marginBottom marginRight" style="max-width: 54em;"></div>

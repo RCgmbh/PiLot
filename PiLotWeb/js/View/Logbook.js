@@ -28,10 +28,8 @@ PiLot.View.Logbook = (function () {
 	LogbookPage.prototype = {
 
 		initializeAsync: async function () {
-			PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync().then(result => {
-				this.boatConfig = result;
-				this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
-			});
+			this.boatConfig = await PiLot.Service.Boat.BoatConfigService.getInstance().loadCurrentConfigAsync();
+			this.boatImageConfig = new PiLot.View.Boat.BoatImageConfig(this.boatConfig);
 			await this.loadLogbookDayAsync();
 			this.draw();
 			this.showLogbookDay();
@@ -42,7 +40,8 @@ PiLot.View.Logbook = (function () {
 		},
 
 		/** Click handler for the add entry link * */
-		lnkAddEntry_click: async function () {
+		lnkAddEntry_click: async function (pEvent) {
+			pEvent.preventDefault();
 			this.showEntryFormAsync(null);
 		},
 
@@ -388,6 +387,7 @@ PiLot.View.Logbook = (function () {
 		
 		// controls: HTMLElement objects
 		this.control = null;				/// the entire control created from the template
+		this.overlayDialog = null;			// PiLot.View.Common.OverlayDialog
 		this.lblTitleAddEntry = null;
 		this.lblTitleEditEntry = null;
 		this.tbTime = null;
@@ -430,31 +430,33 @@ PiLot.View.Logbook = (function () {
 			this.observable.addObserver(pEvent, pObserver, pFunction);
 		},
 
+		overlayDialog_hide: function(){
+			this.observable.fire('hide', this);
+		},
+
 		boatSetupForm_show: function () {
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		},
 
 		boatSetupForm_hide: function () {
-			this.control.hidden = false;
+			this.overlayDialog.show();
 		},
 
 		/** handles clicks on the save button */
 		btnSave_click: async function (e) {
-			e.preventDefault();
 			this.saveAsync();
 		},
 
 		/** handles clicks on the cancel button */
 		btnCancel_click: function (e) {
-			e.preventDefault();
 			this.hide();
 		},
 
 		/** creates the editForm, without displaying an item  */
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Logbook.logbookEntryForm)
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.hide.bind(this), this.saveAsync.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control),
+			this.overlayDialog.on('hide', this, this.overlayDialog_hide.bind(this));
 			this.lblTitleAddEntry = this.control.querySelector('.lblTitleAddEntry');
 			this.lblTitleEditEntry = this.control.querySelector('.lblTitleEditEntry');
 			this.tbTime = this.control.querySelector('.tbTime');
@@ -648,8 +650,7 @@ PiLot.View.Logbook = (function () {
 
 		/** shows the form and sets focus on the first field */
 		showForm: function () {
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
+			this.overlayDialog.show();
 			this.lblTitleAddEntry.hidden = !!this.logbookEntry;
 			this.lblTitleEditEntry.hidden = !this.logbookEntry;
 			this.observable.fire('show', this);
@@ -658,9 +659,7 @@ PiLot.View.Logbook = (function () {
 
 		/** hides the form */
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
-			this.observable.fire('hide', this);
+			this.overlayDialog.hide();
 		},
 
 		/** Reads the input, saves the data and closes the form */

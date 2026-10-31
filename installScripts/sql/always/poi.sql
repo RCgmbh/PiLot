@@ -336,10 +336,10 @@ GRANT EXECUTE ON FUNCTION delete_poi TO pilotweb;
 /*----------- FUNCTION find_pois -------------------------*/
 
 CREATE OR REPLACE FUNCTION find_pois(
-	min_lat double precision,
-	min_lng double precision,
-	max_lat double precision,
-	max_lng double precision,
+	p_south double precision,
+	p_west double precision,
+	p_north double precision,
+	p_east double precision,
 	categories integer[],
 	features integer[]
 ) RETURNS TABLE (
@@ -364,15 +364,38 @@ CREATE OR REPLACE FUNCTION find_pois(
 		valid_from,
 		valid_to,
 		source,
-		source_id
-	FROM all_pois
+		source_id		
+	FROM (
+		SELECT
+			id,
+			title,
+			category_id,
+			coordinates,
+			array_agg(f.feature_id) as feature_ids,
+			ST_Y(coordinates::geometry) AS latitude,
+			ST_X(coordinates::geometry) AS longitude,
+			valid_from,
+			valid_to,
+			source,
+			source_id
+		FROM
+			pois LEFT JOIN poi_features__pois f ON pois.id = f.poi_id
+		GROUP BY pois.id
+	)
 	WHERE
-		latitude >= min_lat
-		AND latitude <= max_lat
-		AND longitude >= min_lng
-		AND longitude <= max_lng
+		(
+			(p_east > p_west)
+			AND ST_Contains(ST_MakeEnvelope(p_west, p_south, p_east, p_north, 4326)::geometry, coordinates::geometry)
+		) OR (
+			(p_east < p_west)
+			AND(
+				ST_Contains(ST_MakeEnvelope(p_west, p_south, 180, p_north, 4326)::geometry, coordinates::geometry)
+				OR ST_Contains(ST_MakeEnvelope(-180, p_south, p_east, p_north, 4326)::geometry, coordinates::geometry)
+			)
+		)
 		AND category_id = ANY (categories)
 		AND features <@ feature_ids
+	;
 $$
 LANGUAGE SQL;
 

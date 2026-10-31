@@ -130,7 +130,7 @@ PiLot.Templates.Diary = {
 				<div class="marginBottom">
 					<label class="col6 inlineBlock" data-text="publishTarget">:</label><select class="ddlPublishTarget input8"></select> <i class="icoWait icon-hour-glass" hidden></i>
 				</div>
-				<div class="pnlJobInfo dialogPanel hCenter marginAll paddingAllSmall hCenter" hidden>
+				<div class="pnlJobInfo dialogPanel hCenter marginAll paddingAllSmall hCenter">
 					<div class="fullWidth right"><a href="#" class="btnClose"><i class="icon-cancel3"></i></a></div>
 					<div class="bold marginBottom" data-text="jobStatus"></div>
 					<div class="marginBottomSmall">
@@ -165,7 +165,6 @@ PiLot.Templates.Diary = {
 						<div class="divLocalDiaryText diaryText"></div>
 						<div style="flex: 0 0 4em;" class="center">
 							<input type="checkbox" class="cbPublishDiary" /><i class="icon-arrow-right"></i><br />
-							<input type="checkbox" class="cbOverwriteDiary" /><i class="icon-trashcan"></i>
 						</div>
 						<div class="divTargetDiaryText diaryText"></div>
 					</div>
@@ -178,7 +177,6 @@ PiLot.Templates.Diary = {
 						<div class="divLocalLogbookEntries logbookEntries"></div>
 						<div style="flex: 0 0 4em;" class="center">
 							<input type="checkbox" class="cbPublishLogbook" /><i class="icon-arrow-right"></i><br />
-							<input type="checkbox" class="cbOverwriteLogbook" /><i class="icon-trashcan"></i>
 						</div>
 						<div class="divTargetLogbookEntries logbookEntries"></div>
 					</div>
@@ -195,8 +193,8 @@ PiLot.Templates.Diary = {
 						<div class="divTargetPhotos photos"></div>
 					</div>
 					<div class="divButton paddingTop center">
-						<a href="#" class="btnPublish block linkButton paddingLeft paddingRight marginRight" data-text="publish"></a>
-						<a href="#" class="btnStatus block linkButton paddingLeft paddingRight" data-text="state"></a>
+						<button class="btnPublish block paddingLeft paddingRight marginRight" data-text="publish"></button>
+						<button class="btnStatus block paddingLeft paddingRight" data-text="state"></button>
 					</div>
 				</div>
 			</div>

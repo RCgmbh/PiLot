@@ -266,6 +266,7 @@ PiLot.View.Boat = (function () {
 		this.boatConfig = pBoatConfig;							// the boat config, containing all features and states
 		this.boatSetup = null;								 	// the current boat setup, a PiLot.Model.Boat.BoatSetup
 		this.control = null;
+		this.overlayDialog = null;								// PiLot.View.Common.OverlayDialog
 		this.plhFeatures = null;								// the placeholder where we will add the selectors
 		this.selectors = null;									// a map with key = featureId, value = dropdown control
 		this.observable = null;									// functions to call when settings change
@@ -292,6 +293,10 @@ PiLot.View.Boat = (function () {
 			this.cancel();			
 		},
 
+		overlayDialog_hide: function(){
+			this.observable.fire('hide', this);
+		},
+
 		/**
 		 * @param {String} pEvent - 'show', 'hide', 'apply'
 		 * @param {Function} pCallback - The method to call 
@@ -307,8 +312,8 @@ PiLot.View.Boat = (function () {
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupForm);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			PiLot.Utils.Common.bindKeyHandlers(this.control, this.cancel.bind(this), this.apply.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
+			this.overlayDialog.on('hide',this, this.overlayDialog_hide.bind(this));
 			this.plhFeatures = this.control.querySelector('.plhFeatures');
 			const btnOk = this.control.querySelector('.btnBoatSetupOk');
 			btnOk.addEventListener('click', this.btnOk_click.bind(this));
@@ -331,17 +336,16 @@ PiLot.View.Boat = (function () {
 		},
 
 		show: function () {
-			this.control.hidden = false;
+			this.observable.fire('show', this);
+			this.overlayDialog.show();
 			const firstSelector = this.plhFeatures.querySelector('select');
 			if (firstSelector) {
 				firstSelector.focus();
 			}
-			this.observable.fire('show', this);
 		},
 
 		hide: function () {
-			this.control.hidden = true;
-			this.observable.fire('hide', this);
+			this.overlayDialog.hide();
 		},
 
 		setBoatConfig: function (pBoatConfig) {
@@ -403,6 +407,7 @@ PiLot.View.Boat = (function () {
 	/** Shows a BoatSetup (image and featureStates) in a read-only way */
 	var BoatSetupDetails = function () {
 		this.control = null;
+		this.overlayDialog = null;
 		this.boatImage = null;
 		this.plhFeatures = null;
 		this.initialize();
@@ -414,16 +419,6 @@ PiLot.View.Boat = (function () {
 			this.draw();
 		},
 
-		/** handles clicks on the dark background by closing the dialog */
-		pnlOverlay_click: function () {
-			this.hide();
-		},
-
-		/** makes sure that clicks are not bubbled to the background, which would close the window */
-		pnlDialog_click: function (pEvent) {
-			pEvent.stopPropagation();
-		},
-
 		lnkClose_click: function (pEvent) {
 			pEvent.preventDefault();
 			this.hide();
@@ -431,9 +426,7 @@ PiLot.View.Boat = (function () {
 
 		draw: function () {
 			this.control = PiLot.Utils.Common.createNode(PiLot.Templates.Boat.boatSetupDetails);
-			document.body.insertAdjacentElement('afterbegin', this.control);
-			this.control.addEventListener('click', this.pnlOverlay_click.bind(this));
-			this.control.querySelector('.pnlDialog').addEventListener('click', this.pnlDialog_click.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.control);
 			this.control.querySelector('.lnkClose').addEventListener('click', this.lnkClose_click.bind(this));
 			this.boatImage = new BoatImageLink(null, this.control.querySelector('.plhImage'), null);
 			this.plhFeatures = this.control.querySelector('.plhFeatures');
@@ -451,13 +444,11 @@ PiLot.View.Boat = (function () {
 				control.querySelector('.lblFeatureState').innerText = feature.getStates().get(pValue).getName();
 				this.plhFeatures.appendChild(control);
 			}.bind(this));
-			document.body.classList.toggle('overflowHidden', true);
-			this.control.hidden = false;
+			this.overlayDialog.show();
 		},
 
 		hide: function () {
-			document.body.classList.toggle('overflowHidden', false);
-			this.control.hidden = true;
+			this.overlayDialog.hide();
 		}
 	};
 

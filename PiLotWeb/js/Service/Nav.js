@@ -18,18 +18,54 @@ PiLot.Service.Nav = (function () {
         
 		initialize: function () {
 			this.externalPoisCache = new Map();
-			this.poisCache = [];
+			this.poisCache = {};
 		},
 
 		/**
-		* Finds Pois for a certain area, categories and features from the server
-		* @returns {PiLot.Model.Nav.Poi[]};
+		* Finds Pois for a certain area. Uses the cache, if the cache contains the required area,
+		* or otherwise loads the data from the server and updates the cache. Categories and features
+		* must be set before using setFilters().
+		* @param {L.LatLngBounds} pBounds
+		* @returns {PiLot.Model.Nav.Poi[]}
 		* */
-		findPoisAsync: async function (pMinLat, pMinLon, pMaxLat, pMaxLon, pCategories, pFeatures) {
+		findPoisAsync: async function (pBounds) {
+			if(!this.poisCache.pois || !this.poisCache.bounds || !this.poisCache.bounds.contains(pBounds)){
+				const bounds = this.addBoundsMargin(pBounds, 0.25);
+				const pois = await this.loadPoisAsync(bounds);
+				this.poisCache.bounds = bounds;
+				this.poisCache.pois = pois;
+			}
+			return this.poisCache.pois;
+		},
+
+		/**
+		 * Adds some margin around a LatLngBounds object and returns the new, enlarged
+		 * LatLngBounds
+		 * @param {L.LatLngBounds} pBounds 
+		 * @param {Number} pFactor, e.g. 0.1 to add 10 % of margin
+		 * @returns {L.LatLngBounds}
+		 */
+		addBoundsMargin: function(pBounds, pFactor){
+			const latMargin = (pBounds.getNorth() - pBounds.getSouth()) * pFactor;
+			const lonMargin = (pBounds.getEast() - pBounds.getWest()) * pFactor;
+			const north = Math.min(pBounds.getNorth() + latMargin, 90);
+			const south = Math.max(pBounds.getSouth() - latMargin, -90);
+			const east = pBounds.getEast() + lonMargin;
+			const west = pBounds.getWest() - lonMargin;
+			const result = L.latLngBounds(L.latLng(south, west), L.latLng(north, east));
+			return result;
+		},
+		 
+		/**
+		 * Loads the pois for a certain region, categories and features from the api
+		 * @param {L.LatLngBounds} pBounds 
+		 * @returns {PiLot.Model.Nav.Poi[]}
+		 */
+		loadPoisAsync: async function(pBounds, pCategories, pFeatures){
 			const result = [];
-			const categories = pCategories.join(',');
-			const features = pFeatures.join(',');
-			const url = `/Pois?minLat=${pMinLat}&minLon=${pMinLon}&maxLat=${pMaxLat}&maxLon=${pMaxLon}&categories=${categories}&features=${features}`;
+			const categories = this.categoriesFilter.join(',');
+			const features = this.featuresFilter.join(',');
+			const url = `/Pois?south=${pBounds.getSouth()}&west=${pBounds.getWest()}&north=${pBounds.getNorth()}&east=${pBounds.getEast()}&categories=${categories}&features=${features}`;
 			await this.ensureCategoriesLoadedAsync();
 			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			if (Array.isArray(json)) {
@@ -43,8 +79,19 @@ PiLot.Service.Nav = (function () {
 			} else {
 				PiLot.log('Did not get an array from Poi endpoint.', 0);
 			}
-			this.poisCache = result;
-			return result;
+			return result;				
+		},
+
+		/**
+		 * Sets the categories- and features-filter. Resets the cache so that pois
+		 * will be reloaded next time		
+		 * @param {Number[]} pCategories - Array of category ids
+		 * @param {Number[]} pFeatures - Array of feature ids
+		 */
+		setFilters: function(pCategories, pFeatures){
+			this.poisCache = {};
+			this.categoriesFilter = pCategories;
+			this.featuresFilter = pFeatures;
 		},
 
 		/**
@@ -293,7 +340,7 @@ PiLot.Service.Nav = (function () {
 
 		/** Returns the list of the most recently loaded pois */
 		getRecentPois: function () {
-			return this.poisCache;
+			return this.poisCache.pois;
 		},
 
 		/**
@@ -378,11 +425,12 @@ PiLot.Service.Nav = (function () {
 		 * @param {Number} pEnd - timeframe end time in milliseconds, can be null
 		 * @param {Boolean} pIsBoatTime - whether start and end is boat time or utc
 		 * @param {String[]} pBoats - the boats to filter, unfiltered if null or empty
+		 * @param {String} pRegion - the region to search, unfiltered if null or empty
 		 * */
-		loadTracksStatisticsAsync: async function (pStart, pEnd, pIsBoatTime, pBoats) {
+		loadTracksStatisticsAsync: async function (pStart, pEnd, pIsBoatTime, pBoats, pRegion) {
 			let result = [];
 			const boatsString = pBoats ? pBoats.join(',') : '';
-			const url = `/Tracks/stats?startTime=${pStart || ''}&endTime=${pEnd || ''}&isBoatTime=${pIsBoatTime}&boats=${boatsString}`
+			const url = `/Tracks/stats?startTime=${pStart || ''}&endTime=${pEnd || ''}&isBoatTime=${pIsBoatTime}&boats=${boatsString}&regionId=${pRegion || ''}`;
 			const json = await PiLot.Service.Common.ServiceHelper.getFromServerAsync(url);
 			for (aTrackData of json) {
 				result.push(PiLot.Model.Nav.Track.fromData(aTrackData));
@@ -828,12 +876,29 @@ PiLot.Service.Nav = (function () {
 		}
 	};
 
+	var RegionService = function(){
+		this.initialize();
+	};
+
+	RegionService.prototype = {
+
+		initialize: function(){},
+		
+		/**
+		 * @returns {Object[]} array of objects with id, name, coordinates
+		 */
+		loadRegionsAsync: async function(){
+			return await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Regions');
+		}
+	};
+
     /// Returning the class and static method definitions
 	return {
 		PoiService: PoiService,
 		TrackService: TrackService,
 		OsmPoiLoader: OsmPoiLoader,
-		AnchorWatchService: AnchorWatchService
+		AnchorWatchService: AnchorWatchService,
+		RegionService: RegionService
 	}
 
 })();

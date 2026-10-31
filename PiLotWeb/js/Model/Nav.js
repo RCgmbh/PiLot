@@ -1969,7 +1969,7 @@ PiLot.Model.Nav = (function () {
 	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to set boatTime
 	 * @param {String} pBoat - the name of the boat
 	 * */
-	Track.fromTCX = function (pTCXString, pUtcOffset) {
+	Track.fromTCX = function (pTCXString, pUtcOffset, pBoat) {
 		const result = { track: new Track(), success: true, message: '' };
 		result.track.setBoat(pBoat);
 		try {
@@ -1991,6 +1991,47 @@ PiLot.Model.Nav = (function () {
 						lon = elementsLon[0].innerHTML;
 						if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
 							result.track.addTrackPoint(new TrackPoint(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
+						}
+					}
+				}
+			}
+		} catch (ex) {
+			result.track = null;
+			result.success = false;
+			result.message = ex;
+		}
+		return result;
+	};
+
+	/**
+	 * Creates a track from a GPX XML String
+	 * @param {String} pGPXString - The xml
+	 * @param {Number} pUtcOffset - a utc offset in hours that will be used to set boatTime
+	 * @param {String} pBoat - the name of the boat
+	 * */
+	Track.fromGPX = function (pGPXString, pUtcOffset, pBoat) {
+		const result = { track: new Track(), success: true, message: '' };
+		result.track.setBoat(pBoat);
+		try {
+			const parser = new DOMParser();
+			const doc = parser.parseFromString(pGPXString, "text/xml");
+			const segments = doc.documentElement.getElementsByTagName('trkseg');
+			let elementsTime;
+			let trackPoint, lat, lon, timeString, utc, boatTime;
+			for(let segment of segments){
+				const trackPoints = segment.getElementsByTagName('trkpt');
+				for(trackPoint of trackPoints){
+					elementsTime = trackPoint.getElementsByTagName("time");
+					if (elementsTime.length === 1) {
+						timeString = elementsTime[0].innerHTML;
+						utc = DateTime.fromISO(timeString, { zone: 'utc' });
+						if (utc) {
+							boatTime = pUtcOffset ? utc.plus({ hours: pUtcOffset }) : utc;
+							lat = trackPoint.getAttribute('lat');
+							lon = trackPoint.getAttribute('lon');
+							if (RC.Utils.isNumeric(lat) && RC.Utils.isNumeric(lon)) {
+								result.track.addTrackPoint(new TrackPoint(utc.toMillis(), boatTime.toMillis(), Number(lat), Number(lon)));
+							}
 						}
 					}
 				}
@@ -2198,6 +2239,7 @@ PiLot.Model.Nav = (function () {
 	var TrackObserver = function (pTrack = null, pGPSObserver = null) {
 		this.track = pTrack;
 		this.gpsObserver = pGPSObserver;
+		this.noData = false;
 		this.trackSeconds = null;
 		this.addPositionThreshold = { seconds: 9.5, meters: 5 };		// the threshold to add new positions to the track
 		this.updatePositionThreshold = { seconds: 0.5, meters: 2 };		// the threshold to update the latest position
@@ -2215,6 +2257,7 @@ PiLot.Model.Nav = (function () {
 			this.ensureTrackAsync().then(()=>{
 				this.gpsObserver = this.gpsObserver || GPSObserver.getInstance();
 				this.gpsObserver.on('recieveGpsData', this, this.gpsObserver_recieveGpsData.bind(this));
+				this.gpsObserver.on('outdatedGpsData', this, this.gpsObserver_outdatedGpsData.bind(this));
 				this.start();
 			});			
 		},
@@ -2260,34 +2303,17 @@ PiLot.Model.Nav = (function () {
 		/// to the latest position is above threshold, a new position
 		/// will be added, otherwise the latest position will be updated
 		gpsObserver_recieveGpsData: async function (pArgs) {
-			await this.ensureTrackAsync(pArgs.trackPoints)
-			if (this.track != null) {
-				for (let i = 0; i < pArgs.trackPoints.length; i++) {
-					if ((pArgs.trackPoints[i].latitude !== null) && (pArgs.trackPoints[i].longitude !== null)) {
-						let deltaTMs = null;
-						if (this.lastPosition !== null && this.lastPosition.utc !== null && pArgs.trackPoints[i].utc !== null) {
-							deltaTMs = pArgs.trackPoints[i].utc - this.lastPosition.utc;
-						}
-						let deltaX = null;
-						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pArgs.trackPoints[i].getLatLon() !== null) {
-							deltaX = pArgs.trackPoints[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
-						}
-						if (
-							(this.lastPosition === null)
-							|| ((deltaTMs > this.addPositionThreshold.seconds * 1000) && (deltaX > this.addPositionThreshold.meters))
-						) {
-							this.track.addTrackPoint(pArgs.trackPoints[i].clone());
-							this.lastPosition = pArgs.trackPoints[i];
-							this.notifyObservers('addTrackPoint', {track:this.track, trackPoint: pArgs.trackPoints[i] });
-						} else {
-							if ((deltaTMs > this.updatePositionThreshold.seconds) && (deltaX > this.updatePositionThreshold.meters)) {
-								this.track.updateLastTrackPoint(pArgs.trackPoints[i].utc, pArgs.trackPoints[i].boatTime, pArgs.trackPoints[i].latitude, pArgs.trackPoints[i].longitude);
-								this.notifyObservers('changeLastTrackPoint', { track:this.track, trackPoint:pArgs.trackPoints[i] });
-							} 
-						}
-					}
-				}
-			} 
+			if(this.noData){
+				this.noData = false;
+				await this.reloadTrackAsync();
+			} else{
+				await this.ensureTrackAsync(pArgs.trackPoints)
+				this.appendTrackPoints(pArgs.traPoints);
+			}			
+		},
+
+		gpsObserver_outdatedGpsData: async function () {
+			this.noData = true;
 		},
 
 		ensureTrackAsync: async function(pTrackPoints = null){
@@ -2295,9 +2321,43 @@ PiLot.Model.Nav = (function () {
 				(this.track === null)
 				|| (pTrackPoints !== null && pTrackPoints.some((tp) => {return (tp.getTrackId() !== null && tp.getTrackId() !== this.track.getId())}))
 			){
-				this.track = await PiLot.Service.Nav.TrackService.getInstance().loadCurrentTrackAsync();
-				this.notifyObservers('loadTrack', { track:this.track });
+				await this.reloadTrackAsync();
 			}
+		},
+
+		reloadTrackAsync: async function(){
+			this.track = await PiLot.Service.Nav.TrackService.getInstance().loadCurrentTrackAsync();
+			this.notifyObservers('loadTrack', { track:this.track });
+		},
+
+		appendTrackPoints: function(pTrackPoints){
+			if (this.track != null) {
+				for (let i = 0; i < pTrackPoints.length; i++) {
+					if ((pTrackPoints[i].latitude !== null) && (pTrackPoints[i].longitude !== null)) {
+						let deltaTMs = null;
+						if (this.lastPosition !== null && this.lastPosition.utc !== null && pTrackPoints[i].utc !== null) {
+							deltaTMs = pTrackPoints[i].utc - this.lastPosition.utc;
+						}
+						let deltaX = null;
+						if (this.lastPosition !== null && this.lastPosition.getLatLon() !== null && pTrackPoints[i].getLatLon() !== null) {
+							deltaX = pTrackPoints[i].getLatLon().distanceTo(this.lastPosition.getLatLon());
+						}
+						if (
+							(this.lastPosition === null)
+							|| ((deltaTMs > this.addPositionThreshold.seconds * 1000) && (deltaX > this.addPositionThreshold.meters))
+						) {
+							this.track.addTrackPoint(pTrackPoints[i].clone());
+							this.lastPosition = pTrackPoints[i];
+							this.notifyObservers('addTrackPoint', {track:this.track, trackPoint: pTrackPoints[i] });
+						} else {
+							if ((deltaTMs > this.updatePositionThreshold.seconds) && (deltaX > this.updatePositionThreshold.meters)) {
+								this.track.updateLastTrackPoint(pTrackPoints[i].utc, pTrackPoints[i].boatTime, pTrackPoints[i].latitude, pTrackPoints[i].longitude);
+								this.notifyObservers('changeLastTrackPoint', { track:this.track, trackPoint:pTrackPoints[i] });
+							} 
+						}
+					}
+				}
+			} 
 		},
 
 		/** @param {Number} pTrackSeconds - the maximal duration in seconds of the track to keep when cropping old positions  */
@@ -2359,6 +2419,7 @@ PiLot.Model.Nav = (function () {
 		const config = PiLot.Config.Nav.GPSObserver;
 		// fields
 		this.interval = null;
+		this.busy = false;
 		this.autoStart = true;
 		this.intervalMs = config.intervalMS;				// the interval for querying the server for data
 		this.calculationRange = config.calculationRange;	// the number of seconds to calculate speed / course
@@ -2453,8 +2514,12 @@ PiLot.Model.Nav = (function () {
 
 		/** reads the position data from the API */
 		fetchDataAsync: async function () {
-			const positions = await this.loadLatestTrackPointsAsync();
-			this.fetchDataSuccess(positions);
+			if(!this.busy){
+				this.busy = true;
+				const positions = await this.loadLatestTrackPointsAsync();
+				this.fetchDataSuccess(positions);
+				this.busy = false;
+			}			
 		},
 
 		/**

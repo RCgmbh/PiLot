@@ -796,6 +796,7 @@ PiLot.View.Diary = (function () {
 			this.lnkEnlargeMap.hidden = pEnlarge;
 			this.lnkMinimizeMap.hidden = !pEnlarge;
 			this.invalidateMap();
+			this.mapTrack.refreshSlider();
 		},
 
 		invalidateMap: function () {
@@ -1060,8 +1061,8 @@ PiLot.View.Diary = (function () {
 				this.changePhoto(0);
 			} else {
 				this.hidePhoto();
-				this.showThumbnails();
 			}
+			this.showThumbnails();
 			this.lblPhotoTotal.innerText = this.imageData.length;
 			this.observable.fire('delete', image.fileName);
 		},
@@ -1350,6 +1351,7 @@ PiLot.View.Diary = (function () {
 		this.localTrackMap = null;			// PiLot.View.Map.Seamap
 		this.targetTrackMap = null;			// PiLot.View.Map.Seamap
 		this.cbSelectPhotos = null;			// not the checkbox itself, but an RC.Controls.TriStateCheckBox!
+		this.overlayDialog = null;
 
 		this.initialize();
 	};
@@ -1381,6 +1383,8 @@ PiLot.View.Diary = (function () {
 			this.ddlPublishTarget.addEventListener('change', this.ddlPublishTarget_select.bind(this));
 			this.pnlJobInfo = pageContent.querySelector('.pnlJobInfo');
 			this.pnlJobInfo.querySelector('.btnClose').addEventListener('click', this.btnCloseJobInfo_click.bind(this));
+			this.overlayDialog = new PiLot.View.Common.OverlayDialog(this.pnlJobInfo),
+			this.overlayDialog.on('hide', this, this.overlayDialog_hide.bind(this));
 			this.pnlPublish = pageContent.querySelector('.pnlPublish');
 			this.lblLocalPositionsCount = this.pnlPublish.querySelector('.lblLocalPositionsCount');
 			this.lblTargetPositionsCount = this.pnlPublish.querySelector('.lblTargetPositionsCount');
@@ -1390,9 +1394,7 @@ PiLot.View.Diary = (function () {
 			this.targetTrack = new PiLot.View.Map.MapTrack(this.targetTrackMap, false);
 			this.cbPublishTrack = this.pnlPublish.querySelector('.cbPublishTrack');
 			this.cbPublishDiary = this.pnlPublish.querySelector('.cbPublishDiary');
-			this.cbOverwriteDiary = this.pnlPublish.querySelector('.cbOverwriteDiary');
 			this.cbPublishLogbook = this.pnlPublish.querySelector('.cbPublishLogbook');
-			this.cbOverwriteLogbook = this.pnlPublish.querySelector('.cbOverwriteLogbook');
 			this.divLocalDiaryText = this.pnlPublish.querySelector('.divLocalDiaryText');
 			this.lblLocalDiaryLength = this.pnlPublish.querySelector('.lblLocalDiaryLength');
 			this.divTargetDiaryText = this.pnlPublish.querySelector('.divTargetDiaryText');
@@ -1420,8 +1422,11 @@ PiLot.View.Diary = (function () {
 		},
 
 		btnCloseJobInfo_click: function () {
+			this.overlayDialog.hide();
+		},
+
+		overlayDialog_hide: function(){
 			this.stopJobStatusInterval();
-			this.pnlJobInfo.hidden = true;
 			this.loadTargetDataAsync();
 		},
 
@@ -1474,6 +1479,8 @@ PiLot.View.Diary = (function () {
 				this.showLogbook(this.targetData.data.logbookDay, this.divTargetDiaryText, this.lblTargetDiaryLength, this.divTargetLogbookEntries, this.lblTargetLogbookEntriesCount)
 				this.showThumbnails(this.targetData.data.photoInfos, this.divTargetPhotos, this.lblTargetPhotosCount, false);
 				this.cbSelectPhotos.setState(2);
+				this.applyCbTrackState(this.targetData.data.tracks);
+				this.applyCbDiaryState();
 				this.applyCbPhotosState();
 			} else {
 				alert(this.targetData.messages);
@@ -1544,21 +1551,30 @@ PiLot.View.Diary = (function () {
 		},
 
 		applyCbPhotosState: function () {
-			const checkboxes = this.divLocalPhotos.querySelectorAll('input[type=checkbox]');
-			checkboxes.forEach(function (cb) {
+			const cblPhotos = this.divLocalPhotos.querySelectorAll('input[type=checkbox]');
+			cblPhotos.forEach(function (cbPhoto) {
 				switch (this.cbSelectPhotos.getState()) {
 					case 0:
-						cb.checked = false;
+						cbPhoto.checked = false;
 						break;
 					case 1:
-						cb.checked = true;
+						cbPhoto.checked = true;
 						break;
 					case 2:
-						const imageName = cb.name;
-						cb.checked = !this.targetData.data.photoInfos.getImageNames().includes(imageName);
+						const imageName = cbPhoto.name;
+						cbPhoto.checked = !this.targetData.data.photoInfos.getImageNames().includes(imageName);
 				}
 				
 			}.bind(this));
+			this.setCbPhotosState();
+		},
+
+		applyCbTrackState: function(pTracks){
+			this.cbPublishTrack.checked = pTracks.length === 0;
+		},
+
+		applyCbDiaryState: function(){
+			this.cbPublishDiary.checked = this.divLocalDiaryText.innerText.length !== this.divTargetDiaryText.innerText.length;
 		},
 
 		setCbPhotosState: function () {
@@ -1587,7 +1603,7 @@ PiLot.View.Diary = (function () {
 		},
 
 		showPublishJob: function () {
-			this.pnlJobInfo.hidden = false;
+			this.overlayDialog.show();
 			this.refreshPublishJobAsync();
 			this.jobStatusInterval = window.setInterval(this.refreshPublishJobAsync.bind(this), 1000);
 		},
@@ -1600,17 +1616,14 @@ PiLot.View.Diary = (function () {
 		publishDataAsync: async function () {
 			const jobStatus = await PiLot.Model.Logbook.loadJobStatusAsync(this.targetName, this.date);
 			if (!jobStatus || jobStatus.isFinished) {
-				const publishTrackMode = this.getPublishMode(this.cbPublishTrack, null);
-				const publishDiaryMode = this.getPublishMode(this.cbPublishDiary, this.cbOverwriteDiary);
-				const publishLogbookMode = this.getPublishMode(this.cbPublishLogbook, this.cbOverwriteLogbook);
 				let publishPhotos = [];
 				for (var cb of this.divLocalPhotos.querySelectorAll('input[type=checkbox]:checked').values()) {
 					publishPhotos.push(cb.name);
 				};
 				const publishSelection = {
-					publishTrackMode: publishTrackMode,
-					publishDiaryMode: publishDiaryMode,
-					publishLogbookMode: publishLogbookMode,
+					publishTrackMode: this.getPublishMode(this.cbPublishTrack),
+					publishDiaryMode: this.getPublishMode(this.cbPublishDiary),
+					publishLogbookMode: this.getPublishMode(this.cbPublishLogbook),
 					publishPhotos: publishPhotos
 				};
 				const publishResult = await PiLot.Model.Logbook.sendPublishJobAsync(this.targetName, this.date, publishSelection);
@@ -1618,18 +1631,12 @@ PiLot.View.Diary = (function () {
 			this.showPublishJob();
 		},
 
-		getPublishMode: function (pCbPublish, pCbOverwrite) {
-			let result;
-			if (pCbPublish.checked) {
-				if (pCbOverwrite && pCbOverwrite.checked) {
-					result = 1;
-				} else {
-					result = 2;
-				}
-			} else {
-				result = 0;
-			}
-			return result;
+		/**
+		 * @param {Checkbox} pCbPublish 
+		 * @returns {Number} 1, if pCbPublish is checeked, else 0
+		 */
+		getPublishMode: function (pCbPublish) {
+			return pCbPublish.checked ? 1 : 0;
 		}
 	};
 

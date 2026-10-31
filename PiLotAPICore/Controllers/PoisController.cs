@@ -20,20 +20,20 @@ namespace PiLot.API.Controllers {
 		/// Gets all pois within a certain area, with a specific category
 		/// and a set of features
 		/// </summary>
-		/// <param name="minLat">Minimal latitude, degrees WGS84</param>
-		/// <param name="minLon">Minimal longitude, degrees WGS84</param>
-		/// <param name="maxLat">Maximal latitude, degrees WGS84</param>
-		/// <param name="maxLon">Maximal lontitude, degrees WGS84</param>
+		/// <param name="south">south of the bounding box, degrees WGS84</param>
+		/// <param name="west">west of the bounding box, degrees WGS84</param>
+		/// <param name="north">north of the bounding box, degrees WGS84</param>
+		/// <param name="west">west of the bounding box, degrees WGS84</param>
 		/// <param name="categories">Array of category ids</param>
 		/// <param name="features">Array of feature ids</param>
 		[HttpGet]
 		[Route(Program.APIROOT + "[controller]")]
 		[ServiceFilter(typeof(ReadAuthorizationFilter))]
 		public List<Object[]> Get(
-			[FromQuery] Double minLat, 
-			[FromQuery] Double minLon,
-			[FromQuery] Double maxLat,
-			[FromQuery] Double maxLon,
+			[FromQuery] Double south, 
+			[FromQuery] Double west,
+			[FromQuery] Double north,
+			[FromQuery] Double east,
 			[FromQuery] String categories,
 			[FromQuery] String features
 		) {
@@ -48,7 +48,9 @@ namespace PiLot.API.Controllers {
 				Logger.Log(ex, "PoisController.Get");
 				throw;
 			}
-			return DataConnectionHelper.PoiDataConnector.FindPois(minLat, minLon, maxLat, maxLon, categoriesInt, featuresInt);
+			LatLon southWest = new LatLon(south, west);
+			LatLon northEast = new LatLon(north, east);
+			return DataConnectionHelper.PoiDataConnector.FindPois(southWest, northEast, categoriesInt, featuresInt);
 		}
 
 		/// <summary>

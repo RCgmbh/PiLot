@@ -9,9 +9,9 @@ using PiLot.Utils.OS;
 namespace PiLot.API.Helpers {
 
 	/// <summary>
-	/// This helps wetting the time recieved with a gps record 
+	/// This helps setting the time recieved with a gps record 
 	/// to the local system time, which is especially useful if
-	/// the system has booted offline and thus has not chance to
+	/// the system has booted offline and thus has no chance to
 	/// set the time correctly. The object is cached, just to
 	/// save the conversion of the config value to an int.
 	/// </summary>
