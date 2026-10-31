@@ -29,6 +29,8 @@ systemctl enable pilotBackupApi
 systemctl start pilotBackupApi
 
 # update nginx config. We assume there is a line "include locations/*;" in the server block of sites-enabled/default
+apt update
+apt upgrade -y
 apt install -y nginx
 mkdir -p /etc/nginx/locations
 cp resources/nginx.pilotbackupapi.conf /etc/nginx/locations/pilotbackupapi

@@ -4,7 +4,8 @@ if [ `whoami` != root ]; then
     echo Please run this script using sudo
     exit
 fi
-
+apt update
+apt upgrade -y
 apt install -y gpsd gpsd-clients gpsd-tools
 
 systemctl stop gpsd.socket

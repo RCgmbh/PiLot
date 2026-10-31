@@ -1,5 +1,7 @@
 #!/bin/sh
 
+apt update
+apt upgrade -y
 apt install -y samba
 mv /etc/samba/smb.conf /etc/samba/smb.bak
 echo \
