@@ -199,12 +199,12 @@ PiLot.View.Stats = (function () {
 		},
 
 		setDefaultValues: function(){
-			this.userSettings.timeframe = (typeof this.userSettings.timeframe == 'object') ? this.userSettings.timeframe : {mode: 0, start: null, end: null };
+			this.userSettings.timeframe = (typeof this.userSettings.timeframe == 'object') ? this.userSettings.timeframe : {mode: 1, start: null, end: null };
 			this.userSettings.timeframe.start = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.start);
 			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
-			this.userSettings.interval = this.userSettings.interval || 0;
+			this.userSettings.interval = this.userSettings.interval || 2;
 			this.userSettings.boats = this.userSettings.boats || [];
-			this.userSettings.unit = this.userSettings.unit || 'nm';
+			this.userSettings.unit = this.userSettings.unit || 'nautical';
 		},
 
 		loadAllBoatsAsync: async function(){
@@ -220,7 +220,7 @@ PiLot.View.Stats = (function () {
 
 		applyUserSettings: function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
-			this.timeframeSelector.setValues(this.userSettings.timeframe);
+			this.userSettings.timeframe = this.timeframeSelector.setValues(this.userSettings.timeframe);
 			this.rblInterval.forEach(function(rb){rb.checked = Number(rb.value) === this.userSettings.interval}.bind(this));
 			this.boatSelector.setSelectedBoats(this.userSettings.boats);
 			this.unitSelector.setUnit(this.userSettings.unit);
@@ -678,11 +678,11 @@ PiLot.View.Stats = (function () {
 
 		setDefaultValues: function () {
 			this.userSettings.segmentType = this.userSettings.segmentType || null;
-			this.userSettings.timeframe = this.userSettings.timeframe || {mode: 0, start: null, end: null };
+			this.userSettings.timeframe = this.userSettings.timeframe || {mode: 1, start: null, end: null };
 			this.userSettings.timeframe.start = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.start);
 			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
 			this.userSettings.boats = this.userSettings.boats || [];
-			this.userSettings.unit = this.userSettings.unit || 'nm';
+			this.userSettings.unit = this.userSettings.unit || 'nautical';
 		},
 
 		/** Populates this.allBoats, which is needed to get the display names  */
@@ -708,7 +708,7 @@ PiLot.View.Stats = (function () {
 		applyUserSettings: function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.ddlSegmentTypes.value = this.userSettings.segmentType;
-			this.timeframeSelector.setValues(this.userSettings.timeframe);
+			this.userSettings.timeframe = this.timeframeSelector.setValues(this.userSettings.timeframe);
 			this.boatSelector.setSelectedBoats(this.userSettings.boats);
 			this.unitSelector.setUnit(this.userSettings.unit);
 		},
@@ -942,7 +942,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		setDefaultValues: function () {
-			this.userSettings.timeframe = this.userSettings.timeframe || {mode: 0, start: null, end: null };
+			this.userSettings.timeframe = this.userSettings.timeframe || {mode: 1, start: null, end: null };
 			this.userSettings.timeframe.start = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.start);
 			this.userSettings.timeframe.end = RC.Date.DateOnly.fromObject(this.userSettings.timeframe.end);
 			this.userSettings.boats = this.userSettings.boats || [];
@@ -955,7 +955,7 @@ PiLot.View.Stats = (function () {
 		applyUserSettings: function () {
 			this.pnlSettings.hidden = !this.userSettings.showSettings;
 			this.boatSelector.setSelectedBoats(this.userSettings.boats);
-			this.timeframeSelector.setValues(this.userSettings.timeframe);
+			this.userSettings.timeframe = this.timeframeSelector.setValues(this.userSettings.timeframe);
 			this.ddlRegion.value = this.userSettings.region;
 			this.unitSelector.setUnit(this.userSettings.unit);
 		},
@@ -1241,14 +1241,14 @@ PiLot.View.Stats = (function () {
 		rblTimeframe_change: function (pSender) {
 			this.mode = Number(pSender.value);
 			this.showMode();
-			const data = this.readInput();
+			const data = this.calculateDates();
 			if(data.mode !== 3 || data.start || data.end){
 				this.observable.fire('change', data);
 			}
 		},
 
 		calDate_change: function (){
-			this.observable.fire('change', this.readInput());
+			this.observable.fire('change', this.calculateDates());
 		},
 
 		draw: function(){
@@ -1272,7 +1272,9 @@ PiLot.View.Stats = (function () {
 		setValues: function(pValues){
 			this.mode = (pValues.mode || 0);
 			this.showMode();
+			const result = this.calculateDates();
 			this.showDates(pValues);
+			return result;
 		},
 
 		/** applies the current mode by selecting the right radiobutton and showing/hiding the dates panel */
@@ -1292,7 +1294,7 @@ PiLot.View.Stats = (function () {
 		},
 
 		/** @returns {Object} Object with {mode: Number, start:RC.Date.DateOnly?, end:RC.Date.DateOnly?} */
-		readInput: function(){
+		calculateDates: function(){
 			const boatTime = PiLot.Utils.Common.BoatTimeHelper.getCurrentBoatTime();
 			const now = boatTime.now();
 			switch (this.mode) {
