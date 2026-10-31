@@ -12,7 +12,7 @@ Param(
 	[string] $sqlPath
 )
 clear
-$frameworks = @('net8.0', 'net9.0')
+$frameworks = @('net8.0', 'net9.0', 'net10.0')
 $releaseFiles = @()
 for ( $i = 0; $i -lt $frameworks.Count; $i++) {
     $version = $frameworks[$i]
