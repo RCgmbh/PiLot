@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-using PiLot.Utils.Logger;
-
 namespace PiLot.Utils.OS {
 
 	/// <summary>
@@ -36,8 +34,6 @@ namespace PiLot.Utils.OS {
 				String[] fields;
 				foreach (String aLine in this.GetLines(cmdResult)) {
 					fields = this.GetFields(aLine);
-					Logger.Logger.Log($"{fields[0]} equals {hotspotInterface}: {fields[0].Equals(hotspotInterface)}", LogLevels.DEBUG);
-					Logger.Logger.Log($"{fields[1]} equals {DEVICETYPEWIFI}: {fields[1].Equals(DEVICETYPEWIFI)}", LogLevels.DEBUG);
 					if((fields.Length > 1) && !fields[0].Equals(hotspotInterface) && fields[1].Equals(DEVICETYPEWIFI)){
 						result.Add(fields[0]);
 					}
@@ -141,7 +137,6 @@ namespace PiLot.Utils.OS {
 			List<String[]> knownConnections = this.ReadConnections();
 			String[] hotspotConnection = knownConnections.FirstOrDefault(c => c[0].Equals(HOTSPOTCONNECTION));
 			String result = hotspotConnection != null ? hotspotConnection[3] : null;
-			Logger.Logger.Log($"hotspotConnection: {result}", LogLevels.DEBUG);
 			return result;
 		}
 
