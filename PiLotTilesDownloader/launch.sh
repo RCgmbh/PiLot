@@ -1,2 +1,2 @@
 ﻿#!/bin/sh
-./PiLot.TilesDownloader /opt/pilotapi/config/tileSources.json
+dotnet PiLot.TilesDownloader.dll /opt/pilotapi/config/tileSources.json
