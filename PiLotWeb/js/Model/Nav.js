@@ -2308,7 +2308,7 @@ PiLot.Model.Nav = (function () {
 				await this.reloadTrackAsync();
 			} else{
 				await this.ensureTrackAsync(pArgs.trackPoints)
-				this.appendTrackPoints(pArgs.traPoints);
+				this.appendTrackPoints(pArgs.trackPoints);
 			}			
 		},
 
