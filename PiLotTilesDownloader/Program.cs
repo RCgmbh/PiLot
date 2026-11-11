@@ -47,8 +47,8 @@ namespace PiLot.TilesDownloader {
 		/// </summary>
 		/// <param name="args">The path to the tileSources config must be passed</param>
 		static async Task Main(string[] args) {
-			TestPolygon();
-			return;
+			//TestPolygon();
+			//return;
 			Console.Clear();
 			if (
 				Program.ReadParameters(args) 
