@@ -39,7 +39,13 @@ PiLot.View.Media = (function () {
 			loader.getContentArea().appendChild(pageContent);
 			this.iframe = pageContent.querySelector('iframe');
 			this.iframe.src = PiLot.Config.Media.libraryUrl;
-			this.iframe.addEventListener('load', this.setBlankTargets.bind(this));
+			this.iframe.addEventListener('load', this.customizeIFrame.bind(this));
+		},
+
+		customizeIFrame: function(){
+			this.iframe.contentDocument.body.style.lineHeight = 1.5;
+			this.iframe.contentDocument.body.style.fontSize = "1.2em";
+			this.setBlankTargets();
 		},
 
 		/** sets the target of each .epub, .pdf etc. link to _blank */

@@ -47,6 +47,8 @@ namespace PiLot.TilesDownloader {
 		/// </summary>
 		/// <param name="args">The path to the tileSources config must be passed</param>
 		static async Task Main(string[] args) {
+			TestPolygon();
+			return;
 			Console.Clear();
 			if (
 				Program.ReadParameters(args) 
@@ -63,6 +65,29 @@ namespace PiLot.TilesDownloader {
 			Console.Write("Hit any key to quit.\n");
 			Console.ReadKey();
 			Program.CleanupConsole();
+		}
+
+		private static void TestPolygon(){
+			//https://github.com/NetTopologySuite/NetTopologySuite/wiki/GettingStarted
+			NetTopologySuite.NtsGeometryServices.Instance = new NetTopologySuite.NtsGeometryServices(
+				NetTopologySuite.Geometries.Implementation.CoordinateArraySequenceFactory.Instance,
+				new NetTopologySuite.Geometries.PrecisionModel(1000d),
+				4326, 
+				NetTopologySuite.Geometries.GeometryOverlay.NG,
+				new NetTopologySuite.Geometries.CoordinateEqualityComparer()
+			);
+			var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+			var ply1 = gf.CreatePolygon(new[] {
+				new NetTopologySuite.Geometries.Coordinate(7.5404, 53.4837),
+				new NetTopologySuite.Geometries.Coordinate(7.1559, 53.3646),
+				new NetTopologySuite.Geometries.Coordinate(7.4550, 53.2476),
+				new NetTopologySuite.Geometries.Coordinate(7.5404, 53.4837)
+			});
+			var pnt1 = gf.CreatePoint(new NetTopologySuite.Geometries.Coordinate(7.2, 53.35));
+			Console.WriteLine($"polygon contains point1:{ply1.Contains(pnt1)}");
+			var pnt2 = gf.CreatePoint(new NetTopologySuite.Geometries.Coordinate(7.6, 53.48));
+			Console.WriteLine($"polygon contains point2:{ply1.Contains(pnt2)}");
+				
 		}
 
 		private static void Console_CancelKeyPress(object sender, ConsoleCancelEventArgs e) {
