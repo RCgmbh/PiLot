@@ -50,10 +50,5 @@ namespace PiLot.Utils { // changed from the original, but left functionality mor
 		/// current exception</param>
 		public AssertionException(string message, Exception inner) : base(message, inner) { }
 
-		/// <summary>
-		/// Serialization Constructor
-		/// </summary>
-		protected AssertionException(SerializationInfo info, StreamingContext context) : base(info, context) { }
-
 	}
 }
