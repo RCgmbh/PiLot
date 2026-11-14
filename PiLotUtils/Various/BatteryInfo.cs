@@ -29,23 +29,14 @@ namespace PiLot.Utils.Various {
 		[JsonPropertyName("batteryCapacity_mAh")]
 		public UInt16 BatteryCapacity { get; set; }
 
-		[JsonPropertyName("dischargeTime_s")]
-		public Int32 DischargeTime { get; set; }
+		[JsonPropertyName("dischargeTime_min")]
+		public UInt16 DischargeTime { get; set; }
 
-		[JsonPropertyName("chargeTime_s")]
-		public Int32 ChargeTime { get; set; }
+		[JsonPropertyName("chargeTime_min")]
+		public UInt16 ChargeTime { get; set; }
 
-		[JsonPropertyName("cell1Voltage_mV")]
-		public UInt16 Cell1Voltage { get; set; }
-
-		[JsonPropertyName("cell2Voltage_mV")]
-		public UInt16 Cell2Voltage { get; set; }
-
-		[JsonPropertyName("cell3Voltage_mV")]
-		public UInt16 Cell3Voltage { get; set; }
-
-		[JsonPropertyName("cell4Voltage_mV")]
-		public UInt16 Cell4Voltage{ get; set; }
+		[JsonPropertyName("cellVoltage_mV")]
+		public UInt16[] CellVoltage { get; set; }
 
 	}
 }

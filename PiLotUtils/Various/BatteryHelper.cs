@@ -3,6 +3,8 @@ using System.Collections;
 using System.Text;
 using System.Device.I2c;
 
+using PiLot.Utils.OS;
+
 namespace PiLot.Utils.Various {
 
 	/// <summary>
@@ -15,10 +17,20 @@ namespace PiLot.Utils.Various {
 		private readonly I2cDevice device;
 
 		public BatteryHelper() {
-			this.device = I2cDevice.Create(new I2cConnectionSettings(BUSID, DEVICEADDRESS));
+			if(new SystemHelper().IsLinux){
+				this.device = I2cDevice.Create(new I2cConnectionSettings(BUSID, DEVICEADDRESS));
+			}
 		}
 
-		public BatteryInfo GetStatus() {
+		public BatteryInfo GetStatus(){
+			BatteryInfo result = null;
+			if(this.device != null){
+				result = this.GetWaveshareEStatus();
+			} 
+			return result;
+		}
+
+		public BatteryInfo GetWaveshareEStatus() {
 			var statusData = ReadBlock(0x02, 1);
 			byte status = statusData[0];
 			var vbusData = ReadBlock(0x10, 6);
@@ -45,12 +57,14 @@ namespace PiLot.Utils.Various {
 				BatteryCurrent = batteryCurrent,
 				BatteryPercent = batteryPercent,
 				BatteryCapacity = batteryCapacity,
-				DischargeTime = dischargeTime * 60,
-				ChargeTime = chargeTime * 60,
-				Cell1Voltage = cell1Voltage,
-				Cell2Voltage = cell2Voltage,
-				Cell3Voltage = cell3Voltage,
-				Cell4Voltage = cell4Voltage
+				DischargeTime = dischargeTime,
+				ChargeTime = chargeTime,
+				CellVoltage = new UInt16[]{
+					cell1Voltage,
+					cell2Voltage,
+					cell3Voltage,
+					cell4Voltage
+				}
 			};
 		}
 
@@ -70,7 +84,7 @@ namespace PiLot.Utils.Various {
 		}
 
 		public void Dispose() {
-			device?.Dispose();
+			this.device?.Dispose();
 		}
 	}
 }
