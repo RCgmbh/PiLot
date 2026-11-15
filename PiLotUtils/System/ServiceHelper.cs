@@ -14,7 +14,7 @@ namespace PiLot.Utils.OS {
 	/// </summary>
 	public class ServiceHelper {
 
-		private const String SERVICESTATECOMMAND = "systemctl status {0}";				// command template to get the service state
+		private const String SERVICESTATECOMMAND = "status {0}";				// command template to get the service state
 		private const String SERVICESTARTCOMMAND = "systemctl start {0}";				// command template to start a service
 		private const String SERVICESTOPCOMMAND = "systemctl stop {0}";					// command template to stop a service
 		private const String SERVICERESTARTCOMMAND = "systemctl restart {0}";			// command template to restart a service
@@ -37,7 +37,7 @@ namespace PiLot.Utils.OS {
 			String result;
 			if (this.GetServices().Contains(pServiceName)) {
 				if (this.systemHelper.IsLinux) {
-					String status = this.systemHelper.CallCommand("sudo", String.Format(SERVICESTATECOMMAND, pServiceName));
+					String status = this.systemHelper.CallCommand("systemctl", String.Format(SERVICESTATECOMMAND, pServiceName));
 					List<String> lines = status.Split('\n').ToList();
 					lines = lines.Select(l => l.Trim()).ToList();
 					result = lines.FirstOrDefault(l => l.StartsWith("Active:"));
