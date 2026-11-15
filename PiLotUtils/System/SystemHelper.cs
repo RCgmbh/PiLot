@@ -85,6 +85,7 @@ namespace PiLot.Utils.OS {
 					new String[]{"ip","link"},
 					new String[]{"lsb_release","-a"},
 					new String[]{"uname","-a"},
+					new String[]{"free", ""},
 				};
 			} else {
 				commands = new List<String[]>(){
