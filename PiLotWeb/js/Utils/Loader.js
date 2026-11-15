@@ -137,6 +137,11 @@ PiLot.Utils.Loader = (function () {
 			startAction: function () { return new PiLot.View.Tools.PoisManagementPage(); },
 			accessControl: function () { return PiLot.Model.Common.Permissions.canWrite(); }
 		},
+		battery: {
+			key: 'battery',
+			startAction: function () { return new PiLot.View.Admin.BatteryPage(); },
+			accessControl: function () { return PiLot.Model.Common.Permissions.canRead(); }
+		},
 		wifi: {
 			key: 'wifi',
 			startAction: function () { return new PiLot.View.Admin.WiFiPage(); },

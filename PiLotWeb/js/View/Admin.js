@@ -7,6 +7,30 @@ PiLot.View = PiLot.View || {};
  * */
 PiLot.View.Admin = (function () {
 
+	/** Page with battery / power information */
+	var BatteryPage = function(){
+		this.updateInterval = null;
+		this.initialize();
+	};
+
+	BatteryPage.prototype = {
+
+		initialize: function(){
+			this.draw();
+		},
+
+		unload: function(){
+			this.updateInterval && window.clearInterval(this.updateInterval);
+			this.updateInterval = null;
+		},
+
+		draw: function(){
+			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.batteryPage);
+			PiLot.Utils.Loader.getContentArea().appendChild(control);
+		}
+
+	};
+	
 	/**
 	 * Represents a page which shows the current BoatTime and allows to change it
 	 */
@@ -848,6 +872,7 @@ PiLot.View.Admin = (function () {
 	return {
 		WiFiIcon: WiFiIcon,
 		WiFiPage: WiFiPage,
+		BatteryPage: BatteryPage,
 		BoatTimePage: BoatTimePage,
 		SystemStatusPage: SystemStatusPage,
 		ServicesPage: ServicesPage,

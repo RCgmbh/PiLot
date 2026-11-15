@@ -497,14 +497,14 @@ body { min-width: 20em; }
 	display:flex; flex-direction: row; flex-wrap: wrap;
 }
 
-.mainMenu .menuSectionHome a {color:rgb(221, 147, 147); border-color:rgb(221, 147, 147);}
-.mainMenu .menuSectionNav a {color:rgb(221, 168, 147); border-color:rgb(221, 168, 147);}
-.mainMenu .menuSectionLog a {color:rgb(221, 214, 147); border-color:rgb(221, 214, 147);}
-.mainMenu .menuSectionMeteo a {color:rgb(170, 221, 147); border-color:rgb(170, 221, 147);}
-.mainMenu .menuSectionEntertainment a {color:rgb(147, 221, 211); border-color:rgb(147, 221, 211);}
-.mainMenu .menuSectionSettings a {color:rgb(147, 173, 221); border-color:rgb(147, 173, 221);}
-.mainMenu .menuSectionTools a {color:rgb(175, 147, 221); border-color:rgb(175, 147, 221);}
-.mainMenu .menuSectionAdmin a {color:rgb(219, 147, 221); border-color:rgb(219, 147, 221);}
+.mainMenu .menuSection1 a {color:rgb(221, 147, 147); border-color:rgb(221, 147, 147);}
+.mainMenu .menuSection2 a {color:rgb(221, 168, 147); border-color:rgb(221, 168, 147);}
+.mainMenu .menuSection3 a {color:rgb(221, 214, 147); border-color:rgb(221, 214, 147);}
+.mainMenu .menuSection4 a {color:rgb(170, 221, 147); border-color:rgb(170, 221, 147);}
+.mainMenu .menuSection5 a {color:rgb(147, 221, 211); border-color:rgb(147, 221, 211);}
+.mainMenu .menuSection6 a {color:rgb(147, 173, 221); border-color:rgb(147, 173, 221);}
+.mainMenu .menuSection7 a {color:rgb(175, 147, 221); border-color:rgb(175, 147, 221);}
+.mainMenu .menuSection8 a {color:rgb(219, 147, 221); border-color:rgb(219, 147, 221);}
 
 .mainMenu .menuSection a { 
 	background-color:black;

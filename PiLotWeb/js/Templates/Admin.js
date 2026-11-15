@@ -4,6 +4,34 @@ PiLot.Templates = PiLot.Templates || {};
 
 PiLot.Templates.Admin = {
 
+	batteryPage: `
+		<div class="contentPadding flexColumn">
+			<h1 data-text="battery"></h1>
+			<div class="flexRowWrap paddingRight marginBottomBig">
+				Icon, Percentage, charge mode, time left
+			</div>
+			<div class="flexRowWrap ">
+				<div class="flexColumn marginBottom paddingRight" >
+					USB
+					<div><span class="lblUsbVoltage">--</span> mV</div>
+					<div><span class="lblUsbCurrent">--</span> mA</div>
+					<div><span class="lblUsbPower">--</span> mW</div>
+				</div>
+				<div class="flexColumn marginBottom paddingRight">
+					<div>Battery</div>
+					<div>Current</div>
+					<div>Capacity</div>
+				</div>
+				<div class="flexColumn marginBottom paddingRight">
+					<div>Cell1</div>
+					<div>Cell2</div>
+					<div>Cell3</div>
+					<div>Cell4</div>
+				</div>
+			</div>
+		</div>
+	`,
+	
 	timePage: `
 		<div class="contentPadding">
 			<h1 data-text="time"></h1>

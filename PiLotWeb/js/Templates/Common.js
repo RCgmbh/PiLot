@@ -7,45 +7,43 @@ PiLot.Templates.Common = {
 	
 	mainMenu: `
 		<div class="mainMenu">
-			<div class="menuSection menuSectionHome">
+			<div class="menuSection menuSection1">
 				<a data-page="home"><i class="icon-home"></i><span data-text="home"></span></a>
-				<a data-page="display"><i class="icon-display"></i><span data-text="genericDisplay"></span></a>
-				<a data-page="checklists"><i class="icon-checkmark5"></i><span data-text="checklists"></span></a>
-			</div>
-			<div class="menuSection menuSectionNav">
 				<a data-page="map"><i class="icon-map3"></i><span data-text="map"></span></a>
 				<a data-page="nav"><i class="icon-compass3"></i><span data-text="navigation"></span></a>
-				<a data-page="analyze"><i class="icon-ruler2"></i><span data-text="tackAngles"></span></a>
-				<a data-page="routes"><i class="icon-linegraph"></i><span data-text="routes"></span></a>
+				<a data-page="display"><i class="icon-display"></i><span data-text="genericDisplay"></span></a>	
 			</div>
-			<div class="menuSection menuSectionLog">
+			<div class="menuSection menuSection2">
 				<a data-page="diary"><i class="icon-book3"></i><span data-text="diary"></span></a>
 				<a data-page="logbook"><i class="icon-pen2"></i><span data-text="logbook"></span></a>
-				<a data-page="stats"><i class="icon-chart4"></i><span data-text="statistics"></span></a>
+				<a data-page="checklists"><i class="icon-checkmark5"></i><span data-text="checklists"></span></a>
 			</div>
-			<div class="menuSection menuSectionMeteo">
+			<div class="menuSection menuSection3">
+				<a data-page="stats"><i class="icon-chart4"></i><span data-text="statistics"></span></a>
+				<a data-page="analyze"><i class="icon-ruler2"></i><span data-text="tackAngles"></span></a>
 				<a data-page="measurements"><i class="icon-thermometer"></i><span data-text="measurements"></span></a>
 			</div>
-			<div class="menuSection menuSectionEntertainment">
+			<div class="menuSection menuSection4">
 				<a data-page="photos"><i class="icon-pictures"></i><span data-text="photos"></span></a>
 				<a data-page="games"><i class="icon-gamepad"></i><span data-text="games"></span></a>
 				<a data-page="library"><i class="icon-library"></i><span data-text="library"></span></a>
 			</div>
-			<div class="menuSection menuSectionSettings">
-				<a data-page="boat"><i class="icon-sailing-boat-water1"></i><span data-text="boatConfig"></span></a>
-				<a data-page="boatTime"><i class="icon-time2"></i><span data-text="boatTime"></span></a>
+			<div class="menuSection menuSection5">
 				<a data-page="language"><i class="icon-bubbles4"></i><span data-text="language"></span></a>
 				<a data-page="fullscreen"><i class="icon-resize3"></i><span data-text="fullscreen"></span></a>
 			</div>
-			<div class="menuSection menuSectionTools">
+			<div class="menuSection menuSection6">
+				<a data-page="boat"><i class="icon-sailing-boat-water1"></i><span data-text="boatConfig"></span></a>
+				<a data-page="systemTime"><i class="icon-time2"></i><span data-text="systemTime"></span></a>
+				<a data-page="routes"><i class="icon-linegraph"></i><span data-text="routes"></span></a>
 				<a data-page="data"><i class="icon-database"></i><span data-text="gpsData"></span></a>
 				<a data-page="tiles"><i class="icon-download2"></i><span data-text="localTiles"></span></a>
 				<a data-page="pois"><i class="icon-location"></i><span data-text="pois"></span></a>
 			</div>
-			<div class="menuSection menuSectionAdmin">
+			<div class="menuSection menuSection7">
+				<a data-page="battery"><i class="icon-battery"></i><span data-text="battery"></span></a>
 				<a data-page="wifi"><i class="icon-connection"></i><span data-text="wifi"></span></a>
 				<a data-page="services"><i class="icon-cogs"></i><span data-text="services"></span></a>
-				<a data-page="systemTime"><i class="icon-time2"></i><span data-text="systemTime"></span></a>
 				<a data-page="systemStatus"><i class="icon-terminal"></i><span data-text="systemInfo"></span></a>
 				<a data-page="logs"><i class="icon-stack"></i><span data-text="logfiles"></span></a>
 				<a data-page="shutDown"><i class="icon-switch"></i><span data-text="shutDown"></span></a>
