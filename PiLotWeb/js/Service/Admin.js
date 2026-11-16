@@ -151,11 +151,48 @@ PiLot.Service.Admin = (function () {
 			return result;
 		}
 	};
+
+	var BatteryService = function(){ };
+
+	BatteryService.prototype = {
+
+		/**
+		 * Gets an object with battery status information: 
+		 * status, vbusVoltage_mV, vbusCurrent_mA, vbusPower_mW, BatteryCurrent_mA, batteryPercent,
+		 * batteryCapacity_mAh, dischargeTime_min, chargeTime_min, cellVoltage_mV:Array
+		 * @returns {Object}
+		 */
+		getBatteryStatus: async function(){
+			//const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Battery');
+			const result = {
+				"status": 0,
+				//"status": 162, // charge
+				//"status": 226, // fast charge
+				"vbusVoltage_mV": 4614,
+				"vbusCurrent_mA": 2476,
+				"vbusPower_mW": 11440,
+				"BatteryCurrent_mA": 493,
+				"batteryPercent": 22,
+				"batteryCapacity_mAh": 1015,
+				"dischargeTime_min": 65535,
+				"chargeTime_min": 338,
+				"cellVoltage_mV": [
+				  3489,
+				  3485,
+				  3479,
+				  3481
+				]
+			  };
+			return result;
+		}
+		
+	};
 	
 	return {
 		LogFilesService: LogFilesService,
 		SystemService: SystemService,
-		WiFiService: WiFiService
+		WiFiService: WiFiService,
+		BatteryService: BatteryService
 	};
 
 })();

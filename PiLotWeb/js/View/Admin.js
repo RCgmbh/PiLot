@@ -10,6 +10,22 @@ PiLot.View.Admin = (function () {
 	/** Page with battery / power information */
 	var BatteryPage = function(){
 		this.updateInterval = null;
+		this.icoBattery100 = null;
+		this.icoBattery066 = null;
+		this.icoBattery033 = null;
+		this.icoBattery000 = null;
+		this.lblPercentage = null;
+		this.icoUncharging = null;
+		this.icoFastCharging = null;
+		this.icoCharging = null;
+		this.lblHours = null;
+		this.lblMinutes = null;
+		this.lblUsbVoltage = null;
+		this.lblUsbCurrent = null;
+		this.lblUsbPower = null;
+		this.pnlCellTemplate = null;
+		this.plhCells = null;
+		
 		this.initialize();
 	};
 
@@ -17,6 +33,7 @@ PiLot.View.Admin = (function () {
 
 		initialize: function(){
 			this.draw();
+			this.showStatusAsync();
 		},
 
 		unload: function(){
@@ -27,8 +44,71 @@ PiLot.View.Admin = (function () {
 		draw: function(){
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.batteryPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(control);
-		}
+			this.icoBattery100 = control.querySelector('.icoBattery100');
+			this.icoBattery066 = control.querySelector('.icoBattery066');
+			this.icoBattery033 = control.querySelector('.icoBattery033');
+			this.icoBattery000 = control.querySelector('.icoBattery000');
+			this.lblPercentage = control.querySelector('.lblPercentage');
+			this.icoUncharging = control.querySelector('.icoUncharging');
+			this.icoFastCharging = control.querySelector('.icoFastCharging');
+			this.icoCharging = control.querySelector('.icoCharging');
+			this.lblHours = control.querySelector('.lblHours');
+			this.lblMinutes = control.querySelector('.lblMinutes');
+			this.lblUsbVoltage = control.querySelector('.lblUsbVoltage');
+			this.lblUsbCurrent = control.querySelector('.lblUsbCurrent');
+			this.lblUsbPower = control.querySelector('.lblUsbPower');
+			this.pnlCellTemplate = control.querySelector('.pnlCellTemplate');
+			this.plhCells = control.querySelector('.plhCells');
+		},
 
+		showStatusAsync: async function(){
+			const status = await new PiLot.Service.Admin.BatteryService().getBatteryStatus();
+			if(status){
+				this.showBatteryPercent(status.batteryPercent);
+				this.showChargeState(status);
+				this.showUSBState(status);
+				this.showCellVoltage(status);
+			}			
+		},
+
+		showBatteryPercent: function(pBatteryPercent){
+			this.icoBattery000.hidden = pBatteryPercent >= 10;
+			this.icoBattery033.hidden = pBatteryPercent < 10 || pBatteryPercent >= 50;
+			this.icoBattery066.hidden = pBatteryPercent < 50 || pBatteryPercent >= 90;
+			this.icoBattery100.hidden = pBatteryPercent < 90;
+			this.lblPercentage.innerText = pBatteryPercent;
+		},
+
+		showChargeState: function(pState){
+			const charge = (pState.status & 128) == 128;
+			const fastCharge = (pState.status & 64) == 64;
+			this.icoUncharging.hidden = charge || fastCharge;
+			this.icoCharging.hidden = !charge || fastCharge;
+			this.icoFastCharging.hidden = !fastCharge;
+			const minutes = pState.status == 0 ? pState.dischargeTime_min : pState.chargeTime_min;
+			const displayHours = Math.floor(minutes / 60) || '';
+			const displayMinutes = Math.round(minutes % 60);
+			this.lblHours.innerText = displayHours;
+			this.lblMinutes.innerText = displayMinutes;
+		},
+
+		showUSBState: function(pState){
+			this.lblUsbVoltage.innerText = pState.vbusVoltage_mV;
+			this.lblUsbCurrent.innerText = pState.vbusCurrent_mA;
+			this.lblUsbPower.innerText = pState.vbusPower_mW;
+		},
+
+		showCellVoltage: function(pState){
+			this.plhCells.clear();
+			const cells = pState.cellVoltage_mV;
+			for(let i = 0; i < cells.length; i++){
+				const control = this.pnlCellTemplate.cloneNode(true);
+				control.querySelector('.lblCount').innerText = i + 1;
+				control.querySelector('.lblVoltage').innerText = cells[i];
+				control.hidden = false;
+				this.plhCells.appendChild(control);
+			}
+		}
 	};
 	
 	/**

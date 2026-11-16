@@ -307,6 +307,7 @@ body.night .grey, body.night a.grey, body.night a.grey:hover, body.night a.grey:
 body.night .darkGrey, body.night a.darkGrey, body.night a.darkGrey:hover, body.night a.darkGrey:visited {color: #999;}
 .gold {color: #ffc400;}
 .silver {color: #d3d3d3;}
+.blue {color: #3265AD;}
 
 /* LINKS, BUTTONS */
 a, a:visited, a:active, button.linkButton, button.linkButton:active { color: #3265AD; }
