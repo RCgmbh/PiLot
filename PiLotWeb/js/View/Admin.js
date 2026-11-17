@@ -10,6 +10,8 @@ PiLot.View.Admin = (function () {
 	/** Page with battery / power information */
 	var BatteryPage = function(){
 		this.updateInterval = null;
+		this.busy = false;
+		this.pnlBatteryInfo = null;
 		this.icoBattery100 = null;
 		this.icoBattery066 = null;
 		this.icoBattery033 = null;
@@ -25,7 +27,7 @@ PiLot.View.Admin = (function () {
 		this.lblUsbPower = null;
 		this.pnlCellTemplate = null;
 		this.plhCells = null;
-		
+		this.pnlNoBatteryData = null;
 		this.initialize();
 	};
 
@@ -34,6 +36,7 @@ PiLot.View.Admin = (function () {
 		initialize: function(){
 			this.draw();
 			this.showStatusAsync();
+			this.startInterval();
 		},
 
 		unload: function(){
@@ -44,6 +47,7 @@ PiLot.View.Admin = (function () {
 		draw: function(){
 			const control = PiLot.Utils.Common.createNode(PiLot.Templates.Admin.batteryPage);
 			PiLot.Utils.Loader.getContentArea().appendChild(control);
+			this.pnlBatteryInfo = control.querySelector('.pnlBatteryInfo');
 			this.icoBattery100 = control.querySelector('.icoBattery100');
 			this.icoBattery066 = control.querySelector('.icoBattery066');
 			this.icoBattery033 = control.querySelector('.icoBattery033');
@@ -59,16 +63,29 @@ PiLot.View.Admin = (function () {
 			this.lblUsbPower = control.querySelector('.lblUsbPower');
 			this.pnlCellTemplate = control.querySelector('.pnlCellTemplate');
 			this.plhCells = control.querySelector('.plhCells');
+			this.pnlNoBatteryData = control.querySelector('.pnlNoBatteryData');
 		},
 
 		showStatusAsync: async function(){
-			const status = await new PiLot.Service.Admin.BatteryService().getBatteryStatus();
-			if(status){
-				this.showBatteryPercent(status.batteryPercent);
-				this.showChargeState(status);
-				this.showUSBState(status);
-				this.showCellVoltage(status);
-			}			
+			if(!this.busy){
+				this.busy = true;
+				const status = await new PiLot.Service.Admin.BatteryService().getBatteryStatus();
+				this.pnlBatteryInfo.hidden = !status;
+				this.pnlNoBatteryData.hidden = !!status;
+				if(status){
+					this.pnlBatteryInfo.hidden = false;
+					this.pnlNoBatteryData.hidden = true;
+					this.showBatteryPercent(status.batteryPercent);
+					this.showChargeState(status);
+					this.showUSBState(status);
+					this.showCellVoltage(status);
+				} 
+				this.busy = false;
+			}					
+		},
+
+		startInterval: function(){
+			this.updateInterval = window.setInterval(this.showStatusAsync.bind(this), 1000);
 		},
 
 		showBatteryPercent: function(pBatteryPercent){
@@ -80,12 +97,10 @@ PiLot.View.Admin = (function () {
 		},
 
 		showChargeState: function(pState){
-			const charge = (pState.status & 128) == 128;
-			const fastCharge = (pState.status & 64) == 64;
-			this.icoUncharging.hidden = charge || fastCharge;
-			this.icoCharging.hidden = !charge || fastCharge;
-			this.icoFastCharging.hidden = !fastCharge;
-			const minutes = pState.status == 0 ? pState.dischargeTime_min : pState.chargeTime_min;
+			this.icoUncharging.hidden = pState.charging || pState.fastCharging;
+			this.icoCharging.hidden = !pState.charging || pState.fastCharging;
+			this.icoFastCharging.hidden = !pState.fastCharging;
+			const minutes = pState.charging || pState.fastCharging ? pState.chargeTime_min : pState.dischargeTime_min;
 			const displayHours = Math.floor(minutes / 60) || '';
 			const displayMinutes = Math.round(minutes % 60);
 			this.lblHours.innerText = displayHours;

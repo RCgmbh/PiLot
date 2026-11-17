@@ -163,11 +163,11 @@ PiLot.Service.Admin = (function () {
 		 * @returns {Object}
 		 */
 		getBatteryStatus: async function(){
-			//const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Battery');
-			const result = {
+			const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Battery');
+			/*const result = {
 				"status": 0,
-				//"status": 162, // charge
-				//"status": 226, // fast charge
+				"charging": true,
+				"fastCharging": false,
 				"vbusVoltage_mV": 4614,
 				"vbusCurrent_mA": 2476,
 				"vbusPower_mW": 11440,
@@ -182,7 +182,7 @@ PiLot.Service.Admin = (function () {
 				  3479,
 				  3481
 				]
-			  };
+			  };*/
 			return result;
 		}
 		

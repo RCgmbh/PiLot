@@ -11,6 +11,12 @@ namespace PiLot.Utils.Various {
 		[JsonPropertyName("status")]
 		public Byte Status { get; set; }
 
+		[JsonPropertyName("charging")]
+		public Boolean Charging { get; set; }
+
+		[JsonPropertyName("fastCharging")]
+		public Boolean FastCharging { get; set; }
+
 		[JsonPropertyName("vbusVoltage_mV")]
 		public UInt16 VbusVoltage { get; set; }
 

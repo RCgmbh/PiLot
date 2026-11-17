@@ -7,36 +7,39 @@ PiLot.Templates.Admin = {
 	batteryPage: `
 		<div class="contentPadding flexColumn">
 			<h1 data-text="battery"></h1>
-			<div class="paddingRight marginBottomBig flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
-				<div class="flexColumn center paddingRight marginBottomBig veryBigDisplayText">
-					<span class="icoBattery100 green biggerText" hidden><i class="icon-battery"></i></span>
-					<span class="icoBattery066 green biggerText" hidden><i class="icon-battery2"></i></span>
-					<span class="icoBattery033 orange biggerText" hidden><i class="icon-battery3"></i></span>
-					<span class="icoBattery000 red biggerText" hidden><i class="icon-battery4"></i></span>
-					<span><span class="lblPercentage">--</span> %</span>
-				</div>
-				<div class="flexColumn center paddingRight marginBottomBig veryBigDisplayText">
-					<span class="icoUncharging grey biggerText" hidden><i class="icon-time2"></i></span>
-					<span class="icoFastCharging blue biggerText" data-title="chargingFast" hidden><i class="icon-power"></i><i class="icon-power"></i></span>
-					<span class="icoCharging blue biggerText" data-title="chargingSlow" hidden><i class="icon-power"></i></span>
-					<span><span class="lblHours"></span> h <span class="lblMinutes"></span>'</span>
-				</div>
-			</div>
-			<div class="paddingRight marginBottomBig flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
-				<div class="flexColumn marginBottom paddingRight" >
-					<span class="bold">USB</span>
-					<div><span class="lblUsbVoltage">--</span> mV</div>
-					<div><span class="lblUsbCurrent">--</span> mA</div>
-					<div><span class="lblUsbPower">--</span> mW</div>
-				</div>
-				<div class="marginBottom paddingRight">
-					<div class="pnlCellTemplate" hidden>
-						<span class="lblCount"></span>: <span class="lblVoltage"></span> mV
+			<div class="pnlBatteryInfo" hidden>
+				<div class="paddingRight flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
+					<div class="flexColumn center paddingRight marginBottom veryBigDisplayText">
+						<span class="icoBattery100 green biggerText" hidden><i class="icon-battery"></i></span>
+						<span class="icoBattery066 green biggerText" hidden><i class="icon-battery2"></i></span>
+						<span class="icoBattery033 orange biggerText" hidden><i class="icon-battery3"></i></span>
+						<span class="icoBattery000 red biggerText" hidden><i class="icon-battery4"></i></span>
+						<span><span class="lblPercentage">--</span> %</span>
 					</div>
-					<span class="bold">Cells</span>
-					<div class="plhCells flexColumn"></div>
+					<div class="flexColumn center paddingRight marginBottom veryBigDisplayText">
+						<span class="icoUncharging grey biggerText" hidden><i class="icon-time2"></i></span>
+						<span class="icoFastCharging blue biggerText" hidden><i class="icon-power"></i><i class="icon-power"></i></span>
+						<span class="icoCharging blue biggerText" hidden><i class="icon-power"></i></span>
+						<span><span class="lblHours"></span> h <span class="lblMinutes"></span>'</span>
+					</div>
+				</div>
+				<div class="paddingRight flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
+					<div class="flexColumn marginBottom paddingRight" >
+						<span class="bold">USB</span>
+						<div><span class="lblUsbVoltage">--</span> mV</div>
+						<div><span class="lblUsbCurrent">--</span> mA</div>
+						<div><span class="lblUsbPower">--</span> mW</div>
+					</div>
+					<div class="marginBottom paddingRight">
+						<div class="pnlCellTemplate" hidden>
+							<span class="lblCount"></span>: <span class="lblVoltage"></span> mV
+						</div>
+						<span class="bold">Cells</span>
+						<div class="plhCells flexColumn"></div>
+					</div>
 				</div>
 			</div>
+			<div class="feedbackBad pnlNoBatteryData marginRight" data-text="noBatteryData" hidden></div>
 		</div>
 	`,
 	
