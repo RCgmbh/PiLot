@@ -9,14 +9,14 @@ PiLot.Templates.Admin = {
 			<h1 data-text="battery"></h1>
 			<div class="pnlBatteryInfo" hidden>
 				<div class="paddingRight flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
-					<div class="flexColumn center paddingRight marginBottom veryBigDisplayText">
+					<div class="flexColumn center paddingRight marginBottom veryBigDisplayText" style="width:4em;">
 						<span class="icoBattery100 green biggerText" hidden><i class="icon-battery"></i></span>
 						<span class="icoBattery066 green biggerText" hidden><i class="icon-battery2"></i></span>
 						<span class="icoBattery033 orange biggerText" hidden><i class="icon-battery3"></i></span>
 						<span class="icoBattery000 red biggerText" hidden><i class="icon-battery4"></i></span>
 						<span><span class="lblPercentage">--</span> %</span>
 					</div>
-					<div class="flexColumn center paddingRight marginBottom veryBigDisplayText">
+					<div class="flexColumn center paddingRight marginBottom veryBigDisplayText" style="width:5em;">
 						<span class="icoUncharging grey biggerText" hidden><i class="icon-time2"></i></span>
 						<span class="icoFastCharging blue biggerText" hidden><i class="icon-power"></i><i class="icon-power"></i></span>
 						<span class="icoCharging blue biggerText" hidden><i class="icon-power"></i></span>
@@ -24,13 +24,13 @@ PiLot.Templates.Admin = {
 					</div>
 				</div>
 				<div class="paddingRight flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
-					<div class="flexColumn marginBottom paddingRight" >
+					<div class="flexColumn marginBottom paddingRight" style="width:8em;" >
 						<span class="bold">USB</span>
-						<div><span class="lblUsbVoltage">--</span> mV</div>
-						<div><span class="lblUsbCurrent">--</span> mA</div>
-						<div><span class="lblUsbPower">--</span> mW</div>
+						<div><span class="lblUsbVoltage col2 inlineBlock">--</span> mV</div>
+						<div><span class="lblUsbCurrent col2 inlineBlock">--</span> mA</div>
+						<div><span class="lblUsbPower col2 inlineBlock">--</span> mW</div>
 					</div>
-					<div class="marginBottom paddingRight">
+					<div class="marginBottom paddingRight" style="width:8em;">
 						<div class="pnlCellTemplate" hidden>
 							<span class="lblCount"></span>: <span class="lblVoltage"></span> mV
 						</div>

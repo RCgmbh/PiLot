@@ -164,25 +164,26 @@ PiLot.Service.Admin = (function () {
 		 */
 		getBatteryStatus: async function(){
 			const result = await PiLot.Service.Common.ServiceHelper.getFromServerAsync('/Battery');
-			/*const result = {
-				"status": 0,
+			/*const result ={
+				"status": 229,
 				"charging": true,
-				"fastCharging": false,
-				"vbusVoltage_mV": 4614,
-				"vbusCurrent_mA": 2476,
-				"vbusPower_mW": 11440,
-				"BatteryCurrent_mA": 493,
-				"batteryPercent": 22,
-				"batteryCapacity_mAh": 1015,
-				"dischargeTime_min": 65535,
-				"chargeTime_min": 338,
+				"fastCharging": true,
+				"fullCharged": false,
+				"vbusVoltage_mV": 20156,
+				"vbusCurrent_mA": 6,
+				"vbusPower_mW": 154,
+				"BatteryCurrent_mA": -187,
+				"batteryPercent": 92,
+				"batteryCapacity_mAh": 4415,
+				"dischargeTime_min": 1387,
+				"chargeTime_min": 6553,
 				"cellVoltage_mV": [
-				  3489,
-				  3485,
-				  3479,
-				  3481
+					4053,
+					4057,
+					4057,
+					4057
 				]
-			  };*/
+			} ;*/
 			return result;
 		}
 		

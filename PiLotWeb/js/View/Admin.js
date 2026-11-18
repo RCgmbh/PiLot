@@ -100,9 +100,13 @@ PiLot.View.Admin = (function () {
 			this.icoUncharging.hidden = pState.charging || pState.fastCharging;
 			this.icoCharging.hidden = !pState.charging || pState.fastCharging;
 			this.icoFastCharging.hidden = !pState.fastCharging;
-			const minutes = pState.charging || pState.fastCharging ? pState.chargeTime_min : pState.dischargeTime_min;
-			const displayHours = Math.floor(minutes / 60) || '';
-			const displayMinutes = Math.round(minutes % 60);
+			const minutes = (
+				pState.fullCharged ? 0 :
+				pState.charging || pState.fastCharging ? pState.chargeTime_min : pState.dischargeTime_min
+			);
+			const displayHours = Math.floor(minutes / 60);
+			let displayMinutes = '0' + Math.round(minutes % 60);
+			displayMinutes = displayMinutes.substring(displayMinutes.length - 2);
 			this.lblHours.innerText = displayHours;
 			this.lblMinutes.innerText = displayMinutes;
 		},

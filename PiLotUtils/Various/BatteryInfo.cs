@@ -17,6 +17,9 @@ namespace PiLot.Utils.Various {
 		[JsonPropertyName("fastCharging")]
 		public Boolean FastCharging { get; set; }
 
+		[JsonPropertyName("fullCharged")]
+		public Boolean FullCharged { get; set; }
+
 		[JsonPropertyName("vbusVoltage_mV")]
 		public UInt16 VbusVoltage { get; set; }
 

@@ -35,6 +35,7 @@ namespace PiLot.Utils.Various {
 			Byte status = statusData[0];
 			Boolean charging = this.CheckBit(status, 7);
 			Boolean fastCharging = this.CheckBit(status, 6);
+			Boolean fullCharged = this.CheckBit(status, 0) && this.CheckBit(status, 2);
 			var vbusData = this.ReadBlock(0x10, 6);
 			UInt16 vbusVoltage = ToUInt16(vbusData[0], vbusData[1]);
 			UInt16 vbusCurrent = ToUInt16(vbusData[2], vbusData[3]);
@@ -55,6 +56,7 @@ namespace PiLot.Utils.Various {
 				Status = status,
 				Charging = charging,
 				FastCharging = fastCharging,
+				FullCharged = fullCharged,
 				VbusVoltage = vbusVoltage,
 				VbusCurrent = vbusCurrent,
 				VbusPower = vbusPower,
