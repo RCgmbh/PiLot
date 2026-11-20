@@ -22,15 +22,28 @@ namespace PiLot.Utils.Various {
 			}
 		}
 
+		public Boolean HasBattery{
+			get{
+				return this.device != null;
+			}
+		}
+
 		public BatteryInfo GetStatus(){
 			BatteryInfo result = null;
-			if(this.device != null){
+			if(this.HasBattery){
 				result = this.GetWaveshareEStatus();
 			} 
 			return result;
 		}
 
-		public BatteryInfo GetWaveshareEStatus() {
+		public void Shutdown(){
+			if(this.device != null){
+				this.WriteByte(0x01, 0x55);
+				new SystemHelper().Shutdown();
+			}
+		}
+
+		private BatteryInfo GetWaveshareEStatus() {
 			var statusData = this.ReadBlock(0x02, 1);
 			Byte status = statusData[0];
 			Boolean charging = this.CheckBit(status, 7);
@@ -77,8 +90,13 @@ namespace PiLot.Utils.Various {
 		private Byte[] ReadBlock(Byte pRegister, Int32 pLength) {
 			Span<Byte> registerBuffer = stackalloc Byte[] { pRegister };
 			Byte[] readBuffer = new Byte[pLength];
-			device.WriteRead(registerBuffer, readBuffer);
+			this.device.WriteRead(registerBuffer, readBuffer);
 			return readBuffer;
+		}
+
+		private void WriteByte(Byte pRegister, Byte pValue){
+			Span<Byte> registerBuffer = stackalloc Byte[] { pRegister, pValue };
+			this.device.Write(registerBuffer);
 		}
 
 		private static UInt16 ToUInt16(Byte pLow, Byte pHigh) {

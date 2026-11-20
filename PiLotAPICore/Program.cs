@@ -18,6 +18,7 @@ using System.Configuration;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 
+using PiLot.API.Workers;
 using PiLot.Utils.Logger;
 
 namespace PiLot.API {
@@ -30,7 +31,9 @@ namespace PiLot.API {
 		public static void Main(string[] args) {
 			Program.SetupLogger();
 			Program.application = new ConcurrentDictionary<string, object>(4, 13);
+			BatteryWatcher batteryWatcher = new BatteryWatcher();
 			CreateHostBuilder(args).Build().Run();
+			batteryWatcher.Dispose();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
