@@ -11,6 +11,8 @@ PiLot.View.Admin = (function () {
 	var BatteryPage = function(){
 		this.updateInterval = null;
 		this.busy = false;
+		this.minutesHistory = null;
+		this.charging = null;
 		this.pnlBatteryInfo = null;
 		this.icoBattery100 = null;
 		this.icoBattery066 = null;
@@ -20,7 +22,9 @@ PiLot.View.Admin = (function () {
 		this.icoUncharging = null;
 		this.icoFastCharging = null;
 		this.icoCharging = null;
+		this.pnlHours = null;
 		this.lblHours = null;
+		this.pnlMinutes = null;
 		this.lblMinutes = null;
 		this.lblUsbVoltage = null;
 		this.lblUsbCurrent = null;
@@ -34,6 +38,7 @@ PiLot.View.Admin = (function () {
 	BatteryPage.prototype = {
 
 		initialize: function(){
+			this.minutesHistory = [];
 			this.draw();
 			this.showStatusAsync();
 			this.startInterval();
@@ -56,7 +61,9 @@ PiLot.View.Admin = (function () {
 			this.icoUncharging = control.querySelector('.icoUncharging');
 			this.icoFastCharging = control.querySelector('.icoFastCharging');
 			this.icoCharging = control.querySelector('.icoCharging');
+			this.pnlHours = control.querySelector('.pnlHours');
 			this.lblHours = control.querySelector('.lblHours');
+			this.pnlMinutes = control.querySelector('.pnlMinutes');
 			this.lblMinutes = control.querySelector('.lblMinutes');
 			this.lblUsbVoltage = control.querySelector('.lblUsbVoltage');
 			this.lblUsbCurrent = control.querySelector('.lblUsbCurrent');
@@ -100,15 +107,32 @@ PiLot.View.Admin = (function () {
 			this.icoUncharging.hidden = pState.charging || pState.fastCharging;
 			this.icoCharging.hidden = !pState.charging || pState.fastCharging;
 			this.icoFastCharging.hidden = !pState.fastCharging;
+			if(this.charging === null  || this.charging !== pState.charging){
+				this.minutesHistory = [];
+				this.charging = pState.charging;
+			}
 			const minutes = (
 				pState.fullCharged ? 0 :
 				pState.charging || pState.fastCharging ? pState.chargeTime_min : pState.dischargeTime_min
 			);
-			const displayHours = Math.floor(minutes / 60);
-			let displayMinutes = '0' + Math.round(minutes % 60);
-			displayMinutes = displayMinutes.substring(displayMinutes.length - 2);
-			this.lblHours.innerText = displayHours;
-			this.lblMinutes.innerText = displayMinutes;
+			this.minutesHistory.push(minutes);
+			if(this.minutesHistory.length > 10){
+				this.minutesHistory = this.minutesHistory.slice(this.minutesHistory.length - 10);
+			}
+			let minutesSum = 0;
+			for(let aValue of this.minutesHistory){
+				minutesSum += aValue;
+			}
+			const minutesAverage = minutesSum / this.minutesHistory.length;
+			if(minutesAverage > 60){
+				this.pnlHours.hidden = false;
+				this.pnlMinutes.hidden = true;
+				this.lblHours.innerText = Math.floor(minutesAverage / 60);
+			} else {
+				this.pnlHours.hidden = true;
+				this.pnlMinutes.hidden = false;
+				this.lblMinutes.innerText = minutesAverage;
+			}
 		},
 
 		showUSBState: function(pState){

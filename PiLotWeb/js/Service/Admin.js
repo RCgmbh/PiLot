@@ -175,8 +175,8 @@ PiLot.Service.Admin = (function () {
 				"BatteryCurrent_mA": -187,
 				"batteryPercent": 92,
 				"batteryCapacity_mAh": 4415,
-				"dischargeTime_min": 1387,
-				"chargeTime_min": 6553,
+				"dischargeTime_min": Math.random()*360,
+				"chargeTime_min": Math.round(Math.random()*360),
 				"cellVoltage_mV": [
 					4053,
 					4057,

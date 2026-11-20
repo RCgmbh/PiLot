@@ -20,7 +20,10 @@ PiLot.Templates.Admin = {
 						<span class="icoUncharging grey biggerText" hidden><i class="icon-time2"></i></span>
 						<span class="icoFastCharging blue biggerText" hidden><i class="icon-power"></i><i class="icon-power"></i></span>
 						<span class="icoCharging blue biggerText" hidden><i class="icon-power"></i></span>
-						<span><span class="lblHours"></span> h <span class="lblMinutes"></span>'</span>
+						<span>
+							<div class="pnlHours" hidden><span class="lblHours"></span> h </div>
+							<div class="pnlMinutes" hidden><span class="lblMinutes"></span>'</div>
+						</span>
 					</div>
 				</div>
 				<div class="paddingRight flexRowWrap fullWidth" style="max-width:40em; justify-content:space-around;">
