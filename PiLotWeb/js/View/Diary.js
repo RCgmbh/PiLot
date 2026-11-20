@@ -1421,7 +1421,8 @@ PiLot.View.Diary = (function () {
 			} 		
 		},
 
-		btnCloseJobInfo_click: function () {
+		btnCloseJobInfo_click: function (pEvent) {
+			pEvent.preventDefault();
 			this.overlayDialog.hide();
 		},
 
