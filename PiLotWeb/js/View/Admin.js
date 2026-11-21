@@ -127,11 +127,11 @@ PiLot.View.Admin = (function () {
 			if(minutesAverage > 60){
 				this.pnlHours.hidden = false;
 				this.pnlMinutes.hidden = true;
-				this.lblHours.innerText = Math.floor(minutesAverage / 60);
+				this.lblHours.innerText = Math.round(minutesAverage / 60);
 			} else {
 				this.pnlHours.hidden = true;
 				this.pnlMinutes.hidden = false;
-				this.lblMinutes.innerText = minutesAverage;
+				this.lblMinutes.innerText = Math.round(minutesAverage);
 			}
 		},
 

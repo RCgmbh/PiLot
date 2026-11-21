@@ -22,15 +22,9 @@ namespace PiLot.Utils.Various {
 			}
 		}
 
-		public Boolean HasBattery{
-			get{
-				return this.device != null;
-			}
-		}
-
 		public BatteryInfo GetStatus(){
 			BatteryInfo result = null;
-			if(this.HasBattery){
+			if(this.device != null){
 				result = this.GetWaveshareEStatus();
 			} 
 			return result;
